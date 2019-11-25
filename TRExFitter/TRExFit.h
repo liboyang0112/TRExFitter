@@ -3,11 +3,15 @@
 
 /// Framework includes
 #include "TRExFitter/HistoTools.h"
+#include "TRExFitter/Systematic.h"
 
 // RooFit
 #include "RooSimultaneous.h"
 #include "RooStats/ModelConfig.h"
 #include "RooMultiVarGaussian.h"
+
+// RooStats
+#include "RooStats/HistFactory/Measurement.h"
 
 /// c++ includes
 #include <map>
@@ -25,7 +29,6 @@ class Region;
 class Sample;
 class SampleHist;
 class ShapeFactor;
-class Systematic;
 class TRExPlot;
 class TFile;
 
@@ -143,7 +146,14 @@ public:
     void CreateCustomAsimov() const;
 
     // turn to RooStat::HistFactory
-    void ToRooStat(bool createWorkspace=true, bool exportOnly=true);
+    void ToRooStat(bool createWorkspace=true, bool exportOnly=true) const;
+
+    RooStats::HistFactory::Channel OneChannelToRooStats(RooStats::HistFactory::Measurement* meas, const int ichan) const;
+
+    RooStats::HistFactory::Sample OneSampleToRooStats(RooStats::HistFactory::Measurement* meas,
+                                                      const SampleHist* h,
+                                                      const int i_ch,
+                                                      const int i_smp) const;
 
     void SystPruning() const;
     void DrawPruningPlot() const;
@@ -177,6 +187,7 @@ public:
     void PrintSystTables(std::string opt="") const;
 
     void MergeSystematics(); // this will merge into single SystematicHist all the SystematicHist from systematics with same nuisance parameter
+    void CombineSpecialSystematics(); // this will merge into single SystematicHist all the SystematicHist from systematics with same nuisance parameter
 
     // for template fitting
     void AddTemplateWeight(const std::string& name, double);
@@ -329,12 +340,13 @@ public:
      */
     int GetSystIndex(const SampleHist* const sh, const std::string& name) const;
 
+    SystematicHist* CombineSpecialHistos(SystematicHist* orig, const std::vector<SystematicHist*>& vec, Systematic::COMBINATIONTYPE type, const SampleHist* sh) const;
+
     // -------------------------
 
     std::string fName;
     std::string fDir;
     std::string fLabel;
-    std::string fResultsFolder;
     std::string fInputFolder;
     std::string fInputName;
     std::string fFitResultsFile;
@@ -389,9 +401,6 @@ public:
 
     int fInputType; // 0: histo, 1: ntup
 
-    ConfigParser *fConfig;
-
-    bool fSystControlPlots;
     bool fSystDataPlot_upFrame;
     bool fStatOnly;
     bool fGammasInStatOnly;
@@ -493,7 +502,6 @@ public:
     std::string fSignificanceOutputPrefixName;
 
     bool fCleanTables;
-    bool bles;
     bool fSystCategoryTables;
 
     std::vector< std::string > fRegionGroups;

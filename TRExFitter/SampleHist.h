@@ -10,6 +10,7 @@
 
 /// c++ includes
 #include <map>
+#include <memory>
 #include <set>
 #include <string>
 #include <vector>
@@ -25,17 +26,17 @@ class SystematicHist;
 
 class SampleHist {
 public:
-    SampleHist();
-    SampleHist(Sample *sample,TH1 *hist);
-    SampleHist(Sample *sample, const std::string& histoName, const std::string& fileName);
+    explicit SampleHist();
+    explicit SampleHist(Sample *sample,TH1 *hist);
+    explicit SampleHist(Sample *sample, const std::string& histoName, const std::string& fileName);
     ~SampleHist();
 
     TH1* GetHist() const;
     const Sample* GetSample() const {return fSample;}
-    SystematicHist* AddOverallSyst(const std::string& name,double up,double down);
-    SystematicHist* AddStatSyst(const std::string& name,int i_bin);
-    SystematicHist* AddHistoSyst(const std::string& name,TH1* h_up,TH1* h_down);
-    SystematicHist* AddHistoSyst(const std::string& name, const std::string& histoName_up,
+    SystematicHist* AddOverallSyst(const std::string& name,const std::string& storedName,double up,double down);
+    SystematicHist* AddStatSyst(const std::string& name,const std::string& storedName,int i_bin);
+    SystematicHist* AddHistoSyst(const std::string& name,const std::string& storedName,TH1* h_up,TH1* h_down);
+    SystematicHist* AddHistoSyst(const std::string& name,const std::string& storedName, const std::string& histoName_up,
                                  const std::string& fileName_up, const std::string& histoName_down,
                                  const std::string& fileName_down, int pruned=0);
     SystematicHist* GetSystematic(const std::string& systName) const;
@@ -98,11 +99,11 @@ public:
 
     std::string fName;
     Sample *fSample;
-    TH1 *fHist;
-    TH1 *fHist_orig;
-    TH1 *fHist_regBin;
-    TH1 *fHist_preSmooth; // new - to use only for syst plots
-    TH1 *fHist_postFit;
+    std::unique_ptr<TH1> fHist;
+    std::unique_ptr<TH1> fHist_orig;
+    std::unique_ptr<TH1> fHist_regBin;
+    std::unique_ptr<TH1> fHist_preSmooth; // new - to use only for syst plots
+    std::unique_ptr<TH1> fHist_postFit;
     std::string fFileName;
     std::string fHistoName;
     bool fIsData;
@@ -110,11 +111,11 @@ public:
     std::map<std::string,bool> fIsMorph;
 
     int fNSyst;
-    std::vector < SystematicHist* > fSyst;
+    std::vector < std::unique_ptr<SystematicHist> > fSyst;
     int fNNorm;
-    std::vector < NormFactor* > fNormFactors;
+    std::vector < std::unique_ptr<NormFactor> > fNormFactors;
     int fNShape;
-    std::vector < ShapeFactor* > fShapeFactors;
+    std::vector < std::unique_ptr<ShapeFactor> > fShapeFactors;
 
     // other useful info
     std::string fFitName;

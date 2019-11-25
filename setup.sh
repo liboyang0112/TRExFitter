@@ -24,7 +24,11 @@ unset _src
 # added back by Michele
 export ATLAS_LOCAL_ROOT_BASE=/cvmfs/atlas.cern.ch/repo/ATLASLocalRootBase
 source ${ATLAS_LOCAL_ROOT_BASE}/user/atlasLocalSetup.sh --quiet
-lsetup "root 6.14.04-x86_64-slc6-gcc62-opt" --quiet
+if [ "${1}" = "slc6" ]; then
+    lsetup "root 6.18.00-x86_64-slc6-gcc8-opt" --quiet
+else
+    lsetup "root 6.18.04-x86_64-centos7-gcc8-opt" --quiet
+fi
 
 if [ "${ROOTSYS}" = "" ]; then
    echo -e "\033[41;1;37m Error initializing ROOT. ROOT is not set up. Please check. \033[0m"
@@ -70,9 +74,9 @@ echo "Setting up cmake with: lsetup cmake"
 lsetup cmake
 
 export PATH=${PATH}${PATH:+:}${TREXFITTER_HOME}/build/bin
-alias trex-make='cd build/; cmake --build ./; cd ../'
+alias trex-make='cd build/; make -j4; cd ../'
 alias trex-clean='rm -rf build/'
-alias trex-build='mkdir build && cd build; cmake ../; cmake --build ./; cd ../'
+alias trex-build='mkdir build && cd build; cmake ../; make -j4; cd ../'
 
 version=`cat ${TREXFITTER_HOME}/version.txt`
 echo -e "\n\e[1m${version} ready (if everything went smoothly)\e[0m"

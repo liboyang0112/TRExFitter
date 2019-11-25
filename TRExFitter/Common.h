@@ -167,11 +167,18 @@ bool OptionRunsFit(const std::string& opt);
  */
 std::unique_ptr<TH1> GetHistCopyNoError(const TH1* const hist);
 
+void ScaleMCstatInHist(TH1* hist, const double scale);
+
 /// BW added functions to help pad bin numbers in gamma NP plot
 
 std::vector<std::string> mysplit(const std::string & s, char delimiter);
 std::string addpad( const std::string & input, const char filler, const unsigned width );
 std::string pad_trail( const std::string & input );
 
+// Helper functions to drop norm or shape part from systematic variations 
+void DropNorm(TH1* hUp,TH1* hDown,TH1* hNom);
+void DropShape(TH1* hUp,TH1* hDown,TH1* hNom);
+
+void SetHistoBinsFromOtherHist(TH1* toSet, const TH1* other);
 
 #endif

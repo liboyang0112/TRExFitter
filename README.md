@@ -67,6 +67,12 @@ To setup just use the script (from any location):
   source setup.sh
 ```
 (should work on any machine with access to cvmfs - provided that nothing else is set-up previously)
+Note that this will setup centOS7 version of ROOT and you need centOS7 compatible OS!
+If you want to setup the slc6 version of ROOT do:
+```
+  source setup.sh slc6
+```
+
 
 To compile:
 
@@ -534,6 +540,8 @@ For each object type (also called "block"), here is the list of available proper
 | IsFreeParameter              | if set to TRUE, the constraint will be a flat one instead of Gaussian (use with caution) |
 | Category                     | major category to which the systematic belongs (instrumental, theory, ttbar, ...): used to split pulls plot for same category |
 | SubCategory                  | minor category for the systematic, used to evaluate impact on POI per SubCategory in "i" step, defaults to Category setting if it is used, otherwise defaults to "Uncategorised", do not use "Gammas", "FullSyst", or "combine" as SubCategory names (reserved for special functionality) |
+| CombineName                  | A unique string for each systematic that you want to combine into a single systematic (e.g.) envelope. This needs to be set for every systematic that needs to be combined. The code will then combine all systematic and modify the _first one_ and then set all other systematics manually to zero. This is executed during the `b` step. |
+| CombineType                  | Can be `ENVELOPE` or `STANDARDDEVIATION`. Tells the code how to combine the systematics with the same `CombineName`. `STANDARDDEVIATION` does OneSided symmetrisation while for `ENVELOPE` it is recommended to use the symmetrisation for the individual components. |
 | HistoPathUp                  | only for option HIST, for HISTO or SHAPE systematic: histogram file path for systematic up variation |
 | HistoPathDown                | only for option HIST, for HISTO or SHAPE systematic: histogram file path for systematic down variation |
 | HistoPathSufUp               | only for option HIST, for HISTO or SHAPE systematic: suffix of the histogram file names for systematic up variation |
@@ -605,7 +613,7 @@ For each object type (also called "block"), here is the list of available proper
 | NtupleName(s)DownRefSample   | only for option NTUP, for HISTO or SHAPE systematic: reference sample ntuple name(s) for systematic down variation |
 | NtupleNameSufUpRefSample     | only for option NTUP, for HISTO or SHAPE systematic: reference sample suffix of the ntuple names for systematic up variation |
 | NtupleNameSufDownRefSample   | only for option NTUP, for HISTO or SHAPE systematic: reference sample suffix of the ntuple names for systematic down variation |
-| Decorrelate                  | decorrelate systematic, can take values REGION (decorrelate across regions), SAMPLE (decorrelate across samples), SHAPEACC (decorrelate shape and acceptance effects) |
+| Decorrelate                  | decorrelate systematic, can take values REGION (decorrelate across regions), SAMPLE (decorrelate across samples), SHAPEACC (decorrelate shape and acceptance effects); can be used to change behaviour of a systematic without having to re-run the n or b step |
 
 ## Command line options
 Currently the supported options are:
@@ -727,6 +735,16 @@ To make a real combination, one needs to use the usual command options `w`, `f` 
 trex-fitter mwf config/myTopWS_multifit.config
 ```
 This will create a combined ws starting from the individual ws for the different regions in the two config files, and fit it.
+
+You can also run ranking for the combined fit using
+```
+trex-fitter mr config/myTopWS_multifit.config
+```
+
+And, aame as for the single fits, you can run on the individual NPs via
+```
+trex-fitter mr config/myTopWS_multifit.config Ranking="XXX" 
+```
 
 ### Multi-Fit `Job` block options:
 

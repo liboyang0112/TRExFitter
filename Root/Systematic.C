@@ -6,114 +6,63 @@
 
 //_____________________________________________________________________________
 //
-Systematic::Systematic(const std::string& name,int type,double up,double down){
-    fName = name;
-    fTitle = name;
-    fNuisanceParameter = name;
-    fType = type;
-    fCategory = "";
-    fSubCategory = "Uncategorised";
-    fStoredName = name;
-
-    fSmoothType = 0;
-    fSymmetrisationType = HistoTools::NOSYMMETRIZATION;
-    fPreSmoothing = false;
-    fSampleSmoothing = false;
-    //
-    fOverallUp   = up;
-    fOverallDown = down;
-    //
-    fScaleUp   = 1.;
-    fScaleDown = 1.;
-    //
-    fScaleUpRegions  .clear();
-    fScaleDownRegions.clear();
-    //
-    fHasUpVariation = true;
-    fHasDownVariation = true;
-    //
-    fIsFreeParameter = false;
-    fIsShapeOnly = false;
-    fIsNormOnly = false;
-    //
-    fReferenceSample = "";
-    fKeepReferenceOverallVar = true;
-    fReferenceSmoothing = "";
-    fReferencePruning = "";
-    //
-    fSubtractRefSampleVar = false;
-    //
-    fWeightUp = "";
-    fWeightSufUp = "";
-    fNtuplePathsUp.clear();
-    fNtuplePathSufUp = "";
-    fNtupleFilesUp.clear();
-    fNtupleFileSufUp = "";
-    fNtupleNamesUp.clear();
-    fNtupleNameSufUp = "";
-    //
-    fNtuplePathsUpRefSample.clear();
-    fNtuplePathSufUpRefSample = "";
-    fNtupleFilesUpRefSample.clear();
-    fNtupleFileSufUpRefSample = "";
-    fNtupleNamesUpRefSample.clear();
-    fNtupleNameSufUpRefSample = "";
-    //
-    fWeightDown = "";
-    fWeightSufDown = "";
-    fNtuplePathsDown.clear();
-    fNtuplePathSufDown = "";
-    fNtupleFilesDown.clear();
-    fNtupleFileSufDown = "";
-    fNtupleNamesDown.clear();
-    fNtupleNameSufDown = "";
-    //
-    fNtuplePathsDownRefSample.clear();
-    fNtuplePathSufDownRefSample = "";
-    fNtupleFilesDownRefSample.clear();
-    fNtupleFileSufDownRefSample = "";
-    fNtupleNamesDownRefSample.clear();
-    fNtupleNameSufDownRefSample = "";
-    //
-
-    fIgnoreWeight = "";
-    //
-    fHistoPathsUp.clear();
-    fHistoPathSufUp = "";
-    fHistoFilesUp.clear();
-    fHistoFileSufUp = "";
-    fHistoNamesUp.clear();
-    fHistoNameSufUp = "";
-    //
-    fHistoPathsUpRefSample.clear();
-    fHistoPathSufUpRefSample = "";
-    fHistoFilesUpRefSample.clear();
-    fHistoFileSufUpRefSample = "";
-    fHistoNamesUpRefSample.clear();
-    fHistoNameSufUpRefSample = "";
-    //
-    fHistoPathsDown.clear();
-    fHistoPathSufDown = "";
-    fHistoFilesDown.clear();
-    fHistoFileSufDown = "";
-    fHistoNamesDown.clear();
-    fHistoNameSufDown = "";
-    //
-    fHistoPathsDownRefSample.clear();
-    fHistoPathSufDownRefSample = "";
-    fHistoFilesDownRefSample.clear();
-    fHistoFileSufDownRefSample = "";
-    fHistoNamesDownRefSample.clear();
-    fHistoNameSufDownRefSample = "";
-    //
-    fRegions.clear();
-    fExclude.clear();
-    fExcludeRegionSample.clear();
-    fDropShapeIn.clear();
-    fDropNormIn.clear();
-    //
-    fSampleUp = "";
-    fSampleDown = "";
+Systematic::Systematic(const std::string& name,int type,double up,double down) :
+    fName(name),
+    fNuisanceParameter(name),
+    fTitle(name),
+    fCategory(""),
+    fSubCategory("Uncategorised"),
+    fStoredName(name),
+    fType(type),
+    fSmoothType(0),
+    fPreSmoothing(false),
+    fSampleSmoothing(false),
+    fSymmetrisationType(HistoTools::NOSYMMETRIZATION),
+    fReferenceSample(""),
+    fKeepReferenceOverallVar(true),
+    fReferenceSmoothing(""),
+    fReferencePruning(""),
+    fSubtractRefSampleVar(false),
+    fOverallUp(up),
+    fOverallDown(down),
+    fScaleUp(1.),
+    fScaleDown(1.),
+    fHasUpVariation(true),
+    fHasDownVariation(true),
+    fIsFreeParameter(false),
+    fIsShapeOnly(false),
+    fIsNormOnly(false),
+    fWeightUp(""),
+    fWeightSufUp(""),
+    fNtuplePathSufUp(""),
+    fNtupleFileSufUp(""),
+    fNtupleNameSufUp(""),
+    fNtuplePathSufUpRefSample(""),
+    fNtupleFileSufUpRefSample(""),
+    fNtupleNameSufUpRefSample(""),
+    fWeightDown(""),
+    fWeightSufDown(""),
+    fNtuplePathSufDown(""),
+    fNtupleFileSufDown(""),
+    fNtupleNameSufDown(""),
+    fNtuplePathSufDownRefSample(""),
+    fNtupleFileSufDownRefSample(""),
+    fNtupleNameSufDownRefSample(""),
+    fIgnoreWeight(""),
+    fHistoPathSufUp(""),
+    fHistoFileSufUp(""),
+    fHistoNameSufUp(""),
+    fHistoPathSufUpRefSample(""),
+    fHistoFileSufUpRefSample(""),
+    fHistoNameSufUpRefSample(""),
+    fHistoPathSufDown(""),
+    fHistoFileSufDown(""),
+    fHistoNameSufDown(""),
+    fHistoPathSufDownRefSample(""),
+    fHistoFileSufDownRefSample(""),
+    fHistoNameSufDownRefSample(""),
+    fSampleUp(""),
+    fSampleDown("") {
 }
 
 
@@ -133,6 +82,9 @@ Systematic::Systematic(const Systematic &sys) {
     //
     fOverallUp = sys.fOverallUp;
     fOverallDown = sys.fOverallDown;
+    //
+    fScaleUp = sys.fScaleUp;
+    fScaleDown = sys.fScaleDown;
     //
     fHasUpVariation = sys.fHasUpVariation;
     fHasDownVariation = sys.fHasDownVariation;
@@ -213,39 +165,14 @@ Systematic::Systematic(const Systematic &sys) {
     //
     fRegions = sys.fRegions;
     fExclude = sys.fExclude;
+    fSamples = sys.fSamples;
     fExcludeRegionSample = sys.fExcludeRegionSample;
     fDropShapeIn = sys.fDropShapeIn;
     fDropNormIn = sys.fDropNormIn;
     //
     fSampleUp = "";
     fSampleDown = "";
-}
 
-//_____________________________________________________________________________
-//
-Systematic::~Systematic(){
-    fNtuplePathsUp.clear();
-    fNtupleFilesUp.clear();
-    fNtupleNamesUp.clear();
-    fNtuplePathsDown.clear();
-    fNtupleFilesDown.clear();
-    fNtupleNamesDown.clear();
-    fNtuplePathsUpRefSample.clear();
-    fNtupleFilesUpRefSample.clear();
-    fNtupleNamesUpRefSample.clear();
-    fNtuplePathsDownRefSample.clear();
-    fNtupleFilesDownRefSample.clear();
-    fNtupleNamesDownRefSample.clear();
-    fHistoPathsUp.clear();
-    fHistoFilesUp.clear();
-    fHistoNamesUp.clear();
-    fHistoPathsUpRefSample.clear();
-    fHistoFilesUpRefSample.clear();
-    fHistoNamesUpRefSample.clear();
-    fHistoPathsDown.clear();
-    fHistoFilesDown.clear();
-    fHistoNamesDown.clear();
-    fHistoPathsDownRefSample.clear();
-    fHistoFilesDownRefSample.clear();
-    fHistoNamesDownRefSample.clear();
+    fCombineName = "";
+    fCombineType = COMBINATIONTYPE::ENVELOPE;
 }

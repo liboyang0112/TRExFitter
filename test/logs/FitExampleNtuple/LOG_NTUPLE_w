@@ -1,0 +1,41 @@
+
+[1mRooFit v3.60 -- Developed by Wouter Verkerke and David Kirkby[0m 
+                Copyright (C) 2000-2013 NIKHEF, University of California & Stanford University
+                All rights reserved, please read http://roofit.sourceforge.net/license.txt
+
+                    No rights reserved, feel free to use and modify it ;)
+
+Applying ATLAS style settings...
+
+[1;32m=== INFO::ConfigReader::ConfigReader: Started reading the config[0m
+[1;32m=== INFO::ConfigParser::ReadFile: Reading config file: test/configs/FitExampleNtuple.config[0m
+[1;32m=== INFO::trex-fitter::FitExample: Successfully read config file.[0m
+[1;32m=== INFO::TRExFit::PrintConfigSummary: -------------------------------------------[0m
+[1;32m=== INFO::TRExFit::PrintConfigSummary: Job name: FitExampleNtuple[0m
+[1;32m=== INFO::TRExFit::PrintConfigSummary: Reading the following regions:[0m
+[1;32m=== INFO::Region::Print:     Region: ljets_5j3b_HT[0m
+[1;32m=== INFO::Region::Print:     Region: ljets_6j4b_BDT[0m
+[1;32m=== INFO::TRExFit::PrintConfigSummary: Reading the following samples:[0m
+[1;32m=== INFO::Sample::Print::      data[0m
+[1;32m=== INFO::Sample::Print::      ttlight[0m
+[1;32m=== INFO::Sample::Print::      ttc[0m
+[1;32m=== INFO::Sample::Print::      ttb[0m
+[1;32m=== INFO::Sample::Print::      ttH[0m
+[1;32m=== INFO::TRExFit::PrintConfigSummary: Reading the following systematics:[0m
+[1;32m=== INFO::TRExFit::PrintConfigSummary:  ATLAS_lumi[0m
+[1;32m=== INFO::TRExFit::PrintConfigSummary:  ATLAS_PRW_DATASF[0m
+[1;32m=== INFO::TRExFit::PrintConfigSummary:  ATLAS_JVT[0m
+[1;32m=== INFO::TRExFit::PrintConfigSummary:  ttlight_Gen[0m
+[1;32m=== INFO::TRExFit::PrintConfigSummary:  ttc_Gen[0m
+[1;32m=== INFO::TRExFit::PrintConfigSummary:  ttb_Gen[0m
+[1;32m=== INFO::TRExFit::PrintConfigSummary: -------------------------------------------[0m
+[1;32m=== INFO::TRExFit::ReadHistos: -----------------------------[0m
+[1;32m=== INFO::TRExFit::ReadHistos: Reading histograms from file FitExampleNtuple/Histograms/FitExampleNtuple_ljets_5j3b_HT_histos.root ...[0m
+[1;32m=== INFO::TRExFit::ReadHistos: -----------------------------[0m
+[1;32m=== INFO::TRExFit::ReadHistos: Reading histograms from file FitExampleNtuple/Histograms/FitExampleNtuple_ljets_6j4b_BDT_histos.root ...[0m
+Applying systematics pruning...
+[1;32m=== INFO::TRExFit::SystPruning: ------------------------------------------------------[0m
+[1;32m=== INFO::TRExFit::SystPruning: Apply Systematics Pruning ...[0m
+Creating workspace...
+[1;32m=== INFO::TRExFit::ToRooStat: -------------------------------------------[0m
+[1;32m=== INFO::TRExFit::ToRooStat: Exporting to RooStats...[0m

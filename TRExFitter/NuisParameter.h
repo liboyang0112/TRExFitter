@@ -6,8 +6,9 @@
 
 class NuisParameter {
 public:
-    NuisParameter(const std::string& name);
-    ~NuisParameter();
+    explicit NuisParameter(const std::string& name);
+
+    ~NuisParameter() = default;
 
     std::string fName;
     std::string fTitle;

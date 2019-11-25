@@ -3,6 +3,7 @@
 
 /// c++ includes
 #include <map>
+#include <memory>
 #include <string>
 #include <vector>
 
@@ -21,7 +22,7 @@ public:
         GHOST // 3
     };
 
-    Sample(const std::string& name,int type=0);
+    explicit Sample(const std::string& name,int type=0);
     ~Sample();
 
     // -------
@@ -107,11 +108,11 @@ public:
 
     // systematics & norm.factors
     int fNSyst;
-    std::vector < Systematic* > fSystematics;
+    std::vector < std::unique_ptr<Systematic> > fSystematics;
     int fNNorm;
-    std::vector < NormFactor* > fNormFactors;
+    std::vector < std::unique_ptr<NormFactor> > fNormFactors;
     int fNShape;
-    std::vector < ShapeFactor* > fShapeFactors;
+    std::vector < std::unique_ptr<ShapeFactor> > fShapeFactors;
 
     std::pair<std::string,std::string> fAsimovReplacementFor;
 

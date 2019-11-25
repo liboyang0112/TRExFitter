@@ -22,7 +22,7 @@ std::string ReadValueFromConfig(const std::string& fileName,const std::string& o
 class Config {
 public:
     Config();
-    ~Config();
+    ~Config() = default;
 
     std::string fName;
     std::string fValue;
@@ -31,7 +31,7 @@ public:
 class ConfigSet {
 public:
     ConfigSet();
-    ~ConfigSet();
+    ~ConfigSet() = default;
 
     void SetConfig(const std::string& name,const std::string& value);
     std::string Get(const std::string& name) const;
@@ -55,7 +55,7 @@ public:
 class ConfigParser {
 public:
     ConfigParser();
-    ~ConfigParser();
+    ~ConfigParser() = default;
 
     std::vector< std::unique_ptr<ConfigSet> > fConfSets;
     void ReadFile(const std::string& fileName);

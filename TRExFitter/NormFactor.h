@@ -7,9 +7,11 @@
 
 class NormFactor{
 public:
-    NormFactor();
-    NormFactor(const std::string& name, double nominal=1., double min=0., double max=10., bool isConst=false, std::string subCategory="NormFactors");
-    ~NormFactor();
+    explicit NormFactor();
+    
+    explicit NormFactor(const std::string& name, double nominal=1., double min=0., double max=10., bool isConst=false, std::string subCategory="NormFactors");
+    
+    ~NormFactor() = default;
 
     void Print() const;
 

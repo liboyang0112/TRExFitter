@@ -26,18 +26,20 @@
 
 //__________________________________________________________________________________
 //
-ConfigReader::ConfigReader(TRExFit *fitter){
-    fFitter = fitter;
-    fNonGhostIsSet = false;
-    fAllowWrongRegionSample = false;
-    fParser = new ConfigParser();
+ConfigReader::ConfigReader(TRExFit *fitter) : 
+    fFitter(fitter),
+    fParser(new ConfigParser()),
+    fAllowWrongRegionSample(false),
+    fNonGhostIsSet(false),
+    fOnlyLHscan(""),
+    fHasAtLeastOneValidRegion(false),
+    fHasAtLeastOneValidSample(false) {
     WriteInfoStatus("ConfigReader::ConfigReader", "Started reading the config");
 }
 
 //__________________________________________________________________________________
 //
 ConfigReader::~ConfigReader(){
-    delete fParser;
 }
 
 //__________________________________________________________________________________
@@ -2618,80 +2620,6 @@ int ConfigReader::ReadSampleOptions(const std::string& opt){
           }
         }
 
-        // Set NormFactor
-        param = confSet->Get("NormFactor");
-        if(param!=""){
-            // check if the normfactor is called just with the name or with full definition
-            const unsigned int sz = Vectorize(param,',').size();
-            if (sz != 1 && sz != 4 && sz != 5){
-                WriteErrorStatus("ConfigReader::ReadSampleOptions", "No valid input for 'NormFactor' provided. Please check this!");
-                return 1;
-            }
-            if( sz > 1 ){
-                bool isConst = false;
-                if( Vectorize(param,',').size()>4){
-                    std::string tmp = Vectorize(param,',')[4];
-                    std::transform(tmp.begin(), tmp.end(), tmp.begin(), ::toupper);
-                    if (tmp == "TRUE"){
-                        isConst = true;
-                    }
-                }
-                if (sz > 3)
-                    nfactor = sample->AddNormFactor(
-                    Vectorize(param,',')[0],
-                    atof(Vectorize(param,',')[1].c_str()),
-                    atof(Vectorize(param,',')[2].c_str()),
-                    atof(Vectorize(param,',')[3].c_str()),
-                    isConst
-                );
-            }
-            else{
-                nfactor = sample->AddNormFactor( Vectorize(param,',')[0] );
-            }
-            if( FindInStringVector(fFitter->fNormFactorNames,nfactor->fName)<0 ){
-                fFitter->fNormFactors.push_back( nfactor );
-                fFitter->fNormFactorNames.push_back( nfactor->fName );
-                fFitter->fNNorm++;
-            }
-        }
-
-        // Set ShapeFactor
-        param = confSet->Get("ShapeFactor");
-        if(param!=""){
-            // check if the normfactor is called just with the name or with full definition
-            const unsigned int sz = Vectorize(param,',').size();
-            if (sz != 1 && sz != 4 && sz != 5){
-                WriteErrorStatus("ConfigReader::ReadSampleOptions", "No valid input for 'ShapeFactor' provided. Please check this!");
-                return 1;
-            }
-            if( sz > 1 ){
-                bool isConst = false;
-                if( Vectorize(param,',').size()>4){
-                    std::string tmp = Vectorize(param,',')[4];
-                    std::transform(tmp.begin(), tmp.end(), tmp.begin(), ::toupper);
-                    if (tmp == "TRUE"){
-                        isConst = true;
-                    }
-                }
-                if (sz > 3)
-                    sfactor = sample->AddShapeFactor(
-                    Vectorize(param,',')[0],
-                    atof(Vectorize(param,',')[1].c_str()),
-                    atof(Vectorize(param,',')[2].c_str()),
-                    atof(Vectorize(param,',')[3].c_str()),
-                    isConst
-                );
-            }
-            else{
-                sfactor = sample->AddShapeFactor( Vectorize(param,',')[0] );
-            }
-            if( FindInStringVector(fFitter->fShapeFactorNames,sfactor->fName)<0 ){
-                fFitter->fShapeFactors.push_back( sfactor );
-                fFitter->fShapeFactorNames.push_back( sfactor->fName );
-                fFitter->fNShape++;
-            }
-        }
-
         // Set NormalizedByTheory
         param = confSet->Get("NormalizedByTheory");
         if(param != ""){
@@ -2743,6 +2671,82 @@ int ConfigReader::ReadSampleOptions(const std::string& opt){
             if( (regions_str=="" || regions_str=="all" || FindInStringVector(regions,regName)>=0)
                 && FindInStringVector(exclude,regName)<0 ){
                 sample->fRegions.push_back( fFitter->fRegions[i_reg]->fName );
+            }
+        }
+
+        // Set NormFactor
+        param = confSet->Get("NormFactor");
+        if(param!=""){
+            // check if the normfactor is called just with the name or with full definition
+            const unsigned int sz = Vectorize(param,',').size();
+            if (sz != 1 && sz != 4 && sz != 5){
+                WriteErrorStatus("ConfigReader::ReadSampleOptions", "No valid input for 'NormFactor' provided. Please check this!");
+                return 1;
+            }
+            if( sz > 1 ){
+                bool isConst = false;
+                if( Vectorize(param,',').size()>4){
+                    std::string tmp = Vectorize(param,',')[4];
+                    std::transform(tmp.begin(), tmp.end(), tmp.begin(), ::toupper);
+                    if (tmp == "TRUE"){
+                        isConst = true;
+                    }
+                }
+                if (sz > 3)
+                    nfactor = sample->AddNormFactor(
+                    Vectorize(param,',')[0],
+                    atof(Vectorize(param,',')[1].c_str()),
+                    atof(Vectorize(param,',')[2].c_str()),
+                    atof(Vectorize(param,',')[3].c_str()),
+                    isConst
+                );
+            }
+            else{
+                nfactor = sample->AddNormFactor( Vectorize(param,',')[0] );
+            }
+            nfactor->fRegions = sample->fRegions;
+            if( FindInStringVector(fFitter->fNormFactorNames,nfactor->fName)<0 ){
+                fFitter->fNormFactors.push_back( nfactor );
+                fFitter->fNormFactorNames.push_back( nfactor->fName );
+                fFitter->fNNorm++;
+            }
+        }
+
+        // Set ShapeFactor
+        param = confSet->Get("ShapeFactor");
+        if(param!=""){
+            // check if the normfactor is called just with the name or with full definition
+            const unsigned int sz = Vectorize(param,',').size();
+            if (sz != 1 && sz != 4 && sz != 5){
+                WriteErrorStatus("ConfigReader::ReadSampleOptions", "No valid input for 'ShapeFactor' provided. Please check this!");
+                return 1;
+            }
+            if( sz > 1 ){
+                bool isConst = false;
+                if( Vectorize(param,',').size()>4){
+                    std::string tmp = Vectorize(param,',')[4];
+                    std::transform(tmp.begin(), tmp.end(), tmp.begin(), ::toupper);
+                    if (tmp == "TRUE"){
+                        isConst = true;
+                    }
+                }
+                if (sz > 3)
+                    sfactor = sample->AddShapeFactor(
+                    Vectorize(param,',')[0],
+                    atof(Vectorize(param,',')[1].c_str()),
+                    atof(Vectorize(param,',')[2].c_str()),
+                    atof(Vectorize(param,',')[3].c_str()),
+                    isConst
+                );
+            }
+            else{
+                sfactor = sample->AddShapeFactor( Vectorize(param,',')[0] );
+            }
+            sfactor->fRegions = sample->fRegions;
+            if( FindInStringVector(fFitter->fShapeFactorNames,sfactor->fName)<0 ){
+                fFitter->fShapeFactors.push_back( sfactor );
+                fFitter->fShapeFactorNames.push_back( sfactor->fName );
+                fFitter->fNShape++;
             }
         }
 
@@ -3204,7 +3208,11 @@ int ConfigReader::ReadNormFactorOptions(){
                 WriteErrorStatus("ConfigReader::ReadNormFactorOptions", "Region or exclude region size is equal to zero. Please check this");
                 return 1;
         }
-        if(regions[0] != "all") nfactor->fRegions = regions;
+        if(regions[0] == "all") {
+            nfactor->fRegions = GetAvailableRegions();
+        } else {
+            nfactor->fRegions = regions;
+        }
         if(exclude[0] != "")    nfactor->fExclude = exclude;
         // attach the syst to the proper samples
         for(int i_smp=0;i_smp<fFitter->fNSamples;i_smp++){
@@ -3327,7 +3335,11 @@ int ConfigReader::ReadShapeFactorOptions(){
             return 1;
         }
         // save list of
-        if(regions[0]!="all") sfactor->fRegions = regions;
+        if(regions[0] == "all") {
+            sfactor->fRegions = GetAvailableRegions();
+        } else {
+            sfactor->fRegions = regions;
+        }
         if(exclude[0]!="")    sfactor->fExclude = exclude;
         // attach the syst to the proper samples
         for(int i_smp=0;i_smp<fFitter->fNSamples;i_smp++){
@@ -3460,6 +3472,28 @@ int ConfigReader::ReadSystOptions(){
         if(param != ""){
             sys->fCategory = RemoveQuotes(param);
             sys->fSubCategory = RemoveQuotes(param); //SubCategory defaults to the Category setting, if the Category is explicitly set
+        }
+
+        // CombineName
+        param = confSet->Get("CombineName");
+        if(param != ""){
+            sys->fCombineName = RemoveQuotes(param);
+        }
+
+        // CombineType
+        param = confSet->Get("CombineType");
+        if(param != ""){
+            std::transform(param.begin(), param.end(), param.begin(), ::toupper);
+            const std::string tmp = RemoveQuotes(param);
+
+            if (tmp == "STANDARDDEVIATION") {
+                sys->fCombineType = Systematic::COMBINATIONTYPE::STANDARDDEVIATION;
+            } else if (tmp == "ENVELOPE") {
+                sys->fCombineType = Systematic::COMBINATIONTYPE::ENVELOPE;
+            } else {
+                WriteWarningStatus("ConfigReader::ReadSystOptions", "You specified 'CombineType' option but did not provide valid parameter. Using default (ENVELOPE)");
+                sys->fCombineType = Systematic::COMBINATIONTYPE::ENVELOPE;
+            }
         }
 
         // SetSubCategory
@@ -4257,9 +4291,10 @@ int ConfigReader::SetSystRegionDecorelate(ConfigSet *confSet, Systematic *sys, c
         }
         WriteInfoStatus("ConfigReader::SetSystRegionDecorelate", "--> KEEPING IT!!! " + ireg);
 
+        Region* reg = fFitter->GetRegion(ireg);
+        
         if (type == Systematic::STAT) {
-          Region* reg = fFitter->GetRegion(ireg);
-          unsigned int nbins = reg->fHistoNBinsRebin>0 ? reg->fHistoNBinsRebin : reg->fNbins;
+            unsigned int nbins = reg->fHistoNBinsRebin>0 ? reg->fHistoNBinsRebin : reg->fNbins;
             WriteInfoStatus("ConfigReader::SetSystRegionDecorelate", ireg + " " + std::to_string(nbins));
             // decorrelate by bin
             for (unsigned int i_bin = 0; i_bin < nbins; i_bin++) {
@@ -4328,7 +4363,7 @@ int ConfigReader::SetSystRegionDecorelate(ConfigSet *confSet, Systematic *sys, c
             // Set Title
             param = confSet->Get("Title");
             if(param != ""){
-                mySys->fTitle = (sys->fTitle)+"_"+ireg;
+                mySys->fTitle = (sys->fTitle)+" ("+reg->fLabel+")";
                 TRExFitter::SYSTMAP[mySys->fName] = mySys->fTitle;
             }
             fFitter->fNSyst++;
@@ -4384,7 +4419,7 @@ int ConfigReader::SetSystSampleDecorelate(ConfigSet *confSet, Systematic *sys, c
         }
         WriteInfoStatus("ConfigReader::SetSystSampleDecorelate", " --> KEEPING SAMPLE: " + sam->fName);
         //
-        // cloning the sys for each region
+        // cloning the sys for each sample
         Systematic* mySys= new Systematic(*sys);
         mySys->fName=(mySys->fName)+"_"+sam->fName;
         fFitter->fSystematics.push_back( mySys );
@@ -4405,7 +4440,7 @@ int ConfigReader::SetSystSampleDecorelate(ConfigSet *confSet, Systematic *sys, c
         // Set Title
         param = confSet->Get("Title");
         if(param != ""){
-            mySys->fTitle = (sys->fTitle)+"_"+sam->fName;
+            mySys->fTitle = (sys->fTitle)+" "+sam->fTitle;
             TRExFitter::SYSTMAP[mySys->fName] = mySys->fTitle;
         }
         fFitter->fNSyst++;
@@ -4430,6 +4465,7 @@ int ConfigReader::SetSystShapeDecorelate(ConfigSet *confSet, Systematic *sys, co
     mySys1->fName=(mySys1->fName)+"_Acc";
     fFitter->fSystematics.push_back( mySys1 );
     mySys1->fIsNormOnly = true;
+    mySys1->fIsShapeOnly = false;
 
     // Set NuisanceParameter
     param = confSet->Get("NuisanceParameter");
@@ -4447,7 +4483,7 @@ int ConfigReader::SetSystShapeDecorelate(ConfigSet *confSet, Systematic *sys, co
     // Set Title
     param = confSet->Get("Title");
     if(param != ""){
-        mySys1->fTitle = (sys->fTitle)+"_Acc";
+        mySys1->fTitle = (sys->fTitle)+" Acc";
         TRExFitter::SYSTMAP[mySys1->fName] = mySys1->fTitle;
     }
     fFitter->fNSyst++;
@@ -4474,6 +4510,7 @@ int ConfigReader::SetSystShapeDecorelate(ConfigSet *confSet, Systematic *sys, co
         mySys2->fName=(mySys2->fName)+"_Shape";
         mySys2->fIsNormOnly=false;
         mySys2->fIsShapeOnly=true;
+        
         fFitter->fSystematics.push_back( mySys2 );
 
         //Set NuisanceParameter
@@ -4492,11 +4529,10 @@ int ConfigReader::SetSystShapeDecorelate(ConfigSet *confSet, Systematic *sys, co
         // Set Title
         param = confSet->Get("Title");
         if(param != ""){
-            mySys2->fTitle = (sys->fTitle)+"_Shape";
+            mySys2->fTitle = (sys->fTitle)+" Shape";
             TRExFitter::SYSTMAP[mySys2->fName] = mySys2->fTitle;
         }
         fFitter->fNSyst++;
-
 
         for(int i_smp=0;i_smp<fFitter->fNSamples;i_smp++){
             sam = fFitter->fSamples[i_smp];

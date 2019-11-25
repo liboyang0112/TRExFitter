@@ -1,9 +1,6 @@
 #ifndef CORRELATIONMATRIX_H
 #define CORRELATIONMATRIX_H
 
-/// Framework includes
-#include "TRExFitter/Common.h"
-
 /// c++ includes
 #include <string>
 #include <vector>
@@ -12,8 +9,8 @@
 class CorrelationMatrix {
 
 public:
-    CorrelationMatrix();
-    ~CorrelationMatrix();
+    explicit CorrelationMatrix();
+    ~CorrelationMatrix() = default;
 
     //
     // Functions
@@ -37,7 +34,7 @@ public:
     std::map<std::string,int> fNuisParIdx;
     std::map<std::string,bool> fNuisParIsThere;
     std::vector<std::string> fNuisParToHide;
-    double fMatrix[MAXsyst][MAXsyst];
+    std::vector<std::vector<double> > fMatrix;
 };
 
 #endif

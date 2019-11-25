@@ -23,41 +23,32 @@
 #include <fstream>
 #include <sstream>
 
-using namespace std;
-
 //__________________________________________________________________________________
 //
-FitResults::FitResults(){
-    fCorrMatrix = nullptr;
-    fNLL = 0;
+FitResults::FitResults() :
+    fCorrMatrix(nullptr),
+    fPOIPrecision(2),
+    fNLL() {
 }
 
 //__________________________________________________________________________________
 //
 FitResults::~FitResults(){
-    fNuisParNames.clear();
-    fNuisParIdx.clear();
-    fNuisParIsThere.clear();
-    delete fCorrMatrix;
-    for(unsigned int i = 0; i<fNuisPar.size(); ++i){
-        delete fNuisPar[i];
-    }
-    fNuisPar.clear();
 }
 
 //__________________________________________________________________________________
 //
 void FitResults::AddNuisPar(NuisParameter *par){
-    fNuisPar.push_back(par);
-    string p = par->fName;
-    fNuisParIdx[p] = (int)fNuisParNames.size();
+    fNuisPar.emplace_back(par);
+    const std::string p = par->fName;
+    fNuisParIdx[p] = fNuisParNames.size();
     fNuisParNames.push_back(p);
     fNuisParIsThere[p] = true;
 }
 
 //__________________________________________________________________________________
 //
-double FitResults::GetNuisParValue(const string& p){
+double FitResults::GetNuisParValue(const std::string& p){
     int idx = -1;
     if(fNuisParIsThere[p]){
         idx = fNuisParIdx[p];
@@ -101,20 +92,19 @@ void FitResults::ReadFromTXT(const std::string& fileName, const std::vector<std:
     bool invertedCorrMatrix = true;
     bool print = true;
     //
-    CorrelationMatrix *matrix = new CorrelationMatrix();
+    std::unique_ptr<CorrelationMatrix> matrix(new CorrelationMatrix());
     //
     // get fitted NP's
     std::ifstream in;
     in.open(fileName.c_str());
 
     if (!in.is_open()) {
-        delete matrix;
         WriteErrorStatus("FitResults::ReadFromTXT","Could not open the file \"" + fileName + "\"");
         return;
     }
 
-    string input;
-    string line;
+    std::string input;
+    std::string line;
     bool readingNP = false;
     bool readingCM = false;
     bool readingNLL = false;
@@ -122,7 +112,7 @@ void FitResults::ReadFromTXT(const std::string& fileName, const std::vector<std:
     int j = 0;
     int Nsyst_corr = 0;
     //
-    string name;
+    std::string name;
     double value, up, down;
     double corr;
     //
@@ -163,7 +153,7 @@ void FitResults::ReadFromTXT(const std::string& fileName, const std::vector<std:
             if(input=="" || input=="CORRELATION_MATRIX"){
                 readingNP = false;
             }
-            while(input.find("\\")!=string::npos) input = input.replace(input.find("\\"),1,"");
+            while(input.find("\\")!=std::string::npos) input = input.replace(input.find("\\"),1,"");
             name = input;
             // clean the syst name...
             name = ReplaceString(name,"alpha_","");
@@ -171,7 +161,7 @@ void FitResults::ReadFromTXT(const std::string& fileName, const std::vector<std:
             AddNuisPar(new NuisParameter(name));
             if (std::find(blinded.begin(), blinded.end(), name) == blinded.end()){
                 iss >> value >> up >> down;
-                NuisParameter *np = fNuisPar[fNuisParIdx[name]];
+                NuisParameter *np = fNuisPar[fNuisParIdx[name]].get();
                 np->fFitValue = value;
                 np->fPostFitUp = up;
                 np->fPostFitDown = down;
@@ -179,7 +169,7 @@ void FitResults::ReadFromTXT(const std::string& fileName, const std::vector<std:
             } else {
                 std::string hex;
                 iss >> hex >> up >> down;
-                NuisParameter *np = fNuisPar[fNuisParIdx[name]];
+                NuisParameter *np = fNuisPar[fNuisParIdx[name]].get();
                 np->fFitValue = HexToDouble(hex);
                 np->fPostFitUp = up;
                 np->fPostFitDown = down;
@@ -218,7 +208,7 @@ void FitResults::ReadFromTXT(const std::string& fileName, const std::vector<std:
             }
         }
     }
-    fCorrMatrix = matrix;
+    fCorrMatrix = std::unique_ptr<CorrelationMatrix>(matrix.release());
     //
     int TOTsyst = fNuisParNames.size();
     WriteDebugStatus("FitResults::ReadFromTXT", "Found " + std::to_string(TOTsyst) + " systematics.");
@@ -228,19 +218,18 @@ void FitResults::ReadFromTXT(const std::string& fileName, const std::vector<std:
 
 //__________________________________________________________________________________
 //
-void FitResults::DrawNormFactors( const string &path,
-                                  const std::vector < NormFactor* > &normFactors, const std::vector<string>& blinded ) const {
+void FitResults::DrawNormFactors( const std::string &path,
+                                  const std::vector < NormFactor* > &normFactors, const std::vector<std::string>& blinded ) const {
     double xmin = 1000.;
     double xmax = -1000.;
     double max = 0.;
 
     TGraphAsymmErrors g{};
 
-    NuisParameter *par;
-    std::vector< NuisParameter* > selected_norm_factors;
+    std::vector< std::unique_ptr<NuisParameter> > selected_norm_factors;
 
     for(unsigned int i = 0; i<fNuisPar.size(); ++i){
-        par = fNuisPar[i];
+        NuisParameter* par = fNuisPar[i].get();
 
         //skip the blinded NPs
         if (std::find(blinded.begin(), blinded.end(), par->fName) != blinded.end()) continue;
@@ -260,12 +249,12 @@ void FitResults::DrawNormFactors( const string &path,
         if( par->fFitValue+par->fPostFitUp > xmax ) xmax = par->fFitValue+par->fPostFitUp;
         if( par->fFitValue+par->fPostFitDown < xmin ) xmin = par->fFitValue+par->fPostFitDown;
 
-        NuisParameter *nuis = new NuisParameter(par->fName);
+        std::unique_ptr<NuisParameter> nuis(new NuisParameter(par->fName));
         nuis->fFitValue =    par -> fFitValue;
         nuis->fPostFitUp =   par -> fPostFitUp;
         nuis->fPostFitDown = par -> fPostFitDown;
         nuis->fTitle =       par -> fTitle;
-        selected_norm_factors.push_back(nuis);
+        selected_norm_factors.emplace_back(nuis.release());
         if(2*selected_norm_factors.size() > max)  max = 2*selected_norm_factors.size();
     }
     xmax *= (xmax<0 ? 0.5 : 1.5);
@@ -427,7 +416,7 @@ void FitResults::DrawGammaPulls( const std::string & path, const std::vector<std
 
 //__________________________________________________________________________________
 //
-void FitResults::DrawNPPulls( const string &path, const string &category, const std::vector < NormFactor* > &normFactors, const std::vector<std::string>& blinded ) const {
+void FitResults::DrawNPPulls( const std::string &path, const std::string &category, const std::vector < NormFactor* > &normFactors, const std::vector<std::string>& blinded ) const {
     double xmin = -2.9;
     double xmax = 2.9;
     double max = 0.;
@@ -438,10 +427,10 @@ void FitResults::DrawNPPulls( const string &path, const string &category, const 
 
     NuisParameter *par = nullptr;
     int idx = 0;
-    std::vector< string > names;
+    std::vector< std::string > names;
 
     for(unsigned int i = 0; i<fNuisPar.size(); ++i){
-        par = fNuisPar[i];
+        par = fNuisPar[i].get();
 
         std::string name = par->fName;
         name = ReplaceString(name,"alpha_","");
@@ -453,7 +442,7 @@ void FitResults::DrawNPPulls( const string &path, const string &category, const 
 
         bool skip = false;
         for(const std::string& ii : npToExclude){
-            if(par->fName.find(ii)!=string::npos){
+            if(par->fName.find(ii)!=std::string::npos){
                 skip = true;
                 break;
             }

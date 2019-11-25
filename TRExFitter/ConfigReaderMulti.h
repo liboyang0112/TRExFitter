@@ -21,12 +21,12 @@ class ConfigReaderMulti {
           * The default constructor.
           * @param MultiFIt A pointer to MultiFit class
           */
-        ConfigReaderMulti(MultiFit * multiFitter);
+        explicit ConfigReaderMulti(MultiFit* multiFitter);
 
         /**
           * The default destructor
           */
-        ~ConfigReaderMulti();
+        ~ConfigReaderMulti() = default;
 
         /**
           * Reads the config and passes parameters to TtHFit

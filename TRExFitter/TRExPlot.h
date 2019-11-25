@@ -17,11 +17,12 @@ class THStack;
 class TLegend;
 class TPad;
 
-const int MAXbins = 1000;
+static const int MAXbins = 1000;
 
 class TRExPlot {
   public:
-    TRExPlot(std::string name="c",int canvasWidth=600,int canvasHeight=700,bool hideRatioPad=false);
+    explicit TRExPlot(std::string name="c",int canvasWidth=600,int canvasHeight=700,bool hideRatioPad=false);
+
     ~TRExPlot();
 
     void SetChannel(const std::string& name);
@@ -60,7 +61,6 @@ class TRExPlot {
     std::string fName;
     TH1* h_data;
     TGraphAsymmErrors* g_data;
-    TH1* h_mc;
     std::vector<TH1*> h_bkg;
     std::vector<TH1*> h_signal;
     std::vector<TH1*> h_normsig;
@@ -111,7 +111,7 @@ class TRExPlot {
     std::string fRatioYtitle;
 
     std::string fRatioType;
-    
+
     double fLabelX;
     double fLabelY;
     double fLegendX1;

@@ -59,18 +59,6 @@ if [[ "$which_root" == "" ]]; then
 fi
 
 ##
-## Produces the input ROOT file used to generate the fit
-##
-echo ""
-echo "Now, I need to generate the input file by executing CreateHistograms.C"
-root -l -b -q CreateHistograms.C && echo "Done !"
-if [[ ! -d ExampleInputs/ ]]; then
-  echo "!!ERROR!! The ExampleInputs folder cannot be found. I don't really know why ?"
-  return 0
-fi
-echo ""
-
-##
 ## Compiling the code
 ##
 echo ""
@@ -78,7 +66,7 @@ echo "Compiling the code. Cleaning it first, and then recompile."
 rm -rf build/
 mkdir build && cd build/
 cmake ../
-cmake --build ./
+make -j4
 cd ..
 if [[ ! -f build/bin/trex-fitter ]]; then
   echo "!!ERROR!! The binary file is not found. Need to investigate !!"
@@ -93,13 +81,33 @@ echo ""
 echo "Things seem to be in order now. I am about to produce the logfiles. Note that "
 echo "you still can abort the process at any moment."
 echo ""
-for step in h d w f l s r d p ; do
+for step in h w f l s r d p ; do
   echo "==> $step step ongoing"
-  ./build/bin/trex-fitter $step config/myFit.config >& LOG_$step
-  cat LOG_$step | grep -v "TRExFitter" >& test/logs/LOG_$step
+  ./build/bin/trex-fitter $step test/configs/FitExample.config >& LOG_$step
+  cat LOG_$step | grep -v "TRExFitter" >& test/logs/FitExample/LOG_$step
   rm -f LOG_$step
 done
 
+for step in h w f ; do
+  echo "==> stat only $step step ongoing"
+  ./build/bin/trex-fitter $step test/configs/FitExampleStatOnly.config StatOnlyFit=TRUE  >& LOG_STATONLY_$step
+  cat LOG_STATONLY_$step | grep -v "TRExFitter" >& test/logs/FitExampleStatOnly/LOG_STATONLY_$step
+  rm -f LOG_STATONLY_$step
+done
+
+for step in h w f d p ; do
+  echo "==> Morphing $step step ongoing"
+  ./build/bin/trex-fitter $step test/configs/FitExampleMorphing.config >& LOG_MORPH_$step
+  cat LOG_MORPH_$step | grep -v "TRExFitter" >& test/logs/FitExampleMorphing/LOG_MORPH_$step
+  rm -f LOG_MORPH_$step
+done
+
+for step in n w f d p ; do
+  echo "==> Ntuple $step step ongoing"
+  ./build/bin/trex-fitter $step test/configs/FitExampleNtuple.config >& LOG_NTUPLE_$step
+  cat LOG_NTUPLE_$step | grep -v "TRExFitter" >& test/logs/FitExampleNtuple/LOG_NTUPLE_$step
+  rm -f LOG_NTUPLE_$step
+done
 ##
 ## Making a git status and asks if the files have to be added
 ##

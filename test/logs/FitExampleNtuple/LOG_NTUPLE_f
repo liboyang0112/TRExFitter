@@ -1,0 +1,165 @@
+
+[1mRooFit v3.60 -- Developed by Wouter Verkerke and David Kirkby[0m 
+                Copyright (C) 2000-2013 NIKHEF, University of California & Stanford University
+                All rights reserved, please read http://roofit.sourceforge.net/license.txt
+
+                    No rights reserved, feel free to use and modify it ;)
+
+Applying ATLAS style settings...
+
+[1;32m=== INFO::ConfigReader::ConfigReader: Started reading the config[0m
+[1;32m=== INFO::ConfigParser::ReadFile: Reading config file: test/configs/FitExampleNtuple.config[0m
+[1;32m=== INFO::trex-fitter::FitExample: Successfully read config file.[0m
+[1;32m=== INFO::TRExFit::PrintConfigSummary: -------------------------------------------[0m
+[1;32m=== INFO::TRExFit::PrintConfigSummary: Job name: FitExampleNtuple[0m
+[1;32m=== INFO::TRExFit::PrintConfigSummary: Reading the following regions:[0m
+[1;32m=== INFO::Region::Print:     Region: ljets_5j3b_HT[0m
+[1;32m=== INFO::Region::Print:     Region: ljets_6j4b_BDT[0m
+[1;32m=== INFO::TRExFit::PrintConfigSummary: Reading the following samples:[0m
+[1;32m=== INFO::Sample::Print::      data[0m
+[1;32m=== INFO::Sample::Print::      ttlight[0m
+[1;32m=== INFO::Sample::Print::      ttc[0m
+[1;32m=== INFO::Sample::Print::      ttb[0m
+[1;32m=== INFO::Sample::Print::      ttH[0m
+[1;32m=== INFO::TRExFit::PrintConfigSummary: Reading the following systematics:[0m
+[1;32m=== INFO::TRExFit::PrintConfigSummary:  ATLAS_lumi[0m
+[1;32m=== INFO::TRExFit::PrintConfigSummary:  ATLAS_PRW_DATASF[0m
+[1;32m=== INFO::TRExFit::PrintConfigSummary:  ATLAS_JVT[0m
+[1;32m=== INFO::TRExFit::PrintConfigSummary:  ttlight_Gen[0m
+[1;32m=== INFO::TRExFit::PrintConfigSummary:  ttc_Gen[0m
+[1;32m=== INFO::TRExFit::PrintConfigSummary:  ttb_Gen[0m
+[1;32m=== INFO::TRExFit::PrintConfigSummary: -------------------------------------------[0m
+Fitting...
+[1;32m=== INFO::TRExFit::Fit: [0m
+[1;32m=== INFO::TRExFit::Fit: -------------------------------------------[0m
+[1;32m=== INFO::TRExFit::Fit: Performing nominal fit...[0m
+[1;32m=== INFO::FittingTool::FitPDF:  ---> Setting tt_norm to 1.000000[0m
+[1;32m=== INFO::FittingTool::FitPDF: [0m
+[1;32m=== INFO::FittingTool::FitPDF: [0m
+[1;32m=== INFO::FittingTool::FitPDF: [0m
+[1;32m=== INFO::FittingTool::FitPDF: Fit try no.1[0m
+[1;32m=== INFO::FittingTool::FitPDF: ======================[0m
+[1;32m=== INFO::FittingTool::FitPDF: [0m
+Minuit2Minimizer: Minimize with max-calls 10000 convergence for edm < 1 strategy 1
+MnSeedGenerator: for initial parameters FCN = 53.27117755302
+MnSeedGenerator: Initial state:   - FCN =   53.27117755302 Edm =      28.2754 NCalls =     81
+VariableMetric: start iterating until Edm is < 0.001
+VariableMetric: Initial state   - FCN =   53.27117755302 Edm =      28.2754 NCalls =     81
+VariableMetric: Iteration #   0 - FCN =   53.27117755302 Edm =      28.2754 NCalls =     81
+VariableMetric: Iteration #   1 - FCN =    44.6591180111 Edm =      1.70397 NCalls =    123
+VariableMetric: Iteration #   2 - FCN =   42.87084597447 Edm =     0.258572 NCalls =    165
+VariableMetric: Iteration #   3 - FCN =   42.29012301903 Edm =    0.0873304 NCalls =    207
+VariableMetric: Iteration #   4 - FCN =   42.14870286085 Edm =       0.0202 NCalls =    249
+VariableMetric: Iteration #   5 - FCN =    42.1154997937 Edm =   0.00579847 NCalls =    291
+VariableMetric: Iteration #   6 - FCN =   42.10084798808 Edm =   0.00433616 NCalls =    333
+VariableMetric: Iteration #   7 - FCN =    42.0807239845 Edm =   0.00484731 NCalls =    375
+VariableMetric: Iteration #   8 - FCN =   42.07274903165 Edm =  0.000177437 NCalls =    417
+VariableMetric: After Hessian   - FCN =   42.07274903165 Edm =  0.000218677 NCalls =    688
+VariableMetric: Iteration #   9 - FCN =   42.07274903165 Edm =  0.000218677 NCalls =    688
+Minuit2Minimizer : Valid minimum - status = 0
+FVAL  = 42.072749031650531
+Edm   = 0.000218676739303608517
+Nfcn  = 688
+alpha_ATLAS_JVT	  = 0.081157	 +/-  0.990049	(limited)
+alpha_ATLAS_PRW_DATASF	  = 0.00497592	 +/-  0.991717	(limited)
+alpha_ATLAS_lumi	  = 0.00619474	 +/-  0.993224	(limited)
+alpha_ttb_Gen	  = -0.45088	 +/-  0.857494	(limited)
+alpha_ttc_Gen	  = 0.262302	 +/-  0.882374	(limited)
+alpha_ttlight_Gen	  = 0.886709	 +/-  0.607517	(limited)
+gamma_stat_ljets_5j3b_HT_bin_0	  = 1.03186	 +/-  0.0466817	(limited)
+gamma_stat_ljets_5j3b_HT_bin_1	  = 1.00055	 +/-  0.0277536	(limited)
+gamma_stat_ljets_5j3b_HT_bin_2	  = 0.976138	 +/-  0.0315675	(limited)
+gamma_stat_ljets_5j3b_HT_bin_3	  = 1.01519	 +/-  0.0452653	(limited)
+gamma_stat_ljets_5j3b_HT_bin_4	  = 0.954164	 +/-  0.0656967	(limited)
+gamma_stat_ljets_5j3b_HT_bin_5	  = 1.0119	 +/-  0.0637382	(limited)
+gamma_stat_ljets_6j4b_BDT_bin_0	  = 1.00438	 +/-  0.0336856	(limited)
+gamma_stat_ljets_6j4b_BDT_bin_1	  = 0.998789	 +/-  0.0363944	(limited)
+gamma_stat_ljets_6j4b_BDT_bin_2	  = 1.01764	 +/-  0.0403123	(limited)
+gamma_stat_ljets_6j4b_BDT_bin_3	  = 0.997318	 +/-  0.0420561	(limited)
+gamma_stat_ljets_6j4b_BDT_bin_4	  = 0.986462	 +/-  0.0459487	(limited)
+gamma_stat_ljets_6j4b_BDT_bin_5	  = 1.00506	 +/-  0.0498958	(limited)
+mu_XS_ttH	  = 0.609525	 +/-  0.46829	(limited)
+tt_norm	  = 1.07328	 +/-  0.0849278	(limited)
+Info in Minuit2Minimizer::Hesse : Hesse is valid - matrix is accurate
+Minuit2Minimizer::GetMinosError for parameter 19  tt_norm using max-calls 10000, tolerance 1
+MnFunctionCross: parameter 0 set to 0.988359
+MnSeedGenerator: for initial parameters FCN = 42.63956345659
+MnSeedGenerator: Initial state:   - FCN =   42.63956345659 Edm =   0.00594481 NCalls =     77
+VariableMetric: start iterating until Edm is < 0.0005
+VariableMetric: Initial state   - FCN =   42.63956345659 Edm =   0.00594481 NCalls =     77
+VariableMetric: Iteration #   0 - FCN =   42.63956345659 Edm =   0.00594481 NCalls =     77
+VariableMetric: Iteration #   1 - FCN =   42.63320680849 Edm =  3.27192e-05 NCalls =    117
+MnFunctionCross: parameter 0 set to 0.99307
+MnSeedGenerator: for initial parameters FCN = 42.58801336369
+MnSeedGenerator: Initial state:   - FCN =   42.58801336369 Edm =     0.017888 NCalls =     77
+VariableMetric: start iterating until Edm is < 0.0005
+VariableMetric: Initial state   - FCN =   42.58801336369 Edm =     0.017888 NCalls =     77
+VariableMetric: Iteration #   0 - FCN =   42.58801336369 Edm =     0.017888 NCalls =     77
+VariableMetric: Iteration #   1 - FCN =   42.57004201893 Edm =  7.13876e-06 NCalls =    116
+MnFunctionCross: parameter 0 set to 1.15821
+MnSeedGenerator: for initial parameters FCN = 42.53585111149
+MnSeedGenerator: Initial state:   - FCN =   42.53585111149 Edm =   0.00508599 NCalls =     77
+VariableMetric: start iterating until Edm is < 0.0005
+VariableMetric: Initial state   - FCN =   42.53585111149 Edm =   0.00508599 NCalls =     77
+VariableMetric: Iteration #   0 - FCN =   42.53585111149 Edm =   0.00508599 NCalls =     77
+VariableMetric: Iteration #   1 - FCN =   42.53078200126 Edm =  1.49533e-05 NCalls =    116
+MnFunctionCross: parameter 0 set to 1.16201
+MnSeedGenerator: for initial parameters FCN = 42.58112786013
+MnSeedGenerator: Initial state:   - FCN =   42.58112786013 Edm =   0.00971545 NCalls =     77
+VariableMetric: start iterating until Edm is < 0.0005
+VariableMetric: Initial state   - FCN =   42.58112786013 Edm =   0.00971545 NCalls =     77
+VariableMetric: Iteration #   0 - FCN =   42.58112786013 Edm =   0.00971545 NCalls =     77
+VariableMetric: Iteration #   1 - FCN =   42.57149540489 Edm =  9.18949e-06 NCalls =    116
+Minos: Lower error for parameter tt_norm  :  -0.0804147
+Minos: Upper error for parameter tt_norm  :  0.0888465
+Minuit2Minimizer::GetMinosError for parameter 18  mu_XS_ttH using max-calls 10000, tolerance 1
+MnFunctionCross: parameter 0 set to 0.141051
+MnSeedGenerator: for initial parameters FCN = 42.56297554736
+MnSeedGenerator: Initial state:   - FCN =   42.56297554736 Edm =    0.0019178 NCalls =     77
+VariableMetric: start iterating until Edm is < 0.0005
+VariableMetric: Initial state   - FCN =   42.56297554736 Edm =    0.0019178 NCalls =     77
+VariableMetric: Iteration #   0 - FCN =   42.56297554736 Edm =    0.0019178 NCalls =     77
+VariableMetric: Iteration #   1 - FCN =   42.56101853998 Edm =  6.96992e-06 NCalls =    116
+MnFunctionCross: parameter 0 set to 0.135457
+MnSeedGenerator: for initial parameters FCN = 42.57279191231
+MnSeedGenerator: Initial state:   - FCN =   42.57279191231 Edm =  0.000265449 NCalls =     77
+VariableMetric: start iterating until Edm is < 0.0005
+VariableMetric: Initial state   - FCN =   42.57279191231 Edm =  0.000265449 NCalls =     77
+VariableMetric: Iteration #   0 - FCN =   42.57279191231 Edm =  0.000265449 NCalls =     77
+VariableMetric: Iteration #   1 - FCN =   42.57253167782 Edm =  6.08249e-07 NCalls =    116
+MnFunctionCross: parameter 0 set to 1.078
+MnSeedGenerator: for initial parameters FCN = 42.58729138298
+MnSeedGenerator: Initial state:   - FCN =   42.58729138298 Edm =   0.00261353 NCalls =     77
+VariableMetric: start iterating until Edm is < 0.0005
+VariableMetric: Initial state   - FCN =   42.58729138298 Edm =   0.00261353 NCalls =     77
+VariableMetric: Iteration #   0 - FCN =   42.58729138298 Edm =   0.00261353 NCalls =     77
+VariableMetric: Iteration #   1 - FCN =   42.58479296072 Edm =  1.34798e-05 NCalls =    116
+MnFunctionCross: parameter 0 set to 1.07246
+MnSeedGenerator: for initial parameters FCN = 42.57267097517
+MnSeedGenerator: Initial state:   - FCN =   42.57267097517 Edm =  0.000161675 NCalls =     77
+VariableMetric: start iterating until Edm is < 0.0005
+VariableMetric: Initial state   - FCN =   42.57267097517 Edm =  0.000161675 NCalls =     77
+VariableMetric: Iteration #   0 - FCN =   42.57267097517 Edm =  0.000161675 NCalls =     77
+VariableMetric: Iteration #   1 - FCN =   42.57250872936 Edm =  3.08672e-08 NCalls =    116
+Minos: Lower error for parameter mu_XS_ttH  :  -0.474173
+Minos: Upper error for parameter mu_XS_ttH  :  0.463039
+[1;32m=== INFO::FittingTool::FitPDF: [0m
+[1;32m=== INFO::FittingTool::FitPDF: [0m
+[1;32m=== INFO::FittingTool::FitPDF: [0m
+[1;32m=== INFO::FittingTool::FitPDF: ***********************************************************[0m
+[1;32m=== INFO::FittingTool::FitPDF:          FIT FINALIZED SUCCESSFULLY : [0m
+[1;32m=== INFO::FittingTool::FitPDF:             - minuit status 0[0m
+[1;32m=== INFO::FittingTool::FitPDF:             - hess status 0[0m
+[1;32m=== INFO::FittingTool::FitPDF:             - Edm = 0.000219[0m
+[1;32m=== INFO::FittingTool::FitPDF: ***********************************************************[0m
+[1;32m=== INFO::FittingTool::FitPDF: [0m
+[1;32m=== INFO::FittingTool::FitPDF: [0m
+[1;32m=== INFO::FittingTool::FitPDF: [0m
+[1;32m=== INFO::FittingTool::FitPDF:    -> Reduced Final value of the NLL = -998511.89450029970612376928[0m
+[1;32m=== INFO::FittingTool::FitPDF:    -> Final value of the NLL = 1488.105500[0m
+[1;32m=== INFO::FittingTool::FitPDF:    -> Final value of offset = 1446.032751[0m
+[1;32m=== INFO::FittingTool::FitPDF:    -> Final NLL - offset = 42.072749[0m
+[1;32m=== INFO::TRExFit::ReadFitResults: ------------------------------------------------------[0m
+[1;32m=== INFO::TRExFit::ReadFitResults: Reading fit results from file [0m
+[1;32m=== INFO::TRExFit::ReadFitResults: ------------------------------------------------------[0m
+[1;32m=== INFO::TRExFit::ReadFitResults: Reading fit results from file [0m

@@ -35,60 +35,26 @@ using namespace std;
 //________________________________________________________________________
 //
 FittingTool::FittingTool():
-m_minimType("Minuit2"),
-m_minuitStatus(-1),
-m_hessStatus(-1),
-m_edm(-1.),
-m_valPOI(0.),
-m_useMinos(false),
-m_varMinos(0),
-m_constPOI(false),
-m_fitResult(0),
-m_debug(1),
-m_noGammas(false),
-m_noSystematics(false),
-m_noNormFactors(false),
-m_noShapeFactors(false),
-m_RangePOI_up(100.),
-m_RangePOI_down(-10.),
-m_randomize(false),
-m_randomNP(0.1),
-m_randSeed(-999),
-m_externalConstraints(0)
-{
-    m_constNP.clear();
-    m_constNPvalue.clear();
-    m_subCategoryMap.clear();
-    m_subCategories.clear();
+    m_minimType("Minuit2"),
+    m_minuitStatus(-1),
+    m_hessStatus(-1),
+    m_edm(-1.),
+    m_valPOI(0.),
+    m_useMinos(false),
+    m_constPOI(false),
+    m_fitResult(nullptr),
+    m_debug(1),
+    m_noGammas(false),
+    m_noSystematics(false),
+    m_noNormFactors(false),
+    m_noShapeFactors(false),
+    m_RangePOI_up(100.),
+    m_RangePOI_down(-10.),
+    m_randomize(false),
+    m_randomNP(0.1),
+    m_randSeed(-999),
+    m_externalConstraints(nullptr) {
 }
-
-//________________________________________________________________________
-//
-FittingTool::FittingTool( const FittingTool &q ){
-    m_minimType      = q.m_minimType;
-    m_minuitStatus   = q.m_minuitStatus;
-    m_hessStatus     = q.m_hessStatus;
-    m_edm            = q.m_edm;
-    m_valPOI         = q.m_valPOI;
-    m_useMinos       = q.m_useMinos;
-    m_varMinos       = q.m_varMinos;
-    m_constPOI       = q.m_constPOI;
-    m_fitResult      = q.m_fitResult;
-    m_debug          = q.m_debug;
-    m_RangePOI_up    = q.m_RangePOI_up;
-    m_RangePOI_down  = q.m_RangePOI_down;
-    m_noGammas       = q.m_noGammas;
-    m_noSystematics  = q.m_noSystematics;
-    m_noNormFactors  = q.m_noNormFactors;
-    m_noShapeFactors = q.m_noShapeFactors;
-    m_externalConstraints = q.m_externalConstraints;
-}
-
-//________________________________________________________________________
-//
-FittingTool::~FittingTool()
-{}
-
 
 //________________________________________________________________________
 //
@@ -127,14 +93,14 @@ double FittingTool::FitPDF( RooStats::ModelConfig* model, RooAbsPdf* fitpdf, Roo
     //
     // Create the likelihood based on fitpdf, fitData and the parameters
     //
-    RooAbsReal * nll = fitpdf->createNLL(*fitdata,
-                                         RooFit::Constrain(*constrainedParams),
-                                         RooFit::GlobalObservables(*glbObs),
-                                         RooFit::Offset(1),
-                                         RooFit::NumCPU(TRExFitter::NCPU,RooFit::Hybrid),
-                                         RooFit::Optimize(kTRUE),
-                                         RooFit::ExternalConstraints(*m_externalConstraints)
-                                        );
+    std::unique_ptr<RooAbsReal> nll(fitpdf->createNLL(*fitdata,
+                                    RooFit::Constrain(*constrainedParams),
+                                    RooFit::GlobalObservables(*glbObs),
+                                    RooFit::Offset(1),
+                                    RooFit::NumCPU(TRExFitter::NCPU,RooFit::Hybrid),
+                                    RooFit::Optimize(kTRUE),
+                                    RooFit::ExternalConstraints(*m_externalConstraints)
+                                    ));
 
     //
     // Needed for Ranking plot, but also to set random initial values for the NPs
@@ -149,7 +115,7 @@ double FittingTool::FitPDF( RooStats::ModelConfig* model, RooAbsPdf* fitpdf, Roo
     //
     // Getting the POI
     //
-    RooRealVar * poi = (RooRealVar*) model->GetParametersOfInterest()->first();
+    RooRealVar * poi = static_cast<RooRealVar*>(model->GetParametersOfInterest()->first());
     if(!poi){
         if (m_debug < 1) std::cout.clear();
         WriteErrorStatus("FittingTool::FitPDF", "Cannot find the parameter of interest !");
@@ -169,12 +135,12 @@ double FittingTool::FitPDF( RooStats::ModelConfig* model, RooAbsPdf* fitpdf, Roo
     WriteDebugStatus("FittingTool::FitPDF", "   -> Constant POI : " + std::to_string(poi->isConstant()));
     WriteDebugStatus("FittingTool::FitPDF", "   -> Value of POI : " + std::to_string(poi->getVal()));
 
-    RooRealVar* var = nullptr;
-    RooArgSet* nuis = (RooArgSet*) model->GetNuisanceParameters();
+    RooRealVar* var(nullptr);
+    const RooArgSet* nuis = static_cast<const RooArgSet*>(model->GetNuisanceParameters());
     if(nuis){
-        TIterator* it2 = nuis->createIterator();
-        while( (var = (RooRealVar*) it2->Next()) ){
-            string np = var->GetName();
+        std::unique_ptr<TIterator> it2(nuis->createIterator());
+        while( (var = static_cast<RooRealVar*>(it2->Next())) ){
+            const std::string np = var->GetName();
             bool found = false;
             //
             // first check if all systs, norm and gammas should be set to constant
@@ -239,7 +205,6 @@ double FittingTool::FitPDF( RooStats::ModelConfig* model, RooAbsPdf* fitpdf, Roo
                 }
             }
         }
-        delete it2;
     }
 
     double nllval = nll->getVal();
@@ -291,12 +256,12 @@ double FittingTool::FitPDF( RooStats::ModelConfig* model, RooAbsPdf* fitpdf, Roo
 //         minim.setMaxFunctionCalls(100*minim.getNPar());
     }
 
-    TStopwatch sw; sw.Start();
+    TStopwatch sw;
+    sw.Start();
 
     int status=-99;
     m_hessStatus=-99;
     m_edm = -99;
-    RooFitResult *r = nullptr;
 
     // always run one fit
     WriteInfoStatus("FittingTool::FitPDF", "");
@@ -309,7 +274,7 @@ double FittingTool::FitPDF( RooStats::ModelConfig* model, RooAbsPdf* fitpdf, Roo
     ROOT::Math::MinimizerOptions::SetDefaultStrategy(strat);
     status = minim.minimize(ROOT::Math::MinimizerOptions::DefaultMinimizerType().c_str(),ROOT::Math::MinimizerOptions::DefaultMinimizerAlgo().c_str());
     m_hessStatus= minim.hesse();
-    r = minim.save();
+    std::unique_ptr<RooFitResult> r(minim.save());
     m_edm = r->edm();
 
     // check if the fit converged
@@ -332,7 +297,7 @@ double FittingTool::FitPDF( RooStats::ModelConfig* model, RooAbsPdf* fitpdf, Roo
         minim.setStrategy(strat);
         status = minim.minimize(ROOT::Math::MinimizerOptions::DefaultMinimizerType().c_str(), ROOT::Math::MinimizerOptions::DefaultMinimizerAlgo().c_str());
         m_hessStatus= minim.hesse();
-        r = minim.save();
+        r.reset(minim.save());
         m_edm = r->edm();
 
         FitIsNotGood = !(status==0 && m_hessStatus==0 && m_edm<0.001);
@@ -354,25 +319,22 @@ double FittingTool::FitPDF( RooStats::ModelConfig* model, RooAbsPdf* fitpdf, Roo
         WriteErrorStatus("FittingTool::FitPDF", "");
         WriteErrorStatus("FittingTool::FitPDF", "");
         m_minuitStatus = status;
-        m_fitResult = 0;
-
-        delete r;
-        delete nll;
+        m_fitResult = nullptr;
 
         return 0;
     }
 
     if(m_useMinos){
-        TIterator* it3 = model->GetNuisanceParameters()->createIterator();
-        TIterator* it4 = model->GetParametersOfInterest()->createIterator();
-        RooArgSet* SliceNPs = new RooArgSet( *(model->GetNuisanceParameters()) );
+        std::unique_ptr<TIterator> it3(model->GetNuisanceParameters()->createIterator());
+        std::unique_ptr<TIterator> it4(model->GetParametersOfInterest()->createIterator());
+        std::unique_ptr<RooArgSet> SliceNPs(new RooArgSet( *(model->GetNuisanceParameters()) ));
         SliceNPs->add(*(model->GetParametersOfInterest()));
         RooRealVar* var_tmp = nullptr;
         RooRealVar* var2 = nullptr;
         WriteDebugStatus("FittingTool::FitPDF", "Size of variables for MINOS: " + std::to_string(m_varMinos.size()));
 
         if (m_varMinos.at(0)!="all"){
-            while( (var_tmp = (RooRealVar*) it3->Next()) ){
+            while( (var_tmp = static_cast<RooRealVar*>(it3->Next())) ){
                 TString vname=var_tmp->GetName();
                 bool isthere=false;
                 for (unsigned int m=0;m<m_varMinos.size();++m){
@@ -380,7 +342,7 @@ double FittingTool::FitPDF( RooStats::ModelConfig* model, RooAbsPdf* fitpdf, Roo
                 }
                 if (!isthere) SliceNPs->remove(*var_tmp, true, true);
             }
-            while( (var2 = (RooRealVar*) it4->Next()) ){
+            while( (var2 = static_cast<RooRealVar*>(it4->Next())) ){
                 TString vname=var2->GetName();
                 bool isthere=false;
                 for (unsigned int m=0;m<m_varMinos.size();++m){
@@ -394,12 +356,9 @@ double FittingTool::FitPDF( RooStats::ModelConfig* model, RooAbsPdf* fitpdf, Roo
             minim.minos();
         }
 
-        delete SliceNPs;
-        delete it3;
-        delete it4;
     }//end useMinos
 
-    r = minim.save();
+    r.reset(minim.save());
     WriteInfoStatus("FittingTool::FitPDF", "");
     WriteInfoStatus("FittingTool::FitPDF", "");
     WriteInfoStatus("FittingTool::FitPDF", "");
@@ -415,8 +374,7 @@ double FittingTool::FitPDF( RooStats::ModelConfig* model, RooAbsPdf* fitpdf, Roo
     WriteInfoStatus("FittingTool::FitPDF", "");
 
     m_minuitStatus = status;
-    if(r!=nullptr) m_fitResult = (RooFitResult*)r->Clone();
-    delete r;
+    if(r!=nullptr) m_fitResult = std::unique_ptr<RooFitResult>(static_cast<RooFitResult*>(r->Clone()));
 
     //
     // clean stuff
@@ -445,7 +403,6 @@ double FittingTool::FitPDF( RooStats::ModelConfig* model, RooAbsPdf* fitpdf, Roo
         std::cout << std::setprecision(ss);
     }
     if (m_debug < 1) std::cout.clear();
-    delete nll;
     return nllval;
 }
 
@@ -465,17 +422,17 @@ void FittingTool::ExportFitResultInTextFile( const std::string &fileName, const 
     nuisParAndCorr << "NUISANCE_PARAMETERS\n";
 
     RooRealVar* var(nullptr);
-    TIterator* param = m_fitResult -> floatParsFinal().createIterator();
-    while( (var = (RooRealVar*) param->Next()) ){
+    std::unique_ptr<TIterator> param(m_fitResult -> floatParsFinal().createIterator());
+    while( (var = static_cast<RooRealVar*>(param->Next())) ){
 
         // Not consider nuisance parameter being not associated to syst (yet)
-        string varname = (string) var->GetName();
+        std::string varname = var->GetName();
         TString vname=var->GetName();
         vname.ReplaceAll("alpha_","");
 
-        double pull  = var->getVal(); // GetValue() return value in unit of sigma
-        double errorHi = var->getErrorHi();
-        double errorLo = var->getErrorLo();
+        const double pull  = var->getVal(); // GetValue() return value in unit of sigma
+        const double errorHi = var->getErrorHi();
+        const double errorLo = var->getErrorLo();
 
         if (blinded.size() == 0){
             FittingTool::CheckUnderconstraint(var);
@@ -491,7 +448,6 @@ void FittingTool::ExportFitResultInTextFile( const std::string &fileName, const 
             }
         }
     }
-    if(param) delete param;
 
     //
     // Correlation matrix
@@ -528,14 +484,13 @@ std::map < std::string, double > FittingTool::ExportFitResultInMap(){
         return result;
     }
     RooRealVar* var(nullptr);
-    TIterator* param = m_fitResult -> floatParsFinal().createIterator();
-    while( (var = (RooRealVar*) param->Next()) ){
+    std::unique_ptr<TIterator> param(m_fitResult -> floatParsFinal().createIterator());
+    while( (var = static_cast<RooRealVar*>(param->Next())) ){
         // Not consider nuisance parameter being not associated to syst
-        string varname = (string) var->GetName();
-        double pull  = var->getVal();
+        std::string varname = var->GetName();
+        const double pull  = var->getVal();
         result.insert( std::pair < std::string, double >(varname, pull) );
     }
-    if(param) delete param;
     return result;
 }
 
@@ -551,7 +506,7 @@ int FittingTool::GetGroupedImpact( RooStats::ModelConfig* model, RooAbsPdf* fitp
     RooStats::RemoveConstantParameters(constrainedParams);
     RooFit::Constrain(*constrainedParams);
 
-    RooRealVar * poi = (RooRealVar*) model->GetParametersOfInterest()->first();
+    RooRealVar * poi = static_cast<RooRealVar*>(model->GetParametersOfInterest()->first());
     if(!poi){
         if (TRExFitter::DEBUGLEVEL < 2) std::cout.clear();
         WriteErrorStatus("FittingTool::GetGroupedImpact", "Cannot find the parameter of interest !");
@@ -585,7 +540,7 @@ int FittingTool::GetGroupedImpact( RooStats::ModelConfig* model, RooAbsPdf* fitp
 
     // loop over unique SubCategories
     for (std::set<std::string>::iterator itCategories = m_subCategories.begin(); itCategories != m_subCategories.end(); ++itCategories){
-        if(categoryOfInterest!="all" and *itCategories!=categoryOfInterest)
+        if(categoryOfInterest!="all" && *itCategories!=categoryOfInterest)
             continue; // if a category was specified via command line, only process that one
 
         WriteInfoStatus("FittingTool::GetGroupedImpact","performing grouped systematics impact evaluation for: " + *itCategories);
@@ -628,13 +583,13 @@ int FittingTool::GetGroupedImpact( RooStats::ModelConfig* model, RooAbsPdf* fitp
     WriteInfoStatus("FittingTool::GetGroupedImpact", "POI is:   " + std::to_string(poi->getVal()) + " +/- " + std::to_string(poi->getError()) +
                                                      "    ( +" + std::to_string(poi->getErrorHi()) + ", " + std::to_string(poi->getErrorLo()) + " )");
 
-    double NomUp2=(poi->getErrorHi()*poi->getErrorHi());
-    double NomLo2=(poi->getErrorLo()*poi->getErrorLo());
-    double Nom2  =(poi->getError()*poi->getError());
+    const double NomUp2=(poi->getErrorHi()*poi->getErrorHi());
+    const double NomLo2=(poi->getErrorLo()*poi->getErrorLo());
+    const double Nom2  =(poi->getError()*poi->getError());
 
     // report impact calculations, impact is obtained by quadrature subtraction from replicated nominal fit
     for (std::set<std::string>::iterator itCategories = m_subCategories.begin(); itCategories != m_subCategories.end(); ++itCategories){
-        if(categoryOfInterest!="all" and *itCategories!=categoryOfInterest)
+        if(categoryOfInterest!="all" && *itCategories!=categoryOfInterest)
             continue; // if a category was specified via command line, only process that one
 
         ws->loadSnapshot(("snapshot_AfterFit_POI_" + *itCategories).c_str());
@@ -679,11 +634,11 @@ void FittingTool::FitExcludingGroup(bool excludeGammas, bool statOnly, RooAbsDat
     WriteInfoStatus("FittingTool::FitExcludingGroup", "           breakdown for " + category);
     WriteInfoStatus("FittingTool::FitExcludingGroup", "-----------------------------------------------------");
 
-    TIterator* it = mc->GetNuisanceParameters()->createIterator();
-    RooRealVar* var2 = nullptr;
+    std::unique_ptr<TIterator> it(mc->GetNuisanceParameters()->createIterator());
+    RooRealVar* var2(nullptr);
 
-    while( (var2 = (RooRealVar*) it->Next()) ){
-        string varname = (string) var2->GetName();
+    while( (var2 = static_cast<RooRealVar*>(it->Next())) ){
+        std::string varname = var2->GetName();
 
         // default: set everything non-constant (but the saturated-model norm-factors!)
         if (varname.find("saturated_model_sf_")==std::string::npos) var2->setConstant(0);
@@ -707,22 +662,22 @@ void FittingTool::FitExcludingGroup(bool excludeGammas, bool statOnly, RooAbsDat
 
     //constrainedParams->Print("v");
     // repeat the fit here ....
-    RooAbsReal* nll = fitpdf->createNLL(*fitdata,
-                                        RooFit::Constrain(*constrainedParams),
-                                        RooFit::GlobalObservables(*glbObs),
-                                        RooFit::Offset(1),
-                                        NumCPU(TRExFitter::NCPU,RooFit::Hybrid),
-                                        RooFit::Optimize(kTRUE),
-                                        RooFit::ExternalConstraints(*m_externalConstraints)
-                                       );
+    std::unique_ptr<RooAbsReal> nll(fitpdf->createNLL(*fitdata,
+                                    RooFit::Constrain(*constrainedParams),
+                                    RooFit::GlobalObservables(*glbObs),
+                                    RooFit::Offset(1),
+                                    NumCPU(TRExFitter::NCPU,RooFit::Hybrid),
+                                    RooFit::Optimize(kTRUE),
+                                    RooFit::ExternalConstraints(*m_externalConstraints)
+                                   ));
     RooMinimizer minim2(*nll);
     minim2.setStrategy(1);
     minim2.setPrintLevel(1); // set to -1 to reduce output
     minim2.setEps(1);
-    int status = minim2.minimize(ROOT::Math::MinimizerOptions::DefaultMinimizerType().c_str(), ROOT::Math::MinimizerOptions::DefaultMinimizerAlgo().c_str());
-    RooRealVar * thePOI = dynamic_cast<RooRealVar*>(mc->GetParametersOfInterest()->first());
+    const int status = minim2.minimize(ROOT::Math::MinimizerOptions::DefaultMinimizerType().c_str(), ROOT::Math::MinimizerOptions::DefaultMinimizerAlgo().c_str());
+    RooRealVar* thePOI = static_cast<RooRealVar*>(mc->GetParametersOfInterest()->first());
 
-    bool HessStatus= minim2.hesse();
+    const bool HessStatus = minim2.hesse();
 
     RooArgSet minosSet(*thePOI);
     if(m_useMinos && (m_varMinos.at(0)=="all" || find(m_varMinos.begin(),m_varMinos.end(),thePOI->GetName())<m_varMinos.end())){
@@ -731,17 +686,17 @@ void FittingTool::FitExcludingGroup(bool excludeGammas, bool statOnly, RooAbsDat
 
     if (status!=0) WriteErrorStatus("FittingTool::FitExcludingGroup", "unable to perform fit correctly! HessStatus: " + std::to_string(HessStatus));
 
-    double newPOIerr =thePOI->getError();
-    double newPOIerrU=thePOI->getErrorHi();
-    double newPOIerrD=thePOI->getErrorLo();
+    const double newPOIerr =thePOI->getError();
+    const double newPOIerrU=thePOI->getErrorHi();
+    const double newPOIerrD=thePOI->getErrorLo();
 
-    std::string snapshotName = "snapshot_AfterFit_POI_" + category;
+    const std::string snapshotName = "snapshot_AfterFit_POI_" + category;
     ws->saveSnapshot(snapshotName.c_str(), *mc->GetParametersOfInterest() );
 
     ws->loadSnapshot("snapshot_AfterFit_POI_Nominal");
-    double oldPOIerr =thePOI->getError();
-    double oldPOIerrU=thePOI->getErrorHi();
-    double oldPOIerrD=thePOI->getErrorLo();
+    const double oldPOIerr =thePOI->getError();
+    const double oldPOIerrU=thePOI->getErrorHi();
+    const double oldPOIerrD=thePOI->getErrorLo();
 
     // check if uncertainties have increased compared to nominal fit, with 0.5% tolerance
     if ( (std::fabs(newPOIerrU)>std::fabs(oldPOIerrU)*1.005) || (std::fabs(newPOIerrD)>std::fabs(oldPOIerrD)*1.005) ) {

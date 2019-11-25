@@ -20,85 +20,39 @@
 
 //__________________________________________________________________________________
 //
-Sample::Sample(const std::string& name,int type){
-    fName = name;
-    fTitle = name;
-    fTexTitle = "";
-    fGroup = "";
-    fType = type;
-    fFillColor = kWhite;
-    fLineColor = kBlack;
-    fNSyst = 0;
-    fNNorm = 0;
-    fNShape = 0;
-    fNormalizedByTheory = true;
-    fRegions.clear();
-    fLumiScales.clear();
-    fIgnoreSelection = "";
-    fIgnoreWeight = "";
-    fUseMCStat = true;
-    fUseSystematics = true;
-    fDivideBy = "";
-    fMultiplyBy = "";
-    fSmooth = false;
-    fNormToSample = "";
-    fBuildPullTable = 0;
-    fIsMorph.clear();
-    fMorphValue.clear();
-    //
-    // ntuples
-    fSelection = "1";
-    fMCweight = "1";
-    fNtuplePaths.clear();
-    fNtupleFiles.clear();
-    fNtupleNames.clear();
-    fNtuplePathSuffs.clear();
-    fNtupleFileSuffs.clear();
-    fNtupleNameSuffs.clear();
-    //
-    // histograms
-    fHistoPaths.clear();
-    fHistoFiles.clear();
-    fHistoNames.clear();
-    fHistoPathSuffs.clear();
-    fHistoFileSuffs.clear();
-    fHistoNameSuffs.clear();
-    //
-    fNormFactors.clear();
-    fShapeFactors.clear();
-    fSystematics.clear();
-
-    fSubtractSamples.clear();
-    fAddSamples.clear();
-
-    fAsimovReplacementFor = std::make_pair("","");
-
-    fSeparateGammas = false;
-    fMCstatScale = 1.;
-    fCorrelateGammasInRegions.clear();
-    fCorrelateGammasWithSample = "";
-
-    fSystFromSample = "";
+Sample::Sample(const std::string& name,int type) :
+    fName(name),
+    fType(type),
+    fFitName(name),
+    fTitle(name),
+    fTexTitle(""),
+    fGroup(""),
+    fFillColor(kWhite),
+    fLineColor(kBlack),
+    fNormalizedByTheory(true),
+    fIgnoreSelection(""),
+    fIgnoreWeight(""),
+    fUseMCStat(true),
+    fUseSystematics(true),
+    fDivideBy(""),
+    fMultiplyBy(""),
+    fNormToSample(""),
+    fSmooth(false),
+    fBuildPullTable(0),
+    fSelection("1"),
+    fMCweight("1"),
+    fNSyst(0),
+    fNNorm(0),
+    fNShape(0),
+    fSeparateGammas(false),
+    fMCstatScale(1.),
+    fCorrelateGammasWithSample(""),
+    fSystFromSample("") {
 }
 
 //__________________________________________________________________________________
 //
 Sample::~Sample(){
-    for(unsigned int i=0;i<fNormFactors.size();++i){
-        if(fNormFactors[i]){
-            delete fNormFactors[i];
-        }
-    }
-    for(unsigned int i=0;i<fShapeFactors.size();++i){
-        if(fShapeFactors[i]){
-            delete fShapeFactors[i];
-        }
-    }
-    for(unsigned int i=0;i<fSystematics.size();++i){
-        if(fSystematics[i]){
-            delete fSystematics[i];
-        }
-    }
 }
 
 //__________________________________________________________________________________
@@ -176,21 +130,21 @@ void Sample::AddHistoName(const std::string& name){
 //__________________________________________________________________________________
 // norm factors and systs
 void Sample::AddNormFactor(NormFactor* normFactor){
-    fNormFactors.push_back(normFactor);
+    fNormFactors.emplace_back(normFactor);
     fNNorm ++;
 }
 
 //__________________________________________________________________________________
 //
 void Sample::AddShapeFactor(ShapeFactor* shapeFactor){
-    fShapeFactors.push_back(shapeFactor);
+    fShapeFactors.emplace_back(shapeFactor);
     fNShape ++;
 }
 
 //__________________________________________________________________________________
 //
 void Sample::AddSystematic(Systematic* syst){
-    fSystematics.push_back(syst);
+    fSystematics.emplace_back(syst);
     fNSyst++;
 }
 
@@ -224,23 +178,23 @@ bool Sample::HasNormFactor(const std::string& name) const{
 //__________________________________________________________________________________
 //
 NormFactor* Sample::AddNormFactor(const std::string& name,double nominal,double min,double max,bool isConst){
-    fNormFactors.push_back(new NormFactor(name,nominal,min,max,isConst));
+    fNormFactors.emplace_back(new NormFactor(name,nominal,min,max,isConst));
     fNNorm ++;
-    return fNormFactors[fNNorm-1];
+    return fNormFactors[fNNorm-1].get();
 }
 
 //__________________________________________________________________________________
 //
 ShapeFactor* Sample::AddShapeFactor(const std::string& name,double nominal,double min,double max,bool isConst){
-    fShapeFactors.push_back(new ShapeFactor(name,nominal,min,max,isConst));
+    fShapeFactors.emplace_back(new ShapeFactor(name,nominal,min,max,isConst));
     fNShape ++;
-    return fShapeFactors[fNShape-1];
+    return fShapeFactors[fNShape-1].get();
 }
 
 //__________________________________________________________________________________
 //
 Systematic* Sample::AddSystematic(const std::string& name,int type,double up,double down){
-    fSystematics.push_back(new Systematic(name,type,up,down));
+    fSystematics.emplace_back(new Systematic(name,type,up,down));
     fNSyst++;
-    return fSystematics[fNSyst-1];
+    return fSystematics[fNSyst-1].get();
 }

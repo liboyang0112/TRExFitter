@@ -11,8 +11,9 @@
 #include "RooStats/ModelConfig.h"
 
 // c++ includes
-#include <string>
 #include <map>
+#include <memory>
+#include <string>
 #include <vector>
 
 /// Forward declaration
@@ -29,8 +30,8 @@ public:
     // Standard C++ functions
     //
     FittingTool();
-    ~FittingTool();
-    FittingTool( const FittingTool & );
+    ~FittingTool() = default;
+    FittingTool(const FittingTool& rhs) = default;
 
     //
     // Gettters and setters
@@ -65,14 +66,14 @@ public:
     inline void FixNPs( std::vector<std::string> nps, std::vector<double> values ) { m_constNP = nps; m_constNPvalue = values; }
     inline void SetNPs( std::vector<std::string> nps, std::vector<double> values ) { m_initialNP = nps; m_initialNPvalue = values; }
 
-    inline RooFitResult* GetFitResult() const { return m_fitResult; }
+    inline RooFitResult* GetFitResult() const { return m_fitResult.get(); }
 
     inline void RangePOI_up( const double value){m_RangePOI_up = value;}
     inline void RangePOI_down( const double value){m_RangePOI_down = value;}
 
     inline void UseMinos( const std::vector<std::string> minosvar){ m_useMinos = true; m_varMinos = minosvar; }
 
-    inline void SetExternalConstraints( const RooArgSet* externalConstraints = 0 ){ m_externalConstraints = externalConstraints; }
+    inline void SetExternalConstraints( const RooArgSet* externalConstraints = 0 ){ m_externalConstraints = std::unique_ptr<const RooArgSet>(externalConstraints); }
 
     //
     // Specific functions
@@ -96,7 +97,7 @@ private:
     bool m_useMinos;
     std::vector<std::string> m_varMinos;
     bool m_constPOI;
-    RooFitResult* m_fitResult;
+    std::unique_ptr<RooFitResult> m_fitResult;
     int m_debug;
     bool m_noGammas;
     bool m_noSystematics;
@@ -116,7 +117,7 @@ private:
     std::map<std::string, std::string> m_subCategoryMap;
     std::set<std::string> m_subCategories;
 
-    const RooArgSet* m_externalConstraints;
+    std::unique_ptr<const RooArgSet> m_externalConstraints;
 };
 
 

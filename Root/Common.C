@@ -284,8 +284,7 @@ std::vector<std::string> CombinePathSufs( std::vector<std::string> pathSufs,
 //
 std::vector<std::string> ToVec(const std::string& s){
     std::vector<std::string> output;
-    output.clear();
-    output.push_back(s);
+    output.emplace_back(s);
     return output;
 }
 
@@ -496,33 +495,6 @@ double convertStoD(std::string toConvert){
         exit(EXIT_FAILURE);
     }
     return converted;
-}
-
-//__________________________________________________________________________________
-//
-struct BinNom {
-    double N;
-    double dN2;
-    double edge;
-    BinNom(double _N, double _dN2, double _edge) { N = _N; dN2 = _dN2; edge = _edge; }
-};
-
-//__________________________________________________________________________________
-//
-bool systFluctuationNominal(std::vector<BinNom> &hist) {
-    auto dM = [](const BinNom &b) {
-        return sqrt(b.dN2);
-    };
-    auto N = [](const BinNom &b) {
-        return b.N;
-    };
-    int Nbins = hist.size();
-    for (int k = 1; k < Nbins; ++k) {
-        double variation_prev = std::fabs(N(hist[k]) - N(hist[k-1]));
-        double err = std::max(dM(hist[k]), dM(hist[k-1]));
-        if (variation_prev < err) return true;
-    }
-    return false;
 }
 
 //__________________________________________________________________________________
@@ -931,7 +903,7 @@ double HexToDouble(const std::string& s){
 //
 void ScaleNominal(const SampleHist* const sig, TH1* hist){
     for(size_t i_nf=0; i_nf<sig->fSample->fNormFactors.size(); ++i_nf){
-        NormFactor *nf = sig->fSample->fNormFactors[i_nf];
+        NormFactor *nf = sig->fSample->fNormFactors[i_nf].get();
         // if this norm factor is a morphing one
         if(nf->fName.find("morph_")!=std::string::npos || nf->fExpression.first!=""){
             std::string formula = TRExFitter::SYSTMAP[nf->fName];
@@ -967,7 +939,7 @@ double GetNominalMorphScale(const SampleHist* const sh){
     if (!sh) return 1.;
     if (!(sh->fSample)) return 1.;
     for (unsigned int i_nf = 0; i_nf < sh->fSample->fNormFactors.size(); i_nf++){
-        NormFactor *nf = sh->fSample->fNormFactors[i_nf];
+        NormFactor *nf = sh->fSample->fNormFactors[i_nf].get();
         if (!nf) continue;
         std::string nfName = nf->fName;
 
@@ -1002,6 +974,8 @@ double GetNominalMorphScale(const SampleHist* const sh){
     return scale;
 }
 
+//___________________________________________________________
+//
 bool OptionRunsFit(const std::string& opt){
     if (opt.find("w")!=std::string::npos) return true;
     if (opt.find("f")!=std::string::npos) return true;
@@ -1013,6 +987,8 @@ bool OptionRunsFit(const std::string& opt){
     return false;
 }
 
+//___________________________________________________________
+//
 std::unique_ptr<TH1> GetHistCopyNoError(const TH1* const hist){
     if (hist == nullptr) return nullptr;
     std::unique_ptr<TH1> result(static_cast<TH1*>(hist->Clone()));
@@ -1024,16 +1000,13 @@ std::unique_ptr<TH1> GetHistCopyNoError(const TH1* const hist){
     return result;
 }
 
-
-
 // BW helper functions to pad bin numbers for gamma plots
-// replaces them with zero padded versions.  "Gamma Bin 1" -> "Gamma Bin 0001" 
-    
-std::vector<std::string> mysplit(const std::string & s, const char delimiter)
-{
+// replaces them with zero padded versions.  "Gamma Bin 1" -> "Gamma Bin 0001"
+
+std::vector<std::string> mysplit(const std::string & s, const char delimiter) {
     std::vector<std::string> answer;
     std::string token;
-    
+
     // this converts a single char into a string
     // the constructor std:string( n, char )
     // produces a string of n copies of char
@@ -1044,44 +1017,104 @@ std::vector<std::string> mysplit(const std::string & s, const char delimiter)
         //keep the delimiter for easy reconstruction
         answer.push_back(token+localDelim);
     }
-        
+
     //remove the trailing delim from the last token
     std::string last = answer.back();
     if( !last.empty() ) last.pop_back();
-        
+
     answer.pop_back();
     answer.push_back( last );
-        
+
     return answer;
 }
-    
-std::string addpad( const std::string & input, const char filler, const unsigned width )
-{
+
+//___________________________________________________________
+//
+std::string addpad( const std::string & input, const char filler, const unsigned width ) {
     std::stringstream mySS;
-        
+
     mySS.fill(filler);
     mySS.width(width);
-        
+
     mySS << input;
-        
+
     return mySS.str();
-        
+
 }
-    
-std::string pad_trail( const std::string & input )
-{
-        
+
+//___________________________________________________________
+//
+std::string pad_trail( const std::string & input ) {
+
     std::vector<std::string> words = mysplit( input, ' ' );
-        
+
     std::string paddedValue = addpad( words.back(), '0', 4 );
-        
+
     words.pop_back();
     words.push_back( paddedValue );
-        
+
     std::string answer = std::accumulate( words.begin(), words.end(), std::string("") );
-        
+
     return answer;
 }
+
+//___________________________________________________________
+// Helper functions to drop norm or shape part from systematic variations 
+void DropNorm(TH1* hUp,TH1* hDown,TH1* hNom){
+    const double intNom = hNom->Integral();
+    if(hUp!=nullptr){
+        const double intUp = hUp->Integral();
+        if(std::fabs(intUp > 1e-6)) hUp->Scale(intNom/intUp);
+        else WriteWarningStatus("Common::DropNorm","Integral of up variation = 0. Cannot drop normalization.");
+    }
+    if(hDown!=nullptr){
+        const double intDown = hDown->Integral();
+        if(std::fabs(intDown > 1e-6)) hDown->Scale(intNom/intDown);
+        else WriteWarningStatus("Common::DropNorm","Integral of down variation = 0. Cannot drop normalization.");
+    }
+}
+void DropShape(TH1* hUp,TH1* hDown,TH1* hNom){
+    const double intNom = hNom->Integral();
+    if(std::fabs(intNom < 1e-6)) {
+        WriteWarningStatus("Common::DropShape","Integral of nominal histogram = 0. Cannot drop shape of syst variations.");
+        return;
+    }
+    if(hUp!=nullptr){
+        const double ratioUp = hUp->Integral()/intNom;
+        SetHistoBinsFromOtherHist(hUp, hNom); 
+        hUp->Scale(ratioUp);
+    }
+    if(hDown!=nullptr){
+        const double ratioDown = hDown->Integral()/intNom;
+        SetHistoBinsFromOtherHist(hDown, hNom); 
+        hDown->Scale(ratioDown);
+    }
+}
+
+//___________________________________________________________
+//
+void ScaleMCstatInHist(TH1* hist, const double scale) {
+    if (std::fabs(scale-1) < 1e-6) return; // basically scale == 1 but floating precision
+
+    for (int ibin = 1; ibin <= hist->GetNbinsX(); ++ibin) {
+        hist->SetBinError(ibin, scale * hist->GetBinError(ibin));
+    }
+}
+
+//___________________________________________________________
+//
+void SetHistoBinsFromOtherHist(TH1* toSet, const TH1* other) {
+    if (!toSet) return;
+    if (!other) return;
     
+    const int nbins = toSet->GetNbinsX();
+    if (other->GetNbinsX() != nbins) {
+        WriteWarningStatus("Common::SetHistoBinsFromOtherHist","Bin sizes are different! Skipping");
+        return;
+    }
 
-
+    for (int ibin = 1; ibin <= nbins; ++ibin) {
+        toSet->SetBinContent(ibin, other->GetBinContent(ibin));
+        toSet->SetBinError  (ibin, other->GetBinError(ibin));
+    }
+}

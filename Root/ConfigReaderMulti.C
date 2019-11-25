@@ -18,15 +18,11 @@
 
 //_______________________________________________________________________________________
 //
-ConfigReaderMulti::ConfigReaderMulti(MultiFit *multiFitter){
-    fMultiFitter = multiFitter;
+ConfigReaderMulti::ConfigReaderMulti(MultiFit *multiFitter) :
+    fMultiFitter(multiFitter),
+    fGlobalSuffix(""),
+    fOnlyLHscan("") {
     WriteInfoStatus("ConfigReaderMulti::ConfigReaderMulti", "Started reading the config for multifit");
-    fGlobalSuffix = "";
-}
-
-//_______________________________________________________________________________________
-//
-ConfigReaderMulti::~ConfigReaderMulti(){
 }
 
 //_______________________________________________________________________________________

@@ -1,0 +1,339 @@
+
+[1mRooFit v3.60 -- Developed by Wouter Verkerke and David Kirkby[0m 
+                Copyright (C) 2000-2013 NIKHEF, University of California & Stanford University
+                All rights reserved, please read http://roofit.sourceforge.net/license.txt
+
+                    No rights reserved, feel free to use and modify it ;)
+
+Applying ATLAS style settings...
+
+[1;32m=== INFO::ConfigReader::ConfigReader: Started reading the config[0m
+[1;32m=== INFO::ConfigParser::ReadFile: Reading config file: test/configs/FitExampleMorphing.config[0m
+[1;32m=== INFO::trex-fitter::FitExample: Successfully read config file.[0m
+[1;32m=== INFO::TRExFit::PrintConfigSummary: -------------------------------------------[0m
+[1;32m=== INFO::TRExFit::PrintConfigSummary: Job name: FitExampleMorphing[0m
+[1;32m=== INFO::TRExFit::PrintConfigSummary: Reading the following regions:[0m
+[1;32m=== INFO::Region::Print:     Region: SR_lep[0m
+[1;32m=== INFO::Region::Print:     Region: CR_Wmass[0m
+[1;32m=== INFO::TRExFit::PrintConfigSummary: Reading the following samples:[0m
+[1;32m=== INFO::Sample::Print::      Nom_lep[0m
+[1;32m=== INFO::Sample::Print::      Nom_Wmass[0m
+[1;32m=== INFO::Sample::Print::      PseudoData[0m
+[1;32m=== INFO::Sample::Print::      PseudoData[0m
+[1;32m=== INFO::Sample::Print::      Bkg_SR[0m
+[1;32m=== INFO::Sample::Print::      Bkg_CR[0m
+[1;32m=== INFO::Sample::Print::      Signal_0p7[0m
+[1;32m=== INFO::Sample::Print::      Signal_1p0[0m
+[1;32m=== INFO::Sample::Print::      Signal_1p5[0m
+[1;32m=== INFO::Sample::Print::      Signal_2p0[0m
+[1;32m=== INFO::Sample::Print::      Control_Wmass[0m
+[1;32m=== INFO::TRExFit::PrintConfigSummary: Reading the following systematics:[0m
+[1;32m=== INFO::TRExFit::PrintConfigSummary:  bTagSF_B_0[0m
+[1;32m=== INFO::TRExFit::PrintConfigSummary:  JET_BJES_Response[0m
+[1;32m=== INFO::TRExFit::PrintConfigSummary: -------------------------------------------[0m
+Fitting...
+[1;32m=== INFO::TRExFit::Fit: [0m
+[1;32m=== INFO::TRExFit::Fit: -------------------------------------------[0m
+[1;32m=== INFO::TRExFit::Fit: Performing nominal fit...[0m
+[1;32m=== INFO::FittingTool::FitPDF:  ---> Setting ttbarXsec to 1.000000[0m
+[1;32m=== INFO::FittingTool::FitPDF:  ---> Setting ttbarXsec to 1.000000[0m
+[1;32m=== INFO::FittingTool::FitPDF: [0m
+[1;32m=== INFO::FittingTool::FitPDF: [0m
+[1;32m=== INFO::FittingTool::FitPDF: [0m
+[1;32m=== INFO::FittingTool::FitPDF: Fit try no.1[0m
+[1;32m=== INFO::FittingTool::FitPDF: ======================[0m
+[1;32m=== INFO::FittingTool::FitPDF: [0m
+Minuit2Minimizer: Minimize with max-calls 27000 convergence for edm < 1 strategy 1
+MnSeedGenerator: for initial parameters FCN = 202.6981097063
+MnSeedGenerator: Initial state:   - FCN =   202.6981097063 Edm =  3.67176e-05 NCalls =    213
+VariableMetric: start iterating until Edm is < 0.001
+VariableMetric: Initial state   - FCN =   202.6981097063 Edm =  3.67176e-05 NCalls =    213
+VariableMetric: Iteration #   0 - FCN =   202.6981097063 Edm =  3.67176e-05 NCalls =    213
+VariableMetric: Iteration #   1 - FCN =   202.6980578551 Edm =  2.49415e-05 NCalls =    325
+VariableMetric: After Hessian   - FCN =   202.6980578551 Edm =  7.94047e-05 NCalls =   2039
+VariableMetric: Iteration #   2 - FCN =   202.6980578551 Edm =  7.94047e-05 NCalls =   2039
+Minuit2Minimizer : Valid minimum - status = 0
+FVAL  = 202.698057855096977
+Edm   = 7.94047317196660467e-05
+Nfcn  = 2039
+alpha_JET_BJES_Response	  = 0.000435762	 +/-  0.215565	(limited)
+alpha_bTagSF_B_0	  = -2.23231e-05	 +/-  0.564942	(limited)
+gamma_shape_stat_Bkg_CR_CR_Wmass_bin_0	  = 1	 +/-  0.138541	(limited)
+gamma_shape_stat_Bkg_CR_CR_Wmass_bin_1	  = 1	 +/-  0.179351	(limited)
+gamma_shape_stat_Bkg_CR_CR_Wmass_bin_10	  = 1	 +/-  0.0359403	(limited)
+gamma_shape_stat_Bkg_CR_CR_Wmass_bin_11	  = 1	 +/-  0.0334456	(limited)
+gamma_shape_stat_Bkg_CR_CR_Wmass_bin_12	  = 1	 +/-  0.0331745	(limited)
+gamma_shape_stat_Bkg_CR_CR_Wmass_bin_13	  = 1	 +/-  0.0323668	(limited)
+gamma_shape_stat_Bkg_CR_CR_Wmass_bin_14	  = 1	 +/-  0.0336936	(limited)
+gamma_shape_stat_Bkg_CR_CR_Wmass_bin_15	  = 1	 +/-  0.0344943	(limited)
+gamma_shape_stat_Bkg_CR_CR_Wmass_bin_16	  = 1	 +/-  0.0352698	(limited)
+gamma_shape_stat_Bkg_CR_CR_Wmass_bin_17	  = 1	 +/-  0.0389763	(limited)
+gamma_shape_stat_Bkg_CR_CR_Wmass_bin_18	  = 1	 +/-  0.0400633	(limited)
+gamma_shape_stat_Bkg_CR_CR_Wmass_bin_19	  = 1	 +/-  0.0435087	(limited)
+gamma_shape_stat_Bkg_CR_CR_Wmass_bin_2	  = 1	 +/-  0.0782014	(limited)
+gamma_shape_stat_Bkg_CR_CR_Wmass_bin_20	  = 1	 +/-  0.0473785	(limited)
+gamma_shape_stat_Bkg_CR_CR_Wmass_bin_21	  = 1	 +/-  0.0506579	(limited)
+gamma_shape_stat_Bkg_CR_CR_Wmass_bin_22	  = 1	 +/-  0.0560718	(limited)
+gamma_shape_stat_Bkg_CR_CR_Wmass_bin_23	  = 1	 +/-  0.0645301	(limited)
+gamma_shape_stat_Bkg_CR_CR_Wmass_bin_24	  = 1	 +/-  0.0452971	(limited)
+gamma_shape_stat_Bkg_CR_CR_Wmass_bin_3	  = 1	 +/-  0.0606657	(limited)
+gamma_shape_stat_Bkg_CR_CR_Wmass_bin_4	  = 1	 +/-  0.0468688	(limited)
+gamma_shape_stat_Bkg_CR_CR_Wmass_bin_5	  = 1	 +/-  0.0412679	(limited)
+gamma_shape_stat_Bkg_CR_CR_Wmass_bin_6	  = 1	 +/-  0.0378507	(limited)
+gamma_shape_stat_Bkg_CR_CR_Wmass_bin_7	  = 1	 +/-  0.0367189	(limited)
+gamma_shape_stat_Bkg_CR_CR_Wmass_bin_8	  = 1	 +/-  0.0362479	(limited)
+gamma_shape_stat_Bkg_CR_CR_Wmass_bin_9	  = 1	 +/-  0.0345611	(limited)
+gamma_shape_stat_Bkg_SR_SR_lep_bin_0	  = 0.999954	 +/-  0.0677204	(limited)
+gamma_shape_stat_Bkg_SR_SR_lep_bin_1	  = 0.999981	 +/-  0.052331	(limited)
+gamma_shape_stat_Bkg_SR_SR_lep_bin_10	  = 1.00002	 +/-  0.031908	(limited)
+gamma_shape_stat_Bkg_SR_SR_lep_bin_11	  = 0.999987	 +/-  0.0315657	(limited)
+gamma_shape_stat_Bkg_SR_SR_lep_bin_12	  = 0.99998	 +/-  0.0317593	(limited)
+gamma_shape_stat_Bkg_SR_SR_lep_bin_13	  = 1	 +/-  0.0326885	(limited)
+gamma_shape_stat_Bkg_SR_SR_lep_bin_14	  = 0.999958	 +/-  0.0345873	(limited)
+gamma_shape_stat_Bkg_SR_SR_lep_bin_15	  = 0.999935	 +/-  0.0342942	(limited)
+gamma_shape_stat_Bkg_SR_SR_lep_bin_16	  = 1.00004	 +/-  0.0377396	(limited)
+gamma_shape_stat_Bkg_SR_SR_lep_bin_17	  = 0.999996	 +/-  0.0426123	(limited)
+gamma_shape_stat_Bkg_SR_SR_lep_bin_18	  = 1.00004	 +/-  0.0474201	(limited)
+gamma_shape_stat_Bkg_SR_SR_lep_bin_19	  = 1.00004	 +/-  0.049623	(limited)
+gamma_shape_stat_Bkg_SR_SR_lep_bin_2	  = 1.00005	 +/-  0.0454021	(limited)
+gamma_shape_stat_Bkg_SR_SR_lep_bin_20	  = 0.999938	 +/-  0.0565789	(limited)
+gamma_shape_stat_Bkg_SR_SR_lep_bin_21	  = 1.00001	 +/-  0.0567393	(limited)
+gamma_shape_stat_Bkg_SR_SR_lep_bin_22	  = 0.999995	 +/-  0.0584859	(limited)
+gamma_shape_stat_Bkg_SR_SR_lep_bin_23	  = 1.00006	 +/-  0.0709383	(limited)
+gamma_shape_stat_Bkg_SR_SR_lep_bin_24	  = 1.00008	 +/-  0.0866133	(limited)
+gamma_shape_stat_Bkg_SR_SR_lep_bin_3	  = 1.00001	 +/-  0.0419988	(limited)
+gamma_shape_stat_Bkg_SR_SR_lep_bin_4	  = 1.00002	 +/-  0.0390367	(limited)
+gamma_shape_stat_Bkg_SR_SR_lep_bin_5	  = 0.999962	 +/-  0.038835	(limited)
+gamma_shape_stat_Bkg_SR_SR_lep_bin_6	  = 1.00006	 +/-  0.0357337	(limited)
+gamma_shape_stat_Bkg_SR_SR_lep_bin_7	  = 1.00002	 +/-  0.0354376	(limited)
+gamma_shape_stat_Bkg_SR_SR_lep_bin_8	  = 0.999988	 +/-  0.0319979	(limited)
+gamma_shape_stat_Bkg_SR_SR_lep_bin_9	  = 0.99998	 +/-  0.0314063	(limited)
+topWidth	  = 1.3212	 +/-  0.153867	(limited)
+ttbarXsec	  = 1	 +/-  0.01414	(limited)
+Info in Minuit2Minimizer::Hesse : Hesse is valid - matrix is accurate
+Minuit2Minimizer::GetMinosError for parameter 52  topWidth using max-calls 27000, tolerance 1
+MnFunctionCross: parameter 0 set to 1.16707
+MnSeedGenerator: for initial parameters FCN = 203.1976373339
+MnSeedGenerator: Initial state:   - FCN =   203.1976373339 Edm =  0.000591875 NCalls =    113
+VariableMetric: start iterating until Edm is < 0.0005
+VariableMetric: Initial state   - FCN =   203.1976373339 Edm =  0.000591875 NCalls =    113
+VariableMetric: Iteration #   0 - FCN =   203.1976373339 Edm =  0.000591875 NCalls =    113
+VariableMetric: Iteration #   1 - FCN =   203.1971222536 Edm =  6.20196e-06 NCalls =    221
+MnFunctionCross: parameter 0 set to 1.47533
+MnSeedGenerator: for initial parameters FCN = 203.183679832
+MnSeedGenerator: Initial state:   - FCN =    203.183679832 Edm =  0.000340461 NCalls =    113
+VariableMetric: start iterating until Edm is < 0.0005
+VariableMetric: Initial state   - FCN =    203.183679832 Edm =  0.000340461 NCalls =    113
+VariableMetric: Iteration #   0 - FCN =    203.183679832 Edm =  0.000340461 NCalls =    113
+VariableMetric: Iteration #   1 - FCN =   203.1833999591 Edm =  1.43639e-06 NCalls =    221
+MnFunctionCross: parameter 0 set to 1.47764
+MnSeedGenerator: for initial parameters FCN = 203.1982074274
+MnSeedGenerator: Initial state:   - FCN =   203.1982074274 Edm =  6.78557e-05 NCalls =    113
+VariableMetric: start iterating until Edm is < 0.0005
+VariableMetric: Initial state   - FCN =   203.1982074274 Edm =  6.78557e-05 NCalls =    113
+VariableMetric: Iteration #   0 - FCN =   203.1982074274 Edm =  6.78557e-05 NCalls =    113
+VariableMetric: Iteration #   1 - FCN =   203.1981395485 Edm =    9.686e-10 NCalls =    220
+Minos: Lower error for parameter topWidth  :  -0.154275
+Minos: Upper error for parameter topWidth  :  0.156428
+[1;32m=== INFO::FittingTool::FitPDF: [0m
+[1;32m=== INFO::FittingTool::FitPDF: [0m
+[1;32m=== INFO::FittingTool::FitPDF: [0m
+[1;32m=== INFO::FittingTool::FitPDF: ***********************************************************[0m
+[1;32m=== INFO::FittingTool::FitPDF:          FIT FINALIZED SUCCESSFULLY : [0m
+[1;32m=== INFO::FittingTool::FitPDF:             - minuit status 0[0m
+[1;32m=== INFO::FittingTool::FitPDF:             - hess status 0[0m
+[1;32m=== INFO::FittingTool::FitPDF:             - Edm = 0.000080[0m
+[1;32m=== INFO::FittingTool::FitPDF: ***********************************************************[0m
+[1;32m=== INFO::FittingTool::FitPDF: [0m
+[1;32m=== INFO::FittingTool::FitPDF: [0m
+[1;32m=== INFO::FittingTool::FitPDF: [0m
+[1;32m=== INFO::FittingTool::FitPDF:    -> Reduced Final value of the NLL = 618406.57112511480227112770[0m
+[1;32m=== INFO::FittingTool::FitPDF:    -> Final value of the NLL = 1618406.571125[0m
+[1;32m=== INFO::FittingTool::FitPDF:    -> Final value of offset = 1618203.873067[0m
+[1;32m=== INFO::FittingTool::FitPDF:    -> Final NLL - offset = 202.698058[0m
+[1;32m=== INFO::FittingTool::FitPDF: [0m
+[1;32m=== INFO::FittingTool::FitPDF: [0m
+[1;32m=== INFO::FittingTool::FitPDF: [0m
+[1;32m=== INFO::FittingTool::FitPDF: Fit try no.1[0m
+[1;32m=== INFO::FittingTool::FitPDF: ======================[0m
+[1;32m=== INFO::FittingTool::FitPDF: [0m
+Minuit2Minimizer: Minimize with max-calls 51000 convergence for edm < 1 strategy 1
+MnSeedGenerator: for initial parameters FCN = 202.6981097066
+MnSeedGenerator: Initial state:   - FCN =   202.6981097066 Edm =  0.000564635 NCalls =    485
+VariableMetric: start iterating until Edm is < 0.001
+VariableMetric: Initial state   - FCN =   202.6981097066 Edm =  0.000564635 NCalls =    485
+VariableMetric: Iteration #   0 - FCN =   202.6981097066 Edm =  0.000564635 NCalls =    485
+VariableMetric: Iteration #   1 - FCN =   202.6975710676 Edm =   2.3734e-05 NCalls =    692
+VariableMetric: After Hessian   - FCN =   202.6975710676 Edm =  1.21366e-05 NCalls =   6310
+VariableMetric: Iteration #   2 - FCN =   202.6975710676 Edm =  1.21366e-05 NCalls =   6310
+Minuit2Minimizer : Valid minimum - status = 0
+FVAL  = 202.697571067555543
+Edm   = 1.21365948258298985e-05
+Nfcn  = 6310
+alpha_JET_BJES_Response	  = 0.00030858	 +/-  0.995017	(limited)
+alpha_bTagSF_B_0	  = -1.58075e-05	 +/-  1.00278	(limited)
+gamma_saturated_model_sf_CR_Wmass_bin_0	  = 1	 +/-  0.022975	(limited)
+gamma_saturated_model_sf_CR_Wmass_bin_1	  = 1	 +/-  0.0263736	(limited)
+gamma_saturated_model_sf_CR_Wmass_bin_10	  = 1	 +/-  0.0248833	(limited)
+gamma_saturated_model_sf_CR_Wmass_bin_11	  = 1	 +/-  0.0249013	(limited)
+gamma_saturated_model_sf_CR_Wmass_bin_12	  = 1	 +/-  0.0249254	(limited)
+gamma_saturated_model_sf_CR_Wmass_bin_13	  = 1	 +/-  0.024903	(limited)
+gamma_saturated_model_sf_CR_Wmass_bin_14	  = 1	 +/-  0.024847	(limited)
+gamma_saturated_model_sf_CR_Wmass_bin_15	  = 1	 +/-  0.0247871	(limited)
+gamma_saturated_model_sf_CR_Wmass_bin_16	  = 1	 +/-  0.0246943	(limited)
+gamma_saturated_model_sf_CR_Wmass_bin_17	  = 1	 +/-  0.0246826	(limited)
+gamma_saturated_model_sf_CR_Wmass_bin_18	  = 1	 +/-  0.0244867	(limited)
+gamma_saturated_model_sf_CR_Wmass_bin_19	  = 1	 +/-  0.0241496	(limited)
+gamma_saturated_model_sf_CR_Wmass_bin_2	  = 1	 +/-  0.0225148	(limited)
+gamma_saturated_model_sf_CR_Wmass_bin_20	  = 1	 +/-  0.0241459	(limited)
+gamma_saturated_model_sf_CR_Wmass_bin_21	  = 1	 +/-  0.0243153	(limited)
+gamma_saturated_model_sf_CR_Wmass_bin_22	  = 1	 +/-  0.0245704	(limited)
+gamma_saturated_model_sf_CR_Wmass_bin_23	  = 1	 +/-  0.0249324	(limited)
+gamma_saturated_model_sf_CR_Wmass_bin_24	  = 1	 +/-  0.0249083	(limited)
+gamma_saturated_model_sf_CR_Wmass_bin_3	  = 1	 +/-  0.0228315	(limited)
+gamma_saturated_model_sf_CR_Wmass_bin_4	  = 1	 +/-  0.0239062	(limited)
+gamma_saturated_model_sf_CR_Wmass_bin_5	  = 1	 +/-  0.0243997	(limited)
+gamma_saturated_model_sf_CR_Wmass_bin_6	  = 1	 +/-  0.024477	(limited)
+gamma_saturated_model_sf_CR_Wmass_bin_7	  = 1	 +/-  0.0246081	(limited)
+gamma_saturated_model_sf_CR_Wmass_bin_8	  = 1	 +/-  0.0247998	(limited)
+gamma_saturated_model_sf_CR_Wmass_bin_9	  = 1	 +/-  0.0248552	(limited)
+gamma_saturated_model_sf_SR_lep_bin_0	  = 0.999929	 +/-  0.040608	(limited)
+gamma_saturated_model_sf_SR_lep_bin_1	  = 0.999975	 +/-  0.0293806	(limited)
+gamma_saturated_model_sf_SR_lep_bin_10	  = 1.00002	 +/-  0.0258187	(limited)
+gamma_saturated_model_sf_SR_lep_bin_11	  = 0.999988	 +/-  0.0256085	(limited)
+gamma_saturated_model_sf_SR_lep_bin_12	  = 0.999983	 +/-  0.0252564	(limited)
+gamma_saturated_model_sf_SR_lep_bin_13	  = 1	 +/-  0.0247262	(limited)
+gamma_saturated_model_sf_SR_lep_bin_14	  = 0.999966	 +/-  0.0244027	(limited)
+gamma_saturated_model_sf_SR_lep_bin_15	  = 0.999948	 +/-  0.02428	(limited)
+gamma_saturated_model_sf_SR_lep_bin_16	  = 1.00003	 +/-  0.0240008	(limited)
+gamma_saturated_model_sf_SR_lep_bin_17	  = 0.999997	 +/-  0.0237399	(limited)
+gamma_saturated_model_sf_SR_lep_bin_18	  = 1.00003	 +/-  0.0240225	(limited)
+gamma_saturated_model_sf_SR_lep_bin_19	  = 1.00002	 +/-  0.0248222	(limited)
+gamma_saturated_model_sf_SR_lep_bin_2	  = 1.00007	 +/-  0.0256438	(limited)
+gamma_saturated_model_sf_SR_lep_bin_20	  = 0.999959	 +/-  0.0257349	(limited)
+gamma_saturated_model_sf_SR_lep_bin_21	  = 1.00001	 +/-  0.0271727	(limited)
+gamma_saturated_model_sf_SR_lep_bin_22	  = 0.999995	 +/-  0.0296093	(limited)
+gamma_saturated_model_sf_SR_lep_bin_23	  = 1.00006	 +/-  0.0332871	(limited)
+gamma_saturated_model_sf_SR_lep_bin_24	  = 1.00007	 +/-  0.0353968	(limited)
+gamma_saturated_model_sf_SR_lep_bin_3	  = 1.00002	 +/-  0.0242899	(limited)
+gamma_saturated_model_sf_SR_lep_bin_4	  = 1.00002	 +/-  0.0240232	(limited)
+gamma_saturated_model_sf_SR_lep_bin_5	  = 0.999959	 +/-  0.0241797	(limited)
+gamma_saturated_model_sf_SR_lep_bin_6	  = 1.00006	 +/-  0.0247165	(limited)
+gamma_saturated_model_sf_SR_lep_bin_7	  = 1.00002	 +/-  0.0254766	(limited)
+gamma_saturated_model_sf_SR_lep_bin_8	  = 0.999987	 +/-  0.0258547	(limited)
+gamma_saturated_model_sf_SR_lep_bin_9	  = 0.99998	 +/-  0.025889	(limited)
+gamma_shape_stat_Bkg_CR_CR_Wmass_bin_0	  = 1	 +/-  0.139043	(limited)
+gamma_shape_stat_Bkg_CR_CR_Wmass_bin_1	  = 1	 +/-  0.180177	(limited)
+gamma_shape_stat_Bkg_CR_CR_Wmass_bin_10	  = 1	 +/-  0.0360752	(limited)
+gamma_shape_stat_Bkg_CR_CR_Wmass_bin_11	  = 1	 +/-  0.0335795	(limited)
+gamma_shape_stat_Bkg_CR_CR_Wmass_bin_12	  = 1	 +/-  0.033303	(limited)
+gamma_shape_stat_Bkg_CR_CR_Wmass_bin_13	  = 1	 +/-  0.0324992	(limited)
+gamma_shape_stat_Bkg_CR_CR_Wmass_bin_14	  = 1	 +/-  0.0338284	(limited)
+gamma_shape_stat_Bkg_CR_CR_Wmass_bin_15	  = 1	 +/-  0.0346367	(limited)
+gamma_shape_stat_Bkg_CR_CR_Wmass_bin_16	  = 1	 +/-  0.0354195	(limited)
+gamma_shape_stat_Bkg_CR_CR_Wmass_bin_17	  = 1	 +/-  0.0391463	(limited)
+gamma_shape_stat_Bkg_CR_CR_Wmass_bin_18	  = 1	 +/-  0.0402393	(limited)
+gamma_shape_stat_Bkg_CR_CR_Wmass_bin_19	  = 1	 +/-  0.0437046	(limited)
+gamma_shape_stat_Bkg_CR_CR_Wmass_bin_2	  = 1	 +/-  0.0785243	(limited)
+gamma_shape_stat_Bkg_CR_CR_Wmass_bin_20	  = 1	 +/-  0.0475916	(limited)
+gamma_shape_stat_Bkg_CR_CR_Wmass_bin_21	  = 1	 +/-  0.0509005	(limited)
+gamma_shape_stat_Bkg_CR_CR_Wmass_bin_22	  = 1	 +/-  0.0563277	(limited)
+gamma_shape_stat_Bkg_CR_CR_Wmass_bin_23	  = 1	 +/-  0.0648147	(limited)
+gamma_shape_stat_Bkg_CR_CR_Wmass_bin_24	  = 1	 +/-  0.0454779	(limited)
+gamma_shape_stat_Bkg_CR_CR_Wmass_bin_3	  = 1	 +/-  0.060923	(limited)
+gamma_shape_stat_Bkg_CR_CR_Wmass_bin_4	  = 1	 +/-  0.0470885	(limited)
+gamma_shape_stat_Bkg_CR_CR_Wmass_bin_5	  = 1	 +/-  0.0414537	(limited)
+gamma_shape_stat_Bkg_CR_CR_Wmass_bin_6	  = 1	 +/-  0.0380216	(limited)
+gamma_shape_stat_Bkg_CR_CR_Wmass_bin_7	  = 1	 +/-  0.0368839	(limited)
+gamma_shape_stat_Bkg_CR_CR_Wmass_bin_8	  = 1	 +/-  0.0363983	(limited)
+gamma_shape_stat_Bkg_CR_CR_Wmass_bin_9	  = 1	 +/-  0.0347042	(limited)
+gamma_shape_stat_Bkg_SR_SR_lep_bin_0	  = 0.999967	 +/-  0.0683962	(limited)
+gamma_shape_stat_Bkg_SR_SR_lep_bin_1	  = 0.999987	 +/-  0.0528299	(limited)
+gamma_shape_stat_Bkg_SR_SR_lep_bin_10	  = 1.00001	 +/-  0.0320457	(limited)
+gamma_shape_stat_Bkg_SR_SR_lep_bin_11	  = 0.999991	 +/-  0.0316991	(limited)
+gamma_shape_stat_Bkg_SR_SR_lep_bin_12	  = 0.999986	 +/-  0.0318947	(limited)
+gamma_shape_stat_Bkg_SR_SR_lep_bin_13	  = 1	 +/-  0.0328233	(limited)
+gamma_shape_stat_Bkg_SR_SR_lep_bin_14	  = 0.999971	 +/-  0.0347198	(limited)
+gamma_shape_stat_Bkg_SR_SR_lep_bin_15	  = 0.999954	 +/-  0.0344267	(limited)
+gamma_shape_stat_Bkg_SR_SR_lep_bin_16	  = 1.00003	 +/-  0.0378807	(limited)
+gamma_shape_stat_Bkg_SR_SR_lep_bin_17	  = 0.999997	 +/-  0.0427581	(limited)
+gamma_shape_stat_Bkg_SR_SR_lep_bin_18	  = 1.00003	 +/-  0.0475818	(limited)
+gamma_shape_stat_Bkg_SR_SR_lep_bin_19	  = 1.00003	 +/-  0.0497868	(limited)
+gamma_shape_stat_Bkg_SR_SR_lep_bin_2	  = 1.00004	 +/-  0.0457255	(limited)
+gamma_shape_stat_Bkg_SR_SR_lep_bin_20	  = 0.999956	 +/-  0.0567357	(limited)
+gamma_shape_stat_Bkg_SR_SR_lep_bin_21	  = 1.00001	 +/-  0.0568854	(limited)
+gamma_shape_stat_Bkg_SR_SR_lep_bin_22	  = 0.999997	 +/-  0.0586012	(limited)
+gamma_shape_stat_Bkg_SR_SR_lep_bin_23	  = 1.00004	 +/-  0.071043	(limited)
+gamma_shape_stat_Bkg_SR_SR_lep_bin_24	  = 1.00006	 +/-  0.0867405	(limited)
+gamma_shape_stat_Bkg_SR_SR_lep_bin_3	  = 1.00001	 +/-  0.0422319	(limited)
+gamma_shape_stat_Bkg_SR_SR_lep_bin_4	  = 1.00001	 +/-  0.0392483	(limited)
+gamma_shape_stat_Bkg_SR_SR_lep_bin_5	  = 0.999973	 +/-  0.0390328	(limited)
+gamma_shape_stat_Bkg_SR_SR_lep_bin_6	  = 1.00004	 +/-  0.0359064	(limited)
+gamma_shape_stat_Bkg_SR_SR_lep_bin_7	  = 1.00002	 +/-  0.0356018	(limited)
+gamma_shape_stat_Bkg_SR_SR_lep_bin_8	  = 0.999991	 +/-  0.0321593	(limited)
+gamma_shape_stat_Bkg_SR_SR_lep_bin_9	  = 0.999986	 +/-  0.0315522	(limited)
+Info in Minuit2Minimizer::Hesse : Hesse is valid - matrix is accurate
+[1;32m=== INFO::FittingTool::FitPDF: [0m
+[1;32m=== INFO::FittingTool::FitPDF: [0m
+[1;32m=== INFO::FittingTool::FitPDF: [0m
+[1;32m=== INFO::FittingTool::FitPDF: ***********************************************************[0m
+[1;32m=== INFO::FittingTool::FitPDF:          FIT FINALIZED SUCCESSFULLY : [0m
+[1;32m=== INFO::FittingTool::FitPDF:             - minuit status 0[0m
+[1;32m=== INFO::FittingTool::FitPDF:             - hess status 0[0m
+[1;32m=== INFO::FittingTool::FitPDF:             - Edm = 0.000012[0m
+[1;32m=== INFO::FittingTool::FitPDF: ***********************************************************[0m
+[1;32m=== INFO::FittingTool::FitPDF: [0m
+[1;32m=== INFO::FittingTool::FitPDF: [0m
+[1;32m=== INFO::FittingTool::FitPDF: [0m
+[1;32m=== INFO::FittingTool::FitPDF:    -> Reduced Final value of the NLL = 618406.57063832739368081093[0m
+[1;32m=== INFO::FittingTool::FitPDF:    -> Final value of the NLL = 1618406.570638[0m
+[1;32m=== INFO::FittingTool::FitPDF:    -> Final value of offset = 1618203.873067[0m
+[1;32m=== INFO::FittingTool::FitPDF:    -> Final NLL - offset = 202.697571[0m
+[1;32m=== INFO::TRExFit::PerformFit: ----------------------- -------------------------- -----------------------[0m
+[1;32m=== INFO::TRExFit::PerformFit: ----------------------- GOODNESS OF FIT EVALUATION -----------------------[0m
+[1;32m=== INFO::TRExFit::PerformFit:   NLL0        = 1618406.570638[0m
+[1;32m=== INFO::TRExFit::PerformFit:   NLL         = 1618406.571125[0m
+[1;32m=== INFO::TRExFit::PerformFit:   ndof        = 48[0m
+[1;32m=== INFO::TRExFit::PerformFit:   dNLL        = 0.000487[0m
+[1;32m=== INFO::TRExFit::PerformFit:   2dNLL/nof   = 0.000020[0m
+[1;32m=== INFO::TRExFit::PerformFit:   probability = 1.000000[0m
+[1;32m=== INFO::TRExFit::PerformFit: ----------------------- -------------------------- -----------------------[0m
+[1;32m=== INFO::TRExFit::PerformFit: ----------------------- -------------------------- -----------------------[0m
+[1;32m=== INFO::TRExFit::GetLikelihoodScan: Running likelihood scan for the parameter = topWidth[0m
+[1;32m=== INFO::TRExFit::GetLikelihoodScan: GetLikelihoodScan for POI = topWidth[0m
+[1;32m=== INFO::TRExFit::GetLikelihoodScan: GetLikelihoodScan for parameter = topWidth[0m
+[1;32m=== INFO::TRExFit::GetLikelihoodScan: Running LHscan for point 1 out of 30 points[0m
+[1;32m=== INFO::TRExFit::GetLikelihoodScan: Running LHscan for point 2 out of 30 points[0m
+[1;32m=== INFO::TRExFit::GetLikelihoodScan: Running LHscan for point 3 out of 30 points[0m
+[1;32m=== INFO::TRExFit::GetLikelihoodScan: Running LHscan for point 4 out of 30 points[0m
+[1;32m=== INFO::TRExFit::GetLikelihoodScan: Running LHscan for point 5 out of 30 points[0m
+[1;32m=== INFO::TRExFit::GetLikelihoodScan: Running LHscan for point 6 out of 30 points[0m
+[1;32m=== INFO::TRExFit::GetLikelihoodScan: Running LHscan for point 7 out of 30 points[0m
+[1;32m=== INFO::TRExFit::GetLikelihoodScan: Running LHscan for point 8 out of 30 points[0m
+[1;32m=== INFO::TRExFit::GetLikelihoodScan: Running LHscan for point 9 out of 30 points[0m
+[1;32m=== INFO::TRExFit::GetLikelihoodScan: Running LHscan for point 10 out of 30 points[0m
+[1;32m=== INFO::TRExFit::GetLikelihoodScan: Running LHscan for point 11 out of 30 points[0m
+[1;32m=== INFO::TRExFit::GetLikelihoodScan: Running LHscan for point 12 out of 30 points[0m
+[1;32m=== INFO::TRExFit::GetLikelihoodScan: Running LHscan for point 13 out of 30 points[0m
+[1;32m=== INFO::TRExFit::GetLikelihoodScan: Running LHscan for point 14 out of 30 points[0m
+[1;32m=== INFO::TRExFit::GetLikelihoodScan: Running LHscan for point 15 out of 30 points[0m
+[1;32m=== INFO::TRExFit::GetLikelihoodScan: Running LHscan for point 16 out of 30 points[0m
+[1;32m=== INFO::TRExFit::GetLikelihoodScan: Running LHscan for point 17 out of 30 points[0m
+[1;32m=== INFO::TRExFit::GetLikelihoodScan: Running LHscan for point 18 out of 30 points[0m
+[1;32m=== INFO::TRExFit::GetLikelihoodScan: Running LHscan for point 19 out of 30 points[0m
+[1;32m=== INFO::TRExFit::GetLikelihoodScan: Running LHscan for point 20 out of 30 points[0m
+[1;32m=== INFO::TRExFit::GetLikelihoodScan: Running LHscan for point 21 out of 30 points[0m
+[1;32m=== INFO::TRExFit::GetLikelihoodScan: Running LHscan for point 22 out of 30 points[0m
+[1;32m=== INFO::TRExFit::GetLikelihoodScan: Running LHscan for point 23 out of 30 points[0m
+[1;32m=== INFO::TRExFit::GetLikelihoodScan: Running LHscan for point 24 out of 30 points[0m
+[1;32m=== INFO::TRExFit::GetLikelihoodScan: Running LHscan for point 25 out of 30 points[0m
+[1;32m=== INFO::TRExFit::GetLikelihoodScan: Running LHscan for point 26 out of 30 points[0m
+[1;32m=== INFO::TRExFit::GetLikelihoodScan: Running LHscan for point 27 out of 30 points[0m
+[1;32m=== INFO::TRExFit::GetLikelihoodScan: Running LHscan for point 28 out of 30 points[0m
+[1;32m=== INFO::TRExFit::GetLikelihoodScan: Running LHscan for point 29 out of 30 points[0m
+[1;32m=== INFO::TRExFit::GetLikelihoodScan: Running LHscan for point 30 out of 30 points[0m
+mkdir: created directory ‘FitExampleMorphing/LHoodPlots/’
+[1;32m=== INFO::TRExFit::ReadFitResults: ------------------------------------------------------[0m
+[1;32m=== INFO::TRExFit::ReadFitResults: Reading fit results from file [0m
+[1;32m=== INFO::TRExFit::ReadFitResults: ------------------------------------------------------[0m
+[1;32m=== INFO::TRExFit::ReadFitResults: Reading fit results from file [0m
