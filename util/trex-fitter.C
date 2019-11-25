@@ -214,7 +214,7 @@ void FitExample(std::string opt="h",std::string configFile="config/myFit.config"
         if(TRExFitter::SYSTDATAPLOT)     myFit->DrawSystPlotsSumSamples();
     }
     else{
-        if(drawPreFit || drawPostFit || createWorkspace || drawSeparation || rebinAndSmooth) myFit->ReadHistos();
+        if(drawPreFit || drawPostFit || createWorkspace || drawSeparation || rebinAndSmooth || groupedImpact) myFit->ReadHistos();
     }
 
     if(rebinAndSmooth){
