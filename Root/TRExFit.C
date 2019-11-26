@@ -8002,15 +8002,14 @@ void TRExFit::ProduceSystSubCategoryMap(){
         else{
             // treat SHAPE systematics separately, since they are not prefixed with "alpha_", but "gamma_shape_" instead
             // need one per bin per region
-            int nRegionBins = 0;
-            for(auto reg : fRegions){
+            for(const auto& reg : fRegions){
                 if(reg->fNSamples < 1){
                     WriteErrorStatus("TRExFit::ProduceSystSubCategoryMap", "Can not determine binning (no samples assigned to region?), exiting");
                     exit(EXIT_FAILURE);
                 }
 
                 // determine the amount of bins in this region, requires that ReadHistos() was used
-                nRegionBins = reg->fSampleHists[0]->fHist->GetNbinsX();
+                int nRegionBins = reg->fSampleHists[0]->fHist->GetNbinsX();
 
                 // sanity check, this should match for ntuples, for histogram configs fNbins is initialized as 0
                 if((reg->fNbins>0) && (reg->fNbins != nRegionBins)){
