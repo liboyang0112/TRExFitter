@@ -1,5 +1,8 @@
 #!bin/sh
 
+function version_gt() { test "$(printf '%s\n' "$@" | sort -V | head -n 1)" != "$1"; }
+
+
 if [ "${BASH_SOURCE[0]}" != "" ]; then
     # This should work in bash.
     _src=${BASH_SOURCE[0]}
@@ -24,10 +27,17 @@ unset _src
 # added back by Michele
 export ATLAS_LOCAL_ROOT_BASE=/cvmfs/atlas.cern.ch/repo/ATLASLocalRootBase
 source ${ATLAS_LOCAL_ROOT_BASE}/user/atlasLocalSetup.sh --quiet
-if [ "${1}" = "slc6" ]; then
-    lsetup "root 6.18.00-x86_64-slc6-gcc8-opt" --quiet
+if [ "${ROOTSYS}" = "" ]; then
+    if [ "${1}" = "slc6" ]; then
+	lsetup "root 6.18.00-x86_64-slc6-gcc8-opt" --quiet
+    else
+	lsetup "root 6.18.04-x86_64-centos7-gcc8-opt" --quiet
+    fi
 else
-    lsetup "root 6.18.04-x86_64-centos7-gcc8-opt" --quiet
+    root_version=`root-config --version`
+    if version_gt 6.18 $root_version; then
+	echo "root already loaded, but root version too old: $root_version"
+    fi
 fi
 
 if [ "${ROOTSYS}" = "" ]; then
