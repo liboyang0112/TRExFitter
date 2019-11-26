@@ -36,7 +36,7 @@ if [ "${ROOTSYS}" = "" ]; then
 else
     root_version=`root-config --version`
     if version_gt 6.18 $root_version; then
-	echo "root already loaded, but root version too old: $root_version"
+	echo "ERROR root already loaded, but root version too old: $root_version"
     fi
 fi
 
