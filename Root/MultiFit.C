@@ -1790,7 +1790,7 @@ void MultiFit::PlotNPRanking(bool flagSysts, bool flagGammas) const {
     // trick to merge the ranking outputs produced in parallel:
     string cmd = " if [[ `ls "+fOutDir+"/Fits/NPRanking_*` != \"\" ]] ; then";
     cmd       += " if [[ `ls "+fOutDir+"/Fits/NPRanking.txt` == \"\" ]] ; then";
-    cmd       += " cat "+fName+"/Fits/NPRanking_* > "+fileToRead+" ; ";
+    cmd       += " cat "+fOutDir+"/Fits/NPRanking_* > "+fileToRead+" ; ";
     cmd       += " fi ;";
     cmd       += " fi ;";
     gSystem->Exec(cmd.c_str());
