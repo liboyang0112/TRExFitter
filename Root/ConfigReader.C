@@ -3554,6 +3554,16 @@ int ConfigReader::ReadSystOptions(){
                     sys->fHistoFilesDown.push_back(RemoveQuotes(param));
                     hasDown = true;
                 }
+                param = confSet->Get("HistoFilesUp");
+                if(param!=""){
+                    sys->fHistoFilesUp = Vectorize(param, ',');
+                    hasUp   = true;
+                }
+                param = confSet->Get("HistoFilesDown");
+                if(param!=""){
+                    sys->fHistoFilesDown = Vectorize(param, ',');
+                    hasDown = true;
+                }
                 param = confSet->Get("HistoFileSufUp");
                 if(param!=""){
                     sys->fHistoFileSufUp = RemoveQuotes(param);
@@ -3623,6 +3633,16 @@ int ConfigReader::ReadSystOptions(){
                 param = confSet->Get("HistoFileDownRefSample");
                 if(param!=""){
                     sys->fHistoFilesDownRefSample.push_back(RemoveQuotes(param));
+                    hasDown = true;
+                }
+                param = confSet->Get("HistoFilesUpRefSample");
+                if(param!=""){
+                    sys->fHistoFilesUpRefSample = Vectorize(param, ',');
+                    hasUp   = true;
+                }
+                param = confSet->Get("HistoFilesDownRefSample");
+                if(param!=""){
+                    sys->fHistoFilesDownRefSample = Vectorize(param, ',');
                     hasDown = true;
                 }
                 param = confSet->Get("HistoFilesUpRefSample");
