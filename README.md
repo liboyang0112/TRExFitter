@@ -548,6 +548,8 @@ For each object type (also called "block"), here is the list of available proper
 | HistoPathSufDown             | only for option HIST, for HISTO or SHAPE systematic: suffix of the histogram file names for systematic down variation |
 | HistoFileUp                  | only for option HIST, for HISTO or SHAPE systematic: histogram file name for systematic up variation |
 | HistoFileDown                | only for option HIST, for HISTO or SHAPE systematic: histogram file name for systematic down variation |
+| HistoFilesUp                 | only for option HIST, for HISTO or SHAPE systematic: comma separated list of file names for systematic up variation |
+| HistoFilesDown               | only for option HIST, for HISTO or SHAPE systematic: comma separated list of file names for systematic down variation |
 | HistoFileSufUp               | only for option HIST, for HISTO or SHAPE systematic: suffix of the histogram file names for systematic up variation |
 | HistoFileSufDown             | only for option HIST, for HISTO or SHAPE systematic: suffix of the histogram file names for systematic down variation |
 | HistoNameUp                  | only for option HIST, for HISTO or SHAPE systematic: histogram name for systematic up variation |
@@ -595,6 +597,8 @@ For each object type (also called "block"), here is the list of available proper
 | HistoPathSufDownRefSample    | only for option HIST, for HISTO or SHAPE systematic: reference sample suffix of the histogram file names for systematic down variation |
 | HistoFileUpRefSample         | only for option HIST, for HISTO or SHAPE systematic: reference sample histogram file name for systematic up variation |
 | HistoFileDownRefSample       | only for option HIST, for HISTO or SHAPE systematic: reference sample histogram file name for systematic down variation |
+| HistoFilesUpRefSample        | only for option HIST, for HISTO or SHAPE systematic: comma separated list of histogram file name for reference file for systematic up variation |
+| HistoFilesDownRefSample      | only for option HIST, for HISTO or SHAPE systematic: comma separated list of histogram file name for reference file for systematic down variation |
 | HistoFileSufUpRefSample      | only for option HIST, for HISTO or SHAPE systematic: reference sample suffix of the histogram file names for systematic up variation |
 | HistoFileSufDownRefSample    | only for option HIST, for HISTO or SHAPE systematic: reference sample suffix of the histogram file names for systematic down variation |
 | HistoNameUpRefSample         | only for option HIST, for HISTO or SHAPE systematic: reference sample histogram name for systematic up variation |
