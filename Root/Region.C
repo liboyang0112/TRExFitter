@@ -126,7 +126,7 @@ Region::Region(const string& name) :
     fLegendX2(-1),
     fLegendY(-1),
     fLegendNColumns(2) {
-    
+
 
     int canvasWidth = 600;
     int canvasHeight = 700;

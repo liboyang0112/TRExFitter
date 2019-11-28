@@ -7984,29 +7984,53 @@ bool TRExFit::MorphIsAlreadyPresent(const std::string& name, const double value)
 //____________________________________________________________________________________
 // create a map associating parameters to their SubCategory
 void TRExFit::ProduceSystSubCategoryMap(){
-   WriteDebugStatus("TRExFit::ProduceSystSubCategoryMap", "filling SubCategory map");
+    WriteDebugStatus("TRExFit::ProduceSystSubCategoryMap", "filling SubCategory map");
 
-   // special treatment needed for two cases:
-   // 1) stat-only fit where all parameters are fixed, see FittingTool::GetGroupedImpact()
-   // 2) fit with all Gammas fixed, see FittingTool::GetGroupedImpact()
-   fSubCategoryImpactMap.insert(std::make_pair("DUMMY_STATONLY", "FullSyst"));
-   fSubCategoryImpactMap.insert(std::make_pair("DUMMY_GAMMAS", "Gammas"));
+    // special treatment needed for two cases:
+    // 1) stat-only fit where all parameters are fixed, see FittingTool::GetGroupedImpact()
+    // 2) fit with all Gammas fixed, see FittingTool::GetGroupedImpact()
+    fSubCategoryImpactMap.insert(std::make_pair("DUMMY_STATONLY", "FullSyst"));
+    fSubCategoryImpactMap.insert(std::make_pair("DUMMY_GAMMAS", "Gammas"));
 
-   // add all systematics, here an "alpha_" prefix is needed
-   for(int i_syst=0;i_syst<fNSyst;i_syst++){
-       if(fSystematics[i_syst]->fSubCategory=="Gammas" || fSystematics[i_syst]->fSubCategory=="FullSyst" || fSystematics[i_syst]->fSubCategory=="combine")
-            WriteWarningStatus("TRExFit::ProduceSystSubCategoryMap"," use of \"Gammas\", \"FullSyst\" or \"combine\" as SubCategory names is not supported, you will likely run into issues");
-       fSubCategoryImpactMap.insert(std::make_pair(("alpha_" + fSystematics[i_syst]->fNuisanceParameter).c_str(), fSystematics[i_syst]->fSubCategory));
-   }
+    // add all systematics, here an "alpha_" prefix is needed
+    for(int i_syst=0;i_syst<fNSyst;i_syst++){
+        if(fSystematics[i_syst]->fSubCategory=="Gammas" || fSystematics[i_syst]->fSubCategory=="FullSyst" || fSystematics[i_syst]->fSubCategory=="combine")
+             WriteWarningStatus("TRExFit::ProduceSystSubCategoryMap"," use of \"Gammas\", \"FullSyst\" or \"combine\" as SubCategory names is not supported, you will likely run into issues");
+        if(fSystematics[i_syst]->fType!=Systematic::SHAPE){
+            fSubCategoryImpactMap.insert(std::make_pair(("alpha_" + fSystematics[i_syst]->fNuisanceParameter).c_str(), fSystematics[i_syst]->fSubCategory));
+        }
+        else{
+            // treat SHAPE systematics separately, since they are not prefixed with "alpha_", but "gamma_shape_" instead
+            // need one per bin per region
+            for(const auto& reg : fRegions){
+                if(reg->fNSamples < 1){
+                    WriteErrorStatus("TRExFit::ProduceSystSubCategoryMap", "Can not determine binning (no samples assigned to region?), exiting");
+                    exit(EXIT_FAILURE);
+                }
 
-   // also add norm factors, no "alpha_" needed
-   for(int i_nf=0;i_nf<fNNorm;i_nf++){
-       if(fNormFactors[i_nf]->fSubCategory=="Gammas" || fNormFactors[i_nf]->fSubCategory=="FullSyst" || fNormFactors[i_nf]->fSubCategory=="combine")
-            WriteWarningStatus("TRExFit::ProduceSystSubCategoryMap"," use of \"Gammas\", \"FullSyst\" or \"combine\" as SubCategory names is not supported, you will likely run into issues");
-       if (fNormFactors[i_nf]->fName != fPOI) {
-           fSubCategoryImpactMap.insert(std::make_pair(fNormFactors[i_nf]->fNuisanceParameter, fNormFactors[i_nf]->fSubCategory));
-       }
-   }
+                // determine the amount of bins in this region, requires that ReadHistos() was used
+                int nRegionBins = reg->fSampleHists[0]->fHist->GetNbinsX();
+
+                // sanity check, this should match for ntuples, for histogram configs fNbins is initialized as 0
+                if((reg->fNbins>0) && (reg->fNbins != nRegionBins)){
+                    WriteErrorStatus("TRExFit::ProduceSystSubCategoryMap","Inconsistent number of bins determined for region " + reg->fName);
+                }
+
+                for(int i_bin=1; i_bin < nRegionBins+1; i_bin++){
+                    fSubCategoryImpactMap.insert(std::make_pair(Form("gamma_shape_%s_%s_bin_%d",(fSystematics[i_syst]->fNuisanceParameter).c_str(),(reg->fName).c_str(),i_bin-1), fSystematics[i_syst]->fSubCategory));
+                }
+            }
+        }
+    }
+
+    // also add norm factors, no "alpha_" needed
+    for(int i_nf=0;i_nf<fNNorm;i_nf++){
+        if(fNormFactors[i_nf]->fSubCategory=="Gammas" || fNormFactors[i_nf]->fSubCategory=="FullSyst" || fNormFactors[i_nf]->fSubCategory=="combine")
+             WriteWarningStatus("TRExFit::ProduceSystSubCategoryMap"," use of \"Gammas\", \"FullSyst\" or \"combine\" as SubCategory names is not supported, you will likely run into issues");
+        if (fNormFactors[i_nf]->fName != fPOI) {
+            fSubCategoryImpactMap.insert(std::make_pair(fNormFactors[i_nf]->fNuisanceParameter, fNormFactors[i_nf]->fSubCategory));
+        }
+    }
 }
 
 //____________________________________________________________________________________
