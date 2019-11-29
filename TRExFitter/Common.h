@@ -181,4 +181,11 @@ void DropShape(TH1* hUp,TH1* hDown,TH1* hNom);
 
 void SetHistoBinsFromOtherHist(TH1* toSet, const TH1* other);
 
+/**
+ * Helper function to get the integral of a histogram only considering positive bins
+ * @param pinter to histogram
+ * @return the effective integral
+ */
+double EffIntegral(const TH1* const h);
+
 #endif

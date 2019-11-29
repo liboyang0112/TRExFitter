@@ -1,5 +1,6 @@
 // Class include
 #include "TRExFitter/PruningUtil.h"
+#include "TRExFitter/Common.h"
 
 // C++ includes
 #include <memory>
@@ -56,14 +57,14 @@ int PruningUtil::CheckSystPruning(const TH1* const hUp,const TH1* const hDown,co
     // create shape-only syst variations
     std::unique_ptr<TH1> hShapeUp        = nullptr;
     if(hUp) hShapeUp     = std::unique_ptr<TH1>(static_cast<TH1*>(hUp  ->Clone(Form("%s_shape",hUp  ->GetName()))));
-    if(hShapeUp) hShapeUp->Scale( hNom->Integral()/hShapeUp->Integral() );
+    if(hShapeUp) hShapeUp->Scale( EffIntegral(hNom)/EffIntegral(hShapeUp.get()) );
     std::unique_ptr<TH1> hShapeDown      = nullptr;
     if(hDown) hShapeDown = std::unique_ptr<TH1>(static_cast<TH1*>(hDown->Clone(Form("%s_shape",hDown->GetName()))));
-    if(hShapeDown) hShapeDown->Scale( hNom->Integral()/hShapeDown->Integral() );
+    if(hShapeDown) hShapeDown->Scale( EffIntegral(hNom)/EffIntegral(hShapeDown.get()) );
     //
     // get norm effects
-    double normUp   = std::fabs((hUp  ->Integral()-hNom->Integral())/hRef->Integral());
-    double normDown = std::fabs((hDown->Integral()-hNom->Integral())/hRef->Integral());
+    double normUp   = std::fabs((EffIntegral(hUp  )-EffIntegral(hNom))/EffIntegral(hRef.get()));
+    double normDown = std::fabs((EffIntegral(hDown)-EffIntegral(hNom))/EffIntegral(hRef.get()));
     //
     // check if systematic has no shape --> 1
     bool hasShape = true;
@@ -108,6 +109,7 @@ bool PruningUtil::HasShapeRelative(const TH1* const hNom, const TH1* const hUp, 
 
     for (int ibin = 1; ibin <= hUp->GetNbinsX(); ++ibin){
         const double& nominal  = hNom->GetBinContent(ibin);
+        if(nominal<0) continue;
         const double& comb     = combined->GetBinContent(ibin);
         const double& up       = hUp->GetBinContent(ibin);
         const double& down     = hDown->GetBinContent(ibin);
