@@ -1118,3 +1118,11 @@ void SetHistoBinsFromOtherHist(TH1* toSet, const TH1* other) {
         toSet->SetBinError  (ibin, other->GetBinError(ibin));
     }
 }
+double EffIntegral(const TH1* const h){
+    double integral = 0.;
+    for (int ibin = 1; ibin <= h->GetNbinsX(); ++ibin){
+        if(h->GetBinContent(ibin)>=0) integral += h->GetBinContent(ibin);
+    }
+    return integral;
+}
+
