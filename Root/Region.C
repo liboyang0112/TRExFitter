@@ -1571,41 +1571,42 @@ std::unique_ptr<TRExPlot> Region::DrawPostFit(FitResults* fitRes,
     //
     // 3) Add the new Sig and Bkg to plot
     //
-    string title;
-    TH1* hBkgNew[MAXsamples];
-    TH1* hSigNew[MAXsamples];
-    for(int i=0, i_bkg=0, i_sig=0;i<fNSamples;i++){
-        if(fSampleHists[i]->fSample->fType==Sample::BACKGROUND){
-            hBkgNew[i_bkg] = hSmpNew[i];
-            i_bkg++;
+    {
+        std::vector<TH1*> hBkgNew(MAXsamples);
+        std::vector<TH1*> hSigNew(MAXsamples);
+        for(int i=0, i_bkg=0, i_sig=0;i<fNSamples;i++){
+            if(fSampleHists[i]->fSample->fType==Sample::BACKGROUND){
+                hBkgNew[i_bkg] = hSmpNew[i];
+                i_bkg++;
+            }
+            if(fSampleHists[i]->fSample->fType==Sample::SIGNAL){
+                hSigNew[i_sig] = hSmpNew[i];
+                i_sig++;
+            }
         }
-        if(fSampleHists[i]->fSample->fType==Sample::SIGNAL){
-            hSigNew[i_sig] = hSmpNew[i];
-            i_sig++;
+        if(fHasData && opt.find("blind")==string::npos) p->SetData(fData->fHist.get(),fData->fSample->fTitle);
+        for(int i=0;i<fNSig;i++){
+            std::string title = fSig[i]->fSample->fTitle;
+            if(fSig[i]->fSample->fGroup != "") title = fSig[i]->fSample->fGroup;
+            if(TRExFitter::SHOWSTACKSIG)    p->AddSignal(    hSigNew[i],title);
+            if(TRExFitter::SHOWNORMSIG){
+                if( (TRExFitter::OPTION["NormSigSRonly"] && fRegionType==SIGNAL)
+                 || !TRExFitter::OPTION["NormSigSRonly"] )
+                    p->AddNormSignal(hSigNew[i],title);
+            }
+            else{
+                if(TRExFitter::OPTION["NormSigSRonly"] && fRegionType==SIGNAL) p->AddNormSignal(hSigNew[i],title);
+            }
+            if(TRExFitter::SHOWOVERLAYSIG){
+                ScaleNominal(fSig[i],hSigNew[i]);
+                p->AddOverSignal(hSigNew[i],title);
+            }
         }
-    }
-    if(fHasData && opt.find("blind")==string::npos) p->SetData(fData->fHist.get(),fData->fSample->fTitle);
-    for(int i=0;i<fNSig;i++){
-        title = fSig[i]->fSample->fTitle;
-        if(fSig[i]->fSample->fGroup != "") title = fSig[i]->fSample->fGroup;
-        if(TRExFitter::SHOWSTACKSIG)    p->AddSignal(    hSigNew[i],title);
-        if(TRExFitter::SHOWNORMSIG){
-            if( (TRExFitter::OPTION["NormSigSRonly"] && fRegionType==SIGNAL)
-             || !TRExFitter::OPTION["NormSigSRonly"] )
-                p->AddNormSignal(hSigNew[i],title);
+        for(int i=0;i<fNBkg;i++){
+            std::string title = fBkg[i]->fSample->fTitle;
+            if(fBkg[i]->fSample->fGroup != "") title = fBkg[i]->fSample->fGroup;
+            p->AddBackground(hBkgNew[i],title);
         }
-        else{
-            if(TRExFitter::OPTION["NormSigSRonly"] && fRegionType==SIGNAL) p->AddNormSignal(hSigNew[i],title);
-        }
-        if(TRExFitter::SHOWOVERLAYSIG){
-            ScaleNominal(fSig[i],hSigNew[i]);
-            p->AddOverSignal(hSigNew[i],title);
-        }
-    }
-    for(int i=0;i<fNBkg;i++){
-        title = fBkg[i]->fSample->fTitle;
-        if(fBkg[i]->fSample->fGroup != "") title = fBkg[i]->fSample->fGroup;
-        p->AddBackground(hBkgNew[i],title);
     }
 
     //
@@ -1678,7 +1679,7 @@ std::unique_ptr<TRExPlot> Region::DrawPostFit(FitResults* fitRes,
     WriteDebugStatus("Region::DrawPostFit", "--------------------");
     WriteDebugStatus("Region::DrawPostFit", "Final bin contents");
     WriteDebugStatus("Region::DrawPostFit", "--------------------");
-        for(int i_bin=1;i_bin<=fTot_postFit->GetNbinsX();i_bin++){
+    for(int i_bin=1;i_bin<=fTot_postFit->GetNbinsX();i_bin++) {
         WriteDebugStatus("Region::DrawPostFit", std::to_string(i_bin) + ":\t" + std::to_string(fTot_postFit->GetBinContent(i_bin)) + " +" +
         std::to_string( fErr_postFit->GetErrorYhigh(i_bin-1)) + " -" + std::to_string(fErr_postFit->GetErrorYlow(i_bin-1)));
     }
@@ -1688,13 +1689,14 @@ std::unique_ptr<TRExPlot> Region::DrawPostFit(FitResults* fitRes,
     //
     gSystem->mkdir((fFitName+"/Histograms").c_str());
     WriteInfoStatus("Region::DrawPostFit", "Writing file " + fFitName+"/Histograms/"+fName+fSuffix+"_postFit.root");
-    TFile *f = new TFile((fFitName+"/Histograms/"+fName+fSuffix+"_postFit.root").c_str(),"RECREATE");
+    std::unique_ptr<TFile> f = std::make_unique<TFile>((fFitName+"/Histograms/"+fName+fSuffix+"_postFit.root").c_str(),"RECREATE");
     f->cd();
     fErr_postFit->Write("",TObject::kOverwrite);
     fTot_postFit->Write("",TObject::kOverwrite);
-    if( fPlotPostFit->h_tot_bkg_prefit)
+    if( fPlotPostFit->h_tot_bkg_prefit) {
       fPlotPostFit->h_tot_bkg_prefit->Write("",TObject::kOverwrite);
-    for(int i_syst=0;i_syst<(int)fSystNames.size();i_syst++){
+    }
+    for(std::size_t i_syst=0; i_syst<fSystNames.size(); ++i_syst){
         if(fTotUp_postFit[i_syst])   fTotUp_postFit[i_syst]  ->Write("",TObject::kOverwrite);
         if(fTotDown_postFit[i_syst]) fTotDown_postFit[i_syst]->Write("",TObject::kOverwrite);
     }
@@ -1705,20 +1707,23 @@ std::unique_ptr<TRExPlot> Region::DrawPostFit(FitResults* fitRes,
         }
         if(fSampleHists[i]->fHist_postFit){
             fSampleHists[i]->fHist_postFit->Write(Form("h_%s_postFit",fSampleHists[i]->fName.c_str()),TObject::kOverwrite);
-            for(unsigned int i_syst=0;i_syst<fSampleHists[i]->fSyst.size();i_syst++){
-                if(fSampleHists[i]->fSyst[i_syst])
-                    if(fSampleHists[i]->fSyst[i_syst]->fHistUp_postFit)
+            for(std::size_t i_syst=0;i_syst<fSampleHists[i]->fSyst.size();i_syst++) {
+                if(fSampleHists[i]->fSyst[i_syst]) {
+                    if(fSampleHists[i]->fSyst[i_syst]->fHistUp_postFit) {
                         fSampleHists[i]->fSyst[i_syst]->fHistUp_postFit  ->Write(
                           Form("h_%s_%s_Up_postFit",fSampleHists[i]->fName.c_str(),fSampleHists[i]->fSyst[i_syst]->fName.c_str()), TObject::kOverwrite);
-                if(fSampleHists[i]->fSyst[i_syst])
-                    if(fSampleHists[i]->fSyst[i_syst]->fHistDown_postFit)
+                    }
+                }
+                if(fSampleHists[i]->fSyst[i_syst]) {
+                    if(fSampleHists[i]->fSyst[i_syst]->fHistDown_postFit) {
                         fSampleHists[i]->fSyst[i_syst]->fHistDown_postFit->Write(
                           Form("h_%s_%s_Down_postFit",fSampleHists[i]->fName.c_str(),fSampleHists[i]->fSyst[i_syst]->fName.c_str()),TObject::kOverwrite);
+                    }
+                }
             }
         }
     }
     f->Close();
-    delete f;
     //
     return p;
 }
