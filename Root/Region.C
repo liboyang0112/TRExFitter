@@ -785,15 +785,15 @@ double Region::GetMultFactors( FitResults *fitRes, std::ofstream& pullTex,
     double multNorm = 1.;
     double multShape = 0.;
     double systValue = 0.;
-    SampleHist *sh = fSampleHists[i].get();
-    for(int i_syst=0;i_syst<sh->fNSyst;i_syst++){
-        SystematicHist *syh = sh->fSyst[i_syst].get();
+    const SampleHist *sh = fSampleHists[i].get();
+    for(int i_syst=0; i_syst<sh->fNSyst; ++i_syst){
+        const SystematicHist *syh = sh->fSyst[i_syst].get();
         std::string systName = syh->fName;
         TString systNameNew(systName); // used in pull tables
-        Systematic *syst = syh->fSystematic;
+        const Systematic *syst = syh->fSystematic;
         bool isOverall = syh->fIsOverall;
         bool isShape   = syh->fIsShape;
-        if(syst!=nullptr){
+        if(syst){
             if(isOverall && syst->fIsShapeOnly) isOverall = false;
             if(isShape && syst->fIsNormOnly) isShape = false;
             systName = syst->fNuisanceParameter;
@@ -820,9 +820,9 @@ double Region::GetMultFactors( FitResults *fitRes, std::ofstream& pullTex,
         // Normalisation component: use the exponential interpolation and the multiplicative combination
         //
         if(isOverall){
-            double binContentUp   = (syh->fNormUp+1) * binContent0;
-            double binContentDown = (syh->fNormDown+1) * binContent0;
-            double factor = GetDeltaN(systValue, binContent0, binContentUp, binContentDown, fIntCode_overall);
+            const double binContentUp   = (syh->fNormUp+1) * binContent0;
+            const double binContentDown = (syh->fNormDown+1) * binContent0;
+            const double factor = GetDeltaN(systValue, binContent0, binContentUp, binContentDown, fIntCode_overall);
             multNorm *= factor;
             if (fSampleHists[i]->fSample->fBuildPullTable>0){
                 if (((factor > 1.01) || (factor < 0.99)) && (i_bin==1)) {
@@ -836,9 +836,9 @@ double Region::GetMultFactors( FitResults *fitRes, std::ofstream& pullTex,
         // Shape component: use the linear interpolation and the additive combination
         //
         if(isShape){
-            double binContentUp   = syh->fHistShapeUp->GetBinContent(i_bin);
-            double binContentDown = syh->fHistShapeDown->GetBinContent(i_bin);
-            double factor = GetDeltaN(systValue, binContent0, binContentUp, binContentDown, fIntCode_shape);
+            const double binContentUp   = syh->fHistShapeUp->GetBinContent(i_bin);
+            const double binContentDown = syh->fHistShapeDown->GetBinContent(i_bin);
+            const double factor = GetDeltaN(systValue, binContent0, binContentUp, binContentDown, fIntCode_shape);
             multShape += factor - 1;
             if (fSampleHists[i]->fSample->fBuildPullTable==2){
                 if (((factor-1) > 0.03) || ((factor-1) < - 0.03)) {
