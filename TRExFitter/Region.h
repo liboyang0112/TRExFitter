@@ -51,16 +51,21 @@ public:
     SampleHist* GetSampleHist(const std::string &sampleName) const;
 
     void BuildPreFitErrorHist();
-    TRExPlot* DrawPreFit(const std::vector<int>& canvasSize, std::string opt="");
-    double GetMultFactors( FitResults *fitRes,
-                                std::ofstream& pullTex,
-                                const int i /*sample*/, const int i_bin /*bin number*/,
-                                const double binContent0,
-                                const std::string &syst = "",
-                                const bool isUp = true) const;
+    std::unique_ptr<TRExPlot> DrawPreFit(const std::vector<int>& canvasSize, std::string opt="");
+    double GetMultFactors( FitResults* fitRes,
+                           std::ofstream& pullTex,
+                           const int i /*sample*/,
+                           const int i_bin /*bin number*/,
+                           const double binContent0,
+                           const std::string &syst = "",
+                           const bool isUp = true) const;
 
     void BuildPostFitErrorHist(FitResults *fitRes, const std::vector<std::string>& morph_names);
-    TRExPlot* DrawPostFit(FitResults *fitRes,std::ofstream & pullTex, const std::vector<std::string>& morph_names, const std::vector<int>& canvasSize, std::string opt="");
+    std::unique_ptr<TRExPlot> DrawPostFit(FitResults* fitRes,
+                                          std::ofstream& pullTex,
+                                          const std::vector<std::string>& morph_names,
+                                          const std::vector<int>& canvasSize,
+                                          std::string opt="");
 
     void SetBinning(int N, double *bins);
     void Rebin(int N);
@@ -109,7 +114,7 @@ public:
       * @param bool specifying whether signal sample have to be included in the sum or not (true by default)
       * @return combined histogram
       */
-    TH1* GetTotHist(bool includeSignal=true);
+    std::unique_ptr<TH1> GetTotHist(bool includeSignal);
 
     // -------
     // Members
@@ -265,8 +270,12 @@ double GetDeltaN(double alpha, double Iz, double Ip, double Imi, int intCode=4);
 std::map < int , double > GetDeltaNForUncertainties(double alpha, double alpha_errUp, double alpha_errDown, double Iz, double Ip, double Imi, int intCode);
 
 // To build the total error band
-TGraphAsymmErrors* BuildTotError( TH1* h_nominal, std::vector< TH1* > h_up, std::vector< TH1* > h_down, std::vector< std::string > systNames, CorrelationMatrix *matrix=0x0 );
+std::unique_ptr<TGraphAsymmErrors> BuildTotError( const TH1* const h_nominal,
+                                                  const std::vector< TH1* >& h_up,
+                                                  const std::vector< TH1* >& h_down,
+                                                  const std::vector< std::string >& systNames,
+                                                  CorrelationMatrix* matrix=nullptr );
 
-std::pair<double,int> GetChi2Test( TH1* h_data, TH1* h_nominal, std::vector< TH1* > h_up, std::vector< std::string > fSystNames, CorrelationMatrix *matrix=0x0 );
+std::pair<double,int> GetChi2Test( TH1* h_data, TH1* h_nominal, std::vector< TH1* > h_up, std::vector< std::string > fSystNames, CorrelationMatrix *matrix=nullptr );
 
 #endif

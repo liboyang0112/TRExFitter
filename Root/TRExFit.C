@@ -2205,10 +2205,10 @@ void TRExFit::DrawAndSaveAll(std::string opt){
     //
     // Scale sample(s) to data (only pre-fit)
     if(!isPostFit && fScaleSamplesToData.size()>0){
-        for(auto reg : fRegions){
-            TH1* hTot = reg->GetTotHist(true);
-            double totPred = hTot->Integral();
-            double totData = reg->fData->fHist->Integral();
+        for(auto& reg : fRegions){
+            std::unique_ptr<TH1> hTot = reg->GetTotHist(true);
+            const double totPred = hTot->Integral();
+            const double totData = reg->fData->fHist->Integral();
             double totToScale = 0;
             std::vector<SampleHist*> shToScale;
             for(auto& sh : reg->fSampleHists){
@@ -2219,12 +2219,12 @@ void TRExFit::DrawAndSaveAll(std::string opt){
                 }
                 if(FindInStringVector(fScaleSamplesToData,sh->fSample->fName)>=0){
                     shToScale.emplace_back(sh.get());
-                    double morph_scale = GetNominalMorphScale(sh.get());
+                    const double morph_scale = GetNominalMorphScale(sh.get());
                     totToScale += morph_scale*sh->fHist->Integral();
                 }
             }
             if(totToScale<=0 || shToScale.size()==0) continue;
-            double scale = (totData-(totPred-totToScale))/totToScale;
+            const double scale = (totData-(totPred-totToScale))/totToScale;
             for(auto& sh : shToScale){
                 WriteInfoStatus("TRExFit::CorrectHistograms","Scaling sample " + sh->fSample->fName + " by " + std::to_string(scale) + " in region " + reg->fName);
                 sh->Scale(scale);
@@ -2233,7 +2233,7 @@ void TRExFit::DrawAndSaveAll(std::string opt){
         }
     }
     else if(fScaleSamplesToData.size()>0){
-        for(auto reg : fRegions){
+        for(auto& reg : fRegions){
             reg->fScaleSamplesToData = fScaleSamplesToData;
         }
     }
@@ -2250,7 +2250,7 @@ void TRExFit::DrawAndSaveAll(std::string opt){
         }
     }
     for(int i_ch=0;i_ch<fNRegions;i_ch++){
-        TRExPlot *p = nullptr;
+        std::unique_ptr<TRExPlot> p(nullptr);
         fRegions[i_ch]->fUseStatErr = fUseStatErr;
         fRegions[i_ch]->fATLASlabel = fAtlasLabel;
         //
@@ -2296,7 +2296,6 @@ void TRExFit::DrawAndSaveAll(std::string opt){
                 pullTex << "\\end{document}" << std::endl;
                 pullTex.close();
             }
-            delete p;
         }
         else{
             if(fRegions[i_ch]->fRegionDataType==Region::ASIMOVDATA) p = fRegions[i_ch]->DrawPreFit(fPrePostFitCanvasSize, opt+" blind");
@@ -2309,7 +2308,6 @@ void TRExFit::DrawAndSaveAll(std::string opt){
             for(int i_format=0;i_format<(int)TRExFitter::IMAGEFORMAT.size();i_format++){
                 p->SaveAs(     (fName+"/Plots/"+fRegions[i_ch]->fName+fSuffix+"."+TRExFitter::IMAGEFORMAT[i_format] ).c_str());
             }
-            if( !(fKeepPrefitBlindedBins||TRExFitter::PREFITONPOSTFIT) ) delete p;
         }
     }
 }
@@ -2328,7 +2326,7 @@ TRExPlot* TRExFit::DrawSummary(std::string opt, TRExPlot* prefit_plot) {
     TH1D* h_sig[MAXsamples];
     TH1D* h_bkg[MAXsamples];
     TH1D *h_tot;
-    TGraphAsymmErrors *g_err;
+    std::unique_ptr<TGraphAsymmErrors> g_err(nullptr);
     int Nsig = 0;
     int Nbkg = 0;
     //
@@ -2785,7 +2783,7 @@ TRExPlot* TRExFit::DrawSummary(std::string opt, TRExPlot* prefit_plot) {
     //
     p->SetTotBkg(h_tot);
     p->BlindData();
-    p->SetTotBkgAsym(g_err);
+    p->SetTotBkgAsym(g_err.get());
     //
     for(int i_bin=1;i_bin<=Nbin;i_bin++){
         p->SetBinLabel(i_bin,fRegions[regionVec[i_bin-1]]->fShortLabel.c_str());
@@ -3172,8 +3170,8 @@ void TRExFit::BuildYieldTable(std::string opt, std::string group) const{
     // build one bin per region
     TH1D* h_smp[MAXsamples];
     TH1D *h_tot;
-    TGraphAsymmErrors *g_err[MAXsamples];
-    TGraphAsymmErrors *g_err_tot;
+    std::vector<std::unique_ptr<TGraphAsymmErrors> > g_err(MAXsamples);
+    std::unique_ptr<TGraphAsymmErrors> g_err_tot(nullptr);
     //
     std::string name;
     std::string title;
