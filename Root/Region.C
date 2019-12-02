@@ -1880,10 +1880,6 @@ void Region::PrintSystTable(FitResults *fitRes, string opt) const{
             texout_cat.open((fFitName+"/Tables/"+fName+fSuffix+"_syst_category.tex").c_str());
         }
     }
-    Sample *s = nullptr;
-    SampleHist *sh = nullptr;
-    SystematicHist *syh = nullptr;
-
 
     out << " | ";
     if (standalone) {
@@ -1912,8 +1908,8 @@ void Region::PrintSystTable(FitResults *fitRes, string opt) const{
 
     double Ncol = 2.;
     for(std::size_t i_smp=0;i_smp<fSampleHists.size();i_smp++){
-        sh = fSampleHists[i_smp].get();
-        s = sh->fSample;
+        const SampleHist* sh = fSampleHists[i_smp].get();
+        const Sample* s = sh->fSample;
         if(s->fType==Sample::DATA) continue;
         if(s->fType==Sample::GHOST) continue;
         texout << "|c";
@@ -1929,8 +1925,8 @@ void Region::PrintSystTable(FitResults *fitRes, string opt) const{
     //
     double i_col = 1.;
     for(std::size_t i_smp=0;i_smp<fSampleHists.size();i_smp++){
-        sh = fSampleHists[i_smp].get();
-        s = sh->fSample;
+        const SampleHist* sh = fSampleHists[i_smp].get();
+        const Sample* s = sh->fSample;
         if(s->fType==Sample::DATA) continue;
         if(s->fType==Sample::GHOST) continue;
         std::string title = s->fTitle;
@@ -1957,24 +1953,26 @@ void Region::PrintSystTable(FitResults *fitRes, string opt) const{
         else                                           out << " | " << fSystNames[i_syst];
         if(TRExFitter::SYSTTEX[fSystNames[i_syst]]!="")      texout << "  " << TRExFitter::SYSTTEX[fSystNames[i_syst]];
         else if(TRExFitter::SYSTMAP[fSystNames[i_syst]]!=""){
-            string fixedTitle = TRExFitter::SYSTMAP[fSystNames[i_syst]];
+            std::string fixedTitle = TRExFitter::SYSTMAP[fSystNames[i_syst]];
             fixedTitle = ReplaceString(fixedTitle,"#geq","$\\geq$");
             texout << "  " << fixedTitle;
         }
-        else                                                texout << " " << fSystNames[i_syst];
+        else {
+            texout << " " << fSystNames[i_syst];
+        }
         for(std::size_t i_smp=0;i_smp<fSampleHists.size();i_smp++){
-            sh = fSampleHists[i_smp].get();
-            s = sh->fSample;
+            const SampleHist* sh = fSampleHists[i_smp].get();
+            const Sample* s = sh->fSample;
             if(s->fType==Sample::DATA) continue;
             if(s->fType==Sample::GHOST) continue;
-            syh = sh->GetSystematic(fSystNames[i_syst]);
+            const SystematicHist* syh = sh->GetSystematic(fSystNames[i_syst]);
             if(syh==nullptr){
                 out << " |    nan   ";
                 texout << " &    nan   ";
             }
             else{
-              double normUp;
-              double normDown;
+              double normUp(0);
+              double normDown(0);
               if(isPostFit){
                 normUp   = (syh->fHistUp_postFit->Integral()   - sh->fHist_postFit->Integral()) / sh->fHist_postFit->Integral();
                 normDown = (syh->fHistDown_postFit->Integral() - sh->fHist_postFit->Integral()) / sh->fHist_postFit->Integral();
@@ -2003,18 +2001,18 @@ void Region::PrintSystTable(FitResults *fitRes, string opt) const{
         std::set<std::string> category_names;
         std::map<std::string, std::map<std::string, std::vector<std::string> > > category_syst_names;
         for(std::size_t i_smp=0;i_smp<fSampleHists.size();i_smp++){
-            sh = fSampleHists[i_smp].get();
-            s = sh->fSample;
+            const SampleHist* sh = fSampleHists[i_smp].get();
+            const Sample* s = sh->fSample;
             for(int i_samplesyst=0; i_samplesyst<(int)s->fSystematics.size();i_samplesyst++){
                 if(s->fType==Sample::DATA) continue;
                 if(s->fType==Sample::GHOST) continue;
-                std::string category = s->fSystematics[i_samplesyst]->fCategory;
+                const std::string category = s->fSystematics[i_samplesyst]->fCategory;
                 if (category!=""){
                     category_names.insert(category);
                     std::vector<std::string> systePerSample;
                     // Check for systematics existing not in all regions...
                     if (std::find(fSystNames.begin(), fSystNames.end(), s->fSystematics.at(i_samplesyst)->fName)!=fSystNames.end()){
-                        std::vector<std::string> sample_syste = category_syst_names[s->fName][category];
+                        const std::vector<std::string> sample_syste = category_syst_names[s->fName][category];
                         if (std::find(sample_syste.begin(), sample_syste.end(), s->fSystematics.at(i_samplesyst)->fName) == sample_syste.end()){
                             category_syst_names[s->fName][category].push_back(s->fSystematics.at(i_samplesyst)->fName);
                         }
@@ -2027,22 +2025,20 @@ void Region::PrintSystTable(FitResults *fitRes, string opt) const{
             out_cat << " | " << category;
             texout_cat << " " << category;
             for(std::size_t i_smp=0;i_smp<fSampleHists.size();i_smp++){
-                sh = fSampleHists[i_smp].get();
-                s = sh->fSample;
+                const SampleHist* sh = fSampleHists[i_smp].get();
+                const Sample* s = sh->fSample;
                 if(s->fType==Sample::DATA) continue;
                 if(s->fType==Sample::GHOST) continue;
 
                 std::vector<TH1*> category_histo_up;
                 std::vector<TH1*> category_histo_down;
-                std::vector<std::string> sample_syste = category_syst_names[s->fName][category];
+                const std::vector<std::string> sample_syste = category_syst_names[s->fName][category];
                 for(int i_syst=0;i_syst<(int)fSystNames.size();i_syst++){
-                    if(!sh->HasSyst(fSystNames[i_syst]))
-                      continue;
+                    if(!sh->HasSyst(fSystNames[i_syst])) continue;
 
-                    if (std::find(sample_syste.begin(), sample_syste.end(), fSystNames.at(i_syst)) == sample_syste.end())
-                      continue;
+                    if (std::find(sample_syste.begin(), sample_syste.end(), fSystNames.at(i_syst)) == sample_syste.end()) continue;
 
-                    syh = sh->GetSystematic(fSystNames[i_syst]);
+                    const SystematicHist* syh = sh->GetSystematic(fSystNames[i_syst]);
 
                     if(isPostFit){
                         TH1 *h_up = syh->fHistUp_postFit.get();
@@ -2063,7 +2059,7 @@ void Region::PrintSystTable(FitResults *fitRes, string opt) const{
                 }
 
                 std::unique_ptr<TGraphAsymmErrors> g_err(nullptr);
-                double err = 0.;
+                double err(0.);
                 if (isPostFit){
                     g_err = BuildTotError(sh->fHist_postFit.get(), category_histo_up, category_histo_down, category_syst_names[s->fName][category], fitRes->fCorrMatrix.get());
                     if (category_histo_up.size()>0 && sh->fHist_postFit->Integral()>0.){
