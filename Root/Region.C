@@ -1762,30 +1762,26 @@ void Region::SetAlternativeSelection(const std::string& selection, const std::st
 //
 bool Region::UseAlternativeVariable(const std::string& sample){
     std::vector<std::string> tmpVec;
-    for(auto tmp : fAlternativeVariables){
+    for(const auto& tmp : fAlternativeVariables){
         tmpVec.push_back(tmp.first);
     }
     if (FindInStringVector(tmpVec,sample)<0){
         return false;
     }
-    else {
-        return true;
-    }
+    return true;
 }
 
 //__________________________________________________________________________________
 //
 bool Region::UseAlternativeSelection(const std::string& sample){
     std::vector<std::string> tmpVec;
-    for(auto tmp : fAlternativeSelections){
+    for(const auto& tmp : fAlternativeSelections){
         tmpVec.push_back(tmp.first);
     }
     if (FindInStringVector(tmpVec,sample)<0){
         return false;
     }
-    else {
-        return true;
-    }
+    return true;
 }
 
 //__________________________________________________________________________________
@@ -1793,17 +1789,15 @@ bool Region::UseAlternativeSelection(const std::string& sample){
 std::string Region::GetAlternativeVariable(const std::string& sample) const{
     std::vector<std::string> tmpVec;
     std::vector<std::string> tmpVec2;
-    for(auto tmp : fAlternativeVariables){
+    for(const auto& tmp : fAlternativeVariables){
         tmpVec.push_back(tmp.first);
         tmpVec2.push_back(tmp.second);
     }
-    int idx = FindInStringVector(tmpVec,sample);
+    const int idx = FindInStringVector(tmpVec,sample);
     if(idx<0){
         return "";
     }
-    else {
-        return tmpVec2[idx];
-    }
+    return tmpVec2[idx];
 }
 
 //__________________________________________________________________________________
@@ -1811,17 +1805,15 @@ std::string Region::GetAlternativeVariable(const std::string& sample) const{
 std::string Region::GetAlternativeSelection(const std::string& sample) const{
     std::vector<std::string> tmpVec;
     std::vector<std::string> tmpVec2;
-    for(auto tmp : fAlternativeSelections){
+    for(const auto& tmp : fAlternativeSelections){
         tmpVec.push_back(tmp.first);
         tmpVec2.push_back(tmp.second);
     }
-    int idx = FindInStringVector(tmpVec,sample);
+    const int idx = FindInStringVector(tmpVec,sample);
     if(idx<0){
         return "";
     }
-    else {
-        return tmpVec2[idx];
-    }
+    return tmpVec2[idx];
 }
 
 //__________________________________________________________________________________
