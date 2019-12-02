@@ -1536,19 +1536,19 @@ std::unique_ptr<TRExPlot> Region::DrawPostFit(FitResults* fitRes,
 
     // Scale samples acording to fScaleSamplesToData:
     if(fScaleSamplesToData.size()>0){
-        TH1* hTot = nullptr;
+        std::unique_ptr<TH1> hTot(nullptr);
         for(int i=0;i<fNSamples;i++){
             if(fSampleHists[i]->fSample->fType==Sample::DATA) continue;
             if(fSampleHists[i]->fSample->fType==Sample::GHOST) continue;
-            if(hTot==nullptr) hTot = (TH1*)hSmpNew[i]->Clone("hTotPostFit");
+            if(hTot==nullptr) hTot.reset(static_cast<TH1*>(hSmpNew[i]->Clone("hTotPostFit")));
             else              hTot->Add(hSmpNew[i]);
         }
-        double totPred = hTot->Integral();
-        double totData = fData->fHist->Integral();
+        const double totPred = hTot->Integral();
+        const double totData = fData->fHist->Integral();
         double totToScale = 0;
         std::vector<int> shIdxToScale;
         for(int i=0;i<fNSamples;i++){
-            SampleHist *sh = fSampleHists[i].get();
+            const SampleHist *sh = fSampleHists[i].get();
             if(sh->fHist==nullptr) continue;
             if(sh->fSample->fType==Sample::GHOST){
                 WriteWarningStatus("Region::DrawPostFit","Requested to scale to data a GHOST sample, " + sh->fSample->fName + ". Skipping this sample.");
@@ -1560,8 +1560,8 @@ std::unique_ptr<TRExPlot> Region::DrawPostFit(FitResults* fitRes,
             }
         }
         if(totToScale>0 && shIdxToScale.size()>0){
-            double scale = (totData-(totPred-totToScale))/totToScale;
-            for(auto idx : shIdxToScale){
+            const double scale = (totData-(totPred-totToScale))/totToScale;
+            for(const auto& idx : shIdxToScale){
                 WriteInfoStatus("Region::DrawPostFit","Scaling sample " + fSampleHists[idx]->fSample->fName + " by " + std::to_string(scale) + " in region " + fName);
                 hSmpNew[idx]->Scale(scale);
             }
@@ -2153,27 +2153,27 @@ double GetDeltaN(double alpha, double Iz, double Ip, double Imi, int intCode){
         // Equation solved with Mathematica
         //////////////////////////////////////////////////////////////
 
-        if(TMath::Abs(alpha)>1){
+        if(std::fabs(alpha)>1){
             deltaN /= Iz; // divide h_tmp by the nominal
-            deltaN = pow( deltaN, TMath::Abs(alpha) );  // d -> d^(|a|)
+            deltaN = std::pow( deltaN, std::fabs(alpha) );  // d -> d^(|a|)
         } else {
-            double logImiIz = TMath::Log(Imi/Iz);
-            double logImiIzSqr = logImiIz*logImiIz;
-            double logIpIz = TMath::Log(Ip/Iz);
-            double logIpIzSqr = logIpIz*logIpIz;
+            const double logImiIz = std::log(Imi/Iz);
+            const double logImiIzSqr = logImiIz*logImiIz;
+            const double logIpIz = std::log(Ip/Iz);
+            const double logIpIzSqr = logIpIz*logIpIz;
             // polinomial: equations solved with Mathematica
-            double a1 = -(15*Imi - 15*Ip - 7*Imi*logImiIz + Imi*logImiIzSqr + 7*Ip*logIpIz - Ip*logIpIzSqr)/(16.*Iz);
-            double a2 = -3 + (3*Imi)/(2.*Iz) + (3*Ip)/(2.*Iz) - (9*Imi*logImiIz)/(16.*Iz) + (Imi*logImiIzSqr)/(16.*Iz) -
-            (9*Ip*logIpIz)/(16.*Iz) + (Ip*logIpIzSqr)/(16.*Iz);
-            double a3 = (5*Imi)/(8.*Iz) - (5*Ip)/(8.*Iz) - (5*Imi*logImiIz)/(8.*Iz) + (Imi*logImiIzSqr)/(8.*Iz) + (5*Ip*logIpIz)/(8.*Iz) -
-            (Ip*logIpIzSqr)/(8.*Iz);
-            double a4 = 3 - (3*Imi)/(2.*Iz) - (3*Ip)/(2.*Iz) + (7*Imi*logImiIz)/(8.*Iz) -
-            (Imi*logImiIzSqr)/(8.*Iz) + (7*Ip*logIpIz)/(8.*Iz) - (Ip*logIpIzSqr)/(8.*Iz);
-            double a5 = (-3*Imi)/(16.*Iz) + (3*Ip)/(16.*Iz) + (3*Imi*logImiIz)/(16.*Iz) - (Imi*logImiIzSqr)/(16.*Iz) -
-            (3*Ip*logIpIz)/(16.*Iz) + (Ip*logIpIzSqr)/(16.*Iz);
-            double a6 = -1 + Imi/(2.*Iz) + Ip/(2.*Iz) - (5*Imi*logImiIz)/(16.*Iz) + (Imi*logImiIzSqr)/(16.*Iz) - (5*Ip*logIpIz)/(16.*Iz) +
-            (Ip*logIpIzSqr)/(16.*Iz);
-            double a = alpha;
+            const double a1 = -(15*Imi - 15*Ip - 7*Imi*logImiIz + Imi*logImiIzSqr + 7*Ip*logIpIz - Ip*logIpIzSqr)/(16.*Iz);
+            const double a2 = -3 + (3*Imi)/(2.*Iz) + (3*Ip)/(2.*Iz) - (9*Imi*logImiIz)/(16.*Iz) + (Imi*logImiIzSqr)/(16.*Iz) -
+                (9*Ip*logIpIz)/(16.*Iz) + (Ip*logIpIzSqr)/(16.*Iz);
+            const double a3 = (5*Imi)/(8.*Iz) - (5*Ip)/(8.*Iz) - (5*Imi*logImiIz)/(8.*Iz) + (Imi*logImiIzSqr)/(8.*Iz) + (5*Ip*logIpIz)/(8.*Iz) -
+                (Ip*logIpIzSqr)/(8.*Iz);
+            const double a4 = 3 - (3*Imi)/(2.*Iz) - (3*Ip)/(2.*Iz) + (7*Imi*logImiIz)/(8.*Iz) -
+                (Imi*logImiIzSqr)/(8.*Iz) + (7*Ip*logIpIz)/(8.*Iz) - (Ip*logIpIzSqr)/(8.*Iz);
+            const double a5 = (-3*Imi)/(16.*Iz) + (3*Ip)/(16.*Iz) + (3*Imi*logImiIz)/(16.*Iz) - (Imi*logImiIzSqr)/(16.*Iz) -
+                (3*Ip*logIpIz)/(16.*Iz) + (Ip*logIpIzSqr)/(16.*Iz);
+            const double a6 = -1 + Imi/(2.*Iz) + Ip/(2.*Iz) - (5*Imi*logImiIz)/(16.*Iz) + (Imi*logImiIzSqr)/(16.*Iz) - (5*Ip*logIpIz)/(16.*Iz) +
+                (Ip*logIpIzSqr)/(16.*Iz);
+            const double a = alpha;
             deltaN = 1 + a1*a + a2*a*a + a3*a*a*a + a4*a*a*a*a + a5*a*a*a*a*a + a6*a*a*a*a*a*a;
         }
 
@@ -2187,13 +2187,13 @@ double GetDeltaN(double alpha, double Iz, double Ip, double Imi, int intCode){
         // Extracted and adapted from RooFit
         //////////////////////////////////////////////////////////////
 
-        if(TMath::Abs(alpha)>1){
-            deltaN = 1. + TMath::Abs(alpha)*(deltaN - Iz)/Iz;
+        if(std::fabs(alpha)>1){
+            deltaN = 1. + std::fabs(alpha)*(deltaN - Iz)/Iz;
         } else {
-            double eps_plus = Ip - Iz;
-            double eps_minus = Iz - Imi;
-            double S = 0.5 * (eps_plus + eps_minus);
-            double A = 0.0625 * (eps_plus - eps_minus);
+            const double eps_plus = Ip - Iz;
+            const double eps_minus = Iz - Imi;
+            const double S = 0.5 * (eps_plus + eps_minus);
+            const double A = 0.0625 * (eps_plus - eps_minus);
             double val = Iz + alpha * (S + alpha * A * ( 15 + alpha * alpha * (-10 + alpha * alpha * 3  ) ) );
             if (val < 0) val = 0.;
             if(Iz == Iz && Iz>0) deltaN = val/Iz;
@@ -2210,9 +2210,9 @@ double GetDeltaN(double alpha, double Iz, double Ip, double Imi, int intCode){
 //___________________________________________________________
 //
 std::map < int , double > GetDeltaNForUncertainties(double alpha, double alpha_errUp, double alpha_errDown, double Iz, double Ip, double Imi, int intCode){
-    double nominal = GetDeltaN(alpha, Iz, Ip, Imi, intCode);
-    double up = GetDeltaN(alpha+alpha_errUp, Iz, Ip, Imi, intCode);
-    double down = GetDeltaN(alpha+alpha_errDown, Iz, Ip, Imi, intCode);
+    const double nominal = GetDeltaN(alpha, Iz, Ip, Imi, intCode);
+    const double up = GetDeltaN(alpha+alpha_errUp, Iz, Ip, Imi, intCode);
+    const double down = GetDeltaN(alpha+alpha_errDown, Iz, Ip, Imi, intCode);
     return {{-1,down},{0,nominal},{1,up}};
 }
 
