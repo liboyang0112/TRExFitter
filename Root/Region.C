@@ -856,22 +856,12 @@ double Region::GetMultFactors( FitResults *fitRes, std::ofstream& pullTex,
 void Region::BuildPostFitErrorHist(FitResults *fitRes, const std::vector<std::string>& morph_names){
 
     WriteInfoStatus("Region::BuildPostFitErrorHist", "Building post-fit plot for region " + fName + " ...");
-    double diffUp(0.), diffDown(0.);
 
     //
     // 0) Collect all the systematics on all the samples
     //
     fSystNames.clear();
     std::map<string,bool> systIsThere;
-    systIsThere.clear();
-    double systValue(0.);
-    double systErrUp(0.);
-    double systErrDown(0.);
-    string systName = "";
-    string systNuisPar = "";
-    SystematicHist *sh = nullptr;
-    string systNameSF = "";
-    int iBinSF = 0;
 
     for(int i_sample=0;i_sample<fNSamples;i_sample++){
         if(fSampleHists[i_sample]->fSample->fType == Sample::DATA) continue;
@@ -882,7 +872,7 @@ void Region::BuildPostFitErrorHist(FitResults *fitRes, const std::vector<std::st
         //
         for(int i_norm=0;i_norm<fSampleHists[i_sample]->fNNorm;i_norm++){
             const NormFactor *nf = fSampleHists[i_sample]->fNormFactors[i_norm].get();
-            systName = nf->fName;
+            const std::string systName = nf->fName;
             // if this norm factor is a morphing one => save the nuis.par
             // skip POI if B-only fit FIXME
             if(fFitType==TRExFit::BONLY && systName==fPOI) continue;
@@ -899,10 +889,10 @@ void Region::BuildPostFitErrorHist(FitResults *fitRes, const std::vector<std::st
         // extract number of bins
         // loop over shape factors
         for(int i_shape=0;i_shape<fSampleHists[i_sample]->fNShape;i_shape++){
-            systName = fSampleHists[i_sample]->fShapeFactors[i_shape]->fName;
+            const std::string systName = fSampleHists[i_sample]->fShapeFactors[i_shape]->fName;
             // add syst name for each bin
             for(int i_bin = 0; i_bin < fSampleHists[i_sample]->fHist->GetNbinsX(); i_bin++){
-                systNameSF = systName + "_bin_" + std::to_string(i_bin);
+                const std::string systNameSF = systName + "_bin_" + std::to_string(i_bin);
                 // the shape factor naming used i_bin - 1 for the first bin
                 // add it as one syst per bin
                 if(!systIsThere[systNameSF]){
@@ -917,7 +907,7 @@ void Region::BuildPostFitErrorHist(FitResults *fitRes, const std::vector<std::st
         //
         for(int i_syst=0;i_syst<fSampleHists[i_sample]->fNSyst;i_syst++){
             if(!fSampleHists[i_sample]->fSyst[i_syst]->fSystematic) continue;
-            systName = fSampleHists[i_sample]->fSyst[i_syst]->fName;
+            const std::string systName = fSampleHists[i_sample]->fSyst[i_syst]->fName;
             if(fSampleHists[i_sample]->fSyst[i_syst]->fSystematic->fType==Systematic::SHAPE) continue;
             if(!systIsThere[systName]){
                 fSystNames.push_back(systName);
@@ -930,7 +920,7 @@ void Region::BuildPostFitErrorHist(FitResults *fitRes, const std::vector<std::st
         //
         for(int i_syst=0;i_syst<fSampleHists[i_sample]->fNSyst;i_syst++){
             if(!fSampleHists[i_sample]->fSyst[i_syst]->fSystematic) continue;
-            systName = fSampleHists[i_sample]->fSyst[i_syst]->fName;
+            const std::string systName = fSampleHists[i_sample]->fSyst[i_syst]->fName;
             if(systName.find("stat_")!=std::string::npos) continue; // fSeparateGammas already added later
             if(fSampleHists[i_sample]->fSyst[i_syst]->fSystematic->fType!=Systematic::SHAPE) continue;
             for(int i_bin=1;i_bin<fTot_postFit->GetNbinsX()+1;i_bin++){
@@ -972,7 +962,7 @@ void Region::BuildPostFitErrorHist(FitResults *fitRes, const std::vector<std::st
         //
         // Get fit result
         //
-        systName    = fSystNames[i_syst];
+        const std::string systName = fSystNames[i_syst];
         if(systName.find("saturated_model_")!=std::string::npos) continue;
         if(TRExFitter::NPMAP[systName]=="") TRExFitter::NPMAP[systName] = systName;
 
@@ -983,9 +973,9 @@ void Region::BuildPostFitErrorHist(FitResults *fitRes, const std::vector<std::st
         if(systName.find("morph_")==std::string::npos){
             systToCheck = TRExFitter::NPMAP[systName];
         }
-        systValue   = fitRes->GetNuisParValue(systToCheck);
-        systErrUp   = fitRes->GetNuisParErrUp(systToCheck);
-        systErrDown = fitRes->GetNuisParErrDown(systToCheck);
+        const double systValue   = fitRes->GetNuisParValue(systToCheck);
+        const double systErrUp   = fitRes->GetNuisParErrUp(systToCheck);
+        const double systErrDown = fitRes->GetNuisParErrDown(systToCheck);
 
         WriteVerboseStatus("Region::BuildPostFitErrorHist", "      alpha = " + std::to_string(systValue) + " +" + std::to_string(systErrUp) + " " + std::to_string(systErrDown));
 
@@ -1013,10 +1003,10 @@ void Region::BuildPostFitErrorHist(FitResults *fitRes, const std::vector<std::st
             //
             // Get SystematicHist
             //
-            sh = fSampleHists[i]->GetSystematic(systName);
+            SystematicHist* sh = fSampleHists[i]->GetSystematic(systName);
 
             // hack: add a systematic hist if not there
-            if(sh==nullptr){
+            if(!sh){
                 fSampleHists[i]->AddHistoSyst(systName,systName,fSampleHists[i]->fHist.get(),fSampleHists[i]->fHist.get());
                 sh = fSampleHists[i]->GetSystematic(systName);
             }
@@ -1039,8 +1029,8 @@ void Region::BuildPostFitErrorHist(FitResults *fitRes, const std::vector<std::st
 
             // - loop on bins
             for(int i_bin=1;i_bin<fTot_postFit->GetNbinsX()+1;i_bin++){
-                diffUp = 0.;
-                diffDown = 0.;
+                double diffUp(0.);
+                double diffDown(0.);
                 double yieldNominal = fSampleHists[i]->fHist->GetBinContent(i_bin);  // store nominal yield for this bin
                 double yieldNominal_postFit = fSampleHists[i]->fHist_postFit->GetBinContent(i_bin);  // store nominal yield for this bin, but do it post fit
 
@@ -1156,11 +1146,11 @@ void Region::BuildPostFitErrorHist(FitResults *fitRes, const std::vector<std::st
                 // ShapeFactor have to get NP per bin
                 else if(posTmp != std::string::npos){
                     // get the shape factor name without bin index
-                    systNameSF = systName.substr(0, posTmp);
+                    const std::string systNameSF = systName.substr(0, posTmp);
                     // get the shape factor bin as integer
-                    iBinSF = std::atoi(systName.substr(posTmp + 5).c_str()) + 1;
+                    const int iBinSF = std::atoi(systName.substr(posTmp + 5).c_str()) + 1;
                     // FIXME could still be a problem with pruning?
-                    if(fSampleHists[i]->HasShapeFactor(systNameSF) && iBinSF == i_bin){
+                    if(iBinSF == i_bin && fSampleHists[i]->HasShapeFactor(systNameSF)){
                         diffUp   += yieldNominal_postFit*systErrUp;
                         diffDown += yieldNominal_postFit*systErrDown;
                         if (isMorph){
@@ -1204,7 +1194,7 @@ void Region::BuildPostFitErrorHist(FitResults *fitRes, const std::vector<std::st
         if (isMorph){
             // now apply the corrections from morph
             // Use it only ONCE for all combines morph templates
-            sh = fSampleHists[morph_index]->GetSystematic(systName);
+            SystematicHist* sh = fSampleHists[morph_index]->GetSystematic(systName);
 
             // hack: add a systematic hist if not there
             if(sh==nullptr){
@@ -1242,7 +1232,7 @@ void Region::BuildPostFitErrorHist(FitResults *fitRes, const std::vector<std::st
 
     // - loop on systematics
     for(size_t i_syst=0;i_syst<fSystNames.size();++i_syst){
-        systName = fSystNames[i_syst];
+        const std::string systName = fSystNames[i_syst];
         //
         // Initialize the tot variation hists
         //
@@ -1253,8 +1243,8 @@ void Region::BuildPostFitErrorHist(FitResults *fitRes, const std::vector<std::st
 
         // - loop on bins
         for(int i_bin=1;i_bin<fTot_postFit->GetNbinsX()+1;i_bin++){
-            diffUp = 0.;
-            diffDown = 0.;
+            double diffUp(0.);
+            double diffDown(0.);
             // - loop on samples
             for(int i=0;i<fNSamples;i++){
                 // skip data
@@ -1264,7 +1254,7 @@ void Region::BuildPostFitErrorHist(FitResults *fitRes, const std::vector<std::st
                 // skip signal if Bkg only
                 if(fFitType==TRExFit::BONLY && fSampleHists[i]->fSample->fType==Sample::SIGNAL) continue;
                 // get SystematicHist
-                sh = fSampleHists[i]->GetSystematic(systName);
+                SystematicHist* sh = fSampleHists[i]->GetSystematic(systName);
                 // increase diffUp/Down according to the previously stored histograms
                 // yieldNominal_postFit = fSampleHists[i]->fHist_postFit->GetBinContent(i_bin);
                 if(!sh) continue;
