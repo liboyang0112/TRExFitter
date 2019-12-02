@@ -629,7 +629,7 @@ std::unique_ptr<TRExPlot> Region::DrawPreFit(const std::vector<int>& canvasSize,
                 WriteDebugStatus("Region::DrawPreFit", "name: " +name);
                 std::vector < std::pair < std::string,std::vector<double> > > nameS;
                 if(nf->fName.find("morph_")!=std::string::npos){
-                    nameS.push_back(std::make_pair(name,std::vector<double>{static_cast<double>(nf->fNominal),static_cast<double>(nf->fMin),static_cast<double>(nf->fMax)}));
+                    nameS.push_back(std::make_pair(name,std::vector<double>{nf->fNominal,nf->fMin,nf->fMax}));
                 }
                 else{
                     nameS = processString(name);
@@ -924,7 +924,7 @@ void Region::BuildPostFitErrorHist(FitResults *fitRes, const std::vector<std::st
             if(systName.find("stat_")!=std::string::npos) continue; // fSeparateGammas already added later
             if(fSampleHists[i_sample]->fSyst[i_syst]->fSystematic->fType!=Systematic::SHAPE) continue;
             for(int i_bin=1;i_bin<fTot_postFit->GetNbinsX()+1;i_bin++){
-                std::string gammaName = Form("shape_%s_%s_bin_%d",systName.c_str(),fName.c_str(),i_bin-1);
+                const std::string gammaName = Form("shape_%s_%s_bin_%d",systName.c_str(),fName.c_str(),i_bin-1);
                 if(!systIsThere[gammaName]){
                     fSystNames.push_back(gammaName);
                     systIsThere[gammaName] = true;
@@ -938,8 +938,9 @@ void Region::BuildPostFitErrorHist(FitResults *fitRes, const std::vector<std::st
         if(fUseGammaPulls && (fSampleHists[i_sample]->fSample->fUseMCStat || fSampleHists[i_sample]->fSample->fSeparateGammas)){
             for(int i_bin=1;i_bin<fTot_postFit->GetNbinsX()+1;i_bin++){
                 std::string gammaName = Form("stat_%s_bin_%d",fName.c_str(),i_bin-1);
-                if(fSampleHists[i_sample]->fSample->fSeparateGammas)
+                if(fSampleHists[i_sample]->fSample->fSeparateGammas) {
                     gammaName = Form("shape_stat_%s_%s_bin_%d",fSampleHists[i_sample]->fSample->fName.c_str(),fName.c_str(),i_bin-1);
+                }
                 if(!systIsThere[gammaName] && (fitRes->GetNuisParValue(gammaName)>0)){
                     fSystNames.push_back(gammaName);
                     systIsThere[gammaName] = true;
@@ -1031,19 +1032,19 @@ void Region::BuildPostFitErrorHist(FitResults *fitRes, const std::vector<std::st
             for(int i_bin=1;i_bin<fTot_postFit->GetNbinsX()+1;i_bin++){
                 double diffUp(0.);
                 double diffDown(0.);
-                double yieldNominal = fSampleHists[i]->fHist->GetBinContent(i_bin);  // store nominal yield for this bin
-                double yieldNominal_postFit = fSampleHists[i]->fHist_postFit->GetBinContent(i_bin);  // store nominal yield for this bin, but do it post fit
+                const double yieldNominal = fSampleHists[i]->fHist->GetBinContent(i_bin);  // store nominal yield for this bin
+                const double yieldNominal_postFit = fSampleHists[i]->fHist_postFit->GetBinContent(i_bin);  // store nominal yield for this bin, but do it post fit
 
                 if (isMorph){
-                    double scaleNom  = morph_scale_nominal.at(i_morph_sample);
-                    double scaleNom_postfit  = morph_scale.at(i_morph_sample);
+                    const double scaleNom  = morph_scale_nominal.at(i_morph_sample);
+                    const double scaleNom_postfit  = morph_scale.at(i_morph_sample);
                     morph_nominal_postfit.at(i_bin-1)+= yieldNominal*scaleNom_postfit;
                     morph_nominal.at(i_bin-1)+= yieldNominal*scaleNom;
                 }
 
-                size_t posTmp = systName.find("_bin_");
-                std::string gammaName      = Form("stat_%s_bin_%d",fName.c_str(),i_bin-1);
-                std::string gammaNameShape = Form("shape_stat_%s_%s_bin_%d",fSampleHists[i]->fSample->fName.c_str(),fName.c_str(),i_bin-1);
+                const size_t posTmp = systName.find("_bin_");
+                const std::string gammaName      = Form("stat_%s_bin_%d",fName.c_str(),i_bin-1);
+                const std::string gammaNameShape = Form("shape_stat_%s_%s_bin_%d",fSampleHists[i]->fSample->fName.c_str(),fName.c_str(),i_bin-1);
                 //
                 // if it's a gamma
                 if(gammaName==fSystNames[i_syst] && fSampleHists[i]->fSample->fUseMCStat && !fSampleHists[i]->fSample->fSeparateGammas){
@@ -1067,11 +1068,11 @@ void Region::BuildPostFitErrorHist(FitResults *fitRes, const std::vector<std::st
                 //
                 // if it's a shape-systematic gamma
                 else if(fSystNames[i_syst].find("shape_")!=std::string::npos && fSystNames[i_syst].find(Form("%s_bin_%d",fName.c_str(),i_bin-1))!=std::string::npos){
-                    for(auto& syh : fSampleHists[i]->fSyst){
-                        Systematic *syst = syh->fSystematic;
+                    for(const auto& syh : fSampleHists[i]->fSyst){
+                        const Systematic *syst = syh->fSystematic;
                         if(!syst) continue;
                         if(syst->fType==Systematic::SHAPE){
-                            std::string gammaNameShapeSyst = Form("shape_%s_%s_bin_%d",syst->fName.c_str(),fName.c_str(),i_bin-1);
+                            const std::string gammaNameShapeSyst = Form("shape_%s_%s_bin_%d",syst->fName.c_str(),fName.c_str(),i_bin-1);
                             if(gammaNameShapeSyst==fSystNames[i_syst]){
                                 diffUp   += yieldNominal_postFit*systErrUp;
                                 diffDown += yieldNominal_postFit*systErrDown;
@@ -1089,26 +1090,26 @@ void Region::BuildPostFitErrorHist(FitResults *fitRes, const std::vector<std::st
                     // if this norm factor is a morphing one
                     if(fSystNames[i_syst].find("morph_")!=string::npos || fSampleHists[i]->GetNormFactor(fSystNames[i_syst])->fExpression.first!=""){
                         std::string formula = TRExFitter::SYSTMAP[fSystNames[i_syst]];
-                        std::string name = TRExFitter::NPMAP[fSystNames[i_syst]];
+                        const std::string name = TRExFitter::NPMAP[fSystNames[i_syst]];
                         WriteDebugStatus("Region::BuildPostFitErrorHist", "formula: " +formula);
                         WriteDebugStatus("Region::BuildPostFitErrorHist", "name: " +name);
                         std::vector < std::pair < std::string,std::vector<double> > > nameS;
                         if(fSystNames[i_syst].find("morph_")!=std::string::npos){
-                            nameS.push_back(std::make_pair(name,std::vector<double>{double(fSampleHists[i]->GetNormFactor(fSystNames[i_syst])->fNominal),
-                            double(fSampleHists[i]->GetNormFactor(fSystNames[i_syst])->fMin),double(fSampleHists[i]->GetNormFactor(fSystNames[i_syst])->fMax)}));
+                            nameS.push_back(std::make_pair(name,std::vector<double>{fSampleHists[i]->GetNormFactor(fSystNames[i_syst])->fNominal,
+                            fSampleHists[i]->GetNormFactor(fSystNames[i_syst])->fMin,fSampleHists[i]->GetNormFactor(fSystNames[i_syst])->fMax}));
                         }
                         else {
                             nameS = processString(name);
                         }
                         std::vector <double> nfValuevec, nfUpvec, nfDownvec;
-                        for (unsigned int j = 0; j<nameS.size(); j++){
+                        for (std::size_t j = 0; j<nameS.size(); ++j){
                             formula = ReplaceString(formula,nameS[j].first,"x["+std::to_string(j)+"]");
                             nfValuevec.push_back(fitRes->GetNuisParValue(nameS[j].first));
                             nfUpvec.push_back(fitRes->GetNuisParValue(nameS[j].first) + fitRes->GetNuisParErrUp(nameS[j].first));
                             nfDownvec.push_back(fitRes->GetNuisParValue(nameS[j].first) + fitRes->GetNuisParErrDown(nameS[j].first));
                         }
                         WriteDebugStatus("Region::BuildPostFitErrorHist", "formula: " +formula);
-                        for(unsigned int j = 0; j<nameS.size(); j++){
+                        for(std::size_t j = 0; j<nameS.size(); ++j){
                             WriteDebugStatus("Region::BuildPostFitErrorHist", "nfValue["+std::to_string(j)+"]: "+std::to_string(nfValuevec[j]));
                         }
                         TFormula f_morph ("f_morph",formula.c_str());
@@ -1122,7 +1123,7 @@ void Region::BuildPostFitErrorHist(FitResults *fitRes, const std::vector<std::st
                         else {
                             for (int ii = 0; ii < (1 << nameS.size()); ii++) {
                                 std::vector <double> exprvec;
-                                for(unsigned int j=0;j<nameS.size();j++){
+                                for(std::size_t j=0;j<nameS.size();j++){
                                     if(ii & (1<<j)) exprvec.push_back(nfUpvec[j]);
                                     else            exprvec.push_back(nfDownvec[j]);
                                 }
@@ -1164,9 +1165,9 @@ void Region::BuildPostFitErrorHist(FitResults *fitRes, const std::vector<std::st
                 //
                 else if(fSampleHists[i]->HasSyst(fSystNames[i_syst])){
                     std::ofstream dummy;
-                    double multNom  = GetMultFactors( fitRes, dummy, i, i_bin, yieldNominal );
-                    double multUp   = GetMultFactors( fitRes, dummy, i, i_bin, yieldNominal, TRExFitter::NPMAP[systName], true);
-                    double multDown = GetMultFactors( fitRes, dummy, i, i_bin, yieldNominal, TRExFitter::NPMAP[systName], false);
+                    const double multNom  = GetMultFactors( fitRes, dummy, i, i_bin, yieldNominal );
+                    const double multUp   = GetMultFactors( fitRes, dummy, i, i_bin, yieldNominal, TRExFitter::NPMAP[systName], true);
+                    const double multDown = GetMultFactors( fitRes, dummy, i, i_bin, yieldNominal, TRExFitter::NPMAP[systName], false);
                     if (isMorph){
                         morph_up_postfit.at(i_bin-1)+=(multUp/multNom)*yieldNominal_postFit;
                         morph_down_postfit.at(i_bin-1)+= (multDown/multNom)*yieldNominal_postFit;
@@ -1254,7 +1255,7 @@ void Region::BuildPostFitErrorHist(FitResults *fitRes, const std::vector<std::st
                 // skip signal if Bkg only
                 if(fFitType==TRExFit::BONLY && fSampleHists[i]->fSample->fType==Sample::SIGNAL) continue;
                 // get SystematicHist
-                SystematicHist* sh = fSampleHists[i]->GetSystematic(systName);
+                const SystematicHist* sh = fSampleHists[i]->GetSystematic(systName);
                 // increase diffUp/Down according to the previously stored histograms
                 // yieldNominal_postFit = fSampleHists[i]->fHist_postFit->GetBinContent(i_bin);
                 if(!sh) continue;
@@ -1292,7 +1293,7 @@ void Region::BuildPostFitErrorHist(FitResults *fitRes, const std::vector<std::st
             return;
         }
         // remove blinded bins
-        auto h_data = std::unique_ptr<TH1>(static_cast<TH1*>(fData->fHist->Clone()));
+        std::unique_ptr<TH1> h_data(static_cast<TH1*>(fData->fHist->Clone()));
         if(fBlindedBins!=nullptr){
             for(int i_bin=1;i_bin<=h_data->GetNbinsX();++i_bin){
                 if(fBlindedBins->GetBinContent(i_bin)>0) h_data->SetBinContent(i_bin,-1);
