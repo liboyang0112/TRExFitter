@@ -2341,9 +2341,9 @@ std::unique_ptr<TGraphAsymmErrors> BuildTotError( const TH1* const h_nominal,
     }
     //
     //Speed Up: remove irrelevant systematics (which would give in any case 0 correlation)
-    std::vector< string > EffectiveSystNames;
-    std::vector< unsigned int > EffectiveSystIndex;
-    for(unsigned int n=0;n<fSystNames.size();++n){
+    std::vector< std::string > EffectiveSystNames;
+    std::vector< std::size_t > EffectiveSystIndex;
+    for(std::size_t n=0; n < fSystNames.size(); ++n){
         if(matrix!=nullptr){
             if (matrix->fNuisParIsThere[fSystNames[n]]) {
                 EffectiveSystNames.push_back(fSystNames[n]);
@@ -2356,22 +2356,17 @@ std::unique_ptr<TGraphAsymmErrors> BuildTotError( const TH1* const h_nominal,
         }
     }
     //
-    auto g_totErr = std::make_unique<TGraphAsymmErrors>(h_nominal );
-    double finalErrPlus(0.);
-    double finalErrMinus(0.);
-    double corr(0.);
-    double errUp_i(0.),   errUp_j(0.);
-    double errDown_i(0.), errDown_j(0.);
+    auto g_totErr = std::make_unique<TGraphAsymmErrors>(h_nominal);
     //
     // - loop on bins
-    for(int i_bin=1;i_bin<h_nominal->GetNbinsX()+1;i_bin++){
-        finalErrPlus = 0;
-        finalErrMinus = 0;
-        corr = 0;
+    for(int i_bin=1; i_bin < h_nominal->GetNbinsX()+1; ++i_bin){
+        double finalErrPlus(0.);
+        double finalErrMinus(0.);
+        double corr(0.);
         // yieldNominal = h_nominal->GetBinContent(i_bin);
         // - loop on the syst, two by two, to include the correlations
-        for(unsigned int i_syst=0;i_syst<EffectiveSystNames.size();i_syst++){
-            for(unsigned int j_syst=0;j_syst<EffectiveSystNames.size();j_syst++){
+        for(std::size_t i_syst=0; i_syst < EffectiveSystNames.size(); ++i_syst){
+            for(std::size_t j_syst=0; j_syst < EffectiveSystNames.size(); ++j_syst){
                 if (i_syst==j_syst) continue;
                 if(matrix!=nullptr){
                     corr = matrix->GetCorrelation(EffectiveSystNames[i_syst],EffectiveSystNames[j_syst]);
@@ -2380,16 +2375,16 @@ std::unique_ptr<TGraphAsymmErrors> BuildTotError( const TH1* const h_nominal,
                     if(EffectiveSystNames[i_syst]==EffectiveSystNames[j_syst]) corr = 1.;
                     else                                                       corr = 0.;
                 }
-                errUp_i   = h_up[EffectiveSystIndex[i_syst]]  ->GetBinContent(i_bin);// - yieldNominal;
-                errDown_i = h_down[EffectiveSystIndex[i_syst]]->GetBinContent(i_bin);// - yieldNominal;
-                errUp_j   = h_up[EffectiveSystIndex[j_syst]]  ->GetBinContent(i_bin);// - yieldNominal;
-                errDown_j = h_down[EffectiveSystIndex[j_syst]]->GetBinContent(i_bin);// - yieldNominal;
+                const double errUp_i   = h_up[EffectiveSystIndex[i_syst]]  ->GetBinContent(i_bin);// - yieldNominal;
+                const double errDown_i = h_down[EffectiveSystIndex[i_syst]]->GetBinContent(i_bin);// - yieldNominal;
+                const double errUp_j   = h_up[EffectiveSystIndex[j_syst]]  ->GetBinContent(i_bin);// - yieldNominal;
+                const double errDown_j = h_down[EffectiveSystIndex[j_syst]]->GetBinContent(i_bin);// - yieldNominal;
 
                 //
                 // Symmetrize (seems to be done in Roostats ??)
                 //
-                double err_i = (errUp_i - errDown_i)/2.;
-                double err_j = (errUp_j - errDown_j)/2.;
+                const double err_i = (errUp_i - errDown_i)/2.;
+                const double err_j = (errUp_j - errDown_j)/2.;
 
                 //
                 // Compute the + and - variations
@@ -2399,14 +2394,14 @@ std::unique_ptr<TGraphAsymmErrors> BuildTotError( const TH1* const h_nominal,
             }
         }
         // now all diagonal el. of all systematics, corr = 1;
-        for(unsigned int i_syst=0;i_syst<fSystNames.size();i_syst++){
-            errUp_i   = h_up[i_syst]  ->GetBinContent(i_bin);// - yieldNominal;
-            errDown_i = h_down[i_syst]->GetBinContent(i_bin);// - yieldNominal;
+        for(std::size_t i_syst=0; i_syst<fSystNames.size(); ++i_syst){
+            const double errUp_i   = h_up[i_syst]  ->GetBinContent(i_bin);// - yieldNominal;
+            const double errDown_i = h_down[i_syst]->GetBinContent(i_bin);// - yieldNominal;
 
             //
             // Symmetrize (seems to be done in Roostats ??)
             //
-            double err_i = (errUp_i - errDown_i)/2.;
+            const double err_i = (errUp_i - errDown_i)/2.;
 
             //
             // Compute the + and - variations
@@ -2415,11 +2410,11 @@ std::unique_ptr<TGraphAsymmErrors> BuildTotError( const TH1* const h_nominal,
             finalErrMinus += err_i * err_i ;
         }
         // add stat uncertainty, which should have been stored as orignal bin errors in the h_nominal (if fUseStatErr is true)
-        finalErrPlus  += pow( h_nominal->GetBinError(i_bin), 2 );
-        finalErrMinus += pow( h_nominal->GetBinError(i_bin), 2 );
+        finalErrPlus  += h_nominal->GetBinError(i_bin) * h_nominal->GetBinError(i_bin);
+        finalErrMinus += h_nominal->GetBinError(i_bin) * h_nominal->GetBinError(i_bin);
 
-        g_totErr->SetPointEYhigh(i_bin-1,sqrt(TMath::Abs(finalErrPlus )));
-        g_totErr->SetPointEYlow( i_bin-1,sqrt(TMath::Abs(finalErrMinus)));
+        g_totErr->SetPointEYhigh(i_bin-1,std::sqrt(finalErrPlus ));
+        g_totErr->SetPointEYlow( i_bin-1,std::sqrt(finalErrMinus));
     }
 
     return g_totErr;
