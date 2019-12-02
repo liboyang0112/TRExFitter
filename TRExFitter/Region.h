@@ -114,7 +114,7 @@ public:
       * @param bool specifying whether signal sample have to be included in the sum or not (true by default)
       * @return combined histogram
       */
-    TH1* GetTotHist(bool includeSignal=true);
+    std::unique_ptr<TH1> GetTotHist(bool includeSignal);
 
     // -------
     // Members

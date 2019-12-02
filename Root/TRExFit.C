@@ -2205,10 +2205,10 @@ void TRExFit::DrawAndSaveAll(std::string opt){
     //
     // Scale sample(s) to data (only pre-fit)
     if(!isPostFit && fScaleSamplesToData.size()>0){
-        for(auto reg : fRegions){
-            TH1* hTot = reg->GetTotHist(true);
-            double totPred = hTot->Integral();
-            double totData = reg->fData->fHist->Integral();
+        for(auto& reg : fRegions){
+            std::unique_ptr<TH1> hTot = reg->GetTotHist(true);
+            const double totPred = hTot->Integral();
+            const double totData = reg->fData->fHist->Integral();
             double totToScale = 0;
             std::vector<SampleHist*> shToScale;
             for(auto& sh : reg->fSampleHists){
@@ -2219,12 +2219,12 @@ void TRExFit::DrawAndSaveAll(std::string opt){
                 }
                 if(FindInStringVector(fScaleSamplesToData,sh->fSample->fName)>=0){
                     shToScale.emplace_back(sh.get());
-                    double morph_scale = GetNominalMorphScale(sh.get());
+                    const double morph_scale = GetNominalMorphScale(sh.get());
                     totToScale += morph_scale*sh->fHist->Integral();
                 }
             }
             if(totToScale<=0 || shToScale.size()==0) continue;
-            double scale = (totData-(totPred-totToScale))/totToScale;
+            const double scale = (totData-(totPred-totToScale))/totToScale;
             for(auto& sh : shToScale){
                 WriteInfoStatus("TRExFit::CorrectHistograms","Scaling sample " + sh->fSample->fName + " by " + std::to_string(scale) + " in region " + reg->fName);
                 sh->Scale(scale);
@@ -2233,7 +2233,7 @@ void TRExFit::DrawAndSaveAll(std::string opt){
         }
     }
     else if(fScaleSamplesToData.size()>0){
-        for(auto reg : fRegions){
+        for(auto& reg : fRegions){
             reg->fScaleSamplesToData = fScaleSamplesToData;
         }
     }

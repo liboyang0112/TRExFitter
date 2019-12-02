@@ -2427,7 +2427,7 @@ void Region::PrepareMorphScales(FitResults *fitRes, std::vector<double> *morph_s
         // skip data
         if(fSampleHists[i]->fSample->fType==Sample::DATA) continue;
         if(fSampleHists[i]->fSample->fType==Sample::GHOST) continue;
-        for(int i_syst=0;i_syst<(int)fSystNames.size();i_syst++){
+        for(std::size_t i_syst=0; i_syst < fSystNames.size(); ++i_syst){
             std::string systName    = fSystNames[i_syst];
             if(TRExFitter::NPMAP[systName]=="") TRExFitter::NPMAP[systName] = systName;
 
@@ -2435,13 +2435,13 @@ void Region::PrepareMorphScales(FitResults *fitRes, std::vector<double> *morph_s
                 // if this norm factor is a morphing one
                 if(fSystNames[i_syst].find("morph_")!=string::npos || fSampleHists[i]->GetNormFactor(fSystNames[i_syst])->fExpression.first!=""){
                     std::string formula = TRExFitter::SYSTMAP[fSystNames[i_syst]];
-                    std::string name = TRExFitter::NPMAP[fSystNames[i_syst]];
+                    const std::string name = TRExFitter::NPMAP[fSystNames[i_syst]];
                     WriteDebugStatus("Region::PrepareMorphScales", "formula: " +formula);
                     WriteDebugStatus("Region::PrepareMorphScales", "name: " +name);
                     std::vector < std::pair < std::string,std::vector<double> > > nameS;
                     if(fSystNames[i_syst].find("morph_")!=std::string::npos){
-                        nameS.push_back(std::make_pair(name,std::vector<double>{double(fSampleHists[i]->GetNormFactor(fSystNames[i_syst])->fNominal),
-                            double(fSampleHists[i]->GetNormFactor(fSystNames[i_syst])->fMin),double(fSampleHists[i]->GetNormFactor(fSystNames[i_syst])->fMax)}));
+                        nameS.push_back(std::make_pair(name,std::vector<double>{fSampleHists[i]->GetNormFactor(fSystNames[i_syst])->fNominal,
+                            fSampleHists[i]->GetNormFactor(fSystNames[i_syst])->fMin,fSampleHists[i]->GetNormFactor(fSystNames[i_syst])->fMax}));
                     }
                     else{
                         nameS = processString(name);
@@ -2456,7 +2456,7 @@ void Region::PrepareMorphScales(FitResults *fitRes, std::vector<double> *morph_s
                         WriteDebugStatus("Region::PrepareMorphScales", "nfValue["+std::to_string(j)+"]: "+std::to_string(nfValuevec[j]));
                     }
                     TFormula f_morph ("f_morph",formula.c_str());
-                    double scaleNom = f_morph.EvalPar(&nfValuevec[0],nullptr);
+                    const double scaleNom = f_morph.EvalPar(&nfValuevec[0],nullptr);
                     morph_scale->emplace_back(scaleNom);
                 }
             }
@@ -2465,12 +2465,12 @@ void Region::PrepareMorphScales(FitResults *fitRes, std::vector<double> *morph_s
                 // if this norm factor is a morphing one
                 if(nf->fName.find("morph_")!=string::npos || nf->fExpression.first!=""){
                     std::string formula = TRExFitter::SYSTMAP[nf->fName];
-                    std::string name = TRExFitter::NPMAP[nf->fName];
+                    const std::string name = TRExFitter::NPMAP[nf->fName];
                     WriteDebugStatus("Region::PrepareMorphScales", "formula: " +formula);
                     WriteDebugStatus("Region::PrepareMorphScales", "name: " +name);
                     std::vector < std::pair < std::string,std::vector<double> > > nameS;
                     if(nf->fName.find("morph_")!=std::string::npos){
-                        nameS.push_back(std::make_pair(name,std::vector<double>{double(nf->fNominal),double(nf->fMin),double(nf->fMax)}));
+                        nameS.push_back(std::make_pair(name,std::vector<double>{nf->fNominal,nf->fMin,nf->fMax}));
                     }
                     else{
                         nameS = processString(name);
@@ -2485,7 +2485,7 @@ void Region::PrepareMorphScales(FitResults *fitRes, std::vector<double> *morph_s
                         WriteDebugStatus("Region::PrepareMorphScales", "nfNominal["+std::to_string(j)+"]: "+std::to_string(nfNominalvec[j]));
                     }
                     TFormula f_morph("f_morph",formula.c_str());
-                    double scaleNom = f_morph.EvalPar(&nfNominalvec[0],nullptr);
+                    const double scaleNom = f_morph.EvalPar(&nfNominalvec[0],nullptr);
                     morph_scale_nominal->emplace_back(scaleNom);
                 }
             }
@@ -2496,7 +2496,7 @@ void Region::PrepareMorphScales(FitResults *fitRes, std::vector<double> *morph_s
 //___________________________________________________________
 //
 void Region::SystPruning(PruningUtil *pu){
-    TH1* hTot = nullptr;
+    std::unique_ptr<TH1> hTot(nullptr);
     if(pu->fStrategy==1){
         hTot = GetTotHist(false); // don't include signal
     }
@@ -2504,7 +2504,7 @@ void Region::SystPruning(PruningUtil *pu){
         hTot = GetTotHist(true); // include signal
     }
     for(auto& sh : fSampleHists){
-        sh->SystPruning(pu,hTot);
+        sh->SystPruning(pu,hTot.get());
         //
         // flag overall systematics as no shape also for pruning purposes
         for(auto& syh : sh->fSyst){
@@ -2546,7 +2546,7 @@ void Region::SystPruning(PruningUtil *pu){
                 WriteWarningStatus("Region::SystPruning", "Cannot find reference pruning sample: " + syst->fReferencePruning + " in region: " + fName);
                 continue;
             }
-            SystematicHist *refSysH = refSmpH->GetSystematic(syst->fName);
+            const SystematicHist *refSysH = refSmpH->GetSystematic(syst->fName);
             if(refSysH==nullptr){
                 WriteWarningStatus("Region::SystPruning", "Cannot find systematic " + syst->fName + " for reference pruning sample " + syst->fReferencePruning);
                 continue;
@@ -2561,8 +2561,8 @@ void Region::SystPruning(PruningUtil *pu){
 
 //___________________________________________________________
 //
-TH1* Region::GetTotHist(bool includeSignal){
-    TH1* hTot = nullptr;
+std::unique_ptr<TH1> Region::GetTotHist(bool includeSignal) {
+    std::unique_ptr<TH1> hTot(nullptr);
     for(auto& sh : fSampleHists){
         if(!sh->fSample) continue;
         if(sh->fSample->fType==Sample::GHOST) continue;
@@ -2573,10 +2573,10 @@ TH1* Region::GetTotHist(bool includeSignal){
         // scale accoring to nominal SF (considering morphing as well)
         const double& scale = GetNominalMorphScale(sh.get());
         hTmp->Scale(scale);
-        if(!hTot) hTot = hTmp;
-        else{
+        if(!hTot) {
+            hTot.reset(hTmp);
+        } else {
             hTot->Add(hTmp);
-            delete hTmp;
         }
     }
     return hTot;
