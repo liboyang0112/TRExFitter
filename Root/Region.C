@@ -511,7 +511,7 @@ void Region::BuildPreFitErrorHist(){
         h_up.  push_back(fTotUp[i_syst].get() );
         h_down.push_back(fTotDown[i_syst].get());
     }
-    fErr.reset(BuildTotError( fTot.get(), h_up, h_down, fNpNames ));
+    fErr = BuildTotError( fTot.get(), h_up, h_down, fNpNames );
     fErr->SetName("g_totErr");
     // at this point fTot and fErr should be ready
 
@@ -524,7 +524,7 @@ void Region::BuildPreFitErrorHist(){
             WriteWarningStatus("Region::BuildPreFitErrorHist", "Maybe you do not have data sample defined?");
             return;
         }
-        auto h_data = std::unique_ptr<TH1>(static_cast<TH1*>(fData->fHist->Clone()));
+        std::unique_ptr<TH1> h_data(static_cast<TH1*>(fData->fHist->Clone()));
         if(fBlindedBins!=nullptr){
             for(int i_bin=1;i_bin<=h_data->GetNbinsX();i_bin++){
                 if(fBlindedBins->GetBinContent(i_bin)>0) h_data->SetBinContent(i_bin,-1);
@@ -1282,7 +1282,7 @@ void Region::BuildPostFitErrorHist(FitResults *fitRes, const std::vector<std::st
         h_down.push_back(fTotDown_postFit[i_syst].get());
         systNuisPars.push_back(TRExFitter::NPMAP[fSystNames[i_syst]]);
     }
-    fErr_postFit.reset(BuildTotError( fTot_postFit.get(), h_up, h_down, systNuisPars, fitRes->fCorrMatrix.get()));
+    fErr_postFit = BuildTotError( fTot_postFit.get(), h_up, h_down, systNuisPars, fitRes->fCorrMatrix.get());
     fErr_postFit->SetName("g_totErr_postFit");
     // at this point fTot and fErr _postFit should be ready
 
@@ -2062,15 +2062,16 @@ void Region::PrintSystTable(FitResults *fitRes, string opt) const{
                     }
                 }
 
-                TGraphAsymmErrors *g_err;
+                std::unique_ptr<TGraphAsymmErrors> g_err(nullptr);
                 double err = 0.;
                 if (isPostFit){
                     g_err = BuildTotError(sh->fHist_postFit.get(), category_histo_up, category_histo_down, category_syst_names[s->fName][category], fitRes->fCorrMatrix.get());
                     if (category_histo_up.size()>0 && sh->fHist_postFit->Integral()>0.){
                         for (int ibin=1; ibin<sh->fHist_postFit->GetNbinsX()+1; ibin++){
-                            if (pow(g_err->GetErrorYhigh(ibin-1), 2) - pow(sh->fHist_postFit->GetBinError(ibin), 2)>=0.){ // dummy check
+                            const double tmp = g_err->GetErrorYhigh(ibin-1) * g_err->GetErrorYhigh(ibin-1) - sh->fHist_postFit->GetBinError(ibin) * sh->fHist_postFit->GetBinError(ibin);
+                            if (tmp >=0.){ // dummy check
                                 //Need to substract the statistical unc.
-                                err += (sqrt(pow(g_err->GetErrorYhigh(ibin-1), 2) - pow(sh->fHist_postFit->GetBinError(ibin), 2)))/sh->fHist_postFit->Integral();
+                                err += (std::sqrt(tmp))/sh->fHist_postFit->Integral();
                             }
                         }
                     }
@@ -2079,9 +2080,10 @@ void Region::PrintSystTable(FitResults *fitRes, string opt) const{
                     g_err = BuildTotError(sh->fHist.get(), category_histo_up, category_histo_down, category_syst_names[s->fName][category]);
                     if (category_histo_up.size()>0 && sh->fHist->Integral()>0.){
                         for (int ibin=1; ibin<sh->fHist->GetNbinsX()+1; ibin++){
-                            if (pow(g_err->GetErrorYhigh(ibin-1), 2) - pow(sh->fHist->GetBinError(ibin), 2)>=0.){
+                            const double tmp = g_err->GetErrorYhigh(ibin-1) * g_err->GetErrorYhigh(ibin-1) - sh->fHist->GetBinError(ibin) * sh->fHist->GetBinError(ibin);
+                            if (tmp>=0.){
                                 //Need to substract the statistical unc.
-                                err += (sqrt(pow(g_err->GetErrorYhigh(ibin-1), 2) - pow(sh->fHist->GetBinError(ibin), 2)))/sh->fHist->Integral();
+                                err += (std::sqrt(tmp))/sh->fHist->Integral();
                             }
                         }
                     }
@@ -2320,7 +2322,11 @@ std::pair<double,int> GetChi2Test( TH1* h_data, TH1* h_nominal, std::vector< TH1
 // - syst variation histos (eventually already scaled by post-fit pulls)
 // - correlation matrix
 // Note: if matrix = nullptr => no correlation, i.e. matrix = 1 (used for pre-fit, or to neglect correlation)
-TGraphAsymmErrors* BuildTotError( TH1* h_nominal, std::vector< TH1* > h_up, std::vector< TH1* > h_down, std::vector< string > fSystNames, CorrelationMatrix *matrix ){
+std::unique_ptr<TGraphAsymmErrors> BuildTotError( const TH1* const h_nominal,
+                                                  const std::vector< TH1* >& h_up,
+                                                  const std::vector< TH1* >& h_down,
+                                                  const std::vector< string >& fSystNames,
+                                                  CorrelationMatrix *matrix ){
     if(!h_nominal){
         WriteErrorStatus("BuildTotError","h_nominal not defined.");
         exit(EXIT_FAILURE);
@@ -2350,7 +2356,7 @@ TGraphAsymmErrors* BuildTotError( TH1* h_nominal, std::vector< TH1* > h_up, std:
         }
     }
     //
-    TGraphAsymmErrors *g_totErr = new TGraphAsymmErrors( h_nominal );
+    auto g_totErr = std::make_unique<TGraphAsymmErrors>(h_nominal );
     double finalErrPlus(0.);
     double finalErrMinus(0.);
     double corr(0.);

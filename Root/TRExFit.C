@@ -2326,7 +2326,7 @@ TRExPlot* TRExFit::DrawSummary(std::string opt, TRExPlot* prefit_plot) {
     TH1D* h_sig[MAXsamples];
     TH1D* h_bkg[MAXsamples];
     TH1D *h_tot;
-    TGraphAsymmErrors *g_err;
+    std::unique_ptr<TGraphAsymmErrors> g_err(nullptr);
     int Nsig = 0;
     int Nbkg = 0;
     //
@@ -2783,7 +2783,7 @@ TRExPlot* TRExFit::DrawSummary(std::string opt, TRExPlot* prefit_plot) {
     //
     p->SetTotBkg(h_tot);
     p->BlindData();
-    p->SetTotBkgAsym(g_err);
+    p->SetTotBkgAsym(g_err.get());
     //
     for(int i_bin=1;i_bin<=Nbin;i_bin++){
         p->SetBinLabel(i_bin,fRegions[regionVec[i_bin-1]]->fShortLabel.c_str());
@@ -3170,8 +3170,8 @@ void TRExFit::BuildYieldTable(std::string opt, std::string group) const{
     // build one bin per region
     TH1D* h_smp[MAXsamples];
     TH1D *h_tot;
-    TGraphAsymmErrors *g_err[MAXsamples];
-    TGraphAsymmErrors *g_err_tot;
+    std::vector<std::unique_ptr<TGraphAsymmErrors> > g_err(MAXsamples);
+    std::unique_ptr<TGraphAsymmErrors> g_err_tot(nullptr);
     //
     std::string name;
     std::string title;

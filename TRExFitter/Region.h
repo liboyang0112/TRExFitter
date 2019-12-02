@@ -270,8 +270,12 @@ double GetDeltaN(double alpha, double Iz, double Ip, double Imi, int intCode=4);
 std::map < int , double > GetDeltaNForUncertainties(double alpha, double alpha_errUp, double alpha_errDown, double Iz, double Ip, double Imi, int intCode);
 
 // To build the total error band
-TGraphAsymmErrors* BuildTotError( TH1* h_nominal, std::vector< TH1* > h_up, std::vector< TH1* > h_down, std::vector< std::string > systNames, CorrelationMatrix *matrix=0x0 );
+std::unique_ptr<TGraphAsymmErrors> BuildTotError( const TH1* const h_nominal,
+                                                  const std::vector< TH1* >& h_up,
+                                                  const std::vector< TH1* >& h_down,
+                                                  const std::vector< std::string >& systNames,
+                                                  CorrelationMatrix* matrix=nullptr );
 
-std::pair<double,int> GetChi2Test( TH1* h_data, TH1* h_nominal, std::vector< TH1* > h_up, std::vector< std::string > fSystNames, CorrelationMatrix *matrix=0x0 );
+std::pair<double,int> GetChi2Test( TH1* h_data, TH1* h_nominal, std::vector< TH1* > h_up, std::vector< std::string > fSystNames, CorrelationMatrix *matrix=nullptr );
 
 #endif
