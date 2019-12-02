@@ -2285,8 +2285,8 @@ void TRExFit::DrawAndSaveAll(std::string opt){
             }
 
             gSystem->mkdir( (fName + "/Histograms/").c_str() );
-            if(fRegions[i_ch]->fRegionDataType==Region::ASIMOVDATA) p.reset(fRegions[i_ch]->DrawPostFit(fFitResults,pullTex,fMorphParams,fPrePostFitCanvasSize,opt+" blind"));
-            else                                                    p.reset(fRegions[i_ch]->DrawPostFit(fFitResults,pullTex,fMorphParams,fPrePostFitCanvasSize,opt));
+            if(fRegions[i_ch]->fRegionDataType==Region::ASIMOVDATA) p = fRegions[i_ch]->DrawPostFit(fFitResults,pullTex,fMorphParams,fPrePostFitCanvasSize,opt+" blind");
+            else                                                    p = fRegions[i_ch]->DrawPostFit(fFitResults,pullTex,fMorphParams,fPrePostFitCanvasSize,opt);
             for(int i_format=0;i_format<(int)TRExFitter::IMAGEFORMAT.size();i_format++)
                 p->SaveAs(     (fName+"/Plots/"+fRegions[i_ch]->fName+"_postFit"+fSuffix+"."+TRExFitter::IMAGEFORMAT[i_format] ).c_str());
 

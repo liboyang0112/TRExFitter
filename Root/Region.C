@@ -777,11 +777,13 @@ std::unique_ptr<TRExPlot> Region::DrawPreFit(const std::vector<int>& canvasSize,
 
 //__________________________________________________________________________________
 //
-double Region::GetMultFactors( FitResults *fitRes, std::ofstream& pullTex,
-                                const int i /*sample*/, const int i_bin /*bin number*/,
-                                const double binContent0,
-                                const std::string &var_syst_name,
-                                const bool isUp ) const{
+double Region::GetMultFactors( FitResults* fitRes,
+                               std::ofstream& pullTex,
+                               const int i /*sample*/,
+                               const int i_bin /*bin number*/,
+                               const double binContent0,
+                               const std::string &var_syst_name,
+                               const bool isUp ) const{
     double multNorm = 1.;
     double multShape = 0.;
     double systValue = 0.;
@@ -1321,18 +1323,22 @@ void Region::BuildPostFitErrorHist(FitResults *fitRes, const std::vector<std::st
 
 //__________________________________________________________________________________
 //
-TRExPlot* Region::DrawPostFit(FitResults *fitRes,ofstream& pullTex, const std::vector<std::string> &morph_names, const std::vector<int>& canvasSize, string opt){
+std::unique_ptr<TRExPlot> Region::DrawPostFit(FitResults* fitRes,
+                                              ofstream& pullTex,
+                                              const std::vector<std::string> &morph_names,
+                                              const std::vector<int>& canvasSize,
+                                              string opt) {
 
     if(TRExFitter::PREFITONPOSTFIT){
-        fPlotPostFit->h_tot_bkg_prefit = (TH1*)fPlotPreFit->GetTotBkg()->Clone("h_tot_bkg_prefit");
+        fPlotPostFit->h_tot_bkg_prefit = static_cast<TH1*>(fPlotPreFit->GetTotBkg()->Clone("h_tot_bkg_prefit"));
     }
 
-    TRExPlot *p{};
+    std::unique_ptr<TRExPlot> p(nullptr);
     if (canvasSize.size() == 0){
-        p = fPlotPostFit.get();
+        p.reset(fPlotPostFit.get());
         p->fShowYields = TRExFitter::SHOWYIELDS;
     } else {
-        p = new TRExPlot(("c_"+fName).c_str(), canvasSize.at(0), canvasSize.at(1),TRExFitter::NORATIO);
+        p = std::make_unique<TRExPlot>(("c_"+fName).c_str(), canvasSize.at(0), canvasSize.at(1),TRExFitter::NORATIO);
     }
 
     p->SetXaxisRange(fXaxisRange);
@@ -1375,9 +1381,9 @@ TRExPlot* Region::DrawPostFit(FitResults *fitRes,ofstream& pullTex, const std::v
     //
     // 0) Create a new hist for each sample
     //
-    TH1* hSmpNew[MAXsamples];
+    std::vector<std::unique_ptr<TH1> > hSmpNew(MAXsamples);
     for(int i=0;i<fNSamples;i++){
-        hSmpNew[i] = static_cast<TH1*>(fSampleHists[i]->fHist->Clone());
+        hSmpNew[i].reset(static_cast<TH1*>(fSampleHists[i]->fHist->Clone()));
         // set to 0 uncertainty in each bin if MCstat set to FALSE
         if((!fSampleHists[i]->fSample->fUseMCStat && !fSampleHists[i]->fSample->fSeparateGammas) || fUseGammaPulls){
             for(int i_bin=0;i_bin<hSmpNew[i]->GetNbinsX()+2;i_bin++) hSmpNew[i]->SetBinError(i_bin,0.);
@@ -1387,7 +1393,6 @@ TRExPlot* Region::DrawPostFit(FitResults *fitRes,ofstream& pullTex, const std::v
     //
     // 1) Propagates the post-fit NP values to the central value (pulls)
     //
-    string systName;
     for(int i=0;i<fNSamples;i++){
         if(fSampleHists[i]->fSample->fType==Sample::DATA) continue;
         if(fSampleHists[i]->fSample->fType==Sample::GHOST) continue;
@@ -1398,11 +1403,10 @@ TRExPlot* Region::DrawPostFit(FitResults *fitRes,ofstream& pullTex, const std::v
             pullTex << "\\hline\n" << endl;
             pullTex << "{\\color{blue}{$\\rightarrow \\,$ "<< sampleTex << "}} & \\\\\n"<< endl;
         }
-        TH1* hNew = nullptr;
-        hNew = (TH1*)hSmpNew[i]->Clone();
+        std::unique_ptr<TH1> hNew(static_cast<TH1*>(hSmpNew[i]->Clone()));
         for(int i_bin=1;i_bin<=hNew->GetNbinsX();i_bin++){
-            double binContent0 = hSmpNew[i]->GetBinContent(i_bin);
-            double mult_factor = GetMultFactors(fitRes, pullTex, i, i_bin, binContent0);
+            const double binContent0 = hSmpNew[i]->GetBinContent(i_bin);
+            const double mult_factor = GetMultFactors(fitRes, pullTex, i, i_bin, binContent0);
 
             //
             // Final computation
@@ -1414,22 +1418,23 @@ TRExPlot* Region::DrawPostFit(FitResults *fitRes,ofstream& pullTex, const std::v
             if(fUseGammaPulls && (fSampleHists[i]->fSample->fUseMCStat || fSampleHists[i]->fSample->fSeparateGammas)){
                 // find the gamma for this bin of this distribution in the fit results
                 std::string gammaName = Form("stat_%s_bin_%d",fName.c_str(),i_bin-1);
-                if(fSampleHists[i]->fSample->fSeparateGammas)
+                if(fSampleHists[i]->fSample->fSeparateGammas) {
                     gammaName = Form("shape_stat_%s_%s_bin_%d",fSampleHists[i]->fSample->fName.c_str(),fName.c_str(),i_bin-1);
+                }
                 WriteDebugStatus("Region::DrawPostFit", "Looking for gamma " + gammaName);
-                double gammaValue = fitRes->GetNuisParValue(gammaName);
+                const double gammaValue = fitRes->GetNuisParValue(gammaName);
                 WriteDebugStatus("Region::DrawPostFit", "  -->  pull = " + std::to_string(gammaValue));
                 // linear effect
                 if(gammaValue>0) binContentNew *= gammaValue;
             }
             // gammas from SHAPE systematics
-            for(auto& syh : fSampleHists[i]->fSyst){
-                Systematic *syst = syh->fSystematic;
+            for(const auto& syh : fSampleHists[i]->fSyst){
+                const Systematic *syst = syh->fSystematic;
                 if(!syst) continue;
                 if(syst->fType==Systematic::SHAPE){
-                    std::string gammaName = Form("shape_%s_%s_bin_%d",syst->fName.c_str(),fName.c_str(),i_bin-1);
+                    const std::string gammaName = Form("shape_%s_%s_bin_%d",syst->fName.c_str(),fName.c_str(),i_bin-1);
                     WriteDebugStatus("Region::DrawPostFit", "Looking for gamma " + gammaName);
-                    double gammaValue = fitRes->GetNuisParValue(gammaName);
+                    const double gammaValue = fitRes->GetNuisParValue(gammaName);
                     WriteDebugStatus("Region::DrawPostFit", "  -->  pull = " + std::to_string(gammaValue));
                     // linear effect
                     if(gammaValue>0) binContentNew *= gammaValue;
@@ -1441,9 +1446,8 @@ TRExPlot* Region::DrawPostFit(FitResults *fitRes,ofstream& pullTex, const std::v
             //
             hNew->SetBinContent(i_bin,binContentNew);
         }
-        hSmpNew[i] = static_cast<TH1*>(hNew->Clone());
-        fSampleHists[i]->fHist_postFit.reset(hSmpNew[i]);
-        delete hNew;
+        hSmpNew[i].reset(static_cast<TH1*>(hNew->Clone()));
+        fSampleHists[i]->fHist_postFit.reset(hSmpNew[i].get());
     }
     //
     // 2) Scale all samples by norm factors
@@ -1537,7 +1541,7 @@ TRExPlot* Region::DrawPostFit(FitResults *fitRes,ofstream& pullTex, const std::v
             if(fSampleHists[i]->fSample->fType==Sample::DATA) continue;
             if(fSampleHists[i]->fSample->fType==Sample::GHOST) continue;
             if(hTot==nullptr) hTot = (TH1*)hSmpNew[i]->Clone("hTotPostFit");
-            else              hTot->Add(hSmpNew[i]);
+            else              hTot->Add(hSmpNew[i].get());
         }
         double totPred = hTot->Integral();
         double totData = fData->fHist->Integral();
@@ -1572,11 +1576,11 @@ TRExPlot* Region::DrawPostFit(FitResults *fitRes,ofstream& pullTex, const std::v
     TH1* hSigNew[MAXsamples];
     for(int i=0, i_bkg=0, i_sig=0;i<fNSamples;i++){
         if(fSampleHists[i]->fSample->fType==Sample::BACKGROUND){
-            hBkgNew[i_bkg] = hSmpNew[i];
+            hBkgNew[i_bkg] = hSmpNew[i].get();
             i_bkg++;
         }
         if(fSampleHists[i]->fSample->fType==Sample::SIGNAL){
-            hSigNew[i_sig] = hSmpNew[i];
+            hSigNew[i_sig] = hSmpNew[i].get();
             i_sig++;
         }
     }
@@ -1614,7 +1618,7 @@ TRExPlot* Region::DrawPostFit(FitResults *fitRes,ofstream& pullTex, const std::v
         if(fSampleHists[i]->fSample->fType==Sample::GHOST) continue;
         if(fSampleHists[i]->fSample->fType==Sample::SIGNAL && !(TRExFitter::SHOWSTACKSIG && TRExFitter::ADDSTACKSIG)) continue;
         if(j==0) fTot_postFit.reset(static_cast<TH1*>(hSmpNew[i]->Clone("h_tot_postFit")));
-        else fTot_postFit->Add(hSmpNew[i]);
+        else fTot_postFit->Add(hSmpNew[i].get());
         j++;
     }
 

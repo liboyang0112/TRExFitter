@@ -52,15 +52,20 @@ public:
 
     void BuildPreFitErrorHist();
     std::unique_ptr<TRExPlot> DrawPreFit(const std::vector<int>& canvasSize, std::string opt="");
-    double GetMultFactors( FitResults *fitRes,
-                                std::ofstream& pullTex,
-                                const int i /*sample*/, const int i_bin /*bin number*/,
-                                const double binContent0,
-                                const std::string &syst = "",
-                                const bool isUp = true) const;
+    double GetMultFactors( FitResults* fitRes,
+                           std::ofstream& pullTex,
+                           const int i /*sample*/,
+                           const int i_bin /*bin number*/,
+                           const double binContent0,
+                           const std::string &syst = "",
+                           const bool isUp = true) const;
 
     void BuildPostFitErrorHist(FitResults *fitRes, const std::vector<std::string>& morph_names);
-    TRExPlot* DrawPostFit(FitResults *fitRes,std::ofstream & pullTex, const std::vector<std::string>& morph_names, const std::vector<int>& canvasSize, std::string opt="");
+    std::unique_ptr<TRExPlot> DrawPostFit(FitResults* fitRes,
+                                          std::ofstream& pullTex,
+                                          const std::vector<std::string>& morph_names,
+                                          const std::vector<int>& canvasSize,
+                                          std::string opt="");
 
     void SetBinning(int N, double *bins);
     void Rebin(int N);
