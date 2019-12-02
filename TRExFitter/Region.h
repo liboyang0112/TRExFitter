@@ -51,7 +51,7 @@ public:
     SampleHist* GetSampleHist(const std::string &sampleName) const;
 
     void BuildPreFitErrorHist();
-    TRExPlot* DrawPreFit(const std::vector<int>& canvasSize, std::string opt="");
+    std::unique_ptr<TRExPlot> DrawPreFit(const std::vector<int>& canvasSize, std::string opt="");
     double GetMultFactors( FitResults *fitRes,
                                 std::ofstream& pullTex,
                                 const int i /*sample*/, const int i_bin /*bin number*/,

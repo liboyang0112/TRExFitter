@@ -2250,7 +2250,7 @@ void TRExFit::DrawAndSaveAll(std::string opt){
         }
     }
     for(int i_ch=0;i_ch<fNRegions;i_ch++){
-        TRExPlot *p = nullptr;
+        std::unique_ptr<TRExPlot> p(nullptr);
         fRegions[i_ch]->fUseStatErr = fUseStatErr;
         fRegions[i_ch]->fATLASlabel = fAtlasLabel;
         //
@@ -2285,8 +2285,8 @@ void TRExFit::DrawAndSaveAll(std::string opt){
             }
 
             gSystem->mkdir( (fName + "/Histograms/").c_str() );
-            if(fRegions[i_ch]->fRegionDataType==Region::ASIMOVDATA) p = fRegions[i_ch]->DrawPostFit(fFitResults,pullTex,fMorphParams,fPrePostFitCanvasSize,opt+" blind");
-            else                                                    p = fRegions[i_ch]->DrawPostFit(fFitResults,pullTex,fMorphParams,fPrePostFitCanvasSize,opt);
+            if(fRegions[i_ch]->fRegionDataType==Region::ASIMOVDATA) p.reset(fRegions[i_ch]->DrawPostFit(fFitResults,pullTex,fMorphParams,fPrePostFitCanvasSize,opt+" blind"));
+            else                                                    p.reset(fRegions[i_ch]->DrawPostFit(fFitResults,pullTex,fMorphParams,fPrePostFitCanvasSize,opt));
             for(int i_format=0;i_format<(int)TRExFitter::IMAGEFORMAT.size();i_format++)
                 p->SaveAs(     (fName+"/Plots/"+fRegions[i_ch]->fName+"_postFit"+fSuffix+"."+TRExFitter::IMAGEFORMAT[i_format] ).c_str());
 
@@ -2296,7 +2296,6 @@ void TRExFit::DrawAndSaveAll(std::string opt){
                 pullTex << "\\end{document}" << std::endl;
                 pullTex.close();
             }
-            delete p;
         }
         else{
             if(fRegions[i_ch]->fRegionDataType==Region::ASIMOVDATA) p = fRegions[i_ch]->DrawPreFit(fPrePostFitCanvasSize, opt+" blind");
@@ -2309,7 +2308,6 @@ void TRExFit::DrawAndSaveAll(std::string opt){
             for(int i_format=0;i_format<(int)TRExFitter::IMAGEFORMAT.size();i_format++){
                 p->SaveAs(     (fName+"/Plots/"+fRegions[i_ch]->fName+fSuffix+"."+TRExFitter::IMAGEFORMAT[i_format] ).c_str());
             }
-            if( !(fKeepPrefitBlindedBins||TRExFitter::PREFITONPOSTFIT) ) delete p;
         }
     }
 }

@@ -551,13 +551,13 @@ void Region::BuildPreFitErrorHist(){
 
 //__________________________________________________________________________________
 //
-TRExPlot* Region::DrawPreFit(const std::vector<int>& canvasSize, string opt){
+std::unique_ptr<TRExPlot> Region::DrawPreFit(const std::vector<int>& canvasSize, string opt){
 
-    TRExPlot *p{};
+    std::unique_ptr<TRExPlot> p(nullptr);
     if (canvasSize.size() == 0){
-        p = fPlotPreFit.get();
+        p.reset(fPlotPreFit.get());
     } else {
-        p = new TRExPlot(("c_"+fName).c_str(), canvasSize.at(0), canvasSize.at(1),TRExFitter::NORATIO);
+        p.reset(new TRExPlot(("c_"+fName).c_str(), canvasSize.at(0), canvasSize.at(1),TRExFitter::NORATIO));
         p->fShowYields = TRExFitter::SHOWYIELDS;
     }
     p->SetXaxisRange(fXaxisRange);
@@ -603,13 +603,11 @@ TRExPlot* Region::DrawPreFit(const std::vector<int>& canvasSize, string opt){
     // build h_tot
     //
     fTot.reset(nullptr);
-    string title;
-    TH1* h = nullptr;
     if(fHasData && opt.find("blind")==string::npos) p->SetData(fData->fHist.get(),fData->fSample->fTitle);
-    for(int i=0;i<fNSig;i++){
-        title = fSig[i]->fSample->fTitle;
+    for(int i=0;i<fNSig;i++) {
+        std::string title = fSig[i]->fSample->fTitle;
         if(fSig[i]->fSample->fGroup != "") title = fSig[i]->fSample->fGroup;
-        h = static_cast<TH1*>(fSig[i]->fHist->Clone());
+        std::unique_ptr<TH1> h(static_cast<TH1*>(fSig[i]->fHist->Clone()));
         // set to 0 uncertainty in each bin if MCstat set to FALSE
         if(!fSig[i]->fSample->fUseMCStat && !fSig[i]->fSample->fSeparateGammas){
             for(int i_bin=0;i_bin<h->GetNbinsX()+2;i_bin++) h->SetBinError(i_bin,0.);
@@ -626,28 +624,27 @@ TRExPlot* Region::DrawPreFit(const std::vector<int>& canvasSize, string opt){
             // if this norm factor is a morphing one
             if(nf->fName.find("morph_")!=string::npos || nf->fExpression.first!=""){
                 std::string formula = TRExFitter::SYSTMAP[nf->fName];
-                std::string name = TRExFitter::NPMAP[nf->fName];
+                const std::string name = TRExFitter::NPMAP[nf->fName];
                 WriteDebugStatus("Region::DrawPreFit", "formula: " +formula);
                 WriteDebugStatus("Region::DrawPreFit", "name: " +name);
                 std::vector < std::pair < std::string,std::vector<double> > > nameS;
                 if(nf->fName.find("morph_")!=std::string::npos){
-                    nameS.push_back(std::make_pair(name,std::vector<double>{double(nf->fNominal),double(nf->fMin),double(nf->fMax)}));
+                    nameS.push_back(std::make_pair(name,std::vector<double>{static_cast<double>(nf->fNominal),static_cast<double>(nf->fMin),static_cast<double>(nf->fMax)}));
                 }
                 else{
                     nameS = processString(name);
                 }
                 std::vector <double> nfNominalvec;
-                for (unsigned int j = 0; j<nameS.size(); j++){
+                for (std::size_t j = 0; j<nameS.size(); ++j) {
                     formula = ReplaceString(formula,nameS[j].first,"x["+std::to_string(j)+"]");
                     nfNominalvec.push_back(nameS[j].second[0]);
                 }
                 WriteDebugStatus("Region::DrawPreFit", "formula: " +formula);
-                for(unsigned int j = 0; j<nameS.size(); j++){
+                for(std::size_t j = 0; j<nameS.size(); ++j){
                     WriteDebugStatus("Region::DrawPreFit", "nfNominal["+std::to_string(j)+"]: "+std::to_string(nfNominalvec[j]));
                 }
                 TFormula f_morph("f_morph",formula.c_str());
-                double scale = 1.;
-                scale = f_morph.EvalPar(&nfNominalvec[0],nullptr);
+                const double scale = f_morph.EvalPar(&nfNominalvec[0],nullptr);
                 h->Scale(scale);
                 WriteDebugStatus("Region::DrawPreFit", nf->fName + " => Scaling " + fSig[i]->fSample->fName + " by " + std::to_string(scale));
             }
@@ -658,25 +655,25 @@ TRExPlot* Region::DrawPreFit(const std::vector<int>& canvasSize, string opt){
                 }
             }
         }
-        if(TRExFitter::SHOWSTACKSIG)   p->AddSignal(    h,title);
-        if(TRExFitter::SHOWNORMSIG){
+        if(TRExFitter::SHOWSTACKSIG) p->AddSignal(h.get(),title);
+        if(TRExFitter::SHOWNORMSIG) {
             if( (TRExFitter::OPTION["NormSigSRonly"] && fRegionType==SIGNAL)
              || !TRExFitter::OPTION["NormSigSRonly"] )
-                p->AddNormSignal(h,title);
+                p->AddNormSignal(h.get(),title);
         }
         else{
-            if(TRExFitter::OPTION["NormSigSRonly"] && fRegionType==SIGNAL) p->AddNormSignal(h,title);
+            if(TRExFitter::OPTION["NormSigSRonly"] && fRegionType==SIGNAL) p->AddNormSignal(h.get(),title);
         }
-        if(TRExFitter::SHOWOVERLAYSIG) p->AddOverSignal(h,title);
+        if(TRExFitter::SHOWOVERLAYSIG) p->AddOverSignal(h.get(),title);
         if(TRExFitter::SHOWSTACKSIG && TRExFitter::ADDSTACKSIG){
             if(fTot==nullptr) fTot.reset(static_cast<TH1*>(h->Clone("h_tot")));
-            else              fTot->Add(h);
+            else              fTot->Add(h.get());
         }
     }
     for(int i=0;i<fNBkg;i++){
-        title = fBkg[i]->fSample->fTitle;
+        std::string title = fBkg[i]->fSample->fTitle;
         if(fBkg[i]->fSample->fGroup != "") title = fBkg[i]->fSample->fGroup;
-        h = static_cast<TH1*>(fBkg[i]->fHist->Clone());
+        std::unique_ptr<TH1> h(static_cast<TH1*>(fBkg[i]->fHist->Clone()));
         // set to 0 uncertainty in each bin if MCstat set to FALSE
         if(!fBkg[i]->fSample->fUseMCStat && !fBkg[i]->fSample->fSeparateGammas){
             for(int i_bin=0;i_bin<h->GetNbinsX()+2;i_bin++) h->SetBinError(i_bin,0.);
@@ -693,7 +690,7 @@ TRExPlot* Region::DrawPreFit(const std::vector<int>& canvasSize, string opt){
             // if this norm factor is a morphing one
             if(nf->fName.find("morph_")!=string::npos || nf->fExpression.first!=""){
                 std::string formula = TRExFitter::SYSTMAP[nf->fName];
-                std::string name = TRExFitter::NPMAP[nf->fName];
+                const std::string name = TRExFitter::NPMAP[nf->fName];
                 WriteDebugStatus("Region::DrawPreFit", "formula: " +formula);
                 WriteDebugStatus("Region::DrawPreFit", "name: " +name);
                 std::vector < std::pair < std::string,std::vector<double> > > nameS;
@@ -704,17 +701,16 @@ TRExPlot* Region::DrawPreFit(const std::vector<int>& canvasSize, string opt){
                     nameS = processString(name);
                 }
                 std::vector <double> nfNominalvec;
-                for (unsigned int j = 0; j<nameS.size(); j++){
+                for (std::size_t j = 0; j<nameS.size(); ++j){
                     formula = ReplaceString(formula,nameS[j].first,"x["+std::to_string(j)+"]");
                     nfNominalvec.push_back(nameS[j].second[0]);
                 }
                 WriteDebugStatus("Region::DrawPreFit", "formula: " +formula);
-                for(unsigned int j = 0; j<nameS.size(); j++){
+                for(std::size_t j = 0; j<nameS.size(); ++j){
                     WriteDebugStatus("Region::DrawPreFit", "nfNominal["+std::to_string(j)+"]: "+std::to_string(nfNominalvec[j]));
                 }
                 TFormula f_morph("f_morph",formula.c_str());
-                double scale = 1.;
-                scale = f_morph.EvalPar(&nfNominalvec[0],nullptr);
+                const double scale = f_morph.EvalPar(&nfNominalvec[0],nullptr);
                 h->Scale(scale);
                 WriteDebugStatus("Region::DrawPreFit", nf->fName + " => Scaling " + fBkg[i]->fSample->fName + " by " + std::to_string(scale));
             }
@@ -725,9 +721,9 @@ TRExPlot* Region::DrawPreFit(const std::vector<int>& canvasSize, string opt){
                 }
             }
         }
-        p->AddBackground(h,title);
+        p->AddBackground(h.get(),title);
         if(fTot==nullptr) fTot.reset(static_cast<TH1*>(h->Clone("h_tot")));
-        else          fTot->Add(h);
+        else          fTot->Add(h.get());
     }
 
     //
