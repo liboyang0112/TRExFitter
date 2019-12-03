@@ -4043,34 +4043,61 @@ void TRExFit::DrawPieChartPlot(const std::string &opt, int nCols,int nRows, std:
 
 //__________________________________________________________________________________
 // called before w in case of CustomAsimov
-void TRExFit::CreateCustomAsimov() const{
+void TRExFit::CreateCustomAsimov() const {
     WriteDebugStatus("TRExFit::CreateCustomAsimov", "Running CreateCustomAsimov");
     // get a list of all CustomAsimov to create
     std::vector<std::string> customAsimovList;
-    for(int i_smp=0;i_smp<fNSamples;i_smp++){
-        if(fSamples[i_smp]->fAsimovReplacementFor.first!="" && FindInStringVector(customAsimovList,fSamples[i_smp]->fAsimovReplacementFor.first)<0)
+    for(int i_smp=0; i_smp<fNSamples; ++i_smp) {
+        if(fSamples[i_smp]->fAsimovReplacementFor.first!="" && FindInStringVector(customAsimovList,fSamples[i_smp]->fAsimovReplacementFor.first)<0) {
             customAsimovList.push_back(fSamples[i_smp]->fAsimovReplacementFor.first);
+        }
     }
     //
     // fill a different CustomAsimov data-set for each element in the list
-    for(auto customAsimov : customAsimovList){
+    for(const auto& customAsimov : customAsimovList){
         WriteDebugStatus("TRExFit::CreateCustomAsimov", "CustomAsimov: " + customAsimov);
         Sample *ca = GetSample("customAsimov_"+customAsimov);
         // create a new data sample taking the nominal S and B
-        for(int i_ch=0;i_ch<fNRegions;i_ch++){
+        for(int i_ch=0; i_ch<fNRegions; ++i_ch) {
             Region *reg = fRegions[i_ch];
-            SampleHist *cash = reg->SetSampleHist(ca,(TH1*)reg->fData->fHist->Clone());
+            // Now we need to clone a histogram, but need to find one that is valid
+            SampleHist* sample_hist = reg->fData;
+            if (!sample_hist) {
+                // try to clone signal
+                for (const auto& isig : reg->fSig) {
+                    if (isig != nullptr) {
+                        sample_hist = isig;
+                        break;
+                    }
+                }
+            }
+            if (!sample_hist) {
+                // try to clone background
+                for (const auto& ibkg : reg->fBkg) {
+                    if (ibkg != nullptr) {
+                        sample_hist = ibkg;
+                        break;
+                    }
+                }
+            }
+
+            if (!sample_hist) {
+                WriteErrorStatus("TRExFit::CreateCustomAsimov","Cannot copy a valid sample hist!");
+                exit(EXIT_FAILURE);
+            }
+
+            SampleHist *cash = reg->SetSampleHist(ca,static_cast<TH1*>(sample_hist->fHist->Clone()));
             cash->fHist_orig->SetName( Form("%s_orig",cash->fHist->GetName()) ); // fix the name
             cash->fHist->Scale(0.);
             //
             std::vector<std::string> smpToExclude;
-            for(int i_smp=0;i_smp<fNSamples;i_smp++){
-                SampleHist* h = reg->GetSampleHist(fSamples[i_smp]->fName);
-                if( h==0 ) continue;
-                if( h->fSample->fType==Sample::DATA ) continue;
-                if( h->fSample->fType==Sample::GHOST ){
-                    if( h->fSample->fAsimovReplacementFor.first!=customAsimov ) continue;
-                    if( h->fSample->fAsimovReplacementFor.second!="" ) smpToExclude.push_back(h->fSample->fAsimovReplacementFor.second);
+            for(int i_smp=0; i_smp<fNSamples; ++i_smp){
+                const SampleHist* h = reg->GetSampleHist(fSamples[i_smp]->fName);
+                if(!h) continue;
+                if(h->fSample->fType==Sample::DATA) continue;
+                if(h->fSample->fType==Sample::GHOST) {
+                    if(h->fSample->fAsimovReplacementFor.first!=customAsimov) continue;
+                    if(h->fSample->fAsimovReplacementFor.second!="" ) smpToExclude.push_back(h->fSample->fAsimovReplacementFor.second);
                 }
                 if( FindInStringVector( smpToExclude,fSamples[i_smp]->fName )>=0 ) continue;
                 //
