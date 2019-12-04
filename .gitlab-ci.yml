@@ -1,9 +1,19 @@
-image: gitlab-registry.cern.ch/ci-tools/ci-worker:cc7
+default:
+  image: gitlab-registry.cern.ch/ci-tools/ci-worker:cc7
+  before_script:
+    - set +e
+    - source setup.sh #sources the setup in the TRExFitter package (consistent with user's setup)
+    - export LD_LIBRARY_PATH=${LD_LIBRARY_PATH}${LD_LIBRARY_PATH:+:}$PWD/build/lib
+
+variables:
+  GIT_SUBMODULE_STRATEGY: normal
+  BUILD_IMAGE: atlas/analysisbase:21.2.91
 
 ##
 ## Various steps to be followed by the build
 ##
 stages:
+  - check_and_build
   - build
   - hnstep
   - wstep
@@ -11,26 +21,56 @@ stages:
   - rstep
   - draw
   - imagebuild
-  - cleanup
 
-## Checkout the submodule
-variables:
-  GIT_SUBMODULE_STRATEGY: normal
-  BUILD_IMAGE: atlas/analysisbase:21.2.91
 ##
-## Common setup for all jobs
+## static code analysis with cppcheck
+##    Artifact: txt file with output
 ##
-before_script:
-  - set +e
-  - source setup.sh #sources the setup in the TRExFitter package (consistent with user's setup)
-  - export LD_LIBRARY_PATH=${LD_LIBRARY_PATH}${LD_LIBRARY_PATH:+:}$PWD/build/lib
+cppcheck:
+  stage: check_and_build
+  before_script:
+    - yum install -y cppcheck
+  script:
+    - echo "running cppcheck"
+    - set +e
+    - cppcheck --enable=all --verbose --output-file=cppcheck.txt -I TRExFitter/*h --language=c++ Root/*cc
+    - cat cppcheck.txt
+    - source test/scripts/cppcheck_output.sh
+  allow_failure: true
+  artifacts:
+    paths:
+      - cppcheck.txt
+    when: always
+
+##
+## look for duplications in code
+##    Artifact: txt file with output
+##
+cpd:
+  stage: check_and_build
+  # image is from https://gitlab.cern.ch/ComputerSecurity/Security-Services-Code-Checking
+  # example use in https://gitlab.cern.ch/gitlabci-examples/static_code_analysis
+  image: gitlab-registry.cern.ch/computersecurity/security-services-code-checking:latest
+  before_script:
+    - "" # overwrite default, do nothing
+  script:
+    - echo "checking for duplicates in code with CPD"
+    - set +e
+    - cpd --minimum-tokens 100 --language cpp --files Root/*cc > cpd.txt
+    - cat cpd.txt
+    - source test/scripts/cpd_output.sh
+  allow_failure: true
+  artifacts:
+    paths:
+      - cpd.txt
+    when: always
 
 ##
 ## "build" step: first compiles the code
 ##    Artifact: keeps the log file of the compilation
 ##
 compile:
-  stage: build
+  stage: check_and_build
   script:
      - mkdir -p build && cd build
      - cmake .. | tee cmake.log
