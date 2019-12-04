@@ -17,7 +17,6 @@
 #include "TH1.h"
 #include "TH1D.h"
 #include "TH2F.h"
-#include "TMath.h"
 #include "TObject.h"
 #include "TString.h"
 #include "TSystem.h"
@@ -523,7 +522,7 @@ bool SmoothHistogram( TH1* h, double nsigma ){
         h->Smooth();
         bool changesApplied = false;
         for(int i_bin=1;i_bin<=nbinsx;i_bin++){
-            if( TMath::Abs(h->GetBinContent(i_bin) - h0->GetBinContent(i_bin)) > nsigma*h0->GetBinError(i_bin) ){
+            if( std::abs(h->GetBinContent(i_bin) - h0->GetBinContent(i_bin)) > nsigma*h0->GetBinError(i_bin) ){
                 h->SetBinContent(i_bin,h0->GetBinContent(i_bin));
             }
             else{

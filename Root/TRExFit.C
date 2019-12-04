@@ -920,7 +920,7 @@ void TRExFit::ReadNtuples(){
                         hUp->Divide(   hrefTmp.get() );
                         hUp->Multiply( hnomTmp.get() );
                         double newVar   = hUp->Integral(0,hUp->GetNbinsX()+1) / hnom->Integral(0,hnom->GetNbinsX()+1);
-                        if( syst->fKeepReferenceOverallVar && TMath::Abs(relVar-1) > 0.0001 && TMath::Abs(newVar) > 0.0001) hUp->Scale( relVar / newVar );
+                        if( syst->fKeepReferenceOverallVar && std::abs(relVar-1) > 0.0001 && std::abs(newVar) > 0.0001) hUp->Scale( relVar / newVar );
                     }
                     // new special case: we subtract from the relative uncertainty the relative uncertainty of another (data) sample
                     else if (syst->fReferenceSample!="" && syst->fReferenceSample!=fSamples[i_smp]->fName && syst->fSubtractRefSampleVar && reg->GetSampleHist(syst->fReferenceSample)!=nullptr) {
@@ -1012,7 +1012,7 @@ void TRExFit::ReadNtuples(){
                         hDown->Divide(   href );
                         hDown->Multiply( hnom );
                         double newVar   = hDown->Integral(0,hDown->GetNbinsX()+1) / hnom->Integral(0,hnom->GetNbinsX()+1);
-                        if( syst->fKeepReferenceOverallVar && TMath::Abs(relVar-1) > 0.0001 && TMath::Abs(newVar-1) > 0.0001) hDown->Scale( relVar / newVar );
+                        if( syst->fKeepReferenceOverallVar && std::abs(relVar-1) > 0.0001 && std::abs(newVar-1) > 0.0001) hDown->Scale( relVar / newVar );
                     }
                     // new special case: we subtract from the relative uncertainty the relative uncertainty of another (data) sample
                     else if (syst->fReferenceSample!="" && syst->fReferenceSample!=fSamples[i_smp]->fName && syst->fSubtractRefSampleVar && reg->GetSampleHist(syst->fReferenceSample)!=nullptr) {
@@ -3776,7 +3776,7 @@ void TRExFit::DrawSignalRegionsPlot(int nCols,int nRows, std::vector < Region* >
         h.back().GetXaxis()->SetTickLength(0);
         if(TRExFitter::OPTION["LogSignalRegionPlot"]==0) h.back().GetYaxis()->SetNdivisions(3);
         else TGaxis::SetMaxDigits(5);
-        yMax = TMath::Max(yMax,h.back().GetMaximum());
+        yMax = std::max(yMax,h.back().GetMaximum());
         h.back().GetXaxis()->SetLabelSize(0);
         h.back().SetLineWidth(1);
         h.back().SetLineColor(kBlack);
@@ -6311,14 +6311,14 @@ void TRExFit::ProduceNPRanking( std::string NPnames/*="all"*/ ){
             }
         }
 
-        fitTool.FixNP( nuisPars[i], central + TMath::Abs(up  ) );
+        fitTool.FixNP( nuisPars[i], central + std::abs(up));
         fitTool.FitPDF( mc, simPdf, data.get() );
         muVarUp[ nuisPars[i] ]   = (fitTool.ExportFitResultInMap())[ fPOI ];
         //
         // Set the NP to its post-fit *down* variation and refit to get the fitted POI
         ws->loadSnapshot("tmp_snapshot");
         fitTool.ResetFixedNP();
-        fitTool.FixNP( nuisPars[i], central - TMath::Abs(down) );
+        fitTool.FixNP( nuisPars[i], central - std::abs(down));
         if(fFitFixedNPs.size()>0){
             for(const auto& nuisParToFix : fFitFixedNPs){
                 fitTool.FixNP(nuisParToFix.first,nuisParToFix.second);
@@ -6355,7 +6355,7 @@ void TRExFit::ProduceNPRanking( std::string NPnames/*="all"*/ ){
             // Set the NP to its pre-fit *up* variation and refit to get the fitted POI (pre-fit impact on POI)
             ws->loadSnapshot("tmp_snapshot");
             fitTool.ResetFixedNP();
-            fitTool.FixNP( nuisPars[i], central + TMath::Abs(up  ) );
+            fitTool.FixNP( nuisPars[i], central + std::abs(up));
             fitTool.FitPDF( mc, simPdf, data.get() );
             if(fFitFixedNPs.size()>0){
                 for(const auto& nuisParToFix : fFitFixedNPs){
@@ -6367,7 +6367,7 @@ void TRExFit::ProduceNPRanking( std::string NPnames/*="all"*/ ){
             // Set the NP to its pre-fit *down* variation and refit to get the fitted POI (pre-fit impact on POI)
             ws->loadSnapshot("tmp_snapshot");
             fitTool.ResetFixedNP();
-            fitTool.FixNP( nuisPars[i], central - TMath::Abs(down) );
+            fitTool.FixNP( nuisPars[i], central - std::abs(down));
             if(fFitFixedNPs.size()>0){
                 for(const auto& nuisParToFix : fFitFixedNPs){
                     fitTool.FixNP(nuisParToFix.first,nuisParToFix.second);
@@ -6483,10 +6483,10 @@ void TRExFit::PlotNPRanking(bool flagSysts, bool flagGammas) const{
         number.push_back(i+0.5);
         double sumi = 0.0;
         int index=-1;
-        sumi += TMath::Max( TMath::Abs(poiup[i]),TMath::Abs(poidown[i]) );
+        sumi += std::max( std::abs(poiup[i]),std::abs(poidown[i]) );
         for (unsigned int j=1;j<=i;j++){
             double sumii = 0.0;
-            sumii += TMath::Max( TMath::Abs(poiup[i-j]),TMath::Abs(poidown[i-j]) );
+            sumii += std::max(std::abs(poiup[i-j]),std::abs(poidown[i-j]) );
             if (sumi<sumii){
                 if (index==-1){
                     std::swap(poiup[i],poiup[i-j]);
@@ -6520,9 +6520,9 @@ void TRExFit::PlotNPRanking(bool flagSysts, bool flagGammas) const{
 
     double poimax = 0;
     for (unsigned int i=0;i<SIZE;i++) {
-        poimax = TMath::Max(poimax,TMath::Max( TMath::Abs(poiup[i]),TMath::Abs(poidown[i]) ));
-        poimax = TMath::Max(poimax,TMath::Max( TMath::Abs(poinomup[i]),TMath::Abs(poinomdown[i]) ));
-        nuerrlo[i] = TMath::Abs(nuerrlo[i]);
+        poimax = std::max(poimax,std::max(std::abs(poiup[i]),std::abs(poidown[i]) ));
+        poimax = std::max(poimax,std::max( std::abs(poinomup[i]),std::abs(poinomdown[i]) ));
+        nuerrlo[i] = std::abs(nuerrlo[i]);
     }
     poimax *= 1.2;
 
@@ -8706,8 +8706,8 @@ TH1D* TRExFit::ReadSingleHistogram(const std::vector<std::string>& fullPaths, Sy
                 htmp->Multiply( hnomTmp.get() );
                 const double newVar = htmp->Integral(0,htmp->GetNbinsX()+1) /
                     hnom->Integral(0,hnom->GetNbinsX()+1);
-                if( syst->fKeepReferenceOverallVar && (TMath::Abs(relVar-1) > 0.0001) &&
-                    (TMath::Abs(newVar-1) > 0.0001)){
+                if( syst->fKeepReferenceOverallVar && (std::abs(relVar-1) > 0.0001) &&
+                    (std::abs(newVar-1) > 0.0001)){
                     htmp->Scale( relVar / newVar );
                 }
             }

@@ -1087,7 +1087,7 @@ TGraphAsymmErrors* histToGraph(TH1* h){
 void SetHistBinWidth(TH1* h,double width){
     double epsilon = 0.00000001;
     for(int i_bin=1;i_bin<=h->GetNbinsX();i_bin++){
-        if(TMath::Abs(h->GetBinWidth(i_bin)-width)>epsilon){
+        if(std::abs(h->GetBinWidth(i_bin)-width)>epsilon){
             h->SetBinContent(i_bin,h->GetBinContent(i_bin)*width/h->GetBinWidth(i_bin));
             h->SetBinError(  i_bin,h->GetBinError(i_bin)  *width/h->GetBinWidth(i_bin));
         }
@@ -1101,7 +1101,7 @@ void SetGraphBinWidth(TGraphAsymmErrors* g,double width){
     double w;
     for(int i_bin=0;i_bin<g->GetN();i_bin++){
         w = g->GetErrorXhigh(i_bin)+g->GetErrorXlow(i_bin);
-        if(TMath::Abs(w-width)>epsilon){
+        if(std::abs(w-width)>epsilon){
             g->SetPoint(      i_bin,g->GetX()[i_bin], g->GetY()[i_bin]*width/w);
             g->SetPointEYhigh(i_bin,g->GetErrorYhigh(i_bin)*width/w);
             g->SetPointEYlow( i_bin,g->GetErrorYlow(i_bin) *width/w);
