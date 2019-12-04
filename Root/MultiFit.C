@@ -732,9 +732,9 @@ void MultiFit::ComparePOI(const string& POI) const {
                 tex.DrawLatex(xmin+0.73*(xmax-xmin),N-i-1,Form(("#font[42]{^{#plus%." + fPOIPrecision + "f}}").c_str(),g_stat.GetErrorXhigh(N-i-1)));
                 tex.DrawLatex(xmin+0.73*(xmax-xmin),N-i-1,Form(("#font[42]{_{#minus%." + fPOIPrecision + "f}}").c_str(),g_stat.GetErrorXlow(N-i-1)));
                 tex.DrawLatex(xmin+0.84*(xmax-xmin),N-i-1,Form(("#font[42]{^{#plus%." + fPOIPrecision + "f}}").c_str(),
-                    sqrt( pow(g_tot.GetErrorXhigh(N-i-1),2) - pow(g_stat.GetErrorXhigh(N-i-1),2) ) ) );
+                    std::sqrt( g_tot.GetErrorXhigh(N-i-1) * g_tot.GetErrorXhigh(N-i-1) - g_stat.GetErrorXhigh(N-i-1)* g_stat.GetErrorXhigh(N-i-1) ) ) );
                 tex.DrawLatex(xmin+0.84*(xmax-xmin),N-i-1,Form(("#font[42]{_{#minus%." + fPOIPrecision + "f}}").c_str(),
-                    sqrt( pow(g_tot.GetErrorXlow(N-i-1) ,2) - pow(g_stat.GetErrorXlow(N-i-1) ,2) ) ) );
+                    std::sqrt( g_tot.GetErrorXlow(N-i-1)*g_tot.GetErrorXlow(N-i-1) - g_stat.GetErrorXlow(N-i-1)*g_stat.GetErrorXlow(N-i-1) ) ) );
                 tex.DrawLatex(xmin+0.94*(xmax-xmin),N-i-1,")");
             }
         }
@@ -1703,7 +1703,7 @@ void MultiFit::ProduceNPRanking( string NPnames/*="all"*/ ) const{
                 }
             }
         }
-        fitTool.FixNP( nuisPars[i], central + TMath::Abs(up  ) );
+        fitTool.FixNP( nuisPars[i], central + std::abs(up  ) );
         fitTool.FitPDF( mc, simPdf, data, fFastFitForRanking );
         muVarUp[ nuisPars[i] ]   = (fitTool.ExportFitResultInMap())[ fPOI ];
         //
@@ -1718,7 +1718,7 @@ void MultiFit::ProduceNPRanking( string NPnames/*="all"*/ ) const{
                 }
             }
         }
-        fitTool.FixNP( nuisPars[i], central - TMath::Abs(down) );
+        fitTool.FixNP( nuisPars[i], central - std::abs(down) );
         fitTool.FitPDF( mc, simPdf, data, fFastFitForRanking );
         muVarDown[ nuisPars[i] ] = (fitTool.ExportFitResultInMap())[ fPOI ];
         outName_file << muVarUp[nuisPars[i]]-muhat << "   " <<  muVarDown[nuisPars[i]]-muhat<< "  ";
@@ -1859,10 +1859,10 @@ void MultiFit::PlotNPRanking(bool flagSysts, bool flagGammas) const {
         number.push_back(i+0.5);
         double sumi = 0.0;
         int index=-1;
-        sumi += TMath::Max( TMath::Abs(poiup[i]),TMath::Abs(poidown[i]) );
+        sumi += std::max( std::abs(poiup[i]),std::abs(poidown[i]) );
         for (unsigned int j=1;j<=i;j++){
             double sumii = 0.0;
-            sumii += TMath::Max( TMath::Abs(poiup[i-j]),TMath::Abs(poidown[i-j]) );
+            sumii += std::max( std::abs(poiup[i-j]),std::abs(poidown[i-j]) );
             if (sumi<sumii){
                 if (index==-1){
                     swap(poiup[i],poiup[i-j]);
@@ -1896,9 +1896,9 @@ void MultiFit::PlotNPRanking(bool flagSysts, bool flagGammas) const {
 
     double poimax = 0;
     for (unsigned int i=0;i<SIZE;i++) {
-        poimax = TMath::Max(poimax,TMath::Max( TMath::Abs(poiup[i]),TMath::Abs(poidown[i]) ));
-        poimax = TMath::Max(poimax,TMath::Max( TMath::Abs(poinomup[i]),TMath::Abs(poinomdown[i]) ));
-        nuerrlo[i] = TMath::Abs(nuerrlo[i]);
+        poimax = std::max(poimax,std::max( std::abs(poiup[i]),std::abs(poidown[i]) ));
+        poimax = std::max(poimax,std::max( std::abs(poinomup[i]),std::abs(poinomdown[i]) ));
+        nuerrlo[i] = std::abs(nuerrlo[i]);
     }
     poimax *= 1.2;
 
@@ -2849,10 +2849,10 @@ void MultiFit::PlotSummarySoverB() const {
                 errDown += corr * h_syst_down_ord[i_syst]->GetBinContent(i_bin) * h_syst_down_ord[j_syst]->GetBinContent(i_bin);
             }
         }
-        errUp   = sqrt(errUp);
-        errDown = sqrt(errDown);
-        err = TMath::Abs(errUp+errDown)/2.;
-        err_tot = sqrt(err_tot*err_tot + err*err);
+        errUp   = std::sqrt(errUp);
+        errDown = std::sqrt(errDown);
+        err = std::abs(errUp+errDown)/2.;
+        err_tot = std::hypot(err_tot, err);
         h_bkg_ord->SetBinError(i_bin,err_tot);
     }
 
@@ -3092,7 +3092,7 @@ TH1D* MultiFit::Rebin(TH1D* h, const vector<double>& vec, bool isData) const{
     h_new->Sumw2();
     // new way
     for(int j_bin=1;j_bin<=h->GetNbinsX();j_bin++){
-        double value=TMath::Log10(vec[j_bin-1]);
+        double value=std::log10(vec[j_bin-1]);
         if ( value<h_new->GetXaxis()->GetXmin() ) value=0.9999*h_new->GetXaxis()->GetXmin();
         if ( value>h_new->GetXaxis()->GetXmax() ) {
             double tmpvalue=1.0001*h_new->GetXaxis()->GetXmax();
@@ -3102,12 +3102,12 @@ TH1D* MultiFit::Rebin(TH1D* h, const vector<double>& vec, bool isData) const{
         int i_bin=h_new->FindBin(value);
         h_new->SetBinContent(i_bin,h_new->GetBinContent(i_bin)+h->GetBinContent(j_bin));
         if (!isData) {
-            h_new->SetBinError(i_bin,sqrt( pow(h_new->GetBinError(i_bin),2) + pow(h->GetBinError(j_bin),2) ) );
+            h_new->SetBinError(i_bin,std::hypot(h_new->GetBinError(i_bin), h->GetBinError(j_bin)));
         }
     }
     if (isData) {
         for(int j_bin=1;j_bin<=h_new->GetNbinsX();j_bin++){
-            h_new->SetBinError(j_bin, sqrt(h_new->GetBinContent(j_bin) ) );
+            h_new->SetBinError(j_bin, std::sqrt(h_new->GetBinContent(j_bin) ) );
         }
     }
     h_new->SetMinimum(1);

@@ -285,7 +285,7 @@ TH1D* HistoTools::InvertShift(const TH1* const h_syst, const TH1* const h_nomina
 double HistoTools::Separation(const TH1* const h1, const TH1* const h2){
     double sep = 0.;
     for(int i_bin=1;i_bin<=h1->GetNbinsX();i_bin++){
-        sep += TMath::Abs( h1->GetBinContent(i_bin) - h2->GetBinContent(i_bin) );
+        sep += std::abs( h1->GetBinContent(i_bin) - h2->GetBinContent(i_bin) );
     }
     return sep;
 }
@@ -591,7 +591,7 @@ bool HistoTools::CheckHistograms(TH1* nom, SystematicHist* sh, bool checkNullCon
 
         //Now, for those histograms, checks if a systematics also has 0 content to
         //avoid 100% down systematics
-        if( TMath::Abs( nom->GetBinContent(iBin)-1e-05) < 1e-10  ){
+        if( std::abs( nom->GetBinContent(iBin)-1e-05) < 1e-10  ){
             //This bin has most likely been changed to the default non-zero value
             sh->fHistUp->SetBinContent(iBin,1e-05);
             sh->fHistDown->SetBinContent(iBin,1e-05);
@@ -661,7 +661,7 @@ bool HistoTools::CheckHistograms(TH1* nom, SystematicHist* sh, bool checkNullCon
         if(contentNom != 0 ){
             ratioUp   = contentUp  /contentNom;
             ratioDown = contentDown/contentNom;
-        } else if( TMath::Abs(contentUp)>0 || TMath::Abs(contentDown)>0 ) {
+        } else if( std::abs(contentUp)>0 || std::abs(contentDown)>0 ) {
             std::string temp_string = sh->fHistUp->GetName();
             WriteWarningStatus("HistoTools::CheckHistograms", "In histo \"" + temp_string);
             WriteWarningStatus("HistoTools::CheckHistograms", "\", bin " + std::to_string(iBin) + " has null nominal content but systematics are >0! Hope you know that");

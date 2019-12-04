@@ -1045,7 +1045,7 @@ double GC_down(double data) {
 TGraphAsymmErrors* poissonize(TH1 *h) {
     TGraphAsymmErrors* gr= new TGraphAsymmErrors(h);
     for (UInt_t i=0; i< (UInt_t)gr->GetN(); i++) {
-        double content = pow( (gr->GetErrorYhigh(i)) ,2); // this to fix the case of the merged plots, where histograms (even data) are scaled; so the actual content is the square of the stat. error (right?)
+        double content = gr->GetErrorYhigh(i) * gr->GetErrorYhigh(i); // this to fix the case of the merged plots, where histograms (even data) are scaled; so the actual content is the square of the stat. error (right?)
         gr->SetPointError(i,0.499*h->GetBinWidth(i+1),0.5*h->GetBinWidth(i+1),GC_down(content),GC_up(content));
         if(h->GetBinContent(i+1)==0){
             gr->SetPoint(i,gr->GetX()[i],-1);
@@ -1087,7 +1087,7 @@ TGraphAsymmErrors* histToGraph(TH1* h){
 void SetHistBinWidth(TH1* h,double width){
     double epsilon = 0.00000001;
     for(int i_bin=1;i_bin<=h->GetNbinsX();i_bin++){
-        if(TMath::Abs(h->GetBinWidth(i_bin)-width)>epsilon){
+        if(std::abs(h->GetBinWidth(i_bin)-width)>epsilon){
             h->SetBinContent(i_bin,h->GetBinContent(i_bin)*width/h->GetBinWidth(i_bin));
             h->SetBinError(  i_bin,h->GetBinError(i_bin)  *width/h->GetBinWidth(i_bin));
         }
@@ -1101,7 +1101,7 @@ void SetGraphBinWidth(TGraphAsymmErrors* g,double width){
     double w;
     for(int i_bin=0;i_bin<g->GetN();i_bin++){
         w = g->GetErrorXhigh(i_bin)+g->GetErrorXlow(i_bin);
-        if(TMath::Abs(w-width)>epsilon){
+        if(std::abs(w-width)>epsilon){
             g->SetPoint(      i_bin,g->GetX()[i_bin], g->GetY()[i_bin]*width/w);
             g->SetPointEYhigh(i_bin,g->GetErrorYhigh(i_bin)*width/w);
             g->SetPointEYlow( i_bin,g->GetErrorYlow(i_bin) *width/w);

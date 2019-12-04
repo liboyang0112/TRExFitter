@@ -920,7 +920,7 @@ void TRExFit::ReadNtuples(){
                         hUp->Divide(   hrefTmp.get() );
                         hUp->Multiply( hnomTmp.get() );
                         double newVar   = hUp->Integral(0,hUp->GetNbinsX()+1) / hnom->Integral(0,hnom->GetNbinsX()+1);
-                        if( syst->fKeepReferenceOverallVar && TMath::Abs(relVar-1) > 0.0001 && TMath::Abs(newVar) > 0.0001) hUp->Scale( relVar / newVar );
+                        if( syst->fKeepReferenceOverallVar && std::abs(relVar-1) > 0.0001 && std::abs(newVar) > 0.0001) hUp->Scale( relVar / newVar );
                     }
                     // new special case: we subtract from the relative uncertainty the relative uncertainty of another (data) sample
                     else if (syst->fReferenceSample!="" && syst->fReferenceSample!=fSamples[i_smp]->fName && syst->fSubtractRefSampleVar && reg->GetSampleHist(syst->fReferenceSample)!=nullptr) {
@@ -1012,7 +1012,7 @@ void TRExFit::ReadNtuples(){
                         hDown->Divide(   href );
                         hDown->Multiply( hnom );
                         double newVar   = hDown->Integral(0,hDown->GetNbinsX()+1) / hnom->Integral(0,hnom->GetNbinsX()+1);
-                        if( syst->fKeepReferenceOverallVar && TMath::Abs(relVar-1) > 0.0001 && TMath::Abs(newVar-1) > 0.0001) hDown->Scale( relVar / newVar );
+                        if( syst->fKeepReferenceOverallVar && std::abs(relVar-1) > 0.0001 && std::abs(newVar-1) > 0.0001) hDown->Scale( relVar / newVar );
                     }
                     // new special case: we subtract from the relative uncertainty the relative uncertainty of another (data) sample
                     else if (syst->fReferenceSample!="" && syst->fReferenceSample!=fSamples[i_smp]->fName && syst->fSubtractRefSampleVar && reg->GetSampleHist(syst->fReferenceSample)!=nullptr) {
@@ -1557,7 +1557,7 @@ void TRExFit::CorrectHistograms(){
                     if(TRExFitter::OPTION["PoissonizeData"]>0) gRandom->SetSeed(TRExFitter::OPTION["PoissonizeData"]);
                     for(int i_bin=1;i_bin<=hdata->GetNbinsX();i_bin++){
                         hdata->SetBinContent(i_bin,gRandom->Poisson( hdata->GetBinContent(i_bin) ));
-                        hdata->SetBinError(i_bin,sqrt(hdata->GetBinContent(i_bin)));
+                        hdata->SetBinError(i_bin,std::sqrt(hdata->GetBinContent(i_bin)));
                     }
                 }
             }
@@ -2799,7 +2799,7 @@ TRExPlot* TRExFit::DrawSummary(std::string opt, TRExPlot* prefit_plot) {
         line.SetLineColor(kBlack);
         line.SetLineWidth(2);
         line.DrawLine(divisionVec[0],((TH1D*)p->pad0->GetPrimitive("h_dummy"))->GetMinimum(),
-                      divisionVec[0],pow(((TH1D*)p->pad0->GetPrimitive("h_dummy"))->GetMaximum(),0.73) );
+                      divisionVec[0],std::pow(((TH1D*)p->pad0->GetPrimitive("h_dummy"))->GetMaximum(),0.73) );
         p->pad1->cd();
         line.DrawLine(divisionVec[0],((TH1D*)p->pad1->GetPrimitive("h_dummy2"))->GetMinimum(),
                       divisionVec[0],((TH1D*)p->pad1->GetPrimitive("h_dummy2"))->GetMaximum() );
@@ -2820,7 +2820,7 @@ TRExPlot* TRExFit::DrawSummary(std::string opt, TRExPlot* prefit_plot) {
                 if(divisionVec.size()>ii) xmax = divisionVec[ii];
                 if(ii>0) xmin = divisionVec[ii-1];
                 double xpos = xmin + 0.5*(xmax - xmin);
-                double ypos = pow(((TH1D*)p->pad0->GetPrimitive("h_dummy"))->GetMaximum(), 0.61 );
+                double ypos = std::pow(((TH1D*)p->pad0->GetPrimitive("h_dummy"))->GetMaximum(), 0.61 );
                 tex.DrawLatex(xpos,ypos,fSummaryPlotLabels[ii].c_str());
             }
         }
@@ -2839,7 +2839,7 @@ TRExPlot* TRExFit::DrawSummary(std::string opt, TRExPlot* prefit_plot) {
                 if(divisionVec.size()>ii) xmax = divisionVec[ii];
                 if(ii>0) xmin = divisionVec[ii-1];
                 double xpos = xmin + 0.5*(xmax - xmin);
-                double ypos = pow(((TH1D*)p->pad0->GetPrimitive("h_dummy"))->GetMaximum(), 0.61 );
+                double ypos = std::pow(((TH1D*)p->pad0->GetPrimitive("h_dummy"))->GetMaximum(), 0.61 );
                 tex.DrawLatex(xpos,ypos,fSummaryPlotValidationLabels[ii].c_str());
             }
         }
@@ -2984,7 +2984,7 @@ void TRExFit::DrawMergedPlot(std::string opt,std::string group) const{
         double scale = ymax/hTotVec[i_channel]->GetMaximum();
         hTotVec[i_channel]->Scale( scale );
         for(int i_bin=1;i_bin<=hDataVec[i_channel]->GetNbinsX();i_bin++){
-            hDataVec[i_channel]->SetBinError(i_bin,sqrt(hDataVec[i_channel]->GetBinContent(i_bin)));
+            hDataVec[i_channel]->SetBinError(i_bin,std::sqrt(hDataVec[i_channel]->GetBinContent(i_bin)));
         }
         hDataVec[i_channel]->Scale( scale );
         for(auto hVec : hSignalVec)     hVec[i_channel]->Scale( scale );
@@ -3260,7 +3260,7 @@ void TRExFit::BuildYieldTable(std::string opt, std::string group) const{
                 if( (isPostFit && fUseGammaPulls) || !fUseStatErr || (!sh->fSample->fUseMCStat && !sh->fSample->fSeparateGammas))
                     h_smp[idxVec[i_smp]]->SetBinError(i_bin,0.);
                 else
-                    h_smp[idxVec[i_smp]]->SetBinError(i_bin, sqrt( pow(tmpErr,2) + pow(intErr,2) ) );
+                    h_smp[idxVec[i_smp]]->SetBinError(i_bin, std::hypot(tmpErr, intErr));
             }
         }
         titleVec.push_back(title);
@@ -3765,7 +3765,7 @@ void TRExFit::DrawSignalRegionsPlot(int nCols,int nRows, std::vector < Region* >
         }
         std::string label = regions[i]->fShortLabel;
         h.emplace_back(Form("h[%d]",i),label.c_str(),3,&xbins[0]);
-        h.back().SetBinContent(2,S[i]/sqrt(B[i]));
+        h.back().SetBinContent(2,S[i]/std::sqrt(B[i]));
         if(TRExFitter::OPTION["FourTopStyle"]==0) h.back().GetYaxis()->SetTitle("S / #sqrt{B}");
         h.back().GetYaxis()->CenterTitle();
         h.back().GetYaxis()->SetLabelOffset(1.5*h.back().GetYaxis()->GetLabelOffset() / (Wp/200.));
@@ -3776,7 +3776,7 @@ void TRExFit::DrawSignalRegionsPlot(int nCols,int nRows, std::vector < Region* >
         h.back().GetXaxis()->SetTickLength(0);
         if(TRExFitter::OPTION["LogSignalRegionPlot"]==0) h.back().GetYaxis()->SetNdivisions(3);
         else TGaxis::SetMaxDigits(5);
-        yMax = TMath::Max(yMax,h.back().GetMaximum());
+        yMax = std::max(yMax,h.back().GetMaximum());
         h.back().GetXaxis()->SetLabelSize(0);
         h.back().SetLineWidth(1);
         h.back().SetLineColor(kBlack);
@@ -4794,7 +4794,7 @@ void TRExFit::Fit(bool isLHscanOnly){
                     ws->loadSnapshot("InitialStateModelGlob");
                     ws->loadSnapshot("InitialStateModelNuis");
                     npValues = PerformFit( ws.get(), data.get(), fFitType, false, TRExFitter::DEBUGLEVEL<2 ? 0 : TRExFitter::DEBUGLEVEL);
-                    MCstatUp = sqrt(pow(MCstatUp,2)+pow(npValues[fPOI]-nominalPOIval,2));
+                    MCstatUp = std::hypot(MCstatUp, (npValues[fPOI]-nominalPOIval));
                     // down
                     npVal = fFitNPValues;
                     npVal[gammaName] = 1-statErr;
@@ -4804,7 +4804,7 @@ void TRExFit::Fit(bool isLHscanOnly){
                     ws->loadSnapshot("InitialStateModelGlob");
                     ws->loadSnapshot("InitialStateModelNuis");
                     npValues = PerformFit( ws.get(), data.get(), fFitType, false, TRExFitter::DEBUGLEVEL<2 ? 0 : TRExFitter::DEBUGLEVEL);
-                    MCstatDo = -sqrt(pow(MCstatDo,2)+pow(npValues[fPOI]-nominalPOIval,2));
+                    MCstatDo = -std::hypot(MCstatDo,(npValues[fPOI]-nominalPOIval));
                 }
             }
             fGammasInStatOnly = false;
@@ -4848,7 +4848,7 @@ void TRExFit::Fit(bool isLHscanOnly){
                         ws->loadSnapshot("InitialStateModelGlob");
                         ws->loadSnapshot("InitialStateModelNuis");
                         npValues = PerformFit( ws.get(), data.get(), fFitType, false, TRExFitter::DEBUGLEVEL<2 ? 0 : TRExFitter::DEBUGLEVEL);
-                        MCstatUpSample[sh->fSample->fName] = sqrt(pow(MCstatUpSample[sh->fSample->fName],2) + pow(npValues[fPOI]-nominalPOIval,2));
+                        MCstatUpSample[sh->fSample->fName] = std::hypot(MCstatUpSample[sh->fSample->fName], (npValues[fPOI]-nominalPOIval));
                         npVal = fFitNPValues;
                         npVal[gammaName] = 1-statErr;
                         WriteDebugStatus("TRExFit::Fit","Setting "+gammaName+" to "+std::to_string(1-statErr));
@@ -4857,7 +4857,7 @@ void TRExFit::Fit(bool isLHscanOnly){
                         ws->loadSnapshot("InitialStateModelGlob");
                         ws->loadSnapshot("InitialStateModelNuis");
                         npValues = PerformFit( ws.get(), data.get(), fFitType, false, TRExFitter::DEBUGLEVEL<2 ? 0 : TRExFitter::DEBUGLEVEL);
-                        MCstatDoSample[sh->fSample->fName] = -sqrt(pow(MCstatDoSample[sh->fSample->fName],2) + pow(npValues[fPOI]-nominalPOIval,2));
+                        MCstatDoSample[sh->fSample->fName] = -std::hypot(MCstatDoSample[sh->fSample->fName],(npValues[fPOI]-nominalPOIval));
                         smpTexTitle[sh->fSample->fName] = sh->fSample->fTexTitle;
                     }
                 }
@@ -4894,8 +4894,7 @@ void TRExFit::Fit(bool isLHscanOnly){
                 if(FindInStringVector(systGroupNames,category)<0) systGroupNames.push_back(category);
                 if(fabs(newPOIvalUp[syst->fNuisanceParameter]-nominalPOIval)>fNonProfileFitSystThreshold
                 || fabs(newPOIvalDo[syst->fNuisanceParameter]-nominalPOIval)>fNonProfileFitSystThreshold)
-                    systGroups[category] = sqrt(pow(systGroups[category],2)
-                        +pow((fabs(newPOIvalUp[syst->fNuisanceParameter]-nominalPOIval)+fabs(newPOIvalDo[syst->fNuisanceParameter]-nominalPOIval))/2,2));
+                    systGroups[category] = std::hypot(systGroups[category], ((std::fabs(newPOIvalUp[syst->fNuisanceParameter]-nominalPOIval)+fabs(newPOIvalDo[syst->fNuisanceParameter]-nominalPOIval))/2));
             }
         }
         // print:
@@ -4922,8 +4921,8 @@ void TRExFit::Fit(bool isLHscanOnly){
         out       << "Stat.MC\t" << MCstatUp << "\t" << MCstatDo << std::endl;
         tex       << "  MC-stat & $+" << Form("%.2f",MCstatUp) << "$ / $" << Form("%.2f",MCstatDo) << "$ \\\\" << std::endl;
         tex       << "\\hline" << std::endl;
-        totUp = sqrt(pow(totUp,2)+pow(MCstatUp,2));
-        totDo = sqrt(pow(totDo,2)+pow(MCstatDo,2));
+        totUp = std::hypot(totUp,MCstatUp);
+        totDo = std::hypot(totDo,MCstatDo);
         // MC stat for separate gamma samples
         for(auto sepGammaPair : MCstatUpSample){
             std::string smpName = sepGammaPair.first;
@@ -4931,8 +4930,8 @@ void TRExFit::Fit(bool isLHscanOnly){
             out       << "Stat." << smpName << "\t" << MCstatUpSample[smpName] << "\t" << MCstatDoSample[smpName] << std::endl;
             tex       << "  Stat (" << smpTexTitle[smpName] << ") & $+" << Form("%.2f",MCstatUpSample[smpName]) << "$ / $" << Form("%.2f",MCstatDoSample[smpName]) << "$ \\\\" << std::endl;
             tex       << "\\hline" << std::endl;
-            totUp = sqrt(pow(totUp,2)+pow(MCstatUpSample[smpName],2));
-            totDo = sqrt(pow(totDo,2)+pow(MCstatDoSample[smpName],2));
+            totUp = std::hypot(totUp,MCstatUpSample[smpName]);
+            totDo = std::hypot(totDo,MCstatDoSample[smpName]);
         }
         std::cout << "-----------------------------------" << std::endl;
         // systematics
@@ -4955,10 +4954,10 @@ void TRExFit::Fit(bool isLHscanOnly){
                     if(ud==0) tex       << " & " << Form("$%s%.2f$",(valUp>=0 ? "+" : "-"),fabs(valUp));
                     if(ud==1) tex       << " / " << Form("$%s%.2f$",(valDo>=0 ? "+" : "-"),fabs(valDo));
                     if(fabs(valUp)>fNonProfileFitSystThreshold || fabs(valDo)>fNonProfileFitSystThreshold){
-                        if(ud==0 && valUp>0) totUp = sqrt(pow(totUp,2)+pow(valUp,2));
-                        if(ud==0 && valUp<0) totDo = sqrt(pow(totDo,2)+pow(valUp,2));
-                        if(ud==1 && valDo>0) totUp = sqrt(pow(totUp,2)+pow(valDo,2));
-                        if(ud==1 && valDo<0) totDo = sqrt(pow(totDo,2)+pow(valDo,2));
+                        if(ud==0 && valUp>0) totUp = std::hypot(totUp,valUp);
+                        if(ud==0 && valUp<0) totDo = std::hypot(totDo,valUp);
+                        if(ud==1 && valDo>0) totUp = std::hypot(totUp,valDo);
+                        if(ud==1 && valDo<0) totDo = std::hypot(totDo,valDo);
                     }
                 }
                 std::cout << std::endl;
@@ -4966,20 +4965,20 @@ void TRExFit::Fit(bool isLHscanOnly){
                 tex       << "\\\\" << std::endl;
             }
         }
-        totUp = sqrt(pow(totUp,2)+pow(fNonProfileFitSystThreshold,2));
-        totDo = sqrt(pow(totDo,2)+pow(fNonProfileFitSystThreshold,2));
+        totUp = std::hypot(totUp,fNonProfileFitSystThreshold);
+        totDo = std::hypot(totDo,fNonProfileFitSystThreshold);
         std::cout << "-----------------------------------" << std::endl;
         std::cout << "TotalSystematic\t" << totUp << "\t-" << totDo << std::endl;
         out       << "TotalSystematic\t" << totUp << "\t-" << totDo << std::endl;
         std::cout << "-----------------------------------" << std::endl;
-        std::cout << "TotalStat+Syst\t" << sqrt(pow(totUp,2)+pow(statUp,2)) << "\t-" << sqrt(pow(totDo,2)+pow(statDo,2)) << std::endl;
-        out       << "TotalStat+Syst\t" << sqrt(pow(totUp,2)+pow(statUp,2)) << "\t-" << sqrt(pow(totDo,2)+pow(statDo,2)) << std::endl;
+        std::cout << "TotalStat+Syst\t" << std::hypot(totUp,statUp) << "\t-" << std::hypot(totDo,statDo) << std::endl;
+        out       << "TotalStat+Syst\t" << std::hypot(totUp,statUp) << "\t-" << std::hypot(totDo,statDo) << std::endl;
         std::cout << "-----------------------------------" << std::endl;
         out.close();
         tex << "\\hline" << std::endl;
         tex << "  Total systematics & $+" << Form("%.2f",totUp) << "$ / $-" << Form("%.2f",totDo) << "$ \\\\" << std::endl;
         tex << "\\hline" << std::endl;
-        tex << "  Total stat+syst & $+"   << Form("%.2f",sqrt(pow(totUp,2)+pow(statUp,2)))     << "$ / $-" << Form("%.2f",sqrt(pow(totDo,2)+pow(statDo,2)))     << "$ \\\\" << std::endl;
+        tex << "  Total stat+syst & $+"   << Form("%.2f",std::hypot(totUp,statUp))     << "$ / $-" << Form("%.2f",std::hypot(totDo,statDo))     << "$ \\\\" << std::endl;
         tex << "\\hline" << std::endl;
         tex << "\\hline" << std::endl;
         tex << "\\end{tabular}" << std::endl;
@@ -5016,13 +5015,13 @@ void TRExFit::Fit(bool isLHscanOnly){
             tex2      << systGroupName << " & " << Form("$%.2f$",systGroups[systGroupName]) << " \\\\" << std::endl;
         }
         std::cout << "-----------------------------------" << std::endl;
-        std::cout << "TotalSystematic\t" << (fabs(totUp)+fabs(totDo))/2. << std::endl;
-        std::cout << "TotalStat+Syst\t" << (sqrt(pow(totUp,2)+pow(statUp,2))+sqrt(pow(totDo,2)+pow(statDo,2)))/2. << std::endl;
+        std::cout << "TotalSystematic\t" << (std::fabs(totUp)+std::fabs(totDo))/2. << std::endl;
+        std::cout << "TotalStat+Syst\t" << (std::hypot(totUp,statUp)+std::hypot(totDo,statDo,2))/2. << std::endl;
         std::cout << "-----------------------------------" << std::endl;
         tex2 << "\\hline" << std::endl;
-        tex2 << "Total systematic uncertainty & " << Form("$%.2f$",(fabs(totUp)+fabs(totDo))/2.) << " \\\\" << std::endl;
+        tex2 << "Total systematic uncertainty & " << Form("$%.2f$",(std::fabs(totUp)+std::fabs(totDo))/2.) << " \\\\" << std::endl;
         tex2 << "\\hline" << std::endl;
-        tex2 << "Total & "   << Form("$%.2f$",(sqrt(pow(totUp,2)+pow(statUp,2))+sqrt(pow(totDo,2)+pow(statDo,2)))/2.) << " \\\\" << std::endl;
+        tex2 << "Total & "   << Form("$%.2f$",(std::hypot(totUp,statUp)+std::hypot(totDo,statDo))/2.) << " \\\\" << std::endl;
         tex2 << "\\hline" << std::endl;
         tex2 << "\\hline" << std::endl;
         tex2 << "\\end{tabular}" << std::endl;
@@ -5220,7 +5219,7 @@ RooDataSet* TRExFit::DumpData( RooWorkspace *ws,  std::map < std::string, int > 
             for(int jj=0; jj<thisObs->numBins(); ++jj){
                 thisObs->setBin(jj);
                 thisNorm=pdftmp->getVal(obstmp)*thisObs->getBinWidth(jj);
-                if (thisNorm*expectedEvents > 0 && thisNorm*expectedEvents < pow(10.0, 18)) obsDataUnbinned->add(*mc->GetObservables(), thisNorm*expectedEvents);
+                if (thisNorm*expectedEvents > 0 && thisNorm*expectedEvents < 1e18) obsDataUnbinned->add(*mc->GetObservables(), thisNorm*expectedEvents);
             }
             obsDataUnbinned->Print();
             if(obsDataUnbinned->sumEntries()!=obsDataUnbinned->sumEntries()){
@@ -5375,7 +5374,7 @@ std::map < std::string, double > TRExFit::PerformFit( RooWorkspace *ws, RooDataS
     if(tauVec.size()>0){
         TMatrixDSym cov(tauVec.size());
         for(unsigned int i_tau=0;i_tau<tauVec.size();i_tau++){
-            cov(i_tau,i_tau) = pow(1./tauVec[i_tau],2);
+            cov(i_tau,i_tau) = (1./tauVec[i_tau]) * (1./tauVec[i_tau]);
         }
         RooConstVar nominalValue("1","1",1);
         RooArgList nominal;
@@ -6311,14 +6310,14 @@ void TRExFit::ProduceNPRanking( std::string NPnames/*="all"*/ ){
             }
         }
 
-        fitTool.FixNP( nuisPars[i], central + TMath::Abs(up  ) );
+        fitTool.FixNP( nuisPars[i], central + std::abs(up));
         fitTool.FitPDF( mc, simPdf, data.get() );
         muVarUp[ nuisPars[i] ]   = (fitTool.ExportFitResultInMap())[ fPOI ];
         //
         // Set the NP to its post-fit *down* variation and refit to get the fitted POI
         ws->loadSnapshot("tmp_snapshot");
         fitTool.ResetFixedNP();
-        fitTool.FixNP( nuisPars[i], central - TMath::Abs(down) );
+        fitTool.FixNP( nuisPars[i], central - std::abs(down));
         if(fFitFixedNPs.size()>0){
             for(const auto& nuisParToFix : fFitFixedNPs){
                 fitTool.FixNP(nuisParToFix.first,nuisParToFix.second);
@@ -6355,7 +6354,7 @@ void TRExFit::ProduceNPRanking( std::string NPnames/*="all"*/ ){
             // Set the NP to its pre-fit *up* variation and refit to get the fitted POI (pre-fit impact on POI)
             ws->loadSnapshot("tmp_snapshot");
             fitTool.ResetFixedNP();
-            fitTool.FixNP( nuisPars[i], central + TMath::Abs(up  ) );
+            fitTool.FixNP( nuisPars[i], central + std::abs(up));
             fitTool.FitPDF( mc, simPdf, data.get() );
             if(fFitFixedNPs.size()>0){
                 for(const auto& nuisParToFix : fFitFixedNPs){
@@ -6367,7 +6366,7 @@ void TRExFit::ProduceNPRanking( std::string NPnames/*="all"*/ ){
             // Set the NP to its pre-fit *down* variation and refit to get the fitted POI (pre-fit impact on POI)
             ws->loadSnapshot("tmp_snapshot");
             fitTool.ResetFixedNP();
-            fitTool.FixNP( nuisPars[i], central - TMath::Abs(down) );
+            fitTool.FixNP( nuisPars[i], central - std::abs(down));
             if(fFitFixedNPs.size()>0){
                 for(const auto& nuisParToFix : fFitFixedNPs){
                     fitTool.FixNP(nuisParToFix.first,nuisParToFix.second);
@@ -6483,10 +6482,10 @@ void TRExFit::PlotNPRanking(bool flagSysts, bool flagGammas) const{
         number.push_back(i+0.5);
         double sumi = 0.0;
         int index=-1;
-        sumi += TMath::Max( TMath::Abs(poiup[i]),TMath::Abs(poidown[i]) );
+        sumi += std::max( std::abs(poiup[i]),std::abs(poidown[i]) );
         for (unsigned int j=1;j<=i;j++){
             double sumii = 0.0;
-            sumii += TMath::Max( TMath::Abs(poiup[i-j]),TMath::Abs(poidown[i-j]) );
+            sumii += std::max(std::abs(poiup[i-j]),std::abs(poidown[i-j]) );
             if (sumi<sumii){
                 if (index==-1){
                     std::swap(poiup[i],poiup[i-j]);
@@ -6520,9 +6519,9 @@ void TRExFit::PlotNPRanking(bool flagSysts, bool flagGammas) const{
 
     double poimax = 0;
     for (unsigned int i=0;i<SIZE;i++) {
-        poimax = TMath::Max(poimax,TMath::Max( TMath::Abs(poiup[i]),TMath::Abs(poidown[i]) ));
-        poimax = TMath::Max(poimax,TMath::Max( TMath::Abs(poinomup[i]),TMath::Abs(poinomdown[i]) ));
-        nuerrlo[i] = TMath::Abs(nuerrlo[i]);
+        poimax = std::max(poimax,std::max(std::abs(poiup[i]),std::abs(poidown[i]) ));
+        poimax = std::max(poimax,std::max( std::abs(poinomup[i]),std::abs(poinomdown[i]) ));
+        nuerrlo[i] = std::abs(nuerrlo[i]);
     }
     poimax *= 1.2;
 
@@ -7106,11 +7105,11 @@ void TRExFit::ComputeBinning(int regIter){
             if (nBkgBin > 0 && nSigBin > 0) {
                 sumSigL += nSigBin * log(1 + nSigBin / nBkgBin);
             }
-            err2Bkg += pow(hbkg -> GetBinError(iBin), 2);
+            err2Bkg += (hbkg -> GetBinError(iBin))*(hbkg -> GetBinError(iBin));
             //
             double err2RelBkg = 1;
             if (sumBkg != 0) {
-                err2RelBkg = err2Bkg / pow(sumBkg, 2);
+                err2RelBkg = err2Bkg / (sumBkg*sumBkg);
             }
             //
             double err2Rel = 1.;
@@ -7122,19 +7121,19 @@ void TRExFit::ComputeBinning(int regIter){
                   err2Rel = (nBkg / fRegions[regIter]->fTransfoDzBkg) / sumBkg;
                 else if (sumSig != 0)
                   err2Rel = (nSig / fRegions[regIter]->fTransfoDzSig) / sumSig;
-                pass = sqrt(err2Rel) < 1;
+                pass = std::sqrt(err2Rel) < 1;
                 // distance
-                dist = fabs(err2Rel - 1);
+                dist = std::fabs(err2Rel - 1);
             }
             else if(fRegions[regIter]->fBinTransfo == "TransfoF"){
                 // "trafo F" with 5% bkg stat unc
                 if (sumBkg != 0 && sumSigL != 0)
-                  err2Rel = 1 / (sqrt(sumBkg / (nBkg / fRegions[regIter]->fTransfoFzBkg)) + sqrt(sumSigL / (1 / fRegions[regIter]->fTransfoFzSig)));
+                  err2Rel = 1 / (std::sqrt(sumBkg / (nBkg / fRegions[regIter]->fTransfoFzBkg)) + std::sqrt(sumSigL / (1 / fRegions[regIter]->fTransfoFzSig)));
                 else if (sumBkg != 0)
-                  err2Rel = sqrt((nBkg / fRegions[regIter]->fTransfoFzBkg) / sumBkg);
+                  err2Rel = std::sqrt((nBkg / fRegions[regIter]->fTransfoFzBkg) / sumBkg);
                 else if (sumSigL != 0)
-                  err2Rel = sqrt((1 / fRegions[regIter]->fTransfoFzSig) / sumSigL);
-                pass = sqrt(err2Rel) < 1 && sqrt(err2RelBkg) < 0.10;
+                  err2Rel = std::sqrt((1 / fRegions[regIter]->fTransfoFzSig) / sumSigL);
+                pass = std::sqrt(err2Rel) < 1 && std::sqrt(err2RelBkg) < 0.10;
             }
             else if(fRegions[regIter]->fBinTransfo == "TransfoJ"){
                 if (!jBreak) pass = (sumBkg >  jGoal);
@@ -8706,8 +8705,8 @@ TH1D* TRExFit::ReadSingleHistogram(const std::vector<std::string>& fullPaths, Sy
                 htmp->Multiply( hnomTmp.get() );
                 const double newVar = htmp->Integral(0,htmp->GetNbinsX()+1) /
                     hnom->Integral(0,hnom->GetNbinsX()+1);
-                if( syst->fKeepReferenceOverallVar && (TMath::Abs(relVar-1) > 0.0001) &&
-                    (TMath::Abs(newVar-1) > 0.0001)){
+                if( syst->fKeepReferenceOverallVar && (std::abs(relVar-1) > 0.0001) &&
+                    (std::abs(newVar-1) > 0.0001)){
                     htmp->Scale( relVar / newVar );
                 }
             }

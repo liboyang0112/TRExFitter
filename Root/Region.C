@@ -24,7 +24,6 @@
 #include "TGraphAsymmErrors.h"
 #include "TH1.h"
 #include "THStack.h"
-#include "TMath.h"
 #include "TMatrixD.h"
 #include "TPaveText.h"
 #include "TSystem.h"
