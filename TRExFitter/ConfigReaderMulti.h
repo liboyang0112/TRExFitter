@@ -27,6 +27,15 @@ class ConfigReaderMulti {
           * The default destructor
           */
         ~ConfigReaderMulti() = default;
+        
+        /**
+          * Deleted constructors
+          */ 
+        ConfigReaderMulti() = delete;
+        ConfigReaderMulti(const ConfigReaderMulti& c) = delete;
+        ConfigReaderMulti(ConfigReaderMulti&& c) = delete;
+        ConfigReaderMulti& operator=(const ConfigReaderMulti& c) = delete;
+        ConfigReaderMulti& operator=(ConfigReaderMulti&& c) = delete;
 
         /**
           * Reads the config and passes parameters to TtHFit
