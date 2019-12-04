@@ -732,9 +732,9 @@ void MultiFit::ComparePOI(const string& POI) const {
                 tex.DrawLatex(xmin+0.73*(xmax-xmin),N-i-1,Form(("#font[42]{^{#plus%." + fPOIPrecision + "f}}").c_str(),g_stat.GetErrorXhigh(N-i-1)));
                 tex.DrawLatex(xmin+0.73*(xmax-xmin),N-i-1,Form(("#font[42]{_{#minus%." + fPOIPrecision + "f}}").c_str(),g_stat.GetErrorXlow(N-i-1)));
                 tex.DrawLatex(xmin+0.84*(xmax-xmin),N-i-1,Form(("#font[42]{^{#plus%." + fPOIPrecision + "f}}").c_str(),
-                    sqrt( pow(g_tot.GetErrorXhigh(N-i-1),2) - pow(g_stat.GetErrorXhigh(N-i-1),2) ) ) );
+                    std::sqrt( g_tot.GetErrorXhigh(N-i-1) * g_tot.GetErrorXhigh(N-i-1) - g_stat.GetErrorXhigh(N-i-1)* g_stat.GetErrorXhigh(N-i-1) ) ) );
                 tex.DrawLatex(xmin+0.84*(xmax-xmin),N-i-1,Form(("#font[42]{_{#minus%." + fPOIPrecision + "f}}").c_str(),
-                    sqrt( pow(g_tot.GetErrorXlow(N-i-1) ,2) - pow(g_stat.GetErrorXlow(N-i-1) ,2) ) ) );
+                    std::sqrt( g_tot.GetErrorXlow(N-i-1)*g_tot.GetErrorXlow(N-i-1) - g_stat.GetErrorXlow(N-i-1)*g_stat.GetErrorXlow(N-i-1) ) ) );
                 tex.DrawLatex(xmin+0.94*(xmax-xmin),N-i-1,")");
             }
         }
@@ -3102,12 +3102,12 @@ TH1D* MultiFit::Rebin(TH1D* h, const vector<double>& vec, bool isData) const{
         int i_bin=h_new->FindBin(value);
         h_new->SetBinContent(i_bin,h_new->GetBinContent(i_bin)+h->GetBinContent(j_bin));
         if (!isData) {
-            h_new->SetBinError(i_bin,sqrt( pow(h_new->GetBinError(i_bin),2) + pow(h->GetBinError(j_bin),2) ) );
+            h_new->SetBinError(i_bin,std::hypot(h_new->GetBinError(i_bin), h->GetBinError(j_bin)));
         }
     }
     if (isData) {
         for(int j_bin=1;j_bin<=h_new->GetNbinsX();j_bin++){
-            h_new->SetBinError(j_bin, sqrt(h_new->GetBinContent(j_bin) ) );
+            h_new->SetBinError(j_bin, std::sqrt(h_new->GetBinContent(j_bin) ) );
         }
     }
     h_new->SetMinimum(1);

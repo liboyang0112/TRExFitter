@@ -212,9 +212,9 @@ void WriteHistToFile(TH1* h,TFile *f){
 void MergeUnderOverFlow(TH1* h){
     int nbins = h->GetNbinsX();
     h->AddBinContent( 1, h->GetBinContent(0) ); // merge first bin with underflow bin
-    h->SetBinError(     1, sqrt( pow(h->GetBinError(1),2)+pow(h->GetBinError(0),2)) ); // increase the stat uncertainty as well
+    h->SetBinError(     1, std::hypot( h->GetBinError(1),h->GetBinError(0))); // increase the stat uncertainty as well
     h->AddBinContent( nbins, h->GetBinContent(nbins+1) ); // merge first bin with overflow bin
-    h->SetBinError(     nbins, sqrt( pow(h->GetBinError(nbins),2)+pow(h->GetBinError(nbins+1),2)) ); // increase the stat uncertainty as well
+    h->SetBinError(     nbins, std::hypot(h->GetBinError(nbins),h->GetBinError(nbins+1))); // increase the stat uncertainty as well
     // set under/overflow bins and its errors to 0
     h->SetBinContent( 0, 0. );
     h->SetBinContent( nbins+1, 0. );
@@ -451,7 +451,7 @@ TH1D* BlindDataHisto( TH1* h_data, TH1* h_bkg, TH1* h_sig, double threshold, boo
     TH1D* h_blind = (TH1D*)h_data->Clone("h_blind");
     for(int i_bin=1;i_bin<h_data->GetNbinsX()+1;i_bin++){
         double tmpDenominator = h_bkg->GetBinContent(i_bin);
-        if(takeSqrt) tmpDenominator = sqrt(tmpDenominator); // for calculating S/sqrt(B) and S/sqrt(S+B)
+        if(takeSqrt) tmpDenominator = std::sqrt(tmpDenominator); // for calculating S/sqrt(B) and S/sqrt(S+B)
         if( h_sig->GetBinContent(i_bin) / tmpDenominator > threshold ){
             WriteDebugStatus("Common::BlindDataHisto", "Blinding bin n." + std::to_string(i_bin));
             h_data->SetBinContent(i_bin,0.);
@@ -548,7 +548,7 @@ bool SmoothHistogram( TH1* h, double nsigma ){
         double N = integral;
         double E = error;
         double n = h->GetBinContent(i_bin);
-        h->SetBinError(i_bin,E*sqrt(n)/sqrt(N));
+        h->SetBinError(i_bin,E*std::sqrt(n)/std::sqrt(N));
     }
     //
     return false; // this is actual behaviour that was implemented previously
@@ -574,9 +574,9 @@ double CorrectIntegral(TH1* h, double * err){
         if(h->GetBinContent(i_bin)<0) continue;
         integral += h->GetBinContent(i_bin);
         if(h->GetBinError(i_bin)<=0) continue;
-        error += pow(h->GetBinError(i_bin), 2);
+        error += h->GetBinError(i_bin) * h->GetBinError(i_bin);
     }
-    if(err!=0) *err = sqrt(error);
+    if(err!=0) *err = std::sqrt(error);
     return integral;
 }
 

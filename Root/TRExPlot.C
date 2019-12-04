@@ -1045,7 +1045,7 @@ double GC_down(double data) {
 TGraphAsymmErrors* poissonize(TH1 *h) {
     TGraphAsymmErrors* gr= new TGraphAsymmErrors(h);
     for (UInt_t i=0; i< (UInt_t)gr->GetN(); i++) {
-        double content = pow( (gr->GetErrorYhigh(i)) ,2); // this to fix the case of the merged plots, where histograms (even data) are scaled; so the actual content is the square of the stat. error (right?)
+        double content = gr->GetErrorYhigh(i) * gr->GetErrorYhigh(i); // this to fix the case of the merged plots, where histograms (even data) are scaled; so the actual content is the square of the stat. error (right?)
         gr->SetPointError(i,0.499*h->GetBinWidth(i+1),0.5*h->GetBinWidth(i+1),GC_down(content),GC_up(content));
         if(h->GetBinContent(i+1)==0){
             gr->SetPoint(i,gr->GetX()[i],-1);

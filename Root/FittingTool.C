@@ -598,11 +598,11 @@ int FittingTool::GetGroupedImpact( RooStats::ModelConfig* model, RooAbsPdf* fitp
         WriteInfoStatus("FittingTool::GetGroupedImpact", "POI is:   " + std::to_string(poi->getVal()) + " +/- " + std::to_string(poi->getError()) +
                                                          "    ( +" + std::to_string(poi->getErrorHi()) + ", " + std::to_string(poi->getErrorLo()) + " )");
         if(*itCategories=="FullSyst") WriteDebugStatus("FittingTool::GetGroupedImpact", "  (corresponds to a stat-only fit)");
-        WriteInfoStatus("FittingTool::GetGroupedImpact", "           --> impact: " + std::to_string(sqrt(-pow(poi->getError(),2) + Nom2)) +
-                                                         "    ( +" + std::to_string(sqrt(- pow(poi->getErrorHi(),2) + NomUp2)) + ", -" + std::to_string(sqrt(- pow(poi->getErrorLo(),2) + NomLo2)) + " )" );
+        WriteInfoStatus("FittingTool::GetGroupedImpact", "           --> impact: " + std::to_string(std::sqrt(-(poi->getError()*poi->getError()) + Nom2)) +
+                                                         "    ( +" + std::to_string(std::sqrt(- (poi->getErrorHi()*poi->getErrorHi()) + NomUp2)) + ", -" + std::to_string(std::sqrt(-(poi->getErrorLo()*poi->getErrorLo()) + NomLo2)) + " )" );
 
         // write results to file
-        outFile << *itCategories << "    " << sqrt( - pow(poi->getError(),2) + Nom2 ) << "  ( +" << sqrt( - pow(poi->getErrorHi(),2) + NomUp2 ) << ", -" << sqrt( - pow(poi->getErrorLo(),2) + NomLo2 ) << " )\n";
+        outFile << *itCategories << "    " << std::sqrt( -(poi->getError()*poi->getError()) + Nom2 ) << "  ( +" << std::sqrt( - (poi->getErrorHi()*poi->getErrorHi()) + NomUp2 ) << ", -" << std::sqrt( - (poi->getErrorLo()*poi->getErrorLo()) + NomLo2 ) << " )\n";
     }
 
     WriteInfoStatus("FittingTool::GetGroupedImpact", "-----------------------------------------------------");
