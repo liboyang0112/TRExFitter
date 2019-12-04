@@ -102,27 +102,27 @@ set( lib_headers
 
 # Source files for the shared/static library.
 set( lib_sources
-  Root/Common.C
-  Root/ConfigParser.C
-  Root/ConfigReader.C
-  Root/ConfigReaderMulti.C
-  Root/CorrelationMatrix.C
-  Root/FitResults.C
-  Root/FittingTool.C
-  Root/HistoTools.C
-  Root/MultiFit.C
-  Root/NormFactor.C
-  Root/NuisParameter.C
-  Root/PruningUtil.C
-  Root/Region.C
-  Root/Sample.C
-  Root/SampleHist.C
-  Root/ShapeFactor.C
-  Root/StatusLogbook.C
-  Root/Systematic.C
-  Root/SystematicHist.C
-  Root/TRExFit.C
-  Root/TRExPlot.C )
+  Root/Common.cc
+  Root/ConfigParser.cc
+  Root/ConfigReader.cc
+  Root/ConfigReaderMulti.cc
+  Root/CorrelationMatrix.cc
+  Root/FitResults.cc
+  Root/FittingTool.cc
+  Root/HistoTools.cc
+  Root/MultiFit.cc
+  Root/NormFactor.cc
+  Root/NuisParameter.cc
+  Root/PruningUtil.cc
+  Root/Region.cc
+  Root/Sample.cc
+  Root/SampleHist.cc
+  Root/ShapeFactor.cc
+  Root/StatusLogbook.cc
+  Root/Systematic.cc
+  Root/SystematicHist.cc
+  Root/TRExFit.cc
+  Root/TRExPlot.cc )
 
 # Build the shared library.
 add_library( TRExFitter SHARED ${lib_headers} ${lib_sources} )
@@ -160,10 +160,10 @@ macro( TRExFitter_add_executable name )
     RUNTIME DESTINATION bin )
 endmacro( TRExFitter_add_executable )
 
-TRExFitter_add_executable( trex-fitter util/trex-fitter.C )
+TRExFitter_add_executable( trex-fitter util/trex-fitter.cc )
 
-# Compile the util/hupdate.C executable.
-add_executable( hupdate.exe util/hupdate.C )
+# Compile the util/hupdate.cc executable.
+add_executable( hupdate.exe util/hupdate.cc )
 target_include_directories( hupdate.exe PUBLIC ${ROOT_INCLUDE_DIRS} )
 target_link_libraries( hupdate.exe ${ROOT_LIBRARIES} )
 install( TARGETS hupdate.exe
