@@ -240,7 +240,7 @@ std::string ConfigSet::operator[](const std::string& name) const{
 
 //__________________________________________________________________________________
 //
-Config ConfigSet::GetConfig(int i) const{
+const Config& ConfigSet::GetConfig(int i) const{
     return fConfig[i];
 }
 
@@ -419,7 +419,7 @@ int ConfigParser::CheckSyntax(ConfigParser *refConfigParser){
         ConfigSet *cs = fConfSets[i_cs].get();
         // check if the same exists in the reference
         for (int i_c = 0; i_c < cs->fN; i_c++){
-            Config c = cs->fConfig[i_c];
+            const Config& c = cs->fConfig[i_c];
             exitStatus+= SettingIsValid(cs, refConfigParser, cs->fName, c.fName);
         }
     }
