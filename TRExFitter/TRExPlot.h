@@ -25,6 +25,11 @@ class TRExPlot {
 
     ~TRExPlot();
 
+    TRExPlot(const TRExPlot& t) = delete;
+    TRExPlot(TRExPlot&& t) = delete;
+    TRExPlot& operator=(const TRExPlot& t) = delete;
+    TRExPlot& operator=(TRExPlot&& t) = delete;
+
     void SetChannel(const std::string& name);
     void AddLabel(const std::string& name);
     void SetLumi(const std::string& name);

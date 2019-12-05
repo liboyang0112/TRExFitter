@@ -30,6 +30,10 @@ public:
     explicit SampleHist(Sample *sample,TH1 *hist);
     explicit SampleHist(Sample *sample, const std::string& histoName, const std::string& fileName);
     ~SampleHist();
+    SampleHist(const SampleHist& s) = delete;
+    SampleHist(SampleHist&& s) = delete;
+    SampleHist& operator=(const SampleHist& s) = delete;
+    SampleHist& operator=(SampleHist&& s) = delete;
 
     TH1* GetHist() const;
     const Sample* GetSample() const {return fSample;}

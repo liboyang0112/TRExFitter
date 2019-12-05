@@ -8112,9 +8112,9 @@ void TRExFit::RunToys(){
         }
         // create map to store fit results
         // create histogram to store fitted POI values
-        NormFactor POInf = *(fNormFactors[FindInStringVector(fNormFactorNames,fPOI)]);
-        double min = POInf.fMin;
-        double max = POInf.fMax;
+        auto&& POInf = fNormFactors[FindInStringVector(fNormFactorNames,fPOI)];
+        double min = POInf->fMin;
+        double max = POInf->fMax;
         if (fToysHistoMin < 9900 && fToysHistoMax > -9000){
             min = fToysHistoMin;
             max = fToysHistoMax;
@@ -8199,7 +8199,7 @@ void TRExFit::RunToys(){
                 }
             }
             poiVar->setConstant(0);
-            poiVar->setVal(POInf.fNominal);
+            poiVar->setVal(POInf->fNominal);
 
             // NP is fixed constant for each fit, and to nominal value
             if (fToysPseudodataNP != "") {
@@ -8226,7 +8226,7 @@ void TRExFit::RunToys(){
         // plot, fit and save toy histogram
         TCanvas c("c","c",600,600);
         h_toys.Draw("E");
-        TF1 g("g","gaus",POInf.fMin,POInf.fMax);
+        TF1 g("g","gaus",POInf->fMin,POInf->fMax);
         g.SetLineColor(kRed);
         h_toys.Fit("g","RQ");
         g.Draw("same");

@@ -9,6 +9,10 @@ public:
     explicit NuisParameter(const std::string& name);
 
     ~NuisParameter() = default;
+    NuisParameter(const NuisParameter& n) = default;
+    NuisParameter(NuisParameter&& n) = default;
+    NuisParameter& operator=(const NuisParameter& n) = default;
+    NuisParameter& operator=(NuisParameter&& n) = default;
 
     std::string fName;
     std::string fTitle;

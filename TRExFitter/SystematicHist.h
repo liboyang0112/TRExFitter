@@ -19,6 +19,11 @@ public:
 
     ~SystematicHist();
 
+    SystematicHist(const SystematicHist& s) = delete;
+    SystematicHist(SystematicHist&& s) = delete;
+    SystematicHist& operator=(const SystematicHist& s) = delete;
+    SystematicHist& operator=(SystematicHist&& s) = delete;
+
     void WriteToFile(TFile *f=nullptr,bool reWriteOrig=true) const;
     void ReadFromFile();
     bool IsShape() const;

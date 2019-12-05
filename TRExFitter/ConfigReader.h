@@ -31,7 +31,16 @@ class ConfigReader {
         /**
           * The default destructor
           */
-        ~ConfigReader();
+        ~ConfigReader() = default;
+
+        /**
+          * Deleted constructors and operators
+          */
+        ConfigReader() = delete;
+        ConfigReader(const ConfigReader& c) = delete;
+        ConfigReader(ConfigReader&& c) = delete;
+        ConfigReader& operator=(const ConfigReader& c) = delete;
+        ConfigReader& operator=(ConfigReader&& c) = delete; 
 
         /**
           * Reads the config and passes parameters to TRExFit

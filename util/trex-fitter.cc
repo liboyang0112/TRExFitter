@@ -93,7 +93,7 @@ void FitExample(std::string opt="h",std::string configFile="config/myFit.config"
     // multi-fit
     bool isMultiFit      = opt.find("m")!=std::string::npos;
     if(isMultiFit){
-        std::unique_ptr<MultiFit> myMultiFit = std::make_unique<MultiFit>();
+        std::unique_ptr<MultiFit> myMultiFit = std::make_unique<MultiFit>("MyMultiFit");
         ConfigReaderMulti confReaderMulti(myMultiFit.get());
         int sc = confReaderMulti.ReadFullConfig(configFile,opt,options) ;
 

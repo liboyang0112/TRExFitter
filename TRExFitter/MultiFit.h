@@ -18,9 +18,13 @@ class TRExFit;
 class MultiFit {
 public:
 
-    explicit MultiFit(std::string name="MyMultiFit");
+    explicit MultiFit(const std::string& name);
 
     ~MultiFit() = default;
+    MultiFit(const MultiFit& m) = delete;
+    MultiFit(MultiFit&& m) = delete;
+    MultiFit& operator=(const MultiFit& m) = delete;
+    MultiFit& operator=(MultiFit&& m) = delete;
 
     void AddFitFromConfig(const std::string& configFile, const std::string& opt, const std::string& options,
                           const std::string& label, std::string loadSuf="",std::string wsFile="");

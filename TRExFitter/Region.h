@@ -41,6 +41,10 @@ public:
 
    explicit Region(const std::string& name);
     ~Region();
+    Region(const Region& r) = delete;
+    Region(Region&& r) = delete;
+    Region& operator=(const Region& r) = delete;
+    Region& operator=(Region&& r) = delete;
 
     // -------
     // Methods

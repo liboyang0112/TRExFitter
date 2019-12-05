@@ -18,6 +18,11 @@ public:
 
     ~FitResults();
 
+    FitResults(const FitResults& f) = delete;
+    FitResults(FitResults&& f) = delete;
+    FitResults& operator=(const FitResults& f) = delete;
+    FitResults& operator=(FitResults&& f) = delete;
+
     //
     // Functions
     //
