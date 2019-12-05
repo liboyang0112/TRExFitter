@@ -26,7 +26,10 @@ public:
 
     explicit Systematic(const std::string& name,int type=0,double up=0.,double down=0.);
     
-    Systematic(const Systematic &sys);  // copy constructor
+    Systematic(const Systematic& sys) = default;  // copy constructor
+    Systematic& operator=(const Systematic& sys) = default;
+    Systematic(Systematic&& sys) = delete;
+    Systematic& operator=(Systematic&& sys) = delete;
 
     ~Systematic() = default;
 
