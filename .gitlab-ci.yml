@@ -28,12 +28,17 @@ stages:
 ##
 cppcheck:
   stage: check_and_build
+  # image is from https://hub.docker.com/r/neszt/cppcheck-docker
+  image:
+    name: registry.hub.docker.com/neszt/cppcheck-docker:latest
+    entrypoint: [""]
   before_script:
-    - yum install -y cppcheck
+    - "" # overwrite default, do nothing
   script:
+    - cppcheck --version
     - echo "running cppcheck"
     - set +e
-    - cppcheck --enable=all --verbose --output-file=cppcheck.txt -I TRExFitter/*h --language=c++ Root/*cc
+    - cppcheck --enable=all --verbose --output-file=cppcheck.txt -I TRExFitter/*h --language=c++ --suppress=useStlAlgorithm Root/*cc
     - cat cppcheck.txt
     - source test/scripts/cppcheck_output.sh
   allow_failure: true
