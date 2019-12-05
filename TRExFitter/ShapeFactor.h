@@ -13,6 +13,11 @@ public:
     
     ~ShapeFactor() = default;
 
+    ShapeFactor(const ShapeFactor& s) = delete;
+    ShapeFactor(ShapeFactor&& s) = delete;
+    ShapeFactor& operator=(const ShapeFactor& s) = delete;
+    ShapeFactor& operator=(ShapeFactor&& s) = delete;
+
     void Print() const;
 
     std::string fName;
