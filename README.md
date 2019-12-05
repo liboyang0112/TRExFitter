@@ -6,6 +6,8 @@ This package provides a framework to perform profile likelihood fits. In additio
 * [TRExFitter JIRA](https://its.cern.ch/jira/projects/TTHFITTER/summary>) (sign up to the mailing list in case you cannot access the JIRA)
 * TRExFitter mailing list: [atlas-phys-stat-tthfitter](https://e-groups.cern.ch/e-groups/EgroupsSubscription.do?egroupName=atlas-phys-stat-tthfitter)
 
+Contributions to TRExFitter are welcome.
+Please have a look at [CONTRIBUTING.md](CONTRIBUTING.md) to get started.
 
 
 ## Table of Contents
