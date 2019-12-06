@@ -250,7 +250,8 @@ For each object type (also called "block"), here is the list of available proper
 | PlotOptionsSummary           | the same as PlotOptions but for the summary plot (if nothing is specified, PlotOptions is used) |
 | RatioYtitle                  | Label to be used on the Y-axis of the ratio plot, default is "Data/pred." |
 | TableOptions                 | a set of options for tables:<br>&nbsp; &nbsp; **STANDALONE**: default! If not set, no "\begin{document}"<br>&nbsp; &nbsp; **FOOTNOTESIZE**: -> \footnotesize <br>&nbsp; &nbsp; **LANDSCAPE**: -> \begin{landscape} |
-| SystControlPlots             | if set to TRUE, plots showing the shape effect of a given systematic (before and after smoothing/symmetrisation) will be produced |
+| SystControlPlots             | if set to TRUE, plots showing the shape effect of a given systematic (before and after smoothing/symmetrisation) will be produced (default: TRUE) |
+| SystErrorBars                | TRUE by default, add stat error bars to syst variations in syst plots, set to FALSE to disable |
 | SystDataPlots                | if set to TRUE, plots showing the shape effect of a given systematic (before and after smoothing/symmetrisation) on top of the nominal sum of samples will be produced. Data are then plotted in the ratio. If the option is set to "fillUpFrame", data will also be plotted in the upper frame. |
 | CorrelationThreshold         | Threshold used to draw the correlation matrix (only systematics with at least one correlation larger than than draw) (0.05:5%) |
 | SignalRegionsPlot            | list of regions to put in SignalRegionsPlot and PieChartPlots; use "EMPTY" to put an empty entry, "ENDL" to specify end of line. This specifies the order of regions plotted in signal region S/B plots and pie chart plots, as well as number of regions per row. |
@@ -265,7 +266,6 @@ For each object type (also called "block"), here is the list of available proper
 | RankingPlot                  | NP categories in gammas or systs, if set to Systs(Gammas) then plot only systs(Gammas) in ranking, default produce plot for systs+gammas, can also set to all to have the 3 plots. |
 | ImageFormat                  | png, pdf or eps |
 | StatOnly                     | the code ignores systematics and MC stat uncertainties from all computations (limits, significances, fit, ...); need to re-create ws in case of limit and significance |
-| SystErrorBars                | TRUE by default to add stat error bars to syst variations in syst plots, set to FALSE to disable |
 | SummaryPlotRegions           | list of regions to be shown in summary plot (useful to specify a custom order) |
 | FixNPforStatOnly             | if set to TRUE, when running stat-only (with either of the two options) also the norm factors other than the POI are kept fixed |
 | InputFolder                  | specify it to read fit input histograms from a different directory than `<jobName>/Histograms/` |
@@ -943,7 +943,11 @@ __How do the smoothing algorithms work?__\
 Some info can be found in these [slides](https://indico.cern.ch/event/691683/contributions/2873279/attachments/1593521/2522846/PruningSmoothing.pdf). More information about `TTBARRESONANCE` is found in these [slides](https://indico.cern.ch/event/669913/contributions/2769795/attachments/1549339/2433688/ttres-fullunblind-smooth2-summary2.pdf).
 Further info regarding `TTBARRESONANCE`: The Smoothing parameter in the Systematics area can be set to 40 to treat the systematic uncertainty as correlated with the nominal (e.g. when obtained via reweighting) or 400 to treat it as uncorrelated with the nominal (e.g. for two-point systematics, then the statistical uncertainties on nominal sample and systematics variation are added in quadrature and compared to the smoothing threshold).
 
+__I am getting warnings about underconstrained nuisance parameters. Should I worry?__\
+Have a look at the relevant [part of the FitProblemsTutorial twiki](https://twiki.cern.ch/twiki/bin/viewauth/AtlasProtected/FitProblemsTutorial#4_5_Post_fit_constraint_larger_t). Typically an underconstraint indicates an issue, though there can be cases where it is expected. See [this notebook](https://cernbox.cern.ch/index.php/s/DiPdvBlRBQPfHEy) for such an example.
 
+__Can I just use more bins to gain sensitivity?__\
+While more bings generally increase sensitivity, it is important to keep two things in mind. Limit the size of the MC statistical uncertainties ("gammas") to at most 20% per bin. See [these slides](https://indico.cern.ch/event/615262/contributions/2484815/) for a study and the corresponding recommendation. Furthermore, one aspect that is not considered in the fit is the statistical uncertainty in the templates that describe the ±1σ variations of a nuisance parameter. This uncertainty increases when adding more bins, and can lead to fluctuations in the templates. The nuisance parameter then does not describe physical effects, but rather fluctuations. It is very important to closely study all templates found in the `Systematics/` folder and verify that the input distributions to the fit (solid lines) look reasonable. These plots are obtained by enabling the setting `SystControlPlots` and `SystErrorBars` (both enabled by default).
 
 ## TRExFitter package authors
 Managers:
