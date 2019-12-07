@@ -5,6 +5,7 @@
 #include "TRExFitter/ConfigReaderMulti.h"
 #include "TRExFitter/MultiFit.h"
 #include "TRExFitter/StatusLogbook.h"
+#include "TRExFitter/NtupleReader.h"
 #include "TRExFitter/TRExFit.h"
 
 // RooStatsIncludes
@@ -161,17 +162,19 @@ void FitExample(std::string opt="h",std::string configFile="config/myFit.config"
 
     TRExFit *myFit = new TRExFit();
 
-    // initialize config reader
-    ConfigReader reader(myFit);
+    {
+        // initialize config reader
+        ConfigReader reader(myFit);
 
-    // read the actual config
-    int sc = reader.ReadFullConfig(configFile,opt,options);
-    if(sc!=0){
-        WriteErrorStatus("trex-fitter::FitExample", "Failed to read the config file.");
-        exit(EXIT_FAILURE);
+        // read the actual config
+        int sc = reader.ReadFullConfig(configFile,opt,options);
+        if(sc!=0){
+            WriteErrorStatus("trex-fitter::FitExample", "Failed to read the config file.");
+            exit(EXIT_FAILURE);
+        }
+
+        WriteInfoStatus("trex-fitter::FitExample", "Successfully read config file.");
     }
-
-    WriteInfoStatus("trex-fitter::FitExample", "Successfully read config file.");
 
     if (TRExFitter::DEBUGLEVEL < 2){
         gErrorIgnoreLevel = kError;
@@ -205,7 +208,12 @@ void FitExample(std::string opt="h",std::string configFile="config/myFit.config"
     else if(readNtuples){
         std::cout << "Reading ntuples..." << std::endl;
         myFit->CreateRootFiles();
-        myFit->ReadNtuples();
+
+        {
+            NtupleReader reader(myFit);
+            reader.ReadNtuples();
+        }
+
         myFit->CorrectHistograms();
         myFit->MergeSystematics();
         myFit->CreateCustomAsimov();
