@@ -37,11 +37,15 @@ class HistoReader {
         HistoReader& operator=(const HistoReader& h) = delete;  
         HistoReader& operator=(HistoReader&& h) = delete;  
 
-
         /**
           * method that reads the histograms from user defined inputs
           */
         void ReadHistograms();
+    
+        /**
+          * method that reads the histograms produced by TREx
+          */
+        void ReadTRExProducedHistograms();
 
     private:
         /// A pointer to the TRExFit class

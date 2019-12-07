@@ -218,7 +218,10 @@ void FitExample(std::string opt="h",std::string configFile="config/myFit.config"
         if(TRExFitter::SYSTDATAPLOT)     myFit->DrawSystPlotsSumSamples();
     }
     else{
-        if(drawPreFit || drawPostFit || createWorkspace || drawSeparation || rebinAndSmooth || groupedImpact) myFit->ReadHistos();
+        if(drawPreFit || drawPostFit || createWorkspace || drawSeparation || rebinAndSmooth || groupedImpact) {
+            HistoReader histoReader(myFit);
+            histoReader.ReadTRExProducedHistograms();
+        }
     }
 
     if(rebinAndSmooth){

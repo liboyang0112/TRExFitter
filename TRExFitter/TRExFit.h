@@ -127,7 +127,6 @@ public:
 
     // read from ..
     void ReadNtuples();
-    void ReadHistos(/*std::string fileName=""*/);
     void CloseInputFiles();
     void CorrectHistograms();
 
