@@ -3,6 +3,7 @@
 #include "TRExFitter/ConfigParser.h"
 #include "TRExFitter/ConfigReader.h"
 #include "TRExFitter/ConfigReaderMulti.h"
+#include "TRExFitter/HistoReader.h"
 #include "TRExFitter/MultiFit.h"
 #include "TRExFitter/StatusLogbook.h"
 #include "TRExFitter/TRExFit.h"
@@ -194,7 +195,10 @@ void FitExample(std::string opt="h",std::string configFile="config/myFit.config"
     if(readHistograms){
         std::cout << "Reading histograms..." << std::endl;
         myFit->CreateRootFiles();
-        myFit->ReadHistograms();
+        {
+            HistoReader histoReader(myFit);
+            histoReader.ReadHistograms();
+        }
         myFit->CorrectHistograms();
         myFit->MergeSystematics();
         myFit->CreateCustomAsimov();

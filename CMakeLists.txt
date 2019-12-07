@@ -85,6 +85,7 @@ set( lib_headers
   TRExFitter/CorrelationMatrix.h
   TRExFitter/FitResults.h
   TRExFitter/FittingTool.h
+  TRExFitter/HistoReader.h
   TRExFitter/HistoTools.h
   TRExFitter/MultiFit.h
   TRExFitter/NormFactor.h
@@ -109,6 +110,7 @@ set( lib_sources
   Root/CorrelationMatrix.cc
   Root/FitResults.cc
   Root/FittingTool.cc
+  Root/HistoReader.cc
   Root/HistoTools.cc
   Root/MultiFit.cc
   Root/NormFactor.cc
