@@ -126,7 +126,6 @@ public:
     void DrawSystPlotsSumSamples() const;
 
     // read from ..
-    void ReadNtuples();
     void CloseInputFiles();
     void CorrectHistograms();
 
