@@ -36,40 +36,40 @@ Applying ATLAS style settings...
 [1;32m=== INFO::TRExFit::PrintConfigSummary:  Bkg1Xsec[0m
 [1;32m=== INFO::TRExFit::PrintConfigSummary:  Bkg2Xsec[0m
 [1;32m=== INFO::TRExFit::PrintConfigSummary: -------------------------------------------[0m
-[1;32m=== INFO::TRExFit::ReadHistos: -----------------------------[0m
-[1;32m=== INFO::TRExFit::ReadHistos: Reading histograms from file FitExampleStatOnly/Histograms/FitExampleStatOnly_histos.root ...[0m
-=== DEBUG::TRExFit::ReadHistos:   Reading region SR_1
-=== DEBUG::TRExFit::ReadHistos:     Reading sample Data
-=== DEBUG::TRExFit::ReadHistos:     Reading sample Bkg1
-=== DEBUG::TRExFit::ReadHistos:       Reading syst JES
-=== DEBUG::TRExFit::ReadHistos:       Reading syst Bkg1Xsec
-=== DEBUG::TRExFit::ReadHistos:     Reading sample Bkg2
-=== DEBUG::TRExFit::ReadHistos:       Reading syst Bkg2Xsec
-=== DEBUG::TRExFit::ReadHistos:     Reading sample Signal
-=== DEBUG::TRExFit::ReadHistos:       Reading norm SigXsecOverSM
-=== DEBUG::TRExFit::ReadHistos:       Reading syst Dummy
-=== DEBUG::TRExFit::ReadHistos:       Reading syst JES
-=== DEBUG::TRExFit::ReadHistos:   Reading region SR_2
-=== DEBUG::TRExFit::ReadHistos:     Reading sample Data
-=== DEBUG::TRExFit::ReadHistos:     Reading sample Bkg1
-=== DEBUG::TRExFit::ReadHistos:       Reading syst JES
-=== DEBUG::TRExFit::ReadHistos:     Reading sample Bkg2
-=== DEBUG::TRExFit::ReadHistos:       Reading syst Bkg2Xsec
-=== DEBUG::TRExFit::ReadHistos:     Reading sample Signal
-=== DEBUG::TRExFit::ReadHistos:       Reading norm SigXsecOverSM
-=== DEBUG::TRExFit::ReadHistos:       Reading syst Dummy
-=== DEBUG::TRExFit::ReadHistos:       Reading syst JES
-=== DEBUG::TRExFit::ReadHistos:   Reading region VR
-=== DEBUG::TRExFit::ReadHistos:     Reading sample Data
-=== DEBUG::TRExFit::ReadHistos:     Reading sample Bkg1
-=== DEBUG::TRExFit::ReadHistos:       Reading syst JES
-=== DEBUG::TRExFit::ReadHistos:       Reading syst Bkg1Xsec
-=== DEBUG::TRExFit::ReadHistos:     Reading sample Bkg2
-=== DEBUG::TRExFit::ReadHistos:       Reading syst Bkg2Xsec
-=== DEBUG::TRExFit::ReadHistos:     Reading sample Signal
-=== DEBUG::TRExFit::ReadHistos:       Reading norm SigXsecOverSM
-=== DEBUG::TRExFit::ReadHistos:       Reading syst Dummy
-=== DEBUG::TRExFit::ReadHistos:       Reading syst JES
+[1;32m=== INFO::HistoReader::ReadTRExProducedHistograms: -----------------------------[0m
+[1;32m=== INFO::HistoReader::ReadTRExProducedHistograms: Reading histograms from file FitExampleStatOnly/Histograms/FitExampleStatOnly_histos.root ...[0m
+=== DEBUG::HistoReader::ReadTRExProducedHistograms:   Reading region SR_1
+=== DEBUG::HistoReader::ReadTRExProducedHistograms:     Reading sample Data
+=== DEBUG::HistoReader::ReadTRExProducedHistograms:     Reading sample Bkg1
+=== DEBUG::HistoReader::ReadTRExProducedHistograms:       Reading syst JES
+=== DEBUG::HistoReader::ReadTRExProducedHistograms:       Reading syst Bkg1Xsec
+=== DEBUG::HistoReader::ReadTRExProducedHistograms:     Reading sample Bkg2
+=== DEBUG::HistoReader::ReadTRExProducedHistograms:       Reading syst Bkg2Xsec
+=== DEBUG::HistoReader::ReadTRExProducedHistograms:     Reading sample Signal
+=== DEBUG::HistoReader::ReadTRExProducedHistograms:       Reading norm SigXsecOverSM
+=== DEBUG::HistoReader::ReadTRExProducedHistograms:       Reading syst Dummy
+=== DEBUG::HistoReader::ReadTRExProducedHistograms:       Reading syst JES
+=== DEBUG::HistoReader::ReadTRExProducedHistograms:   Reading region SR_2
+=== DEBUG::HistoReader::ReadTRExProducedHistograms:     Reading sample Data
+=== DEBUG::HistoReader::ReadTRExProducedHistograms:     Reading sample Bkg1
+=== DEBUG::HistoReader::ReadTRExProducedHistograms:       Reading syst JES
+=== DEBUG::HistoReader::ReadTRExProducedHistograms:     Reading sample Bkg2
+=== DEBUG::HistoReader::ReadTRExProducedHistograms:       Reading syst Bkg2Xsec
+=== DEBUG::HistoReader::ReadTRExProducedHistograms:     Reading sample Signal
+=== DEBUG::HistoReader::ReadTRExProducedHistograms:       Reading norm SigXsecOverSM
+=== DEBUG::HistoReader::ReadTRExProducedHistograms:       Reading syst Dummy
+=== DEBUG::HistoReader::ReadTRExProducedHistograms:       Reading syst JES
+=== DEBUG::HistoReader::ReadTRExProducedHistograms:   Reading region VR
+=== DEBUG::HistoReader::ReadTRExProducedHistograms:     Reading sample Data
+=== DEBUG::HistoReader::ReadTRExProducedHistograms:     Reading sample Bkg1
+=== DEBUG::HistoReader::ReadTRExProducedHistograms:       Reading syst JES
+=== DEBUG::HistoReader::ReadTRExProducedHistograms:       Reading syst Bkg1Xsec
+=== DEBUG::HistoReader::ReadTRExProducedHistograms:     Reading sample Bkg2
+=== DEBUG::HistoReader::ReadTRExProducedHistograms:       Reading syst Bkg2Xsec
+=== DEBUG::HistoReader::ReadTRExProducedHistograms:     Reading sample Signal
+=== DEBUG::HistoReader::ReadTRExProducedHistograms:       Reading norm SigXsecOverSM
+=== DEBUG::HistoReader::ReadTRExProducedHistograms:       Reading syst Dummy
+=== DEBUG::HistoReader::ReadTRExProducedHistograms:       Reading syst JES
 Applying systematics pruning...
 [1;32m=== INFO::TRExFit::SystPruning: ------------------------------------------------------[0m
 [1;32m=== INFO::TRExFit::SystPruning: Apply Systematics Pruning ...[0m
@@ -96,55 +96,55 @@ Printing XML Files for channel: SR_2
 Finished printing XML files
 Finished printing XML files
 Getting histogram.  InputFile FitExampleStatOnly/Histograms/FitExampleStatOnly_histos.root HistoPath  HistoName SR_1_Data_regBin
-Opened input file: FitExampleStatOnly/Histograms/FitExampleStatOnly_histos.root: 0x27cb7c0
+Opened input file: FitExampleStatOnly/Histograms/FitExampleStatOnly_histos.root: 0x2b23820
 Collecting Nominal Histogram
 Getting histogram.  InputFile FitExampleStatOnly/Histograms/FitExampleStatOnly_histos.root HistoPath  HistoName SR_1_Bkg1_regBin
-Opened input file: FitExampleStatOnly/Histograms/FitExampleStatOnly_histos.root: 0x28139e0
+Opened input file: FitExampleStatOnly/Histograms/FitExampleStatOnly_histos.root: 0x2b36850
 Collecting Nominal Histogram
 Getting histogram.  InputFile FitExampleStatOnly/Histograms/FitExampleStatOnly_histos.root HistoPath  HistoName SR_1_Bkg2_regBin
-Opened input file: FitExampleStatOnly/Histograms/FitExampleStatOnly_histos.root: 0x28613c0
+Opened input file: FitExampleStatOnly/Histograms/FitExampleStatOnly_histos.root: 0x2b36c10
 Collecting Nominal Histogram
 Getting histogram.  InputFile FitExampleStatOnly/Histograms/FitExampleStatOnly_histos.root HistoPath  HistoName SR_1_Signal_regBin
-Opened input file: FitExampleStatOnly/Histograms/FitExampleStatOnly_histos.root: 0x276a820
+Opened input file: FitExampleStatOnly/Histograms/FitExampleStatOnly_histos.root: 0x2b99d00
 Getting histogram.  InputFile FitExampleStatOnly/Histograms/FitExampleStatOnly_histos.root HistoPath  HistoName SR_2_Data_regBin
-Opened input file: FitExampleStatOnly/Histograms/FitExampleStatOnly_histos.root: 0x2762750
+Opened input file: FitExampleStatOnly/Histograms/FitExampleStatOnly_histos.root: 0x2aa2850
 Collecting Nominal Histogram
 Getting histogram.  InputFile FitExampleStatOnly/Histograms/FitExampleStatOnly_histos.root HistoPath  HistoName SR_2_Bkg1_regBin
-Opened input file: FitExampleStatOnly/Histograms/FitExampleStatOnly_histos.root: 0x2838b00
+Opened input file: FitExampleStatOnly/Histograms/FitExampleStatOnly_histos.root: 0x2ac9f80
 Collecting Nominal Histogram
 Getting histogram.  InputFile FitExampleStatOnly/Histograms/FitExampleStatOnly_histos.root HistoPath  HistoName SR_2_Bkg2_regBin
-Opened input file: FitExampleStatOnly/Histograms/FitExampleStatOnly_histos.root: 0x27a4770
+Opened input file: FitExampleStatOnly/Histograms/FitExampleStatOnly_histos.root: 0x2b77860
 Collecting Nominal Histogram
 Getting histogram.  InputFile FitExampleStatOnly/Histograms/FitExampleStatOnly_histos.root HistoPath  HistoName SR_2_Signal_regBin
-Opened input file: FitExampleStatOnly/Histograms/FitExampleStatOnly_histos.root: 0x276b030
+Opened input file: FitExampleStatOnly/Histograms/FitExampleStatOnly_histos.root: 0x2b52ea0
 Measurement Name: FitExampleStatOnly	 OutputFilePrefix: FitExampleStatOnly/RooStats/FitExampleStatOnly	 POI: SigXsecOverSM	 Lumi: 1	 LumiRelErr: 0.1	 BinLow: 0	 BinHigh: 1	 ExportOnly: 1
 Constant Params:  Lumi
 Channels:
 	 Channel Name: SR_1	 InputFile: 
 	 Data:
-	 	 InputFile: FitExampleStatOnly/Histograms/FitExampleStatOnly_histos.root	 HistoName: SR_1_Data_regBin	 HistoPath: 	 HistoAddress: 0x27dc870
+	 	 InputFile: FitExampleStatOnly/Histograms/FitExampleStatOnly_histos.root	 HistoName: SR_1_Data_regBin	 HistoPath: 	 HistoAddress: 0x2ae6570
 	 statErrorConfig:
 	 	 RelErrorThreshold: 0	 ConstraintType: Poisson
 	 Samples: 
 	 	 Name: Bkg1	 	 Channel: SR_1	 NormalizeByTheory: True	 StatErrorActivate: False
-	 	 	 	 	 InputFile: FitExampleStatOnly/Histograms/FitExampleStatOnly_histos.root	 HistName: SR_1_Bkg1_regBin	 HistoPath: 	 HistoAddress: 0x284c580
+	 	 	 	 	 InputFile: FitExampleStatOnly/Histograms/FitExampleStatOnly_histos.root	 HistName: SR_1_Bkg1_regBin	 HistoPath: 	 HistoAddress: 0x2ace230
 	 	 Name: Bkg2	 	 Channel: SR_1	 NormalizeByTheory: True	 StatErrorActivate: False
-	 	 	 	 	 InputFile: FitExampleStatOnly/Histograms/FitExampleStatOnly_histos.root	 HistName: SR_1_Bkg2_regBin	 HistoPath: 	 HistoAddress: 0x2782ec0
+	 	 	 	 	 InputFile: FitExampleStatOnly/Histograms/FitExampleStatOnly_histos.root	 HistName: SR_1_Bkg2_regBin	 HistoPath: 	 HistoAddress: 0x2b93e80
 	 	 Name: Signal	 	 Channel: SR_1	 NormalizeByTheory: True	 StatErrorActivate: False
-	 	 	 	 	 InputFile: FitExampleStatOnly/Histograms/FitExampleStatOnly_histos.root	 HistName: SR_1_Signal_regBin	 HistoPath: 	 HistoAddress: 0x283a8e0
+	 	 	 	 	 InputFile: FitExampleStatOnly/Histograms/FitExampleStatOnly_histos.root	 HistName: SR_1_Signal_regBin	 HistoPath: 	 HistoAddress: 0x2aad0b0
 	 End of Channel SR_1
 	 Channel Name: SR_2	 InputFile: 
 	 Data:
-	 	 InputFile: FitExampleStatOnly/Histograms/FitExampleStatOnly_histos.root	 HistoName: SR_2_Data_regBin	 HistoPath: 	 HistoAddress: 0x2770b00
+	 	 InputFile: FitExampleStatOnly/Histograms/FitExampleStatOnly_histos.root	 HistoName: SR_2_Data_regBin	 HistoPath: 	 HistoAddress: 0x2b08b50
 	 statErrorConfig:
 	 	 RelErrorThreshold: 0	 ConstraintType: Poisson
 	 Samples: 
 	 	 Name: Bkg1	 	 Channel: SR_2	 NormalizeByTheory: True	 StatErrorActivate: False
-	 	 	 	 	 InputFile: FitExampleStatOnly/Histograms/FitExampleStatOnly_histos.root	 HistName: SR_2_Bkg1_regBin	 HistoPath: 	 HistoAddress: 0x27a3eb0
+	 	 	 	 	 InputFile: FitExampleStatOnly/Histograms/FitExampleStatOnly_histos.root	 HistName: SR_2_Bkg1_regBin	 HistoPath: 	 HistoAddress: 0x2ad09a0
 	 	 Name: Bkg2	 	 Channel: SR_2	 NormalizeByTheory: True	 StatErrorActivate: False
-	 	 	 	 	 InputFile: FitExampleStatOnly/Histograms/FitExampleStatOnly_histos.root	 HistName: SR_2_Bkg2_regBin	 HistoPath: 	 HistoAddress: 0x2784700
+	 	 	 	 	 InputFile: FitExampleStatOnly/Histograms/FitExampleStatOnly_histos.root	 HistName: SR_2_Bkg2_regBin	 HistoPath: 	 HistoAddress: 0x2aba240
 	 	 Name: Signal	 	 Channel: SR_2	 NormalizeByTheory: True	 StatErrorActivate: False
-	 	 	 	 	 InputFile: FitExampleStatOnly/Histograms/FitExampleStatOnly_histos.root	 HistName: SR_2_Signal_regBin	 HistoPath: 	 HistoAddress: 0x27f9f30
+	 	 	 	 	 InputFile: FitExampleStatOnly/Histograms/FitExampleStatOnly_histos.root	 HistName: SR_2_Signal_regBin	 HistoPath: 	 HistoAddress: 0x2ab9e20
 	 End of Channel SR_2
 End Measurement: FitExampleStatOnly
 Making Model and Measurements (Fast) for measurement: FitExampleStatOnly

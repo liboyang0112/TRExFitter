@@ -3,6 +3,7 @@
 #include "TRExFitter/ConfigParser.h"
 #include "TRExFitter/ConfigReader.h"
 #include "TRExFitter/ConfigReaderMulti.h"
+#include "TRExFitter/HistoReader.h"
 #include "TRExFitter/MultiFit.h"
 #include "TRExFitter/StatusLogbook.h"
 #include "TRExFitter/NtupleReader.h"
@@ -197,7 +198,10 @@ void FitExample(std::string opt="h",std::string configFile="config/myFit.config"
     if(readHistograms){
         std::cout << "Reading histograms..." << std::endl;
         myFit->CreateRootFiles();
-        myFit->ReadHistograms();
+        {
+            HistoReader histoReader(myFit);
+            histoReader.ReadHistograms();
+        }
         myFit->CorrectHistograms();
         myFit->MergeSystematics();
         myFit->CreateCustomAsimov();
@@ -222,7 +226,10 @@ void FitExample(std::string opt="h",std::string configFile="config/myFit.config"
         if(TRExFitter::SYSTDATAPLOT)     myFit->DrawSystPlotsSumSamples();
     }
     else{
-        if(drawPreFit || drawPostFit || createWorkspace || drawSeparation || rebinAndSmooth || groupedImpact) myFit->ReadHistos();
+        if(drawPreFit || drawPostFit || createWorkspace || drawSeparation || rebinAndSmooth || groupedImpact) {
+            HistoReader histoReader(myFit);
+            histoReader.ReadTRExProducedHistograms();
+        }
     }
 
     if(rebinAndSmooth){

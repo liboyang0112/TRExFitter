@@ -30,37 +30,37 @@ Applying ATLAS style settings...
 [1;32m=== INFO::TRExFit::PrintConfigSummary:  Bkg1Xsec[0m
 [1;32m=== INFO::TRExFit::PrintConfigSummary:  Bkg2Xsec[0m
 [1;32m=== INFO::TRExFit::PrintConfigSummary: -------------------------------------------[0m
-[1;32m=== INFO::TRExFit::ReadHistos: -----------------------------[0m
-[1;32m=== INFO::TRExFit::ReadHistos: Reading histograms from file FitExample/Histograms/FitExample_histos.root ...[0m
-=== DEBUG::TRExFit::ReadHistos:   Reading region SR_1
-=== DEBUG::TRExFit::ReadHistos:     Reading sample Data
-=== DEBUG::TRExFit::ReadHistos:     Reading sample Bkg1
-=== DEBUG::TRExFit::ReadHistos:       Reading syst JES
-=== DEBUG::TRExFit::ReadHistos:       Reading syst Bkg1Xsec
-=== DEBUG::TRExFit::ReadHistos:     Reading sample Bkg2
-=== DEBUG::TRExFit::ReadHistos:       Reading syst Bkg2Xsec
-=== DEBUG::TRExFit::ReadHistos:     Reading sample Signal
-=== DEBUG::TRExFit::ReadHistos:       Reading norm SigXsecOverSM
-=== DEBUG::TRExFit::ReadHistos:       Reading syst JES
-=== DEBUG::TRExFit::ReadHistos:   Reading region SR_2
-=== DEBUG::TRExFit::ReadHistos:     Reading sample Data
-=== DEBUG::TRExFit::ReadHistos:     Reading sample Bkg1
-=== DEBUG::TRExFit::ReadHistos:       Reading syst JES
-=== DEBUG::TRExFit::ReadHistos:     Reading sample Bkg2
-=== DEBUG::TRExFit::ReadHistos:       Reading syst Bkg2Xsec
-=== DEBUG::TRExFit::ReadHistos:     Reading sample Signal
-=== DEBUG::TRExFit::ReadHistos:       Reading norm SigXsecOverSM
-=== DEBUG::TRExFit::ReadHistos:       Reading syst JES
-=== DEBUG::TRExFit::ReadHistos:   Reading region VR
-=== DEBUG::TRExFit::ReadHistos:     Reading sample Data
-=== DEBUG::TRExFit::ReadHistos:     Reading sample Bkg1
-=== DEBUG::TRExFit::ReadHistos:       Reading syst JES
-=== DEBUG::TRExFit::ReadHistos:       Reading syst Bkg1Xsec
-=== DEBUG::TRExFit::ReadHistos:     Reading sample Bkg2
-=== DEBUG::TRExFit::ReadHistos:       Reading syst Bkg2Xsec
-=== DEBUG::TRExFit::ReadHistos:     Reading sample Signal
-=== DEBUG::TRExFit::ReadHistos:       Reading norm SigXsecOverSM
-=== DEBUG::TRExFit::ReadHistos:       Reading syst JES
+[1;32m=== INFO::HistoReader::ReadTRExProducedHistograms: -----------------------------[0m
+[1;32m=== INFO::HistoReader::ReadTRExProducedHistograms: Reading histograms from file FitExample/Histograms/FitExample_histos.root ...[0m
+=== DEBUG::HistoReader::ReadTRExProducedHistograms:   Reading region SR_1
+=== DEBUG::HistoReader::ReadTRExProducedHistograms:     Reading sample Data
+=== DEBUG::HistoReader::ReadTRExProducedHistograms:     Reading sample Bkg1
+=== DEBUG::HistoReader::ReadTRExProducedHistograms:       Reading syst JES
+=== DEBUG::HistoReader::ReadTRExProducedHistograms:       Reading syst Bkg1Xsec
+=== DEBUG::HistoReader::ReadTRExProducedHistograms:     Reading sample Bkg2
+=== DEBUG::HistoReader::ReadTRExProducedHistograms:       Reading syst Bkg2Xsec
+=== DEBUG::HistoReader::ReadTRExProducedHistograms:     Reading sample Signal
+=== DEBUG::HistoReader::ReadTRExProducedHistograms:       Reading norm SigXsecOverSM
+=== DEBUG::HistoReader::ReadTRExProducedHistograms:       Reading syst JES
+=== DEBUG::HistoReader::ReadTRExProducedHistograms:   Reading region SR_2
+=== DEBUG::HistoReader::ReadTRExProducedHistograms:     Reading sample Data
+=== DEBUG::HistoReader::ReadTRExProducedHistograms:     Reading sample Bkg1
+=== DEBUG::HistoReader::ReadTRExProducedHistograms:       Reading syst JES
+=== DEBUG::HistoReader::ReadTRExProducedHistograms:     Reading sample Bkg2
+=== DEBUG::HistoReader::ReadTRExProducedHistograms:       Reading syst Bkg2Xsec
+=== DEBUG::HistoReader::ReadTRExProducedHistograms:     Reading sample Signal
+=== DEBUG::HistoReader::ReadTRExProducedHistograms:       Reading norm SigXsecOverSM
+=== DEBUG::HistoReader::ReadTRExProducedHistograms:       Reading syst JES
+=== DEBUG::HistoReader::ReadTRExProducedHistograms:   Reading region VR
+=== DEBUG::HistoReader::ReadTRExProducedHistograms:     Reading sample Data
+=== DEBUG::HistoReader::ReadTRExProducedHistograms:     Reading sample Bkg1
+=== DEBUG::HistoReader::ReadTRExProducedHistograms:       Reading syst JES
+=== DEBUG::HistoReader::ReadTRExProducedHistograms:       Reading syst Bkg1Xsec
+=== DEBUG::HistoReader::ReadTRExProducedHistograms:     Reading sample Bkg2
+=== DEBUG::HistoReader::ReadTRExProducedHistograms:       Reading syst Bkg2Xsec
+=== DEBUG::HistoReader::ReadTRExProducedHistograms:     Reading sample Signal
+=== DEBUG::HistoReader::ReadTRExProducedHistograms:       Reading norm SigXsecOverSM
+=== DEBUG::HistoReader::ReadTRExProducedHistograms:       Reading syst JES
 Applying systematics pruning...
 [1;32m=== INFO::TRExFit::SystPruning: ------------------------------------------------------[0m
 [1;32m=== INFO::TRExFit::SystPruning: Apply Systematics Pruning ...[0m

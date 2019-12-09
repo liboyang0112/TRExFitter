@@ -31,8 +31,8 @@ Applying ATLAS style settings...
 [1;32m=== INFO::TRExFit::PrintConfigSummary:  bTagSF_B_0[0m
 [1;32m=== INFO::TRExFit::PrintConfigSummary:  JET_BJES_Response[0m
 [1;32m=== INFO::TRExFit::PrintConfigSummary: -------------------------------------------[0m
-[1;32m=== INFO::TRExFit::ReadHistos: -----------------------------[0m
-[1;32m=== INFO::TRExFit::ReadHistos: Reading histograms from file FitExampleMorphing/Histograms/FitExampleMorphing_histos.root ...[0m
+[1;32m=== INFO::HistoReader::ReadTRExProducedHistograms: -----------------------------[0m
+[1;32m=== INFO::HistoReader::ReadTRExProducedHistograms: Reading histograms from file FitExampleMorphing/Histograms/FitExampleMorphing_histos.root ...[0m
 Applying systematics pruning...
 [1;32m=== INFO::TRExFit::SystPruning: ------------------------------------------------------[0m
 [1;32m=== INFO::TRExFit::SystPruning: Apply Systematics Pruning ...[0m
