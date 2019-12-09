@@ -11,6 +11,7 @@ Contributions to TRExFitter are welcome.
 Please have a look at [CONTRIBUTING.md](CONTRIBUTING.md) to get started.
 
 
+
 ## Table of Contents
 1.  [Getting the code](#getting-the-code)
 2.  [Setup](#setup)
@@ -21,24 +22,12 @@ Please have a look at [CONTRIBUTING.md](CONTRIBUTING.md) to get started.
         * [Setup using Docker image with Docker](#setup-using-docker-image-with-docker)
 3.  [How to](#how-to)
 4.  [Config File](#config-file)
-    * [`Job` block options](#job-block-options)
-    * [`Fit` block options](#fit-block-options)
-    * [`Limit` block options](#limit-block-options)
-    * [`Significance` block options](#significance-block-options)
-    * [`Options` block options](#options-block-options)
-    * [`Region` block options](#region-block-options)
-    * [`Sample` block options](#sample-block-options)
-    * [`NormFactor` block options](#normfactor-block-options)
-    * [`ShapeFactor` block options](#shapefactor-block-options)
-    * [`Systematic` block options](#systematic-block-options)
+    * [Available settings](#available-settings)
 5.  [Command line options](#command-line-options)
 6.  [Ranking Plot](#ranking-plot)
 7.  [Grouped Impact](#grouped-impact)
 8.  [Multi-Fit](#multi-fit)
-    * [Multi-Fit `Job` block options](#multi-fit-job-block-options)
-    * [Multi-Fit `Fit` block options](#multi-fit-fit-block-options)
-    * [Multi-Fit `Limit` block options](#multi-fit-limit-block-options)
-    * [Multi-Fit `Significance` block options](#multi-fit-significance-block-options)
+    * [Available multi-fit settings](#available-multi-fit-settings)
 9.  [Input File Merging with hupdate](#input-file-merging-with-hupdate)
 10. [Output Directories Structure](#output-directories-structure)
 11. [ShapeFactor example](#shapefactor-example)
@@ -233,37 +222,8 @@ The available blocks are:
 - `ShapeFactor`
 - `Systematic`
 
-For each object type (or "block"), you can find the available settings in [our documentation (docs/Settings.md)](docs/Settings.md).
-
-### `Job` block settings:
-See [Job block](docs/Settings/Job.md)
-
-### `Fit` block settings:
-See [Fit block](docs/Settings/Fit.md)
-
-### `Limit` block settings:
-See [Limit block](docs/Settings/Limit.md)
-
-### `Significance` block settings:
-See [Significance block](docs/Settings/Significance.md)
-
-### `Options` block settings:
-See [Options block](docs/Settings/Options.md)
-
-### `Region` block settings:
-See [Region block](docs/Settings/Region.md)
-
-### `Sample` block settings:
-See [Sample block](docs/Settings/Sample.md)
-
-### `NormFactor` block settings:
-See [NormFactor block](docs/Settings/NormFactor.md)
-
-### `ShapeFactor` block settings:
-See [ShapeFactor block](docs/Settings/ShapeFactor.md)
-
-### `Systematic` block settings:
-See [Systematic block](docs/Settings/Systematic.md)
+### Available settings
+For each object type (or "block"), you can find the available settings in [our documentation (docs/Settings.md)](docs/Settings.md#standard-fit).
 
 
 
@@ -398,17 +358,10 @@ And, same as for the single fits, you can run on the individual NPs via
 trex-fitter mr config/myTopWS_multifit.config Ranking="XXX"
 ```
 
-### Multi-Fit `Job` block options:
-See [Multi-Fit Job block](docs/Settings/Job-multifit.md)
+### Available multi-fit settings
+Find all available multi-fit settings in [our documentation (docs/Settings.md)](docs/Settings.md#multi-fit).
 
-### Multi-Fit `Fit` block options:
-See [Multi-Fit Fit block](docs/Settings/Fit-multifit.md)
 
-### Multi-Fit `Limit` block options:
-See [Multi-Fit Limit block](docs/Settings/Limit-multifit.md)
-
-### Multi-Fit `Significance` block options:
-See [Multi-Fit Significance block](docs/Settings/Significance-multifit.md)
 
 ## Input File Merging with hupdate
 A macro `hupdate` is included, which mimics hadd functionality, but without adding histograms if they have the same name.
@@ -508,6 +461,8 @@ Have a look at the relevant [part of the FitProblemsTutorial twiki](https://twik
 
 __Can I just use more bins to gain sensitivity?__\
 While more bings generally increase sensitivity, it is important to keep two things in mind. Limit the size of the MC statistical uncertainties ("gammas") to at most 20% per bin. Larger values can bias the signal extraction, see [these slides](https://indico.cern.ch/event/615262/contributions/2484815/) for a study and the corresponding recommendation. Furthermore, one aspect that is not considered in the fit is the statistical uncertainty in the templates that describe the ±1σ variations of a nuisance parameter. This uncertainty increases when adding more bins, and can lead to fluctuations in the templates. The nuisance parameter then does not describe physical effects, but rather fluctuations. It is very important to closely study all templates found in the `Systematics/` folder and verify that the input distributions to the fit (solid lines) look reasonable. These plots are obtained by enabling the settings `SystControlPlots` and `SystErrorBars` (both enabled by default).
+
+
 
 ## TRExFitter package authors
 Managers:
