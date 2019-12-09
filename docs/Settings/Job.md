@@ -47,7 +47,8 @@
 | PlotOptionsSummary           | the same as PlotOptions but for the summary plot (if nothing is specified, PlotOptions is used) |
 | RatioYtitle                  | Label to be used on the Y-axis of the ratio plot, default is "Data/pred." |
 | TableOptions                 | a set of options for tables:<br>&nbsp; &nbsp; **STANDALONE**: default! If not set, no "\begin{document}"<br>&nbsp; &nbsp; **FOOTNOTESIZE**: -> \footnotesize <br>&nbsp; &nbsp; **LANDSCAPE**: -> \begin{landscape} |
-| SystControlPlots             | if set to TRUE, plots showing the shape effect of a given systematic (before and after smoothing/symmetrisation) will be produced |
+| SystControlPlots             | if set to TRUE, plots showing the shape effect of a given systematic (before and after smoothing/symmetrisation) will be produced (default: TRUE) |
+| SystErrorBars                | TRUE by default, add stat error bars to syst variations in syst plots, set to FALSE to disable |
 | SystDataPlots                | if set to TRUE, plots showing the shape effect of a given systematic (before and after smoothing/symmetrisation) on top of the nominal sum of samples will be produced. Data are then plotted in the ratio. If the option is set to "fillUpFrame", data will also be plotted in the upper frame. |
 | CorrelationThreshold         | Threshold used to draw the correlation matrix (only systematics with at least one correlation larger than than draw) (0.05:5%) |
 | SignalRegionsPlot            | list of regions to put in SignalRegionsPlot and PieChartPlots; use "EMPTY" to put an empty entry, "ENDL" to specify end of line. This specifies the order of regions plotted in signal region S/B plots and pie chart plots, as well as number of regions per row. |
@@ -62,7 +63,6 @@
 | RankingPlot                  | NP categories in gammas or systs, if set to Systs(Gammas) then plot only systs(Gammas) in ranking, default produce plot for systs+gammas, can also set to all to have the 3 plots. |
 | ImageFormat                  | png, pdf or eps |
 | StatOnly                     | the code ignores systematics and MC stat uncertainties from all computations (limits, significances, fit, ...); need to re-create ws in case of limit and significance |
-| SystErrorBars                | TRUE by default to add stat error bars to syst variations in syst plots, set to FALSE to disable |
 | SummaryPlotRegions           | list of regions to be shown in summary plot (useful to specify a custom order) |
 | FixNPforStatOnly             | if set to TRUE, when running stat-only (with either of the two options) also the norm factors other than the POI are kept fixed |
 | InputFolder                  | specify it to read fit input histograms from a different directory than `<jobName>/Histograms/` |

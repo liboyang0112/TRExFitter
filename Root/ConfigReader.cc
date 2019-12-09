@@ -1005,8 +1005,8 @@ int ConfigReader::SetJobPlot(ConfigSet *confSet){
         } else if (param == "FALSE"){
             TRExFitter::SYSTCONTROLPLOTS = false;
         } else {
-            WriteWarningStatus("ConfigReader::SetJobPlot", "You specified 'SystControlPlots' option but you did not provide valid setting. Using default (FALSE)");
-            TRExFitter::SYSTCONTROLPLOTS = false;
+            WriteWarningStatus("ConfigReader::SetJobPlot", "You specified 'SystControlPlots' option but you did not provide valid setting. Using default (TRUE)");
+            TRExFitter::SYSTCONTROLPLOTS = true;
         }
     }
 
@@ -1039,8 +1039,8 @@ int ConfigReader::SetJobPlot(ConfigSet *confSet){
         } else if (param == "FALSE"){
             TRExFitter::SYSTERRORBARS = false;
         } else {
-            WriteWarningStatus("ConfigReader::SetJobPlot", "You specified 'SystErrorBars' option but you did not provide valid setting. Using default (FALSE)");
-            TRExFitter::SYSTERRORBARS = false;
+            WriteWarningStatus("ConfigReader::SetJobPlot", "You specified 'SystErrorBars' option but you did not provide valid setting. Using default (TRUE)");
+            TRExFitter::SYSTERRORBARS = true;
         }
     }
 

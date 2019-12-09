@@ -5,6 +5,7 @@ This package provides a framework to perform profile likelihood fits. In additio
 * [TRExFitter twiki page](https://twiki.cern.ch/twiki/bin/view/AtlasProtected/TtHFitter) for additional documentation and many references to further details
 * [TRExFitter JIRA](https://its.cern.ch/jira/projects/TTHFITTER/summary>) (sign up to the mailing list in case you cannot access the JIRA)
 * TRExFitter mailing list: [atlas-phys-stat-tthfitter](https://e-groups.cern.ch/e-groups/EgroupsSubscription.do?egroupName=atlas-phys-stat-tthfitter)
+* Make sure to read the [FAQ](#faq) section and take a look at the [FitProblems Tutorial twiki](https://twiki.cern.ch/twiki/bin/view/AtlasProtected/FitProblemsTutorial) which describes common issues
 
 Contributions to TRExFitter are welcome.
 Please have a look at [CONTRIBUTING.md](CONTRIBUTING.md) to get started.
@@ -220,8 +221,19 @@ Note that each object should have unique `<ObjectName>`.
 At the beginning of TRExFitter execution, the config file used will be checked against a reference file.
 The reference files for single and multi-fits are `jobSchema.config` and `multiFitSchema.config`, respectively.
 These files specify which settings are allowed per block, and how the arguments should look like.
+The available blocks are:
+- `Job`
+- `Fit`
+- `Limit`
+- `Significance`
+- `Options`
+- `Region`
+- `Sample`
+- `NormFactor`
+- `ShapeFactor`
+- `Systematic`
 
-For each object type (also called "block"), you can find the available settings in [our documentation (docs/Settings.md)](docs/Settings.md).
+For each object type (or "block"), you can find the available settings in [our documentation (docs/Settings.md)](docs/Settings.md).
 
 ### `Job` block settings:
 See [Job block](docs/Settings/Job.md)
@@ -252,6 +264,7 @@ See [ShapeFactor block](docs/Settings/ShapeFactor.md)
 
 ### `Systematic` block settings:
 See [Systematic block](docs/Settings/Systematic.md)
+
 
 
 ## Command line options
@@ -490,7 +503,11 @@ __How do the smoothing algorithms work?__\
 Some info can be found in these [slides](https://indico.cern.ch/event/691683/contributions/2873279/attachments/1593521/2522846/PruningSmoothing.pdf). More information about `TTBARRESONANCE` is found in these [slides](https://indico.cern.ch/event/669913/contributions/2769795/attachments/1549339/2433688/ttres-fullunblind-smooth2-summary2.pdf).
 Further info regarding `TTBARRESONANCE`: The Smoothing parameter in the Systematics area can be set to 40 to treat the systematic uncertainty as correlated with the nominal (e.g. when obtained via reweighting) or 400 to treat it as uncorrelated with the nominal (e.g. for two-point systematics, then the statistical uncertainties on nominal sample and systematics variation are added in quadrature and compared to the smoothing threshold).
 
+__I am getting warnings about underconstrained nuisance parameters. Should I worry?__\
+Have a look at the relevant [part of the FitProblemsTutorial twiki](https://twiki.cern.ch/twiki/bin/viewauth/AtlasProtected/FitProblemsTutorial#4_5_Post_fit_constraint_larger_t). Typically an underconstraint indicates an issue, though there can be cases where it is expected. See [this notebook](https://cernbox.cern.ch/index.php/s/DiPdvBlRBQPfHEy) for such an example.
 
+__Can I just use more bins to gain sensitivity?__\
+While more bings generally increase sensitivity, it is important to keep two things in mind. Limit the size of the MC statistical uncertainties ("gammas") to at most 20% per bin. Larger values can bias the signal extraction, see [these slides](https://indico.cern.ch/event/615262/contributions/2484815/) for a study and the corresponding recommendation. Furthermore, one aspect that is not considered in the fit is the statistical uncertainty in the templates that describe the ±1σ variations of a nuisance parameter. This uncertainty increases when adding more bins, and can lead to fluctuations in the templates. The nuisance parameter then does not describe physical effects, but rather fluctuations. It is very important to closely study all templates found in the `Systematics/` folder and verify that the input distributions to the fit (solid lines) look reasonable. These plots are obtained by enabling the settings `SystControlPlots` and `SystErrorBars` (both enabled by default).
 
 ## TRExFitter package authors
 Managers:
