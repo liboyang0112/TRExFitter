@@ -223,7 +223,7 @@ The available blocks are:
 - `Systematic`
 
 ### Available settings
-For each object type (or "block"), you can find the available settings in [our documentation (docs/Settings.md)](docs/Settings.md).
+For each object type (or "block"), you can find the available settings in [our documentation (docs/Settings.md)](docs/Settings.md#standard-fit).
 
 
 
