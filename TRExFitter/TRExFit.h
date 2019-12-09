@@ -86,6 +86,11 @@ public:
     TRExFit(std::string name="MyMeasurement");
     ~TRExFit();
 
+    TRExFit(const TRExFit& t) = delete;
+    TRExFit(TRExFit&& t) = delete;
+    TRExFit& operator=(const TRExFit& t) = delete;
+    TRExFit& operator=(TRExFit&& t) = delete;
+
     void SetPOI(std::string name="SigXsecOverSM");
     void SetStatErrorConfig(bool useIt=true, double thres=0.05, std::string cons="Poisson");
     void SetLumiErr(const double err);
@@ -121,7 +126,6 @@ public:
     void DrawSystPlotsSumSamples() const;
 
     // read from ..
-    void ReadNtuples();
     void ReadHistograms();
     void ReadHistos(/*std::string fileName=""*/);
     void CloseInputFiles();

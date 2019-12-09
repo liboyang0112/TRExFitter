@@ -21,8 +21,12 @@ std::string ReadValueFromConfig(const std::string& fileName,const std::string& o
 // classes
 class Config {
 public:
-    Config();
+    explicit Config();
     ~Config() = default;
+    Config(const Config& c) = delete;
+    Config(Config&& c) = delete;
+    Config& operator=(const Config& c) = delete;
+    Config& operator=(Config&& c) = delete;
 
     std::string fName;
     std::string fValue;
@@ -30,13 +34,17 @@ public:
 
 class ConfigSet {
 public:
-    ConfigSet();
+    explicit ConfigSet();
     ~ConfigSet() = default;
+    ConfigSet(const ConfigSet& c) = delete;
+    ConfigSet(ConfigSet&& c) = delete;
+    ConfigSet& operator=(const ConfigSet& c) = delete;
+    ConfigSet& operator=(ConfigSet&& c) = delete;
 
     void SetConfig(const std::string& name,const std::string& value);
     std::string Get(const std::string& name) const;
     std::string operator[](const std::string& name) const;
-    Config GetConfig(int i) const;
+    const Config& GetConfig(int i) const;
     std::string GetConfigName(int i) const;
     std::string GetConfigValue(int i) const;
     int GetN() const;
@@ -54,8 +62,12 @@ public:
 
 class ConfigParser {
 public:
-    ConfigParser();
+    explicit ConfigParser();
     ~ConfigParser() = default;
+    ConfigParser(const ConfigParser& c) = delete;
+    ConfigParser(ConfigParser&& c) = delete;
+    ConfigParser& operator=(const ConfigParser& c) = delete;
+    ConfigParser& operator=(ConfigParser&& c) = delete;
 
     std::vector< std::unique_ptr<ConfigSet> > fConfSets;
     void ReadFile(const std::string& fileName);

@@ -61,7 +61,7 @@ using namespace RooStats;
 
 //__________________________________________________________________________________
 //
-MultiFit::MultiFit(string name) :
+MultiFit::MultiFit(const string& name) :
     fCombine(false),
     fCompare(false),
     fStatOnly(false),

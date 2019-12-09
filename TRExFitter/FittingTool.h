@@ -29,9 +29,12 @@ public:
     //
     // Standard C++ functions
     //
-    FittingTool();
+    explicit FittingTool();
     ~FittingTool() = default;
     FittingTool(const FittingTool& rhs) = default;
+    FittingTool& operator=(const FittingTool& rhs) = default;
+    FittingTool(FittingTool&& rhs) = default;
+    FittingTool& operator=(FittingTool&& rhs) = default;
 
     //
     // Gettters and setters

@@ -9,6 +9,11 @@ public:
     explicit PruningUtil();
     ~PruningUtil() = default;
 
+    PruningUtil(const PruningUtil& p) = delete;
+    PruningUtil(PruningUtil&& p) = delete;
+    PruningUtil& operator=(const PruningUtil& p) = delete;
+    PruningUtil& operator=(PruningUtil&& p) = delete;
+
     // 0 = sample-by-sample, 1 = relative to tot background, 2 = relative to tot S+B
     void SetStrategy(int strat);
     void SetThresholdNorm(double thres);

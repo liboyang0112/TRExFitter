@@ -38,11 +38,6 @@ ConfigReader::ConfigReader(TRExFit *fitter) :
 }
 
 //__________________________________________________________________________________
-//
-ConfigReader::~ConfigReader(){
-}
-
-//__________________________________________________________________________________
 // Read the full config file
 int ConfigReader::ReadFullConfig(const std::string& fileName, const std::string& opt, const std::string& option){
     // initialize ConfigParser for the actual config

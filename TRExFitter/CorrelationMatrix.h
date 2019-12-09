@@ -12,6 +12,11 @@ public:
     explicit CorrelationMatrix();
     ~CorrelationMatrix() = default;
 
+    CorrelationMatrix(const CorrelationMatrix& m) = delete;
+    CorrelationMatrix(CorrelationMatrix&& m) = delete;
+    CorrelationMatrix& operator=(const CorrelationMatrix& m) = delete;
+    CorrelationMatrix& operator=(CorrelationMatrix&& m) = delete;
+
     //
     // Functions
     //

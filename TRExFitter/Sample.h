@@ -24,6 +24,10 @@ public:
 
     explicit Sample(const std::string& name,int type=0);
     ~Sample();
+    Sample(const Sample& s) = delete;
+    Sample(Sample&& s) = delete;
+    Sample& operator=(const Sample& s) = delete;
+    Sample& operator=(Sample&& s) = delete;
 
     // -------
     // Methods
