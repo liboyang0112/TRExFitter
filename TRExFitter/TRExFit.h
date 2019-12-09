@@ -126,7 +126,6 @@ public:
     void DrawSystPlotsSumSamples() const;
 
     // read from ..
-    void ReadNtuples();
     void ReadHistograms();
     void ReadHistos(/*std::string fileName=""*/);
     void CloseInputFiles();

@@ -88,6 +88,7 @@ set( lib_headers
   TRExFitter/HistoTools.h
   TRExFitter/MultiFit.h
   TRExFitter/NormFactor.h
+  TRExFitter/NtupleReader.h
   TRExFitter/NuisParameter.h
   TRExFitter/PruningUtil.h
   TRExFitter/Region.h
@@ -112,6 +113,7 @@ set( lib_sources
   Root/HistoTools.cc
   Root/MultiFit.cc
   Root/NormFactor.cc
+  Root/NtupleReader.cc
   Root/NuisParameter.cc
   Root/PruningUtil.cc
   Root/Region.cc
