@@ -382,12 +382,12 @@ double FittingTool::FitPDF( RooStats::ModelConfig* model, RooAbsPdf* fitpdf, Roo
     nllval = 0;
     nLLatMLE = 0;
     nlloffset = 0;
-    if(nll) nllval = nll->getVal();
+    nllval = nll->getVal();
     if(m_fitResult) nLLatMLE = m_fitResult->minNll();
-    if(nll) nlloffset = nll->getVal() - nLLatMLE;
+    nlloffset = nll->getVal() - nLLatMLE;
 
-    if(m_debug >= 1){
-        double redNLL = nllval - 1000000.0;
+    if(m_debug >= 1) {
+        const double redNLL = nllval - 1000000.0;
         std::stringstream redNLL_ss;
         redNLL_ss << std::fixed << std::setprecision(20) << redNLL;
 

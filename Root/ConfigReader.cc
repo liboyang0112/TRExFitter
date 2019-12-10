@@ -4284,7 +4284,12 @@ int ConfigReader::SetSystNoDecorelate(ConfigSet *confSet, Systematic *sys, const
 
 //__________________________________________________________________________________
 //
-int ConfigReader::SetSystRegionDecorelate(ConfigSet *confSet, Systematic *sys, const std::vector<std::string>& samples, const std::vector<std::string>& exclude, const std::vector<std::string> regions, int type){
+int ConfigReader::SetSystRegionDecorelate(ConfigSet *confSet,
+                                          Systematic *sys,
+                                          const std::vector<std::string>& samples,
+                                          const std::vector<std::string>& exclude,
+                                          const std::vector<std::string>& regions,
+                                          int type) {
     Sample *sam = nullptr;
     std::string param = "";
 
