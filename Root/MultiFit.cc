@@ -595,12 +595,11 @@ void MultiFit::ComparePOI(const string& POI) const {
 
     // get values
     TRExFit *fit = nullptr;
-    bool found(false);
     for(int i=0;i<N;i++){
         const bool isComb = (fCombine && i==N-1) ? true : false;
         //
-        if(!isComb) fit = fFitList[i];
         if(!isComb){
+            fit = fFitList[i];
             if(fit->fFitResultsFile=="") fit->ReadFitResults(dirs[i]+"/Fits/"+names[i]+suffs[i]+".txt");
             else                         fit->ReadFitResults(fit->fFitResultsFile);
         }
@@ -608,7 +607,7 @@ void MultiFit::ComparePOI(const string& POI) const {
             if(fFitResultsFile=="") fit->ReadFitResults(fOutDir+"/Fits/"+fName+fSaveSuf+".txt");
             else                    fit->ReadFitResults(fFitResultsFile);
         }
-        found = false;
+        bool found(false);
         for(unsigned int j = 0; j<fit->fFitResults->fNuisPar.size(); ++j){
             par = fit->fFitResults->fNuisPar[j].get();
             if( pois[i] == par->fName ){
@@ -644,8 +643,8 @@ void MultiFit::ComparePOI(const string& POI) const {
         for(int i=0;i<N;i++){
             const bool isComb = (fCombine && i==N-1) ? true : false;
             //
-            if(!isComb) fit = fFitList[i];
             if(!isComb){
+                fit = fFitList[i];
                 if(fit->fFitResultsFile=="") fit->ReadFitResults(dirs[i]+"/Fits/"+names[i]+suffs[i]+"_statOnly.txt");
                 else                         fit->ReadFitResults(ReplaceString(fit->fFitResultsFile,".txt","_statOnly.txt"));
             }
@@ -653,7 +652,6 @@ void MultiFit::ComparePOI(const string& POI) const {
                 if(fFitResultsFile=="")      fit->ReadFitResults(fOutDir+"/Fits/"+fName+fSaveSuf+"_statOnly.txt");
                 else                         fit->ReadFitResults(ReplaceString(fFitResultsFile,".txt","_statOnly.txt"));
             }
-            found = false;
             for(unsigned int j = 0; j<fit->fFitResults->fNuisPar.size(); ++j){
                 par = fit->fFitResults->fNuisPar[j].get();
                 if( pois[i] == par->fName ){
@@ -661,7 +659,6 @@ void MultiFit::ComparePOI(const string& POI) const {
                     g_stat.SetPointEXlow(N-i-1,-par->fPostFitDown);
                     g_stat.SetPointEYhigh(N-i-1,0);
                     g_stat.SetPointEYlow(N-i-1,0);
-                    found = true;
                     break;
                 }
             }
@@ -1024,7 +1021,6 @@ void MultiFit::ComparePulls(string category) const{
     double xmin = -2.9;
     double xmax = 2.9;
     double max = 0.;
-    bool brazilian = true;
 
     // create a list of Systematics
     std::vector< string > Names;
@@ -1190,20 +1186,16 @@ void MultiFit::ComparePulls(string category) const{
     h_dummy.Draw();
     h_dummy.GetYaxis()->SetNdivisions(0);
 
-    TLine l0;
-    TBox b1, b2;
-    if(brazilian){
-        l0 = TLine(0,0,0,max);
-        l0.SetLineStyle(7);
-        l0.SetLineColor(kBlack);
-        b1 = TBox(-1,0,1,max);
-        b2 = TBox(-2,0,2,max);
-        b1.SetFillColor(kGreen);
-        b2.SetFillColor(kYellow);
-        b2.Draw("same");
-        b1.Draw("same");
-        l0.Draw("same");
-    }
+    TLine l0(0,0,0,max);
+    l0.SetLineStyle(7);
+    l0.SetLineColor(kBlack);
+    TBox b1(-1,0,1,max);
+    TBox b2(-2,0,2,max);
+    b1.SetFillColor(kGreen);
+    b2.SetFillColor(kYellow);
+    b2.Draw("same");
+    b1.Draw("same");
+    l0.Draw("same");
 
     for(unsigned int i_fit=0;i_fit<N;i_fit++){
         g[i_fit].SetLineColor(color[i_fit]);
@@ -1585,10 +1577,6 @@ void MultiFit::ProduceNPRanking( string NPnames/*="all"*/ ) const{
     outName += ".txt";
     ofstream outName_file(outName.c_str());
     //
-    double central;
-    double up;
-    double down;
-    double muhat;
     std::map< string,double > muVarUp;
     std::map< string,double > muVarDown;
     std::map< string,double > muVarNomUp;
@@ -1673,14 +1661,14 @@ void MultiFit::ProduceNPRanking( string NPnames/*="all"*/ ) const{
         }
         fitTool.SetNPs( npNames,npValues );
     }
-    muhat = fit->fFitResults -> GetNuisParValue( fPOI );
+    const double muhat = fit->fFitResults -> GetNuisParValue( fPOI );
 
     for(unsigned int i=0;i<nuisPars.size();i++){
 
         //Getting the postfit values of the nuisance parameter
-        central = fit->fFitResults -> GetNuisParValue(   nuisPars[i] );
-        up      = fit->fFitResults -> GetNuisParErrUp(   nuisPars[i] );
-        down    = fit->fFitResults -> GetNuisParErrDown( nuisPars[i] );
+        const double central = fit->fFitResults -> GetNuisParValue(   nuisPars[i] );
+        const double up      = fit->fFitResults -> GetNuisParErrUp(   nuisPars[i] );
+        const double down    = fit->fFitResults -> GetNuisParErrDown( nuisPars[i] );
         // for gammas
         if( (NPnames=="all" && nuisPars[i].find("_bin_")!=string::npos) ){
             nuisPars[i] = "gamma_" + nuisPars[i];
@@ -2646,9 +2634,9 @@ void MultiFit::PlotSummarySoverB() const {
 
     //
     // create a list of all the samples
-    std::vector<string> sigList; sigList.clear();
-    std::vector<string> bkgList; bkgList.clear();
-    std::vector<string> dataList; dataList.clear();
+    std::vector<string> sigList;
+    std::vector<string> bkgList;
+    std::vector<string> dataList;
     for(unsigned int i_fit=0;i_fit<fFitList.size();i_fit++){
         for(unsigned int i_smp=0;i_smp<fFitList[i_fit]->fSamples.size();i_smp++){
             if(fFitList[i_fit]->fSamples[i_smp]->fType==Sample::SIGNAL && FindInStringVector(sigList,fFitList[i_fit]->fSamples[i_smp]->fName)<0)
@@ -2806,12 +2794,11 @@ void MultiFit::PlotSummarySoverB() const {
     }
 
     std::vector<double> SoverSqrtB;
-    double sig, bkg;
 
     for(int i_bin=1;i_bin<=h_bkg_comb->GetNbinsX();i_bin++){
-        sig = h_sig_comb->GetBinContent(i_bin);
-        bkg = h_bkg_comb->GetBinContent(i_bin);
-        SoverSqrtB.push_back(sig/bkg);
+        const double sig = h_sig_comb->GetBinContent(i_bin);
+        const double bkg = h_bkg_comb->GetBinContent(i_bin);
+        SoverSqrtB.emplace_back(sig/bkg);
     }
 
     std::unique_ptr<TH1D> h_bkg_ord(Rebin(h_bkg_comb,SoverSqrtB,false));
@@ -2829,16 +2816,14 @@ void MultiFit::PlotSummarySoverB() const {
         h_syst_down_ord[i_syst] = std::move(std::unique_ptr<TH1D>(Rebin(static_cast<TH1D*>(h_syst_down_comb[i_syst]),SoverSqrtB,false)));
     }
 
-    double errUp, errDown, err, err_tot;
-    double corr;
     for(int i_bin=0;i_bin<h_bkg_ord->GetNbinsX()+2;i_bin++){
-        err_tot = h_bkg_ord->GetBinError(i_bin); // this should be the stat unc
-        errUp   = 0;
-        errDown = 0;
-        err = 0;
+        double err_tot = h_bkg_ord->GetBinError(i_bin); // this should be the stat unc
+        double errUp(0);
+        double errDown(0);
+        double err(0);
         for(unsigned int i_syst=0;i_syst<systList.size();i_syst++){
             for(unsigned int j_syst=0;j_syst<systList.size();j_syst++){
-                corr     = fFitList[0]->fFitResults->fCorrMatrix->GetCorrelation( systList[i_syst],systList[j_syst] );
+                const double corr = fFitList[0]->fFitResults->fCorrMatrix->GetCorrelation( systList[i_syst],systList[j_syst] );
                 errUp   += corr * h_syst_up_ord  [i_syst]->GetBinContent(i_bin) * h_syst_up_ord  [j_syst]->GetBinContent(i_bin);
                 errDown += corr * h_syst_down_ord[i_syst]->GetBinContent(i_bin) * h_syst_down_ord[j_syst]->GetBinContent(i_bin);
             }

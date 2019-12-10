@@ -181,7 +181,7 @@ std::unique_ptr<TH1> HistFromFile(const std::string& fileName, const std::string
             else WriteDebugStatus("Common::HistFromFile", "cannot find histogram '" + histoName + "' from input file '" + fileName + "', but its customAsimov histogram so this should not be a problem");
             return nullptr;
     }
-    if(h!=nullptr) h->SetDirectory(0);
+    h->SetDirectory(0);
     if(TRExFitter::MERGEUNDEROVERFLOW) MergeUnderOverFlow(h.get());
     return h;
 }

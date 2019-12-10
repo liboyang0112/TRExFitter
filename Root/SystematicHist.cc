@@ -62,8 +62,10 @@ void SystematicHist::WriteToFile(TFile *f,bool reWriteOrig) const{
     if(f==nullptr){
         WriteHistToFile(fHistUp.get(),fFileNameUp);
         WriteHistToFile(fHistDown.get(),fFileNameDown);
-        if(reWriteOrig) WriteHistToFile(fHistUp_orig.get(),fFileNameUp);
-        if(reWriteOrig) WriteHistToFile(fHistDown_orig.get(),fFileNameDown);
+        if(reWriteOrig) {
+            WriteHistToFile(fHistUp_orig.get(),fFileNameUp);
+            WriteHistToFile(fHistDown_orig.get(),fFileNameDown);
+        }
         if(fIsShape){
             WriteHistToFile(fHistShapeUp.get(),fFileNameShapeUp);
             WriteHistToFile(fHistShapeDown.get(),fFileNameShapeDown);
@@ -78,8 +80,10 @@ void SystematicHist::WriteToFile(TFile *f,bool reWriteOrig) const{
     else{
         WriteHistToFile(fHistUp.get(),f);
         WriteHistToFile(fHistDown.get(),f);
-        if(reWriteOrig) WriteHistToFile(fHistUp_orig.get(),f);
-        if(reWriteOrig) WriteHistToFile(fHistDown_orig.get(),f);
+        if(reWriteOrig) {
+            WriteHistToFile(fHistUp_orig.get(),f);
+            WriteHistToFile(fHistDown_orig.get(),f);
+        }
         if(fIsShape){
             WriteHistToFile(fHistShapeUp.get(),f);
             WriteHistToFile(fHistShapeDown.get(),f);

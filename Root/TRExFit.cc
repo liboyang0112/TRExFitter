@@ -1694,9 +1694,7 @@ TRExPlot* TRExFit::DrawSummary(std::string opt, TRExPlot* prefit_plot) {
                 h_down[i_np]->SetBinContent( i_ch,h_tmp_Down->Integral() );
             }
         }
-    }
-    // add the sample-specific gammas (only if post-fit)
-    if(isPostFit && fUseGammaPulls){
+        
         // loop on regions
         for(int i_ch=1;i_ch<=Nbin;i_ch++){
             Region *region = fRegions[regionVec[i_ch-1]];
@@ -1899,7 +1897,6 @@ void TRExFit::DrawMergedPlot(std::string opt,std::string group) const{
     //
     double ymax0 = -1.; // ymax0 is the max y of the first region
     double ymax  = -1.;
-    double ymaxTmp = -1.;
     for(auto region : regions){
         TH1* h_tmp  = nullptr;
         if(isPostFit) h_tmp = (TH1*)region->fTot_postFit->Clone();
@@ -1912,7 +1909,7 @@ void TRExFit::DrawMergedPlot(std::string opt,std::string group) const{
             else          h_tmp->SetBinError( i_bin,region->fErr->GetErrorY(i_bin-1) );
         }
         // find max y (don't rely on GetMaximum, since it could have been modified
-        ymaxTmp = 0;
+        double ymaxTmp = 0;
         for(int i_bin=1;i_bin<=h_tmp->GetNbinsX();i_bin++){
             if(h_tmp->GetBinContent(i_bin)>ymaxTmp) ymaxTmp = h_tmp->GetBinContent(i_bin);
             if(h_data!=nullptr)
@@ -2665,8 +2662,10 @@ void TRExFit::DrawSignalRegionsPlot(int nCols,int nRows, std::vector < Region* >
     double Hp = 250.; // height of one mini-plot, in pixels
     double Wp = 200.; // width of one mini-plot, in pixels
     double H0 = 100.; // height of the top label pad
-    if(TRExFitter::OPTION["FourTopStyle"]!=0) H0 = 75; // height of the top label pad
-    if(TRExFitter::OPTION["FourTopStyle"]!=0) Hp = 200;
+    if(TRExFitter::OPTION["FourTopStyle"]!=0) {
+        H0 = 75; // height of the top label pad
+        Hp = 200;
+    }
     if(TRExFitter::OPTION["SignalRegionSize"]!=0){
         Hp = TRExFitter::OPTION["SignalRegionSize"];
         Wp = (200./250.)*TRExFitter::OPTION["SignalRegionSize"];
@@ -4216,12 +4215,11 @@ RooDataSet* TRExFit::DumpData( RooWorkspace *ws,  std::map < std::string, int > 
 
             RooDataSet* obsDataUnbinned = new RooDataSet(Form("combAsimovData%d",iFrame),Form("combAsimovData%d",iFrame),RooArgSet(obsAndWeight,*channelCat),RooFit::WeightVar(*weightVar));
             RooRealVar* thisObs = ((RooRealVar*)obstmp->first());
-            double expectedEvents = pdftmp->expectedEvents(*obstmp);
-            double thisNorm = 0;
+            const double expectedEvents = pdftmp->expectedEvents(*obstmp);
 
             for(int jj=0; jj<thisObs->numBins(); ++jj){
                 thisObs->setBin(jj);
-                thisNorm=pdftmp->getVal(obstmp)*thisObs->getBinWidth(jj);
+                const double thisNorm=pdftmp->getVal(obstmp)*thisObs->getBinWidth(jj);
                 if (thisNorm*expectedEvents > 0 && thisNorm*expectedEvents < 1e18) obsDataUnbinned->add(*mc->GetObservables(), thisNorm*expectedEvents);
             }
             obsDataUnbinned->Print();
@@ -4387,10 +4385,9 @@ std::map < std::string, double > TRExFit::PerformFit( RooWorkspace *ws, RooDataS
         ws->defineSet("myConstraints","regularization");
         simPdf->setStringAttribute("externalConstraints","myConstraints");
         //
-        const RooArgSet* externalConstraints = 0;
         if(simPdf->getStringAttribute("externalConstraints")){
             WriteInfoStatus("TRExFit::PerformFit",Form("Building NLL with external constraints %s",simPdf->getStringAttribute("externalConstraints")));
-            externalConstraints = ws->set(simPdf->getStringAttribute("externalConstraints"));
+            const RooArgSet* externalConstraints = ws->set(simPdf->getStringAttribute("externalConstraints"));
             fitTool.SetExternalConstraints( externalConstraints );
         }
     }
@@ -5133,11 +5130,7 @@ void TRExFit::ProduceNPRanking( std::string NPnames/*="all"*/ ){
     outName += ".txt";
     std::ofstream outName_file(outName.c_str());
     //
-    double central;
-    double up;
-    double down;
     double muhat;
-    double dMuUp, dMuDown;
     std::map< std::string,double > muVarUp;
     std::map< std::string,double > muVarDown;
     std::map< std::string,double > muVarNomUp;
@@ -5284,9 +5277,9 @@ void TRExFit::ProduceNPRanking( std::string NPnames/*="all"*/ ){
     for(unsigned int i=0;i<nuisPars.size();i++){
         //
         // Getting the postfit values of the nuisance parameter
-        central = fFitResults -> GetNuisParValue(   nuisPars[i] );
-        up      = fFitResults -> GetNuisParErrUp(   nuisPars[i] );
-        down    = fFitResults -> GetNuisParErrDown( nuisPars[i] );
+        double central = fFitResults -> GetNuisParValue(   nuisPars[i] );
+        double up      = fFitResults -> GetNuisParErrUp(   nuisPars[i] );
+        double down    = fFitResults -> GetNuisParErrDown( nuisPars[i] );
         //// Thomas : We should be careful with changing naming convention compared to RooFit !!
         // TRExFitter store gammas names as stat_Reg_bin_i (i.e. remove the gamma_ at the beginning)
         // Now there is no real identifier in the NP name to state if it is a gamma or not and add back gamma_ except this _bin_
@@ -5329,8 +5322,8 @@ void TRExFit::ProduceNPRanking( std::string NPnames/*="all"*/ ){
         fitTool.FitPDF( mc, simPdf, data.get() );
         muVarDown[ nuisPars[i] ] = (fitTool.ExportFitResultInMap())[ fPOI ];
         //
-        dMuUp   = muVarUp[nuisPars[i]]-muhat;
-        dMuDown = muVarDown[nuisPars[i]]-muhat;
+        double dMuUp   = muVarUp[nuisPars[i]]-muhat;
+        double dMuDown = muVarDown[nuisPars[i]]-muhat;
         //
         // Experimental: reduce the range of ranking
         if(TRExFitter::OPTION["ReduceRanking"]!=0){
@@ -6105,7 +6098,7 @@ void TRExFit::ComputeBinning(int regIter){
             sumBkg += nBkgBin;
             sumSig += nSigBin;
             if (nBkgBin > 0 && nSigBin > 0) {
-                sumSigL += nSigBin * log(1 + nSigBin / nBkgBin);
+                sumSigL += nSigBin * std::log1p(nSigBin / nBkgBin);
             }
             err2Bkg += (hbkg -> GetBinError(iBin))*(hbkg -> GetBinError(iBin));
             //
@@ -6668,8 +6661,6 @@ std::vector<TRExFit::TemplateWeight> TRExFit::GetTemplateWeightVec(const TRExFit
 std::string TRExFit::GetWeightFunction(std::vector<std::pair<double,std::string> > templatePair, unsigned int itemp, const TRExFit::TemplateInterpolationOption& opt) const{
     std::string fun = "";
     double x_i;
-    double deltaXp = -1.; // |x(i+1)-x(i)|
-    double deltaXm = -1.; // |x(i-1)-x(i)|
     std::string name;
     if (itemp < templatePair.size()){
         x_i = templatePair.at(itemp).first;
@@ -6678,6 +6669,8 @@ std::string TRExFit::GetWeightFunction(std::vector<std::pair<double,std::string>
     else return fun;
     //
     if (opt == TRExFit::LINEAR){
+        double deltaXp(-1.); // |x(i+1)-x(i)|
+        double deltaXm(-1.); // |x(i-1)-x(i)|
         if ((itemp+1) < templatePair.size() ){
             deltaXp = std::fabs(templatePair.at(itemp+1).first - templatePair.at(itemp).first);
         }
@@ -6726,9 +6719,7 @@ std::string TRExFit::GetSmoothLinearInterpolation(unsigned int itemp) const {
     }
 
     // parameter that controls how close to a linear function we want to be
-    double k_init(80.);
-    double k_left(k_init);
-    double k_right(k_init);
+    static const double k_init(80.);
 
     double x_left = -99999.;
     double x_right = -99999.;
@@ -6751,8 +6742,8 @@ std::string TRExFit::GetSmoothLinearInterpolation(unsigned int itemp) const {
     double width_right = 2*std::fabs(x_mean - x_right);
 
     // apply correction to the k parameter depending on the range of the x axis
-    k_left = k_init/width_left;
-    k_right = k_init/width_right;
+    const double k_left = k_init/width_left;
+    const double k_right = k_init/width_right;
 
     // calculate correction to the function to get y= 0 at x_min and x_max
     // use iterative process to find something which is close enough

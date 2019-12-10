@@ -940,10 +940,9 @@ void TRExPlot::Draw(std::string options){
     // Fix y max
     //
     double yMax = 0.;
-    double y;
     // take into account also total prediction uncertainty
     for(int i_bin=1;i_bin<h_tot->GetNbinsX()+1;i_bin++){
-        y = h_tot->GetBinContent(i_bin);
+        double y = h_tot->GetBinContent(i_bin);
         if(y>yMax) yMax = y;
         if(hasData && h_data!=nullptr && g_data!=nullptr){
             if(h_data->Integral()>0 && h_data->GetBinContent(i_bin)>0 && g_data->GetY()[i_bin-1]>0 && g_data->GetEYhigh()[i_bin-1]>0){
@@ -1085,7 +1084,7 @@ TGraphAsymmErrors* histToGraph(TH1* h){
 //_____________________________________________________________________________
 //
 void SetHistBinWidth(TH1* h,double width){
-    double epsilon = 0.00000001;
+    static const double epsilon = 0.00000001;
     for(int i_bin=1;i_bin<=h->GetNbinsX();i_bin++){
         if(std::abs(h->GetBinWidth(i_bin)-width)>epsilon){
             h->SetBinContent(i_bin,h->GetBinContent(i_bin)*width/h->GetBinWidth(i_bin));
@@ -1097,10 +1096,9 @@ void SetHistBinWidth(TH1* h,double width){
 //_____________________________________________________________________________
 //
 void SetGraphBinWidth(TGraphAsymmErrors* g,double width){
-    double epsilon = 0.00000001;
-    double w;
+    static const double epsilon = 0.00000001;
     for(int i_bin=0;i_bin<g->GetN();i_bin++){
-        w = g->GetErrorXhigh(i_bin)+g->GetErrorXlow(i_bin);
+        const double w = g->GetErrorXhigh(i_bin)+g->GetErrorXlow(i_bin);
         if(std::abs(w-width)>epsilon){
             g->SetPoint(      i_bin,g->GetX()[i_bin], g->GetY()[i_bin]*width/w);
             g->SetPointEYhigh(i_bin,g->GetErrorYhigh(i_bin)*width/w);

@@ -209,7 +209,6 @@ double FittingTool::FitPDF( RooStats::ModelConfig* model, RooAbsPdf* fitpdf, Roo
 
     double nllval = nll->getVal();
     double nLLatMLE = 0.;//m_fitResult->minNll();
-    double nlloffset = nll->getVal() - nLLatMLE;
 
     WriteDebugStatus("FittingTool::FitPDF","   -> Initial value of the NLL = " +std::to_string(nllval));
     if(m_debug >= 2) constrainedParams->Print("v");
@@ -381,7 +380,7 @@ double FittingTool::FitPDF( RooStats::ModelConfig* model, RooAbsPdf* fitpdf, Roo
 
     nllval = 0;
     nLLatMLE = 0;
-    nlloffset = 0;
+    double nlloffset = 0;
     nllval = nll->getVal();
     if(m_fitResult) nLLatMLE = m_fitResult->minNll();
     nlloffset = nll->getVal() - nLLatMLE;
