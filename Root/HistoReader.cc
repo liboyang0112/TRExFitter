@@ -701,12 +701,11 @@ void HistoReader::ReadTRExProducedHistograms() {
                 std::string systStoredName = fFitter->fSamples[i_smp]->fSystematics[i_syst]->fStoredName; // if no StoredName specified in the config, this should be == fName
                 //
                 // eventually skip systematics if pruned
-                int xbin,ybin,bin;
-                int binContent = 0;
+                int binContent(0);
                 if( fFitter->fKeepPruning && histPrun[i_ch]!=nullptr ){
-                    xbin = histPrun[i_ch]->GetXaxis()->FindBin( sampleName.c_str() ); // sample
-                    ybin = histPrun[i_ch]->GetYaxis()->FindBin( systName.c_str() ); // syst
-                    bin = histPrun[i_ch]->GetBin(xbin,ybin);
+                    const int xbin = histPrun[i_ch]->GetXaxis()->FindBin( sampleName.c_str() ); // sample
+                    const int ybin = histPrun[i_ch]->GetYaxis()->FindBin( systName.c_str() ); // syst
+                    const int bin = histPrun[i_ch]->GetBin(xbin,ybin);
                     binContent = histPrun[i_ch]->GetBinContent(bin);
                     if( binContent <= -4 || binContent == -1 || binContent >= 3 ){
                         WriteDebugStatus("HistoReader::ReadTRExProducedHistograms", "SKIPPING systematic " + systName);

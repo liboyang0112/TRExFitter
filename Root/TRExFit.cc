@@ -6108,7 +6108,7 @@ void TRExFit::ComputeBinning(int regIter){
             sumBkg += nBkgBin;
             sumSig += nSigBin;
             if (nBkgBin > 0 && nSigBin > 0) {
-                sumSigL += nSigBin * log(1 + nSigBin / nBkgBin);
+                sumSigL += nSigBin * std::log1p(nSigBin / nBkgBin);
             }
             err2Bkg += (hbkg -> GetBinError(iBin))*(hbkg -> GetBinError(iBin));
             //

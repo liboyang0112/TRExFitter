@@ -1191,9 +1191,9 @@ void Region::BuildPostFitErrorHist(FitResults *fitRes, const std::vector<std::st
 
             } // loop over bins
         } // loop over samples
-        if(isMorph) i_morph_sample++;
 
-        if (isMorph){
+        if (isMorph) {
+            i_morph_sample++;
             // now apply the corrections from morph
             // Use it only ONCE for all combines morph templates
             SystematicHist* sh = fSampleHists[morph_index]->GetSystematic(systName);
@@ -2276,8 +2276,10 @@ std::pair<double,int> GetChi2Test( TH1* h_data, TH1* h_nominal, std::vector< TH1
                 const double ysyst_i_n = h_up[n]->GetBinContent(i+1), ysyst_j_n = h_up[n]->GetBinContent(j+1);
                 sum += (ysyst_i_n-ynom_i) /* * 1.0 */ * (ysyst_j_n-ynom_j);
             }
-            if(i==j && ynom_i>0) sum += ynom_i;  // add stat uncertainty to diagonal
-            if(i==j && ynom_i>0) sum += h_nominal->GetBinError(i+1) * h_nominal->GetBinError(i+1); // add MC stat as well
+            if(i==j && ynom_i>0) {
+                sum += ynom_i;  // add stat uncertainty to diagonal
+                sum += h_nominal->GetBinError(i+1) * h_nominal->GetBinError(i+1); // add MC stat as well
+            }
             C[ibin][jbin] = sum;
             ++jbin;
         }

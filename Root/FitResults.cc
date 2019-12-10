@@ -88,10 +88,6 @@ double FitResults::GetNuisParErrDown(const std::string& p){
 //__________________________________________________________________________________
 //
 void FitResults::ReadFromTXT(const std::string& fileName, const std::vector<std::string>& blinded){
-    bool includeCorrelations = true;
-    bool invertedCorrMatrix = true;
-    bool print = true;
-    //
     std::unique_ptr<CorrelationMatrix> matrix(new CorrelationMatrix());
     //
     // get fitted NP's
@@ -165,7 +161,7 @@ void FitResults::ReadFromTXT(const std::string& fileName, const std::vector<std:
                 np->fFitValue = value;
                 np->fPostFitUp = up;
                 np->fPostFitDown = down;
-                if(print) WriteVerboseStatus("FitResults::ReadFromTXT", name + ": " + std::to_string(value) + " +" + std::to_string(up) + " " + std::to_string(down));
+                WriteVerboseStatus("FitResults::ReadFromTXT", name + ": " + std::to_string(value) + " +" + std::to_string(up) + " " + std::to_string(down));
             } else {
                 std::string hex;
                 iss >> hex >> up >> down;
@@ -177,13 +173,9 @@ void FitResults::ReadFromTXT(const std::string& fileName, const std::vector<std:
             i++;
         }
         if(readingCM){
-            if(!includeCorrelations) break;
             for(int i_sys=0;i_sys<Nsyst_corr;i_sys++){
                 iss >> corr;
-                if(invertedCorrMatrix){
-                    matrix->SetCorrelation(fNuisParNames[Nsyst_corr-i_sys-1],fNuisParNames[j],corr);
-                }
-                else matrix->SetCorrelation(fNuisParNames[i_sys],fNuisParNames[j],corr);
+                matrix->SetCorrelation(fNuisParNames[Nsyst_corr-i_sys-1],fNuisParNames[j],corr);
             }
             j++;
         }
@@ -191,22 +183,18 @@ void FitResults::ReadFromTXT(const std::string& fileName, const std::vector<std:
             iss >> fNLL;
         }
     }
-    if(includeCorrelations){
-        if(print){
-            std::string temp_string = "";
-            for(int j_sys=0;j_sys<Nsyst_corr;j_sys++){
-                temp_string+= "\t " + fNuisParNames[j_sys];
-            }
-            WriteVerboseStatus("FitResults::ReadFromTXT",temp_string);
-            temp_string = "";
-            for(int i_sys=0;i_sys<Nsyst_corr;i_sys++){
-                temp_string +=  fNuisParNames[i_sys];
-                for(int j_sys=0;j_sys<Nsyst_corr;j_sys++){
-                    temp_string += Form("\t%.4f",matrix->GetCorrelation(fNuisParNames[i_sys],fNuisParNames[j_sys]));
-                }
-                WriteVerboseStatus("FitResults::ReadFromTXT",temp_string);
-            }
+    std::string temp_string = "";
+    for(int j_sys=0;j_sys<Nsyst_corr;j_sys++){
+        temp_string+= "\t " + fNuisParNames[j_sys];
+    }
+    WriteVerboseStatus("FitResults::ReadFromTXT",temp_string);
+    temp_string = "";
+    for(int i_sys=0;i_sys<Nsyst_corr;i_sys++){
+        temp_string +=  fNuisParNames[i_sys];
+        for(int j_sys=0;j_sys<Nsyst_corr;j_sys++){
+            temp_string += Form("\t%.4f",matrix->GetCorrelation(fNuisParNames[i_sys],fNuisParNames[j_sys]));
         }
+        WriteVerboseStatus("FitResults::ReadFromTXT",temp_string);
     }
     fCorrMatrix = std::unique_ptr<CorrelationMatrix>(matrix.release());
     //
@@ -421,7 +409,6 @@ void FitResults::DrawNPPulls( const std::string &path, const std::string &catego
     double xmax = 2.9;
     double max = 0.;
     std::vector<std::string> npToExclude = {"gamma_","stat_","shape_"};
-    bool brazilian = true;
 
     TGraphAsymmErrors g{};
 
@@ -491,20 +478,16 @@ void FitResults::DrawNPPulls( const std::string &path, const std::string &catego
     h_dummy.Draw();
     h_dummy.GetYaxis()->SetNdivisions(0);
 
-    TLine l0;
-    TBox b1, b2;
-    if(brazilian){
-        l0 = TLine(0,0,0,max);
-        l0.SetLineStyle(7);
-        l0.SetLineColor(kBlack);
-        b1 = TBox(-1,0,1,max);
-        b2 = TBox(-2,0,2,max);
-        b1.SetFillColor(kGreen);
-        b2.SetFillColor(kYellow);
-        b2.Draw("same");
-        b1.Draw("same");
-        l0.Draw("same");
-    }
+    TLine l0(0,0,0,max);
+    l0.SetLineStyle(7);
+    l0.SetLineColor(kBlack);
+    TBox b1(-1,0,1,max);
+    TBox b2(-2,0,2,max);
+    b1.SetFillColor(kGreen);
+    b2.SetFillColor(kYellow);
+    b2.Draw("same");
+    b1.Draw("same");
+    l0.Draw("same");
 
     g.Draw("psame");
 

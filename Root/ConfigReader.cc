@@ -3515,9 +3515,9 @@ int ConfigReader::ReadSystOptions(){
         param = confSet->Get("StoredName");
         if(param != "") sys->fStoredName = RemoveQuotes(param);
 
-        bool hasUp   = false;
-        bool hasDown = false;
         if(type==Systematic::HISTO || type==Systematic::SHAPE){
+            bool hasUp(false);
+            bool hasDown(false);
             if(fFitter->fInputType==0){ // HIST input
                 param = confSet->Get("HistoPathUp");
                 if(param!=""){
