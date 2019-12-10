@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # currently existing amount of duplications in code
-EXISTING_DUPLICATIONS=83
+EXISTING_DUPLICATIONS=81
 
 if [[ $(cat cpd.txt | wc -l) -gt 0 ]]; then
   # if the file contains any lines

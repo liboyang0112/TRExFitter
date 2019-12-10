@@ -6661,8 +6661,6 @@ std::vector<TRExFit::TemplateWeight> TRExFit::GetTemplateWeightVec(const TRExFit
 std::string TRExFit::GetWeightFunction(std::vector<std::pair<double,std::string> > templatePair, unsigned int itemp, const TRExFit::TemplateInterpolationOption& opt) const{
     std::string fun = "";
     double x_i;
-    double deltaXp(-1.); // |x(i+1)-x(i)|
-    double deltaXm(-1.); // |x(i-1)-x(i)|
     std::string name;
     if (itemp < templatePair.size()){
         x_i = templatePair.at(itemp).first;
@@ -6671,6 +6669,8 @@ std::string TRExFit::GetWeightFunction(std::vector<std::pair<double,std::string>
     else return fun;
     //
     if (opt == TRExFit::LINEAR){
+        double deltaXp(-1.); // |x(i+1)-x(i)|
+        double deltaXm(-1.); // |x(i-1)-x(i)|
         if ((itemp+1) < templatePair.size() ){
             deltaXp = std::fabs(templatePair.at(itemp+1).first - templatePair.at(itemp).first);
         }

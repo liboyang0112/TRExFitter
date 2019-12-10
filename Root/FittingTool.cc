@@ -381,7 +381,7 @@ double FittingTool::FitPDF( RooStats::ModelConfig* model, RooAbsPdf* fitpdf, Roo
     nllval = 0;
     nLLatMLE = 0;
     double nlloffset = 0;
-    if(nll) nllval = nll->getVal();
+    nllval = nll->getVal();
     if(m_fitResult) nLLatMLE = m_fitResult->minNll();
     nlloffset = nll->getVal() - nLLatMLE;
 

@@ -595,7 +595,6 @@ void MultiFit::ComparePOI(const string& POI) const {
 
     // get values
     TRExFit *fit = nullptr;
-    bool found(false);
     for(int i=0;i<N;i++){
         const bool isComb = (fCombine && i==N-1) ? true : false;
         //
@@ -608,7 +607,7 @@ void MultiFit::ComparePOI(const string& POI) const {
             if(fFitResultsFile=="") fit->ReadFitResults(fOutDir+"/Fits/"+fName+fSaveSuf+".txt");
             else                    fit->ReadFitResults(fFitResultsFile);
         }
-        found = false;
+        bool found(false);
         for(unsigned int j = 0; j<fit->fFitResults->fNuisPar.size(); ++j){
             par = fit->fFitResults->fNuisPar[j].get();
             if( pois[i] == par->fName ){
@@ -653,7 +652,6 @@ void MultiFit::ComparePOI(const string& POI) const {
                 if(fFitResultsFile=="")      fit->ReadFitResults(fOutDir+"/Fits/"+fName+fSaveSuf+"_statOnly.txt");
                 else                         fit->ReadFitResults(ReplaceString(fFitResultsFile,".txt","_statOnly.txt"));
             }
-            found = false;
             for(unsigned int j = 0; j<fit->fFitResults->fNuisPar.size(); ++j){
                 par = fit->fFitResults->fNuisPar[j].get();
                 if( pois[i] == par->fName ){
@@ -661,7 +659,6 @@ void MultiFit::ComparePOI(const string& POI) const {
                     g_stat.SetPointEXlow(N-i-1,-par->fPostFitDown);
                     g_stat.SetPointEYhigh(N-i-1,0);
                     g_stat.SetPointEYlow(N-i-1,0);
-                    found = true;
                     break;
                 }
             }
