@@ -179,7 +179,12 @@ class ConfigReader {
           * @param int Flag needed for for this setting
           * @return int status code
           */
-        int SetSystRegionDecorelate(ConfigSet *confSet, Systematic *sys, const std::vector<std::string>& samples, const std::vector<std::string>& exclude, const std::vector<std::string> regions, int type);
+        int SetSystRegionDecorelate(ConfigSet *confSet,
+                                    Systematic *sys,
+                                    const std::vector<std::string>& samples,
+                                    const std::vector<std::string>& exclude,
+                                    const std::vector<std::string>& regions,
+                                    int type);
 
         /**
           * Helper function to read Part of Syst config

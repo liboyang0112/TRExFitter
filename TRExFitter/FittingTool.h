@@ -39,41 +39,64 @@ public:
     //
     // Gettters and setters
     //
-    inline void SetDebug ( const int debug ){ m_debug = debug; }
+    inline void SetDebug (const int debug){ m_debug = debug; }
 
-    inline void MinimType ( const TString &type ){ m_minimType = type; }
+    inline void MinimType (const TString& type){ m_minimType = type; }
 
-    inline void ValPOI( const double value ) { m_valPOI = value; }
+    inline void ValPOI(const double value) { m_valPOI = value; }
 
-    inline void ConstPOI( const bool constant ) { m_constPOI = constant; }
+    inline void ConstPOI(const bool constant) { m_constPOI = constant; }
 
     inline void NoGammas()      { m_noGammas=true;      }
     inline void NoSystematics() { m_noSystematics=true; }
 
-    inline void SetRandomNP( const double rndNP, const bool rndize, const long int rndSeed=-999 ) { m_randomNP = rndNP; m_randomize = rndize; m_randSeed = rndSeed; }
+    inline void SetRandomNP(const double rndNP,
+                             const bool rndize,
+                             const long int rndSeed=-999) { m_randomNP = rndNP; m_randomize = rndize; m_randSeed = rndSeed; }
 
     void SetSubCategories();
-    void SetSystMap( std::map<std::string, std::string> subCategoryMap ) { m_subCategoryMap = subCategoryMap; SetSubCategories(); } // fills both m_subCategoryMap and m_subCategories
+    void SetSystMap(std::map<std::string, std::string>& subCategoryMap) { m_subCategoryMap = subCategoryMap; SetSubCategories(); } // fills both m_subCategoryMap and m_subCategories
 
     inline void ResetFixedNP() { m_constNP.clear(); m_constNPvalue.clear(); };
-    inline void FixNP( std::string np, const double value ) { m_constNP.push_back(np); m_constNPvalue.push_back(value); }
-    inline void FixNPs( std::vector<std::string> nps, std::vector<double> values ) { m_constNP = nps; m_constNPvalue = values; }
-    inline void SetNPs( std::vector<std::string> nps, std::vector<double> values ) { m_initialNP = nps; m_initialNPvalue = values; }
+    inline void FixNP(const std::string& np, const double value) { m_constNP.emplace_back(np); m_constNPvalue.emplace_back(value); }
+    inline void FixNPs(const std::vector<std::string>& nps, const std::vector<double>& values) { m_constNP = nps; m_constNPvalue = values; }
+    inline void SetNPs(const std::vector<std::string>& nps, const std::vector<double>& values) { m_initialNP = nps; m_initialNPvalue = values; }
 
-    inline void UseMinos( const std::vector<std::string> minosvar){ m_useMinos = true; m_varMinos = minosvar; }
+    inline void UseMinos(const std::vector<std::string>& minosvar){ m_useMinos = true; m_varMinos = minosvar; }
 
-    inline void SetExternalConstraints( const RooArgSet* externalConstraints = 0 ){ m_externalConstraints = std::unique_ptr<const RooArgSet>(externalConstraints); }
+    inline void SetExternalConstraints(const RooArgSet* externalConstraints = 0){ m_externalConstraints = std::unique_ptr<const RooArgSet>(externalConstraints); }
 
     //
     // Specific functions
     //
-    double FitPDF( RooStats::ModelConfig* model, RooAbsPdf* fitpdf, RooAbsData* fitdata, bool fastFit = false, bool noFit = false, bool saturatedModel = false );
-    void ExportFitResultInTextFile( const std::string &finaName, const std::vector<std::string>& blinded );
+    double FitPDF(RooStats::ModelConfig* model,
+                  RooAbsPdf* fitpdf,
+                  RooAbsData* fitdata,
+                  bool fastFit = false,
+                  bool noFit = false,
+                  bool saturatedModel = false );
+
+    void ExportFitResultInTextFile(const std::string& finalName,
+                                   const std::vector<std::string>& blinded);
+
     std::map < std::string, double > ExportFitResultInMap();
 
-    int GetGroupedImpact( RooStats::ModelConfig* model, RooAbsPdf* fitpdf, RooAbsData* fitdata, RooWorkspace* ws, const std::string& categoryOfInterest, const std::string& outFileName ) const;
-    void FitExcludingGroup(bool excludeGammas, bool statOnly, RooAbsData*& fitdata, RooAbsPdf*& fitpdf, RooArgSet*& constrainedParams,
-                           RooStats::ModelConfig* mc, RooWorkspace* ws, const std::string& category, const std::vector<std::string>& affectedParams) const;
+    int GetGroupedImpact(RooStats::ModelConfig* model,
+                         RooAbsPdf* fitpdf,
+                         RooAbsData* fitdata,
+                         RooWorkspace* ws,
+                         const std::string& categoryOfInterest,
+                         const std::string& outFileName ) const;
+
+    void FitExcludingGroup(bool excludeGammas,
+                           bool statOnly,
+                           RooAbsData*& fitdata,
+                           RooAbsPdf*& fitpdf,
+                           RooArgSet*& constrainedParams,
+                           RooStats::ModelConfig* mc,
+                           RooWorkspace* ws,
+                           const std::string& category,
+                           const std::vector<std::string>& affectedParams) const;
 
     void CheckUnderconstraint(const RooRealVar* const var) const;
 
