@@ -547,7 +547,7 @@ bool ConfigParser::SettingMultipleParamIsOK(const std::string& setting_set, cons
             continue; // nothing to check
         } else if (possible_vec.at(iparam) == "int"){
             try {
-                // cppcheck-suppress ignoredReturnValue
+// cppcheck-suppress ignoredReturnValue
                 std::stoi(current_vec.at(iparam));
             } catch (std::exception &e){
                 WriteErrorStatus("ConfigParser::SettingMultipleParamIsOK", "Parameter " + current_vec.at(iparam) + " is not valid, for setting set '" + setting_set + "' and setting '" + setting + ", for parameter number " + std::to_string(iparam+1) + ". Please check this!" );
@@ -555,7 +555,7 @@ bool ConfigParser::SettingMultipleParamIsOK(const std::string& setting_set, cons
             }
         } else if (possible_vec.at(iparam) == "float"){
             try {
-                // cppcheck-suppress ignoredReturnValue
+// cppcheck-suppress ignoredReturnValue
                 std::stod(current_vec.at(iparam));
             } catch (std::exception &e){
                 WriteErrorStatus("ConfigParser::SettingMultipleParamIsOK", "Parameter " + current_vec.at(iparam) + " is not valid, for setting set '" + setting_set + "' and setting '" + setting + ", for parameter number " + std::to_string(iparam+1) + ". Please check this!" );
