@@ -1024,10 +1024,6 @@ void MultiFit::ComparePulls(string category) const{
     double xmin = -2.9;
     double xmax = 2.9;
     double max = 0.;
-<<<<<<< HEAD
-=======
-    bool brazilian = true;
->>>>>>> upstream/master
 
     // create a list of Systematics
     std::vector< string > Names;
