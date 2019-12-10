@@ -73,6 +73,7 @@ public:
         std::string function;
         std::string range;
         std::string name;
+        // cppcheck-suppress unusedStructMember
         double value;
     };
 

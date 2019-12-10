@@ -391,9 +391,7 @@ int FindInStringVector(const std::vector<std::string>& v, const std::string& s){
 int FindInStringVectorOfVectors(const std::vector< std::vector<std::string> >& v, const std::string& s, const std::string& ss){
     int idx = -1;
     std::string s1;
-    std::string s11;
     std::string s2;
-    std::string s21;
     for(unsigned int i=0;i<v.size();i++){
         s1 = v[i][0];
         s2 = v[i][1];
@@ -764,36 +762,6 @@ bool CheckExpression(const std::string& s){
 
 //----------------------------------------------------------------------------------
 //
-std::string FloatToPseudoHex(const float value){
-    std::string s = std::to_string(value);
-    std::string first = s.substr(0,s.find('.'));
-    std::string second = s.substr(s.find('.')+1, s.length());
-
-    //Count the number of "0" after the comma
-    int count = 0;
-    for (unsigned int i = 0; i < second.size(); i++) {
-      if (second[i] != '0')
-        break;
-      count++;
-    }
-
-    int value1 = std::stoi(first);
-    const int value2 = std::stoi(second);
-
-    // add 1234 to the first digit so it is not easily readable, we will subtract it in the decoding
-    value1+=1234;
-    // add 5678 to the number of '0'
-    count+=5678;
-
-    std::stringstream ss;
-    ss << std::hex << value1 << "." << std::hex << count  << "." << std::hex << value2;
-
-    return ss.str();
-}
-
-
-//----------------------------------------------------------------------------------
-//
 std::string DoubleToPseudoHex(const double value){
     std::string s = std::to_string(value);
     std::string first = s.substr(0,s.find('.'));
@@ -819,44 +787,6 @@ std::string DoubleToPseudoHex(const double value){
     ss << std::hex << value1 << "." << std::hex << count  << "." << std::hex << value2;
 
     return ss.str();
-}
-
-//----------------------------------------------------------------------------------
-//
-float HexToFloat(const std::string& s){
-    std::string first = s.substr(0,s.find('.'));
-    std::string rest = s.substr(s.find('.')+1, s.length());
-    std::string zeros = rest.substr(0,rest.find('.'));
-    std::string second = rest.substr(rest.find('.')+1, rest.length());
-
-    unsigned int i1, i2, n0;
-
-    std::stringstream ss;
-    ss << std::hex << first;
-    ss >> i1;
-
-    std::stringstream ss1;
-    ss1 << std::hex << second;
-    ss1 >> i2;
-
-    std::stringstream ss2;
-    ss2 << std::hex << zeros;
-    ss2 >> n0;
-
-    int signed1 = static_cast<int>(i1);
-    // need to subtract the 1234 we added
-    signed1-= 1234;
-    // need to substract the 5678
-    n0-= 5678;
-
-    std::string result = std::to_string(signed1)+".";
-
-    for (unsigned int i = 0; i < n0; i++)
-      result += "0";
-
-    result += std::to_string(i2);
-
-    return std::stof(result);
 }
 
 //----------------------------------------------------------------------------------
@@ -919,17 +849,6 @@ void ScaleNominal(const SampleHist* const sig, TH1* hist){
         }
     }
 }
-
-//___________________________________________________________
-//
-std::size_t GetSampleIndexFromList(const std::vector<Sample*>& list, const std::string name){
-    for (std::size_t i = 0; i < list.size(); ++i){
-        if (list.at(i)->fName == name) return i;
-    }
-
-    return 9999;
-}
-
 
 //____________________________________________________________________________________
 //

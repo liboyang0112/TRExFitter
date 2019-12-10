@@ -476,7 +476,7 @@ void TRExFit::CreateRootFiles(){
     bool recreate = !fUpdate;
     gSystem->mkdir( fName.c_str());
     gSystem->mkdir( (fName + "/Histograms/").c_str() );
-    std::string fileName = "";
+    std::string fileName("");
     bool singleOutputFile = !TRExFitter::SPLITHISTOFILES;
     //
     if(singleOutputFile){
@@ -514,7 +514,7 @@ void TRExFit::CreateRootFiles(){
 void TRExFit::WriteHistos(bool reWriteOrig) const{
     bool singleOutputFile = !TRExFitter::SPLITHISTOFILES;
     SampleHist* sh;
-    std::string fileName = "";
+    std::string fileName("");
     for(int i_ch=0;i_ch<fNRegions;i_ch++){
         //
         if(singleOutputFile) fileName = fFiles[0]   ->GetName();
@@ -1819,7 +1819,6 @@ TRExPlot* TRExFit::DrawSummary(std::string opt, TRExPlot* prefit_plot) {
             //
             for(unsigned int ii=0;ii<=divisionVec.size();ii++){
                 if(fSummaryPlotLabels.size()<ii+1) break;
-                if(divisionVec.size()<ii) break;
                 double xmax = Nbin;
                 double xmin = 0.;
                 if(divisionVec.size()>ii) xmax = divisionVec[ii];
@@ -1838,7 +1837,6 @@ TRExPlot* TRExFit::DrawSummary(std::string opt, TRExPlot* prefit_plot) {
             //
             for(unsigned int ii=0;ii<=divisionVec.size();ii++){
                 if(fSummaryPlotValidationLabels.size()<ii+1) break;
-                if(divisionVec.size()<ii) break;
                 double xmax = Nbin;
                 double xmin = 0.;
                 if(divisionVec.size()>ii) xmax = divisionVec[ii];
@@ -5901,7 +5899,6 @@ void TRExFit::ComputeBinning(int regIter){
     std::string fullSelection;
     std::string fullMCweight;
     std::vector<std::string> fullPaths;
-    std::vector<std::string> empty;
     bool bkgReg=false;
     bool flatBkg=false;
     if(fRegions[regIter]->fRegionType==Region::CONTROL) bkgReg=true;
@@ -6207,7 +6204,7 @@ void TRExFit::GetLikelihoodScan( RooWorkspace *ws, std::string varName, RooDataS
     // shut-up RooFit!
     if(TRExFitter::DEBUGLEVEL<=1){
         if(TRExFitter::DEBUGLEVEL<=0) gErrorIgnoreLevel = kError;
-        else if(TRExFitter::DEBUGLEVEL<=1) gErrorIgnoreLevel = kWarning;
+        else gErrorIgnoreLevel = kWarning;
         RooMsgService::instance().setGlobalKillBelow(RooFit::FATAL);
         RooMsgService::instance().getStream(1).removeTopic(Generation);
         RooMsgService::instance().getStream(1).removeTopic(Plotting);
@@ -6397,7 +6394,7 @@ void TRExFit::Get2DLikelihoodScan( RooWorkspace *ws, const std::vector<std::stri
     // shut-up RooFit!
     if(TRExFitter::DEBUGLEVEL<=1){
         if(TRExFitter::DEBUGLEVEL<=0) gErrorIgnoreLevel = kError;
-        else if(TRExFitter::DEBUGLEVEL<=1) gErrorIgnoreLevel = kWarning;
+        else gErrorIgnoreLevel = kWarning;
         RooMsgService::instance().setGlobalKillBelow(RooFit::FATAL);
         RooMsgService::instance().getStream(1).removeTopic(Generation);
         RooMsgService::instance().getStream(1).removeTopic(Plotting);

@@ -733,7 +733,6 @@ int ConfigReaderMulti::ReadSignificanceOptions(){
 //_______________________________________________________________________________________
 //
 int ConfigReaderMulti::ReadFitOptions(const std::string& opt, const std::string& options){
-    std::string param = "";
     int nFit = 0;
 
     while(true){
@@ -743,7 +742,7 @@ int ConfigReaderMulti::ReadFitOptions(const std::string& opt, const std::string&
 
         // Set Options
         std::string fullOptions;
-        param = confSet->Get("Options");
+        std::string param = confSet->Get("Options");
         if(param!="" && options!="") fullOptions = options+";"+RemoveQuotes(param);
         else if(param!="") fullOptions = RemoveQuotes(param);
         else fullOptions = options;

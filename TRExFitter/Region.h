@@ -271,7 +271,6 @@ public:
 
 // for post-fit plots
 double GetDeltaN(double alpha, double Iz, double Ip, double Imi, int intCode=4);
-std::map < int , double > GetDeltaNForUncertainties(double alpha, double alpha_errUp, double alpha_errDown, double Iz, double Ip, double Imi, int intCode);
 
 // To build the total error band
 std::unique_ptr<TGraphAsymmErrors> BuildTotError( const TH1* const h_nominal,

@@ -462,14 +462,14 @@ void SampleHist::WriteToFile(TFile *f,bool reWriteOrig){
         gamma->fRegions.clear();
         gamma->fRegions.push_back(fRegionName);
         SystematicHist *syh = AddHistoSyst(systName,systName,htempUp,htempDown);
+        if (!syh) {
+            WriteErrorStatus("TRExFit::SampleHist", "Histo pointer is nullptr, cannot continue running the code");
+            exit(EXIT_FAILURE);
+        }
         syh->fHistUp_orig.reset(htempUp_orig);
         syh->fHistDown_orig.reset(htempDown_orig);
         gamma->fNuisanceParameter = gamma->fName;
         TRExFitter::NPMAP[gamma->fName] = gamma->fNuisanceParameter;
-        if (syh ==nullptr) {
-            WriteErrorStatus("TRExFit::SampleHist", "Histo pointer is nullptr, cannot continue running the code");
-            exit(EXIT_FAILURE);
-        }
         syh->fSystematic = gamma;
         // setting histo name and file
         syh->fHistoNameUp = fRegionName+"_"+fSample->fName+"_stat_"+fSample->fName+"_Up";

@@ -592,15 +592,12 @@ void MultiFit::ComparePOI(const string& POI) const {
     int Ndiv = N+1;
 
     NuisParameter *par;
-    bool found(false);
-
-    bool isComb(false);
 
     // get values
     TRExFit *fit = nullptr;
+    bool found(false);
     for(int i=0;i<N;i++){
-        if(fCombine && i==N-1) isComb = true;
-        else                   isComb = false;
+        const bool isComb = (fCombine && i==N-1) ? true : false;
         //
         if(!isComb){
             fit = fFitList[i];
@@ -645,8 +642,7 @@ void MultiFit::ComparePOI(const string& POI) const {
     // stat error
     if (!fShowTotalOnly){
         for(int i=0;i<N;i++){
-            if(fCombine && i==N-1) isComb = true;
-            else                   isComb = false;
+            const bool isComb = (fCombine && i==N-1) ? true : false;
             //
             if(!isComb){
                 fit = fFitList[i];
@@ -1028,6 +1024,10 @@ void MultiFit::ComparePulls(string category) const{
     double xmin = -2.9;
     double xmax = 2.9;
     double max = 0.;
+<<<<<<< HEAD
+=======
+    bool brazilian = true;
+>>>>>>> upstream/master
 
     // create a list of Systematics
     std::vector< string > Names;
@@ -2136,7 +2136,7 @@ void MultiFit::GetLikelihoodScan( RooWorkspace *ws, const std::string& varName, 
     // shut-up RooFit!
     if(TRExFitter::DEBUGLEVEL<=1){
         if(TRExFitter::DEBUGLEVEL<=0) gErrorIgnoreLevel = kError;
-        else if(TRExFitter::DEBUGLEVEL<=1) gErrorIgnoreLevel = kWarning;
+        else gErrorIgnoreLevel = kWarning;
         RooMsgService::instance().setGlobalKillBelow(RooFit::FATAL) ;
         RooMsgService::instance().getStream(1).removeTopic(Generation) ;
         RooMsgService::instance().getStream(1).removeTopic(Plotting) ;
@@ -2269,7 +2269,6 @@ void MultiFit::GetLikelihoodScan( RooWorkspace *ws, const std::string& varName, 
 
     // take the LH curves also for other fits
     std::vector<TGraph*> curve_fit;
-    std::vector<TGraph*> curve_fit_statOnly; // to implement
     TLegend leg(0.5,0.85-0.06*(fFitList.size()+1),0.75,0.85);
     leg.SetFillColor(kWhite);
     leg.SetBorderSize(0);
@@ -2387,7 +2386,7 @@ void MultiFit::Get2DLikelihoodScan( RooWorkspace *ws, const std::vector<std::str
     // shut-up RooFit!
     if(TRExFitter::DEBUGLEVEL<=1){
         if(TRExFitter::DEBUGLEVEL<=0) gErrorIgnoreLevel = kError;
-        else if(TRExFitter::DEBUGLEVEL<=1) gErrorIgnoreLevel = kWarning;
+        else gErrorIgnoreLevel = kWarning;
         RooMsgService::instance().setGlobalKillBelow(RooFit::FATAL);
         RooMsgService::instance().getStream(1).removeTopic(Generation);
         RooMsgService::instance().getStream(1).removeTopic(Plotting);
