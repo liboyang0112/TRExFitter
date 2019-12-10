@@ -476,7 +476,7 @@ void TRExFit::CreateRootFiles(){
     bool recreate = !fUpdate;
     gSystem->mkdir( fName.c_str());
     gSystem->mkdir( (fName + "/Histograms/").c_str() );
-    std::string fileName = "";
+    std::string fileName("");
     bool singleOutputFile = !TRExFitter::SPLITHISTOFILES;
     //
     if(singleOutputFile){
@@ -514,7 +514,7 @@ void TRExFit::CreateRootFiles(){
 void TRExFit::WriteHistos(bool reWriteOrig) const{
     bool singleOutputFile = !TRExFitter::SPLITHISTOFILES;
     SampleHist* sh;
-    std::string fileName = "";
+    std::string fileName("");
     for(int i_ch=0;i_ch<fNRegions;i_ch++){
         //
         if(singleOutputFile) fileName = fFiles[0]   ->GetName();

@@ -592,15 +592,12 @@ void MultiFit::ComparePOI(const string& POI) const {
     int Ndiv = N+1;
 
     NuisParameter *par;
-    bool found = false;
-
-    bool isComb = false;
 
     // get values
     TRExFit *fit = nullptr;
+    bool found(false);
     for(int i=0;i<N;i++){
-        if(fCombine && i==N-1) isComb = true;
-        else                   isComb = false;
+        const bool isComb = (fCombine && i==N-1) ? true : false;
         //
         if(!isComb) fit = fFitList[i];
         if(!isComb){
@@ -645,8 +642,7 @@ void MultiFit::ComparePOI(const string& POI) const {
     // stat error
     if (!fShowTotalOnly){
         for(int i=0;i<N;i++){
-            if(fCombine && i==N-1) isComb = true;
-            else                   isComb = false;
+            const bool isComb = (fCombine && i==N-1) ? true : false;
             //
             if(!isComb) fit = fFitList[i];
             if(!isComb){
@@ -1028,7 +1024,6 @@ void MultiFit::ComparePulls(string category) const{
     double xmin = -2.9;
     double xmax = 2.9;
     double max = 0.;
-    string npToExclude[] = {"gamma_","stat_"};
     bool brazilian = true;
 
     // create a list of Systematics
