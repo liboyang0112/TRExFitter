@@ -151,6 +151,7 @@ void ReplaceStringInPlace(std::string& subject, const std::string& search,
 
 //_______________________________________________________________________________________
 // used to pre-read a config file to check single option values
+// cppcheck-suppress unusedFunction 
 std::string ReadValueFromConfig(const std::string& fileName,const std::string& option){
     std::string value = "";
     std::ifstream file(fileName.c_str());
