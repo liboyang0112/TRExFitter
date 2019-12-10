@@ -1819,7 +1819,6 @@ TRExPlot* TRExFit::DrawSummary(std::string opt, TRExPlot* prefit_plot) {
             //
             for(unsigned int ii=0;ii<=divisionVec.size();ii++){
                 if(fSummaryPlotLabels.size()<ii+1) break;
-                if(divisionVec.size()<ii) break;
                 double xmax = Nbin;
                 double xmin = 0.;
                 if(divisionVec.size()>ii) xmax = divisionVec[ii];
@@ -1838,7 +1837,6 @@ TRExPlot* TRExFit::DrawSummary(std::string opt, TRExPlot* prefit_plot) {
             //
             for(unsigned int ii=0;ii<=divisionVec.size();ii++){
                 if(fSummaryPlotValidationLabels.size()<ii+1) break;
-                if(divisionVec.size()<ii) break;
                 double xmax = Nbin;
                 double xmin = 0.;
                 if(divisionVec.size()>ii) xmax = divisionVec[ii];
@@ -6207,7 +6205,7 @@ void TRExFit::GetLikelihoodScan( RooWorkspace *ws, std::string varName, RooDataS
     // shut-up RooFit!
     if(TRExFitter::DEBUGLEVEL<=1){
         if(TRExFitter::DEBUGLEVEL<=0) gErrorIgnoreLevel = kError;
-        else if(TRExFitter::DEBUGLEVEL<=1) gErrorIgnoreLevel = kWarning;
+        else gErrorIgnoreLevel = kWarning;
         RooMsgService::instance().setGlobalKillBelow(RooFit::FATAL);
         RooMsgService::instance().getStream(1).removeTopic(Generation);
         RooMsgService::instance().getStream(1).removeTopic(Plotting);
@@ -6397,7 +6395,7 @@ void TRExFit::Get2DLikelihoodScan( RooWorkspace *ws, const std::vector<std::stri
     // shut-up RooFit!
     if(TRExFitter::DEBUGLEVEL<=1){
         if(TRExFitter::DEBUGLEVEL<=0) gErrorIgnoreLevel = kError;
-        else if(TRExFitter::DEBUGLEVEL<=1) gErrorIgnoreLevel = kWarning;
+        else gErrorIgnoreLevel = kWarning;
         RooMsgService::instance().setGlobalKillBelow(RooFit::FATAL);
         RooMsgService::instance().getStream(1).removeTopic(Generation);
         RooMsgService::instance().getStream(1).removeTopic(Plotting);

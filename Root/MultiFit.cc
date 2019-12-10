@@ -2146,7 +2146,7 @@ void MultiFit::GetLikelihoodScan( RooWorkspace *ws, const std::string& varName, 
     // shut-up RooFit!
     if(TRExFitter::DEBUGLEVEL<=1){
         if(TRExFitter::DEBUGLEVEL<=0) gErrorIgnoreLevel = kError;
-        else if(TRExFitter::DEBUGLEVEL<=1) gErrorIgnoreLevel = kWarning;
+        else gErrorIgnoreLevel = kWarning;
         RooMsgService::instance().setGlobalKillBelow(RooFit::FATAL) ;
         RooMsgService::instance().getStream(1).removeTopic(Generation) ;
         RooMsgService::instance().getStream(1).removeTopic(Plotting) ;
@@ -2397,7 +2397,7 @@ void MultiFit::Get2DLikelihoodScan( RooWorkspace *ws, const std::vector<std::str
     // shut-up RooFit!
     if(TRExFitter::DEBUGLEVEL<=1){
         if(TRExFitter::DEBUGLEVEL<=0) gErrorIgnoreLevel = kError;
-        else if(TRExFitter::DEBUGLEVEL<=1) gErrorIgnoreLevel = kWarning;
+        else gErrorIgnoreLevel = kWarning;
         RooMsgService::instance().setGlobalKillBelow(RooFit::FATAL);
         RooMsgService::instance().getStream(1).removeTopic(Generation);
         RooMsgService::instance().getStream(1).removeTopic(Plotting);

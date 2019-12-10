@@ -537,16 +537,17 @@ int ConfigParser::CheckParameters(std::string current, const std::vector<std::st
 //_______________________________________________________________________________________
 //
 bool ConfigParser::SettingMultipleParamIsOK(const std::string& setting_set, const std::string& setting, const std::string& current, const std::string& possible, const char delimiter) const{
-    std::vector<std::string> current_vec = Vectorize(current, delimiter);
-    std::vector<std::string> possible_vec = Vectorize(possible, delimiter);
+    const std::vector<std::string> current_vec = Vectorize(current, delimiter);
+    const std::vector<std::string> possible_vec = Vectorize(possible, delimiter);
     if (current_vec.size() != possible_vec.size()) return false;
     //
     // check setting by setting
-    for (unsigned int iparam = 0; iparam < possible_vec.size(); iparam++){
+    for (std::size_t iparam = 0; iparam < possible_vec.size(); iparam++){
         if (possible_vec.at(iparam) == "string"){
             continue; // nothing to check
         } else if (possible_vec.at(iparam) == "int"){
             try {
+                // cppcheck-suppress ignoredReturnValue
                 std::stoi(current_vec.at(iparam));
             } catch (std::exception &e){
                 WriteErrorStatus("ConfigParser::SettingMultipleParamIsOK", "Parameter " + current_vec.at(iparam) + " is not valid, for setting set '" + setting_set + "' and setting '" + setting + ", for parameter number " + std::to_string(iparam+1) + ". Please check this!" );
@@ -554,6 +555,7 @@ bool ConfigParser::SettingMultipleParamIsOK(const std::string& setting_set, cons
             }
         } else if (possible_vec.at(iparam) == "float"){
             try {
+                // cppcheck-suppress ignoredReturnValue
                 std::stod(current_vec.at(iparam));
             } catch (std::exception &e){
                 WriteErrorStatus("ConfigParser::SettingMultipleParamIsOK", "Parameter " + current_vec.at(iparam) + " is not valid, for setting set '" + setting_set + "' and setting '" + setting + ", for parameter number " + std::to_string(iparam+1) + ". Please check this!" );

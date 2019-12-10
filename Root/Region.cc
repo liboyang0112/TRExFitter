@@ -2264,9 +2264,8 @@ std::pair<double,int> GetChi2Test( TH1* h_data, TH1* h_nominal, std::vector< TH1
                     if (n==m) continue;
                     const double ysyst_j_m = h_up[EffectiveSystIndex[m]]->GetBinContent(j+1);
                     // more than Bill's suggestion: add correlation between systematics!!
-                    double corr = 0.;
-                    if(n==m) corr = 1.;
-                    else if(matrix!=nullptr) corr = matrix->GetCorrelation(EffectiveSystNames[n],EffectiveSystNames[m]);
+                    double corr(0.);
+                    if(matrix) corr = matrix->GetCorrelation(EffectiveSystNames[n],EffectiveSystNames[m]);
                     else continue;
                     sum += (ysyst_i_n-ynom_i) * corr * (ysyst_j_m-ynom_j);
                 }
