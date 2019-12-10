@@ -27,7 +27,6 @@ void NtupleReader::ReadNtuples(){
     std::string fullSelection;
     std::string fullMCweight;
     std::vector<std::string> fullPaths;
-    std::vector<std::string> empty;
     SampleHist *sh;
     //
     // Import custom functions from .C files
@@ -442,7 +441,6 @@ void NtupleReader::DefineVariable(int regIter){
     std::string fullSelection;
     std::string fullMCweight;
     std::vector<std::string> fullPaths;
-    std::vector<std::string> empty;
 
     // copy of NtupleReading function.
     for(int i_smp=0;i_smp<fFitter->fNSamples;i_smp++){

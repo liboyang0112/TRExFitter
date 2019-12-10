@@ -2008,7 +2008,6 @@ void Region::PrintSystTable(FitResults *fitRes, string opt) const{
                 const std::string category = s->fSystematics[i_samplesyst]->fCategory;
                 if (category!=""){
                     category_names.insert(category);
-                    std::vector<std::string> systePerSample;
                     // Check for systematics existing not in all regions...
                     if (std::find(fSystNames.begin(), fSystNames.end(), s->fSystematics.at(i_samplesyst)->fName)!=fSystNames.end()){
                         const std::vector<std::string> sample_syste = category_syst_names[s->fName][category];
@@ -2203,16 +2202,6 @@ double GetDeltaN(double alpha, double Iz, double Ip, double Imi, int intCode){
 
     return deltaN;
 }
-
-//___________________________________________________________
-//
-std::map < int , double > GetDeltaNForUncertainties(double alpha, double alpha_errUp, double alpha_errDown, double Iz, double Ip, double Imi, int intCode){
-    const double nominal = GetDeltaN(alpha, Iz, Ip, Imi, intCode);
-    const double up = GetDeltaN(alpha+alpha_errUp, Iz, Ip, Imi, intCode);
-    const double down = GetDeltaN(alpha+alpha_errDown, Iz, Ip, Imi, intCode);
-    return {{-1,down},{0,nominal},{1,up}};
-}
-
 
 //___________________________________________________________
 // function to get pre/post-fit agreement

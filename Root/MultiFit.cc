@@ -2279,7 +2279,6 @@ void MultiFit::GetLikelihoodScan( RooWorkspace *ws, const std::string& varName, 
 
     // take the LH curves also for other fits
     std::vector<TGraph*> curve_fit;
-    std::vector<TGraph*> curve_fit_statOnly; // to implement
     TLegend leg(0.5,0.85-0.06*(fFitList.size()+1),0.75,0.85);
     leg.SetFillColor(kWhite);
     leg.SetBorderSize(0);

@@ -42,22 +42,13 @@ public:
     inline void SetDebug ( const int debug ){ m_debug = debug; }
 
     inline void MinimType ( const TString &type ){ m_minimType = type; }
-    inline TString GetMinimType(){ return m_minimType; }
-
-    inline int GetMinuitStatus() const { return m_minuitStatus; }
-    inline int GetHessStatus() const { return m_hessStatus; }
-    inline double GetEDM() const { return m_edm; }
 
     inline void ValPOI( const double value ) { m_valPOI = value; }
-    inline double GetValPOI() const { return m_valPOI; }
 
     inline void ConstPOI( const bool constant ) { m_constPOI = constant; }
-    inline double GetConstPOI() const { return m_constPOI; }
 
     inline void NoGammas()      { m_noGammas=true;      }
     inline void NoSystematics() { m_noSystematics=true; }
-    inline void NoNormFators()  { m_noNormFactors=true; }
-    inline void NoShapeFators() { m_noShapeFactors=true; }
 
     inline void SetRandomNP( const double rndNP, const bool rndize, const long int rndSeed=-999 ) { m_randomNP = rndNP; m_randomize = rndize; m_randSeed = rndSeed; }
 
@@ -68,11 +59,6 @@ public:
     inline void FixNP( std::string np, const double value ) { m_constNP.push_back(np); m_constNPvalue.push_back(value); }
     inline void FixNPs( std::vector<std::string> nps, std::vector<double> values ) { m_constNP = nps; m_constNPvalue = values; }
     inline void SetNPs( std::vector<std::string> nps, std::vector<double> values ) { m_initialNP = nps; m_initialNPvalue = values; }
-
-    inline RooFitResult* GetFitResult() const { return m_fitResult.get(); }
-
-    inline void RangePOI_up( const double value){m_RangePOI_up = value;}
-    inline void RangePOI_down( const double value){m_RangePOI_down = value;}
 
     inline void UseMinos( const std::vector<std::string> minosvar){ m_useMinos = true; m_varMinos = minosvar; }
 

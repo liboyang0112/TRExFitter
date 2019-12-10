@@ -124,10 +124,8 @@ int ApplyErrorRounding(double& error, int& sig);
   */
 void RoundToSig(double& value, const int& n);
 
-std::string FloatToPseudoHex(const float value);
 std::string DoubleToPseudoHex(const double value);
 
-float HexToFloat(const std::string& s);
 double HexToDouble(const std::string& s);
 
 /**
@@ -142,8 +140,6 @@ TH1* CloneNoError(TH1* h,const char* name="");
 unsigned int NCharactersInString(const std::string& s,const char c);
 
 bool CheckExpression(const std::string& s);
-
-std::size_t GetSampleIndexFromList(const std::vector<Sample*>& list, const std::string name);
 
 /**
     * Helper function to calculate nominal scale factor, for morphed samples as well

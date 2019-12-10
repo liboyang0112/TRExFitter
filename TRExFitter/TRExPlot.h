@@ -124,7 +124,6 @@ class TRExPlot {
     double fLegendY;
 
 public:
-    const TH1* GetTotal() const { return h_tot; };
     TH1* GetTotBkg() const;
 
 };

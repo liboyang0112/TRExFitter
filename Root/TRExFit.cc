@@ -5899,7 +5899,6 @@ void TRExFit::ComputeBinning(int regIter){
     std::string fullSelection;
     std::string fullMCweight;
     std::vector<std::string> fullPaths;
-    std::vector<std::string> empty;
     bool bkgReg=false;
     bool flatBkg=false;
     if(fRegions[regIter]->fRegionType==Region::CONTROL) bkgReg=true;
