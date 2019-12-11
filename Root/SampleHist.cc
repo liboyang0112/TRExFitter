@@ -182,12 +182,12 @@ SystematicHist* SampleHist::AddStatSyst(const std::string& name,const std::strin
     syh->fHistDown->SetBinContent(bin, binContent - binError);
     syh->fHistUp_orig.reset(static_cast<TH1*>(syh->fHistUp  ->Clone(Form("%s_orig",syh->fHistUp  ->GetName()))));
     syh->fHistDown_orig.reset(static_cast<TH1*>(syh->fHistDown->Clone(Form("%s_orig",syh->fHistDown->GetName()))));
-    syh->fHistShapeUp  ->Scale(fHist->Integral() / syh->fHistShapeUp  ->Integral());
-    syh->fHistShapeDown->Scale(fHist->Integral() / syh->fHistShapeDown->Integral());
+    syh->fHistShapeUp  ->Scale(EffIntegral(fHist.get()) / EffIntegral(syh->fHistShapeUp.get()));
+    syh->fHistShapeDown->Scale(EffIntegral(fHist.get()) / EffIntegral(syh->fHistShapeDown.get()));
     syh->fIsOverall = true;
     syh->fIsShape   = true;
-    syh->fNormUp   = ( syh->fHistUp->Integral()   - fHist->Integral() ) / fHist->Integral();
-    syh->fNormDown = ( syh->fHistDown->Integral() - fHist->Integral() ) / fHist->Integral();
+    syh->fNormUp   = ( EffIntegral(syh->fHistUp.get())   -  EffIntegral(fHist.get()) ) / EffIntegral(fHist.get());
+    syh->fNormDown = ( EffIntegral(syh->fHistDown.get()) - EffIntegral(fHist.get()) ) / EffIntegral(fHist.get());
     return syh;
 }
 
@@ -215,21 +215,21 @@ SystematicHist* SampleHist::AddHistoSyst(const std::string& name,const std::stri
     syh->fHistDown_preSmooth.reset(static_cast<TH1*>(h_down->Clone(Form("%s_%s_Down_preSmooth",fHist->GetName(),storedName.c_str()))));
     syh->fHistShapeUp.reset(static_cast<TH1*>(h_up  ->Clone(Form("%s_%s_Shape_Up",  fHist->GetName(),storedName.c_str()))));
     syh->fHistShapeDown.reset(static_cast<TH1*>(h_down->Clone(Form("%s_%s_Shape_Down",fHist->GetName(),storedName.c_str()))));
-    if(syh->fHistShapeUp  ->Integral() > 0. ){
-        syh->fHistShapeUp  ->Scale(fHist->Integral() / syh->fHistShapeUp  ->Integral());
+    if(EffIntegral(syh->fHistShapeUp.get()) > 0. ){
+        syh->fHistShapeUp  ->Scale(EffIntegral(fHist.get()) / EffIntegral(syh->fHistShapeUp.get()));
     } else {
         syh->fHistShapeUp.reset(static_cast<TH1*>(fHist->Clone(Form("%s_%s_Shape_Up",  fHist->GetName(),storedName.c_str()))));
     }
-    if(syh->fHistShapeDown  ->Integral() > 0. ){
-        syh->fHistShapeDown->Scale(fHist->Integral() / syh->fHistShapeDown->Integral());
+    if(EffIntegral(syh->fHistShapeDown.get()) > 0. ){
+        syh->fHistShapeDown->Scale(EffIntegral(fHist.get()) / EffIntegral(syh->fHistShapeDown.get()));
     } else {
         syh->fHistShapeDown.reset(static_cast<TH1*>(fHist->Clone(Form("%s_%s_Shape_Down",  fHist->GetName(),storedName.c_str()))));
     }
 
     syh->fIsOverall = true;
     syh->fIsShape   = true;
-    syh->fNormUp   = ( syh->fHistUp->Integral()   - fHist->Integral() ) / fHist->Integral();
-    syh->fNormDown = ( syh->fHistDown->Integral() - fHist->Integral() ) / fHist->Integral();
+    syh->fNormUp   = ( EffIntegral(syh->fHistUp.get())   -  EffIntegral(fHist.get()) ) / EffIntegral(fHist.get());
+    syh->fNormDown = ( EffIntegral(syh->fHistDown.get()) - EffIntegral(fHist.get()) ) / EffIntegral(fHist.get());
     if(syh->fNormUp == 0 && syh->fNormDown == 0) syh->fIsOverall = false;
     return syh;
 }
@@ -280,14 +280,14 @@ SystematicHist* SampleHist::AddHistoSyst(const std::string& name,
     else{
         sh->fHistShapeUp.reset(static_cast<TH1*>(sh->fHistUp  ->Clone(Form("%s_%s_Shape_Up",  fHist->GetName(),storedName.c_str()))));
         sh->fHistShapeDown.reset(static_cast<TH1*>(sh->fHistDown->Clone(Form("%s_%s_Shape_Down",fHist->GetName(),storedName.c_str()))));
-        if(sh->fHistShapeUp  ->Integral() > 0. ){
-            sh->fHistShapeUp  -> Scale(fHist->Integral() / sh->fHistShapeUp  ->Integral());
+        if(EffIntegral(sh->fHistShapeUp.get()) > 0. ){
+            sh->fHistShapeUp  -> Scale(EffIntegral(fHist.get()) / EffIntegral(sh->fHistShapeUp.get()));
         } else {
             sh->fHistShapeUp.reset(static_cast<TH1*>(fHist -> Clone(Form("%s_%s_Shape_Up",  fHist->GetName(),storedName.c_str()))));
         }
 
-        if(sh->fHistShapeDown  ->Integral() > 0. ){
-            sh->fHistShapeDown->Scale(fHist->Integral() / sh->fHistShapeDown->Integral());
+        if(EffIntegral(sh->fHistShapeDown.get()) > 0. ){
+            sh->fHistShapeDown->Scale(EffIntegral(fHist.get()) / EffIntegral(sh->fHistShapeDown.get()));
         } else {
             sh->fHistShapeDown.reset(static_cast<TH1*>(fHist -> Clone(Form("%s_%s_Shape_Down",  fHist->GetName(),storedName.c_str()))));
         }
@@ -300,8 +300,8 @@ SystematicHist* SampleHist::AddHistoSyst(const std::string& name,
         sh->fNormDown = 0;
     }
     else{
-        sh->fNormUp   = ( sh->fHistUp->Integral()   - fHist->Integral() ) / fHist->Integral();
-        sh->fNormDown = ( sh->fHistDown->Integral() - fHist->Integral() ) / fHist->Integral();
+        sh->fNormUp   = ( EffIntegral(sh->fHistUp.get())   -  EffIntegral(fHist.get()) ) / EffIntegral(fHist.get());
+        sh->fNormDown = ( EffIntegral(sh->fHistDown.get()) - EffIntegral(fHist.get()) ) / EffIntegral(fHist.get());
         sh->fIsOverall = true;
     }
     if(sh->fNormUp == 0 && sh->fNormDown == 0) sh->fIsOverall = false;
