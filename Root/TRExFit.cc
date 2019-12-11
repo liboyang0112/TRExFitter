@@ -224,6 +224,7 @@ TRExFit::TRExFit(std::string name) :
     fShowRatioPadMerge(true),
     fExcludeFromMorphing(""),
     fSaturatedModel(false),
+    fDoSystNormalizationPlots(true),
     fDebugNev(-1) {
 
     TRExFitter::IMAGEFORMAT.emplace_back("png");
@@ -3356,8 +3357,132 @@ void TRExFit::SystPruning() const {
         reg->SystPruning(&pu);
     }
 
+    // Draw plot with normalisation effect of each systematic
+    if (fDoSystNormalizationPlots) {
+        DrawSystematicNormalisationSummary();
+    }
+
     // it also writes the txt file actually
     DrawPruningPlot();
+}
+    
+//__________________________________________________________________________________
+//
+void TRExFit::DrawSystematicNormalisationSummary() const {
+
+    // First get the dimensions right
+    const std::vector<std::string> uniqueSysts = GetUniqueSystNamesWithoutGamma();
+    const std::vector<Region*> regions = GetNonValidationRegions();
+    const std::vector<Sample*> samples = GetNonDataNonGhostSamples();
+
+    const int xBins = regions.size()*samples.size();
+
+    TH2D histo("", "", xBins, 0, xBins, 2*uniqueSysts.size(), 0, 2*uniqueSysts.size());
+    histo.GetXaxis()->SetTickSize(0);
+    histo.GetYaxis()->SetTickSize(0);
+    for (std::size_t ireg = 0; ireg < regions.size(); ++ireg) {
+        for (std::size_t ibin = 0; ibin < samples.size(); ++ibin) {
+            histo.GetXaxis()->SetBinLabel(ireg*samples.size()+ibin+1, samples.at(ibin)->fName.c_str());
+        }
+    }
+    for (std::size_t isyst = 0; isyst < uniqueSysts.size(); ++isyst) {
+        histo.GetYaxis()->SetBinLabel(2*isyst+1, (uniqueSysts.at(isyst)+"_Up").c_str());
+        histo.GetYaxis()->SetBinLabel(2*isyst+2, (uniqueSysts.at(isyst)+"_Dn").c_str());
+    }
+    histo.GetXaxis()->LabelsOption("v");
+
+    // Fill the histograms
+    for (std::size_t ireg = 0; ireg < regions.size(); ++ireg) {
+        for (std::size_t isample = 0; isample < samples.size(); ++isample) {
+            const SampleHist* sh = regions.at(ireg)->GetSampleHist(samples.at(isample)->fName);
+            for (std::size_t isyst = 0; isyst < uniqueSysts.size(); ++isyst) {
+                if (!sh) {
+                    histo.SetBinContent(ireg*samples.size()+isample+1,
+                                        2*isyst+1,
+                                        0);
+                    histo.SetBinContent(ireg*samples.size()+isample+1,
+                                        2*isyst+2,
+                                        0);
+                    continue;
+                }
+
+                // actually calcualte the normalisation effect
+                const TH1* nominal = sh->fHist.get();
+                const SystematicHist* syh = sh->GetSystematic(uniqueSysts.at(isyst));
+                if (!syh) {
+                    histo.SetBinContent(ireg*samples.size()+isample+1,
+                                        2*isyst+1,
+                                        0);
+                    histo.SetBinContent(ireg*samples.size()+isample+1,
+                                        2*isyst+2,
+                                        0);
+                    continue;
+                }
+
+                if (!nominal) {
+                    histo.SetBinContent(ireg*samples.size()+isample+1,
+                                        2*isyst+1,
+                                        0);
+                    histo.SetBinContent(ireg*samples.size()+isample+1,
+                                        2*isyst+2,
+                                        0);
+                    continue;
+                }
+                
+                const TH1* up   = syh->fHistUp.get();
+                const TH1* down = syh->fHistDown.get();
+
+                if (up) {
+                    const double norm = 100*(up->Integral() - nominal->Integral())/nominal->Integral();
+                    histo.SetBinContent(ireg*samples.size()+isample+1,
+                                        2*isyst+1,
+                                        norm);
+                } else {
+                    histo.SetBinContent(ireg*samples.size()+isample+1,
+                                        2*isyst+1,
+                                        0);
+                }
+
+                if (down) {
+                    const double norm = 100*(down->Integral() - nominal->Integral())/nominal->Integral();
+                    histo.SetBinContent(ireg*samples.size()+isample+1,
+                                        2*isyst+2,
+                                        norm);
+                } else {
+                    histo.SetBinContent(ireg*samples.size()+isample+1,
+                                        2*isyst+2,
+                                        0);
+                }
+            }
+        }
+    }
+
+    static const int upSize = 50;
+    static const int loSize = 150;
+    static const int leftSize = 250;
+    static const int separation = 10;
+    const int regionSize = 20*samples.size();
+    const int mainHeight = 2*uniqueSysts.size()*20;
+    const int mainWidth = regions.size()*(regionSize+separation);
+
+    TCanvas c("","", leftSize+mainWidth, upSize+mainHeight+loSize);
+    c.SetTopMargin(2./(2.*uniqueSysts.size()));
+    c.SetBottomMargin(200./(2600.+2.*uniqueSysts.size()));
+    c.SetLeftMargin(0.3);
+    c.SetRightMargin(0.0);
+    gStyle->SetPalette(87);
+    //gStyle->SetPaintTextFormat(".1f");
+    c.SetGrid();
+
+    histo.SetMarkerSize(450);
+    histo.GetXaxis()->SetLabelOffset(0.5*histo.GetXaxis()->GetLabelOffset());
+    gStyle->SetPaintTextFormat(".1f");
+    histo.Draw("col TEXT");
+    c.RedrawAxis("g");
+
+    for(const auto& iformat : TRExFitter::IMAGEFORMAT) {
+        c.SaveAs((fName+"/NormalisationPlot"+fSuffix+"."+iformat).c_str());
+    }
 }
 
 //__________________________________________________________________________________
@@ -3552,8 +3677,8 @@ void TRExFit::DrawPruningPlot() const{
     leg.SetTextSize(0.85*gStyle->GetTextSize());
     leg.Draw();
     //
-    for(int i_format=0;i_format<(int)TRExFitter::IMAGEFORMAT.size();i_format++) {
-        c.SaveAs( (fName+"/Pruning"+fSuffix+"."+TRExFitter::IMAGEFORMAT[i_format]).c_str() );
+    for(const auto& iformat : TRExFitter::IMAGEFORMAT) {
+        c.SaveAs( (fName+"/Pruning"+fSuffix+"."+iformat).c_str() );
     }
 
     //
@@ -7723,3 +7848,29 @@ std::vector<std::string> TRExFit::GetUniqueSystNamesWithoutGamma() const {
     return result;
 }
 
+//__________________________________________________________________________________
+//
+std::vector<Region*> TRExFit::GetNonValidationRegions() const {
+    std::vector<Region*> result;
+    for (const auto& ireg : fRegions) {
+        if (ireg->fRegionType == Region::VALIDATION) continue;
+        result.emplace_back(ireg);
+    }
+
+    return result;
+}
+
+//__________________________________________________________________________________
+//
+std::vector<Sample*> TRExFit::GetNonDataNonGhostSamples() const {
+    std::vector<Sample*> result;
+
+    for (const auto& isample : fSamples) {
+        if (isample->fType == Sample::DATA) continue;
+        if (isample->fType == Sample::GHOST) continue;
+
+        result.emplace_back(isample);
+    }
+
+    return result;
+}

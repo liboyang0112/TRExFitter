@@ -161,6 +161,11 @@ public:
     void SystPruning() const;
     void DrawPruningPlot() const;
 
+    /**
+      * A helper function to draw the plots with normalisation for each systematic
+      */ 
+    void DrawSystematicNormalisationSummary() const;
+
     // fit etc...
     void Fit(bool isLHscanOnly);
     RooDataSet* DumpData( RooWorkspace *ws, std::map < std::string, int > &regionDataType, std::map < std::string, double > &npValues, const double poiValue);
@@ -336,6 +341,18 @@ public:
       *  @return the list of unique non-gamma systematics
       */ 
     std::vector<std::string> GetUniqueSystNamesWithoutGamma() const;
+
+    /**
+      * A helper function to get the vector of non-validation regions
+      * @return the vector on non-validation regions
+      */ 
+    std::vector<Region*> GetNonValidationRegions() const;
+
+    /**
+      * A helper function to get the vector of non-data, non-ghost samples
+      * @return the vector of non-data, non-ghost samples
+      */ 
+    std::vector<Sample*> GetNonDataNonGhostSamples() const;
 
     // -------------------------
 
@@ -587,6 +604,8 @@ public:
     std::vector<std::string> fScaleSamplesToData;
 
     bool fSaturatedModel;
+
+    bool fDoSystNormalizationPlots;
 
     int fDebugNev;
 };
