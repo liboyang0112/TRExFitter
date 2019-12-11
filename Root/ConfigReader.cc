@@ -868,6 +868,19 @@ int ConfigReader::ReadJobOptions(){
         }
     }
 
+    param = confSet->Get("DoSystNormalizationPlots");
+    if (param != "") {
+        std::transform(param.begin(), param.end(), param.begin(), ::toupper);
+        if (param == "TRUE") {
+            fFitter->fDoSystNormalizationPlots = true;
+        } else if (param == "FALSE") {
+            fFitter->fDoSystNormalizationPlots = false;
+        } else {
+            WriteWarningStatus("ConfigReader::ReadJobOptions", "You specified DoSystNormalizationPlots option but did not provide valid parameter. Using default (TRUE)");
+            fFitter->fDoSystNormalizationPlots = true;
+        }
+    }
+
     // Set PrePostFitCanvasSize
     param = confSet->Get("PrePostFitCanvasSize");
     if( param != ""){

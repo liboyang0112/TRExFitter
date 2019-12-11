@@ -42,6 +42,7 @@ The following settings are for normal fits, performed without the action `m`.
 | SystPruningShape             | Lower threshold to remove a shape systematic from the fit/limit (suppression is done per sample and per region) (e.g.: 0.02 for 2%) |
 | SystPruningNorm              | Lower threshold to remove a normalisation systematic from the fit/limit (suppression is done per sample and per region) (e.g.: 0.02 for 2%) |
 | SystLarge                    | all systematics above this threshold will be flagged in the pruning plot) (e.g. 0.4 will flag systematics that are larger than 40%) |
+| DoSystNormalizationPlots     | Set to `FALSE` to disable the normalization summary plot that is produced during the `w` step |
 | IntCodeOverall               | interpolation code used for the normalization component of systematics (should match the one used in RooStats) |
 | IntCodeShape                 | interpolation code used for the shape component of systematics (should match the one used in RooStats) |
 | MCstatThreshold              | by default, the MC stat uncertainty is included in the fit (and to the plots); a NP will be added for each bin with an MC stat uncertainty > this threshold (relative) if the option is set to a float (default: no threshold); can also set to NONE in order to disable MC stat uncertainty completely |
