@@ -3471,7 +3471,6 @@ void TRExFit::DrawSystematicNormalisationSummary() const {
     c.SetLeftMargin(0.3);
     c.SetRightMargin(0.0);
     gStyle->SetPalette(87);
-    //gStyle->SetPaintTextFormat(".1f");
     c.SetGrid();
 
     histo.SetMarkerSize(450);
