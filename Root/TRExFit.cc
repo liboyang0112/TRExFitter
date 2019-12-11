@@ -3382,7 +3382,8 @@ void TRExFit::DrawSystematicNormalisationSummary() const {
     histo.GetYaxis()->SetTickSize(0);
     for (std::size_t ireg = 0; ireg < regions.size(); ++ireg) {
         for (std::size_t ibin = 0; ibin < samples.size(); ++ibin) {
-            histo.GetXaxis()->SetBinLabel(ireg*samples.size()+ibin+1, samples.at(ibin)->fName.c_str());
+            histo.GetXaxis()->SetBinLabel(ireg*samples.size()+ibin+1,
+                                          (regions.at(ireg)->fName+"_"+samples.at(ibin)->fName).c_str());
         }
     }
     for (std::size_t isyst = 0; isyst < uniqueSysts.size(); ++isyst) {
@@ -3474,7 +3475,7 @@ void TRExFit::DrawSystematicNormalisationSummary() const {
     c.SetGrid();
 
     histo.SetMarkerSize(450);
-    histo.GetXaxis()->SetLabelOffset(0.5*histo.GetXaxis()->GetLabelOffset());
+    histo.GetXaxis()->SetLabelOffset(0.3*histo.GetXaxis()->GetLabelOffset());
     gStyle->SetPaintTextFormat(".1f");
     histo.Draw("col TEXT");
     c.RedrawAxis("g");
