@@ -331,6 +331,12 @@ public:
 
     SystematicHist* CombineSpecialHistos(SystematicHist* orig, const std::vector<SystematicHist*>& vec, Systematic::COMBINATIONTYPE type, const SampleHist* sh) const;
 
+    /**
+      *  A helper function to get the list of unique names of non-gamma systematics
+      *  @return the list of unique non-gamma systematics
+      */ 
+    std::vector<std::string> GetUniqueSystNamesWithoutGamma() const;
+
     // -------------------------
 
     std::string fName;

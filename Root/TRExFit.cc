@@ -3384,16 +3384,11 @@ void TRExFit::DrawPruningPlot() const{
     }
     // make a list of non-gamma systematics only
     std::vector<Systematic*> nonGammaSystematics;
-    std::vector<std::string> uniqueSyst;
+    const std::vector<std::string>& uniqueSyst = GetUniqueSystNamesWithoutGamma();
     for(int i_syst=0;i_syst<fNSyst;i_syst++){
-        if(fSystematics[i_syst]->fType!=Systematic::SHAPE){
-            nonGammaSystematics.push_back(fSystematics[i_syst]);
-
-            // fill names of unique systs
-            if (std::find(uniqueSyst.begin(), uniqueSyst.end(), fSystematics[i_syst]->fName) == uniqueSyst.end()){
-                uniqueSyst.emplace_back(fSystematics[i_syst]->fName);
-            }
-        }
+        if(fSystematics[i_syst]->fType == Systematic::SHAPE) continue;
+        
+        nonGammaSystematics.push_back(fSystematics[i_syst]);
     }
     const size_t NnonGammaSyst = nonGammaSystematics.size();
     if(NnonGammaSyst==0){
@@ -7713,3 +7708,18 @@ SystematicHist* TRExFit::CombineSpecialHistos(SystematicHist* orig, const std::v
 
     return orig;
 }
+
+//__________________________________________________________________________________
+//
+std::vector<std::string> TRExFit::GetUniqueSystNamesWithoutGamma() const {
+    std::vector<std::string> result;
+    for(const auto& isyst : fSystematics) {
+        if (isyst->fType == Systematic::SHAPE) continue;
+        if (std::find(result.begin(), result.end(), isyst->fName) == result.end()) {
+            result.emplace_back(isyst->fName);
+        }
+    }
+
+    return result;
+}
+
