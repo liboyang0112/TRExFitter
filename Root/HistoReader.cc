@@ -429,12 +429,8 @@ void HistoReader::ReadTRExProducedHistograms() {
     std::string fileNameBootstrap = "";
     SampleHist *sh = nullptr;
     SystematicHist *syh = nullptr;
-    std::string regionName;
-    std::string sampleName;
-    std::string normName;
-    std::string shapeName;
-    //
-    bool singleOutputFile = !TRExFitter::SPLITHISTOFILES;
+
+    const bool singleOutputFile = !TRExFitter::SPLITHISTOFILES;
     if(singleOutputFile){
         if(fFitter->fInputFolder!="") fileName = fFitter->fInputFolder           + fFitter->fInputName + "_histos.root";
         else                          fileName = fFitter->fName + "/Histograms/" + fFitter->fInputName + "_histos.root";
@@ -603,7 +599,7 @@ void HistoReader::ReadTRExProducedHistograms() {
         if(fFitter->fKeepPruning){
             histPrun.push_back( static_cast<TH2*>(filePrun->Get( Form("h_prun_%s_toSave", fFitter->fRegions[i_ch]->fName.c_str()))));
         }
-        regionName = fFitter->fRegions[i_ch]->fName;
+        const std::string regionName = fFitter->fRegions[i_ch]->fName;
         WriteDebugStatus("HistoReader::ReadTRExProducedHistograms","  Reading region " + regionName);
         //
         if(!singleOutputFile){
@@ -627,7 +623,7 @@ void HistoReader::ReadTRExProducedHistograms() {
             //
             if(FindInStringVector(fFitter->fSamples[i_smp]->fRegions,regionName)<0 && fFitter->fSamples[i_smp]->fName.find("customAsimov_")==std::string::npos ) continue;
             //
-            sampleName = fFitter->fSamples[i_smp]->fName;
+            const std::string sampleName = fFitter->fSamples[i_smp]->fName;
             WriteDebugStatus("HistoReader::ReadTRExProducedHistograms", "    Reading sample " + sampleName);
             fFitter->fRegions[i_ch]->SetSampleHist(fFitter->fSamples[i_smp],regionName+"_"+sampleName,fileName);
             sh = fFitter->fRegions[i_ch]->GetSampleHist(sampleName);
@@ -668,7 +664,7 @@ void HistoReader::ReadTRExProducedHistograms() {
                 if(fFitter->fSamples[i_smp]->fNormFactors[i_norm]->fRegions.size()>0 && FindInStringVector(fFitter->fSamples[i_smp]->fNormFactors[i_norm]->fRegions,fFitter->fRegions[i_ch]->fName)<0  ) continue;
                 if(fFitter->fSamples[i_smp]->fNormFactors[i_norm]->fExclude.size()>0 && FindInStringVector(fFitter->fSamples[i_smp]->fNormFactors[i_norm]->fExclude,fFitter->fRegions[i_ch]->fName)>=0 ) continue;
                 //
-                normName = fFitter->fSamples[i_smp]->fNormFactors[i_norm]->fName;
+                const std::string normName = fFitter->fSamples[i_smp]->fNormFactors[i_norm]->fName;
                 WriteDebugStatus("HistoReader::ReadTRExProducedHistograms", "      Reading norm " + normName);
                 // norm only
                 sh->AddNormFactor(fFitter->fSamples[i_smp]->fNormFactors[i_norm].get());
@@ -681,7 +677,7 @@ void HistoReader::ReadTRExProducedHistograms() {
                 if( fFitter->fSamples[i_smp]->fShapeFactors[i_shape]->fRegions.size()>0 && FindInStringVector(fFitter->fSamples[i_smp]->fShapeFactors[i_shape]->fRegions,fFitter->fRegions[i_ch]->fName)<0  ) continue;
                 if( fFitter->fSamples[i_smp]->fShapeFactors[i_shape]->fExclude.size()>0 && FindInStringVector(fFitter->fSamples[i_smp]->fShapeFactors[i_shape]->fExclude,fFitter->fRegions[i_ch]->fName)>=0 ) continue;
                 //
-                shapeName = fFitter->fSamples[i_smp]->fShapeFactors[i_shape]->fName;
+                const std::string shapeName = fFitter->fSamples[i_smp]->fShapeFactors[i_shape]->fName;
                 WriteDebugStatus("HistoReader::ReadTRExProducedHistograms", "      Reading shape " + shapeName);
                 // shape only
                 sh->AddShapeFactor(fFitter->fSamples[i_smp]->fShapeFactors[i_shape].get());
