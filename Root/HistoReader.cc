@@ -22,9 +22,6 @@ HistoReader::~HistoReader() {
 }
 
 void HistoReader::ReadHistograms(){
-    TH1* hUp = nullptr;
-    TH1* hDown = nullptr;
-
     //
     // Loop on regions and samples
     //
@@ -47,15 +44,15 @@ void HistoReader::ReadHistograms(){
             //
             std::vector<std::string> fullPaths = fFitter->FullHistogramPaths(fFitter->fRegions[i_ch],fFitter->fSamples[i_smp]);
 
-            TH1D* h = ReadSingleHistogram(fullPaths, nullptr, i_ch, i_smp, true, false).release(); // is nominal and not MC
+            std::unique_ptr<TH1D> h = ReadSingleHistogram(fullPaths, nullptr, i_ch, i_smp, true, false); // is nominal and not MC
             //
             // Save the original histogram
             TH1* h_orig = static_cast<TH1*>(h->Clone( Form("%s_orig",h->GetName()) ));
             //
             // Importing the histogram in TRExFitter
-            SampleHist *sh = fFitter->fRegions[i_ch]->SetSampleHist( fFitter->fSamples[i_smp], h );
+            SampleHist *sh = fFitter->fRegions[i_ch]->SetSampleHist( fFitter->fSamples[i_smp], h.get());
             sh->fHist_orig.reset(h_orig);
-            sh->fHist_orig->SetName( Form("%s_orig",sh->fHist->GetName()) ); // fix the name
+            sh->fHist_orig->SetName( Form("%s_orig",sh->fHist->GetName())); // fix the name
 
             // in fact DATA can be used for systs that have SubtractRefSampleVar: TRUE
             for(int i_syst=0;i_syst<fFitter->fSamples[i_smp]->fNSyst;i_syst++){
@@ -75,10 +72,11 @@ void HistoReader::ReadHistograms(){
                 //
                 // Up
                 //
-                hUp = nullptr;
+                std::unique_ptr<TH1> hUp(nullptr);
+                std::unique_ptr<TH1> hDown(nullptr);
                 if(syst->fHasUpVariation){
                     fullPaths = fFitter->FullHistogramPaths(fFitter->fRegions[i_ch],fFitter->fSamples[i_smp],syst,true);
-                    hUp = ReadSingleHistogram(fullPaths, syst, i_ch, i_smp, true, false).release(); // is up variation and not MC
+                    hUp = ReadSingleHistogram(fullPaths, syst, i_ch, i_smp, true, false); // is up variation and not MC
                 }
                 //
                 // Down
@@ -86,18 +84,20 @@ void HistoReader::ReadHistograms(){
                 hDown = nullptr;
                 if(syst->fHasDownVariation){
                     fullPaths = fFitter->FullHistogramPaths(fFitter->fRegions[i_ch],fFitter->fSamples[i_smp],syst,false);
-                    hDown = ReadSingleHistogram(fullPaths, syst, i_ch, i_smp, false, false).release(); // is down variation and not MC
+                    hDown = ReadSingleHistogram(fullPaths, syst, i_ch, i_smp, false, false); // is down variation and not MC
                 }
                 //
                 if(hUp==nullptr){
-                    hUp   = fFitter->fRegions[i_ch]->GetSampleHist(fFitter->fSamples[i_smp]->fName )->fHist.get();
+                    hUp.reset(static_cast<TH1*>(fFitter->fRegions[i_ch]->GetSampleHist(fFitter->fSamples[i_smp]->fName)->fHist->Clone()));
                 }
                 if(hDown==nullptr){
-                    hDown = fFitter->fRegions[i_ch]->GetSampleHist(fFitter->fSamples[i_smp]->fName )->fHist.get();
+                    hDown.reset(static_cast<TH1*>(fFitter->fRegions[i_ch]->GetSampleHist(fFitter->fSamples[i_smp]->fName )->fHist->Clone()));
                 }
                 //
                 SystematicHist *syh = sh->AddHistoSyst(fFitter->fSamples[i_smp]->fSystematics[i_syst]->fName,
-                                                       fFitter->fSamples[i_smp]->fSystematics[i_syst]->fStoredName,hUp,hDown);
+                                                       fFitter->fSamples[i_smp]->fSystematics[i_syst]->fStoredName,
+                                                       hUp.get(),
+                                                       hDown.get());
                 syh->fSystematic = fFitter->fSamples[i_smp]->fSystematics[i_syst].get();
                 syh->fScaleUp = fFitter->fSamples[i_smp]->fSystematics[i_syst]->fScaleUp;
                 if(fFitter->fSamples[i_smp]->fSystematics[i_syst]->fScaleUpRegions.size()!=0) {
@@ -221,7 +221,8 @@ void HistoReader::ReadHistograms(){
                 //
                 // Up
                 //
-                hUp = nullptr;
+                std::unique_ptr<TH1> hUp(nullptr);
+                std::unique_ptr<TH1> hDown(nullptr);
                 if(syst->fHasUpVariation){
                     fullPaths = fFitter->FullHistogramPaths(fFitter->fRegions[i_ch],
                                                             fFitter->fSamples[i_smp],
@@ -230,12 +231,11 @@ void HistoReader::ReadHistograms(){
                     for (const auto& ipath : fullPaths){
                         files_names.insert(ipath);
                     }
-                    hUp = ReadSingleHistogram(fullPaths, syst, i_ch, i_smp, true, true).release(); // isUp and isMC
+                    hUp = ReadSingleHistogram(fullPaths, syst, i_ch, i_smp, true, true); // isUp and isMC
                 }
                 //
                 // Down
                 //
-                hDown = nullptr;
                 if(syst->fHasDownVariation){
                     fullPaths = fFitter->FullHistogramPaths(fFitter->fRegions[i_ch],
                                                             fFitter->fSamples[i_smp],
@@ -244,16 +244,16 @@ void HistoReader::ReadHistograms(){
                     for (const auto& ipath : fullPaths){
                         files_names.insert(ipath);
                     }
-                    hDown = ReadSingleHistogram(fullPaths, syst, i_ch, i_smp, false, true).release(); // isUp and isMC
+                    hDown = ReadSingleHistogram(fullPaths, syst, i_ch, i_smp, false, true); // isUp and isMC
                 }
                 //
-                if(hUp==nullptr)   hUp   = static_cast<TH1D*>(reg->GetSampleHist(fFitter->fSamples[i_smp]->fName )->fHist.get());
-                if(hDown==nullptr) hDown = static_cast<TH1D*>(reg->GetSampleHist(fFitter->fSamples[i_smp]->fName )->fHist.get());
+                if(!hUp)   hUp  .reset(static_cast<TH1D*>(reg->GetSampleHist(fFitter->fSamples[i_smp]->fName )->fHist->Clone()));
+                if(!hDown) hDown.reset(static_cast<TH1D*>(reg->GetSampleHist(fFitter->fSamples[i_smp]->fName )->fHist->Clone()));
                 //
                 SystematicHist *syh = sh->AddHistoSyst(fFitter->fSamples[i_smp]->fSystematics[i_syst]->fName,
                                                        fFitter->fSamples[i_smp]->fSystematics[i_syst]->fStoredName,
-                                                       hUp,
-                                                       hDown);
+                                                       hUp.get(),
+                                                       hDown.get());
                 syh->fSystematic = fFitter->fSamples[i_smp]->fSystematics[i_syst].get();
                 syh->fScaleUp = fFitter->fSamples[i_smp]->fSystematics[i_syst]->fScaleUp;
                 if(fFitter->fSamples[i_smp]->fSystematics[i_syst]->fScaleUpRegions.size()!=0) {
@@ -316,7 +316,7 @@ std::unique_ptr<TH1D> HistoReader::ReadSingleHistogram(const std::vector<std::st
         if (isMC && syst != nullptr){
             // obtain relative variation and apply it to proper sample
             // & try to keep also the same total relative variation
-            if(syst->fReferenceSample!="" && !syst->fSubtractRefSampleVar){
+            if(syst->fReferenceSample != "" && !syst->fSubtractRefSampleVar) {
                 // check if the reference sample exists
                 if (fFitter->fRegions[i_ch]->GetSampleHist(syst->fReferenceSample) == nullptr){
                     WriteErrorStatus("HistoReader::ReadSingleHistogram", "Reference sample: " + syst->fReferenceSample + " does not exist for region: " + fFitter->fRegions[i_ch]->fName + ". Please check this!");
@@ -357,7 +357,7 @@ std::unique_ptr<TH1D> HistoReader::ReadSingleHistogram(const std::vector<std::st
                 }
             }
             // new special case: we subtract from the relative uncertainty the relative uncertainty of another (data) sample
-            else if (syst->fReferenceSample!="" && syst->fSubtractRefSampleVar) {
+            else if (syst->fReferenceSample != "" && syst->fSubtractRefSampleVar) {
                 // check if the reference sample exists
                 if (fFitter->fRegions[i_ch]->GetSampleHist(syst->fReferenceSample) == nullptr){
                     WriteErrorStatus("HistoReader::ReadSingleHistogram", "Reference sample: " + syst->fReferenceSample + " does not exist for region: " + fFitter->fRegions[i_ch]->fName + ". Please check this!");
@@ -390,18 +390,16 @@ std::unique_ptr<TH1D> HistoReader::ReadSingleHistogram(const std::vector<std::st
                     }
                 }
                 // Formula: UpHisto = [1+(up-nom)/nom-(DataUp-Data)/Data]*nom = up+nom+DataUp/Data*nom
-                TH1* href_upDown_Tmp = static_cast<TH1*>(href_upDown->Clone(
-                    Form("%s_Tmp", href_upDown->GetName())));
+                std::unique_ptr<TH1> href_upDown_Tmp(static_cast<TH1*>(href_upDown->Clone(
+                    Form("%s_Tmp", href_upDown->GetName()))));
                 // get copies with no error
                 auto hrefTmp = GetHistCopyNoError(href);
                 auto hnomTmp = GetHistCopyNoError(hnom);
                 href_upDown_Tmp->Divide(hrefTmp.get());
                 href_upDown_Tmp->Multiply(hnomTmp.get());
                 htmp->Add(hnomTmp.get());
-                auto href_upDown_TmpNoErr = GetHistCopyNoError(href_upDown_Tmp);
+                auto href_upDown_TmpNoErr = GetHistCopyNoError(href_upDown_Tmp.get());
                 htmp->Add(href_upDown_TmpNoErr.get(),-1);
-
-                delete href_upDown_Tmp;// it's a clone, and it's the purpose of clones to die
             }
         }
 
