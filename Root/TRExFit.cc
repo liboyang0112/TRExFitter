@@ -5947,6 +5947,7 @@ void TRExFit::CombineSpecialSystematics() {
     for (const auto& icombine : combineNames) {
         Systematic::COMBINATIONTYPE type(Systematic::COMBINATIONTYPE::ENVELOPE);
         // loop over regions
+        std::vector<std::string> dropNorm;
         for (std::size_t iReg = 0; iReg < fRegions.size(); ++iReg) {
             // loop over systematics and get the list of systematics to combine
             std::vector<std::string> names;
@@ -5955,6 +5956,12 @@ void TRExFit::CombineSpecialSystematics() {
                 if (std::find(names.begin(), names.end(), isyst->fName) != names.end()) continue;
                 names.emplace_back(isyst->fName);
                 type = isyst->fCombineType;
+
+                if (dropNorm.size() == 0) {
+                    if (isyst->fDropNormSpecialIn.size() != 0) {
+                        dropNorm = isyst->fDropNormSpecialIn;
+                    }
+                }
             }
 
             // now loop over the systematics to combine
@@ -5979,6 +5986,22 @@ void TRExFit::CombineSpecialSystematics() {
             for (std::size_t ish = 0; ish < fRegions[iReg]->fSampleHists.size(); ++ish) {
                 auto newSampleHist = fRegions[iReg]->fSampleHists.at(ish)->GetSystematic(names.at(0));
                 newSampleHist = CombineSpecialHistos(newSampleHist, sh_vec.at(ish), type, fRegions[iReg]->fSampleHists.at(ish).get());
+
+                // apply the drop normalisation
+                if (!newSampleHist) continue;
+                if (std::find(dropNorm.begin(), dropNorm.end(), fRegions[iReg]->fName) != dropNorm.end()) {
+                    const SampleHist* sh = fRegions[iReg]->fSampleHists.at(ish).get();
+                    if (!sh) continue;
+                    const TH1* nominal = sh->fHist.get();
+                    if (!nominal) continue;
+
+                    newSampleHist->fHistUp  ->Scale(nominal->Integral()/newSampleHist->fHistUp  ->Integral());
+                    newSampleHist->fHistDown->Scale(nominal->Integral()/newSampleHist->fHistDown->Integral());
+                    newSampleHist->fNormPruned = true;
+                    newSampleHist->fShapePruned = false;
+                    newSampleHist->fNormUp = 0.;
+                    newSampleHist->fNormDown = 0.;
+                }
             }
 
             // And set the remaining systematicHist to zero

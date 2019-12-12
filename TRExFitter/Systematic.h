@@ -77,6 +77,7 @@ public:
     std::vector<std::vector<std::string> > fExcludeRegionSample;
     std::vector<std::string> fDropShapeIn;
     std::vector<std::string> fDropNormIn;
+    std::vector<std::string> fDropNormSpecialIn;
     std::vector<std::string> fKeepNormForSamples;
     std::vector<std::string> fDummyForSamples;
     std::vector<int> fBins;

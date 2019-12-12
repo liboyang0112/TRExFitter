@@ -388,6 +388,7 @@ additional options, accepting only float as arguments - useful for adding your f
 | ReferencePruning             | if this is specified, the syst variation is pruned wrt a specified sample (Must appear in `Samples` for this syst) and then the same pruning is applied to all specified samples |
 | DropShapeIn                  | specify regions or samples where you want the smoothing / pruning to be forced to drop the shape and keep only norm. When `all` is used, the shape is dropped for all regions and all samples |
 | DropNorm                     | the same as the previous one, but to drop the norm and keep only the shape |
+| DropNormSpecial              | Only effective when `CombineName` is used to combine special systematics. A list of region names can be specified to drop the normalisation for the combined systematic in those regions. This option has to be used for at least one of the systematics that are being combined |
 | KeepNormForSamples           | list of samples (or sum of samples, in the form smp1+smp2), comma separated, for which the systematic gets shape only in each region |
 | DummyForSamples              | list of samples, comma separated, for which the systematic gets created as a dummy one (syst variation = nominal); useful when used in combination with KeepNormForSamples |
 | PreSmoothing                 | if set to TRUE, a TH1::Smooth-based smoothing is applied, prior to the usual smoothing (if set) |

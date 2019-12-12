@@ -4137,6 +4137,21 @@ int ConfigReader::ReadSystOptions(){
             sys->fDropNormIn = tmp;
         }
 
+        // Set DropNormSpecial
+        param = confSet->Get("DropNormSpecial");
+        if(param!=""){
+            std::vector<std::string> tmp = Vectorize(param,',');
+            if (tmp.size() > 0 && !CheckPresence(tmp, fAvailableRegions, fAvailableSamples)){
+                if (fAllowWrongRegionSample){
+                    WriteWarningStatus("ConfigReader::ReadSystOptions", "Systematic: " + CheckName(confSet->GetValue()) + " has regions set up in DropNorm that do not exist");
+                } else {
+                    WriteErrorStatus("ConfigReader::ReadSystOptions", "Systematic: " + CheckName(confSet->GetValue()) + " has regions set up in DropNorm that do not exist");
+                    return 1;
+                }
+            }
+            sys->fDropNormSpecialIn = tmp;
+        }
+
         // Set KeepNormForSamples
         param = confSet->Get("KeepNormForSamples");
         if(param!="") {
