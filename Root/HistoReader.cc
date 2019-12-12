@@ -425,10 +425,7 @@ std::unique_ptr<TH1D> HistoReader::ReadSingleHistogram(const std::vector<std::st
 }
 
 void HistoReader::ReadTRExProducedHistograms() {
-    std::string fileName = "";
-    std::string fileNameBootstrap = "";
-    SampleHist *sh = nullptr;
-    SystematicHist *syh = nullptr;
+    std::string fileName("");
 
     const bool singleOutputFile = !TRExFitter::SPLITHISTOFILES;
     if(singleOutputFile){
@@ -442,25 +439,24 @@ void HistoReader::ReadTRExProducedHistograms() {
         WriteInfoStatus("HistoReader::ReadTRExProducedHistograms", "Reading histograms from file " + fileName + " ...");
     }
     //
-    std::vector< TH2* > histPrun;
-    std::unique_ptr<TFile> filePrun = nullptr;
+    std::vector< std::unique_ptr<TH2> > histPrun;
+    std::unique_ptr<TFile> filePrun(nullptr);
     if( fFitter->fKeepPruning ){
-        filePrun = std::unique_ptr<TFile>(new TFile( (fFitter->fName+"/Pruning.root").c_str() ));
+        filePrun = std::unique_ptr<TFile>(TFile::Open( (fFitter->fName+"/Pruning.root").c_str() ));
         if(!filePrun) fFitter->fKeepPruning = false;
     }
     //
     // when we multply/divide by or subtract/add other samples, need to add systematics on the other samples
-    Systematic * tmpsyst;
     for(int i_smp=0;i_smp<fFitter->fNSamples;i_smp++){
         if(!fFitter->fSamples[i_smp]->fUseSystematics) continue;
         if(fFitter->fSamples[i_smp]->fDivideBy!=""){
-            Sample* smp = fFitter->GetSample(fFitter->fSamples[i_smp]->fDivideBy);
+            const Sample* smp = fFitter->GetSample(fFitter->fSamples[i_smp]->fDivideBy);
             for(int i_syst=0;i_syst<smp->fNSyst;i_syst++){
-                std::string systNPName = smp->fSystematics[i_syst]->fNuisanceParameter;
+                const std::string systNPName = smp->fSystematics[i_syst]->fNuisanceParameter;
                 if(!fFitter->fSamples[i_smp]->HasNuisanceParameter(systNPName)){
                     WriteDebugStatus("HistoReader::ReadTRExProducedHistograms", " The sample " + fFitter->fSamples[i_smp]->fName + " doesn't have natively NP "+ systNPName);
                     WriteDebugStatus("HistoReader::ReadTRExProducedHistograms", "                Inheriting it from "+smp->fName);
-                    tmpsyst = new Systematic((smp->fSystematics[i_syst].get())[0]);
+                    Systematic* tmpsyst = new Systematic((smp->fSystematics[i_syst].get())[0]);
                     tmpsyst->fName = systNPName; // want to inherit the triggering systematic, not the derived ones
                     tmpsyst->fStoredName = systNPName; // want to inherit the triggering systematic, not the derived ones
                     if (tmpsyst->fType == Systematic::OVERALL ) {
@@ -478,13 +474,13 @@ void HistoReader::ReadTRExProducedHistograms() {
             }
         }
         if(fFitter->fSamples[i_smp]->fMultiplyBy!=""){
-            Sample* smp = fFitter->GetSample(fFitter->fSamples[i_smp]->fMultiplyBy);
+            const Sample* smp = fFitter->GetSample(fFitter->fSamples[i_smp]->fMultiplyBy);
             for(int i_syst=0;i_syst<smp->fNSyst;i_syst++){
-                std::string systNPName = smp->fSystematics[i_syst]->fNuisanceParameter;
+                const std::string systNPName = smp->fSystematics[i_syst]->fNuisanceParameter;
                 if(!fFitter->fSamples[i_smp]->HasNuisanceParameter(systNPName)){
                     WriteDebugStatus("HistoReader::ReadTRExProducedHistograms", " The sample " + fFitter->fSamples[i_smp]->fName + " doesn't have natively NP "+ systNPName);
                     WriteDebugStatus("HistoReader::ReadTRExProducedHistograms", "                Inheriting it from "+smp->fName);
-                    tmpsyst = new Systematic((smp->fSystematics[i_syst].get())[0]);
+                    Systematic* tmpsyst = new Systematic((smp->fSystematics[i_syst].get())[0]);
                     tmpsyst->fName = systNPName; // want to inherit the triggering systematic, not the derived ones
                     tmpsyst->fStoredName = systNPName; // want to inherit the triggering systematic, not the derived ones
                     if (tmpsyst->fType == Systematic::OVERALL ) {
@@ -502,13 +498,13 @@ void HistoReader::ReadTRExProducedHistograms() {
             }
         }
         for(const auto& sample : fFitter->fSamples[i_smp]->fSubtractSamples){
-            Sample* smp = fFitter->GetSample(sample);
+            const Sample* smp = fFitter->GetSample(sample);
             for(int i_syst=0;i_syst<smp->fNSyst;i_syst++){
                 std::string systNPName = smp->fSystematics[i_syst]->fNuisanceParameter;
                 if(!fFitter->fSamples[i_smp]->HasNuisanceParameter(systNPName)){
                     WriteDebugStatus("HistoReader::ReadTRExProducedHistograms", " The sample " + fFitter->fSamples[i_smp]->fName + " doesn't have natively NP "+ systNPName);
                     WriteDebugStatus("HistoReader::ReadTRExProducedHistograms", "                Inheriting it from "+smp->fName);
-                    tmpsyst = new Systematic((smp->fSystematics[i_syst].get())[0]);
+                    Systematic* tmpsyst = new Systematic((smp->fSystematics[i_syst].get())[0]);
                     tmpsyst->fName = systNPName; // want to inherit the triggering systematic, not the derived ones
                     tmpsyst->fStoredName = systNPName; // want to inherit the triggering systematic, not the derived ones
                     if (tmpsyst->fType == Systematic::OVERALL ) {
@@ -526,13 +522,13 @@ void HistoReader::ReadTRExProducedHistograms() {
             }
         }
         for(const auto& sample : fFitter->fSamples[i_smp]->fAddSamples){
-            Sample* smp = fFitter->GetSample(sample);
+            const Sample* smp = fFitter->GetSample(sample);
             for(int i_syst=0;i_syst<smp->fNSyst;i_syst++){
-                std::string systNPName = smp->fSystematics[i_syst]->fNuisanceParameter;
+                const std::string systNPName = smp->fSystematics[i_syst]->fNuisanceParameter;
                 if(!fFitter->fSamples[i_smp]->HasNuisanceParameter(systNPName)){
                     WriteDebugStatus("HistoReader::ReadTRExProducedHistograms", " The sample " + fFitter->fSamples[i_smp]->fName + " doesn't have natively NP "+ systNPName);
                     WriteDebugStatus("HistoReader::ReadTRExProducedHistograms", "                Inheriting it from "+smp->fName);
-                    tmpsyst = new Systematic((smp->fSystematics[i_syst].get())[0]);
+                    Systematic* tmpsyst = new Systematic((smp->fSystematics[i_syst].get())[0]);
                     tmpsyst->fName = systNPName; // want to inherit the triggering systematic, not the derived ones
                     tmpsyst->fStoredName = systNPName; // want to inherit the triggering systematic, not the derived ones
                     if (tmpsyst->fType == Systematic::OVERALL ) {
@@ -595,9 +591,10 @@ void HistoReader::ReadTRExProducedHistograms() {
         }
     }
     //
+    std::string fileNameBootstrap("");
     for(int i_ch=0;i_ch<fFitter->fNRegions;i_ch++){
         if(fFitter->fKeepPruning){
-            histPrun.push_back( static_cast<TH2*>(filePrun->Get( Form("h_prun_%s_toSave", fFitter->fRegions[i_ch]->fName.c_str()))));
+            histPrun.emplace_back(static_cast<TH2*>(filePrun->Get(Form("h_prun_%s_toSave", fFitter->fRegions[i_ch]->fName.c_str()))));
         }
         const std::string regionName = fFitter->fRegions[i_ch]->fName;
         WriteDebugStatus("HistoReader::ReadTRExProducedHistograms","  Reading region " + regionName);
@@ -626,25 +623,25 @@ void HistoReader::ReadTRExProducedHistograms() {
             const std::string sampleName = fFitter->fSamples[i_smp]->fName;
             WriteDebugStatus("HistoReader::ReadTRExProducedHistograms", "    Reading sample " + sampleName);
             fFitter->fRegions[i_ch]->SetSampleHist(fFitter->fSamples[i_smp],regionName+"_"+sampleName,fileName);
-            sh = fFitter->fRegions[i_ch]->GetSampleHist(sampleName);
-            if(sh==nullptr) continue;
-            //
+            SampleHist* sh = fFitter->fRegions[i_ch]->GetSampleHist(sampleName);
+            if(!sh) continue;
+            
             // separate gammas -> Add systematic
             if(fFitter->fSamples[i_smp]->fSeparateGammas){
                 std::string systName = "stat_"+fFitter->fSamples[i_smp]->fName;
                 std::string systStoredName = systName;
                 WriteDebugStatus("HistoReader::ReadTRExProducedHistograms", "adding separate gammas as SHAPE systematic " + systName);
-                SystematicHist *syh_tmp = sh->AddHistoSyst(systName,
+                SystematicHist* syh_tmp = sh->AddHistoSyst(systName,
                                                            systStoredName,
                                                            Form("%s_%s_%s_Up",  regionName.c_str(),sampleName.c_str(),systStoredName.c_str()), fileName,
                                                            Form("%s_%s_%s_Down",regionName.c_str(),sampleName.c_str(),systStoredName.c_str()), fileName,
                                                            0
-                                                        );
-                if(syh_tmp==nullptr){
+                                                          );
+                if(!syh_tmp){
                     WriteWarningStatus("HistoReader::ReadTRExProducedHistograms", "No histogram found for separate gamma, but may be you will create it right now.");
                 }
                 else{
-                    Systematic *gamma = nullptr;
+                    Systematic* gamma = nullptr;
                     if(FindInStringVector(fFitter->fSystematicNames,systName)>=0) gamma = fFitter->fSystematics[FindInStringVector(fFitter->fSystematicNames,systName)];  //GetSystematic(systName);
                     if(gamma==nullptr) gamma = fFitter->NewSystematic(systName);
                     WriteDebugStatus("TRExFit::ReadHistos", "adding separate gammas as SHAPE systematic " + systName);
@@ -658,7 +655,7 @@ void HistoReader::ReadTRExProducedHistograms() {
             }
             //
             // norm factors
-            for(int i_norm=0;i_norm<fFitter->fSamples[i_smp]->fNNorm;i_norm++){
+            for(int i_norm=0; i_norm < fFitter->fSamples[i_smp]->fNNorm; ++i_norm){
                 //
                 // eventually skip norm factor / region combination
                 if(fFitter->fSamples[i_smp]->fNormFactors[i_norm]->fRegions.size()>0 && FindInStringVector(fFitter->fSamples[i_smp]->fNormFactors[i_norm]->fRegions,fFitter->fRegions[i_ch]->fName)<0  ) continue;
@@ -691,12 +688,12 @@ void HistoReader::ReadTRExProducedHistograms() {
                 if( fFitter->fSamples[i_smp]->fSystematics[i_syst]->fExclude.size()>0 && FindInStringVector(fFitter->fSamples[i_smp]->fSystematics[i_syst]->fExclude,fFitter->fRegions[i_ch]->fName)>=0 ) continue;
                 if( fFitter->fSamples[i_smp]->fSystematics[i_syst]->fExcludeRegionSample.size()>0 && FindInStringVectorOfVectors(fFitter->fSamples[i_smp]->fSystematics[i_syst]->fExcludeRegionSample,fFitter->fRegions[i_ch]->fName, fFitter->fSamples[i_smp]->fName)>=0 ) continue;
                 //
-                std::string systName       = fFitter->fSamples[i_smp]->fSystematics[i_syst]->fName;
-                std::string systStoredName = fFitter->fSamples[i_smp]->fSystematics[i_syst]->fStoredName; // if no StoredName specified in the config, this should be == fName
+                const std::string systName       = fFitter->fSamples[i_smp]->fSystematics[i_syst]->fName;
+                const std::string systStoredName = fFitter->fSamples[i_smp]->fSystematics[i_syst]->fStoredName; // if no StoredName specified in the config, this should be == fName
                 //
                 // eventually skip systematics if pruned
                 int binContent(0);
-                if( fFitter->fKeepPruning && histPrun[i_ch]!=nullptr ){
+                if( fFitter->fKeepPruning && histPrun[i_ch] != nullptr ){
                     const int xbin = histPrun[i_ch]->GetXaxis()->FindBin( sampleName.c_str() ); // sample
                     const int ybin = histPrun[i_ch]->GetYaxis()->FindBin( systName.c_str() ); // syst
                     const int bin = histPrun[i_ch]->GetBin(xbin,ybin);
@@ -708,6 +705,7 @@ void HistoReader::ReadTRExProducedHistograms() {
                 }
                 WriteDebugStatus("HistoReader::ReadTRExProducedHistograms", "      Reading syst " + systName);
                 // norm only
+                SystematicHist* syh(nullptr);
                 if(fFitter->fSamples[i_smp]->fSystematics[i_syst]->fType == Systematic::OVERALL){
                     if( fFitter->fKeepPruning ){
                         if( binContent == -2 || binContent == 2 ) continue;
@@ -740,7 +738,7 @@ void HistoReader::ReadTRExProducedHistograms() {
                                                pruned
                                               );
                     }
-                    if(syh==nullptr){
+                    if(!syh) {
                         if (!pruned) WriteWarningStatus("HistoReader::ReadTRExProducedHistograms", "No syst histo found for syst " + systName + ", sample " + sampleName + ", region " + regionName);
                         continue;
                     }
@@ -778,7 +776,7 @@ void HistoReader::ReadTRExProducedHistograms() {
         }
     }
 
-    if (filePrun != nullptr){
+    if (filePrun) {
         filePrun->Close();
     }
 }
