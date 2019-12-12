@@ -47,7 +47,7 @@ void HistoReader::ReadHistograms(){
             //
             std::vector<std::string> fullPaths = fFitter->FullHistogramPaths(fFitter->fRegions[i_ch],fFitter->fSamples[i_smp]);
 
-            TH1D* h = ReadSingleHistogram(fullPaths, nullptr, i_ch, i_smp, true, false); // is nominal and not MC
+            TH1D* h = ReadSingleHistogram(fullPaths, nullptr, i_ch, i_smp, true, false).release(); // is nominal and not MC
             //
             // Save the original histogram
             TH1* h_orig = static_cast<TH1*>(h->Clone( Form("%s_orig",h->GetName()) ));
@@ -78,7 +78,7 @@ void HistoReader::ReadHistograms(){
                 hUp = nullptr;
                 if(syst->fHasUpVariation){
                     fullPaths = fFitter->FullHistogramPaths(fFitter->fRegions[i_ch],fFitter->fSamples[i_smp],syst,true);
-                    hUp = ReadSingleHistogram(fullPaths, syst, i_ch, i_smp, true, false); // is up variation and not MC
+                    hUp = ReadSingleHistogram(fullPaths, syst, i_ch, i_smp, true, false).release(); // is up variation and not MC
                 }
                 //
                 // Down
@@ -86,7 +86,7 @@ void HistoReader::ReadHistograms(){
                 hDown = nullptr;
                 if(syst->fHasDownVariation){
                     fullPaths = fFitter->FullHistogramPaths(fFitter->fRegions[i_ch],fFitter->fSamples[i_smp],syst,false);
-                    hDown = ReadSingleHistogram(fullPaths, syst, i_ch, i_smp, false, false); // is down variation and not MC
+                    hDown = ReadSingleHistogram(fullPaths, syst, i_ch, i_smp, false, false).release(); // is down variation and not MC
                 }
                 //
                 if(hUp==nullptr){
@@ -130,7 +130,7 @@ void HistoReader::ReadHistograms(){
             for (const auto& ipath : fullPaths){
                 files_names.insert(ipath);
             }
-            TH1D* h = ReadSingleHistogram(fullPaths, nullptr, i_ch, i_smp, true, true); // is MC
+            TH1D* h = ReadSingleHistogram(fullPaths, nullptr, i_ch, i_smp, true, true).release(); // is MC
             //
             // Save the original histogram
             TH1* h_orig = static_cast<TH1*>(h->Clone( Form("%s_orig",h->GetName())));
@@ -230,7 +230,7 @@ void HistoReader::ReadHistograms(){
                     for (const auto& ipath : fullPaths){
                         files_names.insert(ipath);
                     }
-                    hUp = ReadSingleHistogram(fullPaths, syst, i_ch, i_smp, true, true); // isUp and isMC
+                    hUp = ReadSingleHistogram(fullPaths, syst, i_ch, i_smp, true, true).release(); // isUp and isMC
                 }
                 //
                 // Down
@@ -244,7 +244,7 @@ void HistoReader::ReadHistograms(){
                     for (const auto& ipath : fullPaths){
                         files_names.insert(ipath);
                     }
-                    hDown = ReadSingleHistogram(fullPaths, syst, i_ch, i_smp, false, true); // isUp and isMC
+                    hDown = ReadSingleHistogram(fullPaths, syst, i_ch, i_smp, false, true).release(); // isUp and isMC
                 }
                 //
                 if(hUp==nullptr)   hUp   = static_cast<TH1D*>(reg->GetSampleHist(fFitter->fSamples[i_smp]->fName )->fHist.get());
@@ -275,13 +275,13 @@ void HistoReader::ReadHistograms(){
     }
 }
 
-TH1D* HistoReader::ReadSingleHistogram(const std::vector<std::string>& fullPaths,
-                                       Systematic* syst,
-                                       int i_ch,
-                                       int i_smp,
-                                       bool isUp,
-                                       bool isMC) {
-    TH1D* h = nullptr;
+std::unique_ptr<TH1D> HistoReader::ReadSingleHistogram(const std::vector<std::string>& fullPaths,
+                                                       Systematic* syst,
+                                                       int i_ch,
+                                                       int i_smp,
+                                                       bool isUp,
+                                                       bool isMC) {
+    std::unique_ptr<TH1D> result(nullptr);
     for(unsigned int i_path = 0; i_path < fullPaths.size(); ++i_path){
         std::unique_ptr<TH1> htmp = HistFromFile( fullPaths.at(i_path) );
         if (!htmp) {
@@ -406,24 +406,24 @@ TH1D* HistoReader::ReadSingleHistogram(const std::vector<std::string>& fullPaths
         }
 
         if(i_path == 0){
-            if (syst == nullptr){ // is nominal
-                h = static_cast<TH1D*>(htmp->Clone(Form("h_%s_%s",fFitter->fRegions[i_ch]->fName.c_str(),
-                    fFitter->fSamples[i_smp]->fName.c_str())));
+            if (!syst) { // is nominal
+                result.reset(static_cast<TH1D*>(htmp->Clone(Form("h_%s_%s",fFitter->fRegions[i_ch]->fName.c_str(),
+                    fFitter->fSamples[i_smp]->fName.c_str()))));
             } else { // is syst
                 if (isUp){ // up variation
-                    h = static_cast<TH1D*>(htmp->Clone(Form("h_%s_%s_%sUp",fFitter->fRegions[i_ch]->fName.c_str(),
-                        fFitter->fSamples[i_smp]->fName.c_str(),syst->fStoredName.c_str())));
+                    result.reset(static_cast<TH1D*>(htmp->Clone(Form("h_%s_%s_%sUp",fFitter->fRegions[i_ch]->fName.c_str(),
+                        fFitter->fSamples[i_smp]->fName.c_str(),syst->fStoredName.c_str()))));
                 } else { // down variation
-                    h = static_cast<TH1D*>(htmp->Clone(Form("h_%s_%s_%sDown",fFitter->fRegions[i_ch]->fName.c_str(),
-                        fFitter->fSamples[i_smp]->fName.c_str(),syst->fStoredName.c_str())));
+                    result.reset(static_cast<TH1D*>(htmp->Clone(Form("h_%s_%s_%sDown",fFitter->fRegions[i_ch]->fName.c_str(),
+                        fFitter->fSamples[i_smp]->fName.c_str(),syst->fStoredName.c_str()))));
                 }
             }
         }
         else{
-            h->Add(htmp.get());
+            result->Add(htmp.get());
         }
     }
-    return h;
+    return result;
 }
 
 void HistoReader::ReadTRExProducedHistograms() {
