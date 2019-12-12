@@ -1,6 +1,7 @@
 #ifndef HISTOREADER_H_
 #define HISTOREADER_H_
 
+#include <memory>
 #include <string>
 #include <vector>
 
@@ -62,12 +63,12 @@ class HistoReader {
           * @param flag if we are reading MC or Data
           * @return the read histogram
           */
-         TH1D* ReadSingleHistogram(const std::vector<std::string>& fullPaths,
-                                   Systematic* syst,
-                                   int i_ch,
-                                   int i_smp,
-                                   bool isUp,
-                                   bool isMC);
+         std::unique_ptr<TH1D> ReadSingleHistogram(const std::vector<std::string>& fullPaths,
+                                                   Systematic* syst,
+                                                   int i_ch,
+                                                   int i_smp,
+                                                   bool isUp,
+                                                   bool isMC);
 }; 
 
 #endif
