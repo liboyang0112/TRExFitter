@@ -102,12 +102,27 @@ for step in h w f d p ; do
   rm -f LOG_MORPH_$step
 done
 
+for step in h w f d p ; do
+  echo "==> Morphing dilepton $step step ongoing"
+  ./build/bin/trex-fitter $step test/configs/FitExampleMorphingDilep.config >& LOG_MORPH_DILEP_$step
+  cat LOG_MORPH_DILEP_$step | grep -v "TRExFitter" >& test/logs/FitExampleMorphingDilep/LOG_MORPH_DILEP_$step
+  rm -f LOG_MORPH_DILEP_$step
+done
+
 for step in n w f d p ; do
   echo "==> Ntuple $step step ongoing"
   ./build/bin/trex-fitter $step test/configs/FitExampleNtuple.config >& LOG_NTUPLE_$step
   cat LOG_NTUPLE_$step | grep -v "TRExFitter" >& test/logs/FitExampleNtuple/LOG_NTUPLE_$step
   rm -f LOG_NTUPLE_$step
 done
+
+for step in w f; do
+  echo "==> Morphing multifit $step step ongoing"
+  ./build/bin/trex-fitter m$step test/configs/FitExampleMorphMultifit.config >& LOG_MORPH_MULTI_$step
+  cat LOG_MORPH_MULTI_$step | grep -v "TRExFitter" >& test/logs/FitExampleMorphMultifit/LOG_MORPH_MULTI_$step
+  rm -f LOG_MORPH_MULTI_$step
+done
+
 ##
 ## Making a git status and asks if the files have to be added
 ##
