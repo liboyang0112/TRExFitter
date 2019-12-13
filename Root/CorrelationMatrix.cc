@@ -89,6 +89,7 @@ void CorrelationMatrix::Draw(const std::string& path, const bool& useGammas, con
     //
     static const std::vector<string> npToExclude = {"gamma_","stat_"};
     std::vector < std::string > vec_NP_old = vec_NP;
+    vec_NP.clear();
     for(unsigned int iNP = 0; iNP < vec_NP_old.size(); ++iNP){
         const std::string iSystName = vec_NP_old[iNP];
         bool skip = false;
