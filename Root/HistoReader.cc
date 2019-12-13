@@ -34,6 +34,8 @@ void HistoReader::ReadHistograms(){
         //
         if(fFitter->fRegions[i_ch]->fBinTransfo != "") fFitter->ComputeBinning(i_ch);
         // first we must read the DATA samples
+        ReadOneRegionData(i_ch);
+
 
         // then we can read the other samples
         std::set < std::string > files_names;
@@ -728,8 +730,8 @@ void HistoReader::ReadOneRegionData(const int i_ch) {
         sh->fHist_orig->SetName( Form("%s_orig",sh->fHist->GetName())); // fix the name
     
         // in fact DATA can be used for systs that have SubtractRefSampleVar: TRUE
-        for(int i_syst=0; i_syst < ismp->fNSyst; i_syst++){
-            Systematic *syst = ismp->fSystematics[i_syst].get();
+        for(const auto& isyst : ismp->fSystematics) {
+            Systematic *syst = isyst.get();
             // only relevant for systs that have this sample as reference
             if (!syst->fSubtractRefSampleVar || syst->fReferenceSample != ismp->fName) continue;
     
@@ -767,21 +769,21 @@ void HistoReader::ReadOneRegionData(const int i_ch) {
                 hDown.reset(static_cast<TH1*>(fFitter->fRegions[i_ch]->GetSampleHist(ismp->fName )->fHist->Clone()));
             }
             //
-            SystematicHist *syh = sh->AddHistoSyst(ismp->fSystematics[i_syst]->fName,
-                                                   ismp->fSystematics[i_syst]->fStoredName,
+            SystematicHist *syh = sh->AddHistoSyst(isyst->fName,
+                                                   isyst->fStoredName,
                                                    hUp.get(),
                                                    hDown.get());
-            syh->fSystematic = ismp->fSystematics[i_syst].get();
-            syh->fScaleUp = ismp->fSystematics[i_syst]->fScaleUp;
-            if(ismp->fSystematics[i_syst]->fScaleUpRegions.size()!=0) {
-                if(ismp->fSystematics[i_syst]->fScaleUpRegions[fFitter->fRegions[i_ch]->fName]!=0){
-                    syh->fScaleUp *= ismp->fSystematics[i_syst]->fScaleUpRegions[fFitter->fRegions[i_ch]->fName];
+            syh->fSystematic = isyst.get();
+            syh->fScaleUp = isyst->fScaleUp;
+            if(isyst->fScaleUpRegions.size()!=0) {
+                if(isyst->fScaleUpRegions[fFitter->fRegions[i_ch]->fName]!=0){
+                    syh->fScaleUp *= isyst->fScaleUpRegions[fFitter->fRegions[i_ch]->fName];
                 }
             }
-            syh->fScaleDown = ismp->fSystematics[i_syst]->fScaleDown;
-            if(ismp->fSystematics[i_syst]->fScaleDownRegions.size()!=0) {
-                if(ismp->fSystematics[i_syst]->fScaleDownRegions[fFitter->fRegions[i_ch]->fName]!=0){
-                    syh->fScaleDown *= ismp->fSystematics[i_syst]->fScaleDownRegions[fFitter->fRegions[i_ch]->fName];
+            syh->fScaleDown = isyst->fScaleDown;
+            if(isyst->fScaleDownRegions.size()!=0) {
+                if(isyst->fScaleDownRegions[fFitter->fRegions[i_ch]->fName]!=0){
+                    syh->fScaleDown *= isyst->fScaleDownRegions[fFitter->fRegions[i_ch]->fName];
                 }
             }
         }
