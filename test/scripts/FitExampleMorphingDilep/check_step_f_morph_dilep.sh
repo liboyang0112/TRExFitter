@@ -1,0 +1,3 @@
+#!/bin/bash
+diff -w -I "Real time"  -I "RooRealVar::" -I "mkdir" -I "libSM.so" -I "libASImage" -I "png file FitExampleMorphingDilep" LOG_MORPH_DILEP_f test/logs/FitExampleMorphingDilep/LOG_MORPH_DILEP_f && diff -w FitExampleMorphingDilep/Fits/FitExampleMorphingDilep.txt test/reference/FitExampleMorphingDilep/Fits/FitExampleMorphingDilep.txt
+diff -w -I "Real time"  -I "RooRealVar::" -I "mkdir" -I "libSM.so" -I "libASImage" -I "png file FitExampleMorphingDilep" LOG_MORPH_DILEP_f test/logs/FitExampleMorphingDilep/LOG_MORPH_DILEP_f && diff -w FitExampleMorphingDilep/Fits/FitExampleMorphingDilep_saturatedModel.txt test/reference/FitExampleMorphingDilep/Fits/FitExampleMorphingDilep_saturatedModel.txt

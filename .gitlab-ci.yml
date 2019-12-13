@@ -18,6 +18,8 @@ stages:
   - hnstep
   - wstep
   - flsstep
+  - wstep_multi
+  - fstep_multi
   - rstep
   - draw
   - imagebuild
@@ -125,6 +127,18 @@ histograms_morph:
       paths:
         - FitExampleMorphing
 
+histograms_morph_dilep:
+    stage: hnstep
+    needs:
+      - compile
+    script:
+      - trex-fitter h test/configs/FitExampleMorphingDilep.config
+      - ls
+      - ls FitExampleMorphingDilep/Histograms/
+    artifacts:
+      paths:
+        - FitExampleMorphingDilep
+
 histograms_ntuple:
     stage: hnstep
     needs:
@@ -194,6 +208,24 @@ workspace_morph:
     artifacts:
       paths:
         - FitExampleMorphing
+
+workspace_morph_dilep:
+    stage: wstep
+    needs:
+      - compile
+      - histograms_morph_dilep
+    script:
+      - trex-fitter w test/configs/FitExampleMorphingDilep.config >& LOG_MORPH_DILEP_w
+      - cat LOG_MORPH_DILEP_w | grep -v "TRExFitter" >& temp_log && mv temp_log LOG_MORPH_DILEP_w
+      - ls
+      - set -e
+      - ls FitExampleMorphingDilep
+      - ls FitExampleMorphingDilep/RooStats/
+      - source test/scripts/FitExampleMorphingDilep/check_step_w_morph_dilep.sh
+      - echo "=> Passed quick logfile checks"
+    artifacts:
+      paths:
+        - FitExampleMorphingDilep
 
 workspace_ntuple:
     stage: wstep
@@ -273,6 +305,26 @@ fit_morph:
     artifacts:
       paths:
         - FitExampleMorphing
+
+fit_morph_dilep:
+    stage: flsstep
+    needs:
+      - compile
+      - histograms_morph_dilep
+      - workspace_morph_dilep
+    script:
+      - trex-fitter f test/configs/FitExampleMorphingDilep.config >& LOG_MORPH_DILEP_f
+      - cat LOG_MORPH_DILEP_f | grep -v "TRExFitter" >& temp_log && mv temp_log LOG_MORPH_DILEP_f
+      - ls
+      - set -e
+      - ls FitExampleMorphingDilep
+      - ls FitExampleMorphingDilep/Fits/
+      - cat FitExampleMorphingDilep/Fits/*.txt
+      - source test/scripts/FitExampleMorphingDilep/check_step_f_morph_dilep.sh
+      - echo "=> Passed quick logfile checks"
+    artifacts:
+      paths:
+        - FitExampleMorphingDilep
 
 fit_ntuple:
     stage: flsstep
@@ -362,6 +414,47 @@ ranking:
       paths:
         - FitExample
 
+workspace_morph_multifit:
+    stage: wstep_multi
+    needs:
+      - compile
+      - workspace_morph
+      - workspace_morph_dilep
+      - fit_morph
+      - fit_morph_dilep
+    script:
+      - trex-fitter mw test/configs/FitExampleMorphMultifit.config >& LOG_MORPH_MULTI_w
+      - cat LOG_MORPH_MULTI_w | grep -v "TRExFitter" >& temp_log && mv temp_log LOG_MORPH_MULTI_w
+      - ls
+      - set -e
+      - ls FitExampleMorphMultifit
+      - source test/scripts/FitExampleMorphMultifit/check_step_w_morph_multi.sh
+      - echo "=> Passed quick logfile checks"
+    artifacts:
+      paths:
+        - FitExampleMorphMultifit
+
+fit_morph_multifit:
+    stage: fstep_multi
+    needs:
+      - compile
+      - workspace_morph_multifit
+      - fit_morph
+      - fit_morph_dilep
+    script:
+      - trex-fitter mf test/configs/FitExampleMorphMultifit.config >& LOG_MORPH_MULTI_f
+      - cat LOG_MORPH_MULTI_f | grep -v "TRExFitter" >& temp_log && mv temp_log LOG_MORPH_MULTI_f
+      - ls
+      - set -e
+      - ls FitExampleMorphMultifit
+      - ls FitExampleMorphMultifit/Fits/
+      - cat FitExampleMorphMultifit/Fits/*.txt
+      - source test/scripts/FitExampleMorphMultifit/check_step_f_morph_multi.sh
+      - echo "=> Passed quick logfile checks"
+    artifacts:
+      paths:
+        - FitExampleMorphMultifit
+
 ##
 ## "draw" step: performs the prefit plots
 ##    Artifact: keeps the Plots folder
@@ -397,6 +490,21 @@ draw_prefit_morph:
       - ls FitExampleMorphing
       - ls FitExampleMorphing/Plots/
       - source test/scripts/FitExampleMorphing/check_step_d_morph.sh
+      - echo "=> Passed quick logfile checks"
+
+draw_prefit_morph_dilep:
+    stage: draw
+    needs:
+      - compile
+      - histograms_morph_dilep
+    script:
+      - trex-fitter d test/configs/FitExampleMorphingDilep.config >& LOG_MORPH_DILEP_d
+      - cat LOG_MORPH_DILEP_d | grep -v "TRExFitter" >& temp_log && mv temp_log LOG_MORPH_DILEP_d
+      - ls
+      - set -e
+      - ls FitExampleMorphingDilep
+      - ls FitExampleMorphingDilep/Plots/
+      - source test/scripts/FitExampleMorphingDilep/check_step_d_morph_dilep.sh
       - echo "=> Passed quick logfile checks"
 
 draw_prefit_ntuple:
@@ -451,6 +559,22 @@ draw_postfit_morph:
       - ls FitExampleMorphing
       - ls FitExampleMorphing/Plots/
       - source test/scripts/FitExampleMorphing/check_step_p_morph.sh
+      - echo "=> Passed quick logfile checks"
+
+draw_postfit_morph_dilep:
+    stage: draw
+    needs:
+      - compile
+      - histograms_morph_dilep
+      - fit_morph_dilep
+    script:
+      - trex-fitter p test/configs/FitExampleMorphingDilep.config >& LOG_MORPH_DILEP_p
+      - cat LOG_MORPH_DILEP_p | grep -v "TRExFitter" >& temp_log && mv temp_log LOG_MORPH_DILEP_p
+      - ls
+      - set -e
+      - ls FitExampleMorphingDilep
+      - ls FitExampleMorphingDilep/Plots/
+      - source test/scripts/FitExampleMorphingDilep/check_step_p_morph_dilep.sh
       - echo "=> Passed quick logfile checks"
 
 draw_postfit_ntuple:

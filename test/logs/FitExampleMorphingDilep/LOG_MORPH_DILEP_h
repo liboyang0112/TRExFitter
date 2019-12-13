@@ -1,0 +1,57 @@
+
+[1mRooFit v3.60 -- Developed by Wouter Verkerke and David Kirkby[0m 
+                Copyright (C) 2000-2013 NIKHEF, University of California & Stanford University
+                All rights reserved, please read http://roofit.sourceforge.net/license.txt
+
+                    No rights reserved, feel free to use and modify it ;)
+
+Applying ATLAS style settings...
+
+[1;32m=== INFO::ConfigReader::ConfigReader: Started reading the config[0m
+[1;32m=== INFO::ConfigParser::ReadFile: Reading config file: test/configs/FitExampleMorphingDilep.config[0m
+[1;32m=== INFO::trex-fitter::FitExample: Successfully read config file.[0m
+[1;32m=== INFO::TRExFit::PrintConfigSummary: -------------------------------------------[0m
+[1;32m=== INFO::TRExFit::PrintConfigSummary: Job name: FitExampleMorphingDilep[0m
+[1;32m=== INFO::TRExFit::PrintConfigSummary: Reading the following regions:[0m
+[1;32m=== INFO::Region::Print:     Region: SR_emu[0m
+[1;32m=== INFO::Region::Print:     Region: CR_ll[0m
+[1;32m=== INFO::TRExFit::PrintConfigSummary: Reading the following samples:[0m
+[1;32m=== INFO::Sample::Print::      Nom_emu[0m
+[1;32m=== INFO::Sample::Print::      Nom_mbb[0m
+[1;32m=== INFO::Sample::Print::      PseudoData[0m
+[1;32m=== INFO::Sample::Print::      PseudoData[0m
+[1;32m=== INFO::Sample::Print::      Bkg_SR[0m
+[1;32m=== INFO::Sample::Print::      Bkg_CR[0m
+[1;32m=== INFO::Sample::Print::      Signal_0p7[0m
+[1;32m=== INFO::Sample::Print::      Signal_1p0[0m
+[1;32m=== INFO::Sample::Print::      Signal_1p5[0m
+[1;32m=== INFO::Sample::Print::      Signal_2p0[0m
+[1;32m=== INFO::Sample::Print::      Control_mbb[0m
+[1;32m=== INFO::TRExFit::PrintConfigSummary: Reading the following systematics:[0m
+[1;32m=== INFO::TRExFit::PrintConfigSummary:  bTagSF_B_0[0m
+[1;32m=== INFO::TRExFit::PrintConfigSummary:  CategoryReduction_JET_JER_EffectiveNP_2[0m
+[1;32m=== INFO::TRExFit::PrintConfigSummary: -------------------------------------------[0m
+Reading histograms...
+[1;32m=== INFO::TRExFit::CreateRootFiles: -------------------------------------------[0m
+[1;32m=== INFO::TRExFit::CreateRootFiles: Creating/updating file FitExampleMorphingDilep/Histograms/FitExampleMorphingDilep_histos.root ...[0m
+[1;32m=== INFO::HistoReader::ReadHistograms:   Region SR_emu ...[0m
+[1;32m=== INFO::HistoReader::ReadHistograms:   Region CR_ll ...[0m
+[1;32m=== INFO::TRExFit::SmoothSystematics: -------------------------------------------[0m
+[1;32m=== INFO::TRExFit::SmoothSystematics: Smoothing and/or Symmetrising Systematic Variations ...[0m
+[1;33m=== WARNING::HistoTools::CheckSameShift: Histograms SR_emu_Signal_0p7_CategoryReduction_JET_JER_EffectiveNP_2_Up and SR_emu_Signal_0p7_CategoryReduction_JET_JER_EffectiveNP_2_Down in bins 2 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 20  have the same shift for up and down variation[0m
+[1;33m=== WARNING::HistoTools::CheckSameShift: You should check this[0m
+[1;33m=== WARNING::HistoTools::CheckSameShift: Histograms SR_emu_Signal_1p0_CategoryReduction_JET_JER_EffectiveNP_2_Up and SR_emu_Signal_1p0_CategoryReduction_JET_JER_EffectiveNP_2_Down in bins 2 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 20  have the same shift for up and down variation[0m
+[1;33m=== WARNING::HistoTools::CheckSameShift: You should check this[0m
+[1;33m=== WARNING::HistoTools::CheckSameShift: Histograms SR_emu_Signal_1p5_CategoryReduction_JET_JER_EffectiveNP_2_Up and SR_emu_Signal_1p5_CategoryReduction_JET_JER_EffectiveNP_2_Down in bins 2 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 20  have the same shift for up and down variation[0m
+[1;33m=== WARNING::HistoTools::CheckSameShift: You should check this[0m
+[1;33m=== WARNING::HistoTools::CheckSameShift: Histograms SR_emu_Signal_2p0_CategoryReduction_JET_JER_EffectiveNP_2_Up and SR_emu_Signal_2p0_CategoryReduction_JET_JER_EffectiveNP_2_Down in bins 2 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 20  have the same shift for up and down variation[0m
+[1;33m=== WARNING::HistoTools::CheckSameShift: You should check this[0m
+[1;33m=== WARNING::HistoTools::CheckSameShift: Histograms CR_ll_Control_mbb_CategoryReduction_JET_JER_EffectiveNP_2_Up and CR_ll_Control_mbb_CategoryReduction_JET_JER_EffectiveNP_2_Down in bins 1 2 3 4 5 6 7  have the same shift for up and down variation[0m
+[1;33m=== WARNING::HistoTools::CheckSameShift: You should check this[0m
+[1;32m=== INFO::TRExFit::WriteHistos: -------------------------------------------[0m
+[1;32m=== INFO::TRExFit::WriteHistos: Writing histograms to file FitExampleMorphingDilep/Histograms/FitExampleMorphingDilep_histos.root ...[0m
+[1;32m=== INFO::TRExFit::WriteHistos: -------------------------------------------[0m
+[1;32m=== INFO::TRExFit::WriteHistos: Writing histograms to file FitExampleMorphingDilep/Histograms/FitExampleMorphingDilep_histos.root ...[0m
+[1;32m=== INFO::TRExFit::WriteHistos: -------------------------------------------[0m
+[1;32m=== INFO::TRExFit::DrawSystPlotsSumSamples: -------------------------------------------[0m
+[1;32m=== INFO::TRExFit::DrawSystPlotsSumSamples: Drawing combined plots of syst effects on data...[0m

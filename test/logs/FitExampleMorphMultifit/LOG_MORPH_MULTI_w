@@ -1,0 +1,42 @@
+
+[1mRooFit v3.60 -- Developed by Wouter Verkerke and David Kirkby[0m 
+                Copyright (C) 2000-2013 NIKHEF, University of California & Stanford University
+                All rights reserved, please read http://roofit.sourceforge.net/license.txt
+
+                    No rights reserved, feel free to use and modify it ;)
+
+Applying ATLAS style settings...
+
+[1;32m=== INFO::ConfigReaderMulti::ConfigReaderMulti: Started reading the config for multifit[0m
+[1;32m=== INFO::ConfigParser::ReadFile: Reading config file: test/configs/FitExampleMorphMultifit.config[0m
+[1;32m=== INFO::ConfigReader::ConfigReader: Started reading the config[0m
+[1;32m=== INFO::ConfigParser::ReadFile: Reading config file: test/configs/FitExampleMorphing.config[0m
+[1;32m=== INFO::ConfigReader::ConfigReader: Started reading the config[0m
+[1;32m=== INFO::ConfigParser::ReadFile: Reading config file: test/configs/FitExampleMorphingDilep.config[0m
+Combining workspaces...
+Comparing fits...
+[1;32m=== INFO::MultiFit::ComparePulls: Adding Combined Fit[0m
+[1;32m=== INFO::TRExFit::ReadFitResults: ------------------------------------------------------[0m
+[1;32m=== INFO::TRExFit::ReadFitResults: Reading fit results from file [0m
+[1;32m=== INFO::TRExFit::ReadFitResults: ------------------------------------------------------[0m
+[1;32m=== INFO::TRExFit::ReadFitResults: Reading fit results from file [0m
+[1;31m=== ERROR::FitResults::ReadFromTXT: Could not open the file "./FitExampleMorphMultifit/Fits/FitExampleMorphMultifit.txt"[0m
+[1;32m=== INFO::MultiFit::CompareNormFactors: Adding Combined Fit[0m
+[1;32m=== INFO::TRExFit::ReadFitResults: ------------------------------------------------------[0m
+[1;32m=== INFO::TRExFit::ReadFitResults: Reading fit results from file [0m
+[1;32m=== INFO::TRExFit::ReadFitResults: ------------------------------------------------------[0m
+[1;32m=== INFO::TRExFit::ReadFitResults: Reading fit results from file [0m
+[1;31m=== ERROR::FitResults::ReadFromTXT: Could not open the file "./FitExampleMorphMultifit/Fits/FitExampleMorphMultifit.txt"[0m
+[1;32m=== INFO::TRExFit::ReadFitResults: ------------------------------------------------------[0m
+[1;32m=== INFO::TRExFit::ReadFitResults: Reading fit results from file [0m
+[1;31m=== ERROR::FitResults::ReadFromTXT: Could not open the file "./FitExampleMorphMultifit/Fits/FitExampleMorphMultifit.txt"[0m
+[1;32m=== INFO::MultiFit::ComparePOI: Adding Fit: FitExampleMorphing, SingleLep, [0m
+[1;32m=== INFO::MultiFit::ComparePOI: Adding Fit: FitExampleMorphingDilep, Dilep, [0m
+[1;32m=== INFO::MultiFit::ComparePOI: Adding Combined Fit[0m
+[1;32m=== INFO::TRExFit::ReadFitResults: ------------------------------------------------------[0m
+[1;32m=== INFO::TRExFit::ReadFitResults: Reading fit results from file [0m
+[1;32m=== INFO::TRExFit::ReadFitResults: ------------------------------------------------------[0m
+[1;32m=== INFO::TRExFit::ReadFitResults: Reading fit results from file [0m
+[1;32m=== INFO::TRExFit::ReadFitResults: ------------------------------------------------------[0m
+[1;32m=== INFO::TRExFit::ReadFitResults: Reading fit results from file [0m
+[1;31m=== ERROR::FitResults::ReadFromTXT: Could not open the file "./FitExampleMorphMultifit/Fits/FitExampleMorphMultifit.txt"[0m
