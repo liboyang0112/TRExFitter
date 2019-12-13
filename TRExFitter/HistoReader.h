@@ -75,6 +75,12 @@ class HistoReader {
           * @param index of the region
           */  
         void ReadOneRegionData(const int i_ch);
+        
+        /**
+          * A helper function to read one region for data samples
+          * @param index of the region
+          */  
+        void ReadOneRegion(const int i_ch);
 }; 
 
 #endif

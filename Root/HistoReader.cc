@@ -27,7 +27,7 @@ void HistoReader::ReadHistograms(){
     //
     // Loop on regions and samples
     //
-    for(int i_ch=0;i_ch<fFitter->fNRegions;i_ch++){
+    for(int i_ch=0; i_ch < fFitter->fNRegions; ++i_ch) {
         WriteInfoStatus("HistoReader::ReadHistograms", "  Region " + fFitter->fRegions[i_ch]->fName + " ...");
         //
         if(TRExFitter::SPLITHISTOFILES) fFitter->fFiles[i_ch]->cd();
@@ -36,165 +36,8 @@ void HistoReader::ReadHistograms(){
         // first we must read the DATA samples
         ReadOneRegionData(i_ch);
 
-
         // then we can read the other samples
-        std::set < std::string > files_names;
-        for(int i_smp=0;i_smp<fFitter->fNSamples;i_smp++){
-            if(fFitter->fSamples[i_smp]->fType==Sample::DATA) continue;
-            WriteDebugStatus("HistoReader::ReadHistograms", "  Reading " + fFitter->fSamples[i_smp]->fName);
-            //
-            // eventually skip sample / region combination
-            //
-            if( Common::FindInStringVector(fFitter->fSamples[i_smp]->fRegions,fFitter->fRegions[i_ch]->fName)<0 ) continue;
-            //
-            // read nominal
-            //
-            std::vector<std::string>fullPaths = fFitter->FullHistogramPaths(fFitter->fRegions[i_ch],fFitter->fSamples[i_smp]);
-            for (const auto& ipath : fullPaths){
-                files_names.insert(ipath);
-            }
-            TH1D* h = ReadSingleHistogram(fullPaths, nullptr, i_ch, i_smp, true, true).release(); // is MC
-            //
-            // Save the original histogram
-            TH1* h_orig = static_cast<TH1*>(h->Clone( Form("%s_orig",h->GetName())));
-            //
-            // Importing the histogram in TRExFitter
-            SampleHist *sh = fFitter->fRegions[i_ch]->SetSampleHist(fFitter->fSamples[i_smp], h);
-            sh->fHist_orig.reset(h_orig);
-            sh->fHist_orig->SetName( Form("%s_orig",sh->fHist->GetName()) ); // fix the name
-
-            // end here no systematics allowed (e.g. generally for GHOST samples)
-            if (!(fFitter->fSamples[i_smp]->fUseSystematics)) continue;
-
-            //
-            //  -----------------------------------
-            //
-            // read norm factors
-            for(int i_norm=0;i_norm<fFitter->fSamples[i_smp]->fNNorm;i_norm++){
-                NormFactor *nf = fFitter->fSamples[i_smp]->fNormFactors[i_norm].get();
-                //
-                // eventually skip systematic / region combination
-                if( nf->fRegions.size()>0 && Common::FindInStringVector(nf->fRegions,fFitter->fRegions[i_ch]->fName)<0  ) continue;
-                if( nf->fExclude.size()>0 && Common::FindInStringVector(nf->fExclude,fFitter->fRegions[i_ch]->fName)>=0 ) continue;
-                //
-                WriteDebugStatus("HistoReader::ReadHistograms", "Adding norm " + nf->fName);
-                //
-                sh->AddNormFactor( nf );
-            }
-
-            //
-            //  -----------------------------------
-            //
-            // read shape factors
-            for(int i_shape=0;i_shape<fFitter->fSamples[i_smp]->fNShape;i_shape++){
-                ShapeFactor *sf = fFitter->fSamples[i_smp]->fShapeFactors[i_shape].get();
-                //
-                // eventually skip systematic / region combination
-                if( sf->fRegions.size()>0 && Common::FindInStringVector(sf->fRegions,fFitter->fRegions[i_ch]->fName)<0  ) continue;
-                if( sf->fExclude.size()>0 && Common::FindInStringVector(sf->fExclude,fFitter->fRegions[i_ch]->fName)>=0 ) continue;
-                //
-                WriteDebugStatus("HistoReader::ReadHistograms", "Adding shape " + sf->fName);
-                //
-                sh->AddShapeFactor(sf);
-            }
-
-            //
-            //  -----------------------------------
-            //
-            // read systematics (Shape and Histo)
-            for(int i_syst=0;i_syst<fFitter->fSamples[i_smp]->fNSyst;i_syst++){
-                Systematic *syst = fFitter->fSamples[i_smp]->fSystematics[i_syst].get();
-                //
-                // eventually skip systematic / region combination
-                if( syst->fRegions.size()>0 && Common::FindInStringVector(syst->fRegions,fFitter->fRegions[i_ch]->fName)<0  ) continue;
-                if( syst->fExclude.size()>0 && Common::FindInStringVector(syst->fExclude,fFitter->fRegions[i_ch]->fName)>=0 ) continue;
-                if( syst->fExcludeRegionSample.size()>0 && Common::FindInStringVectorOfVectors(syst->fExcludeRegionSample,
-                                                                                       fFitter->fRegions[i_ch]->fName,
-                                                                                       fFitter->fSamples[i_smp]->fName)>=0) continue;
-                //
-                WriteDebugStatus("HistoReader::ReadHistograms", "Adding syst " + syst->fName);
-                //
-                Region *reg = fFitter->fRegions[i_ch];
-                Sample *smp = fFitter->fSamples[i_smp];
-                //
-                // if Overall only ...
-                if(syst->fType==Systematic::OVERALL) {
-                    SystematicHist *syh = reg->GetSampleHist(smp->fName)->AddOverallSyst(syst->fName,
-                                                                                         syst->fStoredName,
-                                                                                         syst->fOverallUp,
-                                                                                         syst->fOverallDown);
-                    syh->fSystematic = syst;
-                    syh->fScaleUp = syst->fScaleUp;
-                    if(syst->fScaleUpRegions.size()!=0) {
-                        if(syst->fScaleUpRegions[reg->fName]!=0) {
-                            syh->fScaleUp *= syst->fScaleUpRegions[reg->fName];
-                        }
-                    }
-                    syh->fScaleDown = syst->fScaleDown;
-                    if(syst->fScaleDownRegions.size()!=0) {
-                        if(syst->fScaleDownRegions[reg->fName]!=0) {
-                            syh->fScaleDown *= syst->fScaleDownRegions[reg->fName];
-                        }
-                    }
-                    continue;
-                }
-                // else ...
-                //
-                if(syst->fReferenceSample!="") smp = fFitter->GetSample(syst->fReferenceSample);
-                //
-                // Up
-                //
-                std::unique_ptr<TH1> hUp(nullptr);
-                std::unique_ptr<TH1> hDown(nullptr);
-                if(syst->fHasUpVariation){
-                    fullPaths = fFitter->FullHistogramPaths(fFitter->fRegions[i_ch],
-                                                            fFitter->fSamples[i_smp],
-                                                            syst,
-                                                            true);
-                    for (const auto& ipath : fullPaths){
-                        files_names.insert(ipath);
-                    }
-                    hUp = ReadSingleHistogram(fullPaths, syst, i_ch, i_smp, true, true); // isUp and isMC
-                }
-                //
-                // Down
-                //
-                if(syst->fHasDownVariation){
-                    fullPaths = fFitter->FullHistogramPaths(fFitter->fRegions[i_ch],
-                                                            fFitter->fSamples[i_smp],
-                                                            syst,
-                                                            false);
-                    for (const auto& ipath : fullPaths){
-                        files_names.insert(ipath);
-                    }
-                    hDown = ReadSingleHistogram(fullPaths, syst, i_ch, i_smp, false, true); // isUp and isMC
-                }
-                //
-                if(!hUp)   hUp  .reset(static_cast<TH1D*>(reg->GetSampleHist(fFitter->fSamples[i_smp]->fName )->fHist->Clone()));
-                if(!hDown) hDown.reset(static_cast<TH1D*>(reg->GetSampleHist(fFitter->fSamples[i_smp]->fName )->fHist->Clone()));
-                //
-                SystematicHist *syh = sh->AddHistoSyst(fFitter->fSamples[i_smp]->fSystematics[i_syst]->fName,
-                                                       fFitter->fSamples[i_smp]->fSystematics[i_syst]->fStoredName,
-                                                       hUp.get(),
-                                                       hDown.get());
-                syh->fSystematic = fFitter->fSamples[i_smp]->fSystematics[i_syst].get();
-                syh->fScaleUp = fFitter->fSamples[i_smp]->fSystematics[i_syst]->fScaleUp;
-                if(fFitter->fSamples[i_smp]->fSystematics[i_syst]->fScaleUpRegions.size()!=0) {
-                    if(fFitter->fSamples[i_smp]->fSystematics[i_syst]->fScaleUpRegions[reg->fName]!=0) {
-                        syh->fScaleUp *= fFitter->fSamples[i_smp]->fSystematics[i_syst]->fScaleUpRegions[reg->fName];
-                    }
-                }
-                syh->fScaleDown = fFitter->fSamples[i_smp]->fSystematics[i_syst]->fScaleDown;
-                if(fFitter->fSamples[i_smp]->fSystematics[i_syst]->fScaleDownRegions.size()!=0) {
-                    if(fFitter->fSamples[i_smp]->fSystematics[i_syst]->fScaleDownRegions[reg->fName]!=0) {
-                        syh->fScaleDown *= fFitter->fSamples[i_smp]->fSystematics[i_syst]->fScaleDownRegions[reg->fName];
-                    }
-                }
-            }
-            //closing the files for this sample
-            Common::CloseFiles(files_names);
-            files_names.clear();
-        }
+        ReadOneRegion(i_ch);
     }
 }
 
@@ -787,5 +630,167 @@ void HistoReader::ReadOneRegionData(const int i_ch) {
                 }
             }
         }
+    }
+}
+
+void HistoReader::ReadOneRegion(const int i_ch) { 
+    std::set < std::string > files_names;
+    for(const auto& ismp : fFitter->fSamples) {
+        if(ismp->fType==Sample::DATA) continue;
+        auto itr = std::find(fFitter->fSamples.begin(), fFitter->fSamples.end(), ismp);
+        const std::size_t i_smp = std::distance(fFitter->fSamples.begin(), itr);
+        WriteDebugStatus("HistoReader::ReadHistograms", "  Reading " + ismp->fName);
+        //
+        // eventually skip sample / region combination
+        //
+        if(Common::FindInStringVector(ismp->fRegions,fFitter->fRegions[i_ch]->fName)<0) continue;
+        //
+        // read nominal
+        //
+        std::vector<std::string>fullPaths = fFitter->FullHistogramPaths(fFitter->fRegions[i_ch],ismp);
+        for (const auto& ipath : fullPaths){
+            files_names.insert(ipath);
+        }
+        std::unique_ptr<TH1D> h = ReadSingleHistogram(fullPaths, nullptr, i_ch, i_smp, true, true); // is MC
+        //
+        // Save the original histogram
+        TH1* h_orig = static_cast<TH1*>(h->Clone( Form("%s_orig",h->GetName())));
+        //
+        // Importing the histogram in TRExFitter
+        SampleHist *sh = fFitter->fRegions[i_ch]->SetSampleHist(ismp, h.get());
+        sh->fHist_orig.reset(h_orig);
+        sh->fHist_orig->SetName( Form("%s_orig",sh->fHist->GetName()) ); // fix the name
+    
+        // end here no systematics allowed (e.g. generally for GHOST samples)
+        if (!(ismp->fUseSystematics)) continue;
+    
+        //
+        //  -----------------------------------
+        //
+        // read norm factors
+        for(int i_norm=0;i_norm<ismp->fNNorm;i_norm++){
+            NormFactor *nf = ismp->fNormFactors[i_norm].get();
+            //
+            // eventually skip systematic / region combination
+            if( nf->fRegions.size()>0 && Common::FindInStringVector(nf->fRegions,fFitter->fRegions[i_ch]->fName)<0  ) continue;
+            if( nf->fExclude.size()>0 && Common::FindInStringVector(nf->fExclude,fFitter->fRegions[i_ch]->fName)>=0 ) continue;
+            //
+            WriteDebugStatus("HistoReader::ReadHistograms", "Adding norm " + nf->fName);
+            //
+            sh->AddNormFactor( nf );
+        }
+    
+        //
+        //  -----------------------------------
+        //
+        // read shape factors
+        for(int i_shape=0;i_shape<ismp->fNShape;i_shape++){
+            ShapeFactor *sf = ismp->fShapeFactors[i_shape].get();
+            //
+            // eventually skip systematic / region combination
+            if( sf->fRegions.size()>0 && Common::FindInStringVector(sf->fRegions,fFitter->fRegions[i_ch]->fName)<0  ) continue;
+            if( sf->fExclude.size()>0 && Common::FindInStringVector(sf->fExclude,fFitter->fRegions[i_ch]->fName)>=0 ) continue;
+            //
+            WriteDebugStatus("HistoReader::ReadHistograms", "Adding shape " + sf->fName);
+            //
+            sh->AddShapeFactor(sf);
+        }
+    
+        //
+        //  -----------------------------------
+        //
+        // read systematics (Shape and Histo)
+        for(int i_syst=0;i_syst<ismp->fNSyst;i_syst++){
+            Systematic *syst = ismp->fSystematics[i_syst].get();
+            //
+            // eventually skip systematic / region combination
+            if( syst->fRegions.size()>0 && Common::FindInStringVector(syst->fRegions,fFitter->fRegions[i_ch]->fName)<0  ) continue;
+            if( syst->fExclude.size()>0 && Common::FindInStringVector(syst->fExclude,fFitter->fRegions[i_ch]->fName)>=0 ) continue;
+            if( syst->fExcludeRegionSample.size()>0 && Common::FindInStringVectorOfVectors(syst->fExcludeRegionSample,
+                                                                                   fFitter->fRegions[i_ch]->fName,
+                                                                                   ismp->fName)>=0) continue;
+            //
+            WriteDebugStatus("HistoReader::ReadHistograms", "Adding syst " + syst->fName);
+            //
+            Region *reg = fFitter->fRegions[i_ch];
+            Sample *smp = ismp;
+            //
+            // if Overall only ...
+            if(syst->fType==Systematic::OVERALL) {
+                SystematicHist *syh = reg->GetSampleHist(smp->fName)->AddOverallSyst(syst->fName,
+                                                                                     syst->fStoredName,
+                                                                                     syst->fOverallUp,
+                                                                                     syst->fOverallDown);
+                syh->fSystematic = syst;
+                syh->fScaleUp = syst->fScaleUp;
+                if(syst->fScaleUpRegions.size()!=0) {
+                    if(syst->fScaleUpRegions[reg->fName]!=0) {
+                        syh->fScaleUp *= syst->fScaleUpRegions[reg->fName];
+                    }
+                }
+                syh->fScaleDown = syst->fScaleDown;
+                if(syst->fScaleDownRegions.size()!=0) {
+                    if(syst->fScaleDownRegions[reg->fName]!=0) {
+                        syh->fScaleDown *= syst->fScaleDownRegions[reg->fName];
+                    }
+                }
+                continue;
+            }
+            // else ...
+            //
+            if(syst->fReferenceSample!="") smp = fFitter->GetSample(syst->fReferenceSample);
+            //
+            // Up
+            //
+            std::unique_ptr<TH1> hUp(nullptr);
+            std::unique_ptr<TH1> hDown(nullptr);
+            if(syst->fHasUpVariation){
+                fullPaths = fFitter->FullHistogramPaths(fFitter->fRegions[i_ch],
+                                                        ismp,
+                                                        syst,
+                                                        true);
+                for (const auto& ipath : fullPaths){
+                    files_names.insert(ipath);
+                }
+                hUp = ReadSingleHistogram(fullPaths, syst, i_ch, i_smp, true, true); // isUp and isMC
+            }
+            //
+            // Down
+            //
+            if(syst->fHasDownVariation){
+                fullPaths = fFitter->FullHistogramPaths(fFitter->fRegions[i_ch],
+                                                        ismp,
+                                                        syst,
+                                                        false);
+                for (const auto& ipath : fullPaths){
+                    files_names.insert(ipath);
+                }
+                hDown = ReadSingleHistogram(fullPaths, syst, i_ch, i_smp, false, true); // isUp and isMC
+            }
+            //
+            if(!hUp)   hUp  .reset(static_cast<TH1D*>(reg->GetSampleHist(ismp->fName )->fHist->Clone()));
+            if(!hDown) hDown.reset(static_cast<TH1D*>(reg->GetSampleHist(ismp->fName )->fHist->Clone()));
+            //
+            SystematicHist *syh = sh->AddHistoSyst(ismp->fSystematics[i_syst]->fName,
+                                                   ismp->fSystematics[i_syst]->fStoredName,
+                                                   hUp.get(),
+                                                   hDown.get());
+            syh->fSystematic = ismp->fSystematics[i_syst].get();
+            syh->fScaleUp = ismp->fSystematics[i_syst]->fScaleUp;
+            if(ismp->fSystematics[i_syst]->fScaleUpRegions.size()!=0) {
+                if(ismp->fSystematics[i_syst]->fScaleUpRegions[reg->fName]!=0) {
+                    syh->fScaleUp *= ismp->fSystematics[i_syst]->fScaleUpRegions[reg->fName];
+                }
+            }
+            syh->fScaleDown = ismp->fSystematics[i_syst]->fScaleDown;
+            if(ismp->fSystematics[i_syst]->fScaleDownRegions.size()!=0) {
+                if(ismp->fSystematics[i_syst]->fScaleDownRegions[reg->fName]!=0) {
+                    syh->fScaleDown *= ismp->fSystematics[i_syst]->fScaleDownRegions[reg->fName];
+                }
+            }
+        }
+        //closing the files for this sample
+        Common::CloseFiles(files_names);
+        files_names.clear();
     }
 }
