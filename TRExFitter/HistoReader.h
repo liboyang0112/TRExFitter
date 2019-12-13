@@ -69,6 +69,12 @@ class HistoReader {
                                                    int i_smp,
                                                    bool isUp,
                                                    bool isMC);
+
+        /**
+          * A helper function to read one region for data samples
+          * @param index of the region
+          */  
+        void ReadOneRegionData(const int i_ch);
 }; 
 
 #endif
