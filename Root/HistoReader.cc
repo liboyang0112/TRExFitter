@@ -38,7 +38,7 @@ void HistoReader::ReadHistograms(){
             //
             // eventually skip sample / region combination
             //
-            if( FindInStringVector(fFitter->fSamples[i_smp]->fRegions,fFitter->fRegions[i_ch]->fName)<0 ) continue;
+            if( Common::FindInStringVector(fFitter->fSamples[i_smp]->fRegions,fFitter->fRegions[i_ch]->fName)<0 ) continue;
             //
             // read nominal
             //
@@ -62,9 +62,9 @@ void HistoReader::ReadHistograms(){
 
                 //
                 // eventually skip systematic / region combination
-                if( syst->fRegions.size()>0 && FindInStringVector(syst->fRegions,fFitter->fRegions[i_ch]->fName)<0  ) continue;
-                if( syst->fExclude.size()>0 && FindInStringVector(syst->fExclude,fFitter->fRegions[i_ch]->fName)>=0 ) continue;
-                if( syst->fExcludeRegionSample.size()>0 && FindInStringVectorOfVectors(syst->fExcludeRegionSample,fFitter->fRegions[i_ch]->fName, fFitter->fSamples[i_smp]->fName)>=0 ) continue;
+                if( syst->fRegions.size()>0 && Common::FindInStringVector(syst->fRegions,fFitter->fRegions[i_ch]->fName)<0  ) continue;
+                if( syst->fExclude.size()>0 && Common::FindInStringVector(syst->fExclude,fFitter->fRegions[i_ch]->fName)>=0 ) continue;
+                if( syst->fExcludeRegionSample.size()>0 && Common::FindInStringVectorOfVectors(syst->fExcludeRegionSample,fFitter->fRegions[i_ch]->fName, fFitter->fSamples[i_smp]->fName)>=0 ) continue;
                 //
                 WriteDebugStatus("HistoReader::ReadHistograms", "Adding syst " + syst->fName);
                 //
@@ -122,7 +122,7 @@ void HistoReader::ReadHistograms(){
             //
             // eventually skip sample / region combination
             //
-            if( FindInStringVector(fFitter->fSamples[i_smp]->fRegions,fFitter->fRegions[i_ch]->fName)<0 ) continue;
+            if( Common::FindInStringVector(fFitter->fSamples[i_smp]->fRegions,fFitter->fRegions[i_ch]->fName)<0 ) continue;
             //
             // read nominal
             //
@@ -151,8 +151,8 @@ void HistoReader::ReadHistograms(){
                 NormFactor *nf = fFitter->fSamples[i_smp]->fNormFactors[i_norm].get();
                 //
                 // eventually skip systematic / region combination
-                if( nf->fRegions.size()>0 && FindInStringVector(nf->fRegions,fFitter->fRegions[i_ch]->fName)<0  ) continue;
-                if( nf->fExclude.size()>0 && FindInStringVector(nf->fExclude,fFitter->fRegions[i_ch]->fName)>=0 ) continue;
+                if( nf->fRegions.size()>0 && Common::FindInStringVector(nf->fRegions,fFitter->fRegions[i_ch]->fName)<0  ) continue;
+                if( nf->fExclude.size()>0 && Common::FindInStringVector(nf->fExclude,fFitter->fRegions[i_ch]->fName)>=0 ) continue;
                 //
                 WriteDebugStatus("HistoReader::ReadHistograms", "Adding norm " + nf->fName);
                 //
@@ -167,8 +167,8 @@ void HistoReader::ReadHistograms(){
                 ShapeFactor *sf = fFitter->fSamples[i_smp]->fShapeFactors[i_shape].get();
                 //
                 // eventually skip systematic / region combination
-                if( sf->fRegions.size()>0 && FindInStringVector(sf->fRegions,fFitter->fRegions[i_ch]->fName)<0  ) continue;
-                if( sf->fExclude.size()>0 && FindInStringVector(sf->fExclude,fFitter->fRegions[i_ch]->fName)>=0 ) continue;
+                if( sf->fRegions.size()>0 && Common::FindInStringVector(sf->fRegions,fFitter->fRegions[i_ch]->fName)<0  ) continue;
+                if( sf->fExclude.size()>0 && Common::FindInStringVector(sf->fExclude,fFitter->fRegions[i_ch]->fName)>=0 ) continue;
                 //
                 WriteDebugStatus("HistoReader::ReadHistograms", "Adding shape " + sf->fName);
                 //
@@ -183,9 +183,9 @@ void HistoReader::ReadHistograms(){
                 Systematic *syst = fFitter->fSamples[i_smp]->fSystematics[i_syst].get();
                 //
                 // eventually skip systematic / region combination
-                if( syst->fRegions.size()>0 && FindInStringVector(syst->fRegions,fFitter->fRegions[i_ch]->fName)<0  ) continue;
-                if( syst->fExclude.size()>0 && FindInStringVector(syst->fExclude,fFitter->fRegions[i_ch]->fName)>=0 ) continue;
-                if( syst->fExcludeRegionSample.size()>0 && FindInStringVectorOfVectors(syst->fExcludeRegionSample,
+                if( syst->fRegions.size()>0 && Common::FindInStringVector(syst->fRegions,fFitter->fRegions[i_ch]->fName)<0  ) continue;
+                if( syst->fExclude.size()>0 && Common::FindInStringVector(syst->fExclude,fFitter->fRegions[i_ch]->fName)>=0 ) continue;
+                if( syst->fExcludeRegionSample.size()>0 && Common::FindInStringVectorOfVectors(syst->fExcludeRegionSample,
                                                                                        fFitter->fRegions[i_ch]->fName,
                                                                                        fFitter->fSamples[i_smp]->fName)>=0) continue;
                 //
@@ -269,7 +269,7 @@ void HistoReader::ReadHistograms(){
                 }
             }
             //closing the files for this sample
-            CloseFiles(files_names);
+            Common::CloseFiles(files_names);
             files_names.clear();
         }
     }
@@ -283,7 +283,7 @@ std::unique_ptr<TH1D> HistoReader::ReadSingleHistogram(const std::vector<std::st
                                                        bool isMC) {
     std::unique_ptr<TH1D> result(nullptr);
     for(unsigned int i_path = 0; i_path < fullPaths.size(); ++i_path){
-        std::unique_ptr<TH1> htmp = HistFromFile( fullPaths.at(i_path) );
+        std::unique_ptr<TH1> htmp = Common::HistFromFile( fullPaths.at(i_path) );
         if (!htmp) {
             WriteErrorStatus("HistoReader::ReadSingleHistogram", "Histo pointer is nullptr, cannot continue running the code");
             exit(EXIT_FAILURE);
@@ -294,7 +294,7 @@ std::unique_ptr<TH1D> HistoReader::ReadSingleHistogram(const std::vector<std::st
             std::unique_ptr<TH1> tmp_copy(static_cast<TH1D*>(htmp->Rebin(fFitter->fRegions[i_ch]->fHistoNBinsRebin, "tmp_copy", &(fFitter->fRegions[i_ch]->fHistoBins[0]))));
             htmp.reset(tmp_copy.release());
             htmp->SetName(hname);
-            if(TRExFitter::MERGEUNDEROVERFLOW) MergeUnderOverFlow(htmp.get());
+            if(TRExFitter::MERGEUNDEROVERFLOW) Common::MergeUnderOverFlow(htmp.get());
         }
         else if(fFitter->fRegions[i_ch]->fHistoNBinsRebin != -1) {
             htmp->Rebin(fFitter->fRegions[i_ch]->fHistoNBinsRebin);
@@ -345,8 +345,8 @@ std::unique_ptr<TH1D> HistoReader::ReadSingleHistogram(const std::vector<std::st
                      href->Integral(0,href->GetNbinsX()+1);
 
                 // get copies with no error
-                auto hrefTmp = GetHistCopyNoError(href);
-                auto hnomTmp = GetHistCopyNoError(hnom);
+                auto hrefTmp = Common::GetHistCopyNoError(href);
+                auto hnomTmp = Common::GetHistCopyNoError(hnom);
                 htmp->Divide(   hrefTmp.get() );
                 htmp->Multiply( hnomTmp.get() );
                 const double newVar = htmp->Integral(0,htmp->GetNbinsX()+1) /
@@ -393,12 +393,12 @@ std::unique_ptr<TH1D> HistoReader::ReadSingleHistogram(const std::vector<std::st
                 std::unique_ptr<TH1> href_upDown_Tmp(static_cast<TH1*>(href_upDown->Clone(
                     Form("%s_Tmp", href_upDown->GetName()))));
                 // get copies with no error
-                auto hrefTmp = GetHistCopyNoError(href);
-                auto hnomTmp = GetHistCopyNoError(hnom);
+                auto hrefTmp = Common::GetHistCopyNoError(href);
+                auto hnomTmp = Common::GetHistCopyNoError(hnom);
                 href_upDown_Tmp->Divide(hrefTmp.get());
                 href_upDown_Tmp->Multiply(hnomTmp.get());
                 htmp->Add(hnomTmp.get());
-                auto href_upDown_TmpNoErr = GetHistCopyNoError(href_upDown_Tmp.get());
+                auto href_upDown_TmpNoErr = Common::GetHistCopyNoError(href_upDown_Tmp.get());
                 htmp->Add(href_upDown_TmpNoErr.get(),-1);
             }
         }
@@ -433,7 +433,7 @@ void HistoReader::ReadTRExProducedHistograms() {
         else                          fileName = fFitter->fName + "/Histograms/" + fFitter->fInputName + "_histos.root";
         // Bootstrap
         if(fFitter->fBootstrap!="" && fFitter->fBootstrapIdx>=0){
-            fileName = ReplaceString(fileName,"_histos.root",Form("_histos__%d.root",fFitter->fBootstrapIdx));
+            fileName = Common::ReplaceString(fileName,"_histos.root",Form("_histos__%d.root",fFitter->fBootstrapIdx));
         }
         WriteInfoStatus("HistoReader::ReadTRExProducedHistograms", "-----------------------------");
         WriteInfoStatus("HistoReader::ReadTRExProducedHistograms", "Reading histograms from file " + fileName + " ...");
@@ -466,7 +466,7 @@ void HistoReader::ReadTRExProducedHistograms() {
                     fFitter->fSamples[i_smp]->AddSystematic(tmpsyst);
                     for(int j_syst=0;j_syst<fFitter->fNSyst;j_syst++){
                        if(fFitter->fSystematics[j_syst]->fName==tmpsyst->fName) {
-                          if( FindInStringVector(fFitter->fSystematics[j_syst]->fSamples,
+                          if( Common::FindInStringVector(fFitter->fSystematics[j_syst]->fSamples,
                                                  fFitter->fSamples[i_smp]->fName)<0 ) fFitter->fSystematics[j_syst]->fSamples.push_back(fFitter->fSamples[i_smp]->fName);
                        }
                     }
@@ -490,7 +490,7 @@ void HistoReader::ReadTRExProducedHistograms() {
                     fFitter->fSamples[i_smp]->AddSystematic(tmpsyst);
                     for(int j_syst=0;j_syst<fFitter->fNSyst;j_syst++){
                        if(fFitter->fSystematics[j_syst]->fName==tmpsyst->fName) {
-                          if( FindInStringVector(fFitter->fSystematics[j_syst]->fSamples,
+                          if( Common::FindInStringVector(fFitter->fSystematics[j_syst]->fSamples,
                                                  fFitter->fSamples[i_smp]->fName)<0 ) fFitter->fSystematics[j_syst]->fSamples.push_back(fFitter->fSamples[i_smp]->fName);
                        }
                     }
@@ -514,7 +514,7 @@ void HistoReader::ReadTRExProducedHistograms() {
                     fFitter->fSamples[i_smp]->AddSystematic(tmpsyst);
                     for(int j_syst=0;j_syst<fFitter->fNSyst;j_syst++){
                        if(fFitter->fSystematics[j_syst]->fName==tmpsyst->fName) {
-                          if(FindInStringVector(fFitter->fSystematics[j_syst]->fSamples,
+                          if(Common::FindInStringVector(fFitter->fSystematics[j_syst]->fSamples,
                                                 fFitter->fSamples[i_smp]->fName)<0 ) fFitter->fSystematics[j_syst]->fSamples.push_back(fFitter->fSamples[i_smp]->fName);
                        }
                     }
@@ -538,7 +538,7 @@ void HistoReader::ReadTRExProducedHistograms() {
                     fFitter->fSamples[i_smp]->AddSystematic(tmpsyst);
                     for(int j_syst=0;j_syst<fFitter->fNSyst;j_syst++){
                        if(fFitter->fSystematics[j_syst]->fName==tmpsyst->fName) {
-                          if(FindInStringVector(fFitter->fSystematics[j_syst]->fSamples,
+                          if(Common::FindInStringVector(fFitter->fSystematics[j_syst]->fSamples,
                                                 fFitter->fSamples[i_smp]->fName)<0 ) fFitter->fSystematics[j_syst]->fSamples.push_back(fFitter->fSamples[i_smp]->fName);
                        }
                     }
@@ -605,9 +605,9 @@ void HistoReader::ReadTRExProducedHistograms() {
             // Bootstrap
             if(fFitter->fBootstrap!="" && fFitter->fBootstrapIdx>=0){
                 if(fFitter->fBootstrapSyst == "") {
-                    fileName = ReplaceString(fileName,"_histos.root",Form("_histos__%d.root",fFitter->fBootstrapIdx));
+                    fileName = Common::ReplaceString(fileName,"_histos.root",Form("_histos__%d.root",fFitter->fBootstrapIdx));
                 } else {
-                    fileNameBootstrap = ReplaceString(fileName,"_histos.root",Form("_histos__%d.root",fFitter->fBootstrapIdx));
+                    fileNameBootstrap = Common::ReplaceString(fileName,"_histos.root",Form("_histos__%d.root",fFitter->fBootstrapIdx));
                 }
             }
             WriteInfoStatus("HistoReader::ReadTRExProducedHistograms", "-----------------------------");
@@ -618,7 +618,7 @@ void HistoReader::ReadTRExProducedHistograms() {
             //
             // eventually skip sample / region combination
             //
-            if(FindInStringVector(fFitter->fSamples[i_smp]->fRegions,regionName)<0 && fFitter->fSamples[i_smp]->fName.find("customAsimov_")==std::string::npos ) continue;
+            if(Common::FindInStringVector(fFitter->fSamples[i_smp]->fRegions,regionName)<0 && fFitter->fSamples[i_smp]->fName.find("customAsimov_")==std::string::npos ) continue;
             //
             const std::string sampleName = fFitter->fSamples[i_smp]->fName;
             WriteDebugStatus("HistoReader::ReadTRExProducedHistograms", "    Reading sample " + sampleName);
@@ -642,7 +642,7 @@ void HistoReader::ReadTRExProducedHistograms() {
                 }
                 else{
                     Systematic* gamma = nullptr;
-                    if(FindInStringVector(fFitter->fSystematicNames,systName)>=0) gamma = fFitter->fSystematics[FindInStringVector(fFitter->fSystematicNames,systName)];  //GetSystematic(systName);
+                    if(Common::FindInStringVector(fFitter->fSystematicNames,systName)>=0) gamma = fFitter->fSystematics[Common::FindInStringVector(fFitter->fSystematicNames,systName)];  //GetSystematic(systName);
                     if(gamma==nullptr) gamma = fFitter->NewSystematic(systName);
                     WriteDebugStatus("TRExFit::ReadHistos", "adding separate gammas as SHAPE systematic " + systName);
                     gamma->fType = Systematic::SHAPE;
@@ -658,8 +658,8 @@ void HistoReader::ReadTRExProducedHistograms() {
             for(int i_norm=0; i_norm < fFitter->fSamples[i_smp]->fNNorm; ++i_norm){
                 //
                 // eventually skip norm factor / region combination
-                if(fFitter->fSamples[i_smp]->fNormFactors[i_norm]->fRegions.size()>0 && FindInStringVector(fFitter->fSamples[i_smp]->fNormFactors[i_norm]->fRegions,fFitter->fRegions[i_ch]->fName)<0  ) continue;
-                if(fFitter->fSamples[i_smp]->fNormFactors[i_norm]->fExclude.size()>0 && FindInStringVector(fFitter->fSamples[i_smp]->fNormFactors[i_norm]->fExclude,fFitter->fRegions[i_ch]->fName)>=0 ) continue;
+                if(fFitter->fSamples[i_smp]->fNormFactors[i_norm]->fRegions.size()>0 && Common::FindInStringVector(fFitter->fSamples[i_smp]->fNormFactors[i_norm]->fRegions,fFitter->fRegions[i_ch]->fName)<0  ) continue;
+                if(fFitter->fSamples[i_smp]->fNormFactors[i_norm]->fExclude.size()>0 && Common::FindInStringVector(fFitter->fSamples[i_smp]->fNormFactors[i_norm]->fExclude,fFitter->fRegions[i_ch]->fName)>=0 ) continue;
                 //
                 const std::string normName = fFitter->fSamples[i_smp]->fNormFactors[i_norm]->fName;
                 WriteDebugStatus("HistoReader::ReadTRExProducedHistograms", "      Reading norm " + normName);
@@ -671,8 +671,8 @@ void HistoReader::ReadTRExProducedHistograms() {
             for(int i_shape=0;i_shape<fFitter->fSamples[i_smp]->fNShape;i_shape++){
                 //
                 // eventually skip shape factor / region combination
-                if( fFitter->fSamples[i_smp]->fShapeFactors[i_shape]->fRegions.size()>0 && FindInStringVector(fFitter->fSamples[i_smp]->fShapeFactors[i_shape]->fRegions,fFitter->fRegions[i_ch]->fName)<0  ) continue;
-                if( fFitter->fSamples[i_smp]->fShapeFactors[i_shape]->fExclude.size()>0 && FindInStringVector(fFitter->fSamples[i_smp]->fShapeFactors[i_shape]->fExclude,fFitter->fRegions[i_ch]->fName)>=0 ) continue;
+                if( fFitter->fSamples[i_smp]->fShapeFactors[i_shape]->fRegions.size()>0 && Common::FindInStringVector(fFitter->fSamples[i_smp]->fShapeFactors[i_shape]->fRegions,fFitter->fRegions[i_ch]->fName)<0  ) continue;
+                if( fFitter->fSamples[i_smp]->fShapeFactors[i_shape]->fExclude.size()>0 && Common::FindInStringVector(fFitter->fSamples[i_smp]->fShapeFactors[i_shape]->fExclude,fFitter->fRegions[i_ch]->fName)>=0 ) continue;
                 //
                 const std::string shapeName = fFitter->fSamples[i_smp]->fShapeFactors[i_shape]->fName;
                 WriteDebugStatus("HistoReader::ReadTRExProducedHistograms", "      Reading shape " + shapeName);
@@ -684,9 +684,9 @@ void HistoReader::ReadTRExProducedHistograms() {
             for(int i_syst=0;i_syst<fFitter->fSamples[i_smp]->fNSyst;i_syst++){
                 //
                 // eventually skip systematic / region combination
-                if( fFitter->fSamples[i_smp]->fSystematics[i_syst]->fRegions.size()>0 && FindInStringVector(fFitter->fSamples[i_smp]->fSystematics[i_syst]->fRegions,fFitter->fRegions[i_ch]->fName)<0  ) continue;
-                if( fFitter->fSamples[i_smp]->fSystematics[i_syst]->fExclude.size()>0 && FindInStringVector(fFitter->fSamples[i_smp]->fSystematics[i_syst]->fExclude,fFitter->fRegions[i_ch]->fName)>=0 ) continue;
-                if( fFitter->fSamples[i_smp]->fSystematics[i_syst]->fExcludeRegionSample.size()>0 && FindInStringVectorOfVectors(fFitter->fSamples[i_smp]->fSystematics[i_syst]->fExcludeRegionSample,fFitter->fRegions[i_ch]->fName, fFitter->fSamples[i_smp]->fName)>=0 ) continue;
+                if( fFitter->fSamples[i_smp]->fSystematics[i_syst]->fRegions.size()>0 && Common::FindInStringVector(fFitter->fSamples[i_smp]->fSystematics[i_syst]->fRegions,fFitter->fRegions[i_ch]->fName)<0  ) continue;
+                if( fFitter->fSamples[i_smp]->fSystematics[i_syst]->fExclude.size()>0 && Common::FindInStringVector(fFitter->fSamples[i_smp]->fSystematics[i_syst]->fExclude,fFitter->fRegions[i_ch]->fName)>=0 ) continue;
+                if( fFitter->fSamples[i_smp]->fSystematics[i_syst]->fExcludeRegionSample.size()>0 && Common::FindInStringVectorOfVectors(fFitter->fSamples[i_smp]->fSystematics[i_syst]->fExcludeRegionSample,fFitter->fRegions[i_ch]->fName, fFitter->fSamples[i_smp]->fName)>=0 ) continue;
                 //
                 const std::string systName       = fFitter->fSamples[i_smp]->fSystematics[i_syst]->fName;
                 const std::string systStoredName = fFitter->fSamples[i_smp]->fSystematics[i_syst]->fStoredName; // if no StoredName specified in the config, this should be == fName

@@ -485,7 +485,7 @@ void TRExFit::CreateRootFiles(){
         else                 fileName = fName + "/Histograms/" + fInputName + "_histos" + fSaveSuffix + ".root";
         // Bootstrap
         if(fBootstrap!="" && fBootstrapIdx>=0){
-            fileName = ReplaceString(fileName,"_histos.root",Form("_histos__%d.root",fBootstrapIdx));
+            fileName = Common::ReplaceString(fileName,"_histos.root",Form("_histos__%d.root",fBootstrapIdx));
         }
         WriteInfoStatus("TRExFit::CreateRootFiles","-------------------------------------------");
         WriteInfoStatus("TRExFit::CreateRootFiles","Creating/updating file " + fileName + " ...");
@@ -499,7 +499,7 @@ void TRExFit::CreateRootFiles(){
             else                 fileName = fName + "/Histograms/" + fInputName + "_" + fRegions[i_ch]->fName + "_histos" + fSaveSuffix + ".root";
             // Bootstrap
             if(fBootstrap!="" && fBootstrapIdx>=0){
-                fileName = ReplaceString(fileName,"_histos.root",Form("_histos__%d.root",fBootstrapIdx));
+                fileName = Common::ReplaceString(fileName,"_histos.root",Form("_histos__%d.root",fBootstrapIdx));
             }
             WriteInfoStatus("TRExFit::CreateRootFiles","-------------------------------------------");
             WriteInfoStatus("TRExFit::CreateRootFiles","Creating/updating file " + fileName + " ...");
@@ -641,7 +641,7 @@ void TRExFit::DrawSystPlotsSumSamples() const{
             if(reg->fSampleHists[i_smp]->fSample->fType==Sample::DATA) h_dataCopy=std::unique_ptr<TH1>(static_cast<TH1*>(reg->fSampleHists[i_smp]->fHist->Clone()));
             else if(reg->fSampleHists[i_smp]->fSample->fType==Sample::GHOST) continue;
             else {
-                double scale = GetNominalMorphScale(reg->fSampleHists[i_smp].get());
+                double scale = Common::GetNominalMorphScale(reg->fSampleHists[i_smp].get());
                 if(empty){
                     hist.CloneSampleHist(reg->fSampleHists[i_smp].get(),systNames, scale);
                     hist.fName = reg->fName + "_Combined";
@@ -666,7 +666,7 @@ void TRExFit::CorrectHistograms(){
         for(auto smp : fSamples){
             //
             // eventually skip sample / region combination
-            if( FindInStringVector(smp->fRegions,reg->fName)<0 ) continue;
+            if( Common::FindInStringVector(smp->fRegions,reg->fName)<0 ) continue;
             //
             SampleHist *sh = reg->GetSampleHist(smp->fName);
             if(sh==nullptr) continue;
@@ -682,15 +682,15 @@ void TRExFit::CorrectHistograms(){
             sh->fHist->SetFillColor(fillcolor);
 
             // Scale MC stat
-            ScaleMCstatInHist(sh->fHist.get(), smp->fMCstatScale);
+            Common::ScaleMCstatInHist(sh->fHist.get(), smp->fMCstatScale);
 
             // loop on systematics
             for(auto& syst : smp->fSystematics){
                 //
                 // eventually skip systematic / region combination
-                if( syst->fRegions.size()>0 && FindInStringVector(syst->fRegions,reg->fName)<0  ) continue;
-                if( syst->fExclude.size()>0 && FindInStringVector(syst->fExclude,reg->fName)>=0 ) continue;
-                if( syst->fExcludeRegionSample.size()>0 && FindInStringVectorOfVectors(syst->fExcludeRegionSample,reg->fName, smp->fName)>=0 ) continue;
+                if( syst->fRegions.size()>0 && Common::FindInStringVector(syst->fRegions,reg->fName)<0  ) continue;
+                if( syst->fExclude.size()>0 && Common::FindInStringVector(syst->fExclude,reg->fName)>=0 ) continue;
+                if( syst->fExcludeRegionSample.size()>0 && Common::FindInStringVectorOfVectors(syst->fExcludeRegionSample,reg->fName, smp->fName)>=0 ) continue;
                 //
                 // skip also separate gamma systs
                 if(syst->fName.find("stat_")!=std::string::npos) continue;
@@ -723,7 +723,7 @@ void TRExFit::CorrectHistograms(){
         for(auto smp : fSamples){
             //
             // eventually skip sample / region combination
-            if( FindInStringVector(smp->fRegions,reg->fName)<0 ) continue;
+            if( Common::FindInStringVector(smp->fRegions,reg->fName)<0 ) continue;
             //
             SampleHist *sh = reg->GetSampleHist(smp->fName);
             if(sh==nullptr) continue;
@@ -758,7 +758,7 @@ void TRExFit::CorrectHistograms(){
             for(auto smp : fSamples){
                 //
                 // eventually skip sample / region combination
-                if( FindInStringVector(smp->fRegions,reg->fName)<0 ) continue;
+                if( Common::FindInStringVector(smp->fRegions,reg->fName)<0 ) continue;
                 //
                 SampleHist *sh = reg->GetSampleHist(smp->fName);
                 if(sh==nullptr) continue;
@@ -786,7 +786,7 @@ void TRExFit::CorrectHistograms(){
         for(auto smp : fSamples){
             //
             // eventually skip sample / region combination
-            if( FindInStringVector(smp->fRegions,reg->fName)<0 ) continue;
+            if( Common::FindInStringVector(smp->fRegions,reg->fName)<0 ) continue;
             //
             SampleHist *sh = reg->GetSampleHist(smp->fName);
             if(sh==nullptr) continue;
@@ -833,16 +833,16 @@ void TRExFit::CorrectHistograms(){
             for(auto& syst : smp->fSystematics){
                 //
                 // eventually skip systematic / region combination
-                if( syst->fRegions.size()>0 && FindInStringVector(syst->fRegions,reg->fName)<0  ) continue;
-                if( syst->fExclude.size()>0 && FindInStringVector(syst->fExclude,reg->fName)>=0 ) continue;
-                if( syst->fExcludeRegionSample.size()>0 && FindInStringVectorOfVectors(syst->fExcludeRegionSample,reg->fName, smp->fName)>=0 ) continue;
+                if( syst->fRegions.size()>0 && Common::FindInStringVector(syst->fRegions,reg->fName)<0  ) continue;
+                if( syst->fExclude.size()>0 && Common::FindInStringVector(syst->fExclude,reg->fName)>=0 ) continue;
+                if( syst->fExcludeRegionSample.size()>0 && Common::FindInStringVectorOfVectors(syst->fExcludeRegionSample,reg->fName, smp->fName)>=0 ) continue;
                 //
                 // get the original syst histograms & reset the syst histograms
                 SystematicHist *syh = sh->GetSystematic( syst->fName );
                 //
                 // if syst defined with SampleUp / SampleDown
                 if( syst->fSampleUp != "" || syst->fSampleDown != "" ){
-                    bool isDummy = ( syst->fDummyForSamples.size()>0 && FindInStringVector(syst->fDummyForSamples,smp->fName)>=0 );
+                    bool isDummy = ( syst->fDummyForSamples.size()>0 && Common::FindInStringVector(syst->fDummyForSamples,smp->fName)>=0 );
                     TH1 *h_up   = sh->fHist.get();
                     if(syst->fSampleUp   !="" && !isDummy){
                         if(reg->GetSampleHist(syst->fSampleUp  )){
@@ -887,9 +887,9 @@ void TRExFit::CorrectHistograms(){
                 TH1* h0 = (TH1*)sh->fHist->Clone( Form("%s_orig0",sh->fHist->GetName()) );
                 if (fSmoothOption == HistoTools::TTBARRESONANCE) {
                     isFlat = false;
-                    SmoothHistogramTtres( sh->fHist.get() );
+                    Common::SmoothHistogramTtres( sh->fHist.get() );
                 } else {
-                    isFlat = SmoothHistogram( sh->fHist.get() );
+                    isFlat = Common::SmoothHistogram( sh->fHist.get() );
                 }
                 h_correction->Divide( h0 );
             }
@@ -900,9 +900,9 @@ void TRExFit::CorrectHistograms(){
                 if(syst==nullptr) continue;
                 //
                 // eventually skip systematic / region combination
-                if( syst->fRegions.size()>0 && FindInStringVector(syst->fRegions,reg->fName)<0  ) continue;
-                if( syst->fExclude.size()>0 && FindInStringVector(syst->fExclude,reg->fName)>=0 ) continue;
-                if( syst->fExcludeRegionSample.size()>0 && FindInStringVectorOfVectors(syst->fExcludeRegionSample,reg->fName, smp->fName)>=0 ) continue;
+                if( syst->fRegions.size()>0 && Common::FindInStringVector(syst->fRegions,reg->fName)<0  ) continue;
+                if( syst->fExclude.size()>0 && Common::FindInStringVector(syst->fExclude,reg->fName)>=0 ) continue;
+                if( syst->fExcludeRegionSample.size()>0 && Common::FindInStringVectorOfVectors(syst->fExcludeRegionSample,reg->fName, smp->fName)>=0 ) continue;
                 //
                 SystematicHist *syh = sh->GetSystematic( syst->fName );
                 if(syh==nullptr) continue;
@@ -922,8 +922,8 @@ void TRExFit::CorrectHistograms(){
                 //
                 // correct according to the sample nominal smoothing
                 if(h_correction!=nullptr && smp->fSmooth){
-                    if(hUp!=nullptr  ) SmoothHistogram( hUp  , isFlat );
-                    if(hDown!=nullptr) SmoothHistogram( hDown, isFlat );
+                    if(hUp!=nullptr  ) Common::SmoothHistogram( hUp  , isFlat );
+                    if(hDown!=nullptr) Common::SmoothHistogram( hDown, isFlat );
                 }
 
                 //
@@ -938,9 +938,9 @@ void TRExFit::CorrectHistograms(){
             for(auto& syst : smp->fSystematics){
                 //
                 // eventually skip systematic / region combination
-                if( syst->fRegions.size()>0 && FindInStringVector(syst->fRegions,reg->fName)<0  ) continue;
-                if( syst->fExclude.size()>0 && FindInStringVector(syst->fExclude,reg->fName)>=0 ) continue;
-                if( syst->fExcludeRegionSample.size()>0 && FindInStringVectorOfVectors(syst->fExcludeRegionSample,reg->fName, smp->fName)>=0 ) continue;
+                if( syst->fRegions.size()>0 && Common::FindInStringVector(syst->fRegions,reg->fName)<0  ) continue;
+                if( syst->fExclude.size()>0 && Common::FindInStringVector(syst->fExclude,reg->fName)>=0 ) continue;
+                if( syst->fExcludeRegionSample.size()>0 && Common::FindInStringVectorOfVectors(syst->fExcludeRegionSample,reg->fName, smp->fName)>=0 ) continue;
                 if( sh->GetSystematic( syst->fName )==nullptr ) continue;
                 //
                 HistoTools::CheckHistograms( reg->GetSampleHist(smp->fName)->fHist.get() /*nominal*/,
@@ -981,15 +981,15 @@ void TRExFit::CorrectHistograms(){
         for(auto& sh : reg->fSampleHists){
             if(sh->fHist==nullptr) continue;
             for(auto syst : fSystematics){
-                if(  FindInStringVector(syst->fDropNormIn, reg->fName)>=0
-                  || FindInStringVector(syst->fDropNormIn, sh->fSample->fName)>=0
-                  || FindInStringVector(syst->fDropNormIn, "all")>=0
+                if(  Common::FindInStringVector(syst->fDropNormIn, reg->fName)>=0
+                  || Common::FindInStringVector(syst->fDropNormIn, sh->fSample->fName)>=0
+                  || Common::FindInStringVector(syst->fDropNormIn, "all")>=0
                   ){
                     SystematicHist* syh = sh->GetSystematic(syst->fName);
                     if(syh==nullptr) continue;
                     if(sh->fHist->Integral()!=0){
                         WriteDebugStatus("TRExFit::CorrectHistograms", "  Normalising syst " + syst->fName + " for sample " + sh->fSample->fName);
-                        DropNorm(syh->fHistUp.get(), syh->fHistDown.get(), sh->fHist.get());
+                        Common::DropNorm(syh->fHistUp.get(), syh->fHistDown.get(), sh->fHist.get());
                     }
                 }
             }
@@ -1001,14 +1001,14 @@ void TRExFit::CorrectHistograms(){
         for(auto& sh : reg->fSampleHists){
             if(sh->fHist==nullptr) continue;
             for(auto syst : fSystematics){
-                if(  FindInStringVector(syst->fDropShapeIn, reg->fName)>=0
-                  || FindInStringVector(syst->fDropShapeIn, sh->fSample->fName)>=0
-                  || FindInStringVector(syst->fDropShapeIn, "all")>=0
+                if(  Common::FindInStringVector(syst->fDropShapeIn, reg->fName)>=0
+                  || Common::FindInStringVector(syst->fDropShapeIn, sh->fSample->fName)>=0
+                  || Common::FindInStringVector(syst->fDropShapeIn, "all")>=0
                   ){
                     SystematicHist* syh = sh->GetSystematic(syst->fName);
                     if(syh==nullptr) continue;
                     WriteDebugStatus("TRExFit::CorrectHistograms", "  Removing shape component of syst " + syst->fName + " for sample " + sh->fSample->fName);
-                    DropShape(syh->fHistUp.get(), syh->fHistDown.get(), sh->fHist.get());
+                    Common::DropShape(syh->fHistUp.get(), syh->fHistDown.get(), sh->fHist.get());
                 }
             }
         }
@@ -1032,7 +1032,7 @@ void TRExFit::CorrectHistograms(){
                 double yieldUp = 0.;
                 double yieldDown = 0.;
                 for(auto smp : fSamples){
-                    if(FindInStringVector(subSamples,smp->fName)<0) continue;
+                    if(Common::FindInStringVector(subSamples,smp->fName)<0) continue;
                     SampleHist *sh = reg->GetSampleHist(smp->fName);
                     if(sh==nullptr) continue;
                     SystematicHist *syh = sh->GetSystematic(syst->fName);
@@ -1043,7 +1043,7 @@ void TRExFit::CorrectHistograms(){
                 }
                 // scale each syst variation
                 for(auto smp : fSamples){
-                    if(FindInStringVector(subSamples,smp->fName)<0) continue;
+                    if(Common::FindInStringVector(subSamples,smp->fName)<0) continue;
                     SampleHist *sh = reg->GetSampleHist(smp->fName);
                     if(sh==nullptr) continue;
                     SystematicHist *syh = sh->GetSystematic(syst->fName);
@@ -1107,7 +1107,7 @@ void TRExFit::CorrectHistograms(){
         for(auto smp : fSamples){
             if(smp->fSystFromSample != ""){
                 // eventually skip sample / region combination
-                if( FindInStringVector(smp->fRegions,reg->fName)<0 ) continue;
+                if( Common::FindInStringVector(smp->fRegions,reg->fName)<0 ) continue;
                 SampleHist *sh = reg->GetSampleHist(smp->fName);
                 if(sh==nullptr) continue;
                 sh->fSample->fUseSystematics = true;
@@ -1167,21 +1167,21 @@ void TRExFit::CorrectHistograms(){
         if(reg->fDropBins.size()!=0){
             for(auto smp : fSamples){
                 // eventually skip sample / region combination
-                if( FindInStringVector(smp->fRegions,reg->fName)<0 ) continue;
+                if( Common::FindInStringVector(smp->fRegions,reg->fName)<0 ) continue;
                 SampleHist *sh = reg->GetSampleHist(smp->fName);
                 if(sh==nullptr) continue;
-                DropBins(sh->fHist.get(),reg->fDropBins);
+                Common::DropBins(sh->fHist.get(),reg->fDropBins);
                 for(auto& syst : smp->fSystematics){
                     // eventually skip systematic / region combination
-                    if( syst->fRegions.size()>0 && FindInStringVector(syst->fRegions,reg->fName)<0  ) continue;
-                    if( syst->fExclude.size()>0 && FindInStringVector(syst->fExclude,reg->fName)>=0 ) continue;
-                    if( syst->fExcludeRegionSample.size()>0 && FindInStringVectorOfVectors(syst->fExcludeRegionSample,reg->fName, smp->fName)>=0 ) continue;
+                    if( syst->fRegions.size()>0 && Common::FindInStringVector(syst->fRegions,reg->fName)<0  ) continue;
+                    if( syst->fExclude.size()>0 && Common::FindInStringVector(syst->fExclude,reg->fName)>=0 ) continue;
+                    if( syst->fExcludeRegionSample.size()>0 && Common::FindInStringVectorOfVectors(syst->fExcludeRegionSample,reg->fName, smp->fName)>=0 ) continue;
                     SystematicHist *syh = sh->GetSystematic( syst->fName );
                     if(syh==nullptr) continue;
-                    DropBins(syh->fHistUp.get(),  reg->fDropBins);
-                    DropBins(syh->fHistDown.get(),reg->fDropBins);
-                    if(syh->fHistShapeUp)   DropBins(syh->fHistShapeUp.get(),  reg->fDropBins);
-                    if(syh->fHistShapeDown) DropBins(syh->fHistShapeDown.get(),reg->fDropBins);
+                    Common::DropBins(syh->fHistUp.get(),  reg->fDropBins);
+                    Common::DropBins(syh->fHistDown.get(),reg->fDropBins);
+                    if(syh->fHistShapeUp)   Common::DropBins(syh->fHistShapeUp.get(),  reg->fDropBins);
+                    if(syh->fHistShapeDown) Common::DropBins(syh->fHistShapeDown.get(),reg->fDropBins);
                 }
             }
         }
@@ -1223,9 +1223,9 @@ void TRExFit::DrawAndSaveAll(std::string opt){
                     WriteWarningStatus("TRExFit::CorrectHistograms","Requested to scale to data a GHOST sample, " + sh->fSample->fName + ". Skipping this sample.");
                     continue;
                 }
-                if(FindInStringVector(fScaleSamplesToData,sh->fSample->fName)>=0){
+                if(Common::FindInStringVector(fScaleSamplesToData,sh->fSample->fName)>=0){
                     shToScale.emplace_back(sh.get());
-                    const double morph_scale = GetNominalMorphScale(sh.get());
+                    const double morph_scale = Common::GetNominalMorphScale(sh.get());
                     totToScale += morph_scale*sh->fHist->Integral();
                 }
             }
@@ -1597,7 +1597,7 @@ TRExPlot* TRExFit::DrawSummary(std::string opt, TRExPlot* prefit_plot) {
         systNames.push_back( systName );
         if(fSystematics[i_syst]!=nullptr)
             systNuisPar = fSystematics[i_syst]->fNuisanceParameter;
-        if(FindInStringVector(npNames,systNuisPar)<0){
+        if(Common::FindInStringVector(npNames,systNuisPar)<0){
             npNames.push_back(systNuisPar);
             i_np++;
         }
@@ -1736,7 +1736,7 @@ TRExPlot* TRExFit::DrawSummary(std::string opt, TRExPlot* prefit_plot) {
     // add the norm factors
     for(int i_norm=0;i_norm<fNNorm;i_norm++){
         const std::string normName = fNormFactors[i_norm]->fName;
-        if(FindInStringVector(npNames,normName)<0){
+        if(Common::FindInStringVector(npNames,normName)<0){
             npNames.push_back(normName);
             i_np++;
         }
@@ -1958,7 +1958,7 @@ void TRExFit::DrawMergedPlot(std::string opt,std::string group) const{
                                 for(int i_bin=0;i_bin<h_tmp->GetNbinsX()+2;i_bin++) h_tmp->SetBinError(i_bin,0.);
                             }
                             // scale it according to NormFactors
-                            ScaleNominal(sampleHist.get(), h_tmp);
+                            Common::ScaleNominal(sampleHist.get(), h_tmp);
                         }
                     }
                     break;
@@ -2002,15 +2002,15 @@ void TRExFit::DrawMergedPlot(std::string opt,std::string group) const{
     }
     p = new TRExPlot(fInputName+"_merge",cWidthMerge,cHeightMerge,TRExFitter::NORATIO);
     //
-    p->SetData(MergeHistograms(hDataVec),"");
+    p->SetData(Common::MergeHistograms(hDataVec),"");
     for(unsigned int i_sig=0;i_sig<hSignalVec.size();i_sig++){
-        if(TRExFitter::SHOWSTACKSIG_SUMMARY)   p->AddSignal(    MergeHistograms(hSignalVec[i_sig]),"");
-        if(TRExFitter::SHOWNORMSIG_SUMMARY)    p->AddNormSignal(MergeHistograms(hSignalVec[i_sig]),"");
-        if(TRExFitter::SHOWOVERLAYSIG_SUMMARY) p->AddOverSignal(MergeHistograms(hSignalVec[i_sig]),"");
+        if(TRExFitter::SHOWSTACKSIG_SUMMARY)   p->AddSignal(    Common::MergeHistograms(hSignalVec[i_sig]),"");
+        if(TRExFitter::SHOWNORMSIG_SUMMARY)    p->AddNormSignal(Common::MergeHistograms(hSignalVec[i_sig]),"");
+        if(TRExFitter::SHOWOVERLAYSIG_SUMMARY) p->AddOverSignal(Common::MergeHistograms(hSignalVec[i_sig]),"");
 
     }
-    for(unsigned int i_bkg=0;i_bkg<hBackgroundVec.size();i_bkg++) p->AddBackground(MergeHistograms(hBackgroundVec[i_bkg]),"");
-    p->SetTotBkg(MergeHistograms(hTotVec));
+    for(unsigned int i_bkg=0;i_bkg<hBackgroundVec.size();i_bkg++) p->AddBackground(Common::MergeHistograms(hBackgroundVec[i_bkg]),"");
+    p->SetTotBkg(Common::MergeHistograms(hTotVec));
     //
     p->SetCME(fCmeLabel);
     p->SetLumi(fLumiLabel);
@@ -2236,7 +2236,7 @@ void TRExFit::BuildYieldTable(std::string opt, std::string group) const{
         name = fSamples[i_smp]->fName;
         title = fSamples[i_smp]->fTitle;
         //
-        int idx = FindInStringVector(titleVec,title);
+        int idx = Common::FindInStringVector(titleVec,title);
         if(idx>=0){
             idxVec.push_back(idx);
         }
@@ -2254,7 +2254,7 @@ void TRExFit::BuildYieldTable(std::string opt, std::string group) const{
                 double tmpErr = h_smp[idxVec[i_smp]]->GetBinError(i_bin); // Michele -> get the error before adding content to bin, to avoid ROOT automatically increasing it!
                 double scale = 1.;
                 if (!isPostFit){
-                    scale = GetNominalMorphScale(sh);
+                    scale = Common::GetNominalMorphScale(sh);
                 }
                 h_smp[idxVec[i_smp]]->AddBinContent( i_bin,scale*h0->IntegralAndError(1,h0->GetNbinsX(),intErr) );
                 intErr*=scale;
@@ -2352,7 +2352,7 @@ void TRExFit::BuildYieldTable(std::string opt, std::string group) const{
                 }
                 double scale = 1.;
                 if (!isPostFit){
-                    scale = GetNominalMorphScale(sh);
+                    scale = Common::GetNominalMorphScale(sh);
                 }
                 h_up[i_np]  ->SetBinContent( i_bin,(h_tmp_Up  ->Integral(1,h_tmp_Up  ->GetNbinsX()))*scale );
                 h_down[i_np]->SetBinContent( i_bin,(h_tmp_Down->Integral(1,h_tmp_Down->GetNbinsX()))*scale );
@@ -2384,7 +2384,7 @@ void TRExFit::BuildYieldTable(std::string opt, std::string group) const{
                         }
                         double morph_scale = 1.;
                         if (!isPostFit) {
-                            morph_scale = GetNominalMorphScale(sh);
+                            morph_scale = Common::GetNominalMorphScale(sh);
                         }
                         h_up[i_np]  ->AddBinContent( i_bin,(h_tmp_Up  ->Integral(1,h_tmp_Up->GetNbinsX()))*morph_scale );
                         h_down[i_np]->AddBinContent( i_bin,(h_tmp_Down->Integral(1,h_tmp_Down->GetNbinsX()))*morph_scale );
@@ -2417,7 +2417,7 @@ void TRExFit::BuildYieldTable(std::string opt, std::string group) const{
             double uncertainty_rounded = uncertainty;
             int n = -1; // this will contain the number of decimal places
             if (fUseATLASRoundingTxt || fUseATLASRoundingTex){
-                n = ApplyATLASrounding(mean_rounded, uncertainty_rounded);
+                n = Common::ApplyATLASrounding(mean_rounded, uncertainty_rounded);
             }
             if(fUseATLASRoundingTxt){
                 out << mean_rounded << " pm " << uncertainty_rounded << " | ";
@@ -2548,7 +2548,7 @@ void TRExFit::BuildYieldTable(std::string opt, std::string group) const{
         double uncertainty_rounded = uncertainty;
         int n = -1; // this will contain the number of decimal places
         if (fUseATLASRoundingTxt || fUseATLASRoundingTex){
-            n = ApplyATLASrounding(mean_rounded, uncertainty_rounded);
+            n = Common::ApplyATLASrounding(mean_rounded, uncertainty_rounded);
         }
         if(fUseATLASRoundingTxt){
             out << mean_rounded << " pm " << uncertainty_rounded << " | ";
@@ -2734,13 +2734,13 @@ void TRExFit::DrawSignalRegionsPlot(int nCols,int nRows, std::vector < Region* >
         if(regions[i]==nullptr) continue;
         for(int i_sig=0;i_sig<regions[i]->fNSig;i_sig++) {
             if(regions[i]->fSig[i_sig]!=nullptr) {
-                const double scale = GetNominalMorphScale(regions[i]->fSig[i_sig]);
+                const double scale = Common::GetNominalMorphScale(regions[i]->fSig[i_sig]);
                 S[i] += scale * regions[i]->fSig[i_sig]->fHist->Integral();
             }
         }
         for(int i_bkg=0;i_bkg<regions[i]->fNBkg;i_bkg++){
             if(regions[i]->fBkg[i_bkg]!=nullptr) {
-                const double scale = GetNominalMorphScale(regions[i]->fBkg[i_bkg]);
+                const double scale = Common::GetNominalMorphScale(regions[i]->fBkg[i_bkg]);
                 B[i] += scale * regions[i]->fBkg[i_bkg]->fHist->Integral();
             }
         }
@@ -3051,7 +3051,7 @@ void TRExFit::CreateCustomAsimov() const {
     // get a list of all CustomAsimov to create
     std::vector<std::string> customAsimovList;
     for(int i_smp=0; i_smp<fNSamples; ++i_smp) {
-        if(fSamples[i_smp]->fAsimovReplacementFor.first!="" && FindInStringVector(customAsimovList,fSamples[i_smp]->fAsimovReplacementFor.first)<0) {
+        if(fSamples[i_smp]->fAsimovReplacementFor.first!="" && Common::FindInStringVector(customAsimovList,fSamples[i_smp]->fAsimovReplacementFor.first)<0) {
             customAsimovList.push_back(fSamples[i_smp]->fAsimovReplacementFor.first);
         }
     }
@@ -3102,7 +3102,7 @@ void TRExFit::CreateCustomAsimov() const {
                     if(h->fSample->fAsimovReplacementFor.first!=customAsimov) continue;
                     if(h->fSample->fAsimovReplacementFor.second!="" ) smpToExclude.push_back(h->fSample->fAsimovReplacementFor.second);
                 }
-                if( FindInStringVector( smpToExclude,fSamples[i_smp]->fName )>=0 ) continue;
+                if( Common::FindInStringVector( smpToExclude,fSamples[i_smp]->fName )>=0 ) continue;
                 //
                 // bug-fix: change normalisation factors to nominal value!
                 double factor = 1.;
@@ -3161,7 +3161,7 @@ void TRExFit::ToRooStat(bool makeWorkspace, bool exportOnly) const {
 
     // morphing
     for(const TRExFit::TemplateWeight& itemp : fTemplateWeightVec){
-        const std::string normName = "morph_"+itemp.name+"_"+ReplaceString(std::to_string(itemp.value),"-","m");
+        const std::string normName = "morph_"+itemp.name+"_"+Common::ReplaceString(std::to_string(itemp.value),"-","m");
         WriteDebugStatus("TRExFit::ToRooStat", "Morphing: normName: " + normName);
         meas.AddPreprocessFunction(normName, itemp.function, itemp.range);
     }
@@ -3543,17 +3543,17 @@ void TRExFit::DrawPruningPlot() const{
                 auto it = std::find(uniqueSyst.begin(), uniqueSyst.end(), nonGammaSystematics.at(i_syst)->fName);
                 const std::size_t uniqueIndex = std::distance(uniqueSyst.begin(), it);
                 out << " --->>  " << nonGammaSystematics[i_syst]->fName << "     " ;
-                if( (FindInStringVector(nonGammaSystematics[i_syst]->fSamples,samplesVec[i_smp]->fName)>=0 || nonGammaSystematics[i_syst]->fSamples[0] == "all")
+                if( (Common::FindInStringVector(nonGammaSystematics[i_syst]->fSamples,samplesVec[i_smp]->fName)>=0 || nonGammaSystematics[i_syst]->fSamples[0] == "all")
                     && sh->HasSyst(nonGammaSystematics[i_syst]->fName)
                 ){
                     SystematicHist *syh = sh->GetSystematic(nonGammaSystematics[i_syst]->fName);
                     histPrun[iReg]->SetBinContent( histPrun[iReg]->FindBin(i_smp,uniqueIndex), 0 );
-                    const bool forceDropShape = nonGammaSystematics[i_syst]->fIsNormOnly;
-                    const bool forceDropNorm  = nonGammaSystematics[i_syst]->fIsShapeOnly;
+                    const bool forgeDropShape = nonGammaSystematics[i_syst]->fIsNormOnly;
+                    const bool forgeDropNorm  = nonGammaSystematics[i_syst]->fIsShapeOnly;
                     //
                     if(syh->fShapePruned && syh->fNormPruned) histPrun[iReg]->SetBinContent( histPrun[iReg]->FindBin(i_smp,uniqueIndex), 3 );
-                    else if(syh->fShapePruned || forceDropShape) histPrun[iReg]->SetBinContent( histPrun[iReg]->FindBin(i_smp,uniqueIndex), 1 );
-                    else if(syh->fNormPruned || forceDropNorm) histPrun[iReg]->SetBinContent( histPrun[iReg]->FindBin(i_smp,uniqueIndex), 2 );
+                    else if(syh->fShapePruned || forgeDropShape) histPrun[iReg]->SetBinContent( histPrun[iReg]->FindBin(i_smp,uniqueIndex), 1 );
+                    else if(syh->fNormPruned || forgeDropNorm) histPrun[iReg]->SetBinContent( histPrun[iReg]->FindBin(i_smp,uniqueIndex), 2 );
                     //
                     if(syh->fBadShape && syh->fBadNorm) histPrun[iReg]->SetBinContent( histPrun[iReg]->FindBin(i_smp,uniqueIndex), -4 );
                     else if(syh->fBadShape) histPrun[iReg]->SetBinContent( histPrun[iReg]->FindBin(i_smp,uniqueIndex), -3 );
@@ -3990,7 +3990,7 @@ void TRExFit::Fit(bool isLHscanOnly){
         std::map < std::string, double > newPOIvalDo;
         std::vector < std::string > npList;
         for(auto syst : fSystematics){
-            if(FindInStringVector(npList,syst->fNuisanceParameter)<0){
+            if(Common::FindInStringVector(npList,syst->fNuisanceParameter)<0){
                 npList.push_back(syst->fNuisanceParameter);
                 for(int ud=0;ud<2;ud++){
                     //Be sure to take the initial values of the NP
@@ -4013,7 +4013,7 @@ void TRExFit::Fit(bool isLHscanOnly){
                 }
                 std::string category = syst->fCategory;
                 if(syst->fSubCategory!="") category = syst->fSubCategory;
-                if(FindInStringVector(systGroupNames,category)<0) systGroupNames.push_back(category);
+                if(Common::FindInStringVector(systGroupNames,category)<0) systGroupNames.push_back(category);
                 if(fabs(newPOIvalUp[syst->fNuisanceParameter]-nominalPOIval)>fNonProfileFitSystThreshold
                 || fabs(newPOIvalDo[syst->fNuisanceParameter]-nominalPOIval)>fNonProfileFitSystThreshold)
                     systGroups[category] = std::hypot(systGroups[category], ((std::fabs(newPOIvalUp[syst->fNuisanceParameter]-nominalPOIval)+fabs(newPOIvalDo[syst->fNuisanceParameter]-nominalPOIval))/2));
@@ -4059,7 +4059,7 @@ void TRExFit::Fit(bool isLHscanOnly){
         // systematics
         for(auto syst : fSystematics){
             if(syst->fName.find("stat_")!=std::string::npos && syst->fType==Systematic::SHAPE) continue;
-            if(FindInStringVector(npList,syst->fNuisanceParameter)<0){
+            if(Common::FindInStringVector(npList,syst->fNuisanceParameter)<0){
                 npList.push_back(syst->fNuisanceParameter);
                 std::cout << syst->fNuisanceParameter;
                 out       << syst->fNuisanceParameter;
@@ -4464,8 +4464,8 @@ std::map < std::string, double > TRExFit::PerformFit( RooWorkspace *ws, RooDataS
         std::vector<std::string> npNames;
         std::vector<double> npValues;
         for(unsigned int i_np=0;i_np<fFitResults->fNuisPar.size();i_np++){
-            if(!fFixNPforStatOnlyFit && FindInStringVector(fNormFactorNames,fFitResults->fNuisPar[i_np]->fName)>=0) continue;
-            if(!fFixNPforStatOnlyFit && FindInStringVector(fShapeFactorNames,fFitResults->fNuisPar[i_np]->fName)>=0) continue;
+            if(!fFixNPforStatOnlyFit && Common::FindInStringVector(fNormFactorNames,fFitResults->fNuisPar[i_np]->fName)>=0) continue;
+            if(!fFixNPforStatOnlyFit && Common::FindInStringVector(fShapeFactorNames,fFitResults->fNuisPar[i_np]->fName)>=0) continue;
             npNames.push_back(  fFitResults->fNuisPar[i_np]->fName );
             npValues.push_back( fFitResults->fNuisPar[i_np]->fFitValue );
         }
@@ -5190,7 +5190,7 @@ void TRExFit::DrawAndSaveSeparationPlots() const{
 
         std::ostringstream SEP;
         SEP.precision(3);
-        SEP << "Separation: " << GetSeparation(sig.get(),bkg.get())*100 << "%";
+        SEP << "Separation: " << Common::GetSeparation(sig.get(),bkg.get())*100 << "%";
         myText(0.55,0.73,1,SEP.str().c_str());
 
         for(int i_format=0;i_format<(int)TRExFitter::IMAGEFORMAT.size();i_format++)
@@ -5350,7 +5350,7 @@ void TRExFit::ProduceNPRanking( std::string NPnames/*="all"*/ ){
                     // add the nuisance parameter to the list nuisPars if it's there in the ws
                     // remove "gamma"...
                     if(np==NPnames || (atoi(NPnames.c_str())-fNSyst-fNNorm==i_gamma && (atoi(NPnames.c_str())>0 || strcmp(NPnames.c_str(),"0")==0)) || NPnames=="all"){
-                        nuisPars.push_back(ReplaceString(np,"gamma_",""));
+                        nuisPars.push_back(Common::ReplaceString(np,"gamma_",""));
                         isNF.push_back( true );
                         if(NPnames!="all") break;
                     }
@@ -6060,7 +6060,7 @@ void TRExFit::ComputeBinning(int regIter){
         if(fInputType==1){
             if(fSamples[i_smp]->fType==Sample::DATA) continue;
             if(fSamples[i_smp]->fType==Sample::GHOST) continue;
-            if( FindInStringVector(fSamples[i_smp]->fRegions,fRegions[regIter]->fName)<0 ) continue;
+            if( Common::FindInStringVector(fSamples[i_smp]->fRegions,fRegions[regIter]->fName)<0 ) continue;
             //
             fullSelection = FullSelection(  fRegions[regIter],fSamples[i_smp]);
             fullMCweight  = FullWeight(     fRegions[regIter],fSamples[i_smp]);
@@ -6069,7 +6069,7 @@ void TRExFit::ComputeBinning(int regIter){
                 int tmp_debugLevel=TRExFitter::DEBUGLEVEL;
                 TRExFitter::SetDebugLevel(0);
                 TH1D* htmp = nullptr;
-                htmp = HistFromNtuple( fullPaths[i_path],
+                htmp = Common::HistFromNtuple( fullPaths[i_path],
                                     fRegions[regIter]->fVariable, 10000, fRegions[regIter]->fXmin, fRegions[regIter]->fXmax,
                                     fullSelection, fullMCweight, fDebugNev);
                 TRExFitter::SetDebugLevel(tmp_debugLevel);
@@ -6134,7 +6134,7 @@ void TRExFit::ComputeBinning(int regIter){
             for(unsigned int i_path=0;i_path<fullPaths.size();i_path++){
                 int tmp_debugLevel=TRExFitter::DEBUGLEVEL;
                 TRExFitter::SetDebugLevel(0);
-                std::unique_ptr<TH1> htmp = HistFromFile( fullPaths[i_path] );
+                std::unique_ptr<TH1> htmp = Common::HistFromFile( fullPaths[i_path] );
                 if (!htmp) {
                     WriteErrorStatus("TRExFit::ReadHistograms", "Histo pointer is empty cannot continue running the code");
                     exit(EXIT_FAILURE);
@@ -6147,7 +6147,7 @@ void TRExFit::ComputeBinning(int regIter){
                     std::unique_ptr<TH1> tmp_copy(static_cast<TH1*>(htmp->Rebin(fRegions[regIter]->fHistoNBinsRebin, "tmp_copy", &fRegions[regIter]->fHistoBins[0])));
                     htmp.reset(tmp_copy.release());
                     htmp->SetName(hname);
-                    if(TRExFitter::MERGEUNDEROVERFLOW) MergeUnderOverFlow(htmp.get());
+                    if(TRExFitter::MERGEUNDEROVERFLOW) Common::MergeUnderOverFlow(htmp.get());
                 }
                 else if(fRegions[regIter]->fHistoNBinsRebin != -1) {
                     htmp->Rebin(fRegions[regIter]->fHistoNBinsRebin);
@@ -6839,7 +6839,7 @@ std::string TRExFit::GetWeightFunction(std::vector<std::pair<double,std::string>
         fun = GetSquareRootLinearInterpolation(itemp);
     }
     // ...
-    fun = ReplaceString(fun,"--","+");
+    fun = Common::ReplaceString(fun,"--","+");
     WriteDebugStatus("TRExFit::GetWeightFunction", "Morphing:   weight function = " + fun);
     return fun;
 }
@@ -7182,7 +7182,7 @@ void TRExFit::RunToys(){
         }
         // create map to store fit results
         // create histogram to store fitted POI values
-        auto&& POInf = fNormFactors[FindInStringVector(fNormFactorNames,fPOI)];
+        auto&& POInf = fNormFactors[Common::FindInStringVector(fNormFactorNames,fPOI)];
         double min = POInf->fMin;
         double max = POInf->fMax;
         if (fToysHistoMin < 9900 && fToysHistoMax > -9000){
@@ -7337,7 +7337,7 @@ std::string TRExFit::Variable(Region *reg,Sample *smp){
         variable = reg->fVariable;
     }
     // check the final expression
-    if(!CheckExpression(variable)){
+    if(!Common::CheckExpression(variable)){
         WriteErrorStatus("TRExFit::Variable","Variable expression not valid. Please check: "+variable);
         exit(EXIT_FAILURE);
     }
@@ -7377,7 +7377,7 @@ std::string TRExFit::FullSelection(Region *reg,Sample *smp){
         selection = "";
     }
     else if(smp->fIgnoreSelection!="FALSE" && smp->fIgnoreSelection!=""){
-        selection = ReplaceString(selection,smp->fIgnoreSelection,"1");
+        selection = Common::ReplaceString(selection,smp->fIgnoreSelection,"1");
     }
     // from Sample
     if(smp->fSelection!="" && smp->fSelection!="1"){
@@ -7385,7 +7385,7 @@ std::string TRExFit::FullSelection(Region *reg,Sample *smp){
         selection += "("+smp->fSelection+")";
     }
     // check the final expression
-    if(!CheckExpression(selection)){
+    if(!Common::CheckExpression(selection)){
         WriteErrorStatus("TRExFit::FullSelection","Full selection expression not valid. Please check: "+selection);
         exit(EXIT_FAILURE);
     }
@@ -7424,7 +7424,7 @@ std::string TRExFit::FullWeight(Region *reg,Sample *smp,Systematic *syst,bool is
         weight = "";
     }
     else if(smp->fIgnoreWeight!="FALSE" && smp->fIgnoreWeight!=""){
-        weight = ReplaceString(weight,smp->fIgnoreWeight,"1");
+        weight = Common::ReplaceString(weight,smp->fIgnoreWeight,"1");
     }
     // from Sample (nominal...
     std::string sampleWeight = "";
@@ -7434,8 +7434,8 @@ std::string TRExFit::FullWeight(Region *reg,Sample *smp,Systematic *syst,bool is
     // ... and systematics)
     if(syst!=nullptr){
         if(syst->fIgnoreWeight!=""){
-            weight = ReplaceString(weight,syst->fIgnoreWeight,"1");
-            sampleWeight = ReplaceString(sampleWeight,syst->fIgnoreWeight,"1");
+            weight = Common::ReplaceString(weight,syst->fIgnoreWeight,"1");
+            sampleWeight = Common::ReplaceString(sampleWeight,syst->fIgnoreWeight,"1");
         }
         if(isUp){
             if(syst->fWeightUp!=""){
@@ -7463,12 +7463,12 @@ std::string TRExFit::FullWeight(Region *reg,Sample *smp,Systematic *syst,bool is
     // add Bootstrap weights
     if(fBootstrap!="" && fBootstrapIdx>=0){
         if(weight!="") weight += " * ";
-        weight += "("+ReplaceString(fBootstrap,"BootstrapIdx",Form("%d",fBootstrapIdx))+")";
+        weight += "("+Common::ReplaceString(fBootstrap,"BootstrapIdx",Form("%d",fBootstrapIdx))+")";
         gRandom->SetSeed(fBootstrapIdx);
     }
     // check the final expression
     WriteDebugStatus("TRExFit::FullWeight","Full weight expression : "+weight);
-    if(!CheckExpression(weight)){
+    if(!Common::CheckExpression(weight)){
         WriteErrorStatus("TRExFit::FullWeight","Full weight expression not valid. Please check: "+weight);
         exit(EXIT_FAILURE);
     }
@@ -7544,48 +7544,48 @@ std::vector<std::string> TRExFit::FullNtuplePaths(Region *reg,Sample *smp,System
     // (same order as above used for suffix order - OK? FIXME)
     if(syst!=nullptr){
         if(isData && syst->fSubtractRefSampleVar && syst->fReferenceSample==smp->fName){
-            if(isUp) pathSuffs = CombinePathSufs( CombinePathSufs( reg->fNtuplePathSuffs, smp->fNtuplePathSuffs ), ToVec(syst->fNtuplePathSufUpRefSample) );
-            else     pathSuffs = CombinePathSufs( CombinePathSufs( reg->fNtuplePathSuffs, smp->fNtuplePathSuffs ), ToVec(syst->fNtuplePathSufDownRefSample) );
+            if(isUp) pathSuffs = Common::CombinePathSufs( Common::CombinePathSufs( reg->fNtuplePathSuffs, smp->fNtuplePathSuffs ), Common::ToVec(syst->fNtuplePathSufUpRefSample) );
+            else     pathSuffs = Common::CombinePathSufs( Common::CombinePathSufs( reg->fNtuplePathSuffs, smp->fNtuplePathSuffs ), Common::ToVec(syst->fNtuplePathSufDownRefSample) );
         }
         else{
-            if(isUp) pathSuffs = CombinePathSufs( CombinePathSufs( reg->fNtuplePathSuffs, smp->fNtuplePathSuffs ), ToVec(syst->fNtuplePathSufUp) );
-            else     pathSuffs = CombinePathSufs( CombinePathSufs( reg->fNtuplePathSuffs, smp->fNtuplePathSuffs ), ToVec(syst->fNtuplePathSufDown) );
+            if(isUp) pathSuffs = Common::CombinePathSufs( Common::CombinePathSufs( reg->fNtuplePathSuffs, smp->fNtuplePathSuffs ), Common::ToVec(syst->fNtuplePathSufUp) );
+            else     pathSuffs = Common::CombinePathSufs( Common::CombinePathSufs( reg->fNtuplePathSuffs, smp->fNtuplePathSuffs ), Common::ToVec(syst->fNtuplePathSufDown) );
         }
     }
     else{
-        pathSuffs = CombinePathSufs( reg->fNtuplePathSuffs, smp->fNtuplePathSuffs );
+        pathSuffs = Common::CombinePathSufs( reg->fNtuplePathSuffs, smp->fNtuplePathSuffs );
     }
     //
     if(syst!=nullptr){
         if(isData && syst->fSubtractRefSampleVar && syst->fReferenceSample==smp->fName){
-            if(isUp) fileSuffs = CombinePathSufs( CombinePathSufs( reg->fNtupleFileSuffs, smp->fNtupleFileSuffs ), ToVec(syst->fNtupleFileSufUpRefSample) );
-            else     fileSuffs = CombinePathSufs( CombinePathSufs( reg->fNtupleFileSuffs, smp->fNtupleFileSuffs ), ToVec(syst->fNtupleFileSufDownRefSample) );
+            if(isUp) fileSuffs = Common::CombinePathSufs( Common::CombinePathSufs( reg->fNtupleFileSuffs, smp->fNtupleFileSuffs ), Common::ToVec(syst->fNtupleFileSufUpRefSample) );
+            else     fileSuffs = Common::CombinePathSufs( Common::CombinePathSufs( reg->fNtupleFileSuffs, smp->fNtupleFileSuffs ), Common::ToVec(syst->fNtupleFileSufDownRefSample) );
         }
         else{
-            if(isUp) fileSuffs = CombinePathSufs( CombinePathSufs( reg->fNtupleFileSuffs, smp->fNtupleFileSuffs ), ToVec(syst->fNtupleFileSufUp) );
-            else     fileSuffs = CombinePathSufs( CombinePathSufs( reg->fNtupleFileSuffs, smp->fNtupleFileSuffs ), ToVec(syst->fNtupleFileSufDown) );
+            if(isUp) fileSuffs = Common::CombinePathSufs( Common::CombinePathSufs( reg->fNtupleFileSuffs, smp->fNtupleFileSuffs ), Common::ToVec(syst->fNtupleFileSufUp) );
+            else     fileSuffs = Common::CombinePathSufs( Common::CombinePathSufs( reg->fNtupleFileSuffs, smp->fNtupleFileSuffs ), Common::ToVec(syst->fNtupleFileSufDown) );
         }
     }
     else{
-        fileSuffs = CombinePathSufs( reg->fNtupleFileSuffs, smp->fNtupleFileSuffs );
+        fileSuffs = Common::CombinePathSufs( reg->fNtupleFileSuffs, smp->fNtupleFileSuffs );
     }
     //
     if(syst!=nullptr){
         if(isData && syst->fSubtractRefSampleVar && syst->fReferenceSample==smp->fName){
-            if(isUp) nameSuffs = CombinePathSufs( CombinePathSufs( reg->fNtupleNameSuffs, smp->fNtupleNameSuffs ), ToVec(syst->fNtupleNameSufUpRefSample) );
-            else     nameSuffs = CombinePathSufs( CombinePathSufs( reg->fNtupleNameSuffs, smp->fNtupleNameSuffs ), ToVec(syst->fNtupleNameSufDownRefSample) );
+            if(isUp) nameSuffs = Common::CombinePathSufs( Common::CombinePathSufs( reg->fNtupleNameSuffs, smp->fNtupleNameSuffs ), Common::ToVec(syst->fNtupleNameSufUpRefSample) );
+            else     nameSuffs = Common::CombinePathSufs( Common::CombinePathSufs( reg->fNtupleNameSuffs, smp->fNtupleNameSuffs ), Common::ToVec(syst->fNtupleNameSufDownRefSample) );
         }
         else{
-            if(isUp) nameSuffs = CombinePathSufs( CombinePathSufs( reg->fNtupleNameSuffs, smp->fNtupleNameSuffs ), ToVec(syst->fNtupleNameSufUp) );
-            else     nameSuffs = CombinePathSufs( CombinePathSufs( reg->fNtupleNameSuffs, smp->fNtupleNameSuffs ), ToVec(syst->fNtupleNameSufDown) );
+            if(isUp) nameSuffs = Common::CombinePathSufs( Common::CombinePathSufs( reg->fNtupleNameSuffs, smp->fNtupleNameSuffs ), Common::ToVec(syst->fNtupleNameSufUp) );
+            else     nameSuffs = Common::CombinePathSufs( Common::CombinePathSufs( reg->fNtupleNameSuffs, smp->fNtupleNameSuffs ), Common::ToVec(syst->fNtupleNameSufDown) );
         }
     }
     else{
-        nameSuffs = CombinePathSufs( reg->fNtupleNameSuffs, smp->fNtupleNameSuffs );
+        nameSuffs = Common::CombinePathSufs( reg->fNtupleNameSuffs, smp->fNtupleNameSuffs );
     }
     //
     // And finally put everything together
-    fullPaths = CreatePathsList( paths,pathSuffs, files,fileSuffs, names,nameSuffs );
+    fullPaths = Common::CreatePathsList( paths,pathSuffs, files,fileSuffs, names,nameSuffs );
     return fullPaths;
 }
 
@@ -7656,48 +7656,48 @@ std::vector<std::string> TRExFit::FullHistogramPaths(Region *reg,Sample *smp,Sys
     // (same order as above used for suffix order - OK? FIXME)
     if(syst!=nullptr){
         if(isData && syst->fSubtractRefSampleVar && syst->fReferenceSample==smp->fName){
-            if(isUp) pathSuffs = CombinePathSufs( CombinePathSufs( reg->fHistoPathSuffs, smp->fHistoPathSuffs ), ToVec(syst->fHistoPathSufUpRefSample) );
-            else     pathSuffs = CombinePathSufs( CombinePathSufs( reg->fHistoPathSuffs, smp->fHistoPathSuffs ), ToVec(syst->fHistoPathSufDownRefSample) );
+            if(isUp) pathSuffs = Common::CombinePathSufs( Common::CombinePathSufs( reg->fHistoPathSuffs, smp->fHistoPathSuffs ), Common::ToVec(syst->fHistoPathSufUpRefSample) );
+            else     pathSuffs = Common::CombinePathSufs( Common::CombinePathSufs( reg->fHistoPathSuffs, smp->fHistoPathSuffs ), Common::ToVec(syst->fHistoPathSufDownRefSample) );
         }
         else{
-            if(isUp) pathSuffs = CombinePathSufs( CombinePathSufs( reg->fHistoPathSuffs, smp->fHistoPathSuffs ), ToVec(syst->fHistoPathSufUp) );
-            else     pathSuffs = CombinePathSufs( CombinePathSufs( reg->fHistoPathSuffs, smp->fHistoPathSuffs ), ToVec(syst->fHistoPathSufDown) );
+            if(isUp) pathSuffs = Common::CombinePathSufs( Common::CombinePathSufs( reg->fHistoPathSuffs, smp->fHistoPathSuffs ), Common::ToVec(syst->fHistoPathSufUp) );
+            else     pathSuffs = Common::CombinePathSufs( Common::CombinePathSufs( reg->fHistoPathSuffs, smp->fHistoPathSuffs ), Common::ToVec(syst->fHistoPathSufDown) );
         }
     }
     else{
-        pathSuffs = CombinePathSufs( reg->fHistoPathSuffs, smp->fHistoPathSuffs );
+        pathSuffs = Common::CombinePathSufs( reg->fHistoPathSuffs, smp->fHistoPathSuffs );
     }
     //
     if(syst!=nullptr){
         if(isData && syst->fSubtractRefSampleVar && syst->fReferenceSample==smp->fName){
-            if(isUp) fileSuffs = CombinePathSufs( CombinePathSufs( reg->fHistoFileSuffs, smp->fHistoFileSuffs ), ToVec(syst->fHistoFileSufUpRefSample) );
-            else     fileSuffs = CombinePathSufs( CombinePathSufs( reg->fHistoFileSuffs, smp->fHistoFileSuffs ), ToVec(syst->fHistoFileSufDownRefSample) );
+            if(isUp) fileSuffs = Common::CombinePathSufs( Common::CombinePathSufs( reg->fHistoFileSuffs, smp->fHistoFileSuffs ), Common::ToVec(syst->fHistoFileSufUpRefSample) );
+            else     fileSuffs = Common::CombinePathSufs( Common::CombinePathSufs( reg->fHistoFileSuffs, smp->fHistoFileSuffs ), Common::ToVec(syst->fHistoFileSufDownRefSample) );
         }
         else{
-            if(isUp) fileSuffs = CombinePathSufs( CombinePathSufs( reg->fHistoFileSuffs, smp->fHistoFileSuffs ), ToVec(syst->fHistoFileSufUp) );
-            else     fileSuffs = CombinePathSufs( CombinePathSufs( reg->fHistoFileSuffs, smp->fHistoFileSuffs ), ToVec(syst->fHistoFileSufDown) );
+            if(isUp) fileSuffs = Common::CombinePathSufs( Common::CombinePathSufs( reg->fHistoFileSuffs, smp->fHistoFileSuffs ), Common::ToVec(syst->fHistoFileSufUp) );
+            else     fileSuffs = Common::CombinePathSufs( Common::CombinePathSufs( reg->fHistoFileSuffs, smp->fHistoFileSuffs ), Common::ToVec(syst->fHistoFileSufDown) );
         }
     }
     else{
-        fileSuffs = CombinePathSufs( reg->fHistoFileSuffs, smp->fHistoFileSuffs );
+        fileSuffs = Common::CombinePathSufs( reg->fHistoFileSuffs, smp->fHistoFileSuffs );
     }
     //
     if(syst!=nullptr){
         if(isData && syst->fSubtractRefSampleVar && syst->fReferenceSample==smp->fName){
-            if(isUp) nameSuffs = CombinePathSufs( CombinePathSufs( reg->fHistoNameSuffs, smp->fHistoNameSuffs ), ToVec(syst->fHistoNameSufUpRefSample) );
-            else     nameSuffs = CombinePathSufs( CombinePathSufs( reg->fHistoNameSuffs, smp->fHistoNameSuffs ), ToVec(syst->fHistoNameSufDownRefSample) );
+            if(isUp) nameSuffs = Common::CombinePathSufs( Common::CombinePathSufs( reg->fHistoNameSuffs, smp->fHistoNameSuffs ), Common::ToVec(syst->fHistoNameSufUpRefSample) );
+            else     nameSuffs = Common::CombinePathSufs( Common::CombinePathSufs( reg->fHistoNameSuffs, smp->fHistoNameSuffs ), Common::ToVec(syst->fHistoNameSufDownRefSample) );
         }
         else{
-            if(isUp) nameSuffs = CombinePathSufs( CombinePathSufs( reg->fHistoNameSuffs, smp->fHistoNameSuffs ), ToVec(syst->fHistoNameSufUp) );
-            else     nameSuffs = CombinePathSufs( CombinePathSufs( reg->fHistoNameSuffs, smp->fHistoNameSuffs ), ToVec(syst->fHistoNameSufDown) );
+            if(isUp) nameSuffs = Common::CombinePathSufs( Common::CombinePathSufs( reg->fHistoNameSuffs, smp->fHistoNameSuffs ), Common::ToVec(syst->fHistoNameSufUp) );
+            else     nameSuffs = Common::CombinePathSufs( Common::CombinePathSufs( reg->fHistoNameSuffs, smp->fHistoNameSuffs ), Common::ToVec(syst->fHistoNameSufDown) );
         }
     }
     else{
-      nameSuffs = CombinePathSufs( CombinePathSufs( reg->fHistoNameSuffs, smp->fHistoNameSuffs), fHistoNamesNominal );
+      nameSuffs = Common::CombinePathSufs( Common::CombinePathSufs( reg->fHistoNameSuffs, smp->fHistoNameSuffs), fHistoNamesNominal );
     }
     //
     // And finally put everything together
-    fullPaths = CreatePathsList( paths,pathSuffs, files,fileSuffs, names,nameSuffs );
+    fullPaths = Common::CreatePathsList( paths,pathSuffs, files,fileSuffs, names,nameSuffs );
     return fullPaths;
 }
 

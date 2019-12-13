@@ -320,30 +320,30 @@ void TRExPlot::BlindData(){
     if(fBlindingThreshold>=0){
         if(h_data!=nullptr && fSigNames.size()>0 && h_tot!=nullptr){
             if(h_blinding!=nullptr){
-                BlindDataHisto( h_data,h_blinding );
+                Common::BlindDataHisto( h_data,h_blinding );
             }
             else{
-                if(fBlindingType==TRExFit::SOVERB)               h_blinding = BlindDataHisto( h_data, TRExPlot::GetTotBkg(), h_signal[0], fBlindingThreshold, false );
-                else if(fBlindingType==TRExFit::SOVERSPLUSB)     h_blinding = BlindDataHisto( h_data, h_tot, h_signal[0], fBlindingThreshold, false );
-                else if(fBlindingType==TRExFit::SOVERSQRTB)      h_blinding = BlindDataHisto( h_data, TRExPlot::GetTotBkg(), h_signal[0], fBlindingThreshold, true );
-                else if(fBlindingType==TRExFit::SOVERSQRTSPLUSB) h_blinding = BlindDataHisto( h_data, h_tot, h_signal[0], fBlindingThreshold, true);
+                if(fBlindingType==TRExFit::SOVERB)               h_blinding = Common::BlindDataHisto( h_data, TRExPlot::GetTotBkg(), h_signal[0], fBlindingThreshold, false );
+                else if(fBlindingType==TRExFit::SOVERSPLUSB)     h_blinding = Common::BlindDataHisto( h_data, h_tot, h_signal[0], fBlindingThreshold, false );
+                else if(fBlindingType==TRExFit::SOVERSQRTB)      h_blinding = Common::BlindDataHisto( h_data, TRExPlot::GetTotBkg(), h_signal[0], fBlindingThreshold, true );
+                else if(fBlindingType==TRExFit::SOVERSQRTSPLUSB) h_blinding = Common::BlindDataHisto( h_data, h_tot, h_signal[0], fBlindingThreshold, true);
                 // if more than one signal:
                 if(fSigNames.size()>1){
                     for(unsigned int i_sig=1;i_sig<fSigNames.size();i_sig++){
                         if(fBlindingType==TRExFit::SOVERB){
-                            h_blinding->Add( BlindDataHisto( h_data, TRExPlot::GetTotBkg(), h_signal[i_sig], fBlindingThreshold, false ) );
+                            h_blinding->Add( Common::BlindDataHisto( h_data, TRExPlot::GetTotBkg(), h_signal[i_sig], fBlindingThreshold, false ) );
                             h_blinding->Scale(2.);
                         }
                         else if(fBlindingType==TRExFit::SOVERSPLUSB){
-                            h_blinding->Add( BlindDataHisto( h_data, h_tot, h_signal[i_sig], fBlindingThreshold, false ) );
+                            h_blinding->Add( Common::BlindDataHisto( h_data, h_tot, h_signal[i_sig], fBlindingThreshold, false ) );
                             h_blinding->Scale(2.);
                         }
                         else if(fBlindingType==TRExFit::SOVERSQRTB){
-                            h_blinding->Add( BlindDataHisto( h_data, TRExPlot::GetTotBkg(), h_signal[i_sig], fBlindingThreshold, true ) );
+                            h_blinding->Add( Common::BlindDataHisto( h_data, TRExPlot::GetTotBkg(), h_signal[i_sig], fBlindingThreshold, true ) );
                             h_blinding->Scale(2.);
                         }
                         else if(fBlindingType==TRExFit::SOVERSQRTSPLUSB){
-                            h_blinding->Add( BlindDataHisto( h_data, h_tot, h_signal[i_sig], fBlindingThreshold, true ) );
+                            h_blinding->Add( Common::BlindDataHisto( h_data, h_tot, h_signal[i_sig], fBlindingThreshold, true ) );
                             h_blinding->Scale(2.);
                         }
                     }

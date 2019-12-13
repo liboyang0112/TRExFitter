@@ -1848,8 +1848,8 @@ int ConfigReader::ReadRegionOptions(const std::string& opt){
         if (confSet == nullptr) break;
 
         nReg++;
-        if(fOnlyRegions.size()>0 && FindInStringVector(fOnlyRegions,RemoveQuotes(confSet->GetValue()))<0) continue;
-        if(fToExclude.size()>0 && FindInStringVector(fToExclude,RemoveQuotes(confSet->GetValue()))>=0) continue;
+        if(fOnlyRegions.size()>0 && Common::FindInStringVector(fOnlyRegions,RemoveQuotes(confSet->GetValue()))<0) continue;
+        if(fToExclude.size()>0 && Common::FindInStringVector(fToExclude,RemoveQuotes(confSet->GetValue()))>=0) continue;
         fRegNames.push_back( CheckName(confSet->GetValue()) );
         fRegions.emplace_back( CheckName(confSet->GetValue()) );
         Region *reg;
@@ -1977,8 +1977,8 @@ int ConfigReader::ReadRegionOptions(const std::string& opt){
                         WriteErrorStatus("ConfigReader::ReadRegionOptions", "You specified `Binning` option with TransfoD, but you did not provide any reasonable option. Check this!");
                         return 1;
                     }
-                    reg -> fTransfoDzSig=convertStoD(vec_bins[2]);
-                    reg -> fTransfoDzBkg=convertStoD(vec_bins[3]);
+                    reg -> fTransfoDzSig=Common::convertStoD(vec_bins[2]);
+                    reg -> fTransfoDzBkg=Common::convertStoD(vec_bins[3]);
                     if(vec_bins.size()>4){
                         for(const std::string& ibkg : vec_bins){
                             reg -> fAutoBinBkgsInSig.push_back(ibkg);
@@ -1990,8 +1990,8 @@ int ConfigReader::ReadRegionOptions(const std::string& opt){
                         WriteErrorStatus("ConfigReader::ReadRegionOptions", "You specified `Binning` option with TransfoF, but you did not provide any reasonable option. Check this!");
                         return 1;
                     }
-                    reg -> fTransfoFzSig=convertStoD(vec_bins[2]);
-                    reg -> fTransfoFzBkg=convertStoD(vec_bins[3]);
+                    reg -> fTransfoFzSig=Common::convertStoD(vec_bins[2]);
+                    reg -> fTransfoFzBkg=Common::convertStoD(vec_bins[3]);
                     if(vec_bins.size()>4){
                         for(const std::string& ibkg : vec_bins){
                             reg -> fAutoBinBkgsInSig.push_back(ibkg);
@@ -1999,11 +1999,11 @@ int ConfigReader::ReadRegionOptions(const std::string& opt){
                     }
                 }
                 else if(vec_bins[1]=="TransfoJ"){
-                    if(vec_bins.size() > 2) reg -> fTransfoJpar1=convertStoD(vec_bins[2]);
+                    if(vec_bins.size() > 2) reg -> fTransfoJpar1=Common::convertStoD(vec_bins[2]);
                     else reg -> fTransfoJpar1 = 5.;
-                    if(vec_bins.size() > 3) reg -> fTransfoJpar2=convertStoD(vec_bins[3]);
+                    if(vec_bins.size() > 3) reg -> fTransfoJpar2=Common::convertStoD(vec_bins[3]);
                     else reg -> fTransfoJpar2 = 1.;
-                    if(vec_bins.size() > 4) reg -> fTransfoJpar3=convertStoD(vec_bins[4]);
+                    if(vec_bins.size() > 4) reg -> fTransfoJpar3=Common::convertStoD(vec_bins[4]);
                     else reg -> fTransfoJpar3 = 5.;
                     if(vec_bins.size()>5){
                         for(const std::string& ibkg : vec_bins){
@@ -2110,7 +2110,7 @@ int ConfigReader::ReadRegionOptions(const std::string& opt){
 
     }
 
-    if (!fHasAtLeastOneValidRegion && OptionRunsFit(opt)){
+    if (!fHasAtLeastOneValidRegion && Common::OptionRunsFit(opt)){
         WriteErrorStatus("ConfigReader::ReadRegionOptions","You need to provide at least one region that is not Validation otherwise the fit will crash.");
         return 1;
     }
@@ -2398,8 +2398,8 @@ int ConfigReader::ReadSampleOptions(const std::string& opt){
         int type = 0;
         std::string param = "";
 
-        if(fOnlySamples.size()>0 && FindInStringVector(fOnlySamples,RemoveQuotes(confSet->GetValue()))<0) continue;
-        if(fToExclude.size()>0 && FindInStringVector(fToExclude,RemoveQuotes(confSet->GetValue()))>=0) continue;
+        if(fOnlySamples.size()>0 && Common::FindInStringVector(fOnlySamples,RemoveQuotes(confSet->GetValue()))<0) continue;
+        if(fToExclude.size()>0 && Common::FindInStringVector(fToExclude,RemoveQuotes(confSet->GetValue()))>=0) continue;
         type = Sample::BACKGROUND;
 
         // Set Type
@@ -2676,8 +2676,8 @@ int ConfigReader::ReadSampleOptions(const std::string& opt){
 
         for(int i_reg=0;i_reg<fFitter->fNRegions;i_reg++){
             std::string regName = fFitter->fRegions[i_reg]->fName;
-            if( (regions_str=="" || regions_str=="all" || FindInStringVector(regions,regName)>=0)
-                && FindInStringVector(exclude,regName)<0 ){
+            if( (regions_str=="" || regions_str=="all" || Common::FindInStringVector(regions,regName)>=0)
+                && Common::FindInStringVector(exclude,regName)<0 ){
                 sample->fRegions.push_back( fFitter->fRegions[i_reg]->fName );
             }
         }
@@ -2713,7 +2713,7 @@ int ConfigReader::ReadSampleOptions(const std::string& opt){
                 nfactor = sample->AddNormFactor( Vectorize(param,',')[0] );
             }
             nfactor->fRegions = sample->fRegions;
-            if( FindInStringVector(fFitter->fNormFactorNames,nfactor->fName)<0 ){
+            if( Common::FindInStringVector(fFitter->fNormFactorNames,nfactor->fName)<0 ){
                 fFitter->fNormFactors.push_back( nfactor );
                 fFitter->fNormFactorNames.push_back( nfactor->fName );
                 fFitter->fNNorm++;
@@ -2751,7 +2751,7 @@ int ConfigReader::ReadSampleOptions(const std::string& opt){
                 sfactor = sample->AddShapeFactor( Vectorize(param,',')[0] );
             }
             sfactor->fRegions = sample->fRegions;
-            if( FindInStringVector(fFitter->fShapeFactorNames,sfactor->fName)<0 ){
+            if( Common::FindInStringVector(fFitter->fShapeFactorNames,sfactor->fName)<0 ){
                 fFitter->fShapeFactors.push_back( sfactor );
                 fFitter->fShapeFactorNames.push_back( sfactor->fName );
                 fFitter->fNShape++;
@@ -3025,20 +3025,20 @@ int ConfigReader::ReadSampleOptions(const std::string& opt){
                 WriteDebugStatus("ConfigReader::ReadSampleOptions", "Morphing: Adding " + name + ", with value: " + std::to_string(value));
                 if (!fFitter->MorphIsAlreadyPresent(name, value)) fFitter->AddTemplateWeight(name, value);
                 // set proper normalization
-                std::string morphName = "morph_"+name+"_"+ReplaceString(std::to_string(value),"-","m");
+                std::string morphName = "morph_"+name+"_"+Common::ReplaceString(std::to_string(value),"-","m");
                 NormFactor *nf = sample->AddNormFactor(morphName, 1, 0, 10, false);
                 fFitter->fNormFactors.push_back( nf );
                 fFitter->fNormFactorNames.push_back( nf->fName );
                 fFitter->fNNorm++;
                 sample->fIsMorph[name] = true;
                 sample->fMorphValue[name] = value;
-                if(FindInStringVector(fFitter->fMorphParams,name)<0) fFitter->fMorphParams.push_back( name );
+                if(Common::FindInStringVector(fFitter->fMorphParams,name)<0) fFitter->fMorphParams.push_back( name );
             }
         }
 
     }
 
-    if (!fHasAtLeastOneValidSample && OptionRunsFit(opt)){
+    if (!fHasAtLeastOneValidSample && Common::OptionRunsFit(opt)){
         WriteErrorStatus("ConfigReader::ReadSampleOptions","You need to provide at least one sample that is either SIGNAL or BACKGROUND, otherwise the fit will crash.");
         return 1;
     }
@@ -3083,7 +3083,7 @@ int ConfigReader::ReadNormFactorOptions(){
         if (confSet == nullptr) break;
         nNorm++;
 
-        if(fToExclude.size()>0 && FindInStringVector(fToExclude,CheckName(confSet->GetValue()))>=0) continue;
+        if(fToExclude.size()>0 && Common::FindInStringVector(fToExclude,CheckName(confSet->GetValue()))>=0) continue;
 
         std::string samples_str = confSet->Get("Samples");
         std::string regions_str = confSet->Get("Regions");
@@ -3124,13 +3124,13 @@ int ConfigReader::ReadNormFactorOptions(){
         nfactor = new NormFactor(CheckName(confSet->GetValue()));
 
         TRExFitter::SYSTMAP[nfactor->fName] = nfactor->fName;
-        if( FindInStringVector(fFitter->fNormFactorNames,nfactor->fName)<0 ){
+        if( Common::FindInStringVector(fFitter->fNormFactorNames,nfactor->fName)<0 ){
             fFitter->fNormFactors.push_back( nfactor );
             fFitter->fNormFactorNames.push_back( nfactor->fName );
             fFitter->fNNorm++;
         }
         else{
-            nfactor = fFitter->fNormFactors[ FindInStringVector(fFitter->fNormFactorNames,nfactor->fName) ];
+            nfactor = fFitter->fNormFactors[ Common::FindInStringVector(fFitter->fNormFactorNames,nfactor->fName) ];
         }
 
         // Set NuisanceParameter = Name
@@ -3226,8 +3226,8 @@ int ConfigReader::ReadNormFactorOptions(){
         for(int i_smp=0;i_smp<fFitter->fNSamples;i_smp++){
             sample = fFitter->fSamples[i_smp];
             if(sample->fType == Sample::DATA) continue;
-            if(   (samples[0]=="all" || FindInStringVector(samples, sample->fName)>=0 )
-               && (exclude[0]==""    || FindInStringVector(exclude, sample->fName)<0 ) ){
+            if(   (samples[0]=="all" || Common::FindInStringVector(samples, sample->fName)>=0 )
+               && (exclude[0]==""    || Common::FindInStringVector(exclude, sample->fName)<0 ) ){
                 sample->AddNormFactor(nfactor);
             }
         }
@@ -3248,7 +3248,7 @@ int ConfigReader::ReadShapeFactorOptions(){
         if (confSet == nullptr) break;
         nShape++;
 
-        if(fToExclude.size()>0 && FindInStringVector(fToExclude,CheckName(confSet->GetValue()))>=0) continue;
+        if(fToExclude.size()>0 && Common::FindInStringVector(fToExclude,CheckName(confSet->GetValue()))>=0) continue;
         std::string samples_str = confSet->Get("Samples");
         std::string regions_str = confSet->Get("Regions");
         std::string exclude_str = confSet->Get("Exclude");
@@ -3286,13 +3286,13 @@ int ConfigReader::ReadShapeFactorOptions(){
         }
 
         sfactor = new ShapeFactor(CheckName(confSet->GetValue()));
-        if( FindInStringVector(fFitter->fShapeFactorNames,sfactor->fName)<0 ){
+        if( Common::FindInStringVector(fFitter->fShapeFactorNames,sfactor->fName)<0 ){
             fFitter->fShapeFactors.push_back( sfactor );
             fFitter->fShapeFactorNames.push_back( sfactor->fName );
             fFitter->fNShape++;
         }
         else{
-            sfactor = fFitter->fShapeFactors[ FindInStringVector(fFitter->fShapeFactorNames,sfactor->fName) ];
+            sfactor = fFitter->fShapeFactors[ Common::FindInStringVector(fFitter->fShapeFactorNames,sfactor->fName) ];
         }
 
         // Set NuisanceParameter = Name
@@ -3353,8 +3353,8 @@ int ConfigReader::ReadShapeFactorOptions(){
         for(int i_smp=0;i_smp<fFitter->fNSamples;i_smp++){
             sample = fFitter->fSamples[i_smp];
             if(sample->fType == Sample::DATA) continue;
-            if(   (samples[0]=="all" || FindInStringVector(samples, sample->fName)>=0 )
-               && (exclude[0]==""    || FindInStringVector(exclude, sample->fName)<0 ) ){
+            if(   (samples[0]=="all" || Common::FindInStringVector(samples, sample->fName)>=0 )
+               && (exclude[0]==""    || Common::FindInStringVector(exclude, sample->fName)<0 ) ){
                 sample->AddShapeFactor(sfactor);
             }
         }
@@ -3408,8 +3408,8 @@ int ConfigReader::ReadSystOptions(){
 
         std::string param = "";
         Systematic *sys = nullptr;
-        if(fOnlySystematics.size()>0 && FindInStringVector(fOnlySystematics,CheckName(confSet->GetValue()))<0) continue;
-        if(fToExclude.size()>0 && FindInStringVector(fToExclude,CheckName(confSet->GetValue()))>=0) continue;
+        if(fOnlySystematics.size()>0 && Common::FindInStringVector(fOnlySystematics,CheckName(confSet->GetValue()))<0) continue;
+        if(fToExclude.size()>0 && Common::FindInStringVector(fToExclude,CheckName(confSet->GetValue()))>=0) continue;
         std::string samples_str = confSet->Get("Samples");
         std::string regions_str = confSet->Get("Regions");
         std::string exclude_str = confSet->Get("Exclude");
@@ -3423,7 +3423,7 @@ int ConfigReader::ReadSystOptions(){
         if(samples_str!="all" && confSet->Get("DummyForSamples")!=""){
             std::vector<std::string> addSamples = Vectorize(confSet->Get("DummyForSamples"),',');
             for(const auto& addSmp : addSamples){
-                if(FindInStringVector(samples,addSmp)<0){
+                if(Common::FindInStringVector(samples,addSmp)<0){
                     samples.emplace_back(addSmp);
                 }
             }
@@ -4221,7 +4221,7 @@ int ConfigReader::ReadSystOptions(){
         }
 
 
-        if(FindInStringVector(fFitter->fDecorrSysts,sys->fNuisanceParameter)>=0){
+        if(Common::FindInStringVector(fFitter->fDecorrSysts,sys->fNuisanceParameter)>=0){
             WriteInfoStatus("ConfigReader::ReadSystOptions","Decorrelating systematic with NP = " + sys->fNuisanceParameter);
             sys->fNuisanceParameter += fFitter->fDecorrSuff;
         }
@@ -4301,8 +4301,8 @@ int ConfigReader::SetSystNoDecorelate(ConfigSet *confSet, Systematic *sys, const
             else continue;
         }
         if(!sam->fUseSystematics) continue;
-        if((samples[0]=="all" || FindInStringVector(samples, sam->fName)>=0 )
-           && (exclude[0]=="" || FindInStringVector(exclude, sam->fName)<0 ) ){
+        if((samples[0]=="all" || Common::FindInStringVector(samples, sam->fName)>=0 )
+           && (exclude[0]=="" || Common::FindInStringVector(exclude, sam->fName)<0 ) ){
             sam->AddSystematic(sys);
         }
     }
@@ -4379,8 +4379,8 @@ int ConfigReader::SetSystRegionDecorelate(ConfigSet *confSet,
                     sam = fFitter->fSamples[i_smp];
                     if(sam->fType == Sample::DATA) continue;
                     if(!sam->fUseSystematics) continue;
-                    if(   (samples[0]=="all" || FindInStringVector(samples, sam->fName)>=0 )
-                       && (exclude[0]==""    || FindInStringVector(exclude, sam->fName)<0 ) ){
+                    if(   (samples[0]=="all" || Common::FindInStringVector(samples, sam->fName)>=0 )
+                       && (exclude[0]==""    || Common::FindInStringVector(exclude, sam->fName)<0 ) ){
                         sam->AddSystematic(mySys);
                     }
                 }
@@ -4426,8 +4426,8 @@ int ConfigReader::SetSystRegionDecorelate(ConfigSet *confSet,
                     else continue;
                 }
                 if(!sam->fUseSystematics) continue;
-                if(   (samples[0]=="all" || FindInStringVector(samples, sam->fName)>=0 )
-                    && (exclude[0]==""    || FindInStringVector(exclude, sam->fName)<0 ) ){
+                if(   (samples[0]=="all" || Common::FindInStringVector(samples, sam->fName)>=0 )
+                    && (exclude[0]==""    || Common::FindInStringVector(exclude, sam->fName)<0 ) ){
                     sam->AddSystematic(mySys);
                 }
             }
@@ -4546,8 +4546,8 @@ int ConfigReader::SetSystShapeDecorelate(ConfigSet *confSet, Systematic *sys, co
             else continue;
         }
         if(!sam->fUseSystematics) continue;
-        if(   (samples[0]=="all" || FindInStringVector(samples, sam->fName)>=0 )
-           && (exclude[0]==""    || FindInStringVector(exclude, sam->fName)<0 ) ){
+        if(   (samples[0]=="all" || Common::FindInStringVector(samples, sam->fName)>=0 )
+           && (exclude[0]==""    || Common::FindInStringVector(exclude, sam->fName)<0 ) ){
             sam->AddSystematic(mySys1);
         }
     }
@@ -4586,8 +4586,8 @@ int ConfigReader::SetSystShapeDecorelate(ConfigSet *confSet, Systematic *sys, co
             sam = fFitter->fSamples[i_smp];
             if(sam->fType == Sample::DATA) continue;
             if(!sam->fUseSystematics) continue;
-            if(   (samples[0]=="all" || FindInStringVector(samples, sam->fName)>=0 )
-               && (exclude[0]==""    || FindInStringVector(exclude, sam->fName)<0 ) ){
+            if(   (samples[0]=="all" || Common::FindInStringVector(samples, sam->fName)>=0 )
+               && (exclude[0]==""    || Common::FindInStringVector(exclude, sam->fName)<0 ) ){
                 sam->AddSystematic(mySys2);
             }
         }
@@ -4623,7 +4623,7 @@ int ConfigReader::PostConfig(){
         // template fitting stuff
         fFitter->fTemplateWeightVec = fFitter->GetTemplateWeightVec(fFitter->fTemplateInterpolationOption);
         for(const TRExFit::TemplateWeight& itemp : fFitter->fTemplateWeightVec){
-            std::string normName = "morph_"+itemp.name+"_"+ReplaceString(std::to_string(itemp.value),"-","m");
+            std::string normName = "morph_"+itemp.name+"_"+Common::ReplaceString(std::to_string(itemp.value),"-","m");
             TRExFitter::SYSTMAP[normName] = itemp.function;
             TRExFitter::NPMAP[normName]   = itemp.name;
             // get the norm factor corresponding to each template
@@ -4678,13 +4678,13 @@ int ConfigReader::PostConfig(){
         for(auto reg : fFitter->fRegions){
             std::string sfactorName = "saturated_model_sf_" + reg->fName;
             ShapeFactor *sfactor = new ShapeFactor(sfactorName);
-            if( FindInStringVector(fFitter->fShapeFactorNames,sfactor->fName)<0 ){
+            if( Common::FindInStringVector(fFitter->fShapeFactorNames,sfactor->fName)<0 ){
                 fFitter->fShapeFactors.push_back( sfactor );
                 fFitter->fShapeFactorNames.push_back( sfactor->fName );
                 fFitter->fNShape++;
             }
             else{
-                sfactor = fFitter->fShapeFactors[ FindInStringVector(fFitter->fShapeFactorNames,sfactor->fName) ];
+                sfactor = fFitter->fShapeFactors[ Common::FindInStringVector(fFitter->fShapeFactorNames,sfactor->fName) ];
             }
             // Set NuisanceParameter = Name, Title = Name
             sfactor->fNuisanceParameter = sfactor->fName;
@@ -4750,7 +4750,7 @@ bool ConfigReader::CheckPresence(const std::vector<std::string> &v1, const std::
         std::transform(s.begin(), s.end(), s.begin(), ::toupper);
         if (s == "NONE") continue;
         if (s == "ALL") continue;
-        if (FindInStringVector(v2, i) < 0){
+        if (Common::FindInStringVector(v2, i) < 0){
             return false;
         }
     }
@@ -4767,8 +4767,8 @@ bool ConfigReader::CheckPresence(const std::vector<std::string> &v1, const std::
         std::transform(s.begin(), s.end(), s.begin(), ::toupper);
         if (s == "NONE") continue;
         if (s == "ALL") continue;
-        if (FindInStringVector(v2, i) < 0){
-            if (FindInStringVector(v3, i) < 0){
+        if (Common::FindInStringVector(v2, i) < 0){
+            if (Common::FindInStringVector(v3, i) < 0){
                 return false;
             }
         }

@@ -101,7 +101,7 @@ void CorrelationMatrix::Draw(const std::string& path, const bool& useGammas, con
             }
         }
         if(skip) continue;
-        if( FindInStringVector(fNuisParToHide,iSystName)>=0 ) continue;
+        if( Common::FindInStringVector(fNuisParToHide,iSystName)>=0 ) continue;
         vec_NP.push_back(iSystName);
     }
     N = vec_NP.size();

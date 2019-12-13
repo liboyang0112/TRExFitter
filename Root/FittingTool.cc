@@ -442,7 +442,7 @@ void FittingTool::ExportFitResultInTextFile( const std::string &fileName, const 
                 FittingTool::CheckUnderconstraint(var);
                 nuisParAndCorr << vname << "  " << pull << " +" << fabs(errorHi) << " -" << fabs(errorLo)  << "\n";
             } else {
-                const std::string& hex = DoubleToPseudoHex(pull);
+                const std::string& hex = Common::DoubleToPseudoHex(pull);
                 nuisParAndCorr << vname << "  " << hex << " +" << fabs(errorHi) << " -" << fabs(errorLo)  << "\n";
             }
         }
