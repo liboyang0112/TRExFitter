@@ -64,7 +64,7 @@ void NtupleReader::ReadNtuples(){
             //
             // eventually skip sample / region combination
             //
-            if( FindInStringVector(fFitter->fSamples[i_smp]->fRegions,fFitter->fRegions[i_ch]->fName)<0 ) continue;
+            if( Common::FindInStringVector(fFitter->fSamples[i_smp]->fRegions,fFitter->fRegions[i_ch]->fName)<0 ) continue;
             //
             // read nominal
             //
@@ -78,7 +78,7 @@ void NtupleReader::ReadNtuples(){
             for(unsigned int i_path=0;i_path<fullPaths.size();i_path++){
                 TH1D* htmp = nullptr;
                 if(fFitter->fRegions[i_ch]->fHistoBins.size() > 0){
-                    htmp = HistFromNtupleBinArr( fullPaths[i_path],
+                    htmp = Common::HistFromNtupleBinArr( fullPaths[i_path],
                                                  variable,
                                                  fFitter->fRegions[i_ch]->fHistoNBinsRebin,
                                                  &(fFitter->fRegions[i_ch]->fHistoBins[0]),
@@ -87,7 +87,7 @@ void NtupleReader::ReadNtuples(){
                                                  fFitter->fDebugNev);
                 }
                 else{
-                    htmp = HistFromNtuple( fullPaths[i_path],
+                    htmp = Common::HistFromNtuple( fullPaths[i_path],
                                            variable,
                                            fFitter->fRegions[i_ch]->fNbins,
                                            fFitter->fRegions[i_ch]->fXmin,
@@ -128,8 +128,8 @@ void NtupleReader::ReadNtuples(){
                 NormFactor *nf = fFitter->fSamples[i_smp]->fNormFactors[i_norm].get();
                 //
                 // eventually skip norm factor / region combination
-                if( nf->fRegions.size()>0 && FindInStringVector(nf->fRegions,fFitter->fRegions[i_ch]->fName)<0  ) continue;
-                if( nf->fExclude.size()>0 && FindInStringVector(nf->fExclude,fFitter->fRegions[i_ch]->fName)>=0 ) continue;
+                if( nf->fRegions.size()>0 && Common::FindInStringVector(nf->fRegions,fFitter->fRegions[i_ch]->fName)<0  ) continue;
+                if( nf->fExclude.size()>0 && Common::FindInStringVector(nf->fExclude,fFitter->fRegions[i_ch]->fName)>=0 ) continue;
                 //
                 WriteDebugStatus("NtupleReader::ReadNtuples", "Adding norm " + nf->fName);
                 //
@@ -144,8 +144,8 @@ void NtupleReader::ReadNtuples(){
                 ShapeFactor *sf = fFitter->fSamples[i_smp]->fShapeFactors[i_shape].get();
                 //
                 // eventually skip shape factor / region combination
-                if( sf->fRegions.size()>0 && FindInStringVector(sf->fRegions,fFitter->fRegions[i_ch]->fName)<0  ) continue;
-                if( sf->fExclude.size()>0 && FindInStringVector(sf->fExclude,fFitter->fRegions[i_ch]->fName)>=0 ) continue;
+                if( sf->fRegions.size()>0 && Common::FindInStringVector(sf->fRegions,fFitter->fRegions[i_ch]->fName)<0  ) continue;
+                if( sf->fExclude.size()>0 && Common::FindInStringVector(sf->fExclude,fFitter->fRegions[i_ch]->fName)>=0 ) continue;
                 //
                 WriteDebugStatus("NtupleReader::ReadNtuples", "Adding shape " + sf->fName);
                 //
@@ -160,9 +160,9 @@ void NtupleReader::ReadNtuples(){
                 Systematic * syst = fFitter->fSamples[i_smp]->fSystematics[i_syst].get();
                 //
                 // eventually skip systematic / region combination
-                if( syst->fRegions.size()>0 && FindInStringVector(syst->fRegions,fFitter->fRegions[i_ch]->fName)<0  ) continue;
-                if( syst->fExclude.size()>0 && FindInStringVector(syst->fExclude,fFitter->fRegions[i_ch]->fName)>=0 ) continue;
-                if( syst->fExcludeRegionSample.size()>0 && FindInStringVectorOfVectors(syst->fExcludeRegionSample,
+                if( syst->fRegions.size()>0 && Common::FindInStringVector(syst->fRegions,fFitter->fRegions[i_ch]->fName)<0  ) continue;
+                if( syst->fExclude.size()>0 && Common::FindInStringVector(syst->fExclude,fFitter->fRegions[i_ch]->fName)>=0 ) continue;
+                if( syst->fExcludeRegionSample.size()>0 && Common::FindInStringVectorOfVectors(syst->fExcludeRegionSample,
                                                                                        fFitter->fRegions[i_ch]->fName,
                                                                                        fFitter->fSamples[i_smp]->fName)>=0 ) continue;
                 //
@@ -192,7 +192,7 @@ void NtupleReader::ReadNtuples(){
                     continue;
                 }
                 // else ...
-                if(FindInStringVector(syst->fDummyForSamples,smp->fName)>=0){
+                if(Common::FindInStringVector(syst->fDummyForSamples,smp->fName)>=0){
                     WriteInfoStatus("NtupleReader::ReadNtuples", "Systematic " + syst->fName + " set as dummy for sample " + smp->fName + " (region " + reg->fName + ")");
                     hUp   = (TH1D*)sh->fHist->Clone(Form("h_%s_%s_%sUp",  reg->fName.c_str(),smp->fName.c_str(),syst->fStoredName.c_str()));
                     hDown = (TH1D*)sh->fHist->Clone(Form("h_%s_%s_%sDown",reg->fName.c_str(),smp->fName.c_str(),syst->fStoredName.c_str()));
@@ -230,7 +230,7 @@ void NtupleReader::ReadNtuples(){
                     for(unsigned int i_path=0;i_path<fullPaths.size();i_path++){
                         TH1D* htmp = nullptr;
                         if(reg->fHistoBins.size() > 0){
-                            htmp = HistFromNtupleBinArr(fullPaths[i_path],
+                            htmp = Common::HistFromNtupleBinArr(fullPaths[i_path],
                                                         variable,
                                                         reg->fHistoNBinsRebin,
                                                         &reg->fHistoBins[0],
@@ -239,7 +239,7 @@ void NtupleReader::ReadNtuples(){
                                                         fFitter->fDebugNev);
                         }
                         else{
-                            htmp = HistFromNtuple( fullPaths[i_path],
+                            htmp = Common::HistFromNtuple( fullPaths[i_path],
                                                    variable,
                                                    reg->fNbins,
                                                    reg->fXmin,
@@ -285,8 +285,8 @@ void NtupleReader::ReadNtuples(){
                         double relVar   = hUp->Integral(0,hUp->GetNbinsX()+1) / href->Integral(0,href->GetNbinsX()+1);
 
                         // get copies with no error
-                        auto hrefTmp = GetHistCopyNoError(href);
-                        auto hnomTmp = GetHistCopyNoError(hnom);
+                        auto hrefTmp = Common::GetHistCopyNoError(href);
+                        auto hnomTmp = Common::GetHistCopyNoError(hnom);
                         hUp->Divide(   hrefTmp.get() );
                         hUp->Multiply( hnomTmp.get() );
                         double newVar   = hUp->Integral(0,hUp->GetNbinsX()+1) / hnom->Integral(0,hnom->GetNbinsX()+1);
@@ -307,12 +307,12 @@ void NtupleReader::ReadNtuples(){
                         // Formula: UpHisto = [1+(up-nom)/nom-(DataUp-Data)/Data]*nom = up+nom+DataUp/Data*nom
                         TH1* href_up_Tmp = static_cast<TH1*>(href_up->Clone(Form("%s_Tmp", href_up->GetName())));
                         // get copies with no error
-                        auto hrefTmp = GetHistCopyNoError(href);
-                        auto hnomTmp = GetHistCopyNoError(hnom);
+                        auto hrefTmp = Common::GetHistCopyNoError(href);
+                        auto hnomTmp = Common::GetHistCopyNoError(hnom);
                         href_up_Tmp->Divide(hrefTmp.get());
                         href_up_Tmp->Multiply(hnomTmp.get());
                         hUp->Add(hnomTmp.get());
-                        auto href_up_TmpNoError = GetHistCopyNoError(href_up_Tmp);
+                        auto href_up_TmpNoError = Common::GetHistCopyNoError(href_up_Tmp);
                         hUp->Add(href_up_TmpNoError.get(),-1);
 
                         delete href_up_Tmp;// it's a clone, and it's the purpose of clones to die
@@ -332,7 +332,7 @@ void NtupleReader::ReadNtuples(){
                     for(unsigned int i_path=0;i_path<fullPaths.size();i_path++){
                         TH1D* htmp = nullptr;
                         if(reg->fHistoBins.size() > 0){
-                            htmp = HistFromNtupleBinArr(fullPaths[i_path],
+                            htmp = Common::HistFromNtupleBinArr(fullPaths[i_path],
                                                         variable,
                                                         reg->fHistoNBinsRebin,
                                                         &reg->fHistoBins[0],
@@ -341,7 +341,7 @@ void NtupleReader::ReadNtuples(){
                                                         fFitter->fDebugNev);
                         }
                         else{
-                            htmp = HistFromNtuple( fullPaths[i_path],
+                            htmp = Common::HistFromNtuple( fullPaths[i_path],
                                                    variable,
                                                    reg->fNbins,
                                                    reg->fXmin,
@@ -446,7 +446,7 @@ void NtupleReader::DefineVariable(int regIter){
     for(int i_smp=0;i_smp<fFitter->fNSamples;i_smp++){
         WriteDebugStatus("NtupleReader::DefineVariable", "Processing sample : " + fFitter->fSamples[i_smp]->fName);
         if(fFitter->fSamples[i_smp]->fType==Sample::DATA) continue;
-        if(FindInStringVector(fFitter->fSamples[i_smp]->fRegions,fFitter->fRegions[regIter]->fName)<0 ) continue;
+        if(Common::FindInStringVector(fFitter->fSamples[i_smp]->fRegions,fFitter->fRegions[regIter]->fName)<0 ) continue;
         WriteDebugStatus("NtupleReader::DefineVariable", " -> is used in the considered region");
         //
         // set selection, weight and paths (no variables)

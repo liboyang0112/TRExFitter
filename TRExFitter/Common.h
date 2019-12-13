@@ -64,12 +64,14 @@ const int MAXsamples = 100;
 const int MAXsyst = 500;
 const int MAXnorm = 10;
 
+namespace Common {
+
 TFile* GetFile(const std::string& fileName);
 TH1D* HistFromNtuple(const std::string& ntuple, const std::string& variable, int nbin, double xmin, double xmax, const std::string& selection, const std::string& weight, int Nev=-1);
 TH1D* HistFromNtupleBinArr(const std::string& ntuple, const std::string& variable, int nbin, double *bins, const std::string& selection, const std::string& weight, int Nev=-1);
 std::unique_ptr<TH1> HistFromFile(const std::string& fullName);
 std::unique_ptr<TH1> HistFromFile(const std::string& fileName, const std::string& histoName);
-void WriteHistToFile(TH1* h, const std::string& fileName, std::string option="UPDATE");
+void WriteHistToFile(TH1* h, const std::string& fileName, const std::string& option="UPDATE");
 void WriteHistToFile(TH1* h, TFile *f);
 void MergeUnderOverFlow(TH1* h);
 std::vector<std::string> CreatePathsList(std::vector<std::string> paths, std::vector<std::string> pathSufs,
@@ -183,5 +185,6 @@ void SetHistoBinsFromOtherHist(TH1* toSet, const TH1* other);
  * @return the effective integral
  */
 double EffIntegral(const TH1* const h);
+}
 
 #endif

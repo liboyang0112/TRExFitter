@@ -60,39 +60,39 @@ SystematicHist::~SystematicHist(){
 //
 void SystematicHist::WriteToFile(TFile *f,bool reWriteOrig) const{
     if(f==nullptr){
-        WriteHistToFile(fHistUp.get(),fFileNameUp);
-        WriteHistToFile(fHistDown.get(),fFileNameDown);
+        Common::WriteHistToFile(fHistUp.get(),fFileNameUp);
+        Common::WriteHistToFile(fHistDown.get(),fFileNameDown);
         if(reWriteOrig) {
-            WriteHistToFile(fHistUp_orig.get(),fFileNameUp);
-            WriteHistToFile(fHistDown_orig.get(),fFileNameDown);
+            Common::WriteHistToFile(fHistUp_orig.get(),fFileNameUp);
+            Common::WriteHistToFile(fHistDown_orig.get(),fFileNameDown);
         }
         if(fIsShape){
-            WriteHistToFile(fHistShapeUp.get(),fFileNameShapeUp);
-            WriteHistToFile(fHistShapeDown.get(),fFileNameShapeDown);
-            WriteHistToFile(HistoTools::TranformHistogramBinning(fHistShapeUp.get()),fFileNameShapeUp);
-            WriteHistToFile(HistoTools::TranformHistogramBinning(fHistShapeDown.get()),fFileNameShapeDown);
+            Common::WriteHistToFile(fHistShapeUp.get(),fFileNameShapeUp);
+            Common::WriteHistToFile(fHistShapeDown.get(),fFileNameShapeDown);
+            Common::WriteHistToFile(HistoTools::TranformHistogramBinning(fHistShapeUp.get()),fFileNameShapeUp);
+            Common::WriteHistToFile(HistoTools::TranformHistogramBinning(fHistShapeDown.get()),fFileNameShapeDown);
         }
         if(fSystematic->fType==Systematic::SHAPE){
-            WriteHistToFile(HistoTools::TranformHistogramBinning(fHistUp.get()),fFileNameUp);
-            WriteHistToFile(HistoTools::TranformHistogramBinning(fHistDown.get()),fFileNameDown);
+            Common::WriteHistToFile(HistoTools::TranformHistogramBinning(fHistUp.get()),fFileNameUp);
+            Common::WriteHistToFile(HistoTools::TranformHistogramBinning(fHistDown.get()),fFileNameDown);
         }
     }
     else{
-        WriteHistToFile(fHistUp.get(),f);
-        WriteHistToFile(fHistDown.get(),f);
+        Common::WriteHistToFile(fHistUp.get(),f);
+        Common::WriteHistToFile(fHistDown.get(),f);
         if(reWriteOrig) {
-            WriteHistToFile(fHistUp_orig.get(),f);
-            WriteHistToFile(fHistDown_orig.get(),f);
+            Common::WriteHistToFile(fHistUp_orig.get(),f);
+            Common::WriteHistToFile(fHistDown_orig.get(),f);
         }
         if(fIsShape){
-            WriteHistToFile(fHistShapeUp.get(),f);
-            WriteHistToFile(fHistShapeDown.get(),f);
-            WriteHistToFile(HistoTools::TranformHistogramBinning(fHistShapeUp.get()),f);
-            WriteHistToFile(HistoTools::TranformHistogramBinning(fHistShapeDown.get()),f);
+            Common::WriteHistToFile(fHistShapeUp.get(),f);
+            Common::WriteHistToFile(fHistShapeDown.get(),f);
+            Common::WriteHistToFile(HistoTools::TranformHistogramBinning(fHistShapeUp.get()),f);
+            Common::WriteHistToFile(HistoTools::TranformHistogramBinning(fHistShapeDown.get()),f);
         }
         if(fSystematic->fType==Systematic::SHAPE){
-            WriteHistToFile(HistoTools::TranformHistogramBinning(fHistUp.get()),f);
-            WriteHistToFile(HistoTools::TranformHistogramBinning(fHistDown.get()),f);
+            Common::WriteHistToFile(HistoTools::TranformHistogramBinning(fHistUp.get()),f);
+            Common::WriteHistToFile(HistoTools::TranformHistogramBinning(fHistDown.get()),f);
         }
     }
 }
@@ -100,14 +100,14 @@ void SystematicHist::WriteToFile(TFile *f,bool reWriteOrig) const{
 //_____________________________________________________________________________
 //
 void SystematicHist::ReadFromFile(){
-    fHistUp      = HistFromFile(fFileNameUp,fHistoNameUp);
-    fHistUp_orig = HistFromFile(fFileNameUp,fHistoNameUp+"_orig");
+    fHistUp      = Common::HistFromFile(fFileNameUp,fHistoNameUp);
+    fHistUp_orig = Common::HistFromFile(fFileNameUp,fHistoNameUp+"_orig");
     if(fHistUp_orig==nullptr) fHistUp_orig = std::unique_ptr<TH1>(static_cast<TH1D*>(fHistUp->Clone()));
-    fHistShapeUp = HistFromFile(fFileNameShapeUp,fHistoNameShapeUp);
-    fHistDown      = HistFromFile(fFileNameDown,fHistoNameDown);
-    fHistDown_orig = HistFromFile(fFileNameDown,fHistoNameDown+"_orig");
+    fHistShapeUp = Common::HistFromFile(fFileNameShapeUp,fHistoNameShapeUp);
+    fHistDown      = Common::HistFromFile(fFileNameDown,fHistoNameDown);
+    fHistDown_orig = Common::HistFromFile(fFileNameDown,fHistoNameDown+"_orig");
     if(fHistDown_orig==nullptr) fHistDown_orig = std::unique_ptr<TH1>(static_cast<TH1*>(fHistDown->Clone()));
-    fHistShapeDown = HistFromFile(fFileNameShapeDown,fHistoNameShapeDown);
+    fHistShapeDown = Common::HistFromFile(fFileNameShapeDown,fHistoNameShapeDown);
 }
 
 //_____________________________________________________________________________

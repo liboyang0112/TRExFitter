@@ -290,7 +290,7 @@ void Region::BuildPreFitErrorHist(){
             if(fSampleHists[i]->fSyst[i_syst]->fSystematic!=nullptr) {
                 systNuisPar = fSampleHists[i]->fSyst[i_syst]->fSystematic->fNuisanceParameter;
             }
-            if(FindInStringVector(fNpNames,systNuisPar)<0){
+            if(Common::FindInStringVector(fNpNames,systNuisPar)<0){
                 fNpNames.push_back(systNuisPar);
             }
         }
@@ -315,7 +315,7 @@ void Region::BuildPreFitErrorHist(){
                 if(fSampleHists[i]->fSyst[i_syst]->fSystematic!=nullptr) {
                     systNuisPar = gammaName;
                 }
-                if(FindInStringVector(fNpNames,systNuisPar)<0){
+                if(Common::FindInStringVector(fNpNames,systNuisPar)<0){
                     fNpNames.push_back(systNuisPar);
                 }
             }
@@ -366,10 +366,10 @@ void Region::BuildPreFitErrorHist(){
             // modify them dropping shape or norm (due to pruning or shape/acc decorrelation)
             if(syst!=nullptr){
                 if(syst->fIsNormOnly){
-                    DropShape(hUp,hDown,hNom);
+                    Common::DropShape(hUp,hDown,hNom);
                 }
                 if(syst->fIsShapeOnly){
-                    DropNorm(hUp,hDown,hNom);
+                    Common::DropNorm(hUp,hDown,hNom);
                 }
             }
             
@@ -440,11 +440,11 @@ void Region::BuildPreFitErrorHist(){
                             nameS.push_back(std::make_pair(name,std::vector<double>{double(nf->fNominal),double(nf->fMin),double(nf->fMax)}));
                         }
                         else{
-                            nameS = processString(name);
+                            nameS = Common::processString(name);
                         }
                         std::vector <double> nfNominalvec;
                         for (unsigned int j = 0; j<nameS.size(); j++){
-                            formula = ReplaceString(formula,nameS[j].first,"x["+std::to_string(j)+"]");
+                            formula = Common::ReplaceString(formula,nameS[j].first,"x["+std::to_string(j)+"]");
                             nfNominalvec.push_back(nameS[j].second[0]);
                         }
                         WriteDebugStatus("Region::BuildPreFitErrorHist", "formula: " +formula);
@@ -490,13 +490,13 @@ void Region::BuildPreFitErrorHist(){
         for(size_t j_syst=0;j_syst<i_syst;++j_syst){
             if(TRExFitter::NPMAP[fSystNames[i_syst]]==TRExFitter::NPMAP[fSystNames[j_syst]]){
                 found = true;
-                const int whichsyst = FindInStringVector(fNpNames,TRExFitter::NPMAP[fSystNames[i_syst]]);
+                const int whichsyst = Common::FindInStringVector(fNpNames,TRExFitter::NPMAP[fSystNames[i_syst]]);
                 auto h_diff_up   = std::unique_ptr<TH1> (static_cast<TH1*> (h_up[whichsyst]  ->Clone(Form("%s_%s","clone_",h_up[whichsyst]  ->GetName()))));
                 auto h_diff_down = std::unique_ptr<TH1> (static_cast<TH1*> (h_down[whichsyst]->Clone(Form("%s_%s","clone_",h_down[whichsyst]->GetName()))));
                 h_diff_up  ->Add(fTotUp[  i_syst].get(),fTot.get(),1,-1);
                 h_diff_down->Add(fTotDown[i_syst].get(),fTot.get(),1,-1);
-                h_up[   FindInStringVector(fNpNames,TRExFitter::NPMAP[fSystNames[i_syst]])]->Add(h_diff_up.get());
-                h_down[ FindInStringVector(fNpNames,TRExFitter::NPMAP[fSystNames[i_syst]])]->Add(h_diff_down.get());
+                h_up[   Common::FindInStringVector(fNpNames,TRExFitter::NPMAP[fSystNames[i_syst]])]->Add(h_diff_up.get());
+                h_down[ Common::FindInStringVector(fNpNames,TRExFitter::NPMAP[fSystNames[i_syst]])]->Add(h_diff_down.get());
                 break;
             }
         }
@@ -631,11 +631,11 @@ std::unique_ptr<TRExPlot> Region::DrawPreFit(const std::vector<int>& canvasSize,
                     nameS.push_back(std::make_pair(name,std::vector<double>{nf->fNominal,nf->fMin,nf->fMax}));
                 }
                 else{
-                    nameS = processString(name);
+                    nameS = Common::processString(name);
                 }
                 std::vector <double> nfNominalvec;
                 for (std::size_t j = 0; j<nameS.size(); ++j) {
-                    formula = ReplaceString(formula,nameS[j].first,"x["+std::to_string(j)+"]");
+                    formula = Common::ReplaceString(formula,nameS[j].first,"x["+std::to_string(j)+"]");
                     nfNominalvec.push_back(nameS[j].second[0]);
                 }
                 WriteDebugStatus("Region::DrawPreFit", "formula: " +formula);
@@ -697,11 +697,11 @@ std::unique_ptr<TRExPlot> Region::DrawPreFit(const std::vector<int>& canvasSize,
                     nameS.push_back(std::make_pair(name,std::vector<double>{double(nf->fNominal),double(nf->fMin),double(nf->fMax)}));
                 }
                 else{
-                    nameS = processString(name);
+                    nameS = Common::processString(name);
                 }
                 std::vector <double> nfNominalvec;
                 for (std::size_t j = 0; j<nameS.size(); ++j){
-                    formula = ReplaceString(formula,nameS[j].first,"x["+std::to_string(j)+"]");
+                    formula = Common::ReplaceString(formula,nameS[j].first,"x["+std::to_string(j)+"]");
                     nfNominalvec.push_back(nameS[j].second[0]);
                 }
                 WriteDebugStatus("Region::DrawPreFit", "formula: " +formula);
@@ -1100,11 +1100,11 @@ void Region::BuildPostFitErrorHist(FitResults *fitRes, const std::vector<std::st
                             fSampleHists[i]->GetNormFactor(fSystNames[i_syst])->fMin,fSampleHists[i]->GetNormFactor(fSystNames[i_syst])->fMax}));
                         }
                         else {
-                            nameS = processString(name);
+                            nameS = Common::processString(name);
                         }
                         std::vector <double> nfValuevec, nfUpvec, nfDownvec;
                         for (std::size_t j = 0; j<nameS.size(); ++j){
-                            formula = ReplaceString(formula,nameS[j].first,"x["+std::to_string(j)+"]");
+                            formula = Common::ReplaceString(formula,nameS[j].first,"x["+std::to_string(j)+"]");
                             nfValuevec.push_back(fitRes->GetNuisParValue(nameS[j].first));
                             nfUpvec.push_back(fitRes->GetNuisParValue(nameS[j].first) + fitRes->GetNuisParErrUp(nameS[j].first));
                             nfDownvec.push_back(fitRes->GetNuisParValue(nameS[j].first) + fitRes->GetNuisParErrDown(nameS[j].first));
@@ -1475,11 +1475,11 @@ std::unique_ptr<TRExPlot> Region::DrawPostFit(FitResults* fitRes,
                     nameS.push_back(std::make_pair(name,std::vector<double>{double(nf->fNominal),double(nf->fMin),double(nf->fMax)}));
                 }
                 else {
-                    nameS = processString(name);
+                    nameS = Common::processString(name);
                 }
                 std::vector <double> nfValuevec;
                 for (unsigned int j = 0; j<nameS.size(); j++){
-                    formula = ReplaceString(formula,nameS[j].first,"x["+std::to_string(j)+"]");
+                    formula = Common::ReplaceString(formula,nameS[j].first,"x["+std::to_string(j)+"]");
                     nfValuevec.push_back(fitRes->GetNuisParValue(nameS[j].first));
                 }
                 WriteDebugStatus("Region::DrawPostFit", "formula: " +formula);
@@ -1553,7 +1553,7 @@ std::unique_ptr<TRExPlot> Region::DrawPostFit(FitResults* fitRes,
                 WriteWarningStatus("Region::DrawPostFit","Requested to scale to data a GHOST sample, " + sh->fSample->fName + ". Skipping this sample.");
                 continue;
             }
-            if(FindInStringVector(fScaleSamplesToData,sh->fSample->fName)>=0){
+            if(Common::FindInStringVector(fScaleSamplesToData,sh->fSample->fName)>=0){
                 shIdxToScale.emplace_back(i);
                 totToScale += hSmpNew[i]->Integral();
             }
@@ -1597,7 +1597,7 @@ std::unique_ptr<TRExPlot> Region::DrawPostFit(FitResults* fitRes,
                 if(TRExFitter::OPTION["NormSigSRonly"] && fRegionType==SIGNAL) p->AddNormSignal(hSigNew[i],title);
             }
             if(TRExFitter::SHOWOVERLAYSIG){
-                ScaleNominal(fSig[i],hSigNew[i]);
+                Common::ScaleNominal(fSig[i],hSigNew[i]);
                 p->AddOverSignal(hSigNew[i],title);
             }
         }
@@ -1773,7 +1773,7 @@ bool Region::UseAlternativeVariable(const std::string& sample){
     for(const auto& tmp : fAlternativeVariables){
         tmpVec.push_back(tmp.first);
     }
-    if (FindInStringVector(tmpVec,sample)<0){
+    if (Common::FindInStringVector(tmpVec,sample)<0){
         return false;
     }
     return true;
@@ -1786,7 +1786,7 @@ bool Region::UseAlternativeSelection(const std::string& sample){
     for(const auto& tmp : fAlternativeSelections){
         tmpVec.push_back(tmp.first);
     }
-    if (FindInStringVector(tmpVec,sample)<0){
+    if (Common::FindInStringVector(tmpVec,sample)<0){
         return false;
     }
     return true;
@@ -1801,7 +1801,7 @@ std::string Region::GetAlternativeVariable(const std::string& sample) const{
         tmpVec.push_back(tmp.first);
         tmpVec2.push_back(tmp.second);
     }
-    const int idx = FindInStringVector(tmpVec,sample);
+    const int idx = Common::FindInStringVector(tmpVec,sample);
     if(idx<0){
         return "";
     }
@@ -1817,7 +1817,7 @@ std::string Region::GetAlternativeSelection(const std::string& sample) const{
         tmpVec.push_back(tmp.first);
         tmpVec2.push_back(tmp.second);
     }
-    const int idx = FindInStringVector(tmpVec,sample);
+    const int idx = Common::FindInStringVector(tmpVec,sample);
     if(idx<0){
         return "";
     }
@@ -1953,7 +1953,7 @@ void Region::PrintSystTable(FitResults *fitRes, string opt) const{
         if(TRExFitter::SYSTTEX[fSystNames[i_syst]]!="")      texout << "  " << TRExFitter::SYSTTEX[fSystNames[i_syst]];
         else if(TRExFitter::SYSTMAP[fSystNames[i_syst]]!=""){
             std::string fixedTitle = TRExFitter::SYSTMAP[fSystNames[i_syst]];
-            fixedTitle = ReplaceString(fixedTitle,"#geq","$\\geq$");
+            fixedTitle = Common::ReplaceString(fixedTitle,"#geq","$\\geq$");
             texout << "  " << fixedTitle;
         }
         else {
@@ -2429,11 +2429,11 @@ void Region::PrepareMorphScales(FitResults *fitRes, std::vector<double> *morph_s
                             fSampleHists[i]->GetNormFactor(fSystNames[i_syst])->fMin,fSampleHists[i]->GetNormFactor(fSystNames[i_syst])->fMax}));
                     }
                     else{
-                        nameS = processString(name);
+                        nameS = Common::processString(name);
                     }
                     std::vector <double> nfValuevec;
                     for (unsigned int j = 0; j<nameS.size(); j++){
-                        formula = ReplaceString(formula,nameS[j].first,"x["+std::to_string(j)+"]");
+                        formula = Common::ReplaceString(formula,nameS[j].first,"x["+std::to_string(j)+"]");
                         nfValuevec.push_back(fitRes->GetNuisParValue(nameS[j].first));
                     }
                     WriteDebugStatus("Region::PrepareMorphScales", "formula: " +formula);
@@ -2458,11 +2458,11 @@ void Region::PrepareMorphScales(FitResults *fitRes, std::vector<double> *morph_s
                         nameS.push_back(std::make_pair(name,std::vector<double>{nf->fNominal,nf->fMin,nf->fMax}));
                     }
                     else{
-                        nameS = processString(name);
+                        nameS = Common::processString(name);
                     }
                     std::vector <double> nfNominalvec;
                     for (unsigned int j = 0; j<nameS.size(); j++){
-                        formula = ReplaceString(formula,nameS[j].first,"x["+std::to_string(j)+"]");
+                        formula = Common::ReplaceString(formula,nameS[j].first,"x["+std::to_string(j)+"]");
                         nfNominalvec.push_back(nameS[j].second[0]);
                     }
                     WriteDebugStatus("Region::PrepareMorphScales", "formula: " +formula);
@@ -2504,15 +2504,15 @@ void Region::SystPruning(PruningUtil *pu){
         for(auto& syh : sh->fSyst){
             if(!syh) continue;
             if(!syh->fSystematic) continue;
-            if( FindInStringVector(syh->fSystematic->fDropShapeIn,fName)>=0  ||
-                FindInStringVector(syh->fSystematic->fDropShapeIn,fName)>=0 ||
-                FindInStringVector(syh->fSystematic->fDropShapeIn, "all")>=0
+            if( Common::FindInStringVector(syh->fSystematic->fDropShapeIn,fName)>=0  ||
+                Common::FindInStringVector(syh->fSystematic->fDropShapeIn,fName)>=0 ||
+                Common::FindInStringVector(syh->fSystematic->fDropShapeIn, "all")>=0
             ){
                 syh->fShapePruned = true;
             }
-            if( FindInStringVector(syh->fSystematic->fDropNormIn,fName)>=0 ||
-                FindInStringVector(syh->fSystematic->fDropNormIn,fName)>=0 ||
-                FindInStringVector(syh->fSystematic->fDropNormIn, "all")>=0
+            if( Common::FindInStringVector(syh->fSystematic->fDropNormIn,fName)>=0 ||
+                Common::FindInStringVector(syh->fSystematic->fDropNormIn,fName)>=0 ||
+                Common::FindInStringVector(syh->fSystematic->fDropNormIn, "all")>=0
             ){
                 syh->fNormPruned = true;
             }
@@ -2556,7 +2556,7 @@ std::unique_ptr<TH1> Region::GetTotHist(bool includeSignal) {
         if(!sh->fHist) continue;
         TH1* hTmp = static_cast<TH1*>(sh->fHist->Clone(("hTot_"+fName).c_str()));
         // scale accoring to nominal SF (considering morphing as well)
-        const double& scale = GetNominalMorphScale(sh.get());
+        const double& scale = Common::GetNominalMorphScale(sh.get());
         hTmp->Scale(scale);
         if(!hTot) {
             hTot.reset(hTmp);

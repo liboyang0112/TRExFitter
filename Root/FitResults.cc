@@ -152,8 +152,8 @@ void FitResults::ReadFromTXT(const std::string& fileName, const std::vector<std:
             while(input.find("\\")!=std::string::npos) input = input.replace(input.find("\\"),1,"");
             name = input;
             // clean the syst name...
-            name = ReplaceString(name,"alpha_","");
-            name = ReplaceString(name,"gamma_","");
+            name = Common::ReplaceString(name,"alpha_","");
+            name = Common::ReplaceString(name,"gamma_","");
             AddNuisPar(new NuisParameter(name));
             if (std::find(blinded.begin(), blinded.end(), name) == blinded.end()){
                 iss >> value >> up >> down;
@@ -166,7 +166,7 @@ void FitResults::ReadFromTXT(const std::string& fileName, const std::vector<std:
                 std::string hex;
                 iss >> hex >> up >> down;
                 NuisParameter *np = fNuisPar[fNuisParIdx[name]].get();
-                np->fFitValue = HexToDouble(hex);
+                np->fFitValue = Common::HexToDouble(hex);
                 np->fPostFitUp = up;
                 np->fPostFitDown = down;
             }
@@ -312,7 +312,7 @@ void FitResults::DrawGammaPulls( const std::string & path, const std::vector<std
     for( unsigned i = 0; i < fNuisPar.size(); ++i )
     {
         std::string name = fNuisPar[i]->fName;
-        name = ReplaceString(name,"gamma_","");
+        name = Common::ReplaceString(name,"gamma_","");
         if (std::find(blinded.begin(), blinded.end(), name) != blinded.end()) continue;
         if ( fNuisPar[i]->fName.find("stat_") == std::string::npos && fNuisPar[i]->fName.find("shape_") == std::string::npos ) continue;
         
@@ -320,13 +320,13 @@ void FitResults::DrawGammaPulls( const std::string & path, const std::vector<std
         NuisParameter theNP( (*fNuisPar[i]) );
         
         std::string clean_name = theNP.fTitle;
-        clean_name = ReplaceString( clean_name, "stat_", "#gamma " );
-        clean_name = ReplaceString( clean_name, "shape_", "#gamma " );
-        clean_name = ReplaceString( clean_name, "#gamma #gamma ", "#gamma " );
-        clean_name = ReplaceString( clean_name, "_", " " );
+        clean_name = Common::ReplaceString( clean_name, "stat_", "#gamma " );
+        clean_name = Common::ReplaceString( clean_name, "shape_", "#gamma " );
+        clean_name = Common::ReplaceString( clean_name, "#gamma #gamma ", "#gamma " );
+        clean_name = Common::ReplaceString( clean_name, "_", " " );
         
         
-        theNP.fTitle = pad_trail( clean_name );
+        theNP.fTitle = Common::pad_trail( clean_name );
         
         myNPs.push_back( theNP );
   
@@ -420,12 +420,12 @@ void FitResults::DrawNPPulls( const std::string &path, const std::string &catego
         par = fNuisPar[i].get();
 
         std::string name = par->fName;
-        name = ReplaceString(name,"alpha_","");
+        name = Common::ReplaceString(name,"alpha_","");
 
         if (std::find(blinded.begin(), blinded.end(), name) != blinded.end()) continue;
 
         if( category != "all" && category != par->fCategory ) continue;
-        if( FindInStringVector(fNuisParToHide,par->fName)>=0 ) continue;
+        if( Common::FindInStringVector(fNuisParToHide,par->fName)>=0 ) continue;
 
         bool skip = false;
         for(const std::string& ii : npToExclude){

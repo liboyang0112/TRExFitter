@@ -328,7 +328,7 @@ std::map < std::string, double > MultiFit::FitCombinedWS(int fitType, const std:
     std::vector<std::string> vVarNameMinos; vVarNameMinos.clear();
     for(unsigned int i_fit=0;i_fit<fFitList.size();i_fit++){
         for(unsigned int i_minos=0;i_minos<fFitList[i_fit]->fVarNameMinos.size();i_minos++){
-            if(FindInStringVector(vVarNameMinos,fFitList[i_fit]->fVarNameMinos[i_minos])<0){
+            if(Common::FindInStringVector(vVarNameMinos,fFitList[i_fit]->fVarNameMinos[i_minos])<0){
                 vVarNameMinos.push_back( fFitList[i_fit]->fVarNameMinos[i_minos] );
             }
         }
@@ -394,7 +394,7 @@ std::map < std::string, double > MultiFit::FitCombinedWS(int fitType, const std:
     for(auto fit : fFitList){
         for(auto nf : fit->fNormFactors){
             if(nf->fConst) continue;
-            if(FindInStringVector(nfList,nf->fName)>=0) continue;
+            if(Common::FindInStringVector(nfList,nf->fName)>=0) continue;
             if(fFitType==2 && fPOI==nf->fName) continue;
             nfList.push_back(nf->fName);
         }
@@ -500,7 +500,7 @@ std::map < std::string, double > MultiFit::FitCombinedWS(int fitType, const std:
             bool isNF = false;
             for(unsigned int i_fit=0;i_fit<fFitList.size();i_fit++){
                 if(!fFitList[i_fit]->fFixNPforStatOnlyFit &&
-                    FindInStringVector(fFitList[i_fit]->fNormFactorNames,fFitList[0]->fFitResults->fNuisPar[i_np]->fName)>=0){
+                    Common::FindInStringVector(fFitList[i_fit]->fNormFactorNames,fFitList[0]->fFitResults->fNuisPar[i_np]->fName)>=0){
                     isNF = true;
                     break;
                 }
@@ -646,11 +646,11 @@ void MultiFit::ComparePOI(const string& POI) const {
             if(!isComb){
                 fit = fFitList[i];
                 if(fit->fFitResultsFile=="") fit->ReadFitResults(dirs[i]+"/Fits/"+names[i]+suffs[i]+"_statOnly.txt");
-                else                         fit->ReadFitResults(ReplaceString(fit->fFitResultsFile,".txt","_statOnly.txt"));
+                else                         fit->ReadFitResults(Common::ReplaceString(fit->fFitResultsFile,".txt","_statOnly.txt"));
             }
             else{
                 if(fFitResultsFile=="")      fit->ReadFitResults(fOutDir+"/Fits/"+fName+fSaveSuf+"_statOnly.txt");
-                else                         fit->ReadFitResults(ReplaceString(fFitResultsFile,".txt","_statOnly.txt"));
+                else                         fit->ReadFitResults(Common::ReplaceString(fFitResultsFile,".txt","_statOnly.txt"));
             }
             for(unsigned int j = 0; j<fit->fFitResults->fNuisPar.size(); ++j){
                 par = fit->fFitResults->fNuisPar[j].get();
@@ -1032,10 +1032,10 @@ void MultiFit::ComparePulls(string category) const{
         for(int i_syst=0;i_syst<fFitList[i_fit]->fNSyst;i_syst++){
             systName = fFitList[i_fit]->fSystematics[i_syst]->fNuisanceParameter;
             if(systName == "") systName = fFitList[i_fit]->fSystematics[i_syst]->fName;
-            if(FindInStringVector(Names,systName)<0){
+            if(Common::FindInStringVector(Names,systName)<0){
                 Names.push_back(systName);
                 Titles.push_back(fFitList[i_fit]->fSystematics[i_syst]->fTitle);
-                if(FindInStringVector(fFitList[i_fit]->fDecorrSysts,fFitList[i_fit]->fSystematics[i_syst]->fName)>=0){
+                if(Common::FindInStringVector(fFitList[i_fit]->fDecorrSysts,fFitList[i_fit]->fSystematics[i_syst]->fName)>=0){
                     Titles[Titles.size()-1] += fFitList[i_fit]->fDecorrSuff;
                 }
                 Categories.push_back(fFitList[i_fit]->fSystematics[i_syst]->fCategory);
@@ -1282,7 +1282,7 @@ void MultiFit::CompareNormFactors(string category) const{
         for(int i_norm=0;i_norm<fFitList[i_fit]->fNNorm;i_norm++){
             normName = fFitList[i_fit]->fNormFactors[i_norm]->fName;
             if(normName==fPOI) continue;
-            if(FindInStringVector(Names,normName)<0){
+            if(Common::FindInStringVector(Names,normName)<0){
                 Names.push_back(normName);
                 Titles.push_back(fFitList[i_fit]->fNormFactors[i_norm]->fTitle);
                 Categories.push_back(fFitList[i_fit]->fNormFactors[i_norm]->fCategory);
@@ -1514,7 +1514,7 @@ void MultiFit::ProduceNPRanking( string NPnames/*="all"*/ ) const{
     for(unsigned int i_fit=0;i_fit<fFitList.size();i_fit++){
         for(int i_syst=0;i_syst<fFitList[i_fit]->fNSyst;i_syst++){
             systName = fFitList[i_fit]->fSystematics[i_syst]->fNuisanceParameter;
-            if(FindInStringVector(Names,systName)<0){
+            if(Common::FindInStringVector(Names,systName)<0){
                 Names.push_back(systName);
                 vSystematics.push_back(fFitList[i_fit]->fSystematics[i_syst]);
             }
@@ -1529,7 +1529,7 @@ void MultiFit::ProduceNPRanking( string NPnames/*="all"*/ ) const{
     for(unsigned int i_fit=0;i_fit<N;i_fit++){
         for(int i_norm=0;i_norm<fFitList[i_fit]->fNNorm;i_norm++){
             normName = fFitList[i_fit]->fNormFactors[i_norm]->fName;
-            if(FindInStringVector(nfNames,systName)<0){
+            if(Common::FindInStringVector(nfNames,systName)<0){
                 nfNames.push_back(normName);
                 vNormFactors.push_back(fFitList[i_fit]->fNormFactors[i_norm]);
             }
@@ -1626,7 +1626,7 @@ void MultiFit::ProduceNPRanking( string NPnames/*="all"*/ ) const{
                     // add the nuisance parameter to the list nuisPars if it's there in the ws
                     // remove "gamma"...
                     if(np==NPnames || (((atoi(NPnames.c_str())-(int)Nsyst-(int)Nnorm)==i_gamma) && (atoi(NPnames.c_str())>0 || strcmp(NPnames.c_str(),"0")==0)) || NPnames=="all"){
-                        nuisPars.push_back(ReplaceString(np,"gamma_",""));
+                        nuisPars.push_back(Common::ReplaceString(np,"gamma_",""));
                         isNF.push_back( true );
                         if(NPnames!="all") break;
                     }
@@ -2614,11 +2614,11 @@ void MultiFit::PlotSummarySoverB() const {
 
     fFitList[0]->ReadFitResults(fOutDir+"/Fits/"+fName+fSaveSuf+".txt");
     double muFit = fFitList[0]->fFitResults->GetNuisParValue(fPOI);
-    if (HistFromFile( fOutDir+"/Limits/"+fName+fSaveSuf+".root/limit" ) == nullptr) {
+    if (Common::HistFromFile( fOutDir+"/Limits/"+fName+fSaveSuf+".root/limit" ) == nullptr) {
         WriteWarningStatus("MultiFit::PlotSummarySoverB", "Histo pointer is nullptr, skipping plotting.");
         return;
     }
-    double muLimit = HistFromFile( fOutDir+"/Limits/"+fName+fSaveSuf+".root/limit" )->GetBinContent(1);
+    double muLimit = Common::HistFromFile( fOutDir+"/Limits/"+fName+fSaveSuf+".root/limit" )->GetBinContent(1);
 
     std::vector<string> fileNames; fileNames.clear();
     std::vector<string> fileNamesBonly; fileNamesBonly.clear();
@@ -2639,11 +2639,11 @@ void MultiFit::PlotSummarySoverB() const {
     std::vector<string> dataList;
     for(unsigned int i_fit=0;i_fit<fFitList.size();i_fit++){
         for(unsigned int i_smp=0;i_smp<fFitList[i_fit]->fSamples.size();i_smp++){
-            if(fFitList[i_fit]->fSamples[i_smp]->fType==Sample::SIGNAL && FindInStringVector(sigList,fFitList[i_fit]->fSamples[i_smp]->fName)<0)
+            if(fFitList[i_fit]->fSamples[i_smp]->fType==Sample::SIGNAL && Common::FindInStringVector(sigList,fFitList[i_fit]->fSamples[i_smp]->fName)<0)
                 sigList.push_back(fFitList[i_fit]->fSamples[i_smp]->fName);
-            if(fFitList[i_fit]->fSamples[i_smp]->fType==Sample::BACKGROUND && FindInStringVector(bkgList,fFitList[i_fit]->fSamples[i_smp]->fName)<0)
+            if(fFitList[i_fit]->fSamples[i_smp]->fType==Sample::BACKGROUND && Common::FindInStringVector(bkgList,fFitList[i_fit]->fSamples[i_smp]->fName)<0)
                 bkgList.push_back(fFitList[i_fit]->fSamples[i_smp]->fName);
-            if(fFitList[i_fit]->fSamples[i_smp]->fType==Sample::DATA && FindInStringVector(dataList,fFitList[i_fit]->fSamples[i_smp]->fName)<0)
+            if(fFitList[i_fit]->fSamples[i_smp]->fType==Sample::DATA && Common::FindInStringVector(dataList,fFitList[i_fit]->fSamples[i_smp]->fName)<0)
                 dataList.push_back(fFitList[i_fit]->fSamples[i_smp]->fName);
         }
     }
@@ -2653,12 +2653,12 @@ void MultiFit::PlotSummarySoverB() const {
     for(unsigned int i_fit=0;i_fit<fFitList.size();i_fit++){
         // actual systematics
         for(unsigned int i_syst=0;i_syst<fFitList[i_fit]->fSystematics.size();i_syst++){
-            if(FindInStringVector(systList,fFitList[i_fit]->fSystematics[i_syst]->fName)<0)
+            if(Common::FindInStringVector(systList,fFitList[i_fit]->fSystematics[i_syst]->fName)<0)
                 systList.push_back(fFitList[i_fit]->fSystematics[i_syst]->fName);
         }
         // norm factors
         for(unsigned int i_norm=0;i_norm<fFitList[i_fit]->fNormFactors.size();i_norm++){
-            if(FindInStringVector(systList,fFitList[i_fit]->fNormFactors[i_norm]->fName)<0)
+            if(Common::FindInStringVector(systList,fFitList[i_fit]->fNormFactors[i_norm]->fName)<0)
                 systList.push_back(fFitList[i_fit]->fNormFactors[i_norm]->fName);
         }
     }

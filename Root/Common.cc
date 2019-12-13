@@ -74,8 +74,20 @@ std::map<std::string,TFile*> TRExFitter::TFILEMAP;
 
 //__________________________________________________________________________________
 //
-TH1D* HistFromNtuple(const std::string& ntuple, const std::string& variable, int nbin, double xmin,
-                     double xmax, const std::string& selection, const std::string& weight, int Nev){
+void TRExFitter::SetDebugLevel(int level){
+    DEBUGLEVEL = level;
+}
+
+//__________________________________________________________________________________
+//
+TH1D* Common::HistFromNtuple(const std::string& ntuple,
+                             const std::string& variable,
+                             int nbin,
+                             double xmin,
+                             double xmax,
+                             const std::string& selection,
+                             const std::string& weight,
+                             int Nev) {
     TH1D* h = new TH1D("h","h",nbin,xmin,xmax);
     WriteVerboseStatus("Common::HistFromNtuple", "    Extracting histogram " + variable + " from  " + ntuple + "  ...");
     WriteVerboseStatus("Common::HistFromNtuple", "        with weight  (" + weight + ")*("+selection+")  ...");
@@ -102,15 +114,20 @@ TH1D* HistFromNtuple(const std::string& ntuple, const std::string& variable, int
     TString drawVariable = Form("%s>>h",variable.c_str()), drawWeight = Form("(%s)*(%s)",weight.c_str(),selection.c_str());
     if(Nev>=0) t->Draw(drawVariable, drawWeight, "goff", Nev);
     else       t->Draw(drawVariable, drawWeight, "goff");
-    if(TRExFitter::MERGEUNDEROVERFLOW) MergeUnderOverFlow(h);
+    if(TRExFitter::MERGEUNDEROVERFLOW) Common::MergeUnderOverFlow(h);
     delete t;
     return h;
 }
 
 //__________________________________________________________________________________
 //
-TH1D* HistFromNtupleBinArr(const std::string& ntuple, const std::string& variable, int nbin, double *bins,
-                           const std::string& selection, const std::string& weight, int Nev){
+TH1D* Common::HistFromNtupleBinArr(const std::string& ntuple,
+                                   const std::string& variable,
+                                   int nbin,
+                                   double *bins,
+                                   const std::string& selection,
+                                   const std::string& weight,
+                                   int Nev) {
     TH1D* h = new TH1D("h","h",nbin,bins);
     WriteVerboseStatus("Common::HistFromNtupleBinArr", "  Extracting histogram " + variable + " from  " + ntuple + "  ...");
     WriteVerboseStatus("Common::HistFromNtupleBinArr", "      with weight  (" + weight + ")*("+selection+")  ...");
@@ -136,14 +153,14 @@ TH1D* HistFromNtupleBinArr(const std::string& ntuple, const std::string& variabl
     TString drawVariable = Form("%s>>h",variable.c_str()), drawWeight = Form("(%s)*(%s)",weight.c_str(),selection.c_str());
     if(Nev>=0) t->Draw(drawVariable, drawWeight, "goff", Nev);
     else       t->Draw(drawVariable, drawWeight, "goff");
-    if(TRExFitter::MERGEUNDEROVERFLOW) MergeUnderOverFlow(h);
+    if(TRExFitter::MERGEUNDEROVERFLOW) Common::MergeUnderOverFlow(h);
     delete t;
     return h;
 }
 
 //__________________________________________________________________________________
 //
-TFile* GetFile(const std::string& fileName){
+TFile* Common::GetFile(const std::string& fileName) {
     auto it = TRExFitter::TFILEMAP.find(fileName);
     if(it != TRExFitter::TFILEMAP.end()) return it->second;
     else {
@@ -155,22 +172,23 @@ TFile* GetFile(const std::string& fileName){
 
 //__________________________________________________________________________________
 //
-std::unique_ptr<TH1> HistFromFile(const std::string& fullName){
-    std::string fileName  = fullName.substr(0,fullName.find_last_of(".")+5);
-    std::string histoName = fullName.substr(fullName.find_last_of(".")+6,std::string::npos);
+std::unique_ptr<TH1> Common::HistFromFile(const std::string& fullName) {
+    const std::string fileName  = fullName.substr(0,fullName.find_last_of(".")+5);
+    const std::string histoName = fullName.substr(fullName.find_last_of(".")+6,std::string::npos);
     return HistFromFile(fileName,histoName);
 }
 
 //__________________________________________________________________________________
 //
-std::unique_ptr<TH1> HistFromFile(const std::string& fileName, const std::string& histoName){
+std::unique_ptr<TH1> Common::HistFromFile(const std::string& fileName,
+                                          const std::string& histoName) {
     if(fileName=="") return nullptr;
     if(histoName=="") return nullptr;
     bool hasCustomAsimov = false;
     if (fileName.find("customAsimov") != std::string::npos) hasCustomAsimov = true;
     WriteVerboseStatus("Common::HistFromFile", "  Extracting histogram    " + histoName + "  from file    " + fileName + "    ...");
     std::unique_ptr<TH1> h = nullptr;
-    TFile *f = GetFile(fileName);
+    TFile *f = Common::GetFile(fileName);
     if(!f){
             WriteErrorStatus("Common::HistFromFile", "cannot find input file '" + fileName + "'");
             return nullptr;
@@ -182,13 +200,15 @@ std::unique_ptr<TH1> HistFromFile(const std::string& fileName, const std::string
             return nullptr;
     }
     h->SetDirectory(0);
-    if(TRExFitter::MERGEUNDEROVERFLOW) MergeUnderOverFlow(h.get());
+    if(TRExFitter::MERGEUNDEROVERFLOW) Common::MergeUnderOverFlow(h.get());
     return h;
 }
 
 //__________________________________________________________________________________
 //
-void WriteHistToFile(TH1* h, const std::string& fileName, std::string option){
+void Common::WriteHistToFile(TH1* h,
+                             const std::string& fileName,
+                             const std::string& option) {
     TDirectory *dir = gDirectory;
     TFile *f = new TFile(fileName.c_str(),option.c_str());
     h->Write("",TObject::kOverwrite);
@@ -199,7 +219,8 @@ void WriteHistToFile(TH1* h, const std::string& fileName, std::string option){
 
 //__________________________________________________________________________________
 //
-void WriteHistToFile(TH1* h,TFile *f){
+void Common::WriteHistToFile(TH1* h,
+                             TFile *f) {
     TDirectory *dir = gDirectory;
     f->cd();
     h->Write("",TObject::kOverwrite);
@@ -209,24 +230,27 @@ void WriteHistToFile(TH1* h,TFile *f){
 
 //__________________________________________________________________________________
 //
-void MergeUnderOverFlow(TH1* h){
+void Common::MergeUnderOverFlow(TH1* h) {
     int nbins = h->GetNbinsX();
     h->AddBinContent( 1, h->GetBinContent(0) ); // merge first bin with underflow bin
-    h->SetBinError(     1, std::hypot( h->GetBinError(1),h->GetBinError(0))); // increase the stat uncertainty as well
+    h->SetBinError(   1, std::hypot( h->GetBinError(1),h->GetBinError(0))); // increase the stat uncertainty as well
     h->AddBinContent( nbins, h->GetBinContent(nbins+1) ); // merge first bin with overflow bin
-    h->SetBinError(     nbins, std::hypot(h->GetBinError(nbins),h->GetBinError(nbins+1))); // increase the stat uncertainty as well
+    h->SetBinError(   nbins, std::hypot(h->GetBinError(nbins),h->GetBinError(nbins+1))); // increase the stat uncertainty as well
     // set under/overflow bins and its errors to 0
     h->SetBinContent( 0, 0. );
     h->SetBinContent( nbins+1, 0. );
-    h->SetBinError( 0, 0. );
-    h->SetBinError( nbins+1, 0. );
+    h->SetBinError(   0, 0. );
+    h->SetBinError(   nbins+1, 0. );
 }
 
 //__________________________________________________________________________________
 //
-std::vector<std::string> CreatePathsList( std::vector<std::string> paths, std::vector<std::string> pathSufs,
-                                std::vector<std::string> files, std::vector<std::string> fileSufs,
-                                std::vector<std::string> names, std::vector<std::string> nameSufs){
+std::vector<std::string> Common::CreatePathsList(std::vector<std::string> paths,
+                                                 std::vector<std::string> pathSufs,
+                                                 std::vector<std::string> files,
+                                                 std::vector<std::string> fileSufs,
+                                                 std::vector<std::string> names,
+                                                 std::vector<std::string> nameSufs) {
     // turn the empty vectors into vectors containing one "" entry
     if(paths.size()==0) paths.push_back("");
     if(pathSufs.size()==0) pathSufs.push_back("");
@@ -266,13 +290,13 @@ std::vector<std::string> CreatePathsList( std::vector<std::string> paths, std::v
 
 //__________________________________________________________________________________
 //
-std::vector<std::string> CombinePathSufs( std::vector<std::string> pathSufs,
-                                          std::vector<std::string> newPathSufs ){
+std::vector<std::string> Common::CombinePathSufs(std::vector<std::string> pathSufs,
+                                                 std::vector<std::string> newPathSufs) {
     std::vector<std::string> output;
-    if(pathSufs.size()==0) pathSufs.push_back("");
-    if(newPathSufs.size()==0) newPathSufs.push_back("");
-    for(int i=0;i<(int)pathSufs.size();i++){
-        for(int j=0;j<(int)newPathSufs.size();j++){
+    if(pathSufs.size()==0) pathSufs.emplace_back("");
+    if(newPathSufs.size()==0) newPathSufs.emplace_back("");
+    for(std::size_t i=0;i<pathSufs.size();i++){
+        for(std::size_t j=0;j<newPathSufs.size();j++){
             output.push_back(pathSufs[i]+newPathSufs[j]);
         }
     }
@@ -281,7 +305,7 @@ std::vector<std::string> CombinePathSufs( std::vector<std::string> pathSufs,
 
 //__________________________________________________________________________________
 //
-std::vector<std::string> ToVec(const std::string& s){
+std::vector<std::string> Common::ToVec(const std::string& s) {
     std::vector<std::string> output;
     output.emplace_back(s);
     return output;
@@ -289,14 +313,9 @@ std::vector<std::string> ToVec(const std::string& s){
 
 //__________________________________________________________________________________
 //
-void TRExFitter::SetDebugLevel(int level){
-    DEBUGLEVEL = level;
-}
-
-//__________________________________________________________________________________
-//
-std::string ReplaceString(std::string subject, const std::string& search,
-                          const std::string& replace) {
+std::string Common::ReplaceString(std::string subject,
+                                  const std::string& search,
+                                  const std::string& replace) {
     size_t pos = 0;
     while((pos = subject.find(search, pos)) != std::string::npos) {
         subject.replace(pos, search.length(), replace);
@@ -307,7 +326,7 @@ std::string ReplaceString(std::string subject, const std::string& search,
 
 //__________________________________________________________________________________
 //
-std::vector< std::pair < std::string,std::vector<double> > > processString(std::string target) {
+std::vector< std::pair < std::string,std::vector<double> > > Common::processString(std::string target) {
     size_t pos = 0;
     std::vector<std::pair <std::string,std::vector<double> > > output;
     while((pos = target.find("[",pos)) !=std::string::npos) {
@@ -333,14 +352,14 @@ std::vector< std::pair < std::string,std::vector<double> > > processString(std::
 
 //__________________________________________________________________________________
 // taking into account wildcards on both
-bool StringsMatch(const std::string& s1, const std::string& s2){
-    if(wildcmp(s1.c_str(),s2.c_str())>0 || wildcmp(s2.c_str(),s1.c_str())>0) return true;
+bool Common::StringsMatch(const std::string& s1, const std::string& s2){
+    if(Common::wildcmp(s1.c_str(),s2.c_str())>0 || Common::wildcmp(s2.c_str(),s1.c_str())>0) return true;
     return false;
 }
 
 //__________________________________________________________________________________
 // taking into account wildcards on first argument
-int wildcmp(const char *wild, const char *string) {
+int Common::wildcmp(const char *wild, const char *string) {
     // Written by Jack Handy - <A href="mailto:jakkhandy@hotmail.com">jakkhandy@hotmail.com</A>
     const char *cp = NULL, *mp = NULL;
     while ((*string) && (*wild != '*')) {
@@ -373,12 +392,13 @@ int wildcmp(const char *wild, const char *string) {
 
 //__________________________________________________________________________________
 //
-int FindInStringVector(const std::vector<std::string>& v, const std::string& s){
+int Common::FindInStringVector(const std::vector<std::string>& v,
+                               const std::string& s) {
     int idx = -1;
     std::string s1;
     for(unsigned int i=0;i<v.size();i++){
         s1 = v[i];
-        if(StringsMatch(s1,s)){
+        if(Common::StringsMatch(s1,s)){
             idx = (int)i;
             break;
         }
@@ -388,14 +408,16 @@ int FindInStringVector(const std::vector<std::string>& v, const std::string& s){
 
 //__________________________________________________________________________________
 //
-int FindInStringVectorOfVectors(const std::vector< std::vector<std::string> >& v, const std::string& s, const std::string& ss){
+int Common::FindInStringVectorOfVectors(const std::vector< std::vector<std::string> >& v,
+                                        const std::string& s,
+                                        const std::string& ss) {
     int idx = -1;
     std::string s1;
     std::string s2;
     for(unsigned int i=0;i<v.size();i++){
         s1 = v[i][0];
         s2 = v[i][1];
-        if(StringsMatch(s1,s) && StringsMatch(s2,ss)){
+        if(Common::StringsMatch(s1,s) && Common::StringsMatch(s2,ss)){
             idx = (int)i;
             break;
         }
@@ -405,10 +427,10 @@ int FindInStringVectorOfVectors(const std::vector< std::vector<std::string> >& v
 
 //__________________________________________________________________________________
 //
-double GetSeparation( TH1D* S1, TH1D* B1 ) {
+double Common::GetSeparation(TH1D* S1, TH1D* B1) {
     // taken from TMVA!!!
-    std::unique_ptr<TH1> S = std::make_unique<TH1D>(*S1);
-    std::unique_ptr<TH1> B = std::make_unique<TH1D>(*B1);
+    std::unique_ptr<TH1> S(static_cast<TH1*>(S1->Clone()));
+    std::unique_ptr<TH1> B(static_cast<TH1*>(B1->Clone()));
     Double_t separation = 0;
     if ((S->GetNbinsX() != B->GetNbinsX()) || (S->GetNbinsX() <= 0)) {
         WriteErrorStatus("Common::GetSeparation", "signal and background histograms have different number of bins: " + std::to_string(S->GetNbinsX()) + " : " + std::to_string(B->GetNbinsX()));
@@ -445,8 +467,12 @@ double GetSeparation( TH1D* S1, TH1D* B1 ) {
 // - also set uncertainties in blinded bins to zero
 // - in addition a histogram is returned, with bin content 0 or 1 depending on the bin beeing blinded or not
 // when takeSqrt is true, take the sqrt of the denominator when evaluating the blinding
-TH1D* BlindDataHisto( TH1* h_data, TH1* h_bkg, TH1* h_sig, double threshold, bool takeSqrt) {
-    TH1D* h_blind = (TH1D*)h_data->Clone("h_blind");
+TH1D* Common::BlindDataHisto(TH1* h_data,
+                             TH1* h_bkg,
+                             TH1* h_sig,
+                             double threshold,
+                             bool takeSqrt) {
+    TH1D* h_blind = static_cast<TH1D*>(h_data->Clone("h_blind"));
     for(int i_bin=1;i_bin<h_data->GetNbinsX()+1;i_bin++){
         double tmpDenominator = h_bkg->GetBinContent(i_bin);
         if(takeSqrt) tmpDenominator = std::sqrt(tmpDenominator); // for calculating S/sqrt(B) and S/sqrt(S+B)
@@ -465,7 +491,8 @@ TH1D* BlindDataHisto( TH1* h_data, TH1* h_bkg, TH1* h_sig, double threshold, boo
 
 //__________________________________________________________________________________
 // This one to blind according to a given histogram containing already info on bins to blind
-void BlindDataHisto( TH1* h_data, TH1* h_blind ) {
+void Common::BlindDataHisto(TH1* h_data,
+                            TH1* h_blind) {
     for(int i_bin=1;i_bin<h_data->GetNbinsX()+1;i_bin++){
         if(h_blind->GetBinContent(i_bin)!=0){
             WriteDebugStatus("Common::BlindDataHisto", "Blinding bin n." + std::to_string(i_bin));
@@ -477,7 +504,7 @@ void BlindDataHisto( TH1* h_data, TH1* h_blind ) {
 
 //__________________________________________________________________________________
 //
-double convertStoD(std::string toConvert){
+double Common::convertStoD(std::string toConvert){
     double converted;
     std::string::size_type pos;
     try{
@@ -496,7 +523,7 @@ double convertStoD(std::string toConvert){
 
 //__________________________________________________________________________________
 //
-void SmoothHistogramTtres( TH1* h) {
+void Common::SmoothHistogramTtres(TH1* h) {
     double origIntegral = h->Integral();
 
     h->Smooth(2);
@@ -508,7 +535,8 @@ void SmoothHistogramTtres( TH1* h) {
 
 //__________________________________________________________________________________
 // to smooth a nominal histogram, taking into account the statistical uncertinaty on each bin (note: no empty bins, please!!)
-bool SmoothHistogram( TH1* h, double nsigma ){
+bool Common::SmoothHistogram(TH1* h,
+                             double nsigma){
     int nbinsx = h->GetNbinsX();
     double error = 0.;
     double integral = h->IntegralAndError(1,h->GetNbinsX(),error);
@@ -554,7 +582,8 @@ bool SmoothHistogram( TH1* h, double nsigma ){
 
 //__________________________________________________________________________________
 //
-void DropBins(TH1* h,const std::vector<int> &v){
+void Common::DropBins(TH1* h,
+                      const std::vector<int> &v) {
     for(int i_bin=1;i_bin<=h->GetNbinsX();i_bin++){
         if(find(v.begin(),v.end(),i_bin-1)!=v.end()){
             h->SetBinContent(i_bin,-1.);
@@ -565,7 +594,7 @@ void DropBins(TH1* h,const std::vector<int> &v){
 
 //__________________________________________________________________________________
 //
-double CorrectIntegral(TH1* h, double * err){
+double Common::CorrectIntegral(TH1* h, double* err) {
     double integral = 0.;
     double error = 0.;
     for( int i_bin=1; i_bin <= h->GetNbinsX(); i_bin++){
@@ -580,7 +609,7 @@ double CorrectIntegral(TH1* h, double * err){
 
 //__________________________________________________________________________________
 //
-void CloseFiles( const std::set < std::string> &files_names ){
+void Common::CloseFiles(const std::set < std::string>& files_names){
     for( const auto &fullName : files_names ){
         std::string file = fullName.substr(0,fullName.find_last_of(".")+5);
         auto it = TRExFitter::TFILEMAP.find(file);
@@ -594,7 +623,7 @@ void CloseFiles( const std::set < std::string> &files_names ){
 
 //__________________________________________________________________________________
 //
-TH1D* MergeHistograms(const std::vector<TH1*>& hVec){
+TH1D* Common::MergeHistograms(const std::vector<TH1*>& hVec){
     if(hVec.size()==0) return nullptr;
     if(hVec[0]==nullptr) return nullptr;
     // build vector of bin edges
@@ -638,21 +667,22 @@ TH1D* MergeHistograms(const std::vector<TH1*>& hVec){
 
 //___________________________________________________________
 //
-int ApplyATLASrounding(double &mean, double &error){
+int Common::ApplyATLASrounding(double &mean,
+                               double &error) {
     if (error < 0 ){
         WriteWarningStatus("Common::ApplyATLASrounding", "Error value is < 0. Not applying rounding.");
         return -1;
     }
 
     int sig = 0;
-    int iterations = ApplyErrorRounding(error,sig);
+    const int iterations = Common::ApplyErrorRounding(error,sig);
     if (iterations > 100) { // something went wrong
         WriteWarningStatus("Common::ApplyATLASrounding", "Problem with applying PDG rounding rules to error.");
         return -1;
     }
 
     // now apply the correct rounding for nominal value
-    RoundToSig(mean, iterations);
+    Common::RoundToSig(mean, iterations);
 
     // return the number of decimal digits (for later printing avoiding exponent...)
     int decPlaces = iterations;
@@ -662,7 +692,8 @@ int ApplyATLASrounding(double &mean, double &error){
 
 //___________________________________________________________
 // FIXME : still to fix the 100
-int ApplyErrorRounding(double& error,int& sig){
+int Common::ApplyErrorRounding(double& error,
+                               int& sig) {
     int iterations = 0;
 
     if (error == 0) {
@@ -720,7 +751,8 @@ int ApplyErrorRounding(double& error,int& sig){
 
 //___________________________________________________________
 //
-void RoundToSig(double& value, const int& n){
+void Common::RoundToSig(double& value,
+                        const int& n){
     if (n == 0) {
         value = std::round(value);
         return;
@@ -739,7 +771,8 @@ void RoundToSig(double& value, const int& n){
 
 //___________________________________________________________
 //
-unsigned int NCharactersInString(const std::string& s,const char c){
+unsigned int Common::NCharactersInString(const std::string& s,
+                                         const char c){
     unsigned int N = 0;
     for(unsigned int i_c=0;i_c<s.size();i_c++){
         if(s[i_c]==c) N++;
@@ -749,12 +782,12 @@ unsigned int NCharactersInString(const std::string& s,const char c){
 
 //___________________________________________________________
 // for the moment just checks the number of parenthesis, but can be expanded
-bool CheckExpression(const std::string& s){
+bool Common::CheckExpression(const std::string& s) {
     if(s.find("Alt$")!=std::string::npos){
         return true;
     }
-    int nParOpen = NCharactersInString(s,'(');
-    int nParClose = NCharactersInString(s,')');
+    int nParOpen = Common::NCharactersInString(s,'(');
+    int nParClose = Common::NCharactersInString(s,')');
     if(nParOpen!=nParClose) return false;
     // ...
     return true;
@@ -762,7 +795,7 @@ bool CheckExpression(const std::string& s){
 
 //----------------------------------------------------------------------------------
 //
-std::string DoubleToPseudoHex(const double value){
+std::string Common::DoubleToPseudoHex(const double value){
     std::string s = std::to_string(value);
     std::string first = s.substr(0,s.find('.'));
     std::string second = s.substr(s.find('.')+1, s.length());
@@ -791,7 +824,7 @@ std::string DoubleToPseudoHex(const double value){
 
 //----------------------------------------------------------------------------------
 //
-double HexToDouble(const std::string& s){
+double Common::HexToDouble(const std::string& s){
     std::string first = s.substr(0,s.find('.'));
     std::string rest = s.substr(s.find('.')+1, s.length());
     std::string zeros = rest.substr(0,rest.find('.'));
@@ -830,7 +863,8 @@ double HexToDouble(const std::string& s){
 
 //___________________________________________________________
 //
-void ScaleNominal(const SampleHist* const sig, TH1* hist){
+void Common::ScaleNominal(const SampleHist* const sig,
+                          TH1* hist) {
     for(size_t i_nf=0; i_nf<sig->fSample->fNormFactors.size(); ++i_nf){
         NormFactor *nf = sig->fSample->fNormFactors[i_nf].get();
         // if this norm factor is a morphing one
@@ -852,7 +886,7 @@ void ScaleNominal(const SampleHist* const sig, TH1* hist){
 
 //____________________________________________________________________________________
 //
-double GetNominalMorphScale(const SampleHist* const sh){
+double Common::GetNominalMorphScale(const SampleHist* const sh){
     double scale = 1.;
     if (!sh) return 1.;
     if (!(sh->fSample)) return 1.;
@@ -894,7 +928,7 @@ double GetNominalMorphScale(const SampleHist* const sh){
 
 //___________________________________________________________
 //
-bool OptionRunsFit(const std::string& opt){
+bool Common::OptionRunsFit(const std::string& opt){
     if (opt.find("w")!=std::string::npos) return true;
     if (opt.find("f")!=std::string::npos) return true;
     if (opt.find("l")!=std::string::npos) return true;
@@ -907,7 +941,7 @@ bool OptionRunsFit(const std::string& opt){
 
 //___________________________________________________________
 //
-std::unique_ptr<TH1> GetHistCopyNoError(const TH1* const hist){
+std::unique_ptr<TH1> Common::GetHistCopyNoError(const TH1* const hist){
     if (hist == nullptr) return nullptr;
     std::unique_ptr<TH1> result(static_cast<TH1*>(hist->Clone()));
 
@@ -921,7 +955,8 @@ std::unique_ptr<TH1> GetHistCopyNoError(const TH1* const hist){
 // BW helper functions to pad bin numbers for gamma plots
 // replaces them with zero padded versions.  "Gamma Bin 1" -> "Gamma Bin 0001"
 
-std::vector<std::string> mysplit(const std::string & s, const char delimiter) {
+std::vector<std::string> Common::mysplit(const std::string& s,
+                                         const char delimiter) {
     std::vector<std::string> answer;
     std::string token;
 
@@ -948,7 +983,9 @@ std::vector<std::string> mysplit(const std::string & s, const char delimiter) {
 
 //___________________________________________________________
 //
-std::string addpad( const std::string & input, const char filler, const unsigned width ) {
+std::string Common::addpad(const std::string& input,
+                           const char filler,
+                           const unsigned width ) {
     std::stringstream mySS;
 
     mySS.fill(filler);
@@ -962,7 +999,7 @@ std::string addpad( const std::string & input, const char filler, const unsigned
 
 //___________________________________________________________
 //
-std::string pad_trail( const std::string & input ) {
+std::string Common::pad_trail(const std::string& input) {
 
     std::vector<std::string> words = mysplit( input, ' ' );
 
@@ -978,7 +1015,9 @@ std::string pad_trail( const std::string & input ) {
 
 //___________________________________________________________
 // Helper functions to drop norm or shape part from systematic variations 
-void DropNorm(TH1* hUp,TH1* hDown,TH1* hNom){
+void Common::DropNorm(TH1* hUp,
+                      TH1* hDown,
+                      TH1* hNom) {
     const double intNom = hNom->Integral();
     if(hUp!=nullptr){
         const double intUp = hUp->Integral();
@@ -991,7 +1030,9 @@ void DropNorm(TH1* hUp,TH1* hDown,TH1* hNom){
         else WriteWarningStatus("Common::DropNorm","Integral of down variation = 0. Cannot drop normalization.");
     }
 }
-void DropShape(TH1* hUp,TH1* hDown,TH1* hNom){
+void Common::DropShape(TH1* hUp,
+                       TH1* hDown,
+                       TH1* hNom){
     const double intNom = hNom->Integral();
     if(std::fabs(intNom < 1e-6)) {
         WriteWarningStatus("Common::DropShape","Integral of nominal histogram = 0. Cannot drop shape of syst variations.");
@@ -999,19 +1040,20 @@ void DropShape(TH1* hUp,TH1* hDown,TH1* hNom){
     }
     if(hUp!=nullptr){
         const double ratioUp = hUp->Integral()/intNom;
-        SetHistoBinsFromOtherHist(hUp, hNom); 
+        Common::SetHistoBinsFromOtherHist(hUp, hNom); 
         hUp->Scale(ratioUp);
     }
     if(hDown!=nullptr){
         const double ratioDown = hDown->Integral()/intNom;
-        SetHistoBinsFromOtherHist(hDown, hNom); 
+        Common::SetHistoBinsFromOtherHist(hDown, hNom); 
         hDown->Scale(ratioDown);
     }
 }
 
 //___________________________________________________________
 //
-void ScaleMCstatInHist(TH1* hist, const double scale) {
+void Common::ScaleMCstatInHist(TH1* hist,
+                               const double scale) {
     if (std::fabs(scale-1) < 1e-6) return; // basically scale == 1 but floating precision
 
     for (int ibin = 1; ibin <= hist->GetNbinsX(); ++ibin) {
@@ -1021,7 +1063,8 @@ void ScaleMCstatInHist(TH1* hist, const double scale) {
 
 //___________________________________________________________
 //
-void SetHistoBinsFromOtherHist(TH1* toSet, const TH1* other) {
+void Common::SetHistoBinsFromOtherHist(TH1* toSet,
+                                       const TH1* other) {
     if (!toSet) return;
     if (!other) return;
     
@@ -1036,7 +1079,7 @@ void SetHistoBinsFromOtherHist(TH1* toSet, const TH1* other) {
         toSet->SetBinError  (ibin, other->GetBinError(ibin));
     }
 }
-double EffIntegral(const TH1* const h){
+double Common::EffIntegral(const TH1* const h) {
     double integral = 0.;
     for (int ibin = 1; ibin <= h->GetNbinsX(); ++ibin){
         if(h->GetBinContent(ibin)>=0) integral += h->GetBinContent(ibin);

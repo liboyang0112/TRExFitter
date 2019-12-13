@@ -110,7 +110,7 @@ SampleHist::SampleHist(Sample *sample, const std::string& histoName, const std::
     fVariableTitle("Variable"),
     fSystSmoothed(false) {
 
-    fHist = HistFromFile(fileName,histoName);
+    fHist = Common::HistFromFile(fileName,histoName);
 
     if (fHist == nullptr) {
         WriteErrorStatus("TRExFit::SampleHist", "Histo pointer is nullptr, cannot continue running the code");
@@ -120,7 +120,7 @@ SampleHist::SampleHist(Sample *sample, const std::string& histoName, const std::
     fHist->SetLineColor(fSample->fLineColor);
     fHist->SetLineWidth(1);
 
-    fHist_orig = HistFromFile(fileName,histoName+"_orig");
+    fHist_orig = Common::HistFromFile(fileName,histoName+"_orig");
     if(fHist_orig==nullptr){
         fHist_orig = std::unique_ptr<TH1>(static_cast<TH1*>(fHist->Clone(Form("%s_orig",fHist->GetName()))));
     }
@@ -182,12 +182,12 @@ SystematicHist* SampleHist::AddStatSyst(const std::string& name,const std::strin
     syh->fHistDown->SetBinContent(bin, binContent - binError);
     syh->fHistUp_orig.reset(static_cast<TH1*>(syh->fHistUp  ->Clone(Form("%s_orig",syh->fHistUp  ->GetName()))));
     syh->fHistDown_orig.reset(static_cast<TH1*>(syh->fHistDown->Clone(Form("%s_orig",syh->fHistDown->GetName()))));
-    syh->fHistShapeUp  ->Scale(EffIntegral(fHist.get()) / EffIntegral(syh->fHistShapeUp.get()));
-    syh->fHistShapeDown->Scale(EffIntegral(fHist.get()) / EffIntegral(syh->fHistShapeDown.get()));
+    syh->fHistShapeUp  ->Scale(Common::EffIntegral(fHist.get()) / Common::EffIntegral(syh->fHistShapeUp.get()));
+    syh->fHistShapeDown->Scale(Common::EffIntegral(fHist.get()) / Common::EffIntegral(syh->fHistShapeDown.get()));
     syh->fIsOverall = true;
     syh->fIsShape   = true;
-    syh->fNormUp   = ( EffIntegral(syh->fHistUp.get())   -  EffIntegral(fHist.get()) ) / EffIntegral(fHist.get());
-    syh->fNormDown = ( EffIntegral(syh->fHistDown.get()) - EffIntegral(fHist.get()) ) / EffIntegral(fHist.get());
+    syh->fNormUp   = ( Common::EffIntegral(syh->fHistUp.get())   -  Common::EffIntegral(fHist.get()) ) / Common::EffIntegral(fHist.get());
+    syh->fNormDown = ( Common::EffIntegral(syh->fHistDown.get()) - Common::EffIntegral(fHist.get()) ) / Common::EffIntegral(fHist.get());
     return syh;
 }
 
@@ -215,21 +215,21 @@ SystematicHist* SampleHist::AddHistoSyst(const std::string& name,const std::stri
     syh->fHistDown_preSmooth.reset(static_cast<TH1*>(h_down->Clone(Form("%s_%s_Down_preSmooth",fHist->GetName(),storedName.c_str()))));
     syh->fHistShapeUp.reset(static_cast<TH1*>(h_up  ->Clone(Form("%s_%s_Shape_Up",  fHist->GetName(),storedName.c_str()))));
     syh->fHistShapeDown.reset(static_cast<TH1*>(h_down->Clone(Form("%s_%s_Shape_Down",fHist->GetName(),storedName.c_str()))));
-    if(EffIntegral(syh->fHistShapeUp.get()) > 0. ){
-        syh->fHistShapeUp  ->Scale(EffIntegral(fHist.get()) / EffIntegral(syh->fHistShapeUp.get()));
+    if(Common::EffIntegral(syh->fHistShapeUp.get()) > 0. ){
+        syh->fHistShapeUp  ->Scale(Common::EffIntegral(fHist.get()) / Common::EffIntegral(syh->fHistShapeUp.get()));
     } else {
         syh->fHistShapeUp.reset(static_cast<TH1*>(fHist->Clone(Form("%s_%s_Shape_Up",  fHist->GetName(),storedName.c_str()))));
     }
-    if(EffIntegral(syh->fHistShapeDown.get()) > 0. ){
-        syh->fHistShapeDown->Scale(EffIntegral(fHist.get()) / EffIntegral(syh->fHistShapeDown.get()));
+    if(Common::EffIntegral(syh->fHistShapeDown.get()) > 0. ){
+        syh->fHistShapeDown->Scale(Common::EffIntegral(fHist.get()) / Common::EffIntegral(syh->fHistShapeDown.get()));
     } else {
         syh->fHistShapeDown.reset(static_cast<TH1*>(fHist->Clone(Form("%s_%s_Shape_Down",  fHist->GetName(),storedName.c_str()))));
     }
 
     syh->fIsOverall = true;
     syh->fIsShape   = true;
-    syh->fNormUp   = ( EffIntegral(syh->fHistUp.get())   -  EffIntegral(fHist.get()) ) / EffIntegral(fHist.get());
-    syh->fNormDown = ( EffIntegral(syh->fHistDown.get()) - EffIntegral(fHist.get()) ) / EffIntegral(fHist.get());
+    syh->fNormUp   = ( Common::EffIntegral(syh->fHistUp.get())   -  Common::EffIntegral(fHist.get()) ) / Common::EffIntegral(fHist.get());
+    syh->fNormDown = ( Common::EffIntegral(syh->fHistDown.get()) - Common::EffIntegral(fHist.get()) ) / Common::EffIntegral(fHist.get());
     if(syh->fNormUp == 0 && syh->fNormDown == 0) syh->fIsOverall = false;
     return syh;
 }
@@ -245,8 +245,8 @@ SystematicHist* SampleHist::AddHistoSyst(const std::string& name,
                                          int pruned/*1: norm only, 2: shape only*/){
 
     // before doing anything else, check if the sampleHist can be created
-    std::unique_ptr<TH1> hUp   = HistFromFile(fileName_up,  histoName_up);
-    std::unique_ptr<TH1> hDown = HistFromFile(fileName_down,histoName_down);
+    std::unique_ptr<TH1> hUp   = Common::HistFromFile(fileName_up,  histoName_up);
+    std::unique_ptr<TH1> hDown = Common::HistFromFile(fileName_down,histoName_down);
     if(hUp  ==nullptr) return nullptr;
     if(hDown==nullptr) return nullptr;
 
@@ -265,10 +265,10 @@ SystematicHist* SampleHist::AddHistoSyst(const std::string& name,
     sh->fFileNameDown = fileName_down;
     sh->fHistoNameUp   = histoName_up;
     sh->fHistoNameDown = histoName_down;
-    sh->fHistUp   = HistFromFile(sh->fFileNameUp,  sh->fHistoNameUp);
-    sh->fHistDown = HistFromFile(sh->fFileNameDown,sh->fHistoNameDown);
-    sh->fHistUp_orig   = HistFromFile(sh->fFileNameUp,  sh->fHistoNameUp  +"_orig");
-    sh->fHistDown_orig = HistFromFile(sh->fFileNameDown,sh->fHistoNameDown+"_orig");
+    sh->fHistUp   = Common::HistFromFile(sh->fFileNameUp,  sh->fHistoNameUp);
+    sh->fHistDown = Common::HistFromFile(sh->fFileNameDown,sh->fHistoNameDown);
+    sh->fHistUp_orig   = Common::HistFromFile(sh->fFileNameUp,  sh->fHistoNameUp  +"_orig");
+    sh->fHistDown_orig = Common::HistFromFile(sh->fFileNameDown,sh->fHistoNameDown+"_orig");
     if(sh->fHistUp   == nullptr) return nullptr;
     if(sh->fHistDown == nullptr) return nullptr;
     if(sh->fHistUp_orig  ==nullptr) sh->fHistUp_orig.reset(static_cast<TH1D*>(sh->fHistUp->Clone(Form("%s_orig",sh->fHistUp->GetName()))));
@@ -280,14 +280,14 @@ SystematicHist* SampleHist::AddHistoSyst(const std::string& name,
     else{
         sh->fHistShapeUp.reset(static_cast<TH1*>(sh->fHistUp  ->Clone(Form("%s_%s_Shape_Up",  fHist->GetName(),storedName.c_str()))));
         sh->fHistShapeDown.reset(static_cast<TH1*>(sh->fHistDown->Clone(Form("%s_%s_Shape_Down",fHist->GetName(),storedName.c_str()))));
-        if(EffIntegral(sh->fHistShapeUp.get()) > 0. ){
-            sh->fHistShapeUp  -> Scale(EffIntegral(fHist.get()) / EffIntegral(sh->fHistShapeUp.get()));
+        if(Common::EffIntegral(sh->fHistShapeUp.get()) > 0. ){
+            sh->fHistShapeUp  -> Scale(Common::EffIntegral(fHist.get()) / Common::EffIntegral(sh->fHistShapeUp.get()));
         } else {
             sh->fHistShapeUp.reset(static_cast<TH1*>(fHist -> Clone(Form("%s_%s_Shape_Up",  fHist->GetName(),storedName.c_str()))));
         }
 
-        if(EffIntegral(sh->fHistShapeDown.get()) > 0. ){
-            sh->fHistShapeDown->Scale(EffIntegral(fHist.get()) / EffIntegral(sh->fHistShapeDown.get()));
+        if(Common::EffIntegral(sh->fHistShapeDown.get()) > 0. ){
+            sh->fHistShapeDown->Scale(Common::EffIntegral(fHist.get()) / Common::EffIntegral(sh->fHistShapeDown.get()));
         } else {
             sh->fHistShapeDown.reset(static_cast<TH1*>(fHist -> Clone(Form("%s_%s_Shape_Down",  fHist->GetName(),storedName.c_str()))));
         }
@@ -300,8 +300,8 @@ SystematicHist* SampleHist::AddHistoSyst(const std::string& name,
         sh->fNormDown = 0;
     }
     else{
-        sh->fNormUp   = ( EffIntegral(sh->fHistUp.get())   -  EffIntegral(fHist.get()) ) / EffIntegral(fHist.get());
-        sh->fNormDown = ( EffIntegral(sh->fHistDown.get()) - EffIntegral(fHist.get()) ) / EffIntegral(fHist.get());
+        sh->fNormUp   = ( Common::EffIntegral(sh->fHistUp.get())   -  Common::EffIntegral(fHist.get()) ) / Common::EffIntegral(fHist.get());
+        sh->fNormDown = ( Common::EffIntegral(sh->fHistDown.get()) - Common::EffIntegral(fHist.get()) ) / Common::EffIntegral(fHist.get());
         sh->fIsOverall = true;
     }
     if(sh->fNormUp == 0 && sh->fNormDown == 0) sh->fIsOverall = false;
@@ -429,16 +429,16 @@ bool SampleHist::HasShapeFactor(const std::string& name) const{
 //
 void SampleHist::WriteToFile(TFile *f,bool reWriteOrig){
     if(f==nullptr){
-        if(fHist_orig!=nullptr && reWriteOrig)   WriteHistToFile(fHist_orig.get(), fFileName);
-        if(fHist!=nullptr)        WriteHistToFile(fHist.get(), fFileName);
+        if(fHist_orig!=nullptr && reWriteOrig)   Common::WriteHistToFile(fHist_orig.get(), fFileName);
+        if(fHist!=nullptr)        Common::WriteHistToFile(fHist.get(), fFileName);
     }
     else{
-        if(fHist_orig!=nullptr && reWriteOrig)   WriteHistToFile(fHist_orig.get(), f);
-        if(fHist!=nullptr)        WriteHistToFile(fHist.get(), f);
+        if(fHist_orig!=nullptr && reWriteOrig)   Common::WriteHistToFile(fHist_orig.get(), f);
+        if(fHist!=nullptr)        Common::WriteHistToFile(fHist.get(), f);
     }
     // create the regular binning histogram
     fHist_regBin = std::unique_ptr<TH1>(HistoTools::TranformHistogramBinning(fHist.get()));
-    if(fHist_regBin!=nullptr) WriteHistToFile(fHist_regBin.get(),f);
+    if(fHist_regBin!=nullptr) Common::WriteHistToFile(fHist_regBin.get(),f);
     //
     // save separate gammas as histograms
     if(fSample->fSeparateGammas){
@@ -495,8 +495,8 @@ void SampleHist::WriteToFile(TFile *f,bool reWriteOrig){
             for(int i_bin=1;i_bin<=hVar->GetNbinsX();i_bin++){
                 if(hVar->GetBinContent(i_bin)<0) hVar->SetBinContent(i_bin,-1.*hVar->GetBinContent(i_bin));
             }
-            if(f==nullptr) WriteHistToFile(hVar,fFileName);
-            else           WriteHistToFile(hVar,f);
+            if(f==nullptr) Common::WriteHistToFile(hVar,fFileName);
+            else           Common::WriteHistToFile(hVar,f);
         }
     }
 }
@@ -504,8 +504,8 @@ void SampleHist::WriteToFile(TFile *f,bool reWriteOrig){
 //_____________________________________________________________________________
 //
 void SampleHist::ReadFromFile(){
-    fHist      = HistFromFile(fFileName,fHistoName);
-    fHist_orig = HistFromFile(fFileName,fHistoName+"_orig");
+    fHist      = Common::HistFromFile(fFileName,fHistoName);
+    fHist_orig = Common::HistFromFile(fFileName,fHistoName+"_orig");
 }
 
 //_____________________________________________________________________________
@@ -712,10 +712,10 @@ void SampleHist::DrawSystPlot( const string &syst, TH1* const h_data, bool SumAn
         // drop shape or norm (for cases where this is not yet done in the stored histogrmas, i.e. in case of pruning or decorrelation)
         if (fSyst[i_syst] != nullptr && fSyst[i_syst]->fSystematic != nullptr) {
             if(fSyst[i_syst]->fSystematic->fIsNormOnly){
-                DropShape(syst_up.get(),syst_down.get(),nominal.get());
+                Common::DropShape(syst_up.get(),syst_down.get(),nominal.get());
             }
             if(fSyst[i_syst]->fSystematic->fIsShapeOnly){
-                DropNorm(syst_up.get(),syst_down.get(),nominal.get());
+                Common::DropNorm(syst_up.get(),syst_down.get(),nominal.get());
             }
         }
         
@@ -792,11 +792,11 @@ void SampleHist::DrawSystPlot( const string &syst, TH1* const h_data, bool SumAn
         leg->SetTextFont(gStyle->GetTextFont());
         leg->SetMargin(0.2);
 
-        const float yield_nominal = CorrectIntegral(nominal.get());
-        const float yield_up      = CorrectIntegral(syst_up.get());
-        const float yield_down    = CorrectIntegral(syst_down.get());
+        const float yield_nominal = Common::CorrectIntegral(nominal.get());
+        const float yield_up      = Common::CorrectIntegral(syst_up.get());
+        const float yield_down    = Common::CorrectIntegral(syst_down.get());
         float yield_data(0);
-        if (SumAndData) yield_data = CorrectIntegral(data.get());
+        if (SumAndData) yield_data = Common::CorrectIntegral(data.get());
         const float acc_up = (yield_up-yield_nominal)/yield_nominal;
         const float acc_down = (yield_down-yield_nominal)/yield_nominal;
         std::string sign_up =  "+";

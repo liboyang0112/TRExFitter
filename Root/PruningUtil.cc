@@ -57,14 +57,14 @@ int PruningUtil::CheckSystPruning(const TH1* const hUp,const TH1* const hDown,co
     // create shape-only syst variations
     std::unique_ptr<TH1> hShapeUp        = nullptr;
     if(hUp) hShapeUp     = std::unique_ptr<TH1>(static_cast<TH1*>(hUp  ->Clone(Form("%s_shape",hUp  ->GetName()))));
-    if(hShapeUp) hShapeUp->Scale( EffIntegral(hNom)/EffIntegral(hShapeUp.get()) );
+    if(hShapeUp) hShapeUp->Scale( Common::EffIntegral(hNom)/Common::EffIntegral(hShapeUp.get()) );
     std::unique_ptr<TH1> hShapeDown      = nullptr;
     if(hDown) hShapeDown = std::unique_ptr<TH1>(static_cast<TH1*>(hDown->Clone(Form("%s_shape",hDown->GetName()))));
-    if(hShapeDown) hShapeDown->Scale( EffIntegral(hNom)/EffIntegral(hShapeDown.get()) );
+    if(hShapeDown) hShapeDown->Scale( Common::EffIntegral(hNom)/Common::EffIntegral(hShapeDown.get()) );
     //
     // get norm effects
-    double normUp   = std::fabs((EffIntegral(hUp  )-EffIntegral(hNom))/EffIntegral(hRef.get()));
-    double normDown = std::fabs((EffIntegral(hDown)-EffIntegral(hNom))/EffIntegral(hRef.get()));
+    double normUp   = std::fabs((Common::EffIntegral(hUp  )-Common::EffIntegral(hNom))/Common::EffIntegral(hRef.get()));
+    double normDown = std::fabs((Common::EffIntegral(hDown)-Common::EffIntegral(hNom))/Common::EffIntegral(hRef.get()));
     //
     // check if systematic has no shape --> 1
     bool hasShape = true;
