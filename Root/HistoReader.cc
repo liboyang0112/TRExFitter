@@ -644,7 +644,7 @@ void HistoReader::ReadNormShape(SampleHist* sh,
         if(nf->fRegions.size()>0 && Common::FindInStringVector(nf->fRegions,fFitter->fRegions[i_ch]->fName)<0) continue;
         if(nf->fExclude.size()>0 && Common::FindInStringVector(nf->fExclude,fFitter->fRegions[i_ch]->fName)>=0) continue;
 
-        WriteDebugStatus("HistoReader::ReadHistograms", "Adding norm " + nf->fName);
+        WriteDebugStatus("HistoReader::ReadNormShape", "Adding norm " + nf->fName);
 
         sh->AddNormFactor(nf);
     }
@@ -657,7 +657,7 @@ void HistoReader::ReadNormShape(SampleHist* sh,
         if(sf->fRegions.size()>0 && Common::FindInStringVector(sf->fRegions,fFitter->fRegions[i_ch]->fName)<0) continue;
         if(sf->fExclude.size()>0 && Common::FindInStringVector(sf->fExclude,fFitter->fRegions[i_ch]->fName)>=0) continue;
 
-        WriteDebugStatus("HistoReader::ReadHistograms", "Adding shape " + sf->fName);
+        WriteDebugStatus("HistoReader::ReadNormShape", "Adding shape " + sf->fName);
 
         sh->AddShapeFactor(sf);
     }
