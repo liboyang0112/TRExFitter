@@ -87,6 +87,17 @@ class HistoReader {
         void ReadNormShape(SampleHist* sh,
                            const int i_ch,
                            const Sample* smp);
+
+        /**
+          * A helper function to read systeamtics
+          * @param channel index
+          * @param pointer to a systematic
+          * @return true if systematics is overall
+          */
+        bool SetSystematics(const int i_ch,
+                            Sample* ismp,
+                            Systematic* syst);
+
 }; 
 
 #endif

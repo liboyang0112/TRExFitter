@@ -594,42 +594,19 @@ void HistoReader::ReadOneRegion(const int i_ch, const bool is_data) {
                 (!syst->fSubtractRefSampleVar || syst->fReferenceSample != ismp->fName)) continue;
             //
             // eventually skip systematic / region combination
-            if( syst->fRegions.size()>0 && Common::FindInStringVector(syst->fRegions,fFitter->fRegions[i_ch]->fName)<0  ) continue;
-            if( syst->fExclude.size()>0 && Common::FindInStringVector(syst->fExclude,fFitter->fRegions[i_ch]->fName)>=0 ) continue;
-            if( syst->fExcludeRegionSample.size()>0 && Common::FindInStringVectorOfVectors(syst->fExcludeRegionSample,
-                                                                                   fFitter->fRegions[i_ch]->fName,
-                                                                                   ismp->fName)>=0) continue;
+            if(syst->fRegions.size()>0 && 
+               Common::FindInStringVector(syst->fRegions,fFitter->fRegions[i_ch]->fName)<0 ) continue;
+            if(syst->fExclude.size()>0 &&
+               Common::FindInStringVector(syst->fExclude,fFitter->fRegions[i_ch]->fName)>=0) continue;
+            if(syst->fExcludeRegionSample.size()>0 &&
+                Common::FindInStringVectorOfVectors(syst->fExcludeRegionSample,
+                                                    fFitter->fRegions[i_ch]->fName,
+                                                    ismp->fName)>=0) continue;
             
             WriteDebugStatus("HistoReader::ReadHistograms", "Adding syst " + syst->fName);
             
             if (!is_data) {
-                Region *reg = fFitter->fRegions[i_ch];
-                Sample *smp = ismp;
-                //
-                // if Overall only ...
-                if(syst->fType==Systematic::OVERALL) {
-                    SystematicHist *syh = reg->GetSampleHist(smp->fName)->AddOverallSyst(syst->fName,
-                                                                                         syst->fStoredName,
-                                                                                         syst->fOverallUp,
-                                                                                         syst->fOverallDown);
-                    syh->fSystematic = syst;
-                    syh->fScaleUp = syst->fScaleUp;
-                    if(syst->fScaleUpRegions.size()!=0) {
-                        if(syst->fScaleUpRegions[reg->fName]!=0) {
-                            syh->fScaleUp *= syst->fScaleUpRegions[reg->fName];
-                        }
-                    }
-                    syh->fScaleDown = syst->fScaleDown;
-                    if(syst->fScaleDownRegions.size()!=0) {
-                        if(syst->fScaleDownRegions[reg->fName]!=0) {
-                            syh->fScaleDown *= syst->fScaleDownRegions[reg->fName];
-                        }
-                    }
-                    continue;
-                }
-                // else ...
-                //
-                if(syst->fReferenceSample!="") smp = fFitter->GetSample(syst->fReferenceSample);
+                if (SetSystematics(i_ch, ismp, syst)) continue;
             }
             //
             // Up
@@ -731,4 +708,38 @@ void HistoReader::ReadNormShape(SampleHist* sh,
         //
         sh->AddShapeFactor(sf);
     }
+}
+
+bool HistoReader::SetSystematics(const int i_ch,
+                                 Sample* ismp,
+                                 Systematic* syst) {
+
+    Region* reg = fFitter->fRegions[i_ch];
+    Sample* smp = ismp;
+    //
+    // if Overall only ...
+    if(syst->fType==Systematic::OVERALL) {
+        SystematicHist *syh = reg->GetSampleHist(smp->fName)->AddOverallSyst(syst->fName,
+                                                                             syst->fStoredName,
+                                                                             syst->fOverallUp,
+                                                                             syst->fOverallDown);
+        syh->fSystematic = syst;
+        syh->fScaleUp = syst->fScaleUp;
+        if(syst->fScaleUpRegions.size()!=0) {
+            if(syst->fScaleUpRegions[reg->fName]!=0) {
+                syh->fScaleUp *= syst->fScaleUpRegions[reg->fName];
+            }
+        }
+        syh->fScaleDown = syst->fScaleDown;
+        if(syst->fScaleDownRegions.size()!=0) {
+            if(syst->fScaleDownRegions[reg->fName]!=0) {
+                syh->fScaleDown *= syst->fScaleDownRegions[reg->fName];
+            }
+        }
+        return true;
+    }
+    // else ...
+    //
+    if(syst->fReferenceSample!="") smp = fFitter->GetSample(syst->fReferenceSample);
+    return false;
 }
