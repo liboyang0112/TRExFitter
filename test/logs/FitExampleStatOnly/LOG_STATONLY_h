@@ -40,35 +40,35 @@ Reading histograms...
 [1;32m=== INFO::TRExFit::CreateRootFiles: -------------------------------------------[0m
 [1;32m=== INFO::TRExFit::CreateRootFiles: Creating/updating file FitExampleStatOnly/Histograms/FitExampleStatOnly_histos.root ...[0m
 [1;32m=== INFO::HistoReader::ReadHistograms:   Region SR_1 ...[0m
-=== DEBUG::HistoReader::ReadHistograms:   Reading DATA sample Data
+=== DEBUG::HistoReader::ReadHistograms:   Reading Data
 === DEBUG::HistoReader::ReadHistograms:   Reading Bkg1
 === DEBUG::HistoReader::ReadHistograms: Adding syst JES
 === DEBUG::HistoReader::ReadHistograms: Adding syst Bkg1Xsec
 === DEBUG::HistoReader::ReadHistograms:   Reading Bkg2
 === DEBUG::HistoReader::ReadHistograms: Adding syst Bkg2Xsec
 === DEBUG::HistoReader::ReadHistograms:   Reading Signal
-=== DEBUG::HistoReader::ReadHistograms: Adding norm SigXsecOverSM
+=== DEBUG::HistoReader::ReadNormShape: Adding norm SigXsecOverSM
 === DEBUG::HistoReader::ReadHistograms: Adding syst Dummy
 === DEBUG::HistoReader::ReadHistograms: Adding syst JES
 [1;32m=== INFO::HistoReader::ReadHistograms:   Region SR_2 ...[0m
-=== DEBUG::HistoReader::ReadHistograms:   Reading DATA sample Data
+=== DEBUG::HistoReader::ReadHistograms:   Reading Data
 === DEBUG::HistoReader::ReadHistograms:   Reading Bkg1
 === DEBUG::HistoReader::ReadHistograms: Adding syst JES
 === DEBUG::HistoReader::ReadHistograms:   Reading Bkg2
 === DEBUG::HistoReader::ReadHistograms: Adding syst Bkg2Xsec
 === DEBUG::HistoReader::ReadHistograms:   Reading Signal
-=== DEBUG::HistoReader::ReadHistograms: Adding norm SigXsecOverSM
+=== DEBUG::HistoReader::ReadNormShape: Adding norm SigXsecOverSM
 === DEBUG::HistoReader::ReadHistograms: Adding syst Dummy
 === DEBUG::HistoReader::ReadHistograms: Adding syst JES
 [1;32m=== INFO::HistoReader::ReadHistograms:   Region VR ...[0m
-=== DEBUG::HistoReader::ReadHistograms:   Reading DATA sample Data
+=== DEBUG::HistoReader::ReadHistograms:   Reading Data
 === DEBUG::HistoReader::ReadHistograms:   Reading Bkg1
 === DEBUG::HistoReader::ReadHistograms: Adding syst JES
 === DEBUG::HistoReader::ReadHistograms: Adding syst Bkg1Xsec
 === DEBUG::HistoReader::ReadHistograms:   Reading Bkg2
 === DEBUG::HistoReader::ReadHistograms: Adding syst Bkg2Xsec
 === DEBUG::HistoReader::ReadHistograms:   Reading Signal
-=== DEBUG::HistoReader::ReadHistograms: Adding norm SigXsecOverSM
+=== DEBUG::HistoReader::ReadNormShape: Adding norm SigXsecOverSM
 === DEBUG::HistoReader::ReadHistograms: Adding syst Dummy
 === DEBUG::HistoReader::ReadHistograms: Adding syst JES
 [1;32m=== INFO::TRExFit::SmoothSystematics: -------------------------------------------[0m
