@@ -584,34 +584,7 @@ void HistoReader::ReadOneRegion(const int i_ch, const bool is_data) {
         if (!(ismp->fUseSystematics) && !is_data) continue;
     
         if (!is_data) {
-            // read norm factors
-            for(int i_norm=0;i_norm<ismp->fNNorm;i_norm++){
-                NormFactor *nf = ismp->fNormFactors[i_norm].get();
-                //
-                // eventually skip systematic / region combination
-                if( nf->fRegions.size()>0 && Common::FindInStringVector(nf->fRegions,fFitter->fRegions[i_ch]->fName)<0  ) continue;
-                if( nf->fExclude.size()>0 && Common::FindInStringVector(nf->fExclude,fFitter->fRegions[i_ch]->fName)>=0 ) continue;
-                //
-                WriteDebugStatus("HistoReader::ReadHistograms", "Adding norm " + nf->fName);
-                //
-                sh->AddNormFactor( nf );
-            }
-    
-            //
-            //  -----------------------------------
-            //
-            // read shape factors
-            for(int i_shape=0;i_shape<ismp->fNShape;i_shape++){
-                ShapeFactor *sf = ismp->fShapeFactors[i_shape].get();
-                //
-                // eventually skip systematic / region combination
-                if( sf->fRegions.size()>0 && Common::FindInStringVector(sf->fRegions,fFitter->fRegions[i_ch]->fName)<0  ) continue;
-                if( sf->fExclude.size()>0 && Common::FindInStringVector(sf->fExclude,fFitter->fRegions[i_ch]->fName)>=0 ) continue;
-                //
-                WriteDebugStatus("HistoReader::ReadHistograms", "Adding shape " + sf->fName);
-                //
-                sh->AddShapeFactor(sf);
-            }
+            ReadNormShape(sh, i_ch, ismp);
         }
     
         for(const auto& isyst : ismp->fSystematics) {
@@ -728,5 +701,34 @@ void HistoReader::ReadOneRegion(const int i_ch, const bool is_data) {
         //closing the files for this sample
         Common::CloseFiles(files_names);
         files_names.clear();
+    }
+}
+
+void HistoReader::ReadNormShape(SampleHist* sh,
+                                const int i_ch,
+                                const Sample* smp) {
+    // read norm factors
+    for(const auto& inorm : smp->fNormFactors) {
+        NormFactor *nf = inorm.get();
+        // eventually skip systematic / region combination
+        if(nf->fRegions.size()>0 && Common::FindInStringVector(nf->fRegions,fFitter->fRegions[i_ch]->fName)<0) continue;
+        if(nf->fExclude.size()>0 && Common::FindInStringVector(nf->fExclude,fFitter->fRegions[i_ch]->fName)>=0) continue;
+
+        WriteDebugStatus("HistoReader::ReadHistograms", "Adding norm " + nf->fName);
+
+        sh->AddNormFactor(nf);
+    }
+    
+    // read shape factors
+    for(const auto& ishape : smp->fShapeFactors) {
+        ShapeFactor *sf = ishape.get();
+        //
+        // eventually skip systematic / region combination
+        if(sf->fRegions.size()>0 && Common::FindInStringVector(sf->fRegions,fFitter->fRegions[i_ch]->fName)<0) continue;
+        if(sf->fExclude.size()>0 && Common::FindInStringVector(sf->fExclude,fFitter->fRegions[i_ch]->fName)>=0) continue;
+        //
+        WriteDebugStatus("HistoReader::ReadHistograms", "Adding shape " + sf->fName);
+        //
+        sh->AddShapeFactor(sf);
     }
 }

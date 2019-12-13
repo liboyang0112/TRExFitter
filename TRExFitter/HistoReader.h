@@ -5,6 +5,8 @@
 #include <string>
 #include <vector>
 
+class Sample;
+class SampleHist;
 class Systematic;
 class TH1D;
 class TRExFit;
@@ -76,6 +78,15 @@ class HistoReader {
           * @param is data
           */  
         void ReadOneRegion(const int i_ch, const bool is_data);
+
+        /**
+          * A helper function to read shape and norm factors for samples
+          * @param channel index
+          * @param pointer to a sample
+          */ 
+        void ReadNormShape(SampleHist* sh,
+                           const int i_ch,
+                           const Sample* smp);
 }; 
 
 #endif
