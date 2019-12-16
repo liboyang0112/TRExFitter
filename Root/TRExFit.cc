@@ -3434,7 +3434,7 @@ void TRExFit::DrawSystematicNormalisationSummary() const {
                 const TH1* down = syh->fHistDown.get();
 
                 if (up) {
-                    const double norm = 100*(up->Integral() - nominal->Integral())/nominal->Integral();
+                    const double norm = 100*(Common::EffIntegral(up) - Common::EffIntegral(nominal))/Common::EffIntegral(nominal);
                     histo.SetBinContent(ireg*samples.size()+isample+1,
                                         2*isyst+1,
                                         norm);
@@ -3445,7 +3445,7 @@ void TRExFit::DrawSystematicNormalisationSummary() const {
                 }
 
                 if (down) {
-                    const double norm = 100*(down->Integral() - nominal->Integral())/nominal->Integral();
+                    const double norm = 100*(Common::EffIntegral(down) - Common::EffIntegral(nominal))/Common::EffIntegral(nominal);
                     histo.SetBinContent(ireg*samples.size()+isample+1,
                                         2*isyst+2,
                                         norm);
