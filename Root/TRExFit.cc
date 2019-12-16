@@ -5964,6 +5964,8 @@ void TRExFit::CombineSpecialSystematics() {
                 }
             }
 
+            const bool dropFromAll = std::find(dropNorm.begin(), dropNorm.end(), "all") != dropNorm.end() ? true : false;
+
             // now loop over the systematics to combine
             std::vector<std::vector<SystematicHist*> > sh_vec;
 
@@ -5989,7 +5991,7 @@ void TRExFit::CombineSpecialSystematics() {
 
                 // apply the drop normalisation
                 if (!newSampleHist) continue;
-                if (std::find(dropNorm.begin(), dropNorm.end(), fRegions[iReg]->fName) != dropNorm.end()) {
+                if (dropFromAll || std::find(dropNorm.begin(), dropNorm.end(), fRegions[iReg]->fName) != dropNorm.end()) {
                     const SampleHist* sh = fRegions[iReg]->fSampleHists.at(ish).get();
                     if (!sh) continue;
                     const TH1* nominal = sh->fHist.get();
