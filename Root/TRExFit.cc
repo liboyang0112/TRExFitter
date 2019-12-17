@@ -4138,7 +4138,7 @@ void TRExFit::Fit(bool isLHscanOnly){
         }
         std::cout << "-----------------------------------" << std::endl;
         std::cout << "TotalSystematic\t" << (std::fabs(totUp)+std::fabs(totDo))/2. << std::endl;
-        std::cout << "TotalStat+Syst\t" << (std::hypot(totUp,statUp)+std::hypot(totDo,statDo,2))/2. << std::endl;
+        std::cout << "TotalStat+Syst\t" << (std::hypot(totUp,statUp)+std::hypot(totDo,statDo))/2. << std::endl;
         std::cout << "-----------------------------------" << std::endl;
         tex2 << "\\hline" << std::endl;
         tex2 << "Total systematic uncertainty & " << Form("$%.2f$",(std::fabs(totUp)+std::fabs(totDo))/2.) << " \\\\" << std::endl;
