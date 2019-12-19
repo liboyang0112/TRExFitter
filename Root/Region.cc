@@ -742,7 +742,7 @@ std::unique_ptr<TRExPlot> Region::DrawPreFit(const std::vector<int>& canvasSize,
     p->SetTotBkg(fTot.get());
     p->BlindData();
     if(fBinWidth>0) p->SetBinWidth(fBinWidth);
-    fBlindedBins = p->h_blinding;
+    if(p->h_blinding) fBlindedBins =  static_cast<TH1D*>(p->h_blinding->Clone("blinding_region") );
 
     //
     // Computes the uncertainty bands arround the h_tot histogram
