@@ -1793,7 +1793,7 @@ TRExPlot* TRExFit::DrawSummary(std::string opt, TRExPlot* prefit_plot) {
         p->SetBinLabel(i_bin,fRegions[regionVec[i_bin-1]]->fShortLabel.c_str());
     }
     p->Draw(opt);
-    if(!isPostFit) fBlindedBins = p->h_blinding;
+    if(!isPostFit && p->h_blinding) fBlindedBins = static_cast<TH1D*>(p->h_blinding->Clone("blinding_trexfit") );
     //
     if(divisionVec.size()>0){
         p->pad0->cd();
