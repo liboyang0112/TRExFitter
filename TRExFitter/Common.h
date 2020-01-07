@@ -17,6 +17,7 @@
 #include "TF1.h"
 
 /// Forward class declaration
+class Region;
 class TFile;
 class TH1;
 class TH1D;
@@ -185,6 +186,14 @@ void SetHistoBinsFromOtherHist(TH1* toSet, const TH1* other);
  * @return the effective integral
  */
 double EffIntegral(const TH1* const h);
+    
+/**
+  * A helper function that gets the indices of the blinded bins in a region
+  * @param the given Region
+  * @return indices of the bins (ROOT index convention)
+  */ 
+std::vector<int> GetBlindedBins(Region* reg);
+
 }
 
 #endif

@@ -3,7 +3,9 @@
 
 // Framework includes
 #include "TRExFitter/HistoTools.h"
+#include "TRExFitter/Region.h"
 #include "TRExFitter/StatusLogbook.h"
+#include "TRExFitter/SystematicHist.h"
 
 // ATLAS stuff
 #include "AtlasUtils/AtlasStyle.h"
@@ -1087,3 +1089,49 @@ double Common::EffIntegral(const TH1* const h) {
     return integral;
 }
 
+//__________________________________________________________________________________
+//
+std::vector<int> Common::GetBlindedBins(Region* reg) {
+    std::vector<int> result;
+
+    const TH1* data(nullptr);
+    SampleHist hist_signal{};
+    SampleHist hist_bkg{};
+    bool empty_signal(true);
+    bool empty_bkg(true);
+
+    /// stack the samplehists
+    std::set<std::string> systNames;
+    for(int i_regSmp=0; i_regSmp<reg->fNSamples; ++i_regSmp) {
+        for(int i_smSyst=0; i_smSyst<reg->fSampleHists[i_regSmp]->fNSyst; ++i_smSyst) {
+            systNames.insert(reg->fSampleHists[i_regSmp]->fSyst[i_smSyst]->fName);
+        }
+    }
+    for(int i_smp=0; i_smp<reg->fNSamples; ++i_smp) {
+        if (reg->fSampleHists[i_smp]->fSample->fType==Sample::GHOST) continue;
+        else if (reg->fSampleHists[i_smp]->fSample->fType==Sample::DATA) {
+            data = reg->fSampleHists[i_smp]->fHist.get();
+        } else if (reg->fSampleHists[i_smp]->fSample->fType==Sample::SIGNAL) {
+            const double scale = Common::GetNominalMorphScale(reg->fSampleHists[i_smp].get());
+            if(empty_signal){
+                hist_signal.CloneSampleHist(reg->fSampleHists[i_smp].get(),systNames, scale);
+                empty_signal=false;
+            } else {
+                hist_signal.SampleHistAdd(reg->fSampleHists[i_smp].get(), scale);
+            }
+        } else if (reg->fSampleHists[i_smp]->fSample->fType==Sample::BACKGROUND) {
+            const double scale = Common::GetNominalMorphScale(reg->fSampleHists[i_smp].get());
+            if(empty_bkg){
+                hist_bkg.CloneSampleHist(reg->fSampleHists[i_smp].get(),systNames, scale);
+                empty_bkg=false;
+            } else {
+                hist_bkg.SampleHistAdd(reg->fSampleHists[i_smp].get(), scale);
+            }
+        } else {
+            WriteErrorStatus("Common::GetBlindedBins", "Unknown sample type!");
+            exit(EXIT_FAILURE);
+        }
+    }
+
+    return result;
+}

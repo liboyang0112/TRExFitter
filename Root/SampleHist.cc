@@ -1097,7 +1097,7 @@ void SampleHist::CloneSampleHist(SampleHist* h, const std::set<std::string>& nam
     fIsData = h->fIsData;
     fIsSig = h->fIsSig;
     fNSyst = h->fNSyst;
-    for(auto systname : names ){
+    for(const auto& systname : names){
         bool notFound=true;
         for(int i_syst=0; i_syst<h->fNSyst; i_syst++){
             SystematicHist* syst_tmp = new SystematicHist("tmp");

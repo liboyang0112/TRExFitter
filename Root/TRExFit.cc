@@ -7884,7 +7884,7 @@ void TRExFit::DropBins() {
     for(const auto& reg : fRegions){
     
         if (fAutomaticDropBins) {
-            const std::vector<int>& blindedBins = GetBlindedBins(reg);
+            const std::vector<int>& blindedBins = Common::GetBlindedBins(reg);
             if (blindedBins.size() == 0) continue;
             for(const auto& smp : fSamples){
                 // eventually skip sample / region combination
@@ -7930,10 +7930,3 @@ void TRExFit::DropBins() {
     }
 }
 
-//__________________________________________________________________________________
-//
-std::vector<int> TRExFit::GetBlindedBins(Region* reg) const {
-    std::vector<int> result;
-
-    return result;
-}

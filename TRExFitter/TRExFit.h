@@ -359,13 +359,6 @@ public:
       */
     void DropBins();
 
-    /**
-      * A helper function that gets the indices of the blinded bins in a region
-      * @param the given Region
-      * @return indices of the bins (ROOT index convention)
-      */ 
-    std::vector<int> GetBlindedBins(Region* reg) const;
-
     // -------------------------
 
     std::string fName;
