@@ -71,6 +71,7 @@ public:
     bool fIsFreeParameter;
     bool fIsShapeOnly;
     bool fIsNormOnly;
+    bool fNoPruning;
 
     std::vector<std::string> fRegions;
     std::vector<std::string> fExclude;

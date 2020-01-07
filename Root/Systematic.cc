@@ -32,6 +32,7 @@ Systematic::Systematic(const std::string& name,int type,double up,double down) :
     fIsFreeParameter(false),
     fIsShapeOnly(false),
     fIsNormOnly(false),
+    fNoPruning(false),
     fWeightUp(""),
     fWeightSufUp(""),
     fNtuplePathSufUp(""),

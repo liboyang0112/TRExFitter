@@ -2495,6 +2495,11 @@ void Region::SystPruning(PruningUtil *pu){
         for(auto& syh : sh->fSyst){
             if(!syh) continue;
             if(!syh->fSystematic) continue;
+            if(syh->fSystematic->fNoPruning) {
+                syh->fShapePruned = false;
+                syh->fNormPruned  = false;
+                continue;
+            }
             if(syh->fSystematic->fType==Systematic::OVERALL){
                 syh->fShapePruned = true;
             }
@@ -2504,6 +2509,7 @@ void Region::SystPruning(PruningUtil *pu){
         for(auto& syh : sh->fSyst){
             if(!syh) continue;
             if(!syh->fSystematic) continue;
+            if(syh->fSystematic->fNoPruning) continue;
             if( Common::FindInStringVector(syh->fSystematic->fDropShapeIn,fName)>=0  ||
                 Common::FindInStringVector(syh->fSystematic->fDropShapeIn,fName)>=0 ||
                 Common::FindInStringVector(syh->fSystematic->fDropShapeIn, "all")>=0

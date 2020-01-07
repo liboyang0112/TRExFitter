@@ -4123,6 +4123,20 @@ int ConfigReader::ReadSystOptions(){
         }
 
         // Set DropNorm
+        param = confSet->Get("NoPruning");
+        if (param!="") {
+            std::transform(param.begin(), param.end(), param.begin(), ::toupper);
+            if (param == "TRUE") {
+                sys->fNoPruning = true;
+            } else if (param == "FALSE") {
+                sys->fNoPruning = false;
+            } else {
+                WriteWarningStatus("ConfigReader::ReadSystOptions", "You specified 'NoPruning' option but did not provide valid parameter. Using default (FALSE)");
+                sys->fNoPruning = false;
+            }
+        }
+        
+        // Set DropNorm
         param = confSet->Get("DropNorm");
         if(param!=""){
             std::vector<std::string> tmp = Vectorize(param,',');
