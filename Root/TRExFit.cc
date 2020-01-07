@@ -2,7 +2,6 @@
 #include "TRExFitter/TRExFit.h"
 
 // Framework includes
-#include "TRExFitter/Common.h"
 #include "TRExFitter/ConfigParser.h"
 #include "TRExFitter/ConfigReader.h"
 #include "TRExFitter/FitResults.h"
@@ -125,7 +124,7 @@ TRExFit::TRExFit(std::string name) :
     fUpdate(false),
     fKeepPruning(false),
     fBlindingThreshold(-1),
-    fBlindingType(SOVERB),
+    fBlindingType(Common::SOVERB),
     fAutomaticDropBins(true),
     fRankingMaxNP(10),
     fRankingOnly("all"),
@@ -7884,7 +7883,9 @@ void TRExFit::DropBins() {
     for(const auto& reg : fRegions){
     
         if (fAutomaticDropBins) {
-            const std::vector<int>& blindedBins = Common::GetBlindedBins(reg);
+            const std::vector<int>& blindedBins = Common::GetBlindedBins(reg,
+                                                                         fBlindingType,
+                                                                         fBlindingThreshold);
             if (blindedBins.size() == 0) continue;
             for(const auto& smp : fSamples){
                 // eventually skip sample / region combination

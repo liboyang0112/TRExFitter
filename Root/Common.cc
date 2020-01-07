@@ -1081,6 +1081,9 @@ void Common::SetHistoBinsFromOtherHist(TH1* toSet,
         toSet->SetBinError  (ibin, other->GetBinError(ibin));
     }
 }
+
+//___________________________________________________________
+//
 double Common::EffIntegral(const TH1* const h) {
     double integral = 0.;
     for (int ibin = 1; ibin <= h->GetNbinsX(); ++ibin){
@@ -1091,10 +1094,11 @@ double Common::EffIntegral(const TH1* const h) {
 
 //__________________________________________________________________________________
 //
-std::vector<int> Common::GetBlindedBins(Region* reg) {
+std::vector<int> Common::GetBlindedBins(const Region* reg,
+                                        const Common::BlindingType type,
+                                        const double threshold) {
     std::vector<int> result;
 
-    const TH1* data(nullptr);
     SampleHist hist_signal{};
     SampleHist hist_bkg{};
     bool empty_signal(true);
@@ -1102,16 +1106,10 @@ std::vector<int> Common::GetBlindedBins(Region* reg) {
 
     /// stack the samplehists
     std::set<std::string> systNames;
-    for(int i_regSmp=0; i_regSmp<reg->fNSamples; ++i_regSmp) {
-        for(int i_smSyst=0; i_smSyst<reg->fSampleHists[i_regSmp]->fNSyst; ++i_smSyst) {
-            systNames.insert(reg->fSampleHists[i_regSmp]->fSyst[i_smSyst]->fName);
-        }
-    }
     for(int i_smp=0; i_smp<reg->fNSamples; ++i_smp) {
         if (reg->fSampleHists[i_smp]->fSample->fType==Sample::GHOST) continue;
-        else if (reg->fSampleHists[i_smp]->fSample->fType==Sample::DATA) {
-            data = reg->fSampleHists[i_smp]->fHist.get();
-        } else if (reg->fSampleHists[i_smp]->fSample->fType==Sample::SIGNAL) {
+        else if (reg->fSampleHists[i_smp]->fSample->fType==Sample::DATA) continue;
+        else if (reg->fSampleHists[i_smp]->fSample->fType==Sample::SIGNAL) {
             const double scale = Common::GetNominalMorphScale(reg->fSampleHists[i_smp].get());
             if(empty_signal){
                 hist_signal.CloneSampleHist(reg->fSampleHists[i_smp].get(),systNames, scale);
@@ -1130,6 +1128,82 @@ std::vector<int> Common::GetBlindedBins(Region* reg) {
         } else {
             WriteErrorStatus("Common::GetBlindedBins", "Unknown sample type!");
             exit(EXIT_FAILURE);
+        }
+    }
+
+    /// Get stacked histogram (signal + bkg)
+    std::unique_ptr<TH1> combined(nullptr);
+    if (hist_signal.fHist) {
+        combined.reset(static_cast<TH1*>(hist_signal.fHist->Clone()));
+        if (hist_bkg.fHist) {
+            combined->Add(hist_bkg.fHist.get());
+        }
+    } else if (hist_bkg.fHist) {
+        combined.reset(static_cast<TH1*>(hist_bkg.fHist->Clone()));
+    } else {
+        return result;
+    }
+
+    // find the bind that should be blinded
+
+    result = Common::BlindedBins(hist_signal.fHist.get(),
+                                 hist_bkg.fHist.get(),
+                                 combined.get(),
+                                 type,
+                                 threshold);
+
+    return result;
+}
+
+//__________________________________________________________________________________
+//
+std::vector<int> Common::BlindedBins(const TH1* signal,
+                                     const TH1* bkg,
+                                     const TH1* combined,
+                                     const Common::BlindingType type,
+                                     const double threshold) {
+
+    std::vector<int> result;
+    if (threshold < 0) return result;
+    for (int ibin = 1; ibin <= signal->GetNbinsX(); ++ibin) {
+        double soverb(-1);
+        double soversplusb(-1);
+        double soversqrtb(-1);
+        double soversqrtsplusb(-1);
+        if (signal && bkg) {
+            if (bkg->GetBinContent(ibin) > 1e-9) {
+                soverb = signal->GetBinContent(ibin)/bkg->GetBinContent(ibin);
+                soversqrtb = signal->GetBinContent(ibin)/std::sqrt(bkg->GetBinContent(ibin));
+            }
+            if (combined && combined->GetBinContent(ibin) > 1e-9) {
+                soversplusb = signal->GetBinContent(ibin)/combined->GetBinContent(ibin);
+                soversqrtsplusb = signal->GetBinContent(ibin)/std::sqrt(combined->GetBinContent(ibin));
+            }
+        }
+        switch(type) {
+            case Common::SOVERB:
+                if (soverb > threshold) {
+                    result.emplace_back(ibin);
+                }
+                break;
+            case Common::SOVERSPLUSB:
+                if (soversplusb > threshold) {
+                    result.emplace_back(ibin);
+                }
+                break;
+            case Common::SOVERSQRTB:
+                if (soversqrtb > threshold) {
+                    result.emplace_back(ibin);
+                }
+                break;
+            case Common::SOVERSQRTSPLUSB:
+                if (soversqrtsplusb > threshold) {
+                    result.emplace_back(ibin);
+                }
+                break;
+            default:
+                WriteErrorStatus("Common::BlindedBins","Unknown blinding type");
+                exit(EXIT_FAILURE);
         }
     }
 

@@ -107,7 +107,7 @@ Region::Region(const string& name) :
     fLogScale(false),
     fBinWidth(0),
     fBlindingThreshold(-1),
-    fBlindingType(TRExFit::SOVERB),
+    fBlindingType(Common::SOVERB),
     fSkipSmoothing(false),
     fATLASlabel("Internal"),
     fSuffix(""),

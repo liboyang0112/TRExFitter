@@ -2,6 +2,7 @@
 #define TRExFIT_H
 
 /// Framework includes
+#include "TRExFitter/Common.h"
 #include "TRExFitter/HistoTools.h"
 #include "TRExFitter/Systematic.h"
 
@@ -75,13 +76,6 @@ public:
         std::string name;
         // cppcheck-suppress unusedStructMember
         double value;
-    };
-
-    enum BlindingType {
-      SOVERB = 1,
-      SOVERSPLUSB = 2,
-      SOVERSQRTB = 3,
-      SOVERSQRTSPLUSB = 4
     };
 
     TRExFit(std::string name="MyMeasurement");
@@ -449,7 +443,7 @@ public:
     bool fKeepPruning;
 
     double fBlindingThreshold;
-    BlindingType fBlindingType;
+    Common::BlindingType fBlindingType;
     bool fAutomaticDropBins;
 
     int fRankingMaxNP;

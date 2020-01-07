@@ -1086,9 +1086,9 @@ void SampleHist::SmoothSyst(const HistoTools::SmoothOption &smoothOpt, string sy
 //
 void SampleHist::CloneSampleHist(SampleHist* h, const std::set<std::string>& names, double scale){
     fName = h->fName;
-    fHist           = std::unique_ptr<TH1>(static_cast<TH1*>(h->fHist->Clone()));
-    fHist_preSmooth = std::unique_ptr<TH1>(static_cast<TH1*>(h->fHist_preSmooth->Clone()));
-    fHist_orig      = std::unique_ptr<TH1>(static_cast<TH1*>(h->fHist_orig->Clone()));
+    fHist           .reset(static_cast<TH1*>(h->fHist->Clone()));
+    fHist_preSmooth .reset(static_cast<TH1*>(h->fHist_preSmooth->Clone()));
+    fHist_orig      .reset(static_cast<TH1*>(h->fHist_orig->Clone()));
     fHist->Scale(scale);
     fHist_preSmooth->Scale(scale);
     fHist_orig->Scale(scale);
