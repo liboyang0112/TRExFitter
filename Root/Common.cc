@@ -1115,7 +1115,7 @@ std::vector<int> Common::GetBlindedBins(const Region* reg,
                 hist_signal.CloneSampleHist(reg->fSampleHists[i_smp].get(),systNames, scale);
                 empty_signal=false;
             } else {
-                hist_signal.SampleHistAdd(reg->fSampleHists[i_smp].get(), scale);
+                hist_signal.SampleHistAddNominal(reg->fSampleHists[i_smp].get(), scale);
             }
         } else if (reg->fSampleHists[i_smp]->fSample->fType==Sample::BACKGROUND) {
             const double scale = Common::GetNominalMorphScale(reg->fSampleHists[i_smp].get());
@@ -1123,7 +1123,7 @@ std::vector<int> Common::GetBlindedBins(const Region* reg,
                 hist_bkg.CloneSampleHist(reg->fSampleHists[i_smp].get(),systNames, scale);
                 empty_bkg=false;
             } else {
-                hist_bkg.SampleHistAdd(reg->fSampleHists[i_smp].get(), scale);
+                hist_bkg.SampleHistAddNominal(reg->fSampleHists[i_smp].get(), scale);
             }
         } else {
             WriteErrorStatus("Common::GetBlindedBins", "Unknown sample type!");

@@ -75,6 +75,7 @@ public:
     void Scale(double scale);
 
     void SampleHistAdd(SampleHist* h, double scale = 1.);
+    void SampleHistAddNominal(SampleHist* h, double scale);
     void CloneSampleHist(SampleHist* h, const std::set<std::string>& names, double scale = 1.);
     void SystPruning(PruningUtil *pu,TH1* hTot=nullptr);
 

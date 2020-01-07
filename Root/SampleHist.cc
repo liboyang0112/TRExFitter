@@ -1184,6 +1184,14 @@ void SampleHist::SampleHistAdd(SampleHist* h, double scale){
 
 //_____________________________________________________________________________
 //
+void SampleHist::SampleHistAddNominal(SampleHist* h, double scale) {
+    fHist          ->Add(h->fHist.get(),          scale);
+    fHist_preSmooth->Add(h->fHist_preSmooth.get(),scale);
+    fHist_orig     ->Add(h->fHist_orig.get(),     scale);
+}
+
+//_____________________________________________________________________________
+//
 void SampleHist::Divide(SampleHist *sh){
     if (sh->fHist!=nullptr) fHist->Divide( sh->fHist.get() );
     else  {
