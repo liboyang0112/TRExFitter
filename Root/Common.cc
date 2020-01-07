@@ -1175,7 +1175,9 @@ std::vector<int> Common::BlindedBins(const TH1* signal,
                 soverb = signal->GetBinContent(ibin)/bkg->GetBinContent(ibin);
                 soversqrtb = signal->GetBinContent(ibin)/std::sqrt(bkg->GetBinContent(ibin));
             }
-            if (combined && combined->GetBinContent(ibin) > 1e-9) {
+        }
+        if (signal && combined) {
+            if (combined->GetBinContent(ibin) > 1e-9) {
                 soversplusb = signal->GetBinContent(ibin)/combined->GetBinContent(ibin);
                 soversqrtsplusb = signal->GetBinContent(ibin)/std::sqrt(combined->GetBinContent(ibin));
             }
