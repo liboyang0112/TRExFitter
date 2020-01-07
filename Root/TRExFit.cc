@@ -7431,7 +7431,7 @@ std::string TRExFit::FullWeight(Region *reg,Sample *smp,Systematic *syst,bool is
     // from Sample (nominal...
     std::string sampleWeight = "";
     if(smp->fMCweight!="" && smp->fMCweight!="1"){
-        sampleWeight = smp->fMCweight;
+        sampleWeight = "("+smp->fMCweight+")";
     }
     // ... and systematics)
     if(syst!=nullptr){
@@ -7445,7 +7445,7 @@ std::string TRExFit::FullWeight(Region *reg,Sample *smp,Systematic *syst,bool is
             }
             else if(syst->fWeightSufUp!=""){
                 if(sampleWeight!="") sampleWeight += " * ";
-                sampleWeight += syst->fWeightSufUp;
+                sampleWeight += "("+syst->fWeightSufUp+")";
             }
         }
         else{
@@ -7454,7 +7454,7 @@ std::string TRExFit::FullWeight(Region *reg,Sample *smp,Systematic *syst,bool is
             }
             else if(syst->fWeightSufDown!=""){
                 if(sampleWeight!="") sampleWeight += " * ";
-                sampleWeight += syst->fWeightSufDown;
+                sampleWeight += "("+syst->fWeightSufDown+")";
             }
         }
     }
