@@ -354,6 +354,18 @@ public:
       */ 
     std::vector<Sample*> GetNonDataNonGhostSamples() const;
 
+    /**
+      * A helper function that does the dropping of the bins
+      */
+    void DropBins();
+
+    /**
+      * A helper function that gets the indices of the blinded bins in a region
+      * @param the given Region
+      * @return indices of the bins (ROOT index convention)
+      */ 
+    std::vector<int> GetBlindedBins(Region* reg) const;
+
     // -------------------------
 
     std::string fName;
@@ -445,6 +457,7 @@ public:
 
     double fBlindingThreshold;
     BlindingType fBlindingType;
+    bool fAutomaticDropBins;
 
     int fRankingMaxNP;
     std::string fRankingOnly;

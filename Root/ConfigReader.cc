@@ -545,6 +545,20 @@ int ConfigReader::ReadJobOptions(){
         }
     }
 
+    // Set AutomaticDropBins
+    param = confSet->Get("AutomaticDropBins");
+    if (param != "") {
+        std::transform(param.begin(), param.end(), param.begin(), ::toupper);
+        if (param == "TRUE") {
+            fFitter->fAutomaticDropBins = true;
+        } else if (param == "FALSE") {
+            fFitter->fAutomaticDropBins = false;
+        } else {
+            WriteWarningStatus("ConfigReader::ReadJobOptions", "You specified 'AutomaticDropBins' option but did not provide a valid setting. Using default (TRUE)");
+            fFitter->fAutomaticDropBins = true;
+        }
+    }
+
     // Set RankingMaxNP
     param = confSet->Get("RankingMaxNP");
     if( param != ""){
@@ -2074,6 +2088,10 @@ int ConfigReader::ReadRegionOptions(const std::string& opt){
         // Set DropBins
         param = confSet->Get("DropBins");
         if( param != "" ){
+            if (fFitter->fAutomaticDropBins) {
+                WriteWarningStatus("ConfigReader::ReadRegionOptions", "You specified set `AutomaticDropBins` to TRUE, but using DropBins will disable it!.");
+            }
+            fFitter->fAutomaticDropBins = false;
             reg->fDropBins.clear();
             std::vector<std::string> s = Vectorize( param,',' );
             for(const std::string& is : s){
