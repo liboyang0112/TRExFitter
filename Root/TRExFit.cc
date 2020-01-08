@@ -7882,50 +7882,26 @@ void TRExFit::DropBins() {
 
     for(const auto& reg : fRegions){
     
-        if (fAutomaticDropBins) {
-            const std::vector<int>& blindedBins = Common::GetBlindedBins(reg,
-                                                                         fBlindingType,
-                                                                         fBlindingThreshold);
-            if (blindedBins.size() == 0) continue;
-            for(const auto& smp : fSamples){
-                // eventually skip sample / region combination
-                if(Common::FindInStringVector(smp->fRegions,reg->fName)<0) continue;
-                SampleHist *sh = reg->GetSampleHist(smp->fName);
-                if(!sh) continue;
-                Common::DropBins(sh->fHist.get(), blindedBins);
-                for(auto& syst : smp->fSystematics) {
-                    // eventually skip systematic / region combination
-                    if( syst->fRegions.size()>0 && Common::FindInStringVector(syst->fRegions,reg->fName)<0  ) continue;
-                    if( syst->fExclude.size()>0 && Common::FindInStringVector(syst->fExclude,reg->fName)>=0 ) continue;
-                    if( syst->fExcludeRegionSample.size()>0 && Common::FindInStringVectorOfVectors(syst->fExcludeRegionSample,reg->fName, smp->fName)>=0 ) continue;
-                    SystematicHist *syh = sh->GetSystematic( syst->fName );
-                    if(!syh) continue;
-                    Common::DropBins(syh->fHistUp.get(),   blindedBins);
-                    Common::DropBins(syh->fHistDown.get(), blindedBins);
-                    if(syh->fHistShapeUp)   Common::DropBins(syh->fHistShapeUp.get(),   blindedBins);
-                    if(syh->fHistShapeDown) Common::DropBins(syh->fHistShapeDown.get(), blindedBins);
-                }
-            }
-        } else {
-            if (reg->fDropBins.size() == 0) continue;
-            for(const auto& smp : fSamples){
-                // eventually skip sample / region combination
-                if(Common::FindInStringVector(smp->fRegions,reg->fName)<0) continue;
-                SampleHist *sh = reg->GetSampleHist(smp->fName);
-                if(!sh) continue;
-                Common::DropBins(sh->fHist.get(), reg->fDropBins);
-                for(auto& syst : smp->fSystematics) {
-                    // eventually skip systematic / region combination
-                    if( syst->fRegions.size()>0 && Common::FindInStringVector(syst->fRegions,reg->fName)<0  ) continue;
-                    if( syst->fExclude.size()>0 && Common::FindInStringVector(syst->fExclude,reg->fName)>=0 ) continue;
-                    if( syst->fExcludeRegionSample.size()>0 && Common::FindInStringVectorOfVectors(syst->fExcludeRegionSample,reg->fName, smp->fName)>=0 ) continue;
-                    SystematicHist *syh = sh->GetSystematic( syst->fName );
-                    if(!syh) continue;
-                    Common::DropBins(syh->fHistUp.get(),  reg->fDropBins);
-                    Common::DropBins(syh->fHistDown.get(),reg->fDropBins);
-                    if(syh->fHistShapeUp)   Common::DropBins(syh->fHistShapeUp.get(),  reg->fDropBins);
-                    if(syh->fHistShapeDown) Common::DropBins(syh->fHistShapeDown.get(),reg->fDropBins);
-                }
+        const std::vector<int>& blindedBins = fAutomaticDropBins ?
+                Common::GetBlindedBins(reg,fBlindingType,fBlindingThreshold) : reg->fDropBins;
+        if (blindedBins.size() == 0) continue;
+        for(const auto& smp : fSamples){
+            // eventually skip sample / region combination
+            if(Common::FindInStringVector(smp->fRegions,reg->fName)<0) continue;
+            SampleHist *sh = reg->GetSampleHist(smp->fName);
+            if(!sh) continue;
+            Common::DropBins(sh->fHist.get(), blindedBins);
+            for(auto& syst : smp->fSystematics) {
+                // eventually skip systematic / region combination
+                if( syst->fRegions.size()>0 && Common::FindInStringVector(syst->fRegions,reg->fName)<0  ) continue;
+                if( syst->fExclude.size()>0 && Common::FindInStringVector(syst->fExclude,reg->fName)>=0 ) continue;
+                if( syst->fExcludeRegionSample.size()>0 && Common::FindInStringVectorOfVectors(syst->fExcludeRegionSample,reg->fName, smp->fName)>=0 ) continue;
+                SystematicHist *syh = sh->GetSystematic( syst->fName );
+                if(!syh) continue;
+                Common::DropBins(syh->fHistUp.get(),   blindedBins);
+                Common::DropBins(syh->fHistDown.get(), blindedBins);
+                if(syh->fHistShapeUp)   Common::DropBins(syh->fHistShapeUp.get(),   blindedBins);
+                if(syh->fHistShapeDown) Common::DropBins(syh->fHistShapeDown.get(), blindedBins);
             }
         }
     }
