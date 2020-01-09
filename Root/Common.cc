@@ -464,21 +464,13 @@ double Common::GetSeparation(TH1D* S1, TH1D* B1) {
 }
 
 //__________________________________________________________________________________
-// Code to blind bins with (h_data yield) / (h_bkg yield) > threshold
-// - the code kills this kind of bins in data
-// - also set uncertainties in blinded bins to zero
-// - in addition a histogram is returned, with bin content 0 or 1 depending on the bin beeing blinded or not
-// when takeSqrt is true, take the sqrt of the denominator when evaluating the blinding
+//
 TH1D* Common::BlindDataHisto(TH1* h_data,
-                             TH1* h_bkg,
-                             TH1* h_sig,
-                             double threshold,
-                             bool takeSqrt) {
+                             const std::vector<int>& blindedBins) {
+
     TH1D* h_blind = static_cast<TH1D*>(h_data->Clone("h_blind"));
-    for(int i_bin=1;i_bin<h_data->GetNbinsX()+1;i_bin++){
-        double tmpDenominator = h_bkg->GetBinContent(i_bin);
-        if(takeSqrt) tmpDenominator = std::sqrt(tmpDenominator); // for calculating S/sqrt(B) and S/sqrt(S+B)
-        if( h_sig->GetBinContent(i_bin) / tmpDenominator > threshold ){
+    for(int i_bin = 1; i_bin <= h_data->GetNbinsX(); ++i_bin) {
+        if(std::find(blindedBins.begin(), blindedBins.end(), i_bin) != blindedBins.end()) {
             WriteDebugStatus("Common::BlindDataHisto", "Blinding bin n." + std::to_string(i_bin));
             h_data->SetBinContent(i_bin,0.);
             h_data->SetBinError(i_bin,0.);
@@ -1120,6 +1112,10 @@ std::vector<int> Common::GetBlindedBins(const Region* reg,
         } else if (reg->fSampleHists[i_smp]->fSample->fType==Sample::BACKGROUND) {
             const double scale = Common::GetNominalMorphScale(reg->fSampleHists[i_smp].get());
             if(empty_bkg){
+                std::cout << "name: " << reg->fName << "\n";
+                std::cout << "pointer: " << reg->fSampleHists[i_smp].get() << std::endl;
+                std::cout << "histo name: " << reg->fSampleHists[i_smp]->fName << "\n";
+                std::cout << "fhist name: " << reg->fSampleHists[i_smp]->fHist->GetName() << "\n";
                 hist_bkg.CloneSampleHist(reg->fSampleHists[i_smp].get(),systNames, scale);
                 empty_bkg=false;
             } else {

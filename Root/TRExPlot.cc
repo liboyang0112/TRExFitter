@@ -41,7 +41,6 @@ TRExPlot::TRExPlot(std::string name,int canvasWidth,int canvasHeight,bool hideRa
     h_stack(new THStack("h_stack","h_stack")),
     h_tot(nullptr),
     g_tot(nullptr),
-    h_blinding(nullptr),
     h_tot_bkg_prefit(nullptr),
     h_dummy(nullptr),
     c(new TCanvas(fName.c_str(),fName.c_str(),canvasWidth,canvasHeight)),
@@ -68,8 +67,6 @@ TRExPlot::TRExPlot(std::string name,int canvasWidth,int canvasHeight,bool hideRa
     fIsNjet(false),
     fShowYields(false),
     fLumiScale(1.),
-    fBlindingThreshold(-1), // if <0, no blinding
-    fBlindingType(Common::SOVERB),
     fLegendNColumns(2),
     fRatioYtitle(""),
     fRatioType("DATA/MC"),
@@ -77,7 +74,8 @@ TRExPlot::TRExPlot(std::string name,int canvasWidth,int canvasHeight,bool hideRa
     fLabelY(-1),
     fLegendX1(-1),
     fLegendX2(-1),
-    fLegendY(-1) {
+    fLegendY(-1),
+    fBlinding(nullptr) {
 
     if(hideRatioPad){
         pad0 = new TPad("pad0","pad0",0,0,1,1,0,0,0);
@@ -127,7 +125,6 @@ TRExPlot::~TRExPlot(){
     delete h_stack;
     delete h_tot;
     delete g_tot;
-    delete h_blinding;
     delete h_tot_bkg_prefit;
     delete h_dummy;
     delete leg;
@@ -316,44 +313,24 @@ void TRExPlot::SetChi2KS(double chi2prob,double ksprob,double chi2val,int ndf){
 void TRExPlot::BlindData(){
     //
     // Eventually blind bins
-    //
-    if(fBlindingThreshold>=0){
-        if(h_data!=nullptr && fSigNames.size()>0 && h_tot!=nullptr){
-            if(h_blinding!=nullptr){
-                Common::BlindDataHisto( h_data,h_blinding );
-            }
-            else{
-                if(fBlindingType==Common::SOVERB)               h_blinding = Common::BlindDataHisto( h_data, TRExPlot::GetTotBkg(), h_signal[0], fBlindingThreshold, false );
-                else if(fBlindingType==Common::SOVERSPLUSB)     h_blinding = Common::BlindDataHisto( h_data, h_tot, h_signal[0], fBlindingThreshold, false );
-                else if(fBlindingType==Common::SOVERSQRTB)      h_blinding = Common::BlindDataHisto( h_data, TRExPlot::GetTotBkg(), h_signal[0], fBlindingThreshold, true );
-                else if(fBlindingType==Common::SOVERSQRTSPLUSB) h_blinding = Common::BlindDataHisto( h_data, h_tot, h_signal[0], fBlindingThreshold, true);
-                // if more than one signal:
-                if(fSigNames.size()>1){
-                    for(unsigned int i_sig=1;i_sig<fSigNames.size();i_sig++){
-                        if(fBlindingType==Common::SOVERB){
-                            h_blinding->Add( Common::BlindDataHisto( h_data, TRExPlot::GetTotBkg(), h_signal[i_sig], fBlindingThreshold, false ) );
-                            h_blinding->Scale(2.);
-                        }
-                        else if(fBlindingType==Common::SOVERSPLUSB){
-                            h_blinding->Add( Common::BlindDataHisto( h_data, h_tot, h_signal[i_sig], fBlindingThreshold, false ) );
-                            h_blinding->Scale(2.);
-                        }
-                        else if(fBlindingType==Common::SOVERSQRTB){
-                            h_blinding->Add( Common::BlindDataHisto( h_data, TRExPlot::GetTotBkg(), h_signal[i_sig], fBlindingThreshold, true ) );
-                            h_blinding->Scale(2.);
-                        }
-                        else if(fBlindingType==Common::SOVERSQRTSPLUSB){
-                            h_blinding->Add( Common::BlindDataHisto( h_data, h_tot, h_signal[i_sig], fBlindingThreshold, true ) );
-                            h_blinding->Scale(2.);
-                        }
-                    }
+    
+    if(h_data && fSigNames.size() > 0 && h_tot) {
+        if(fBlinding) {
+            Common::BlindDataHisto(h_data,fBlinding);
+        } else{
+            fBlinding = Common::BlindDataHisto(h_data, fBlindedBins);
+            // if more than one signal:
+            if(fSigNames.size() > 1) {
+                for(std::size_t i_sig = 1; i_sig < fSigNames.size(); ++i_sig) {
+                    auto tmp = Common::BlindDataHisto(h_data, fBlindedBins);
+                    fBlinding->Add(tmp);
+                    fBlinding->Scale(2.);
                 }
             }
         }
-        else{
-            WriteWarningStatus("TRExPlot::BlindData", "Either h_data, h_signal, h_tot not defined.");
-            WriteWarningStatus("TRExPlot::BlindData", "Blinding not possible. Skipped.");
-        }
+    } else {
+        WriteWarningStatus("TRExPlot::BlindData", "Either h_data, h_signal, h_tot not defined.");
+        WriteWarningStatus("TRExPlot::BlindData", "Blinding not possible. Skipped.");
     }
 }
 
@@ -502,8 +479,8 @@ void TRExPlot::Draw(std::string options){
     // Draw blinding markers
     //
     TH1D* h_blind = nullptr;
-    if(h_blinding!=nullptr){
-        h_blind = (TH1D*)h_blinding->Clone("h_blind");
+    if(fBlinding!=nullptr){
+        h_blind = static_cast<TH1D*>(fBlinding->Clone("h_blind"));
         h_blind->SetLineWidth(0);
         h_blind->SetLineColor(kGray);
         h_blind->SetFillColor(kGray);
@@ -1005,24 +982,20 @@ TCanvas* TRExPlot::GetCanvas() const{
 
 //_____________________________________________________________________________
 //
-void TRExPlot::SetBinBlinding(bool on,double threshold, Common::BlindingType type){
-    fBlindingThreshold = threshold;
-    if(!on) fBlindingThreshold = -1;
-    WriteInfoStatus("TRExPlot::SetBinBlinding", "Setting blinding threshold = " + std::to_string(fBlindingThreshold));
-    fBlindingType = type;
+void TRExPlot::SetBinBlinding(const std::vector<int>& bins){
+    fBlindedBins = bins;
 }
 
 //_____________________________________________________________________________
 //
-void TRExPlot::SetBinBlinding(bool on,TH1D* h_blind, Common::BlindingType type){
-    h_blinding = h_blind;
-    if(!on) fBlindingThreshold = -1;
-    std::string temp = "Setting blinding bins:";
-    for(int i_bin=1;i_bin<h_blinding->GetNbinsX()+1;i_bin++){
-        temp+= " " + std::to_string(h_blinding->GetBinContent(i_bin));
-    }
-    WriteDebugStatus("TRExPlot::SetBinBlinding", temp);
-    fBlindingType = type;
+const TH1D* TRExPlot::GetBlindingHisto() const {
+    return fBlinding;
+}
+
+//_____________________________________________________________________________
+//
+const std::vector<int>& TRExPlot::GetBlindedBins() const {
+    return fBlindedBins;
 }
 
 //_____________________________________________________________________________
@@ -1106,3 +1079,4 @@ void SetGraphBinWidth(TGraphAsymmErrors* g,double width){
         }
     }
 }
+    

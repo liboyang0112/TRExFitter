@@ -98,8 +98,21 @@ int FindInStringVector(const std::vector<std::string>& v, const std::string& s);
 int FindInStringVectorOfVectors(const std::vector<std::vector<std::string> >& v, const std::string& s, const std::string& ss);
 double GetSeparation( TH1D* S1, TH1D* B1 );
 
-TH1D* BlindDataHisto( TH1* h_data, TH1* h_bkg, TH1* h_sig, double threshold=0.02, bool takeSqrt=false );
-void BlindDataHisto( TH1* h_data, TH1* h_blind );
+/**
+  * Function to blind data and retrieve the blinding histogram
+  * @param data histogram
+  * @param indices ob blinded bins
+  * @return Histogram with non-zero bins on postions to be blinded
+  */ 
+TH1D* BlindDataHisto(TH1* h_data, const std::vector<int>& blindedBins);
+
+/**
+  * Function to blind data histogram based on a blinding histogram
+  * @param data histogram
+  * @param blinding histogram
+  */ 
+void BlindDataHisto(TH1* h_data, TH1* h_blind);
+
 double convertStoD(std::string toConvert);
 
 bool SmoothHistogram( TH1* h, double nsigma=2. ); // forceFlat: 0 force no flat, 1 force flat, -1 keep it free

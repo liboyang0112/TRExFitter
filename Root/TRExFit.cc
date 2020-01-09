@@ -1525,8 +1525,8 @@ TRExPlot* TRExFit::DrawSummary(std::string opt, TRExPlot* prefit_plot) {
     p->fLegendY = fLegendYSummary;
     p->fLegendNColumns = fLegendNColumnsSummary;
     if(fBlindingThreshold>=0){
-        p->SetBinBlinding(true,fBlindingThreshold,fBlindingType);
-        if(isPostFit && fKeepPrefitBlindedBins && fBlindedBins) p->SetBinBlinding(true,fBlindedBins,fBlindingType);
+        //p->SetBinBlinding(true,fBlindingThreshold,fBlindingType);
+        //if(isPostFit && fKeepPrefitBlindedBins && fBlindedBins) p->SetBinBlinding(true,fBlindedBins,fBlindingType);
     }
     //
     if(h_data) p->SetData(h_data, h_data->GetTitle());
@@ -1769,7 +1769,7 @@ TRExPlot* TRExFit::DrawSummary(std::string opt, TRExPlot* prefit_plot) {
         p->SetBinLabel(i_bin,fRegions[regionVec[i_bin-1]]->fShortLabel.c_str());
     }
     p->Draw(opt);
-    if(!isPostFit && p->h_blinding) fBlindedBins = static_cast<TH1D*>(p->h_blinding->Clone("blinding_trexfit") );
+    if(!isPostFit && p->GetBlindingHisto()) fBlindedBins = static_cast<TH1D*>(p->GetBlindingHisto()->Clone("blinding_trexfit"));
     //
     if(divisionVec.size()>0){
         p->pad0->cd();
@@ -2003,7 +2003,7 @@ void TRExFit::DrawMergedPlot(std::string opt,std::string group) const{
         p->fRatioType = "DATA/BKG";
     }
     if(fBlindingThreshold>=0){
-        p->SetBinBlinding(true,fBlindingThreshold,fBlindingType);
+        //p->SetBinBlinding(true,fBlindingThreshold,fBlindingType);
 //         if(isPostFit && fKeepPrefitBlindedBins && fBlindedBins) p->SetBinBlinding(true,fBlindedBins,fBlindingType); // FIXME
     }
 

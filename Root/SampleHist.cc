@@ -1085,18 +1085,32 @@ void SampleHist::SmoothSyst(const HistoTools::SmoothOption &smoothOpt, string sy
 //_____________________________________________________________________________
 //
 void SampleHist::CloneSampleHist(SampleHist* h, const std::set<std::string>& names, double scale){
+    std::cout << "here" << std::endl;
     fName = h->fName;
+    std::cout << "here1" << std::endl;
     fHist           .reset(static_cast<TH1*>(h->fHist->Clone()));
+    std::cout << "here2" << std::endl;
+    std::cout << "sd:" << h->fHist_preSmooth.get() << std::endl;
     fHist_preSmooth .reset(static_cast<TH1*>(h->fHist_preSmooth->Clone()));
+    std::cout << "here3" << std::endl;
     fHist_orig      .reset(static_cast<TH1*>(h->fHist_orig->Clone()));
+    std::cout << "here4" << std::endl;
     fHist->Scale(scale);
+    std::cout << "here5" << std::endl;
     fHist_preSmooth->Scale(scale);
+    std::cout << "here6" << std::endl;
     fHist_orig->Scale(scale);
+    std::cout << "here7" << std::endl;
     fFileName = h->fFileName;
+    std::cout << "here8" << std::endl;
     fHistoName = h->fHistoName;
+    std::cout << "here9" << std::endl;
     fIsData = h->fIsData;
+    std::cout << "here10" << std::endl;
     fIsSig = h->fIsSig;
+    std::cout << "here11" << std::endl;
     fNSyst = h->fNSyst;
+    std::cout << "here12" << std::endl;
     for(const auto& systname : names){
         bool notFound=true;
         for(int i_syst=0; i_syst<h->fNSyst; i_syst++){
