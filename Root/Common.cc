@@ -465,10 +465,10 @@ double Common::GetSeparation(TH1D* S1, TH1D* B1) {
 
 //__________________________________________________________________________________
 //
-TH1D* Common::BlindDataHisto(TH1* h_data,
-                             const std::vector<int>& blindedBins) {
+std::unique_ptr<TH1D> Common::BlindDataHisto(TH1* h_data,
+                                             const std::vector<int>& blindedBins) {
 
-    TH1D* h_blind = static_cast<TH1D*>(h_data->Clone("h_blind"));
+    std::unique_ptr<TH1D> h_blind(static_cast<TH1D*>(h_data->Clone("h_blind")));
     for(int i_bin = 1; i_bin <= h_data->GetNbinsX(); ++i_bin) {
         if(std::find(blindedBins.begin(), blindedBins.end(), i_bin) != blindedBins.end()) {
             WriteDebugStatus("Common::BlindDataHisto", "Blinding bin n." + std::to_string(i_bin));

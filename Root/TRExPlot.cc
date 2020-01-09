@@ -316,14 +316,14 @@ void TRExPlot::BlindData(){
     
     if(h_data && fSigNames.size() > 0 && h_tot) {
         if(fBlinding) {
-            Common::BlindDataHisto(h_data,fBlinding);
+            Common::BlindDataHisto(h_data,fBlinding.get());
         } else{
             fBlinding = Common::BlindDataHisto(h_data, fBlindedBins);
             // if more than one signal:
             if(fSigNames.size() > 1) {
                 for(std::size_t i_sig = 1; i_sig < fSigNames.size(); ++i_sig) {
                     auto tmp = Common::BlindDataHisto(h_data, fBlindedBins);
-                    fBlinding->Add(tmp);
+                    fBlinding->Add(tmp.get());
                     fBlinding->Scale(2.);
                 }
             }
@@ -479,7 +479,7 @@ void TRExPlot::Draw(std::string options){
     // Draw blinding markers
     //
     TH1D* h_blind = nullptr;
-    if(fBlinding!=nullptr){
+    if(fBlinding) {
         h_blind = static_cast<TH1D*>(fBlinding->Clone("h_blind"));
         h_blind->SetLineWidth(0);
         h_blind->SetLineColor(kGray);
@@ -989,7 +989,7 @@ void TRExPlot::SetBinBlinding(const std::vector<int>& bins){
 //_____________________________________________________________________________
 //
 const TH1D* TRExPlot::GetBlindingHisto() const {
-    return fBlinding;
+    return fBlinding.get();
 }
 
 //_____________________________________________________________________________

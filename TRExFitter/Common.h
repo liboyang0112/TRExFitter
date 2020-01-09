@@ -104,7 +104,7 @@ double GetSeparation( TH1D* S1, TH1D* B1 );
   * @param indices ob blinded bins
   * @return Histogram with non-zero bins on postions to be blinded
   */ 
-TH1D* BlindDataHisto(TH1* h_data, const std::vector<int>& blindedBins);
+std::unique_ptr<TH1D> BlindDataHisto(TH1* h_data, const std::vector<int>& blindedBins);
 
 /**
   * Function to blind data histogram based on a blinding histogram

@@ -131,7 +131,7 @@ public:
     const TH1D* GetBlindingHisto() const;
 
 private:
-    TH1D* fBlinding;
+    std::unique_ptr<TH1D> fBlinding;
 
 };
 
