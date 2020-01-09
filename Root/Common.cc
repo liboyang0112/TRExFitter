@@ -585,9 +585,9 @@ bool Common::SmoothHistogram(TH1* h,
 //__________________________________________________________________________________
 //
 void Common::DropBins(TH1* h,
-                      const std::vector<int> &v) {
-    for(int i_bin=1;i_bin<=h->GetNbinsX();i_bin++){
-        if(find(v.begin(),v.end(),i_bin-1)!=v.end()){
+                      const std::vector<int>& v) {
+    for(int i_bin=1; i_bin <= h->GetNbinsX(); ++i_bin) {
+        if(find(v.begin(),v.end(),i_bin) != v.end()) {
             h->SetBinContent(i_bin,-1.);
             h->SetBinError(i_bin,0.);
         }
