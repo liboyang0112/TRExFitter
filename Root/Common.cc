@@ -1161,6 +1161,7 @@ std::vector<int> Common::BlindedBins(const TH1* signal,
 
     std::vector<int> result;
     if (threshold < 0) return result;
+    if (!signal) return result;
     for (int ibin = 1; ibin <= signal->GetNbinsX(); ++ibin) {
         double soverb(-1);
         double soversplusb(-1);
