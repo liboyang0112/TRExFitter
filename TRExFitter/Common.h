@@ -17,6 +17,7 @@
 #include "TF1.h"
 
 /// Forward class declaration
+class Region;
 class TFile;
 class TH1;
 class TH1D;
@@ -65,6 +66,13 @@ const int MAXsyst = 500;
 const int MAXnorm = 10;
 
 namespace Common {
+
+enum BlindingType {
+  SOVERB = 1,
+  SOVERSPLUSB = 2,
+  SOVERSQRTB = 3,
+  SOVERSQRTSPLUSB = 4
+};
 
 TFile* GetFile(const std::string& fileName);
 TH1D* HistFromNtuple(const std::string& ntuple, const std::string& variable, int nbin, double xmin, double xmax, const std::string& selection, const std::string& weight, int Nev=-1);
@@ -185,6 +193,32 @@ void SetHistoBinsFromOtherHist(TH1* toSet, const TH1* other);
  * @return the effective integral
  */
 double EffIntegral(const TH1* const h);
+    
+/**
+  * A helper function that gets the indices of the blinded bins in a region
+  * @param the given Region
+  * @oaram blinding type
+  * @param blinding threshold
+  * @return indices of the bins (ROOT index convention)
+  */ 
+std::vector<int> GetBlindedBins(const Region* reg,
+                                const BlindingType type,
+                                const double threshold);
+
+/**
+  * A helper function to retrive the blinded bins from histograms
+  * @param signal histogram
+  * @param background histogram
+  * @param combined signal + background histogram 
+  * @oaram blinding type
+  * @param blinding threshold
+  * @return blidned bins
+  */
+std::vector<int> BlindedBins(const TH1* signal,
+                             const TH1* bkg,
+                             const TH1* combined,
+                             const BlindingType type,
+                             const double threshold);
 }
 
 #endif

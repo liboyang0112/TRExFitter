@@ -230,7 +230,7 @@ public:
     double fBinWidth;
 
     double fBlindingThreshold;
-    TRExFit::BlindingType fBlindingType;
+    Common::BlindingType fBlindingType;
 
     bool fSkipSmoothing;
 

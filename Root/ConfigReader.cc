@@ -535,13 +535,27 @@ int ConfigReader::ReadJobOptions(){
     param = confSet->Get("BlindingType");
     if( param != ""){
         std::transform(param.begin(), param.end(), param.begin(), ::toupper);
-        if( param=="SOVERB" )                fFitter->fBlindingType = TRExFit::SOVERB;
-        else if ( param=="SOVERSPLUSB" )     fFitter->fBlindingType = TRExFit::SOVERSPLUSB;
-        else if ( param=="SOVERSQRTB" )      fFitter->fBlindingType = TRExFit::SOVERSQRTB;
-        else if ( param=="SOVERSQRTSPLUSB" ) fFitter->fBlindingType = TRExFit::SOVERSQRTSPLUSB;
+        if( param=="SOVERB" )                fFitter->fBlindingType = Common::SOVERB;
+        else if ( param=="SOVERSPLUSB" )     fFitter->fBlindingType = Common::SOVERSPLUSB;
+        else if ( param=="SOVERSQRTB" )      fFitter->fBlindingType = Common::SOVERSQRTB;
+        else if ( param=="SOVERSQRTSPLUSB" ) fFitter->fBlindingType = Common::SOVERSQRTSPLUSB;
         else {
             WriteWarningStatus("ConfigReader::ReadJobOptions", "You specified 'BlindingType' option but did not provide a valid setting. Using default (SOVERB)");
-            fFitter->fBlindingType = TRExFit::SOVERB;
+            fFitter->fBlindingType = Common::SOVERB;
+        }
+    }
+
+    // Set AutomaticDropBins
+    param = confSet->Get("AutomaticDropBins");
+    if (param != "") {
+        std::transform(param.begin(), param.end(), param.begin(), ::toupper);
+        if (param == "TRUE") {
+            fFitter->fAutomaticDropBins = true;
+        } else if (param == "FALSE") {
+            fFitter->fAutomaticDropBins = false;
+        } else {
+            WriteWarningStatus("ConfigReader::ReadJobOptions", "You specified 'AutomaticDropBins' option but did not provide a valid setting. Using default (TRUE)");
+            fFitter->fAutomaticDropBins = true;
         }
     }
 
@@ -2074,6 +2088,10 @@ int ConfigReader::ReadRegionOptions(const std::string& opt){
         // Set DropBins
         param = confSet->Get("DropBins");
         if( param != "" ){
+            if (fFitter->fAutomaticDropBins) {
+                WriteWarningStatus("ConfigReader::ReadRegionOptions", "You specified set `AutomaticDropBins` to TRUE, but using DropBins will disable it!.");
+            }
+            fFitter->fAutomaticDropBins = false;
             reg->fDropBins.clear();
             std::vector<std::string> s = Vectorize( param,',' );
             for(const std::string& is : s){

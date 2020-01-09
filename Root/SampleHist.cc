@@ -1086,9 +1086,9 @@ void SampleHist::SmoothSyst(const HistoTools::SmoothOption &smoothOpt, string sy
 //
 void SampleHist::CloneSampleHist(SampleHist* h, const std::set<std::string>& names, double scale){
     fName = h->fName;
-    fHist           = std::unique_ptr<TH1>(static_cast<TH1*>(h->fHist->Clone()));
-    fHist_preSmooth = std::unique_ptr<TH1>(static_cast<TH1*>(h->fHist_preSmooth->Clone()));
-    fHist_orig      = std::unique_ptr<TH1>(static_cast<TH1*>(h->fHist_orig->Clone()));
+    fHist           .reset(static_cast<TH1*>(h->fHist->Clone()));
+    fHist_preSmooth .reset(static_cast<TH1*>(h->fHist_preSmooth->Clone()));
+    fHist_orig      .reset(static_cast<TH1*>(h->fHist_orig->Clone()));
     fHist->Scale(scale);
     fHist_preSmooth->Scale(scale);
     fHist_orig->Scale(scale);
@@ -1097,7 +1097,7 @@ void SampleHist::CloneSampleHist(SampleHist* h, const std::set<std::string>& nam
     fIsData = h->fIsData;
     fIsSig = h->fIsSig;
     fNSyst = h->fNSyst;
-    for(auto systname : names ){
+    for(const auto& systname : names){
         bool notFound=true;
         for(int i_syst=0; i_syst<h->fNSyst; i_syst++){
             SystematicHist* syst_tmp = new SystematicHist("tmp");
@@ -1180,6 +1180,14 @@ void SampleHist::SampleHistAdd(SampleHist* h, double scale){
         fSyst[i_syst]->fHistUp_orig  ->Add(h->fHist_orig.get(),scale );
         fSyst[i_syst]->fHistDown_orig->Add(h->fHist_orig.get(),scale);
     }
+}
+
+//_____________________________________________________________________________
+//
+void SampleHist::SampleHistAddNominal(SampleHist* h, double scale) {
+    fHist          ->Add(h->fHist.get(),          scale);
+    fHist_preSmooth->Add(h->fHist_preSmooth.get(),scale);
+    fHist_orig     ->Add(h->fHist_orig.get(),     scale);
 }
 
 //_____________________________________________________________________________

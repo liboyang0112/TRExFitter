@@ -65,6 +65,7 @@ The following settings are for normal fits, performed without the action `m`.
 | BlindingThreshold            | blind bins when S/B is greater than this threshold, use the `BlindingType` option for other definitions than just S/B |
 | BlindingType                 | how to calculate the quantity to determine blinding, options are SOVERB (for S/B), SOVERSPLUSB(for S/(S+B)), SOVERSQRTB (for S/sqrt(B)) and SOVERSQRTSPLUSB (for S/sqrt(S+B)), default is SOVERB |
 | KeepPrefitBlindedBins        | if set to TRUE, and if pre-fit an post-fit plots are produced together ("dp" option) pre-fit blinding is kept in post-fit plots |
+| AutomaticDropBins            | if set to TRUE (default) will drop bins (set _both data and prediction_ to zero) for the blinded bins automatically. Setting to FALSE witll only blind the bins (will show prediction and all bins will be used in the fit). Setting DropBins manually sets this option to FALSE |
 | RankingMaxNP                 | max number of NP to show in ranking plot |
 | RankingPlot                  | NP categories in gammas or systs, if set to Systs(Gammas) then plot only systs(Gammas) in ranking, default produce plot for systs+gammas, can also set to all to have the 3 plots. |
 | ImageFormat                  | png, pdf or eps |

@@ -60,8 +60,8 @@ class TRExPlot {
 
     TCanvas* GetCanvas() const;
 
-    void SetBinBlinding(bool on,double threshold=0.02,TRExFit::BlindingType=TRExFit::SOVERB);
-    void SetBinBlinding(bool on,TH1D*h_blind,TRExFit::BlindingType=TRExFit::SOVERB);
+    void SetBinBlinding(bool on,double threshold=0.02,Common::BlindingType=Common::SOVERB);
+    void SetBinBlinding(bool on,TH1D*h_blind,Common::BlindingType=Common::SOVERB);
 
     std::string fName;
     TH1* h_data;
@@ -110,7 +110,7 @@ class TRExPlot {
     std::string fBinLabel[MAXbins];
     double fLumiScale;
     double fBlindingThreshold;
-    TRExFit::BlindingType fBlindingType;
+    Common::BlindingType fBlindingType;
     int fLegendNColumns;
     std::vector<double> fXaxisRange;
     std::string fRatioYtitle;
