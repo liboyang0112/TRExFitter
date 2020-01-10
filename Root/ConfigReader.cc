@@ -2074,14 +2074,21 @@ int ConfigReader::ReadRegionOptions(const std::string& opt){
         // Set AutomaticDropBins
         param = confSet->Get("AutomaticDropBins");
         if (param != "") {
-            std::transform(param.begin(), param.end(), param.begin(), ::toupper);
-            if (param == "TRUE") {
-                reg->SetAutomaticDropBins(true);
-            } else if (param == "FALSE") {
-                reg->SetAutomaticDropBins(false);
-            } else {
-                WriteWarningStatus("ConfigReader::ReadJobOptions", "You specified 'AutomaticDropBins' option but did not provide a valid setting. Using default (FALSE)");
-                reg->SetAutomaticDropBins(false);
+            bool isOK(true);
+            if (reg->fDropBins.size() > 0) {
+                WriteWarningStatus("ConfigReader::ReadJobOptions", "You specified 'AutomaticDropBins' option but you previously set DropBins for region " + reg->fName + " ignoring the automatic option");
+                isOK = false;
+            }
+            if (isOK) {
+                std::transform(param.begin(), param.end(), param.begin(), ::toupper);
+                if (param == "TRUE") {
+                    reg->SetAutomaticDropBins(true);
+                } else if (param == "FALSE") {
+                    reg->SetAutomaticDropBins(false);
+                } else {
+                    WriteWarningStatus("ConfigReader::ReadJobOptions", "You specified 'AutomaticDropBins' option but did not provide a valid setting. Using default (FALSE)");
+                    reg->SetAutomaticDropBins(false);
+                }
             }
         }
         
