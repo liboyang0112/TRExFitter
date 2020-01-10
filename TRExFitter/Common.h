@@ -227,11 +227,11 @@ std::vector<int> GetBlindedBins(const Region* reg,
   * @param blinding threshold
   * @return blidned bins
   */
-std::vector<int> BlindedBins(const TH1* signal,
-                             const TH1* bkg,
-                             const TH1* combined,
-                             const BlindingType type,
-                             const double threshold);
+std::vector<int> ComputeBlindedBins(const TH1* signal,
+                                    const TH1* bkg,
+                                    const TH1* combined,
+                                    const BlindingType type,
+                                    const double threshold);
 }
 
 #endif

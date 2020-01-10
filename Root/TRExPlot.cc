@@ -999,6 +999,12 @@ const std::vector<int>& TRExPlot::GetBlindedBins() const {
 }
 
 //_____________________________________________________________________________
+//
+void TRExPlot::SetBlindingHisto(const TH1* h) {
+    fBlinding.reset(static_cast<TH1D*>(h->Clone()));
+}
+
+//_____________________________________________________________________________
 // function to get asymmetric error bars for hists (Used in WZ observation)
 double GC_up(double data) {
     if (data == 0 ) return 0;
@@ -1079,4 +1085,3 @@ void SetGraphBinWidth(TGraphAsymmErrors* g,double width){
         }
     }
 }
-    

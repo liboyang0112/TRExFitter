@@ -1524,9 +1524,33 @@ TRExPlot* TRExFit::DrawSummary(std::string opt, TRExPlot* prefit_plot) {
     p->fLegendX2 = fLegendX2Summary;
     p->fLegendY = fLegendYSummary;
     p->fLegendNColumns = fLegendNColumnsSummary;
-    if(fBlindingThreshold>=0){
-        //p->SetBinBlinding(true,fBlindingThreshold,fBlindingType);
-        //if(isPostFit && fKeepPrefitBlindedBins && fBlindedBins) p->SetBinBlinding(true,fBlindedBins,fBlindingType);
+    if(fBlindingThreshold >= 0) {
+        std::unique_ptr<TH1> signal(nullptr);
+        if (Nsig > 0) {
+            signal.reset(static_cast<TH1*>(h_sig[0]->Clone()));
+        }
+        std::unique_ptr<TH1> bkg(nullptr);
+        for (int i = 0; i < Nbkg; ++i) {
+            if (!h_bkg[i]) continue;
+            if (!bkg) bkg.reset(static_cast<TH1*>(h_bkg[i]->Clone()));
+            else      bkg->Add(h_bkg[i]);
+        }
+        std::unique_ptr<TH1> combined(nullptr);
+        if (signal) {
+            combined.reset(static_cast<TH1*>(signal->Clone()));
+            if (bkg) {
+                combined->Add(bkg.get());
+            }
+        } else if (bkg) {
+            combined.reset(static_cast<TH1*>(bkg->Clone()));
+        }
+        const std::vector<int>& blindedBins = Common::ComputeBlindedBins(signal.get(),
+                                                                         bkg.get(),
+                                                                         combined.get(),
+                                                                         fBlindingType,
+                                                                         fBlindingThreshold);
+        p->SetBinBlinding(blindedBins);
+        if(isPostFit && fKeepPrefitBlindedBins && fBlindedBins) p->SetBlindingHisto(fBlindedBins);
     }
     //
     if(h_data) p->SetData(h_data, h_data->GetTitle());
@@ -2002,9 +2026,32 @@ void TRExFit::DrawMergedPlot(std::string opt,std::string group) const{
     if(!(TRExFitter::SHOWSTACKSIG && TRExFitter::ADDSTACKSIG) && fRatioType=="DATA/MC"){
         p->fRatioType = "DATA/BKG";
     }
-    if(fBlindingThreshold>=0){
-        //p->SetBinBlinding(true,fBlindingThreshold,fBlindingType);
-//         if(isPostFit && fKeepPrefitBlindedBins && fBlindedBins) p->SetBinBlinding(true,fBlindedBins,fBlindingType); // FIXME
+    if(fBlindingThreshold >= 0) {
+        std::unique_ptr<TH1> signal(nullptr);
+        if (hSignalVec.size() > 0) {
+            signal.reset(static_cast<TH1*>(Common::MergeHistograms(hSignalVec[0])->Clone()));
+        }
+        std::unique_ptr<TH1> bkg(nullptr);
+        for (std::size_t i = 0; i < hBackgroundVec.size(); ++i) {
+            if (Common::MergeHistograms(hBackgroundVec[i])) continue;
+            if (!bkg) bkg.reset(static_cast<TH1*>(Common::MergeHistograms(hBackgroundVec[i])->Clone()));
+            else      bkg->Add(Common::MergeHistograms(hBackgroundVec[i]));
+        }
+        std::unique_ptr<TH1> combined(nullptr);
+        if (signal) {
+            combined.reset(static_cast<TH1*>(signal->Clone()));
+            if (bkg) {
+                combined->Add(bkg.get());
+            }
+        } else if (bkg) {
+            combined.reset(static_cast<TH1*>(bkg->Clone()));
+        }
+        const std::vector<int>& blindedBins = Common::ComputeBlindedBins(signal.get(),
+                                                                         bkg.get(),
+                                                                         combined.get(),
+                                                                         fBlindingType,
+                                                                         fBlindingThreshold);
+        p->SetBinBlinding(blindedBins);
     }
 
     if(TRExFitter::OPTION["MergeYmaxScale"]==0) TRExFitter::OPTION["MergeYmaxScale"] = 1.25;

@@ -129,6 +129,8 @@ public:
     const std::vector<int>& GetBlindedBins() const;
 
     const TH1D* GetBlindingHisto() const;
+    
+    void SetBlindingHisto(const TH1* h);
 
 private:
     std::unique_ptr<TH1D> fBlinding;

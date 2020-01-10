@@ -1138,22 +1138,22 @@ std::vector<int> Common::GetBlindedBins(const Region* reg,
 
     // find the bind that should be blinded
 
-    result = Common::BlindedBins(hist_signal.fHist.get(),
-                                 hist_bkg.fHist.get(),
-                                 combined.get(),
-                                 type,
-                                 threshold);
+    result = Common::ComputeBlindedBins(hist_signal.fHist.get(),
+                                        hist_bkg.fHist.get(),
+                                        combined.get(),
+                                        type,
+                                        threshold);
 
     return result;
 }
 
 //__________________________________________________________________________________
 //
-std::vector<int> Common::BlindedBins(const TH1* signal,
-                                     const TH1* bkg,
-                                     const TH1* combined,
-                                     const Common::BlindingType type,
-                                     const double threshold) {
+std::vector<int> Common::ComputeBlindedBins(const TH1* signal,
+                                            const TH1* bkg,
+                                            const TH1* combined,
+                                            const Common::BlindingType type,
+                                            const double threshold) {
 
     std::vector<int> result;
     if (threshold < 0) return result;
