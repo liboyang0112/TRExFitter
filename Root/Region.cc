@@ -124,7 +124,8 @@ Region::Region(const string& name) :
     fLegendX1(-1),
     fLegendX2(-1),
     fLegendY(-1),
-    fLegendNColumns(2) {
+    fLegendNColumns(2),
+    fAutomaticDropBins(false) {
 
 
     int canvasWidth = 600;

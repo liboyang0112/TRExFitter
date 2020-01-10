@@ -125,7 +125,6 @@ TRExFit::TRExFit(std::string name) :
     fKeepPruning(false),
     fBlindingThreshold(-1),
     fBlindingType(Common::SOVERB),
-    fAutomaticDropBins(true),
     fRankingMaxNP(10),
     fRankingOnly("all"),
     fRankingPlot("Merge"),
@@ -7929,7 +7928,7 @@ void TRExFit::DropBins() {
 
     for(const auto& reg : fRegions){
     
-        const std::vector<int>& blindedBins = fAutomaticDropBins ?
+        const std::vector<int>& blindedBins = reg->GetAutomaticDropBins() ?
                 Common::GetBlindedBins(reg,fBlindingType,fBlindingThreshold) : reg->fDropBins;
         if (blindedBins.size() == 0) continue;
         for(const auto& smp : fSamples){
