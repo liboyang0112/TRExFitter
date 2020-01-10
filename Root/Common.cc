@@ -1123,24 +1123,9 @@ std::vector<int> Common::GetBlindedBins(const Region* reg,
         }
     }
 
-    /// Get stacked histogram (signal + bkg)
-    std::unique_ptr<TH1> combined(nullptr);
-    if (hist_signal.fHist) {
-        combined.reset(static_cast<TH1*>(hist_signal.fHist->Clone()));
-        if (hist_bkg.fHist) {
-            combined->Add(hist_bkg.fHist.get());
-        }
-    } else if (hist_bkg.fHist) {
-        combined.reset(static_cast<TH1*>(hist_bkg.fHist->Clone()));
-    } else {
-        return result;
-    }
-
     // find the bind that should be blinded
-
     result = Common::ComputeBlindedBins(hist_signal.fHist.get(),
                                         hist_bkg.fHist.get(),
-                                        combined.get(),
                                         type,
                                         threshold);
 
@@ -1151,13 +1136,16 @@ std::vector<int> Common::GetBlindedBins(const Region* reg,
 //
 std::vector<int> Common::ComputeBlindedBins(const TH1* signal,
                                             const TH1* bkg,
-                                            const TH1* combined,
                                             const Common::BlindingType type,
                                             const double threshold) {
 
     std::vector<int> result;
     if (threshold < 0) return result;
     if (!signal) return result;
+    std::unique_ptr<TH1> combined(static_cast<TH1*>(signal->Clone()));
+    if (bkg) {
+        combined->Add(bkg);
+    }
     for (int ibin = 1; ibin <= signal->GetNbinsX(); ++ibin) {
         double soverb(-1);
         double soversplusb(-1);

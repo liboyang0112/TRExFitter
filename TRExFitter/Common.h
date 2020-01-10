@@ -222,14 +222,12 @@ std::vector<int> GetBlindedBins(const Region* reg,
   * A helper function to retrive the blinded bins from histograms
   * @param signal histogram
   * @param background histogram
-  * @param combined signal + background histogram 
   * @oaram blinding type
   * @param blinding threshold
   * @return blidned bins
   */
 std::vector<int> ComputeBlindedBins(const TH1* signal,
                                     const TH1* bkg,
-                                    const TH1* combined,
                                     const BlindingType type,
                                     const double threshold);
 }

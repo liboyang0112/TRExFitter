@@ -1534,18 +1534,8 @@ TRExPlot* TRExFit::DrawSummary(std::string opt, TRExPlot* prefit_plot) {
             if (!bkg) bkg.reset(static_cast<TH1*>(h_bkg[i]->Clone()));
             else      bkg->Add(h_bkg[i]);
         }
-        std::unique_ptr<TH1> combined(nullptr);
-        if (signal) {
-            combined.reset(static_cast<TH1*>(signal->Clone()));
-            if (bkg) {
-                combined->Add(bkg.get());
-            }
-        } else if (bkg) {
-            combined.reset(static_cast<TH1*>(bkg->Clone()));
-        }
         const std::vector<int>& blindedBins = Common::ComputeBlindedBins(signal.get(),
                                                                          bkg.get(),
-                                                                         combined.get(),
                                                                          fBlindingType,
                                                                          fBlindingThreshold);
         p->SetBinBlinding(blindedBins);
@@ -2036,18 +2026,8 @@ void TRExFit::DrawMergedPlot(std::string opt,std::string group) const{
             if (!bkg) bkg.reset(static_cast<TH1*>(Common::MergeHistograms(hBackgroundVec[i])->Clone()));
             else      bkg->Add(Common::MergeHistograms(hBackgroundVec[i]));
         }
-        std::unique_ptr<TH1> combined(nullptr);
-        if (signal) {
-            combined.reset(static_cast<TH1*>(signal->Clone()));
-            if (bkg) {
-                combined->Add(bkg.get());
-            }
-        } else if (bkg) {
-            combined.reset(static_cast<TH1*>(bkg->Clone()));
-        }
         const std::vector<int>& blindedBins = Common::ComputeBlindedBins(signal.get(),
                                                                          bkg.get(),
-                                                                         combined.get(),
                                                                          fBlindingType,
                                                                          fBlindingThreshold);
         p->SetBinBlinding(blindedBins);
