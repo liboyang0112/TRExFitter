@@ -234,10 +234,10 @@ void FitExample(std::string opt="h",std::string configFile="config/myFit.config"
 
     if(rebinAndSmooth){
         std::cout << "Rebinning and smoothing..." << std::endl;
-        bool udpate = myFit->fUpdate;
+        const bool update = myFit->fUpdate;
         myFit->fUpdate = true;
         myFit->CreateRootFiles();
-        myFit->fUpdate = udpate;
+        myFit->fUpdate = update;
         myFit->CorrectHistograms();
         myFit->MergeSystematics();
         myFit->CombineSpecialSystematics();
