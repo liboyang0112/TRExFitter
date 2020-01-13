@@ -1105,7 +1105,7 @@ std::vector<int> Common::GetBlindedBins(const Region* reg,
             const double scale = Common::GetNominalMorphScale(reg->fSampleHists[i_smp].get());
             if(empty_signal){
                 hist_signal.CloneSampleHist(reg->fSampleHists[i_smp].get(),systNames, scale);
-                empty_signal=false;
+                if (hist_signal.fHist != nullptr) empty_signal = false;
             } else {
                 hist_signal.SampleHistAddNominal(reg->fSampleHists[i_smp].get(), scale);
             }
@@ -1113,7 +1113,7 @@ std::vector<int> Common::GetBlindedBins(const Region* reg,
             const double scale = Common::GetNominalMorphScale(reg->fSampleHists[i_smp].get());
             if(empty_bkg){
                 hist_bkg.CloneSampleHist(reg->fSampleHists[i_smp].get(),systNames, scale);
-                empty_bkg=false;
+                if (hist_bkg.fHist != nullptr) empty_bkg = false;
             } else {
                 hist_bkg.SampleHistAddNominal(reg->fSampleHists[i_smp].get(), scale);
             }
