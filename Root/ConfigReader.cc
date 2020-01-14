@@ -79,6 +79,8 @@ int ConfigReader::ReadFullConfig(const std::string& fileName, const std::string&
     sc+= ReadShapeFactorOptions();
 
     sc+= ReadSystOptions();
+    
+    sc+= ReadUnfoldingOptions();
 
     sc+= PostConfig();
 
@@ -5080,6 +5082,45 @@ int ConfigReader::PostConfig(){
                 sample->AddShapeFactor(sfactor);
             }
         }
+    }
+
+    return 0;
+}
+
+int ConfigReader::ReadUnfoldingOptions() {
+    ConfigSet *confSet = fParser->GetConfigSet("Unfolding");
+
+    if (fFitter->fFitType == TRExFit::UNFOLDING && !confSet) {
+        WriteErrorStatus("ConfigReader::ReadUnfoldingOptions", "You set FitType == UNFOLDING, but didnt provide Unfolding block!");
+        return 1;
+    } 
+    
+    std::string param = confSet->Get("MatrixOrientation");
+    if (param != "") {
+        std::transform(param.begin(), param.end(), param.begin(), ::toupper);
+        if (param == "TRUTHONHORIZONTAL") {
+            fFitter->fMatrixOrientation = FoldingManager::MATRIXORIENTATION::TRUTHONHORIZONTALAXIS;
+        } else if (param == "TRUTHONVERTICAL") {
+            fFitter->fMatrixOrientation = FoldingManager::MATRIXORIENTATION::TRUTHONVERTICALAXIS;
+        } else {
+            WriteWarningStatus("ConfigReader::ReadUnfoldingOptions", "You specified 'MatrixOrientation' option, but you didnt provide a valid config. Setting to TRUTHONHORIZONTAL.");
+            fFitter->fMatrixOrientation = FoldingManager::MATRIXORIENTATION::TRUTHONHORIZONTALAXIS;
+        }
+    }
+
+    param = confSet->Get("TruthDistributionPath");
+    if (param != "") {
+        fFitter->TruthDistributionPath = RemoveQuotes(param);
+    }
+
+    param = confSet->Get("TruthDistributionFile");
+    if (param != "") {
+        fFitter->TruthDistributionFile = RemoveQuotes(param);
+    }
+
+    param = confSet->Get("TruthDistributionName");
+    if (param != "") {
+        fFitter->TruthDistributionName = RemoveQuotes(param);
     }
 
     return 0;

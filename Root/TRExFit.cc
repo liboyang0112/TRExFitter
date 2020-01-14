@@ -18,9 +18,6 @@
 #include "TRExFitter/Region.h"
 #include "TRExFitter/PruningUtil.h"
 
-// Unfolding includes
-#include "UnfoldingCode/UnfoldingCode/FoldingManager.h"
-
 // CommonStatTiils includes
 #include "CommonStatTools/runSig.h"
 #include "CommonStatTools/runAsymptoticsCLs.h"
@@ -227,7 +224,11 @@ TRExFit::TRExFit(std::string name) :
     fExcludeFromMorphing(""),
     fSaturatedModel(false),
     fDoSystNormalizationPlots(true),
-    fDebugNev(-1) {
+    fDebugNev(-1),
+    fMatrixOrientation(FoldingManager::MATRIXORIENTATION::TRUTHONHORIZONTALAXIS),
+    TruthDistributionPath(""),
+    TruthDistributionFile(""),
+    TruthDistributionName("") {
 
     TRExFitter::IMAGEFORMAT.emplace_back("png");
     // Increase the limit for formula evaluations

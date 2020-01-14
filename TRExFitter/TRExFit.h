@@ -6,6 +6,9 @@
 #include "TRExFitter/HistoTools.h"
 #include "TRExFitter/Systematic.h"
 
+// Unfolding includes
+#include "UnfoldingCode/UnfoldingCode/FoldingManager.h"
+
 // RooFit
 #include "RooSimultaneous.h"
 #include "RooStats/ModelConfig.h"
@@ -618,6 +621,12 @@ public:
     bool fDoSystNormalizationPlots;
 
     int fDebugNev;
+
+    FoldingManager::MATRIXORIENTATION fMatrixOrientation;
+
+    std::string TruthDistributionPath;
+    std::string TruthDistributionFile;
+    std::string TruthDistributionName;
 };
 
 #endif
