@@ -60,6 +60,10 @@ target_include_directories( CommonSystSmoothingTool
    $<BUILD_INTERFACE:${CMAKE_SOURCE_DIR}> $<INSTALL_INTERFACE:> )
 target_link_libraries( CommonSystSmoothingTool ${ROOT_LIBRARIES} )
 
+# Add Unfolding code
+include_directories( UnfoldingCode )
+add_subdirectory( UnfoldingCode )
+
 # Handle the build of the three auxiliary classes for ATLAS-type
 # labels etc. We don't want to throw this into the TRExFitter
 # library object.
@@ -158,7 +162,7 @@ install( TARGETS TRExFitter CommonSystSmoothingTool AtlasUtils
 macro( TRExFitter_add_executable name )
   add_executable( ${name} ${ARGN} )
   target_include_directories( ${name} PUBLIC ${ROOT_INCLUDE_DIRS} )
-  target_link_libraries( ${name} TRExFitter CommonSystSmoothingTool ExoStats AtlasUtils ${ROOT_LIBRARIES} )
+  target_link_libraries( ${name} TRExFitter CommonSystSmoothingTool ExoStats AtlasUtils UnfoldingCode ${ROOT_LIBRARIES} )
   install( TARGETS ${name}
     EXPORT TRExFitterTargets
     RUNTIME DESTINATION bin )
