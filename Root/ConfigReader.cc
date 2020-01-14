@@ -291,6 +291,40 @@ int ConfigReader::ReadJobOptions(){
         }
     }
 
+    // Set paths for the unfolding preprocessing
+    param = confSet->Get("ResponseMatrixName");
+    if (param != "") {
+        fFitter->fResponseMatrixNames.clear();
+        fFitter->fResponseMatrixNames.emplace_back(CheckName(param));
+    }
+    
+    param = confSet->Get("ResponseMatrixNames");
+    if (param != "") {
+        fFitter->fResponseMatrixNames = Vectorize(param, ',');
+    }
+
+    param = confSet->Get("ResponseMatrixFile");
+    if (param != "") {
+        fFitter->fResponseMatrixFiles.clear();
+        fFitter->fResponseMatrixFiles.emplace_back(CheckName(param));
+    }
+    
+    param = confSet->Get("ResponseMatrixFiles");
+    if (param != "") {
+        fFitter->fResponseMatrixFiles = Vectorize(param, ',');
+    }
+
+    param = confSet->Get("ResponseMatrixPath");
+    if (param != "") {
+        fFitter->fResponseMatrixPaths.clear();
+        fFitter->fResponseMatrixPaths.emplace_back(CheckName(param));
+    }
+    
+    param = confSet->Get("ResponseMatrixPaths");
+    if (param != "") {
+        fFitter->fResponseMatrixPaths = Vectorize(param, ',');
+    }
+
     // Set paths
     // HIST option only
     if(fFitter->fInputType==0){
@@ -1931,6 +1965,78 @@ int ConfigReader::ReadRegionOptions(const std::string& opt){
         param = confSet->Get("Group");
         if( param != "") reg->fGroup = RemoveQuotes(param);
 
+        // Paths for the unfolding code
+        param = confSet->Get("ResponseMatrixFile");
+        if (param != "") {
+            reg->fResponseMatrixFiles.clear();
+            reg->fResponseMatrixFiles.emplace_back(RemoveQuotes(param));
+        }
+
+        param = confSet->Get("ResponseMatrixFiles");
+        if (param != "") {
+            reg->fResponseMatrixFiles = Vectorize(param, ',');
+        }
+
+        // Paths for the unfolding code
+        param = confSet->Get("ResponseMatrixName");
+        if (param != "") {
+            reg->fResponseMatrixNames.clear();
+            reg->fResponseMatrixNames.emplace_back(RemoveQuotes(param));
+        }
+
+        param = confSet->Get("ResponseMatrixNames");
+        if (param != "") {
+            reg->fResponseMatrixNames = Vectorize(param, ',');
+        }
+
+        // Paths for the unfolding code
+        param = confSet->Get("ResponseMatrixPath");
+        if (param != "") {
+            reg->fResponseMatrixPaths.clear();
+            reg->fResponseMatrixPaths.emplace_back(RemoveQuotes(param));
+        }
+
+        param = confSet->Get("ResponseMatrixPaths");
+        if (param != "") {
+            reg->fResponseMatrixPaths = Vectorize(param, ',');
+        }
+
+        param = confSet->Get("ResponseMatrixFileSuff");
+        if (param != "") {
+            reg->fResponseMatrixFileSuffs.clear();
+            reg->fResponseMatrixFileSuffs.emplace_back(RemoveQuotes(param));
+        }
+
+        param = confSet->Get("ResponseMatrixFileSuffs");
+        if (param != "") {
+            reg->fResponseMatrixFileSuffs = Vectorize(param, ',');
+        }
+
+        param = confSet->Get("ResponseMatrixNameSuff");
+        if (param != "") {
+            reg->fResponseMatrixNameSuffs.clear();
+            reg->fResponseMatrixNameSuffs.emplace_back(RemoveQuotes(param));
+        }
+
+        param = confSet->Get("ResponseMatrixNameSuffs");
+        if (param != "") {
+            reg->fResponseMatrixNameSuffs = Vectorize(param, ',');
+        }
+
+        param = confSet->Get("ResponseMatrixPathSuff");
+        if (param != "") {
+            reg->fResponseMatrixPathSuffs.clear();
+            reg->fResponseMatrixPathSuffs.emplace_back(RemoveQuotes(param));
+        }
+
+        param = confSet->Get("ResponseMatrixPathSuffs");
+        if (param != "") {
+            reg->fResponseMatrixPathSuffs = Vectorize(param, ',');
+        }
+
+        // Paths for the unfolding code
+        // Paths for the unfolding code
+        // Paths for the unfolding code
         // Setting based on input type
         if (fFitter->fInputType == 0){
             if (SetRegionHIST(reg, confSet) != 0) return 1;

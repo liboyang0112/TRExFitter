@@ -405,6 +405,10 @@ public:
     std::string fMCweight;
     std::string fSelection;
 
+    std::vector<std::string> fResponseMatrixNames;
+    std::vector<std::string> fResponseMatrixFiles;
+    std::vector<std::string> fResponseMatrixPaths;
+    
     std::vector<std::string> fHistoPaths;
     std::vector<std::string> fHistoFiles;
     std::vector<std::string> fHistoNames;
