@@ -2595,6 +2595,72 @@ int ConfigReader::ReadSampleOptions(const std::string& opt){
         param = confSet->Get("Group");
         if(param!="") sample->fGroup = RemoveQuotes(param);
 
+        param = confSet->Get("ResponseMatrixFile");
+        if (param != "") {
+            sample->fResponseMatrixFiles.clear();
+            sample->fResponseMatrixFiles.emplace_back(RemoveQuotes(param));
+        }
+
+        param = confSet->Get("ResponseMatrixFiles");
+        if (param != "") {
+            sample->fResponseMatrixFiles = Vectorize(param, ',');
+        }
+
+        param = confSet->Get("ResponseMatrixName");
+        if (param != "") {
+            sample->fResponseMatrixNames.clear();
+            sample->fResponseMatrixNames.emplace_back(RemoveQuotes(param));
+        }
+
+        param = confSet->Get("ResponseMatrixNames");
+        if (param != "") {
+            sample->fResponseMatrixNames = Vectorize(param, ',');
+        }
+
+        param = confSet->Get("ResponseMatrixPath");
+        if (param != "") {
+            sample->fResponseMatrixPaths.clear();
+            sample->fResponseMatrixPaths.emplace_back(RemoveQuotes(param));
+        }
+
+        param = confSet->Get("ResponseMatrixPaths");
+        if (param != "") {
+            sample->fResponseMatrixPaths = Vectorize(param, ',');
+        }
+
+        param = confSet->Get("ResponseMatrixFileSuff");
+        if (param != "") {
+            sample->fResponseMatrixFileSuffs.clear();
+            sample->fResponseMatrixFileSuffs.emplace_back(RemoveQuotes(param));
+        }
+
+        param = confSet->Get("ResponseMatrixFileSuffs");
+        if (param != "") {
+            sample->fResponseMatrixFileSuffs = Vectorize(param, ',');
+        }
+
+        param = confSet->Get("ResponseMatrixNameSuff");
+        if (param != "") {
+            sample->fResponseMatrixNameSuffs.clear();
+            sample->fResponseMatrixNameSuffs.emplace_back(RemoveQuotes(param));
+        }
+
+        param = confSet->Get("ResponseMatrixNameSuffs");
+        if (param != "") {
+            sample->fResponseMatrixNameSuffs = Vectorize(param, ',');
+        }
+
+        param = confSet->Get("ResponseMatrixPathSuff");
+        if (param != "") {
+            sample->fResponseMatrixPathSuffs.clear();
+            sample->fResponseMatrixPathSuffs.emplace_back(RemoveQuotes(param));
+        }
+
+        param = confSet->Get("ResponseMatrixPathSuffs");
+        if (param != "") {
+            sample->fResponseMatrixPathSuffs = Vectorize(param, ',');
+        }
+
         // HIST input
         if (fFitter->fInputType == 0){
             // Set HistoFile

@@ -103,6 +103,12 @@ public:
 
     // to read from histograms
     // <path>/<file>.root/<name>
+    std::vector<std::string> fResponseMatrixPaths;
+    std::vector<std::string> fResponseMatrixPathSuffs;
+    std::vector<std::string> fResponseMatrixFiles;
+    std::vector<std::string> fResponseMatrixFileSuffs;
+    std::vector<std::string> fResponseMatrixNames;
+    std::vector<std::string> fResponseMatrixNameSuffs;
     std::vector<std::string> fHistoPaths;
     std::vector<std::string> fHistoPathSuffs;
     std::vector<std::string> fHistoFiles;
