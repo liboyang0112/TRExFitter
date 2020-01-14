@@ -17,6 +17,7 @@
 #include "TDirectory.h"
 #include "TFile.h"
 #include "TH1.h"
+#include "TH2.h"
 #include "TH1D.h"
 #include "TH2F.h"
 #include "TObject.h"
@@ -203,6 +204,28 @@ std::unique_ptr<TH1> Common::HistFromFile(const std::string& fileName,
     }
     h->SetDirectory(0);
     if(TRExFitter::MERGEUNDEROVERFLOW) Common::MergeUnderOverFlow(h.get());
+    return h;
+}
+
+//__________________________________________________________________________________
+//
+std::unique_ptr<TH2> Common::Hist2DFromFile(const std::string& fileName,
+                                            const std::string& histoName) {
+    if(fileName=="") return nullptr;
+    if(histoName=="") return nullptr;
+    WriteVerboseStatus("Common::Hist2DFromFile", "  Extracting histogram    " + histoName + "  from file    " + fileName + "    ...");
+    std::unique_ptr<TH2> h = nullptr;
+    TFile *f = Common::GetFile(fileName);
+    if(!f){
+            WriteErrorStatus("Common::Hist2DFromFile", "cannot find input file '" + fileName + "'");
+            return nullptr;
+    }
+    h = std::unique_ptr<TH2>(dynamic_cast<TH2*>(f->Get(histoName.c_str())));
+    if(!h){
+            WriteErrorStatus("Common::Hist2DFromFile", "cannot find histogram '" + histoName + "' from input file '" + fileName + "'");
+            return nullptr;
+    }
+    h->SetDirectory(0);
     return h;
 }
 
