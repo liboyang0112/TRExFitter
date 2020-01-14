@@ -11,9 +11,13 @@ FoldingManager::FoldingManager() :
     fTruthDistribution(nullptr)
 {}
 
+//__________________________________________________________________________________
+//
 FoldingManager::~FoldingManager() {
 }
 
+//__________________________________________________________________________________
+//
 void FoldingManager::SetResponseMatrix(const TH2* matrix) {
     if (!matrix) {
         throw std::runtime_error{"FoldingManager::SetResponseMatrix: Passed nullptr as the response matrix"};
@@ -22,6 +26,8 @@ void FoldingManager::SetResponseMatrix(const TH2* matrix) {
     fResponseMatrix.reset(static_cast<TH2D*>(matrix->Clone()));
 }
 
+//__________________________________________________________________________________
+//
 void FoldingManager::SetResponseMatrix(TFile* file, const std::string& path) {
     if (!file) {
         throw std::runtime_error{"FoldingManager::SetResponseMatrix: Passed nullptr as the input file"};
@@ -35,10 +41,14 @@ void FoldingManager::SetResponseMatrix(TFile* file, const std::string& path) {
     fResponseMatrix.reset(static_cast<TH2D*>(tmp->Clone()));
 }
 
+//__________________________________________________________________________________
+//
 const TH2D* FoldingManager::GetResponseMatrix() const {
     return fResponseMatrix.get();
 }
 
+//__________________________________________________________________________________
+//
 void FoldingManager::SetTruthDistribution(const TH1* truth) {
     if (!truth) {
         throw std::runtime_error{"FoldingManager::SetTruthDistribution: Passed nullptr as the truth distribution"};
@@ -47,6 +57,8 @@ void FoldingManager::SetTruthDistribution(const TH1* truth) {
     fTruthDistribution.reset(static_cast<TH1D*>(truth->Clone()));
 }
 
+//__________________________________________________________________________________
+//
 void FoldingManager::SetTruthDistribution(TFile* file, const std::string& path) {
     if (!file) {
         throw std::runtime_error{"FoldingManager::SetTruthDistribution: Passed nullptr as the input file"};
@@ -60,6 +72,8 @@ void FoldingManager::SetTruthDistribution(TFile* file, const std::string& path) 
     fTruthDistribution.reset(static_cast<TH1D*>(tmp->Clone()));
 }
 
+//__________________________________________________________________________________
+//
 const TH1D* FoldingManager::GetTruthDistribution() const {
     return fTruthDistribution.get();
 }
@@ -72,6 +86,8 @@ void FoldingManager::SetMigrationMatrix(const TH2* matrix) {
     fMigrationMatrix.reset(static_cast<TH2D*>(matrix->Clone()));
 }
 
+//__________________________________________________________________________________
+//
 void FoldingManager::SetMigrationMatrix(TFile* file, const std::string& path) {
     if (!file) {
         throw std::runtime_error{"FoldingManager::SetMigrationMatrix: Passed nullptr as the input file"};
@@ -85,10 +101,14 @@ void FoldingManager::SetMigrationMatrix(TFile* file, const std::string& path) {
     fMigrationMatrix.reset(static_cast<TH2D*>(tmp->Clone()));
 }
 
+//__________________________________________________________________________________
+//
 const TH2D* FoldingManager::GetMigrationMatrix() const {
     return fResponseMatrix.get();
 }
 
+//__________________________________________________________________________________
+//
 void FoldingManager::SetSelectionEfficiency(const TH1* eff) {
     if (!eff) {
         throw std::runtime_error{"FoldingManager::SetSelectionEfficiency: Passed nullptr as the selection efficiency"};
@@ -97,6 +117,8 @@ void FoldingManager::SetSelectionEfficiency(const TH1* eff) {
     fSelectionEfficiency.reset(static_cast<TH1D*>(eff->Clone()));
 }
 
+//__________________________________________________________________________________
+//
 void FoldingManager::SetSelectionEfficiency(TFile* file, const std::string& path) {
     if (!file) {
         throw std::runtime_error{"FoldingManager::SetSelectionEfficiency: Passed nullptr as the input file"};
@@ -110,6 +132,8 @@ void FoldingManager::SetSelectionEfficiency(TFile* file, const std::string& path
     fSelectionEfficiency.reset(static_cast<TH1D*>(tmp->Clone()));
 }
 
+//__________________________________________________________________________________
+//
 void FoldingManager::CalculateResponseMatrix(bool forceRecalculate) {
     if (!forceRecalculate && fResponseMatrix) {
         throw std::runtime_error{"FoldingManager::CalculateResponsematrix: Response matrix exists and you didnt want to recalculate it!"};
@@ -122,6 +146,8 @@ void FoldingManager::CalculateResponseMatrix(bool forceRecalculate) {
     fResponseMatrix = MultiplyEfficiencyAndMigration(fSelectionEfficiency.get(), fMigrationMatrix.get());
 }
 
+//__________________________________________________________________________________
+//
 void FoldingManager::FoldTruth() {
     if (!CheckConsistencyForFolding()) {
         throw std::runtime_error{"FoldingManager::FoldTruth: Inconsistent truth distributions and the response matrix"};
@@ -130,6 +156,8 @@ void FoldingManager::FoldTruth() {
     PrepareFoldedDistributions(fTruthDistribution.get(), fResponseMatrix.get());
 }
 
+//__________________________________________________________________________________
+//
 bool FoldingManager::CheckConsistencyForResponse() const {
 
     if (fResponseMatrix) return true;
@@ -141,6 +169,8 @@ bool FoldingManager::CheckConsistencyForResponse() const {
     return true;
 }
 
+//__________________________________________________________________________________
+//
 bool FoldingManager::CheckConsistencyForFolding() const {
     if (!fResponseMatrix) return false;
 
@@ -149,6 +179,8 @@ bool FoldingManager::CheckConsistencyForFolding() const {
     return true;
 }
 
+//__________________________________________________________________________________
+//
 std::unique_ptr<TH2D> FoldingManager::MultiplyEfficiencyAndMigration(const TH1D* sel, const TH2D* mig) const {
     const int nRecoBins   = mig->GetNbinsY();
     const int nTruthBins  = mig->GetNbinsX();
@@ -168,6 +200,8 @@ std::unique_ptr<TH2D> FoldingManager::MultiplyEfficiencyAndMigration(const TH1D*
     return result;
 }
 
+//__________________________________________________________________________________
+//
 void FoldingManager::PrepareFoldedDistributions(const TH1D* truth, const TH2D* response) {
     const int nRecoBins   = response->GetNbinsY();
     const int nTruthBins  = response->GetNbinsX();
@@ -185,6 +219,8 @@ void FoldingManager::PrepareFoldedDistributions(const TH1D* truth, const TH2D* r
     }
 }
     
+//__________________________________________________________________________________
+//
 const std::vector<TH1D>& FoldingManager::GetFoldedDistributions() const {
     return fFoldedDistributions;
 }
