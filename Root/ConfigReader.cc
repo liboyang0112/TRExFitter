@@ -1319,13 +1319,16 @@ int ConfigReader::ReadFitOptions(){
         else if( param == "BONLY" ){
             fFitter->SetFitType(TRExFit::BONLY);
         }
+        else if( param == "UNFOLDING" ){
+            fFitter->SetFitType(TRExFit::UNFOLDING);
+        }
         else{
             WriteErrorStatus("ConfigReader::ReadFitOptions", "Unknown FitType argument : " + confSet->Get("FitType"));
             return 1;
         }
     }
     else if( fFitter->fFitType == TRExFit::UNDEFINED ){
-        WriteInfoStatus("ConfigReader::ReadFitOptions","Setting default fit Type SPLUSB");
+        WriteWarningStatus("ConfigReader::ReadFitOptions","Setting default fit Type SPLUSB");
         fFitter->SetFitType(TRExFit::SPLUSB);
     }
 

@@ -18,6 +18,9 @@
 #include "TRExFitter/Region.h"
 #include "TRExFitter/PruningUtil.h"
 
+// Unfolding includes
+#include "UnfoldingCode/UnfoldingCode/FoldingManager.h"
+
 // CommonStatTiils includes
 #include "CommonStatTools/runSig.h"
 #include "CommonStatTools/runAsymptoticsCLs.h"
@@ -7933,3 +7936,8 @@ void TRExFit::DropBins() {
     }
 }
 
+//__________________________________________________________________________________
+//
+void TRExFit::PrepareUnfolding() {
+    FoldingManager manager{};
+}

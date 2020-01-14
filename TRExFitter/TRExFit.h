@@ -354,6 +354,12 @@ public:
       */
     void DropBins();
 
+    /**
+      * A function that prepares signal inputs for unfolding.
+      * Folded distributions are created
+      */ 
+    void PrepareUnfolding();
+
     // -------------------------
 
     std::string fName;
