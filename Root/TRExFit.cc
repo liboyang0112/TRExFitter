@@ -226,9 +226,9 @@ TRExFit::TRExFit(std::string name) :
     fDoSystNormalizationPlots(true),
     fDebugNev(-1),
     fMatrixOrientation(FoldingManager::MATRIXORIENTATION::TRUTHONHORIZONTALAXIS),
-    TruthDistributionPath(""),
-    TruthDistributionFile(""),
-    TruthDistributionName("") {
+    fTruthDistributionPath(""),
+    fTruthDistributionFile(""),
+    fTruthDistributionName("") {
 
     TRExFitter::IMAGEFORMAT.emplace_back("png");
     // Increase the limit for formula evaluations
@@ -7941,4 +7941,8 @@ void TRExFit::DropBins() {
 //
 void TRExFit::PrepareUnfolding() {
     FoldingManager manager{};
+    manager.SetMatrixOrientation(fMatrixOrientation);
+    
+    std::unique_ptr<TH1> truth = Common::HistFromFile(fTruthDistributionFile, fTruthDistributionName);    
+    manager.SetTruthDistribution(truth.get());
 }

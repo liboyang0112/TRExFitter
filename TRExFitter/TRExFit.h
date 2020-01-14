@@ -624,9 +624,9 @@ public:
 
     FoldingManager::MATRIXORIENTATION fMatrixOrientation;
 
-    std::string TruthDistributionPath;
-    std::string TruthDistributionFile;
-    std::string TruthDistributionName;
+    std::string fTruthDistributionPath;
+    std::string fTruthDistributionFile;
+    std::string fTruthDistributionName;
 };
 
 #endif

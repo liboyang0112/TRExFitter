@@ -5094,7 +5094,11 @@ int ConfigReader::ReadUnfoldingOptions() {
         WriteErrorStatus("ConfigReader::ReadUnfoldingOptions", "You set FitType == UNFOLDING, but didnt provide Unfolding block!");
         return 1;
     } 
-    
+
+    if (!confSet) {
+        return 0;
+    }   
+ 
     std::string param = confSet->Get("MatrixOrientation");
     if (param != "") {
         std::transform(param.begin(), param.end(), param.begin(), ::toupper);
@@ -5110,17 +5114,17 @@ int ConfigReader::ReadUnfoldingOptions() {
 
     param = confSet->Get("TruthDistributionPath");
     if (param != "") {
-        fFitter->TruthDistributionPath = RemoveQuotes(param);
+        fFitter->fTruthDistributionPath = RemoveQuotes(param);
     }
 
     param = confSet->Get("TruthDistributionFile");
     if (param != "") {
-        fFitter->TruthDistributionFile = RemoveQuotes(param);
+        fFitter->fTruthDistributionFile = RemoveQuotes(param);
     }
 
     param = confSet->Get("TruthDistributionName");
     if (param != "") {
-        fFitter->TruthDistributionName = RemoveQuotes(param);
+        fFitter->fTruthDistributionName = RemoveQuotes(param);
     }
 
     return 0;
