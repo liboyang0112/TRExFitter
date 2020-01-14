@@ -198,13 +198,8 @@ std::unique_ptr<TH2D> FoldingManager::MultiplyEfficiencyAndMigration(const TH1D*
     const bool horizontal = (fMatrixOrientation == FoldingManager::MATRIXORIENTATION::TRUTHONHORIZONTALAXIS);
     const int nRecoBins   = horizontal ? mig->GetNbinsY() : mig->GetNbinsX();
     const int nTruthBins  = horizontal ? mig->GetNbinsX() : mig->GetNbinsY();
-    const double recoMin  = horizontal ? mig->GetYaxis()->GetXmin() : mig->GetXaxis()->GetXmin();
-    const double recoMax  = horizontal ? mig->GetYaxis()->GetXmax() : mig->GetXaxis()->GetXmax();
-    const double truthMin = horizontal ? mig->GetXaxis()->GetXmin() : mig->GetYaxis()->GetXmin();
-    const double truthMax = horizontal ? mig->GetXaxis()->GetXmax() : mig->GetYaxis()->GetXmax();
     
-    std::unique_ptr<TH2D> result =  horizontal ? std::make_unique<TH2D>("", "", nTruthBins, truthMin, truthMax, nRecoBins, recoMin, recoMax) :
-                                                 std::make_unique<TH2D>("", "", nRecoBins, recoMin, recoMax, nTruthBins, truthMin, truthMax);
+    std::unique_ptr<TH2D> result(static_cast<TH2D*>(mig->Clone()));
     for (int itruth = 1; itruth <= nTruthBins; ++itruth) {
         for (int ireco = 1; ireco <= nRecoBins; ++ireco) {
             const double content = horizontal ? mig->GetBinContent(itruth, ireco) : mig->GetBinContent(ireco, itruth);
@@ -218,16 +213,17 @@ std::unique_ptr<TH2D> FoldingManager::MultiplyEfficiencyAndMigration(const TH1D*
 //__________________________________________________________________________________
 //
 void FoldingManager::PrepareFoldedDistributions(const TH1D* truth, const TH2D* response) {
-    const bool horizontal = (fMatrixOrientation == FoldingManager::MATRIXORIENTATION::TRUTHONHORIZONTALAXIS);
-    const int nRecoBins   = horizontal ? response->GetNbinsY() : response->GetNbinsX();
-    const int nTruthBins  = horizontal ? response->GetNbinsX() : response->GetNbinsY();
-    const double recoMin  = horizontal ? response->GetYaxis()->GetXmin() : response->GetXaxis()->GetXmin();
-    const double recoMax  = horizontal ? response->GetYaxis()->GetXmax() : response->GetXaxis()->GetXmax();
+    const bool horizontal  = (fMatrixOrientation == FoldingManager::MATRIXORIENTATION::TRUTHONHORIZONTALAXIS);
+    const int nRecoBins    = horizontal ? response->GetNbinsY() : response->GetNbinsX();
+    const int nTruthBins   = horizontal ? response->GetNbinsX() : response->GetNbinsY();
 
     fFoldedDistributions.clear();
 
     for (int itruth = 1; itruth <= nTruthBins; ++itruth) {
-        fFoldedDistributions.emplace_back("","",nRecoBins, recoMin, recoMax);
+        // doing projection to get the bin edges correctly
+        TH1D* h = horizontal ? response->ProjectionY() : response->ProjectionX();
+        /// what to do with the uncertainties??
+        fFoldedDistributions.emplace_back(*h);
         for (int ireco = 1; ireco <= nRecoBins; ++ireco) {
             const double content = horizontal ?  
                                    (truth->GetBinContent(itruth) * response->GetBinContent(itruth, ireco)) :
