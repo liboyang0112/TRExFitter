@@ -21,6 +21,11 @@ public:
     FoldingManager& operator=(const FoldingManager& rhs) = delete;
     FoldingManager& operator=(FoldingManager&& rhs) = delete;
 
+    enum class MATRIXORIENTATION {
+        TRUTHONHORIZONTALAXIS,
+        TRUTHONVERTICALAXIS
+    };
+
     void SetResponseMatrix(const TH2* matrix);
     
     void SetResponseMatrix(TFile* file, const std::string& path);
@@ -45,6 +50,10 @@ public:
 
     const TH2D* GetMigrationMatrix() const;
 
+    void SetMatrixOrientation(const MATRIXORIENTATION opt);
+
+    MATRIXORIENTATION GetMatrixOrientation() const;
+
     void CalculateResponseMatrix(bool forceRecalculate);
 
     void FoldTruth();
@@ -57,6 +66,8 @@ private:
     std::unique_ptr<TH2D> fResponseMatrix;
     std::unique_ptr<TH1D> fTruthDistribution;
     std::vector<TH1D> fFoldedDistributions;
+
+    MATRIXORIENTATION fMatrixOrientation;
 
     bool CheckConsistencyForResponse() const;
     

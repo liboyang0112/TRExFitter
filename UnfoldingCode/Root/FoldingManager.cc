@@ -8,7 +8,8 @@ FoldingManager::FoldingManager() :
     fSelectionEfficiency(nullptr),
     fMigrationMatrix(nullptr),
     fResponseMatrix(nullptr),
-    fTruthDistribution(nullptr)
+    fTruthDistribution(nullptr),
+    fMatrixOrientation(FoldingManager::MATRIXORIENTATION::TRUTHONHORIZONTALAXIS)
 {}
 
 //__________________________________________________________________________________
@@ -134,6 +135,18 @@ void FoldingManager::SetSelectionEfficiency(TFile* file, const std::string& path
 
 //__________________________________________________________________________________
 //
+void FoldingManager::SetMatrixOrientation(const FoldingManager::MATRIXORIENTATION opt) {
+    fMatrixOrientation = opt;
+}
+
+//__________________________________________________________________________________
+//
+FoldingManager::MATRIXORIENTATION FoldingManager::GetMatrixOrientation() const {
+    return fMatrixOrientation;
+}
+
+//__________________________________________________________________________________
+//
 void FoldingManager::CalculateResponseMatrix(bool forceRecalculate) {
     if (!forceRecalculate && fResponseMatrix) {
         throw std::runtime_error{"FoldingManager::CalculateResponsematrix: Response matrix exists and you didnt want to recalculate it!"};
@@ -182,17 +195,19 @@ bool FoldingManager::CheckConsistencyForFolding() const {
 //__________________________________________________________________________________
 //
 std::unique_ptr<TH2D> FoldingManager::MultiplyEfficiencyAndMigration(const TH1D* sel, const TH2D* mig) const {
-    const int nRecoBins   = mig->GetNbinsY();
-    const int nTruthBins  = mig->GetNbinsX();
-    const double recoMin  = mig->GetYaxis()->GetXmin();
-    const double recoMax  = mig->GetYaxis()->GetXmax();
-    const double truthMin = mig->GetXaxis()->GetXmin();
-    const double truthMax = mig->GetXaxis()->GetXmax();
+    const bool horizontal = (fMatrixOrientation == FoldingManager::MATRIXORIENTATION::TRUTHONHORIZONTALAXIS);
+    const int nRecoBins   = horizontal ? mig->GetNbinsY() : mig->GetNbinsX();
+    const int nTruthBins  = horizontal ? mig->GetNbinsX() : mig->GetNbinsY();
+    const double recoMin  = horizontal ? mig->GetYaxis()->GetXmin() : mig->GetXaxis()->GetXmin();
+    const double recoMax  = horizontal ? mig->GetYaxis()->GetXmax() : mig->GetXaxis()->GetXmax();
+    const double truthMin = horizontal ? mig->GetXaxis()->GetXmin() : mig->GetYaxis()->GetXmin();
+    const double truthMax = horizontal ? mig->GetXaxis()->GetXmax() : mig->GetYaxis()->GetXmax();
     
-    std::unique_ptr<TH2D> result = std::make_unique<TH2D>("", "", nTruthBins, truthMin, truthMax, nRecoBins, recoMin, recoMax);
+    std::unique_ptr<TH2D> result =  horizontal ? std::make_unique<TH2D>("", "", nTruthBins, truthMin, truthMax, nRecoBins, recoMin, recoMax) :
+                                                 std::make_unique<TH2D>("", "", nRecoBins, recoMin, recoMax, nTruthBins, truthMin, truthMax);
     for (int itruth = 1; itruth <= nTruthBins; ++itruth) {
         for (int ireco = 1; ireco <= nRecoBins; ++ireco) {
-            const double content = mig->GetBinContent(itruth, ireco);
+            const double content = horizontal ? mig->GetBinContent(itruth, ireco) : mig->GetBinContent(ireco, itruth);
             result->SetBinContent(itruth, ireco, content*sel->GetBinContent(itruth));
         }
     }
@@ -203,17 +218,20 @@ std::unique_ptr<TH2D> FoldingManager::MultiplyEfficiencyAndMigration(const TH1D*
 //__________________________________________________________________________________
 //
 void FoldingManager::PrepareFoldedDistributions(const TH1D* truth, const TH2D* response) {
-    const int nRecoBins   = response->GetNbinsY();
-    const int nTruthBins  = response->GetNbinsX();
-    const double recoMin  = response->GetYaxis()->GetXmin();
-    const double recoMax  = response->GetYaxis()->GetXmax();
+    const bool horizontal = (fMatrixOrientation == FoldingManager::MATRIXORIENTATION::TRUTHONHORIZONTALAXIS);
+    const int nRecoBins   = horizontal ? response->GetNbinsY() : response->GetNbinsX();
+    const int nTruthBins  = horizontal ? response->GetNbinsX() : response->GetNbinsY();
+    const double recoMin  = horizontal ? response->GetYaxis()->GetXmin() : response->GetXaxis()->GetXmin();
+    const double recoMax  = horizontal ? response->GetYaxis()->GetXmax() : response->GetXaxis()->GetXmax();
 
     fFoldedDistributions.clear();
 
     for (int itruth = 1; itruth <= nTruthBins; ++itruth) {
         fFoldedDistributions.emplace_back("","",nRecoBins, recoMin, recoMax);
         for (int ireco = 1; ireco <= nRecoBins; ++ireco) {
-            const double content = truth->GetBinContent(itruth) * response->GetBinContent(itruth, ireco);
+            const double content = horizontal ?  
+                                   (truth->GetBinContent(itruth) * response->GetBinContent(itruth, ireco)) :
+                                   (truth->GetBinContent(itruth) * response->GetBinContent(ireco, itruth));
             fFoldedDistributions.back().SetBinContent(ireco, content);
         }
     }
