@@ -7950,4 +7950,8 @@ void TRExFit::PrepareUnfolding() {
     const std::string histoName = fSamples[0]->fResponseMatrixNames.at(0);
     std::unique_ptr<TH2> matrix = Common::Hist2DFromFile(fileName, histoName);
     manager.SetResponseMatrix(matrix.get());
+
+    manager.FoldTruth();
+
+    const std::vector<TH1D> foldedHistos = manager.GetFoldedDistributions();
 }
