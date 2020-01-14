@@ -127,7 +127,7 @@ void FoldingManager::FoldTruth() {
         throw std::runtime_error{"FoldingManager::FoldTruth: Inconsistent truth distributions and the response matrix"};
     }
 
-    GetFoldedDistributions(fTruthDistribution.get(), fResponseMatrix.get());
+    PrepareFoldedDistributions(fTruthDistribution.get(), fResponseMatrix.get());
 }
 
 bool FoldingManager::CheckConsistencyForResponse() const {
@@ -168,7 +168,7 @@ std::unique_ptr<TH2D> FoldingManager::MultiplyEfficiencyAndMigration(const TH1D*
     return result;
 }
 
-void FoldingManager::GetFoldedDistributions(const TH1D* truth, const TH2D* response) {
+void FoldingManager::PrepareFoldedDistributions(const TH1D* truth, const TH2D* response) {
     const int nRecoBins   = response->GetNbinsY();
     const int nTruthBins  = response->GetNbinsX();
     const double recoMin  = response->GetYaxis()->GetXmin();

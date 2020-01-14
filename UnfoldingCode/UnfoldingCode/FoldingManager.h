@@ -64,7 +64,7 @@ private:
 
     std::unique_ptr<TH2D> MultiplyEfficiencyAndMigration(const TH1D* sel, const TH2D* mig) const;
 
-    void GetFoldedDistributions(const TH1D* truth, const TH2D* response);
+    void PrepareFoldedDistributions(const TH1D* truth, const TH2D* response);
 };
 
 #endif
