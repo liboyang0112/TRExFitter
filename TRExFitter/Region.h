@@ -120,6 +120,10 @@ public:
       */
     std::unique_ptr<TH1> GetTotHist(bool includeSignal);
 
+    void SetAutomaticDropBins(const bool flag) {fAutomaticDropBins = flag;}
+    
+    bool GetAutomaticDropBins() const {return fAutomaticDropBins;}
+
     // -------
     // Members
     // -------
@@ -264,6 +268,10 @@ public:
     int fLegendNColumns;
 
     std::vector<std::string> fScaleSamplesToData;
+
+private:
+
+    bool fAutomaticDropBins;
 };
 
 

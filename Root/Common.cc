@@ -464,21 +464,13 @@ double Common::GetSeparation(TH1D* S1, TH1D* B1) {
 }
 
 //__________________________________________________________________________________
-// Code to blind bins with (h_data yield) / (h_bkg yield) > threshold
-// - the code kills this kind of bins in data
-// - also set uncertainties in blinded bins to zero
-// - in addition a histogram is returned, with bin content 0 or 1 depending on the bin beeing blinded or not
-// when takeSqrt is true, take the sqrt of the denominator when evaluating the blinding
-TH1D* Common::BlindDataHisto(TH1* h_data,
-                             TH1* h_bkg,
-                             TH1* h_sig,
-                             double threshold,
-                             bool takeSqrt) {
-    TH1D* h_blind = static_cast<TH1D*>(h_data->Clone("h_blind"));
-    for(int i_bin=1;i_bin<h_data->GetNbinsX()+1;i_bin++){
-        double tmpDenominator = h_bkg->GetBinContent(i_bin);
-        if(takeSqrt) tmpDenominator = std::sqrt(tmpDenominator); // for calculating S/sqrt(B) and S/sqrt(S+B)
-        if( h_sig->GetBinContent(i_bin) / tmpDenominator > threshold ){
+//
+std::unique_ptr<TH1D> Common::BlindDataHisto(TH1* h_data,
+                                             const std::vector<int>& blindedBins) {
+
+    std::unique_ptr<TH1D> h_blind(static_cast<TH1D*>(h_data->Clone("h_blind")));
+    for(int i_bin = 1; i_bin <= h_data->GetNbinsX(); ++i_bin) {
+        if(std::find(blindedBins.begin(), blindedBins.end(), i_bin) != blindedBins.end()) {
             WriteDebugStatus("Common::BlindDataHisto", "Blinding bin n." + std::to_string(i_bin));
             h_data->SetBinContent(i_bin,0.);
             h_data->SetBinError(i_bin,0.);
@@ -1113,7 +1105,7 @@ std::vector<int> Common::GetBlindedBins(const Region* reg,
             const double scale = Common::GetNominalMorphScale(reg->fSampleHists[i_smp].get());
             if(empty_signal){
                 hist_signal.CloneSampleHist(reg->fSampleHists[i_smp].get(),systNames, scale);
-                empty_signal=false;
+                if (hist_signal.fHist != nullptr) empty_signal = false;
             } else {
                 hist_signal.SampleHistAddNominal(reg->fSampleHists[i_smp].get(), scale);
             }
@@ -1121,7 +1113,7 @@ std::vector<int> Common::GetBlindedBins(const Region* reg,
             const double scale = Common::GetNominalMorphScale(reg->fSampleHists[i_smp].get());
             if(empty_bkg){
                 hist_bkg.CloneSampleHist(reg->fSampleHists[i_smp].get(),systNames, scale);
-                empty_bkg=false;
+                if (hist_bkg.fHist != nullptr) empty_bkg = false;
             } else {
                 hist_bkg.SampleHistAddNominal(reg->fSampleHists[i_smp].get(), scale);
             }
@@ -1131,40 +1123,29 @@ std::vector<int> Common::GetBlindedBins(const Region* reg,
         }
     }
 
-    /// Get stacked histogram (signal + bkg)
-    std::unique_ptr<TH1> combined(nullptr);
-    if (hist_signal.fHist) {
-        combined.reset(static_cast<TH1*>(hist_signal.fHist->Clone()));
-        if (hist_bkg.fHist) {
-            combined->Add(hist_bkg.fHist.get());
-        }
-    } else if (hist_bkg.fHist) {
-        combined.reset(static_cast<TH1*>(hist_bkg.fHist->Clone()));
-    } else {
-        return result;
-    }
-
     // find the bind that should be blinded
-
-    result = Common::BlindedBins(hist_signal.fHist.get(),
-                                 hist_bkg.fHist.get(),
-                                 combined.get(),
-                                 type,
-                                 threshold);
+    result = Common::ComputeBlindedBins(hist_signal.fHist.get(),
+                                        hist_bkg.fHist.get(),
+                                        type,
+                                        threshold);
 
     return result;
 }
 
 //__________________________________________________________________________________
 //
-std::vector<int> Common::BlindedBins(const TH1* signal,
-                                     const TH1* bkg,
-                                     const TH1* combined,
-                                     const Common::BlindingType type,
-                                     const double threshold) {
+std::vector<int> Common::ComputeBlindedBins(const TH1* signal,
+                                            const TH1* bkg,
+                                            const Common::BlindingType type,
+                                            const double threshold) {
 
     std::vector<int> result;
     if (threshold < 0) return result;
+    if (!signal) return result;
+    std::unique_ptr<TH1> combined(static_cast<TH1*>(signal->Clone()));
+    if (bkg) {
+        combined->Add(bkg);
+    }
     for (int ibin = 1; ibin <= signal->GetNbinsX(); ++ibin) {
         double soverb(-1);
         double soversplusb(-1);

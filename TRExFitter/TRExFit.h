@@ -444,7 +444,6 @@ public:
 
     double fBlindingThreshold;
     Common::BlindingType fBlindingType;
-    bool fAutomaticDropBins;
 
     int fRankingMaxNP;
     std::string fRankingOnly;

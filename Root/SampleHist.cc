@@ -1086,12 +1086,12 @@ void SampleHist::SmoothSyst(const HistoTools::SmoothOption &smoothOpt, string sy
 //
 void SampleHist::CloneSampleHist(SampleHist* h, const std::set<std::string>& names, double scale){
     fName = h->fName;
-    fHist           .reset(static_cast<TH1*>(h->fHist->Clone()));
-    fHist_preSmooth .reset(static_cast<TH1*>(h->fHist_preSmooth->Clone()));
-    fHist_orig      .reset(static_cast<TH1*>(h->fHist_orig->Clone()));
-    fHist->Scale(scale);
-    fHist_preSmooth->Scale(scale);
-    fHist_orig->Scale(scale);
+    if (h->fHist)           fHist           .reset(static_cast<TH1*>(h->fHist->Clone()));
+    if (h->fHist_preSmooth) fHist_preSmooth .reset(static_cast<TH1*>(h->fHist_preSmooth->Clone()));
+    if (h->fHist_orig)      fHist_orig      .reset(static_cast<TH1*>(h->fHist_orig->Clone()));
+    if (fHist) fHist->Scale(scale);
+    if (fHist_preSmooth) fHist_preSmooth->Scale(scale);
+    if (fHist_orig) fHist_orig->Scale(scale);
     fFileName = h->fFileName;
     fHistoName = h->fHistoName;
     fIsData = h->fIsData;
@@ -1185,9 +1185,9 @@ void SampleHist::SampleHistAdd(SampleHist* h, double scale){
 //_____________________________________________________________________________
 //
 void SampleHist::SampleHistAddNominal(SampleHist* h, double scale) {
-    fHist          ->Add(h->fHist.get(),          scale);
-    fHist_preSmooth->Add(h->fHist_preSmooth.get(),scale);
-    fHist_orig     ->Add(h->fHist_orig.get(),     scale);
+    if (h->fHist)           fHist          ->Add(h->fHist.get(),          scale);
+    if (h->fHist_preSmooth) fHist_preSmooth->Add(h->fHist_preSmooth.get(),scale);
+    if (fHist_orig)         fHist_orig     ->Add(h->fHist_orig.get(),     scale);
 }
 
 //_____________________________________________________________________________

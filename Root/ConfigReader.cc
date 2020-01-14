@@ -545,20 +545,6 @@ int ConfigReader::ReadJobOptions(){
         }
     }
 
-    // Set AutomaticDropBins
-    param = confSet->Get("AutomaticDropBins");
-    if (param != "") {
-        std::transform(param.begin(), param.end(), param.begin(), ::toupper);
-        if (param == "TRUE") {
-            fFitter->fAutomaticDropBins = true;
-        } else if (param == "FALSE") {
-            fFitter->fAutomaticDropBins = false;
-        } else {
-            WriteWarningStatus("ConfigReader::ReadJobOptions", "You specified 'AutomaticDropBins' option but did not provide a valid setting. Using default (TRUE)");
-            fFitter->fAutomaticDropBins = true;
-        }
-    }
-
     // Set RankingMaxNP
     param = confSet->Get("RankingMaxNP");
     if( param != ""){
@@ -2085,15 +2071,36 @@ int ConfigReader::ReadRegionOptions(const std::string& opt){
             }
         }
 
+        // Set AutomaticDropBins
+        param = confSet->Get("AutomaticDropBins");
+        if (param != "") {
+            bool isOK(true);
+            if (reg->fDropBins.size() > 0) {
+                WriteWarningStatus("ConfigReader::ReadJobOptions", "You specified 'AutomaticDropBins' option but you previously set DropBins for region " + reg->fName + " ignoring the automatic option");
+                isOK = false;
+            }
+            if (isOK) {
+                std::transform(param.begin(), param.end(), param.begin(), ::toupper);
+                if (param == "TRUE") {
+                    reg->SetAutomaticDropBins(true);
+                } else if (param == "FALSE") {
+                    reg->SetAutomaticDropBins(false);
+                } else {
+                    WriteWarningStatus("ConfigReader::ReadJobOptions", "You specified 'AutomaticDropBins' option but did not provide a valid setting. Using default (FALSE)");
+                    reg->SetAutomaticDropBins(false);
+                }
+            }
+        }
+        
         // Set DropBins
         param = confSet->Get("DropBins");
         if( param != "" ){
-            if (fFitter->fAutomaticDropBins) {
-                WriteWarningStatus("ConfigReader::ReadRegionOptions", "You specified set `AutomaticDropBins` to TRUE, but using DropBins will disable it!.");
+            if (reg->GetAutomaticDropBins()) {
+                WriteWarningStatus("ConfigReader::ReadRegionOptions", "You specified set `AutomaticDropBins` to TRUE, but using DropBins will disable it for region " + reg->fName + "!.");
             }
-            fFitter->fAutomaticDropBins = false;
+            reg->SetAutomaticDropBins(false);
             reg->fDropBins.clear();
-            std::vector<std::string> s = Vectorize( param,',' );
+            const std::vector<std::string>& s = Vectorize( param,',' );
             for(const std::string& is : s){
                 reg->fDropBins.push_back(atoi(is.c_str()));
             }

@@ -124,7 +124,8 @@ Region::Region(const string& name) :
     fLegendX1(-1),
     fLegendX2(-1),
     fLegendY(-1),
-    fLegendNColumns(2) {
+    fLegendNColumns(2),
+    fAutomaticDropBins(false) {
 
 
     int canvasWidth = 600;
@@ -524,10 +525,10 @@ void Region::BuildPreFitErrorHist(){
             return;
         }
         std::unique_ptr<TH1> h_data(static_cast<TH1*>(fData->fHist->Clone()));
-        if(fBlindedBins!=nullptr){
-            for(int i_bin=1;i_bin<=h_data->GetNbinsX();i_bin++){
-                if(fBlindedBins->GetBinContent(i_bin)>0) h_data->SetBinContent(i_bin,-1);
-                if(find(fDropBins.begin(),fDropBins.end(),i_bin-1)!=fDropBins.end()) h_data->SetBinContent(i_bin,-1);
+        if(fBlindedBins) {
+            for(int i_bin = 1; i_bin <= h_data->GetNbinsX(); ++i_bin) {
+                if(fBlindedBins->GetBinContent(i_bin) > 0) h_data->SetBinContent(i_bin, -1);
+                if(std::find(fDropBins.begin(), fDropBins.end(), i_bin) != fDropBins.end()) h_data->SetBinContent(i_bin,-1);
             }
         }
         if(fGetChi2==1) fNpNames.clear();
@@ -590,7 +591,12 @@ std::unique_ptr<TRExPlot> Region::DrawPreFit(const std::vector<int>& canvasSize,
     p->SetCME(fCmeLabel);
     p->SetLumiScale(fLumiScale);
     p->fLegendNColumns = fLegendNColumns;
-    if(fBlindingThreshold>=0) p->SetBinBlinding(true,fBlindingThreshold,fBlindingType);
+    if(fBlindingThreshold>=0) {
+        const std::vector<int>& blindedBins = Common::GetBlindedBins(this,
+                                                                     fBlindingType,
+                                                                     fBlindingThreshold);
+        p->SetBinBlinding(blindedBins);
+    }
 
     if(fBinLabels.size() && ((int)fBinLabels.size()==fNbins)) {
       for(int i_bin=0; i_bin<fNbins; i_bin++) {
@@ -742,7 +748,7 @@ std::unique_ptr<TRExPlot> Region::DrawPreFit(const std::vector<int>& canvasSize,
     p->SetTotBkg(fTot.get());
     p->BlindData();
     if(fBinWidth>0) p->SetBinWidth(fBinWidth);
-    if(p->h_blinding) fBlindedBins =  static_cast<TH1D*>(p->h_blinding->Clone("blinding_region") );
+    if(p->GetBlindingHisto()) fBlindedBins =  static_cast<TH1D*>(p->GetBlindingHisto()->Clone("blinding_region"));
 
     //
     // Computes the uncertainty bands arround the h_tot histogram
@@ -1295,10 +1301,10 @@ void Region::BuildPostFitErrorHist(FitResults *fitRes, const std::vector<std::st
         }
         // remove blinded bins
         std::unique_ptr<TH1> h_data(static_cast<TH1*>(fData->fHist->Clone()));
-        if(fBlindedBins!=nullptr){
-            for(int i_bin=1;i_bin<=h_data->GetNbinsX();++i_bin){
-                if(fBlindedBins->GetBinContent(i_bin)>0) h_data->SetBinContent(i_bin,-1);
-                if(find(fDropBins.begin(),fDropBins.end(),i_bin-1)!=fDropBins.end()) h_data->SetBinContent(i_bin,-1);
+        if(fBlindedBins){
+            for(int i_bin=1; i_bin <= h_data->GetNbinsX(); ++i_bin) {
+                if(fBlindedBins->GetBinContent(i_bin) > 0) h_data->SetBinContent(i_bin,-1);
+                if(find(fDropBins.begin(), fDropBins.end(), i_bin) != fDropBins.end()) h_data->SetBinContent(i_bin,-1);
             }
         }
         if(fGetChi2==1) fSystNames.clear();
@@ -1638,8 +1644,11 @@ std::unique_ptr<TRExPlot> Region::DrawPostFit(FitResults* fitRes,
     // blinding bins
     //
     if(fBlindingThreshold>=0){
-        p->SetBinBlinding(true,fBlindingThreshold,fBlindingType);
-        if(fKeepPrefitBlindedBins && fBlindedBins!=nullptr) p->SetBinBlinding(true,fBlindedBins,fBlindingType);
+        const std::vector<int>& blindedBins = Common::GetBlindedBins(this,
+                                                                     fBlindingType,
+                                                                     fBlindingThreshold);
+        p->SetBinBlinding(blindedBins);
+        if(fKeepPrefitBlindedBins && fBlindedBins!=nullptr) p->SetBinBlinding(blindedBins);
     }
     p->BlindData();
 

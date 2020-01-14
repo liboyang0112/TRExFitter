@@ -248,7 +248,7 @@ additional options, accepting only float as arguments - useful for adding your f
 | RatioYmin                    | if set, it will specify the min of the range of the ratio plot for this region only |
 | RatioYmaxPostFit             | if set, it will specify the max of the range of the ratio plot for this region only, for post-fit only |
 | RatioYminPostFit             | if set, it will specify the min of the range of the ratio plot for this region only, for post-fit only |
-| DropBins                     | allows to specify a comma-separated list of bins to set to 0 (both for data and prediction), starting from 0 for the index |
+| DropBins                     | allows to specify a comma-separated list of bins to set to 0 (both for data and prediction), starting from 1 for the index as is the ROOT convention for bin indices |
 | Group                        | if specified, regions of the same group appear together in several places, see RegionGroups option |
 | YaxisTitle                   | title of y-axis used for plots of the region |
 | YmaxScale                    | scales range of y-axis (default: 2.0, meaning the maximum axis value is twice the largest yield in any bin) |

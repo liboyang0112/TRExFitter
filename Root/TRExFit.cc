@@ -125,7 +125,6 @@ TRExFit::TRExFit(std::string name) :
     fKeepPruning(false),
     fBlindingThreshold(-1),
     fBlindingType(Common::SOVERB),
-    fAutomaticDropBins(true),
     fRankingMaxNP(10),
     fRankingOnly("all"),
     fRankingPlot("Merge"),
@@ -1524,9 +1523,23 @@ TRExPlot* TRExFit::DrawSummary(std::string opt, TRExPlot* prefit_plot) {
     p->fLegendX2 = fLegendX2Summary;
     p->fLegendY = fLegendYSummary;
     p->fLegendNColumns = fLegendNColumnsSummary;
-    if(fBlindingThreshold>=0){
-        p->SetBinBlinding(true,fBlindingThreshold,fBlindingType);
-        if(isPostFit && fKeepPrefitBlindedBins && fBlindedBins) p->SetBinBlinding(true,fBlindedBins,fBlindingType);
+    if(fBlindingThreshold >= 0) {
+        std::unique_ptr<TH1> signal(nullptr);
+        if (Nsig > 0) {
+            signal.reset(static_cast<TH1*>(h_sig[0]->Clone()));
+        }
+        std::unique_ptr<TH1> bkg(nullptr);
+        for (int i = 0; i < Nbkg; ++i) {
+            if (!h_bkg[i]) continue;
+            if (!bkg) bkg.reset(static_cast<TH1*>(h_bkg[i]->Clone()));
+            else      bkg->Add(h_bkg[i]);
+        }
+        const std::vector<int>& blindedBins = Common::ComputeBlindedBins(signal.get(),
+                                                                         bkg.get(),
+                                                                         fBlindingType,
+                                                                         fBlindingThreshold);
+        p->SetBinBlinding(blindedBins);
+        if(isPostFit && fKeepPrefitBlindedBins && fBlindedBins) p->SetBlindingHisto(fBlindedBins);
     }
     //
     if(h_data) p->SetData(h_data, h_data->GetTitle());
@@ -1769,7 +1782,7 @@ TRExPlot* TRExFit::DrawSummary(std::string opt, TRExPlot* prefit_plot) {
         p->SetBinLabel(i_bin,fRegions[regionVec[i_bin-1]]->fShortLabel.c_str());
     }
     p->Draw(opt);
-    if(!isPostFit && p->h_blinding) fBlindedBins = static_cast<TH1D*>(p->h_blinding->Clone("blinding_trexfit") );
+    if(!isPostFit && p->GetBlindingHisto()) fBlindedBins = static_cast<TH1D*>(p->GetBlindingHisto()->Clone("blinding_trexfit"));
     //
     if(divisionVec.size()>0){
         p->pad0->cd();
@@ -2002,9 +2015,22 @@ void TRExFit::DrawMergedPlot(std::string opt,std::string group) const{
     if(!(TRExFitter::SHOWSTACKSIG && TRExFitter::ADDSTACKSIG) && fRatioType=="DATA/MC"){
         p->fRatioType = "DATA/BKG";
     }
-    if(fBlindingThreshold>=0){
-        p->SetBinBlinding(true,fBlindingThreshold,fBlindingType);
-//         if(isPostFit && fKeepPrefitBlindedBins && fBlindedBins) p->SetBinBlinding(true,fBlindedBins,fBlindingType); // FIXME
+    if(fBlindingThreshold >= 0) {
+        std::unique_ptr<TH1> signal(nullptr);
+        if (hSignalVec.size() > 0) {
+            signal.reset(static_cast<TH1*>(Common::MergeHistograms(hSignalVec[0])->Clone()));
+        }
+        std::unique_ptr<TH1> bkg(nullptr);
+        for (std::size_t i = 0; i < hBackgroundVec.size(); ++i) {
+            if (Common::MergeHistograms(hBackgroundVec[i])) continue;
+            if (!bkg) bkg.reset(static_cast<TH1*>(Common::MergeHistograms(hBackgroundVec[i])->Clone()));
+            else      bkg->Add(Common::MergeHistograms(hBackgroundVec[i]));
+        }
+        const std::vector<int>& blindedBins = Common::ComputeBlindedBins(signal.get(),
+                                                                         bkg.get(),
+                                                                         fBlindingType,
+                                                                         fBlindingThreshold);
+        p->SetBinBlinding(blindedBins);
     }
 
     if(TRExFitter::OPTION["MergeYmaxScale"]==0) TRExFitter::OPTION["MergeYmaxScale"] = 1.25;
@@ -7882,7 +7908,7 @@ void TRExFit::DropBins() {
 
     for(const auto& reg : fRegions){
     
-        const std::vector<int>& blindedBins = fAutomaticDropBins ?
+        const std::vector<int>& blindedBins = reg->GetAutomaticDropBins() ?
                 Common::GetBlindedBins(reg,fBlindingType,fBlindingThreshold) : reg->fDropBins;
         if (blindedBins.size() == 0) continue;
         for(const auto& smp : fSamples){
