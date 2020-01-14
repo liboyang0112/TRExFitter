@@ -143,6 +143,7 @@ int ConfigReader::ReadCommandLineOptions(const std::string& option){
     if(optMap["FitType"]!=""){
         if(optMap["FitType"]=="SPLUSB") fFitter->SetFitType(TRExFit::SPLUSB);
         if(optMap["FitType"]=="BONLY")  fFitter->SetFitType(TRExFit::BONLY);
+        if(optMap["FitType"]=="UNFOLDING")  fFitter->SetFitType(TRExFit::UNFOLDING);
     }
     if(optMap["LumiScale"]!=""){
         fFitter->fLumiScale = atof(optMap["LumiScale"].c_str());

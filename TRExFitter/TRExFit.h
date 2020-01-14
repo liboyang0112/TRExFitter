@@ -39,7 +39,8 @@ public:
     enum FitType {
         UNDEFINED = 0,
         SPLUSB = 1,
-        BONLY = 2
+        BONLY = 2 ,
+        UNFOLDING = 3
     };
 
     enum FitRegion {
