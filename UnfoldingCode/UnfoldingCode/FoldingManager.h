@@ -49,7 +49,7 @@ public:
 
     void FoldTruth();
 
-    const std::vector<TH1D> GetFoldedDistributions() const;
+    const std::vector<TH1D>& GetFoldedDistributions() const;
 
 private:
     std::unique_ptr<TH1D> fSelectionEfficiency;

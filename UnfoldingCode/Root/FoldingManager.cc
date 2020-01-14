@@ -185,6 +185,6 @@ void FoldingManager::GetFoldedDistributions(const TH1D* truth, const TH2D* respo
     }
 }
     
-const std::vector<TH1D> FoldingManager::GetFoldedDistributions() const {
+const std::vector<TH1D>& FoldingManager::GetFoldedDistributions() const {
     return fFoldedDistributions;
 }
