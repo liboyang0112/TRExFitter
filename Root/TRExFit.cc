@@ -7957,7 +7957,7 @@ void TRExFit::PrepareUnfolding() {
     FoldingManager manager{};
     manager.SetMatrixOrientation(fMatrixOrientation);
     
-    std::unique_ptr<TH1> truth = Common::HistFromFile(fTruthDistributionFile, fTruthDistributionName);    
+    std::unique_ptr<TH1> truth = Common::HistFromFile(fTruthDistributionFile+".root", fTruthDistributionName);    
     manager.SetTruthDistribution(truth.get());
 
     // loop over regions
@@ -7967,7 +7967,7 @@ void TRExFit::PrepareUnfolding() {
         if (ireg->fRegionType != Region::RegionType::SIGNAL) continue;
     
         // loop over all samples
-        for (const auto& isample : ireg->fSamples) {
+        for (const auto& isample : fSamples) {
        
             // process only signal samples
             if (isample->fType != Sample::SampleType::SIGNAL) continue;
@@ -7975,12 +7975,10 @@ void TRExFit::PrepareUnfolding() {
             // skip samples not associated to the region
             if(Common::FindInStringVector(isample->fRegions, ireg->fName) < 0) continue;
 
-            //// FOLLOWING LINES ARE FOR TESTING ONLY 
+            // first process nominal
+            const std::vector<std::string>& fullResponsePaths = FullResponseMatrixPaths(ireg, isample);
 
-            const std::string fileName = fSamples[0]->fResponseMatrixFiles.at(0);
-            const std::string histoName = fSamples[0]->fResponseMatrixNames.at(0);
-
-            std::unique_ptr<TH2> matrix = Common::Hist2DFromFile(fileName, histoName);
+            std::unique_ptr<TH2> matrix = Common::Hist2DFromFile(fullResponsePaths.at(0));
 
             // a temporraty line for testing
             UnfoldingTools::NormalizeMatrix(matrix.get(), false);
@@ -7989,8 +7987,8 @@ void TRExFit::PrepareUnfolding() {
 
             manager.FoldTruth();
 
-            manager.WriteFoldedToHisto(outputFile.get(), "nominal");
-            /// END OF LINES FOR TESTING
+            const std::string histoName = ireg->fName + "_" + isample->fName +"_nominal";
+            manager.WriteFoldedToHisto(outputFile.get(), histoName);
         }
     }
 
@@ -8022,7 +8020,7 @@ std::vector<std::string> TRExFit::FullResponseMatrixPaths(Region *reg,
     // 2. Sample
     // 3. Region
     // 4. Job
-    if(!syst){
+    if(syst){
         if(isUp) {
             if(syst->fResponseMatrixPathsUp.size()  >0) paths = syst->fResponseMatrixPathsUp;
             if(syst->fResponseMatrixFilesUp.size()  >0) files = syst->fResponseMatrixFilesUp;
@@ -8045,7 +8043,7 @@ std::vector<std::string> TRExFit::FullResponseMatrixPaths(Region *reg,
     if(files.size()==0 && fResponseMatrixFiles.size()>0) files = fResponseMatrixFiles;
     if(names.size()==0 && fResponseMatrixNames.size()>0) names = fResponseMatrixNames;
 
-    if(!syst) {
+    if(syst) {
         if(isUp) pathSuffs = Common::CombinePathSufs(Common::CombinePathSufs(reg->fResponseMatrixPathSuffs,smp->fResponseMatrixPathSuffs), syst->fResponseMatrixPathSuffsUp);
         else     pathSuffs = Common::CombinePathSufs(Common::CombinePathSufs(reg->fResponseMatrixPathSuffs,smp->fResponseMatrixPathSuffs), syst->fResponseMatrixPathSuffsDown);
     }
@@ -8053,7 +8051,7 @@ std::vector<std::string> TRExFit::FullResponseMatrixPaths(Region *reg,
         pathSuffs = Common::CombinePathSufs(reg->fResponseMatrixPathSuffs, smp->fResponseMatrixPathSuffs);
     }
 
-    if(!syst) {
+    if(syst) {
         if(isUp) fileSuffs = Common::CombinePathSufs(Common::CombinePathSufs(reg->fResponseMatrixFileSuffs, smp->fResponseMatrixFileSuffs), syst->fResponseMatrixFileSuffsUp);
         else     fileSuffs = Common::CombinePathSufs(Common::CombinePathSufs(reg->fResponseMatrixFileSuffs, smp->fResponseMatrixFileSuffs), syst->fResponseMatrixFileSuffsDown);
     }
@@ -8061,7 +8059,7 @@ std::vector<std::string> TRExFit::FullResponseMatrixPaths(Region *reg,
         fileSuffs = Common::CombinePathSufs(reg->fResponseMatrixFileSuffs, smp->fResponseMatrixFileSuffs);
     }
 
-    if(!syst) {
+    if(syst) {
         if(isUp) nameSuffs = Common::CombinePathSufs(Common::CombinePathSufs(reg->fResponseMatrixNameSuffs, smp->fResponseMatrixNameSuffs), syst->fResponseMatrixNameSuffsUp);
         else     nameSuffs = Common::CombinePathSufs(Common::CombinePathSufs(reg->fResponseMatrixNameSuffs, smp->fResponseMatrixNameSuffs), syst->fResponseMatrixNameSuffsDown);
     }
