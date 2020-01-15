@@ -60,7 +60,7 @@ public:
 
     const std::vector<TH1D>& GetFoldedDistributions() const;
 
-    void WriteFoldedToHisto(TFile* file, const std::string& path) const;
+    void WriteFoldedToHisto(TFile* file, const std::string& dir, const std::string& path) const;
 
 private:
     std::unique_ptr<TH1D> fSelectionEfficiency;

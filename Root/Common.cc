@@ -1226,3 +1226,45 @@ std::vector<int> Common::ComputeBlindedBins(const TH1* signal,
 
     return result;
 }
+
+//__________________________________________________________________________________
+//
+std::unique_ptr<TH1> Common::CombineHistosFromFullPaths(const std::vector<std::string>& paths) {
+    std::unique_ptr<TH1> result(nullptr);
+
+    for (const auto& ipath : paths) {
+        if (!result) {
+            result = Common::HistFromFile(ipath);
+        } else {
+            std::unique_ptr<TH1> tmp = Common::HistFromFile(ipath);
+            if (!tmp) {
+                WriteWarningStatus("Common::CombineHistosFromFullPaths", "Cannot add histogram from: " + ipath + ", skipping");
+                continue;
+            }
+            result->Add(tmp.get());
+        }
+    }
+
+    return result;
+}
+
+//__________________________________________________________________________________
+//
+std::unique_ptr<TH2> Common::CombineHistos2DFromFullPaths(const std::vector<std::string>& paths) {
+    std::unique_ptr<TH2> result(nullptr);
+
+    for (const auto& ipath : paths) {
+        if (!result) {
+            result = Common::Hist2DFromFile(ipath);
+        } else {
+            std::unique_ptr<TH2> tmp = Common::Hist2DFromFile(ipath);
+            if (!tmp) {
+                WriteWarningStatus("Common::CombineHistos2DFromFullPaths", "Cannot add histogram from: " + ipath + ", skipping");
+                continue;
+            }
+            result->Add(tmp.get());
+        }
+    }
+
+    return result;
+}

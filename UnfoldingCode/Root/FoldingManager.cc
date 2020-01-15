@@ -1,5 +1,6 @@
 #include "UnfoldingCode/FoldingManager.h"
 
+#include "TDirectory.h"
 #include "TFile.h"
 
 #include <exception>
@@ -241,7 +242,9 @@ const std::vector<TH1D>& FoldingManager::GetFoldedDistributions() const {
 
 //__________________________________________________________________________________
 //
-void FoldingManager::WriteFoldedToHisto(TFile* f, const std::string& path) const {
+void FoldingManager::WriteFoldedToHisto(TFile* f,
+                                        const std::string& dir,
+                                        const std::string& path) const {
     if (!f) {
         throw std::runtime_error{"FoldingManager::WriteFoldedToHisto: File is nullptr"};
     }
@@ -250,8 +253,14 @@ void FoldingManager::WriteFoldedToHisto(TFile* f, const std::string& path) const
         throw std::runtime_error{"FoldingManager::WriteFoldedToHisto: Size of the folded distributions is 0. Did you forget to run FoldingManager::FoldTruth?"};
     }
 
+    const TDirectory* directory = dynamic_cast<TDirectory*>(f->Get(dir.c_str()));
+    if(!directory) {
+        throw std::runtime_error{"FoldingManager::WriteFoldedToHisto: Cannot cd to directory: " + dir};
+    }
+
     for (std::size_t ihist = 0; ihist < fFoldedDistributions.size(); ++ihist) {
-        f->cd();
+        f->cd(dir.c_str());
+
         const std::string fullName = path+"_bin_"+std::to_string(ihist);
         fFoldedDistributions.at(ihist).Write(fullName.c_str());
     }

@@ -233,6 +233,20 @@ std::vector<int> ComputeBlindedBins(const TH1* signal,
                                     const TH1* bkg,
                                     const BlindingType type,
                                     const double threshold);
+
+/**
+  * A helper function to combine histograms from a vector of full paths
+  * @param A vector where each element represents the full path
+  * @return a combined histogram
+  */ 
+std::unique_ptr<TH1> CombineHistosFromFullPaths(const std::vector<std::string>& paths);
+
+/**
+  * A helper function to combine 2D histograms from a vector of full paths
+  * @param A vector where each element represents the full path
+  * @return a combined 2D histogram
+  */ 
+std::unique_ptr<TH2> CombineHistos2DFromFullPaths(const std::vector<std::string>& paths);
 }
 
 #endif

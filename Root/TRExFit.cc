@@ -7956,9 +7956,12 @@ void TRExFit::PrepareUnfolding() {
 
     FoldingManager manager{};
     manager.SetMatrixOrientation(fMatrixOrientation);
-    
-    std::unique_ptr<TH1> truth = Common::HistFromFile(fTruthDistributionFile+".root", fTruthDistributionName);    
-    manager.SetTruthDistribution(truth.get());
+   
+    { 
+        const std::vector<std::string>& truthPaths = FullTruthPaths();
+        std::unique_ptr<TH1> truth = Common::CombineHistosFromFullPaths(truthPaths);    
+        manager.SetTruthDistribution(truth.get());
+    }
 
     // loop over regions
     for (const auto& ireg : fRegions) {
@@ -7978,7 +7981,7 @@ void TRExFit::PrepareUnfolding() {
             // first process nominal
             const std::vector<std::string>& fullResponsePaths = FullResponseMatrixPaths(ireg, isample);
 
-            std::unique_ptr<TH2> matrix = Common::Hist2DFromFile(fullResponsePaths.at(0));
+            std::unique_ptr<TH2> matrix = Common::CombineHistos2DFromFullPaths(fullResponsePaths);
 
             // a temporraty line for testing
             UnfoldingTools::NormalizeMatrix(matrix.get(), false);
@@ -7987,8 +7990,15 @@ void TRExFit::PrepareUnfolding() {
 
             manager.FoldTruth();
 
-            const std::string histoName = ireg->fName + "_" + isample->fName +"_nominal";
-            manager.WriteFoldedToHisto(outputFile.get(), histoName);
+            // create the folder structure
+            TDirectory* dir = dynamic_cast<TDirectory*>(outputFile->Get("nominal"));
+            if (!dir) {
+                outputFile->cd();
+                outputFile->mkdir("nominal");
+            }
+
+            const std::string histoName = ireg->fName + "_" + isample->fName;
+            manager.WriteFoldedToHisto(outputFile.get(), "nominal", histoName);
         }
     }
 
@@ -8070,4 +8080,12 @@ std::vector<std::string> TRExFit::FullResponseMatrixPaths(Region *reg,
     // And finally put everything together
     fullPaths = Common::CreatePathsList(paths, pathSuffs, files, fileSuffs, names, nameSuffs);
     return fullPaths;
+}
+
+std::vector<std::string> TRExFit::FullTruthPaths() const {
+    std::vector<std::string> result;
+
+    const std::string path = fTruthDistributionPath + "/" +fTruthDistributionFile + ".root/" + fTruthDistributionName;
+    result.emplace_back(path);
+    return result;
 }
