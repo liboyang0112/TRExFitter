@@ -80,6 +80,7 @@ TH1D* HistFromNtuple(const std::string& ntuple, const std::string& variable, int
 TH1D* HistFromNtupleBinArr(const std::string& ntuple, const std::string& variable, int nbin, double *bins, const std::string& selection, const std::string& weight, int Nev=-1);
 std::unique_ptr<TH1> HistFromFile(const std::string& fullName);
 std::unique_ptr<TH1> HistFromFile(const std::string& fileName, const std::string& histoName);
+std::unique_ptr<TH2> Hist2DFromFile(const std::string& fullName);
 std::unique_ptr<TH2> Hist2DFromFile(const std::string& fileName, const std::string& histoName);
 void WriteHistToFile(TH1* h, const std::string& fileName, const std::string& option="UPDATE");
 void WriteHistToFile(TH1* h, TFile *f);

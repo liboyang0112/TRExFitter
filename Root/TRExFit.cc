@@ -7956,6 +7956,9 @@ void TRExFit::PrepareUnfolding() {
 
     FoldingManager manager{};
     manager.SetMatrixOrientation(fMatrixOrientation);
+    
+    std::unique_ptr<TH1> truth = Common::HistFromFile(fTruthDistributionFile, fTruthDistributionName);    
+    manager.SetTruthDistribution(truth.get());
 
     // loop over regions
     for (const auto& ireg : fRegions) {
@@ -7973,8 +7976,6 @@ void TRExFit::PrepareUnfolding() {
             if(Common::FindInStringVector(isample->fRegions, ireg->fName) < 0) continue;
 
             //// FOLLOWING LINES ARE FOR TESTING ONLY 
-            std::unique_ptr<TH1> truth = Common::HistFromFile(fTruthDistributionFile, fTruthDistributionName);    
-            manager.SetTruthDistribution(truth.get());
 
             const std::string fileName = fSamples[0]->fResponseMatrixFiles.at(0);
             const std::string histoName = fSamples[0]->fResponseMatrixNames.at(0);
@@ -7994,4 +7995,81 @@ void TRExFit::PrepareUnfolding() {
     }
 
     outputFile->Close();
+}
+
+std::vector<std::string> TRExFit::FullResponseMatrixPaths(Region *reg, 
+                                                          Sample *smp,
+                                                          Systematic *syst,
+                                                          const bool isUp) const {
+    // protection against nullptr
+    if(!reg) {
+        WriteErrorStatus("TRExFit::FullMigrationMatrixPaths","Null pointer for Region.");
+        exit(EXIT_FAILURE);
+    }
+    if(!smp) {
+        WriteErrorStatus("TRExFit::FullMigrationMatrixPaths","Null pointer for Sample.");
+        exit(EXIT_FAILURE);
+    }
+    std::vector<std::string> fullPaths;
+    std::vector<std::string> paths;
+    std::vector<std::string> pathSuffs;
+    std::vector<std::string> files;
+    std::vector<std::string> fileSuffs;
+    std::vector<std::string> names;
+    std::vector<std::string> nameSuffs;
+    // precendence:
+    // 1. Systematic
+    // 2. Sample
+    // 3. Region
+    // 4. Job
+    if(!syst){
+        if(isUp) {
+            if(syst->fResponseMatrixPathsUp.size()  >0) paths = syst->fResponseMatrixPathsUp;
+            if(syst->fResponseMatrixFilesUp.size()  >0) files = syst->fResponseMatrixFilesUp;
+            if(syst->fResponseMatrixNamesUp.size()  >0) names = syst->fResponseMatrixNamesUp;
+        } else {
+            if(syst->fResponseMatrixPathsDown.size()>0) paths = syst->fResponseMatrixPathsDown;
+            if(syst->fResponseMatrixFilesDown.size()>0) files = syst->fResponseMatrixFilesDown;
+            if(syst->fResponseMatrixNamesDown.size()>0) names = syst->fResponseMatrixNamesDown;
+        }
+    }
+    if(paths.size()==0 && smp->fResponseMatrixPaths.size()>0) paths = smp->fResponseMatrixPaths;
+    if(files.size()==0 && smp->fResponseMatrixFiles.size()>0) files = smp->fResponseMatrixFiles;
+    if(names.size()==0 && smp->fResponseMatrixNames.size()>0) names = smp->fResponseMatrixNames;
+
+    if(paths.size()==0 && reg->fResponseMatrixPaths.size()>0) paths = reg->fResponseMatrixPaths;
+    if(files.size()==0 && reg->fResponseMatrixFiles.size()>0) files = reg->fResponseMatrixFiles;
+    if(names.size()==0 && reg->fResponseMatrixNames.size()>0) names = reg->fResponseMatrixNames;
+
+    if(paths.size()==0 && fResponseMatrixPaths.size()>0) paths = fResponseMatrixPaths;
+    if(files.size()==0 && fResponseMatrixFiles.size()>0) files = fResponseMatrixFiles;
+    if(names.size()==0 && fResponseMatrixNames.size()>0) names = fResponseMatrixNames;
+
+    if(!syst) {
+        if(isUp) pathSuffs = Common::CombinePathSufs(Common::CombinePathSufs(reg->fResponseMatrixPathSuffs,smp->fResponseMatrixPathSuffs), syst->fResponseMatrixPathSuffsUp);
+        else     pathSuffs = Common::CombinePathSufs(Common::CombinePathSufs(reg->fResponseMatrixPathSuffs,smp->fResponseMatrixPathSuffs), syst->fResponseMatrixPathSuffsDown);
+    }
+    else{
+        pathSuffs = Common::CombinePathSufs(reg->fResponseMatrixPathSuffs, smp->fResponseMatrixPathSuffs);
+    }
+
+    if(!syst) {
+        if(isUp) fileSuffs = Common::CombinePathSufs(Common::CombinePathSufs(reg->fResponseMatrixFileSuffs, smp->fResponseMatrixFileSuffs), syst->fResponseMatrixFileSuffsUp);
+        else     fileSuffs = Common::CombinePathSufs(Common::CombinePathSufs(reg->fResponseMatrixFileSuffs, smp->fResponseMatrixFileSuffs), syst->fResponseMatrixFileSuffsDown);
+    }
+    else{
+        fileSuffs = Common::CombinePathSufs(reg->fResponseMatrixFileSuffs, smp->fResponseMatrixFileSuffs);
+    }
+
+    if(!syst) {
+        if(isUp) nameSuffs = Common::CombinePathSufs(Common::CombinePathSufs(reg->fResponseMatrixNameSuffs, smp->fResponseMatrixNameSuffs), syst->fResponseMatrixNameSuffsUp);
+        else     nameSuffs = Common::CombinePathSufs(Common::CombinePathSufs(reg->fResponseMatrixNameSuffs, smp->fResponseMatrixNameSuffs), syst->fResponseMatrixNameSuffsDown);
+    }
+    else{
+      nameSuffs = Common::CombinePathSufs(Common::CombinePathSufs(reg->fResponseMatrixNameSuffs, smp->fResponseMatrixNameSuffs), fResponseMatrixNamesNominal);
+    }
+
+    // And finally put everything together
+    fullPaths = Common::CreatePathsList(paths, pathSuffs, files, fileSuffs, names, nameSuffs);
+    return fullPaths;
 }

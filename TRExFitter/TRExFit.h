@@ -306,6 +306,19 @@ public:
     std::vector<std::string> FullHistogramPaths(Region *reg,Sample *smp,Systematic *syst=nullptr,bool isUp=true);
 
     /**
+      * A helper function to compute the fgull paths for a response matrix
+     * @param pointer to the Region
+     * @param pointer to the Sample
+     * @param pointer to the Systematic (default = NULL)
+     * @param bool to specify up (true) or down (false) syst variation
+     * @return the full path
+     */
+    std::vector<std::string> FullResponseMatrixPaths(Region* reg, 
+                                                     Sample* smp,
+                                                     Systematic* syst = nullptr,
+                                                     const bool isUp = true) const;
+
+    /**
     * A helper function to get SampleHisto from a region that matches a name of the sample
     * @param Region
     * @@param name
@@ -411,6 +424,7 @@ public:
     std::vector<std::string> fResponseMatrixNames;
     std::vector<std::string> fResponseMatrixFiles;
     std::vector<std::string> fResponseMatrixPaths;
+    std::vector<std::string> fResponseMatrixNamesNominal;
     
     std::vector<std::string> fHistoPaths;
     std::vector<std::string> fHistoFiles;

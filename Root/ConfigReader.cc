@@ -327,6 +327,12 @@ int ConfigReader::ReadJobOptions(){
         fFitter->fResponseMatrixPaths = Vectorize(param, ',');
     }
 
+    param = confSet->Get("ResponseMatrixNameNominal");
+    if(param!=""){
+      fFitter->fResponseMatrixNamesNominal.clear();
+      fFitter->fResponseMatrixNamesNominal.emplace_back(CheckName(param));
+    }
+    
     // Set paths
     // HIST option only
     if(fFitter->fInputType==0){

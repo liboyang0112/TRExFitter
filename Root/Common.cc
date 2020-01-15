@@ -209,6 +209,14 @@ std::unique_ptr<TH1> Common::HistFromFile(const std::string& fileName,
 
 //__________________________________________________________________________________
 //
+std::unique_ptr<TH2> Common::Hist2DFromFile(const std::string& fullName) {
+    const std::string fileName  = fullName.substr(0,fullName.find_last_of(".")+5);
+    const std::string histoName = fullName.substr(fullName.find_last_of(".")+6,std::string::npos);
+    return Hist2DFromFile(fileName,histoName);
+}
+
+//__________________________________________________________________________________
+//
 std::unique_ptr<TH2> Common::Hist2DFromFile(const std::string& fileName,
                                             const std::string& histoName) {
     if(fileName=="") return nullptr;
