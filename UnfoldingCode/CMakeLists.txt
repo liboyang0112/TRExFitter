@@ -30,10 +30,12 @@ find_package( ROOT 6.10.06 REQUIRED COMPONENTS Core MathCore Graf Hist RIO Tree 
 
 # Public header files for the shared/static library.
 set( lib_headers
-    UnfoldingCode/FoldingManager.h )
+    UnfoldingCode/FoldingManager.h
+    UnfoldingCode/UnfoldingTools.h )
 
 set( lib_sources
-    Root/FoldingManager.cc )
+    Root/FoldingManager.cc
+    Root/UnfoldingTools.cc )
 
 # Build the shared library.
 add_library( UnfoldingCode SHARED ${lib_headers} ${lib_sources} )

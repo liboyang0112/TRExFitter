@@ -60,6 +60,8 @@ public:
 
     const std::vector<TH1D>& GetFoldedDistributions() const;
 
+    void WriteFoldedToHisto(TFile* file, const std::string& path) const;
+
 private:
     std::unique_ptr<TH1D> fSelectionEfficiency;
     std::unique_ptr<TH2D> fMigrationMatrix;

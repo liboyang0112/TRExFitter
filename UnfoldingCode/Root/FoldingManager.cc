@@ -238,3 +238,21 @@ void FoldingManager::PrepareFoldedDistributions(const TH1D* truth, const TH2D* r
 const std::vector<TH1D>& FoldingManager::GetFoldedDistributions() const {
     return fFoldedDistributions;
 }
+
+//__________________________________________________________________________________
+//
+void FoldingManager::WriteFoldedToHisto(TFile* f, const std::string& path) const {
+    if (!f) {
+        throw std::runtime_error{"FoldingManager::WriteFoldedToHisto: File is nullptr"};
+    }
+
+    if (fFoldedDistributions.size() == 0) {
+        throw std::runtime_error{"FoldingManager::WriteFoldedToHisto: Size of the folded distributions is 0. Did you forget to run FoldingManager::FoldTruth?"};
+    }
+
+    for (std::size_t ihist = 0; ihist < fFoldedDistributions.size(); ++ihist) {
+        f->cd();
+        const std::string fullName = path+"_bin_"+std::to_string(ihist);
+        fFoldedDistributions.at(ihist).Write(fullName.c_str());
+    }
+}

@@ -18,6 +18,9 @@
 #include "TRExFitter/Region.h"
 #include "TRExFitter/PruningUtil.h"
 
+// UnfoldingCode includes
+#include "UnfoldingCode/UnfoldingCode/UnfoldingTools.h"
+
 // CommonStatTiils includes
 #include "CommonStatTools/runSig.h"
 #include "CommonStatTools/runAsymptoticsCLs.h"
@@ -7940,6 +7943,17 @@ void TRExFit::DropBins() {
 //__________________________________________________________________________________
 //
 void TRExFit::PrepareUnfolding() {
+    // Prepare the folder structure
+    gSystem->mkdir(fName.c_str());
+    gSystem->mkdir((fName+"/UnfoldingHistograms").c_str());
+
+    // Open the otuput ROOT file
+    std::unique_ptr<TFile> outputFile(TFile::Open((fName+"/UnfoldingHistograms/FoldedHistograms.root").c_str(), "RECREATE"));
+    if (!outputFile) {
+        WriteErrorStatus("TRExFit::PrepareUnfolding", "Cannot open the output file at: " + fName + "/UnfoldingHistograms/FoldedHistograms.root");
+        exit(EXIT_FAILURE);
+    }
+
     FoldingManager manager{};
     manager.SetMatrixOrientation(fMatrixOrientation);
     
@@ -7948,10 +7962,17 @@ void TRExFit::PrepareUnfolding() {
 
     const std::string fileName = fSamples[0]->fResponseMatrixFiles.at(0);
     const std::string histoName = fSamples[0]->fResponseMatrixNames.at(0);
+
     std::unique_ptr<TH2> matrix = Common::Hist2DFromFile(fileName, histoName);
+
+    // a temporraty line for testing
+    UnfoldingTools::NormalizeMatrix(matrix.get(), false);
+
     manager.SetResponseMatrix(matrix.get());
 
     manager.FoldTruth();
 
-    const std::vector<TH1D> foldedHistos = manager.GetFoldedDistributions();
+    manager.WriteFoldedToHisto(outputFile.get(), "nominal");
+
+    outputFile->Close();
 }
