@@ -7956,23 +7956,42 @@ void TRExFit::PrepareUnfolding() {
 
     FoldingManager manager{};
     manager.SetMatrixOrientation(fMatrixOrientation);
+
+    // loop over regions
+    for (const auto& ireg : fRegions) {
+        
+        // only signal regions are processed at this step
+        if (ireg->fRegionType != Region::RegionType::SIGNAL) continue;
     
-    std::unique_ptr<TH1> truth = Common::HistFromFile(fTruthDistributionFile, fTruthDistributionName);    
-    manager.SetTruthDistribution(truth.get());
+        // loop over all samples
+        for (const auto& isample : ireg->fSamples) {
+       
+            // process only signal samples
+            if (isample->fType != Sample::SampleType::SIGNAL) continue;
+            
+            // skip samples not associated to the region
+            if(Common::FindInStringVector(isample->fRegions, ireg->fName) < 0) continue;
 
-    const std::string fileName = fSamples[0]->fResponseMatrixFiles.at(0);
-    const std::string histoName = fSamples[0]->fResponseMatrixNames.at(0);
+            //// FOLLOWING LINES ARE FOR TESTING ONLY 
+            std::unique_ptr<TH1> truth = Common::HistFromFile(fTruthDistributionFile, fTruthDistributionName);    
+            manager.SetTruthDistribution(truth.get());
 
-    std::unique_ptr<TH2> matrix = Common::Hist2DFromFile(fileName, histoName);
+            const std::string fileName = fSamples[0]->fResponseMatrixFiles.at(0);
+            const std::string histoName = fSamples[0]->fResponseMatrixNames.at(0);
 
-    // a temporraty line for testing
-    UnfoldingTools::NormalizeMatrix(matrix.get(), false);
+            std::unique_ptr<TH2> matrix = Common::Hist2DFromFile(fileName, histoName);
 
-    manager.SetResponseMatrix(matrix.get());
+            // a temporraty line for testing
+            UnfoldingTools::NormalizeMatrix(matrix.get(), false);
 
-    manager.FoldTruth();
+            manager.SetResponseMatrix(matrix.get());
 
-    manager.WriteFoldedToHisto(outputFile.get(), "nominal");
+            manager.FoldTruth();
+
+            manager.WriteFoldedToHisto(outputFile.get(), "nominal");
+            /// END OF LINES FOR TESTING
+        }
+    }
 
     outputFile->Close();
 }
