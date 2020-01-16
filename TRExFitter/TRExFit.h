@@ -313,9 +313,9 @@ public:
      * @param bool to specify up (true) or down (false) syst variation
      * @return the full path
      */
-    std::vector<std::string> FullResponseMatrixPaths(Region* reg, 
-                                                     Sample* smp,
-                                                     Systematic* syst = nullptr,
+    std::vector<std::string> FullResponseMatrixPaths(const Region* reg, 
+                                                     const Sample* smp,
+                                                     const Systematic* syst = nullptr,
                                                      const bool isUp = true) const;
 
     /**
@@ -381,6 +381,20 @@ public:
       * Folded distributions are created
       */ 
     void PrepareUnfolding();
+
+    /**
+      * A helper function to fold systematic distributions needed for unfolding
+      * @param Folding manager
+      * @param output file
+      * @param Region
+      * @param Sample
+      * @param Current systematics
+      */ 
+    void ProcessUnfoldingSystematics(FoldingManager* manager,
+                                     TFile* file,
+                                     const Region* reg,
+                                     const Sample* sample,
+                                     const Systematic* syst) const;
 
     // -------------------------
 

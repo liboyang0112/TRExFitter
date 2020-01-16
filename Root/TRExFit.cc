@@ -7976,7 +7976,8 @@ void TRExFit::PrepareUnfolding() {
             if (isample->fType != Sample::SampleType::SIGNAL) continue;
             
             // skip samples not associated to the region
-            if(Common::FindInStringVector(isample->fRegions, ireg->fName) < 0) continue;
+            if(isample->fRegions[0] != "all" && 
+                Common::FindInStringVector(isample->fRegions, ireg->fName) < 0) continue;
 
             // first process nominal
             const std::vector<std::string>& fullResponsePaths = FullResponseMatrixPaths(ireg, isample);
@@ -7999,15 +8000,73 @@ void TRExFit::PrepareUnfolding() {
 
             const std::string histoName = ireg->fName + "_" + isample->fName;
             manager.WriteFoldedToHisto(outputFile.get(), "nominal", histoName);
+
+            // Process systematics
+            for (const auto& isyst : fSystematics) {
+                if (!isyst) continue;
+                if (isyst->fName == "Dummy") continue; // wtf?
+                
+                if(isyst->fRegions.size() > 0 &&
+                     Common::FindInStringVector(isyst->fRegions, ireg->fName) < 0) continue;
+                if(isyst->fSamples.size() > 0 &&
+                     Common::FindInStringVector(isyst->fSamples, isample->fName) < 0) continue;
+
+                ProcessUnfoldingSystematics(&manager,
+                                            outputFile.get(),
+                                            ireg,
+                                            isample,
+                                            isyst);
+            }
         }
     }
 
     outputFile->Close();
 }
 
-std::vector<std::string> TRExFit::FullResponseMatrixPaths(Region *reg, 
-                                                          Sample *smp,
-                                                          Systematic *syst,
+//__________________________________________________________________________________
+//
+void TRExFit::ProcessUnfoldingSystematics(FoldingManager* manager,
+                                          TFile* file,
+                                          const Region* reg,
+                                          const Sample* sample,
+                                          const Systematic* syst) const {
+
+    // lambda for processing one (up or down) variation
+    auto ProcessOneVariation = [&](const std::vector<std::string>& paths, const bool isUp) {
+        std::unique_ptr<TH2> matrix = Common::CombineHistos2DFromFullPaths(paths); 
+        // a temporraty line for testing
+        UnfoldingTools::NormalizeMatrix(matrix.get(), false);
+
+        manager->SetResponseMatrix(matrix.get());
+        manager->FoldTruth();
+        
+        // create the folder structure
+        const std::string folderName = isUp ? syst->fName + "_Up" : syst->fName + "_Down";
+        TDirectory* dir = dynamic_cast<TDirectory*>(file->Get(folderName.c_str()));
+        if (!dir) {
+            file->cd();
+            file->mkdir(folderName.c_str());
+        }
+
+        const std::string histoName = reg->fName + "_" + sample->fName;
+        manager->WriteFoldedToHisto(file, folderName, histoName);
+    };
+
+    if (syst->fHasUpVariation) {
+        const std::vector<std::string>& fullPaths = FullResponseMatrixPaths(reg, sample, syst, true);
+        ProcessOneVariation(fullPaths, true);
+    }
+    if (syst->fHasDownVariation) {
+        const std::vector<std::string>& fullPaths = FullResponseMatrixPaths(reg, sample, syst, false);
+        ProcessOneVariation(fullPaths, false);
+    }
+} 
+
+//__________________________________________________________________________________
+//
+std::vector<std::string> TRExFit::FullResponseMatrixPaths(const Region* reg, 
+                                                          const Sample* smp,
+                                                          const Systematic* syst,
                                                           const bool isUp) const {
     // protection against nullptr
     if(!reg) {
@@ -8082,6 +8141,8 @@ std::vector<std::string> TRExFit::FullResponseMatrixPaths(Region *reg,
     return fullPaths;
 }
 
+//__________________________________________________________________________________
+//
 std::vector<std::string> TRExFit::FullTruthPaths() const {
     std::vector<std::string> result;
 
