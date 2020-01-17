@@ -28,26 +28,18 @@ public:
 
     void SetResponseMatrix(const TH2* matrix);
     
-    void SetResponseMatrix(TFile* file, const std::string& path);
-
     const TH2D* GetResponseMatrix() const;
 
     void SetTruthDistribution(const TH1* truth);
     
-    void SetTruthDistribution(TFile* file, const std::string& path);
-
     const TH1D* GetTruthDistribution() const;
 
     void SetSelectionEfficiency(const TH1* eff);
     
-    void SetSelectionEfficiency(TFile* file, const std::string& path);
-
     const TH1D* GetSelectionEfficiency() const;
 
     void SetMigrationMatrix(const TH2* matrix);
     
-    void SetMigrationMatrix(TFile* file, const std::string& path);
-
     const TH2D* GetMigrationMatrix() const;
 
     void SetMatrixOrientation(const MATRIXORIENTATION opt);
@@ -61,6 +53,12 @@ public:
     const std::vector<TH1D>& GetFoldedDistributions() const;
 
     void WriteFoldedToHisto(TFile* file, const std::string& dir, const std::string& path) const;
+    
+    void WriteTruthToHisto(TFile* file, const std::string& dir, const std::string& path) const;
+    
+    void WriteMigrationToHisto(TFile* file, const std::string& dir, const std::string& path) const;
+    
+    void WriteSelectionEffToHisto(TFile* file, const std::string& dir, const std::string& path) const;
 
 private:
     std::unique_ptr<TH1D> fSelectionEfficiency;

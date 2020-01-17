@@ -30,21 +30,6 @@ void FoldingManager::SetResponseMatrix(const TH2* matrix) {
 
 //__________________________________________________________________________________
 //
-void FoldingManager::SetResponseMatrix(TFile* file, const std::string& path) {
-    if (!file) {
-        throw std::runtime_error{"FoldingManager::SetResponseMatrix: Passed nullptr as the input file"};
-    }
-
-    const TH2D* tmp = dynamic_cast<TH2D*>(file->Get(path.c_str()));
-    if (!tmp) {
-        throw std::runtime_error{"FoldingManager::SetResponseMatrix: Cannot read response matrix from: "+path};
-    }
-
-    fResponseMatrix.reset(static_cast<TH2D*>(tmp->Clone()));
-}
-
-//__________________________________________________________________________________
-//
 const TH2D* FoldingManager::GetResponseMatrix() const {
     return fResponseMatrix.get();
 }
@@ -57,21 +42,6 @@ void FoldingManager::SetTruthDistribution(const TH1* truth) {
     }
 
     fTruthDistribution.reset(static_cast<TH1D*>(truth->Clone()));
-}
-
-//__________________________________________________________________________________
-//
-void FoldingManager::SetTruthDistribution(TFile* file, const std::string& path) {
-    if (!file) {
-        throw std::runtime_error{"FoldingManager::SetTruthDistribution: Passed nullptr as the input file"};
-    }
-
-    const TH1D* tmp = dynamic_cast<TH1D*>(file->Get(path.c_str()));
-    if (!tmp) {
-        throw std::runtime_error{"FoldingManager::SetTruthDistribution: Cannot read truth distribution from: "+path};
-    }
-
-    fTruthDistribution.reset(static_cast<TH1D*>(tmp->Clone()));
 }
 
 //__________________________________________________________________________________
@@ -90,21 +60,6 @@ void FoldingManager::SetMigrationMatrix(const TH2* matrix) {
 
 //__________________________________________________________________________________
 //
-void FoldingManager::SetMigrationMatrix(TFile* file, const std::string& path) {
-    if (!file) {
-        throw std::runtime_error{"FoldingManager::SetMigrationMatrix: Passed nullptr as the input file"};
-    }
-
-    const TH2D* tmp = dynamic_cast<TH2D*>(file->Get(path.c_str()));
-    if (!tmp) {
-        throw std::runtime_error{"FoldingManager::SetMigrationMatrix: Cannot read migration matrix from: "+path};
-    }
-
-    fMigrationMatrix.reset(static_cast<TH2D*>(tmp->Clone()));
-}
-
-//__________________________________________________________________________________
-//
 const TH2D* FoldingManager::GetMigrationMatrix() const {
     return fResponseMatrix.get();
 }
@@ -117,21 +72,6 @@ void FoldingManager::SetSelectionEfficiency(const TH1* eff) {
     }
 
     fSelectionEfficiency.reset(static_cast<TH1D*>(eff->Clone()));
-}
-
-//__________________________________________________________________________________
-//
-void FoldingManager::SetSelectionEfficiency(TFile* file, const std::string& path) {
-    if (!file) {
-        throw std::runtime_error{"FoldingManager::SetSelectionEfficiency: Passed nullptr as the input file"};
-    }
-
-    const TH1D* tmp = dynamic_cast<TH1D*>(file->Get(path.c_str()));
-    if (!tmp) {
-        throw std::runtime_error{"FoldingManager::SetSelectionEfficiency: Cannot read selection efficiency from: "+path};
-    }
-
-    fSelectionEfficiency.reset(static_cast<TH1D*>(tmp->Clone()));
 }
 
 //__________________________________________________________________________________
@@ -264,4 +204,70 @@ void FoldingManager::WriteFoldedToHisto(TFile* f,
         const std::string fullName = path+"_bin_"+std::to_string(ihist);
         fFoldedDistributions.at(ihist).Write(fullName.c_str());
     }
+}
+
+//__________________________________________________________________________________
+//
+void FoldingManager::WriteTruthToHisto(TFile* f,
+                                       const std::string& dir,
+                                       const std::string& path) const {
+    if (!f) {
+        throw std::runtime_error{"FoldingManager::WriteTruthToHisto: File is nullptr"};
+    }
+
+    if (!fTruthDistribution) {
+        throw std::runtime_error{"FoldingManager::WriteTruthToHisto: Truth distribution is a nullpt!"};
+    }
+
+    const TDirectory* directory = dynamic_cast<TDirectory*>(f->Get(dir.c_str()));
+    if(!directory) {
+        throw std::runtime_error{"FoldingManager::WriteTruthToHisto: Cannot cd to directory: " + dir};
+    }
+
+    f->cd(dir.c_str());
+    fTruthDistribution->Write(path.c_str());
+}
+
+//__________________________________________________________________________________
+//
+void FoldingManager::WriteMigrationToHisto(TFile* f,
+                                           const std::string& dir,
+                                           const std::string& path) const {
+    if (!f) {
+        throw std::runtime_error{"FoldingManager::WriteMigrationToHisto: File is nullptr"};
+    }
+
+    if (!fMigrationMatrix) {
+        throw std::runtime_error{"FoldingManager::WriteMigrationToHisto: Migration matrix is a nullpt!"};
+    }
+
+    const TDirectory* directory = dynamic_cast<TDirectory*>(f->Get(dir.c_str()));
+    if(!directory) {
+        throw std::runtime_error{"FoldingManager::WriteMigrationToHisto: Cannot cd to directory: " + dir};
+    }
+
+    f->cd(dir.c_str());
+    fMigrationMatrix->Write(path.c_str());
+}
+
+//__________________________________________________________________________________
+//
+void FoldingManager::WriteSelectionEffToHisto(TFile* f,
+                                              const std::string& dir,
+                                              const std::string& path) const {
+    if (!f) {
+        throw std::runtime_error{"FoldingManager::WriteSelectionEffToHisto: File is nullptr"};
+    }
+
+    if (!fSelectionEfficiency) {
+        throw std::runtime_error{"FoldingManager::WriteSelectionEffToHisto: Selection efficiency is a nullpt!"};
+    }
+
+    const TDirectory* directory = dynamic_cast<TDirectory*>(f->Get(dir.c_str()));
+    if(!directory) {
+        throw std::runtime_error{"FoldingManager::WriteSelectionEffToHisto: Cannot cd to directory: " + dir};
+    }
+
+    f->cd(dir.c_str());
+    fSelectionEfficiency->Write(path.c_str());
 }
