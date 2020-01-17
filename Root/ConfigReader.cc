@@ -79,6 +79,8 @@ int ConfigReader::ReadFullConfig(const std::string& fileName, const std::string&
     sc+= ReadShapeFactorOptions();
 
     sc+= ReadSystOptions();
+    
+    sc+= ReadUnfoldingOptions();
 
     sc+= PostConfig();
 
@@ -143,6 +145,7 @@ int ConfigReader::ReadCommandLineOptions(const std::string& option){
     if(optMap["FitType"]!=""){
         if(optMap["FitType"]=="SPLUSB") fFitter->SetFitType(TRExFit::SPLUSB);
         if(optMap["FitType"]=="BONLY")  fFitter->SetFitType(TRExFit::BONLY);
+        if(optMap["FitType"]=="UNFOLDING")  fFitter->SetFitType(TRExFit::UNFOLDING);
     }
     if(optMap["LumiScale"]!=""){
         fFitter->fLumiScale = atof(optMap["LumiScale"].c_str());
@@ -290,6 +293,46 @@ int ConfigReader::ReadJobOptions(){
         }
     }
 
+    // Set paths for the unfolding preprocessing
+    param = confSet->Get("ResponseMatrixName");
+    if (param != "") {
+        fFitter->fResponseMatrixNames.clear();
+        fFitter->fResponseMatrixNames.emplace_back(CheckName(param));
+    }
+    
+    param = confSet->Get("ResponseMatrixNames");
+    if (param != "") {
+        fFitter->fResponseMatrixNames = Vectorize(param, ',');
+    }
+
+    param = confSet->Get("ResponseMatrixFile");
+    if (param != "") {
+        fFitter->fResponseMatrixFiles.clear();
+        fFitter->fResponseMatrixFiles.emplace_back(CheckName(param));
+    }
+    
+    param = confSet->Get("ResponseMatrixFiles");
+    if (param != "") {
+        fFitter->fResponseMatrixFiles = Vectorize(param, ',');
+    }
+
+    param = confSet->Get("ResponseMatrixPath");
+    if (param != "") {
+        fFitter->fResponseMatrixPaths.clear();
+        fFitter->fResponseMatrixPaths.emplace_back(CheckName(param));
+    }
+    
+    param = confSet->Get("ResponseMatrixPaths");
+    if (param != "") {
+        fFitter->fResponseMatrixPaths = Vectorize(param, ',');
+    }
+
+    param = confSet->Get("ResponseMatrixNameNominal");
+    if(param!=""){
+      fFitter->fResponseMatrixNamesNominal.clear();
+      fFitter->fResponseMatrixNamesNominal.emplace_back(CheckName(param));
+    }
+    
     // Set paths
     // HIST option only
     if(fFitter->fInputType==0){
@@ -1318,13 +1361,16 @@ int ConfigReader::ReadFitOptions(){
         else if( param == "BONLY" ){
             fFitter->SetFitType(TRExFit::BONLY);
         }
+        else if( param == "UNFOLDING" ){
+            fFitter->SetFitType(TRExFit::UNFOLDING);
+        }
         else{
             WriteErrorStatus("ConfigReader::ReadFitOptions", "Unknown FitType argument : " + confSet->Get("FitType"));
             return 1;
         }
     }
     else if( fFitter->fFitType == TRExFit::UNDEFINED ){
-        WriteInfoStatus("ConfigReader::ReadFitOptions","Setting default fit Type SPLUSB");
+        WriteWarningStatus("ConfigReader::ReadFitOptions","Setting default fit Type SPLUSB");
         fFitter->SetFitType(TRExFit::SPLUSB);
     }
 
@@ -1927,6 +1973,107 @@ int ConfigReader::ReadRegionOptions(const std::string& opt){
         param = confSet->Get("Group");
         if( param != "") reg->fGroup = RemoveQuotes(param);
 
+        // Paths for the unfolding code
+        param = confSet->Get("ResponseMatrixFile");
+        if (param != "") {
+            reg->fResponseMatrixFiles.clear();
+            reg->fResponseMatrixFiles.emplace_back(RemoveQuotes(param));
+        }
+
+        param = confSet->Get("ResponseMatrixFiles");
+        if (param != "") {
+            reg->fResponseMatrixFiles = Vectorize(param, ',');
+        }
+
+        // Paths for the unfolding code
+        param = confSet->Get("ResponseMatrixName");
+        if (param != "") {
+            reg->fResponseMatrixNames.clear();
+            reg->fResponseMatrixNames.emplace_back(RemoveQuotes(param));
+        }
+
+        param = confSet->Get("ResponseMatrixNames");
+        if (param != "") {
+            reg->fResponseMatrixNames = Vectorize(param, ',');
+        }
+
+        // Paths for the unfolding code
+        param = confSet->Get("ResponseMatrixPath");
+        if (param != "") {
+            reg->fResponseMatrixPaths.clear();
+            reg->fResponseMatrixPaths.emplace_back(RemoveQuotes(param));
+        }
+
+        param = confSet->Get("ResponseMatrixPaths");
+        if (param != "") {
+            reg->fResponseMatrixPaths = Vectorize(param, ',');
+        }
+
+        param = confSet->Get("ResponseMatrixFileSuff");
+        if (param != "") {
+            reg->fResponseMatrixFileSuffs.clear();
+            reg->fResponseMatrixFileSuffs.emplace_back(RemoveQuotes(param));
+        }
+
+        param = confSet->Get("ResponseMatrixFileSuffs");
+        if (param != "") {
+            reg->fResponseMatrixFileSuffs = Vectorize(param, ',');
+        }
+
+        param = confSet->Get("ResponseMatrixNameSuff");
+        if (param != "") {
+            reg->fResponseMatrixNameSuffs.clear();
+            reg->fResponseMatrixNameSuffs.emplace_back(RemoveQuotes(param));
+        }
+
+        param = confSet->Get("ResponseMatrixNameSuffs");
+        if (param != "") {
+            reg->fResponseMatrixNameSuffs = Vectorize(param, ',');
+        }
+
+        param = confSet->Get("ResponseMatrixPathSuff");
+        if (param != "") {
+            reg->fResponseMatrixPathSuffs.clear();
+            reg->fResponseMatrixPathSuffs.emplace_back(RemoveQuotes(param));
+        }
+
+        param = confSet->Get("ResponseMatrixPathSuffs");
+        if (param != "") {
+            reg->fResponseMatrixPathSuffs = Vectorize(param, ',');
+        }
+        
+        param = confSet->Get("NumberOfRecoBins");
+        if (param != "") {
+            const int bins = std::stoi(param);
+            if (bins < 2 || bins > 100) {
+                WriteErrorStatus("ConfigReader::ReadRegionOptions", "Number of reco bins is < 2 or > 100. This does not seem correct");
+                return 1;
+            }
+            reg->fNumberUnfoldingRecoBins = bins;
+        } else {
+            if (fFitter->fFitType == TRExFit::UNFOLDING) {
+                WriteErrorStatus("ConfigReader::ReadRegionOptions", "You need to provide the number of reco bins (NumberOfRecoBins) in each Region.");
+                return 1;
+            }
+        }
+
+        param = confSet->Get("NormalizeMigrationMatrix");
+        if (param != "") {
+            std::transform(param.begin(), param.end(), param.begin(), ::toupper);
+            if (param == "TRUE") {
+                reg->fNormalizeMigrationMatrix = true;
+            } else if (param == "FALSE") {
+                reg->fNormalizeMigrationMatrix = false;
+            } else {
+                WriteErrorStatus("ConfigReader::ReadRegionOptions", "You specified `NormalizeMigrationMatrix` option, but you did not provide any reasonable option. Using the default (TRUE)!");
+                reg->fNormalizeMigrationMatrix = true;
+            }
+        }
+        
+
+        // Paths for the unfolding code
+        // Paths for the unfolding code
+        // Paths for the unfolding code
         // Setting based on input type
         if (fFitter->fInputType == 0){
             if (SetRegionHIST(reg, confSet) != 0) return 1;
@@ -2484,6 +2631,72 @@ int ConfigReader::ReadSampleOptions(const std::string& opt){
         // Set Group
         param = confSet->Get("Group");
         if(param!="") sample->fGroup = RemoveQuotes(param);
+
+        param = confSet->Get("ResponseMatrixFile");
+        if (param != "") {
+            sample->fResponseMatrixFiles.clear();
+            sample->fResponseMatrixFiles.emplace_back(RemoveQuotes(param));
+        }
+
+        param = confSet->Get("ResponseMatrixFiles");
+        if (param != "") {
+            sample->fResponseMatrixFiles = Vectorize(param, ',');
+        }
+
+        param = confSet->Get("ResponseMatrixName");
+        if (param != "") {
+            sample->fResponseMatrixNames.clear();
+            sample->fResponseMatrixNames.emplace_back(RemoveQuotes(param));
+        }
+
+        param = confSet->Get("ResponseMatrixNames");
+        if (param != "") {
+            sample->fResponseMatrixNames = Vectorize(param, ',');
+        }
+
+        param = confSet->Get("ResponseMatrixPath");
+        if (param != "") {
+            sample->fResponseMatrixPaths.clear();
+            sample->fResponseMatrixPaths.emplace_back(RemoveQuotes(param));
+        }
+
+        param = confSet->Get("ResponseMatrixPaths");
+        if (param != "") {
+            sample->fResponseMatrixPaths = Vectorize(param, ',');
+        }
+
+        param = confSet->Get("ResponseMatrixFileSuff");
+        if (param != "") {
+            sample->fResponseMatrixFileSuffs.clear();
+            sample->fResponseMatrixFileSuffs.emplace_back(RemoveQuotes(param));
+        }
+
+        param = confSet->Get("ResponseMatrixFileSuffs");
+        if (param != "") {
+            sample->fResponseMatrixFileSuffs = Vectorize(param, ',');
+        }
+
+        param = confSet->Get("ResponseMatrixNameSuff");
+        if (param != "") {
+            sample->fResponseMatrixNameSuffs.clear();
+            sample->fResponseMatrixNameSuffs.emplace_back(RemoveQuotes(param));
+        }
+
+        param = confSet->Get("ResponseMatrixNameSuffs");
+        if (param != "") {
+            sample->fResponseMatrixNameSuffs = Vectorize(param, ',');
+        }
+
+        param = confSet->Get("ResponseMatrixPathSuff");
+        if (param != "") {
+            sample->fResponseMatrixPathSuffs.clear();
+            sample->fResponseMatrixPathSuffs.emplace_back(RemoveQuotes(param));
+        }
+
+        param = confSet->Get("ResponseMatrixPathSuffs");
+        if (param != "") {
+            sample->fResponseMatrixPathSuffs = Vectorize(param, ',');
+        }
 
         // HIST input
         if (fFitter->fInputType == 0){
@@ -3556,6 +3769,163 @@ int ConfigReader::ReadSystOptions(){
         if(type==Systematic::HISTO || type==Systematic::SHAPE){
             bool hasUp(false);
             bool hasDown(false);
+
+            param = confSet->Get("ResponseMatrixPathUp");
+            if (param != "") {
+                sys->fResponseMatrixPathsUp.clear();
+                sys->fResponseMatrixPathsUp.emplace_back(RemoveQuotes(param));
+                hasUp = true;
+            }
+            
+            param = confSet->Get("ResponseMatrixPathsUp");
+            if (param != "") {
+                sys->fResponseMatrixPathsUp = Vectorize(param,',');
+                hasUp = true;
+            }
+
+            param = confSet->Get("ResponseMatrixPathDown");
+            if (param != "") {
+                sys->fResponseMatrixPathsDown.clear();
+                sys->fResponseMatrixPathsDown.emplace_back(RemoveQuotes(param));
+                hasDown = true;
+            }
+            
+            param = confSet->Get("ResponseMatrixPathsDown");
+            if (param != "") {
+                sys->fResponseMatrixPathsDown = Vectorize(param,',');
+                hasDown = true;
+            }
+
+            param = confSet->Get("ResponseMatrixPathSuffUp");
+            if (param != "") {
+                sys->fResponseMatrixPathSuffsUp.clear();
+                sys->fResponseMatrixPathSuffsUp.emplace_back(RemoveQuotes(param));
+                hasUp = true;
+            }
+            
+            param = confSet->Get("ResponseMatrixPathSuffsUp");
+            if (param != "") {
+                sys->fResponseMatrixPathSuffsUp = Vectorize(param,',');
+                hasUp = true;
+            }
+
+            param = confSet->Get("ResponseMatrixPathSuffDown");
+            if (param != "") {
+                sys->fResponseMatrixPathSuffsDown.clear();
+                sys->fResponseMatrixPathSuffsDown.emplace_back(RemoveQuotes(param));
+                hasDown = true;
+            }
+            
+            param = confSet->Get("ResponseMatrixPathSuffsDown");
+            if (param != "") {
+                sys->fResponseMatrixPathSuffsDown = Vectorize(param,',');
+                hasDown = true;
+            }
+            
+            param = confSet->Get("ResponseMatrixNameUp");
+            if (param != "") {
+                sys->fResponseMatrixNamesUp.clear();
+                sys->fResponseMatrixNamesUp.emplace_back(RemoveQuotes(param));
+                hasUp = true;
+            }
+            
+            param = confSet->Get("ResponseMatrixNamesUp");
+            if (param != "") {
+                sys->fResponseMatrixNamesUp = Vectorize(param,',');
+                hasUp = true;
+            }
+
+            param = confSet->Get("ResponseMatrixNameDown");
+            if (param != "") {
+                sys->fResponseMatrixNamesDown.clear();
+                sys->fResponseMatrixNamesDown.emplace_back(RemoveQuotes(param));
+                hasDown = true;
+            }
+            
+            param = confSet->Get("ResponseMatrixNamesDown");
+            if (param != "") {
+                sys->fResponseMatrixNamesDown = Vectorize(param,',');
+                hasDown = true;
+            }
+
+            param = confSet->Get("ResponseMatrixNameSuffUp");
+            if (param != "") {
+                sys->fResponseMatrixNameSuffsUp.clear();
+                sys->fResponseMatrixNameSuffsUp.emplace_back(RemoveQuotes(param));
+                hasUp = true;
+            }
+            
+            param = confSet->Get("ResponseMatrixNameSuffsUp");
+            if (param != "") {
+                sys->fResponseMatrixNameSuffsUp = Vectorize(param,',');
+                hasUp = true;
+            }
+
+            param = confSet->Get("ResponseMatrixNameSuffDown");
+            if (param != "") {
+                sys->fResponseMatrixNameSuffsDown.clear();
+                sys->fResponseMatrixNameSuffsDown.emplace_back(RemoveQuotes(param));
+                hasDown = true;
+            }
+            
+            param = confSet->Get("ResponseMatrixNameSuffsDown");
+            if (param != "") {
+                sys->fResponseMatrixNameSuffsDown = Vectorize(param,',');
+                hasDown = true;
+            }
+
+            param = confSet->Get("ResponseMatrixFileUp");
+            if (param != "") {
+                sys->fResponseMatrixFilesUp.clear();
+                sys->fResponseMatrixFilesUp.emplace_back(RemoveQuotes(param));
+                hasUp = true;
+            }
+            
+            param = confSet->Get("ResponseMatrixFilesUp");
+            if (param != "") {
+                sys->fResponseMatrixFilesUp = Vectorize(param,',');
+                hasUp = true;
+            }
+
+            param = confSet->Get("ResponseMatrixFileDown");
+            if (param != "") {
+                sys->fResponseMatrixFilesDown.clear();
+                sys->fResponseMatrixFilesDown.emplace_back(RemoveQuotes(param));
+                hasDown = true;
+            }
+            
+            param = confSet->Get("ResponseMatrixFilesDown");
+            if (param != "") {
+                sys->fResponseMatrixFilesDown = Vectorize(param,',');
+                hasDown = true;
+            }
+
+            param = confSet->Get("ResponseMatrixFileSuffUp");
+            if (param != "") {
+                sys->fResponseMatrixFileSuffsUp.clear();
+                sys->fResponseMatrixFileSuffsUp.emplace_back(RemoveQuotes(param));
+                hasUp = true;
+            }
+            
+            param = confSet->Get("ResponseMatrixFileSuffsUp");
+            if (param != "") {
+                sys->fResponseMatrixFileSuffsUp = Vectorize(param,',');
+                hasUp = true;
+            }
+
+            param = confSet->Get("ResponseMatrixFileSuffDown");
+            if (param != "") {
+                sys->fResponseMatrixFileSuffsDown.clear();
+                sys->fResponseMatrixFileSuffsDown.emplace_back(RemoveQuotes(param));
+                hasDown = true;
+            }
+            
+            param = confSet->Get("ResponseMatrixFileSuffsDown");
+            if (param != "") {
+                sys->fResponseMatrixFileSuffsDown = Vectorize(param,',');
+                hasDown = true;
+            }
+
             if(fFitter->fInputType==0){ // HIST input
                 param = confSet->Get("HistoPathUp");
                 if(param!=""){
@@ -4747,6 +5117,72 @@ int ConfigReader::PostConfig(){
                 sample->AddShapeFactor(sfactor);
             }
         }
+    }
+
+    return 0;
+}
+
+int ConfigReader::ReadUnfoldingOptions() {
+    ConfigSet *confSet = fParser->GetConfigSet("Unfolding");
+
+    if (fFitter->fFitType == TRExFit::UNFOLDING && !confSet) {
+        WriteErrorStatus("ConfigReader::ReadUnfoldingOptions", "You set FitType == UNFOLDING, but didnt provide Unfolding block!");
+        return 1;
+    } 
+
+    if (!confSet) {
+        return 0;
+    }   
+ 
+    std::string param = confSet->Get("MatrixOrientation");
+    if (param != "") {
+        std::transform(param.begin(), param.end(), param.begin(), ::toupper);
+        if (param == "TRUTHONHORIZONTAL") {
+            fFitter->fMatrixOrientation = FoldingManager::MATRIXORIENTATION::TRUTHONHORIZONTALAXIS;
+        } else if (param == "TRUTHONVERTICAL") {
+            fFitter->fMatrixOrientation = FoldingManager::MATRIXORIENTATION::TRUTHONVERTICALAXIS;
+        } else {
+            WriteWarningStatus("ConfigReader::ReadUnfoldingOptions", "You specified 'MatrixOrientation' option, but you didnt provide a valid config. Setting to TRUTHONHORIZONTAL.");
+            fFitter->fMatrixOrientation = FoldingManager::MATRIXORIENTATION::TRUTHONHORIZONTALAXIS;
+        }
+    }
+
+    param = confSet->Get("TruthDistributionPath");
+    if (param != "") {
+        fFitter->fTruthDistributionPath = RemoveQuotes(param);
+    }
+
+    param = confSet->Get("TruthDistributionFile");
+    if (param != "") {
+        fFitter->fTruthDistributionFile = RemoveQuotes(param);
+    }
+
+    param = confSet->Get("TruthDistributionName");
+    if (param != "") {
+        fFitter->fTruthDistributionName = RemoveQuotes(param);
+    }
+
+    param = confSet->Get("NumberOfTruthBins");
+    if (param == "") {
+        WriteErrorStatus("ConfigReader::ReadUnfoldingOptions", "You need to set the number of truth bins!");
+        return 1;
+    } else {
+        const int bins = std::stoi(param);
+        if (bins < 2 || bins > 100) {
+            WriteErrorStatus("ConfigReader::ReadUnfoldingOptions", "You set the number of truth bins which is < 2 or > 100, that loooks wrong");
+            return 1;
+        }
+        fFitter->fNumberUnfoldingTruthBins = bins;
+    }
+
+    param = confSet->Get("NumberOfRecoBins");
+    if (param != "") {
+        const int bins = std::stoi(param);
+        if (bins < 2 || bins > 100) {
+            WriteErrorStatus("ConfigReader::ReadUnfoldingOptions", "You set the number of reco bins which is < 2 or > 100, that loooks wrong");
+            return 1;
+        }
+        fFitter->fNumberUnfoldingRecoBins = bins;
     }
 
     return 0;

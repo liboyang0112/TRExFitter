@@ -40,7 +40,7 @@ cppcheck:
     - cppcheck --version
     - echo "running cppcheck"
     - set +e
-    - cppcheck --enable=all --verbose --output-file=cppcheck.txt --inline-suppr -I TRExFitter/*h --language=c++ --suppress=useStlAlgorithm Root/*cc
+    - cppcheck --enable=all --verbose --output-file=cppcheck.txt --inline-suppr -I TRExFitter/*h -I UnfoldingCode/UnfoldingCode --language=c++ --suppress=useStlAlgorithm Root/*cc
     - cat cppcheck.txt
     - source test/scripts/cppcheck_output.sh
   allow_failure: true
@@ -63,7 +63,7 @@ cpd:
   script:
     - echo "checking for duplicates in code with CPD"
     - set +e
-    - cpd --minimum-tokens 100 --language cpp --files Root/*cc > cpd.txt
+    - cpd --minimum-tokens 100 --language cpp --files Root/*cc UnfoldingCode/Root/*cc > cpd.txt
     - cat cpd.txt
     - source test/scripts/cpd_output.sh
   allow_failure: true

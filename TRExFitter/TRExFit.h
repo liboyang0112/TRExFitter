@@ -6,6 +6,9 @@
 #include "TRExFitter/HistoTools.h"
 #include "TRExFitter/Systematic.h"
 
+// Unfolding includes
+#include "UnfoldingCode/UnfoldingCode/FoldingManager.h"
+
 // RooFit
 #include "RooSimultaneous.h"
 #include "RooStats/ModelConfig.h"
@@ -39,7 +42,8 @@ public:
     enum FitType {
         UNDEFINED = 0,
         SPLUSB = 1,
-        BONLY = 2
+        BONLY = 2 ,
+        UNFOLDING = 3
     };
 
     enum FitRegion {
@@ -302,6 +306,25 @@ public:
     std::vector<std::string> FullHistogramPaths(Region *reg,Sample *smp,Systematic *syst=nullptr,bool isUp=true);
 
     /**
+     * A helper function to compute the fgull paths for a response matrix
+     * @param pointer to the Region
+     * @param pointer to the Sample
+     * @param pointer to the Systematic (default = NULL)
+     * @param bool to specify up (true) or down (false) syst variation
+     * @return the full path
+     */
+    std::vector<std::string> FullResponseMatrixPaths(const Region* reg, 
+                                                     const Sample* smp,
+                                                     const Systematic* syst = nullptr,
+                                                     const bool isUp = true) const;
+
+    /**
+      * A helper function to combine paths for the truth distributions
+      * @return a vector of the paths
+      */ 
+    std::vector<std::string> FullTruthPaths() const;
+
+    /**
     * A helper function to get SampleHisto from a region that matches a name of the sample
     * @param Region
     * @@param name
@@ -353,6 +376,26 @@ public:
       */
     void DropBins();
 
+    /**
+      * A function that prepares signal inputs for unfolding.
+      * Folded distributions are created
+      */ 
+    void PrepareUnfolding();
+
+    /**
+      * A helper function to fold systematic distributions needed for unfolding
+      * @param Folding manager
+      * @param output file
+      * @param Region
+      * @param Sample
+      * @param Current systematics
+      */ 
+    void ProcessUnfoldingSystematics(FoldingManager* manager,
+                                     TFile* file,
+                                     const Region* reg,
+                                     const Sample* sample,
+                                     const Systematic* syst) const;
+
     // -------------------------
 
     std::string fName;
@@ -398,6 +441,11 @@ public:
     std::string fMCweight;
     std::string fSelection;
 
+    std::vector<std::string> fResponseMatrixNames;
+    std::vector<std::string> fResponseMatrixFiles;
+    std::vector<std::string> fResponseMatrixPaths;
+    std::vector<std::string> fResponseMatrixNamesNominal;
+    
     std::vector<std::string> fHistoPaths;
     std::vector<std::string> fHistoFiles;
     std::vector<std::string> fHistoNames;
@@ -607,6 +655,14 @@ public:
     bool fDoSystNormalizationPlots;
 
     int fDebugNev;
+
+    FoldingManager::MATRIXORIENTATION fMatrixOrientation;
+
+    std::string fTruthDistributionPath;
+    std::string fTruthDistributionFile;
+    std::string fTruthDistributionName;
+    int fNumberUnfoldingTruthBins;
+    int fNumberUnfoldingRecoBins;
 };
 
 #endif

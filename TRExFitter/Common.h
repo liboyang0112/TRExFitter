@@ -1,13 +1,6 @@
 #ifndef COMMON_H
 #define COMMON_H
 
-/// c++ stuff
-#include <string>
-#include <vector>
-#include <map>
-#include <memory>
-#include <set>
-
 /// TRExFitter stuff
 #include "TRExFitter/Sample.h"
 #include "TRExFitter/SampleHist.h"
@@ -16,10 +9,18 @@
 // ROOT stuff
 #include "TF1.h"
 
+/// c++ stuff
+#include <map>
+#include <memory>
+#include <set>
+#include <string>
+#include <vector>
+
 /// Forward class declaration
 class Region;
 class TFile;
 class TH1;
+class TH2;
 class TH1D;
 
 namespace TRExFitter{
@@ -79,6 +80,8 @@ TH1D* HistFromNtuple(const std::string& ntuple, const std::string& variable, int
 TH1D* HistFromNtupleBinArr(const std::string& ntuple, const std::string& variable, int nbin, double *bins, const std::string& selection, const std::string& weight, int Nev=-1);
 std::unique_ptr<TH1> HistFromFile(const std::string& fullName);
 std::unique_ptr<TH1> HistFromFile(const std::string& fileName, const std::string& histoName);
+std::unique_ptr<TH2> Hist2DFromFile(const std::string& fullName);
+std::unique_ptr<TH2> Hist2DFromFile(const std::string& fileName, const std::string& histoName);
 void WriteHistToFile(TH1* h, const std::string& fileName, const std::string& option="UPDATE");
 void WriteHistToFile(TH1* h, TFile *f);
 void MergeUnderOverFlow(TH1* h);
@@ -230,6 +233,20 @@ std::vector<int> ComputeBlindedBins(const TH1* signal,
                                     const TH1* bkg,
                                     const BlindingType type,
                                     const double threshold);
+
+/**
+  * A helper function to combine histograms from a vector of full paths
+  * @param A vector where each element represents the full path
+  * @return a combined histogram
+  */ 
+std::unique_ptr<TH1> CombineHistosFromFullPaths(const std::vector<std::string>& paths);
+
+/**
+  * A helper function to combine 2D histograms from a vector of full paths
+  * @param A vector where each element represents the full path
+  * @return a combined 2D histogram
+  */ 
+std::unique_ptr<TH2> CombineHistos2DFromFullPaths(const std::vector<std::string>& paths);
 }
 
 #endif
