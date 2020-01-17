@@ -78,7 +78,7 @@ private:
     
     bool CheckConsistencyForFolding() const;
 
-    std::unique_ptr<TH2D> MultiplyEfficiencyAndMigration(const TH1D* sel, const TH2D* mig) const;
+    std::unique_ptr<TH2D> MultiplyAcceptanceEfficiencyAndMigration(const TH1D* acc, const TH1D* sel, const TH2D* mig) const;
 
     void PrepareFoldedDistributions(const TH1D* truth, const TH2D* response);
 };

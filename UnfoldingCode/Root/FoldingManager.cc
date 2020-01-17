@@ -122,7 +122,7 @@ void FoldingManager::CalculateResponseMatrix(bool forceRecalculate) {
         throw std::runtime_error{"FoldingManager::CalculateResponsematrix: Migration and selection efficiensy is not consistent"};
     }
 
-    fResponseMatrix = MultiplyEfficiencyAndMigration(fSelectionEfficiency.get(), fMigrationMatrix.get());
+    fResponseMatrix = MultiplyAcceptanceEfficiencyAndMigration(fAcceptance.get(), fSelectionEfficiency.get(), fMigrationMatrix.get());
 }
 
 //__________________________________________________________________________________
@@ -143,7 +143,14 @@ bool FoldingManager::CheckConsistencyForResponse() const {
 
     if (!fSelectionEfficiency || !fMigrationMatrix) return false;
 
-    if (fSelectionEfficiency->GetNbinsX() != fMigrationMatrix->GetNbinsX()) return false;
+    const bool horizontal = (fMatrixOrientation == FoldingManager::MATRIXORIENTATION::TRUTHONHORIZONTALAXIS);
+    if (horizontal  && fSelectionEfficiency->GetNbinsX() != fMigrationMatrix->GetNbinsX()) return false;
+    if (!horizontal && fSelectionEfficiency->GetNbinsX() != fMigrationMatrix->GetNbinsX()) return false;
+
+    if (fAcceptance) {
+        if (horizontal  && fAcceptance->GetNbinsX() != fMigrationMatrix->GetNbinsX()) return false;
+        if (!horizontal && fAcceptance->GetNbinsX() != fMigrationMatrix->GetNbinsY()) return false;
+    }
 
     return true;
 }
@@ -153,26 +160,35 @@ bool FoldingManager::CheckConsistencyForResponse() const {
 bool FoldingManager::CheckConsistencyForFolding() const {
     if (!fResponseMatrix) return false;
 
-    if (fResponseMatrix->GetNbinsX() != fTruthDistribution->GetNbinsX()) return false;
+    const bool horizontal = (fMatrixOrientation == FoldingManager::MATRIXORIENTATION::TRUTHONHORIZONTALAXIS);
+    if (horizontal  && fResponseMatrix->GetNbinsX() != fTruthDistribution->GetNbinsX()) return false;
+    if (!horizontal && fResponseMatrix->GetNbinsY() != fTruthDistribution->GetNbinsX()) return false;
 
     return true;
 }
 
 //__________________________________________________________________________________
 //
-std::unique_ptr<TH2D> FoldingManager::MultiplyEfficiencyAndMigration(const TH1D* sel, const TH2D* mig) const {
+std::unique_ptr<TH2D> FoldingManager::MultiplyAcceptanceEfficiencyAndMigration(const TH1D* acc, const TH1D* sel, const TH2D* mig) const {
     const bool horizontal = (fMatrixOrientation == FoldingManager::MATRIXORIENTATION::TRUTHONHORIZONTALAXIS);
     const int nRecoBins   = horizontal ? mig->GetNbinsY() : mig->GetNbinsX();
     const int nTruthBins  = horizontal ? mig->GetNbinsX() : mig->GetNbinsY();
     
     std::unique_ptr<TH2D> result(static_cast<TH2D*>(mig->Clone()));
     for (int itruth = 1; itruth <= nTruthBins; ++itruth) {
+        double acceptance(1.);
+        if (fAcceptance) {
+            if (acc->GetBinContent(itruth) > 1) {
+                throw std::runtime_error{"FoldingManager::MultiplyAcceptanceEfficiencyAndMigration: The acceptance in bin" + std::to_string(itruth) + " is > 1"};
+            }
+            acceptance = acc->GetBinContent(itruth);
+        }
         for (int ireco = 1; ireco <= nRecoBins; ++ireco) {
             const double content = horizontal ? mig->GetBinContent(itruth, ireco) : mig->GetBinContent(ireco, itruth);
             const double error = horizontal ? mig->GetBinError(itruth, ireco) : mig->GetBinError(ireco, itruth);
-            result->SetBinContent(itruth, ireco, content*sel->GetBinContent(itruth));
+            result->SetBinContent(itruth, ireco, content*sel->GetBinContent(itruth)/acceptance);
             /// this assumes no error on truth
-            result->SetBinError(itruth, ireco, error*sel->GetBinContent(itruth));
+            result->SetBinError(itruth, ireco, error*sel->GetBinContent(itruth)/acceptance);
         }
     }
 
