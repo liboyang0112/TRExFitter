@@ -7987,7 +7987,7 @@ void TRExFit::PrepareUnfolding() {
                 Common::FindInStringVector(isample->fRegions, ireg->fName) < 0) continue;
 
             // first process nominal
-            const std::vector<std::string>& fullResponsePaths = FullResponseMatrixPaths(ireg, isample);
+            const std::vector<std::string>& fullResponsePaths = FullResponseMatrixPaths(ireg, isample.get());
 
             std::unique_ptr<TH2> matrix = Common::CombineHistos2DFromFullPaths(fullResponsePaths);
             const int nRecoBins  = horizontal ? matrix->GetNbinsY() : matrix->GetNbinsX();

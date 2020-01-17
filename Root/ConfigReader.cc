@@ -5137,7 +5137,7 @@ int ConfigReader::ReadUnfoldingSampleOptions() {
         if (confSet == nullptr) break;
         ++isample;
     
-        UnfoldingSample* sample = new UnfoldingSample();
+        auto sample = std::make_unique<UnfoldingSample>();
         sample->SetName(confSet->GetValue());
         
         std::string param = confSet->Get("Title");

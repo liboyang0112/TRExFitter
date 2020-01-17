@@ -664,7 +664,7 @@ public:
     std::string fTruthDistributionName;
     int fNumberUnfoldingTruthBins;
     int fNumberUnfoldingRecoBins;
-    std::vector<UnfoldingSample*> fUnfoldingSamples;
+    std::vector<std::unique_ptr<UnfoldingSample> > fUnfoldingSamples;
 };
 
 #endif
