@@ -35,6 +35,7 @@ class SampleHist;
 class ShapeFactor;
 class TRExPlot;
 class TFile;
+class UnfoldingSample;
 
 class TRExFit {
 public:
@@ -308,13 +309,13 @@ public:
     /**
      * A helper function to compute the fgull paths for a response matrix
      * @param pointer to the Region
-     * @param pointer to the Sample
+     * @param pointer to the UnfoldingSample
      * @param pointer to the Systematic (default = NULL)
      * @param bool to specify up (true) or down (false) syst variation
      * @return the full path
      */
     std::vector<std::string> FullResponseMatrixPaths(const Region* reg, 
-                                                     const Sample* smp,
+                                                     const UnfoldingSample* smp,
                                                      const Systematic* syst = nullptr,
                                                      const bool isUp = true) const;
 
@@ -663,6 +664,7 @@ public:
     std::string fTruthDistributionName;
     int fNumberUnfoldingTruthBins;
     int fNumberUnfoldingRecoBins;
+    std::vector<UnfoldingSample*> fUnfoldingSamples;
 };
 
 #endif

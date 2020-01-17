@@ -12,6 +12,7 @@
 #include "TRExFitter/StatusLogbook.h"
 #include "TRExFitter/Systematic.h"
 #include "TRExFitter/TRExFit.h"
+#include "TRExFitter/UnfoldingSample.h"
 
 // ROOT includes
 #include "TColor.h"
@@ -81,6 +82,8 @@ int ConfigReader::ReadFullConfig(const std::string& fileName, const std::string&
     sc+= ReadSystOptions();
     
     sc+= ReadUnfoldingOptions();
+    
+    sc+= ReadUnfoldingSampleOptions();
 
     sc+= PostConfig();
 
@@ -2632,72 +2635,6 @@ int ConfigReader::ReadSampleOptions(const std::string& opt){
         param = confSet->Get("Group");
         if(param!="") sample->fGroup = RemoveQuotes(param);
 
-        param = confSet->Get("ResponseMatrixFile");
-        if (param != "") {
-            sample->fResponseMatrixFiles.clear();
-            sample->fResponseMatrixFiles.emplace_back(RemoveQuotes(param));
-        }
-
-        param = confSet->Get("ResponseMatrixFiles");
-        if (param != "") {
-            sample->fResponseMatrixFiles = Vectorize(param, ',');
-        }
-
-        param = confSet->Get("ResponseMatrixName");
-        if (param != "") {
-            sample->fResponseMatrixNames.clear();
-            sample->fResponseMatrixNames.emplace_back(RemoveQuotes(param));
-        }
-
-        param = confSet->Get("ResponseMatrixNames");
-        if (param != "") {
-            sample->fResponseMatrixNames = Vectorize(param, ',');
-        }
-
-        param = confSet->Get("ResponseMatrixPath");
-        if (param != "") {
-            sample->fResponseMatrixPaths.clear();
-            sample->fResponseMatrixPaths.emplace_back(RemoveQuotes(param));
-        }
-
-        param = confSet->Get("ResponseMatrixPaths");
-        if (param != "") {
-            sample->fResponseMatrixPaths = Vectorize(param, ',');
-        }
-
-        param = confSet->Get("ResponseMatrixFileSuff");
-        if (param != "") {
-            sample->fResponseMatrixFileSuffs.clear();
-            sample->fResponseMatrixFileSuffs.emplace_back(RemoveQuotes(param));
-        }
-
-        param = confSet->Get("ResponseMatrixFileSuffs");
-        if (param != "") {
-            sample->fResponseMatrixFileSuffs = Vectorize(param, ',');
-        }
-
-        param = confSet->Get("ResponseMatrixNameSuff");
-        if (param != "") {
-            sample->fResponseMatrixNameSuffs.clear();
-            sample->fResponseMatrixNameSuffs.emplace_back(RemoveQuotes(param));
-        }
-
-        param = confSet->Get("ResponseMatrixNameSuffs");
-        if (param != "") {
-            sample->fResponseMatrixNameSuffs = Vectorize(param, ',');
-        }
-
-        param = confSet->Get("ResponseMatrixPathSuff");
-        if (param != "") {
-            sample->fResponseMatrixPathSuffs.clear();
-            sample->fResponseMatrixPathSuffs.emplace_back(RemoveQuotes(param));
-        }
-
-        param = confSet->Get("ResponseMatrixPathSuffs");
-        if (param != "") {
-            sample->fResponseMatrixPathSuffs = Vectorize(param, ',');
-        }
-
         // HIST input
         if (fFitter->fInputType == 0){
             // Set HistoFile
@@ -5122,6 +5059,8 @@ int ConfigReader::PostConfig(){
     return 0;
 }
 
+//__________________________________________________________________________________
+//
 int ConfigReader::ReadUnfoldingOptions() {
     ConfigSet *confSet = fParser->GetConfigSet("Unfolding");
 
@@ -5183,6 +5122,113 @@ int ConfigReader::ReadUnfoldingOptions() {
             return 1;
         }
         fFitter->fNumberUnfoldingRecoBins = bins;
+    }
+
+    return 0;
+}
+
+//__________________________________________________________________________________
+//
+int ConfigReader::ReadUnfoldingSampleOptions() {
+
+    int isample = 0;
+    while(true) {
+        ConfigSet *confSet = fParser->GetConfigSet("UnfoldingSample",isample);
+        if (confSet == nullptr) break;
+        ++isample;
+    
+        UnfoldingSample* sample = new UnfoldingSample();
+        sample->SetName(confSet->GetValue());
+        
+        std::string param = confSet->Get("Title");
+        if (param != "") {
+            sample->SetTitle(RemoveQuotes(param));
+        }
+        
+        param = confSet->Get("ResponseMatrixFile");
+        if (param != "") {
+            sample->fResponseMatrixFiles.clear();
+            sample->fResponseMatrixFiles.emplace_back(RemoveQuotes(param));
+        }
+
+        param = confSet->Get("ResponseMatrixFiles");
+        if (param != "") {
+            sample->fResponseMatrixFiles = Vectorize(param, ',');
+        }
+
+        param = confSet->Get("ResponseMatrixName");
+        if (param != "") {
+            sample->fResponseMatrixNames.clear();
+            sample->fResponseMatrixNames.emplace_back(RemoveQuotes(param));
+        }
+
+        param = confSet->Get("ResponseMatrixNames");
+        if (param != "") {
+            sample->fResponseMatrixNames = Vectorize(param, ',');
+        }
+
+        param = confSet->Get("ResponseMatrixPath");
+        if (param != "") {
+            sample->fResponseMatrixPaths.clear();
+            sample->fResponseMatrixPaths.emplace_back(RemoveQuotes(param));
+        }
+
+        param = confSet->Get("ResponseMatrixPaths");
+        if (param != "") {
+            sample->fResponseMatrixPaths = Vectorize(param, ',');
+        }
+
+        param = confSet->Get("ResponseMatrixFileSuff");
+        if (param != "") {
+            sample->fResponseMatrixFileSuffs.clear();
+            sample->fResponseMatrixFileSuffs.emplace_back(RemoveQuotes(param));
+        }
+
+        param = confSet->Get("ResponseMatrixFileSuffs");
+        if (param != "") {
+            sample->fResponseMatrixFileSuffs = Vectorize(param, ',');
+        }
+
+        param = confSet->Get("ResponseMatrixNameSuff");
+        if (param != "") {
+            sample->fResponseMatrixNameSuffs.clear();
+            sample->fResponseMatrixNameSuffs.emplace_back(RemoveQuotes(param));
+        }
+
+        param = confSet->Get("ResponseMatrixNameSuffs");
+        if (param != "") {
+            sample->fResponseMatrixNameSuffs = Vectorize(param, ',');
+        }
+
+        param = confSet->Get("ResponseMatrixPathSuff");
+        if (param != "") {
+            sample->fResponseMatrixPathSuffs.clear();
+            sample->fResponseMatrixPathSuffs.emplace_back(RemoveQuotes(param));
+        }
+
+        param = confSet->Get("ResponseMatrixPathSuffs");
+        if (param != "") {
+            sample->fResponseMatrixPathSuffs = Vectorize(param, ',');
+        }
+        
+        // Set FillColor
+        param = confSet->Get("FillColor");
+        if(param != "") sample->SetFillColor(std::atoi(param.c_str()));
+
+        // Set LineColor
+        param = confSet->Get("LineColor");
+        if(param != "") sample->SetLineColor(std::atoi(param.c_str()));
+
+        // Set Regions
+        param = confSet->Get("Regions");
+        if(param == "") {
+            sample->fRegions.emplace_back("all");
+        } else {
+            sample->fRegions = Vectorize(param, ',');
+        }
+
+        fFitter->fUnfoldingSamples.emplace_back(std::move(sample));
+
     }
 
     return 0;
