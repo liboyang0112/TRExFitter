@@ -231,7 +231,8 @@ TRExFit::TRExFit(std::string name) :
     fMatrixOrientation(FoldingManager::MATRIXORIENTATION::TRUTHONHORIZONTALAXIS),
     fTruthDistributionPath(""),
     fTruthDistributionFile(""),
-    fTruthDistributionName("") {
+    fTruthDistributionName(""),
+    fNumberUnfoldingRecoBins(0) {
 
     TRExFitter::IMAGEFORMAT.emplace_back("png");
     // Increase the limit for formula evaluations
@@ -7956,6 +7957,8 @@ void TRExFit::PrepareUnfolding() {
 
     FoldingManager manager{};
     manager.SetMatrixOrientation(fMatrixOrientation);
+
+    const bool horizontal = (fMatrixOrientation == FoldingManager::MATRIXORIENTATION::TRUTHONHORIZONTALAXIS);
    
     { 
         const std::vector<std::string>& truthPaths = FullTruthPaths();
@@ -7984,6 +7987,11 @@ void TRExFit::PrepareUnfolding() {
             const std::vector<std::string>& fullResponsePaths = FullResponseMatrixPaths(ireg, isample);
 
             std::unique_ptr<TH2> matrix = Common::CombineHistos2DFromFullPaths(fullResponsePaths);
+            const int nRecoBins = horizontal ? matrix->GetNbinsY() : matrix->GetNbinsX();
+            if (nRecoBins != fNumberUnfoldingRecoBins) {
+                WriteErrorStatus("TRExFit::PrepareUnfolding", "Number of reco bins do not match the number of reco bins for the response matrix");
+                exit(EXIT_FAILURE);
+            }
 
             // a temporraty line for testing
             UnfoldingTools::NormalizeMatrix(matrix.get(), false);
@@ -8032,9 +8040,15 @@ void TRExFit::ProcessUnfoldingSystematics(FoldingManager* manager,
                                           const Sample* sample,
                                           const Systematic* syst) const {
 
+    const bool horizontal = (fMatrixOrientation == FoldingManager::MATRIXORIENTATION::TRUTHONHORIZONTALAXIS);
     // lambda for processing one (up or down) variation
     auto ProcessOneVariation = [&](const std::vector<std::string>& paths, const bool isUp) {
         std::unique_ptr<TH2> matrix = Common::CombineHistos2DFromFullPaths(paths); 
+        const int nRecoBins = horizontal ? matrix->GetNbinsY() : matrix->GetNbinsX();
+        if (nRecoBins != fNumberUnfoldingRecoBins) {
+            WriteErrorStatus("TRExFit::ProcessUnfoldingSystematics", "Number of reco bins do not match the number of reco bins for the response matrix");
+            exit(EXIT_FAILURE);
+        }
         // a temporraty line for testing
         UnfoldingTools::NormalizeMatrix(matrix.get(), false);
 

@@ -157,9 +157,9 @@ std::unique_ptr<TH2D> FoldingManager::MultiplyEfficiencyAndMigration(const TH1D*
 //__________________________________________________________________________________
 //
 void FoldingManager::PrepareFoldedDistributions(const TH1D* truth, const TH2D* response) {
-    const bool horizontal  = (fMatrixOrientation == FoldingManager::MATRIXORIENTATION::TRUTHONHORIZONTALAXIS);
-    const int nRecoBins    = horizontal ? response->GetNbinsY() : response->GetNbinsX();
-    const int nTruthBins   = horizontal ? response->GetNbinsX() : response->GetNbinsY();
+    const bool horizontal = (fMatrixOrientation == FoldingManager::MATRIXORIENTATION::TRUTHONHORIZONTALAXIS);
+    const int nRecoBins   = horizontal ? response->GetNbinsY() : response->GetNbinsX();
+    const int nTruthBins  = horizontal ? response->GetNbinsX() : response->GetNbinsY();
 
     fFoldedDistributions.clear();
 

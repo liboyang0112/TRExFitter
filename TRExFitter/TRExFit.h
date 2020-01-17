@@ -661,6 +661,7 @@ public:
     std::string fTruthDistributionPath;
     std::string fTruthDistributionFile;
     std::string fTruthDistributionName;
+    int fNumberUnfoldingRecoBins;
 };
 
 #endif

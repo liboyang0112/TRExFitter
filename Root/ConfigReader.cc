@@ -5133,6 +5133,19 @@ int ConfigReader::ReadUnfoldingOptions() {
         fFitter->fTruthDistributionName = RemoveQuotes(param);
     }
 
+    param = confSet->Get("NumberOfRecoBins");
+    if (param == "") {
+        WriteErrorStatus("ConfigReader::ReadUnfoldingOptions", "You need to set the number of reco bins!");
+        return 1;
+    } else {
+        const int bins = std::stoi(param);
+        if (bins < 2 || bins > 100) {
+            WriteErrorStatus("ConfigReader::ReadUnfoldingOptions", "You set the number of reco bins which is < 2 or > 100, that loooks wrong");
+            return 1;
+        }
+        fFitter->fNumberUnfoldingRecoBins = bins;
+    }
+
     return 0;
 }
 
