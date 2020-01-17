@@ -126,6 +126,7 @@ Region::Region(const string& name) :
     fLegendY(-1),
     fLegendNColumns(2),
     fNumberUnfoldingRecoBins(0),
+    fNormalizeMigrationMatrix(true),
     fAutomaticDropBins(false) {
 
 

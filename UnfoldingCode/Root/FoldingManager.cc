@@ -1,5 +1,7 @@
 #include "UnfoldingCode/FoldingManager.h"
 
+#include "UnfoldingCode/UnfoldingTools.h"
+
 #include "TDirectory.h"
 #include "TFile.h"
 
@@ -85,12 +87,20 @@ const TH1D* FoldingManager::GetAcceptance() const {
 
 //__________________________________________________________________________________
 //
-void FoldingManager::SetMigrationMatrix(const TH2* matrix) {
+void FoldingManager::SetMigrationMatrix(const TH2* matrix, const bool normalize) {
     if (!matrix) {
         throw std::runtime_error{"FoldingManager::SetMigrationMatrix: Passed nullptr as the migration matrix"};
     }
 
     fMigrationMatrix.reset(static_cast<TH2D*>(matrix->Clone()));
+    if (normalize) {
+        const bool horizontal = (fMatrixOrientation == FoldingManager::MATRIXORIENTATION::TRUTHONHORIZONTALAXIS);
+        if (horizontal) {
+            UnfoldingTools::NormalizeMatrix(fMigrationMatrix.get(), false);
+        } else {
+            UnfoldingTools::NormalizeMatrix(fMigrationMatrix.get(), true);
+        }
+    }
 }
 
 //__________________________________________________________________________________

@@ -42,7 +42,7 @@ public:
     
     const TH1D* GetAcceptance() const;
 
-    void SetMigrationMatrix(const TH2* matrix);
+    void SetMigrationMatrix(const TH2* matrix, const bool normalize);
     
     const TH2D* GetMigrationMatrix() const;
 
@@ -73,6 +73,8 @@ private:
     std::vector<TH1D> fFoldedDistributions;
 
     MATRIXORIENTATION fMatrixOrientation;
+
+    bool fNormalizeMigrationMatrix;
 
     bool CheckConsistencyForResponse() const;
     

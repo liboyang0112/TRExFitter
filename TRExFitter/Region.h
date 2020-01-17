@@ -276,6 +276,7 @@ public:
     std::vector<std::string> fScaleSamplesToData;
 
     int fNumberUnfoldingRecoBins;
+    bool fNormalizeMigrationMatrix;
 
 private:
 

@@ -2057,6 +2057,19 @@ int ConfigReader::ReadRegionOptions(const std::string& opt){
             }
         }
 
+        param = confSet->Get("NormalizeMigrationMatrix");
+        if (param != "") {
+            std::transform(param.begin(), param.end(), param.begin(), ::toupper);
+            if (param == "TRUE") {
+                reg->fNormalizeMigrationMatrix = true;
+            } else if (param == "FALSE") {
+                reg->fNormalizeMigrationMatrix = false;
+            } else {
+                WriteErrorStatus("ConfigReader::ReadRegionOptions", "You specified `NormalizeMigrationMatrix` option, but you did not provide any reasonable option. Using the default (TRUE)!");
+                reg->fNormalizeMigrationMatrix = true;
+            }
+        }
+        
 
         // Paths for the unfolding code
         // Paths for the unfolding code
