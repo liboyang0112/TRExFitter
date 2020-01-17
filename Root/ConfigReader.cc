@@ -2041,6 +2041,20 @@ int ConfigReader::ReadRegionOptions(const std::string& opt){
         if (param != "") {
             reg->fResponseMatrixPathSuffs = Vectorize(param, ',');
         }
+        
+        param = confSet->Get("NumberOfRecoBins");
+        if (param != "") {
+            const int bins = std::stoi(param);
+            if (bins < 2 || bins > 100) {
+                WriteErrorStatus("ConfigReader::ReadRegionOptions", "Number of reco bins is < 2 or > 100. This does not seem correct");
+                return 1;
+            }
+            reg->fNumberUnfoldingRecoBins = bins;
+        } else {
+            WriteErrorStatus("ConfigReader::ReadRegionOptions", "You need to provide the number of reco bins (NumberOfRecoBins) in each Region.");
+            return 1;
+        }
+
 
         // Paths for the unfolding code
         // Paths for the unfolding code
@@ -5133,11 +5147,21 @@ int ConfigReader::ReadUnfoldingOptions() {
         fFitter->fTruthDistributionName = RemoveQuotes(param);
     }
 
-    param = confSet->Get("NumberOfRecoBins");
+    param = confSet->Get("NumberOfTruthBins");
     if (param == "") {
-        WriteErrorStatus("ConfigReader::ReadUnfoldingOptions", "You need to set the number of reco bins!");
+        WriteErrorStatus("ConfigReader::ReadUnfoldingOptions", "You need to set the number of truth bins!");
         return 1;
     } else {
+        const int bins = std::stoi(param);
+        if (bins < 2 || bins > 100) {
+            WriteErrorStatus("ConfigReader::ReadUnfoldingOptions", "You set the number of truth bins which is < 2 or > 100, that loooks wrong");
+            return 1;
+        }
+        fFitter->fNumberUnfoldingTruthBins = bins;
+    }
+
+    param = confSet->Get("NumberOfRecoBins");
+    if (param != "") {
         const int bins = std::stoi(param);
         if (bins < 2 || bins > 100) {
             WriteErrorStatus("ConfigReader::ReadUnfoldingOptions", "You set the number of reco bins which is < 2 or > 100, that loooks wrong");

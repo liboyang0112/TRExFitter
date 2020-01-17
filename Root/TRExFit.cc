@@ -232,6 +232,7 @@ TRExFit::TRExFit(std::string name) :
     fTruthDistributionPath(""),
     fTruthDistributionFile(""),
     fTruthDistributionName(""),
+    fNumberUnfoldingTruthBins(0),
     fNumberUnfoldingRecoBins(0) {
 
     TRExFitter::IMAGEFORMAT.emplace_back("png");
@@ -7963,6 +7964,10 @@ void TRExFit::PrepareUnfolding() {
     { 
         const std::vector<std::string>& truthPaths = FullTruthPaths();
         std::unique_ptr<TH1> truth = Common::CombineHistosFromFullPaths(truthPaths);    
+        if (truth->GetNbinsX() != fNumberUnfoldingTruthBins) {
+            WriteErrorStatus("TRExFit::PrepareUnfolding", "The number of truth bins doesnt match the value from the config");
+            exit(EXIT_FAILURE);
+        }
         manager.SetTruthDistribution(truth.get());
         manager.WriteTruthToHisto(outputFile.get(), "", "truth_distribution");
     }
@@ -7987,9 +7992,14 @@ void TRExFit::PrepareUnfolding() {
             const std::vector<std::string>& fullResponsePaths = FullResponseMatrixPaths(ireg, isample);
 
             std::unique_ptr<TH2> matrix = Common::CombineHistos2DFromFullPaths(fullResponsePaths);
-            const int nRecoBins = horizontal ? matrix->GetNbinsY() : matrix->GetNbinsX();
-            if (nRecoBins != fNumberUnfoldingRecoBins) {
-                WriteErrorStatus("TRExFit::PrepareUnfolding", "Number of reco bins do not match the number of reco bins for the response matrix");
+            const int nRecoBins  = horizontal ? matrix->GetNbinsY() : matrix->GetNbinsX();
+            const int nTruthBins = horizontal ? matrix->GetNbinsX() : matrix->GetNbinsY();
+            if (nRecoBins != ireg->fNumberUnfoldingRecoBins) {
+                WriteErrorStatus("TRExFit::PrepareUnfolding", "Number of reco bins do not match the number of reco bins for the response matrix in region: " + ireg->fName);
+                exit(EXIT_FAILURE);
+            }
+            if (nTruthBins != fNumberUnfoldingTruthBins) {
+                WriteErrorStatus("TRExFit::PrepareUnfolding", "Number of truth bins do not match the number of truth bins for the response matrix in regoin: " + ireg->fName);
                 exit(EXIT_FAILURE);
             }
 
@@ -8044,9 +8054,14 @@ void TRExFit::ProcessUnfoldingSystematics(FoldingManager* manager,
     // lambda for processing one (up or down) variation
     auto ProcessOneVariation = [&](const std::vector<std::string>& paths, const bool isUp) {
         std::unique_ptr<TH2> matrix = Common::CombineHistos2DFromFullPaths(paths); 
-        const int nRecoBins = horizontal ? matrix->GetNbinsY() : matrix->GetNbinsX();
-        if (nRecoBins != fNumberUnfoldingRecoBins) {
-            WriteErrorStatus("TRExFit::ProcessUnfoldingSystematics", "Number of reco bins do not match the number of reco bins for the response matrix");
+        const int nRecoBins  = horizontal ? matrix->GetNbinsY() : matrix->GetNbinsX();
+        const int nTruthBins = horizontal ? matrix->GetNbinsX() : matrix->GetNbinsY();
+        if (nRecoBins != reg->fNumberUnfoldingRecoBins) {
+            WriteErrorStatus("TRExFit::ProcessUnfoldingSystematics", "Number of reco bins do not match the number of reco bins for the response matrix in region: " + reg->fName);
+            exit(EXIT_FAILURE);
+        }
+        if (nTruthBins != fNumberUnfoldingTruthBins) {
+            WriteErrorStatus("TRExFit::ProcessUnfoldingSystematics", "Number of truth bins do not match the number of truth bins for the response matrix: " + reg->fName);
             exit(EXIT_FAILURE);
         }
         // a temporraty line for testing

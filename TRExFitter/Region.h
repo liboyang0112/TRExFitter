@@ -275,6 +275,8 @@ public:
 
     std::vector<std::string> fScaleSamplesToData;
 
+    int fNumberUnfoldingRecoBins;
+
 private:
 
     bool fAutomaticDropBins;
