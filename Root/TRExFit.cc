@@ -7961,6 +7961,7 @@ void TRExFit::PrepareUnfolding() {
         const std::vector<std::string>& truthPaths = FullTruthPaths();
         std::unique_ptr<TH1> truth = Common::CombineHistosFromFullPaths(truthPaths);    
         manager.SetTruthDistribution(truth.get());
+        manager.WriteTruthToHisto(outputFile.get(), "", "truth_distribution");
     }
 
     // loop over regions

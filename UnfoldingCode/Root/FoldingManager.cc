@@ -193,13 +193,16 @@ void FoldingManager::WriteFoldedToHisto(TFile* f,
         throw std::runtime_error{"FoldingManager::WriteFoldedToHisto: Size of the folded distributions is 0. Did you forget to run FoldingManager::FoldTruth?"};
     }
 
-    const TDirectory* directory = dynamic_cast<TDirectory*>(f->Get(dir.c_str()));
-    if(!directory) {
-        throw std::runtime_error{"FoldingManager::WriteFoldedToHisto: Cannot cd to directory: " + dir};
+    if (dir != "") {
+        const TDirectory* directory = dynamic_cast<TDirectory*>(f->Get(dir.c_str()));
+        if(!directory) {
+            throw std::runtime_error{"FoldingManager::WriteFoldedToHisto: Cannot cd to directory: " + dir};
+        }
     }
 
     for (std::size_t ihist = 0; ihist < fFoldedDistributions.size(); ++ihist) {
-        f->cd(dir.c_str());
+        if (dir != "") f->cd(dir.c_str());
+        else f->cd();
 
         const std::string fullName = path+"_bin_"+std::to_string(ihist);
         fFoldedDistributions.at(ihist).Write(fullName.c_str());
@@ -219,12 +222,15 @@ void FoldingManager::WriteTruthToHisto(TFile* f,
         throw std::runtime_error{"FoldingManager::WriteTruthToHisto: Truth distribution is a nullpt!"};
     }
 
-    const TDirectory* directory = dynamic_cast<TDirectory*>(f->Get(dir.c_str()));
-    if(!directory) {
-        throw std::runtime_error{"FoldingManager::WriteTruthToHisto: Cannot cd to directory: " + dir};
+    if (dir != "") {
+        const TDirectory* directory = dynamic_cast<TDirectory*>(f->Get(dir.c_str()));
+        if(!directory) {
+            throw std::runtime_error{"FoldingManager::WriteTruthToHisto: Cannot cd to directory: " + dir};
+        }
     }
 
-    f->cd(dir.c_str());
+    if (dir != "") f->cd(dir.c_str());
+    else f->cd();
     fTruthDistribution->Write(path.c_str());
 }
 
@@ -241,12 +247,15 @@ void FoldingManager::WriteMigrationToHisto(TFile* f,
         throw std::runtime_error{"FoldingManager::WriteMigrationToHisto: Migration matrix is a nullpt!"};
     }
 
-    const TDirectory* directory = dynamic_cast<TDirectory*>(f->Get(dir.c_str()));
-    if(!directory) {
-        throw std::runtime_error{"FoldingManager::WriteMigrationToHisto: Cannot cd to directory: " + dir};
-    }
+    if (dir != "") {
+        const TDirectory* directory = dynamic_cast<TDirectory*>(f->Get(dir.c_str()));
+        if(!directory) {
+            throw std::runtime_error{"FoldingManager::WriteMigrationToHisto: Cannot cd to directory: " + dir};
+        }
 
-    f->cd(dir.c_str());
+    }
+    if (dir != "") f->cd(dir.c_str());
+    else f->cd();
     fMigrationMatrix->Write(path.c_str());
 }
 
@@ -263,11 +272,14 @@ void FoldingManager::WriteSelectionEffToHisto(TFile* f,
         throw std::runtime_error{"FoldingManager::WriteSelectionEffToHisto: Selection efficiency is a nullpt!"};
     }
 
-    const TDirectory* directory = dynamic_cast<TDirectory*>(f->Get(dir.c_str()));
-    if(!directory) {
-        throw std::runtime_error{"FoldingManager::WriteSelectionEffToHisto: Cannot cd to directory: " + dir};
+    if (dir != "") {
+        const TDirectory* directory = dynamic_cast<TDirectory*>(f->Get(dir.c_str()));
+        if(!directory) {
+            throw std::runtime_error{"FoldingManager::WriteSelectionEffToHisto: Cannot cd to directory: " + dir};
+        }
     }
 
-    f->cd(dir.c_str());
+    if (dir != "") f->cd(dir.c_str());
+    else f->cd();
     fSelectionEfficiency->Write(path.c_str());
 }
