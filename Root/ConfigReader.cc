@@ -2051,8 +2051,10 @@ int ConfigReader::ReadRegionOptions(const std::string& opt){
             }
             reg->fNumberUnfoldingRecoBins = bins;
         } else {
-            WriteErrorStatus("ConfigReader::ReadRegionOptions", "You need to provide the number of reco bins (NumberOfRecoBins) in each Region.");
-            return 1;
+            if (fFitter->fFitType == TRExFit::UNFOLDING) {
+                WriteErrorStatus("ConfigReader::ReadRegionOptions", "You need to provide the number of reco bins (NumberOfRecoBins) in each Region.");
+                return 1;
+            }
         }
 
 

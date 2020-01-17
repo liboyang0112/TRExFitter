@@ -6,6 +6,7 @@
 #include <exception>
 
 FoldingManager::FoldingManager() : 
+    fAcceptance(nullptr),
     fSelectionEfficiency(nullptr),
     fMigrationMatrix(nullptr),
     fResponseMatrix(nullptr),
@@ -50,6 +51,40 @@ const TH1D* FoldingManager::GetTruthDistribution() const {
     return fTruthDistribution.get();
 }
 
+//__________________________________________________________________________________
+//
+void FoldingManager::SetSelectionEfficiency(const TH1* eff) {
+    if (!eff) {
+        throw std::runtime_error{"FoldingManager::SetSelectionEfficiency: Passed nullptr as the selection efficiency"};
+    }
+    
+    fSelectionEfficiency.reset(static_cast<TH1D*>(eff->Clone()));
+}
+
+//__________________________________________________________________________________
+//
+const TH1D* FoldingManager::GetSelectionEfficiency() const {
+    return fSelectionEfficiency.get();
+}
+
+//__________________________________________________________________________________
+//
+void FoldingManager::SetAcceptance(const TH1* acc) {
+    if (!acc) {
+        throw std::runtime_error{"FoldingManager::SetAcceptance: Passed nullptr as the acceptance"};
+    }
+    
+    fAcceptance.reset(static_cast<TH1D*>(acc->Clone()));
+}
+
+//__________________________________________________________________________________
+//
+const TH1D* FoldingManager::GetAcceptance() const {
+    return fAcceptance.get();
+}
+
+//__________________________________________________________________________________
+//
 void FoldingManager::SetMigrationMatrix(const TH2* matrix) {
     if (!matrix) {
         throw std::runtime_error{"FoldingManager::SetMigrationMatrix: Passed nullptr as the migration matrix"};
@@ -62,16 +97,6 @@ void FoldingManager::SetMigrationMatrix(const TH2* matrix) {
 //
 const TH2D* FoldingManager::GetMigrationMatrix() const {
     return fResponseMatrix.get();
-}
-
-//__________________________________________________________________________________
-//
-void FoldingManager::SetSelectionEfficiency(const TH1* eff) {
-    if (!eff) {
-        throw std::runtime_error{"FoldingManager::SetSelectionEfficiency: Passed nullptr as the selection efficiency"};
-    }
-
-    fSelectionEfficiency.reset(static_cast<TH1D*>(eff->Clone()));
 }
 
 //__________________________________________________________________________________

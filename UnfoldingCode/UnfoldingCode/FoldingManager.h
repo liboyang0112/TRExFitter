@@ -38,6 +38,10 @@ public:
     
     const TH1D* GetSelectionEfficiency() const;
 
+    void SetAcceptance(const TH1* acc );
+    
+    const TH1D* GetAcceptance() const;
+
     void SetMigrationMatrix(const TH2* matrix);
     
     const TH2D* GetMigrationMatrix() const;
@@ -61,6 +65,7 @@ public:
     void WriteSelectionEffToHisto(TFile* file, const std::string& dir, const std::string& path) const;
 
 private:
+    std::unique_ptr<TH1D> fAcceptance;
     std::unique_ptr<TH1D> fSelectionEfficiency;
     std::unique_ptr<TH2D> fMigrationMatrix;
     std::unique_ptr<TH2D> fResponseMatrix;
