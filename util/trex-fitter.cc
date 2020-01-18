@@ -205,12 +205,11 @@ void FitExample(std::string opt="h",std::string configFile="config/myFit.config"
             return;
         }
         myFit->PrepareUnfolding();
-        myFit->fUnfoldingSamples.clear();
-        myFit->fUnfoldingSystematics.clear();
-    } else {
-        myFit->fUnfoldingSamples.clear();
-        myFit->fUnfoldingSystematics.clear();
     }
+
+    // Free the memeory
+    myFit->fUnfoldingSamples.clear();
+    myFit->fUnfoldingSystematics.clear();
 
     if(readHistograms){
         std::cout << "Reading histograms..." << std::endl;
