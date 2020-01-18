@@ -172,6 +172,12 @@ class ConfigReader {
         int ReadUnfoldingSampleOptions();
 
         /**
+          * A helper function to read UnfoldingSystematic
+          * @return int status code
+          */ 
+        int ReadUnfoldingSystematicOptions();
+
+        /**
           * Helper function to read Part of Syst config
           * @param COnfigSet A pointer needed for reading
           * @param Systematic A pointer to syst that is being set

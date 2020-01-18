@@ -15,14 +15,14 @@ public:
     UnfoldingSample& operator=(const UnfoldingSample& s) = default;
     UnfoldingSample& operator=(UnfoldingSample&& s) = default;
 
-    inline void SetName(const std::string& s){fName = s;}
-    inline const std::string& GetName(){return fName;}
-    inline void SetTitle(const std::string& s){fTitle = s;}
-    inline const std::string& GetTitle(){return fTitle;}
-    inline void SetFillColor(const int c){fFillColor = c;}
-    inline int GetFillColor(){return fFillColor;}
-    inline void SetLineColor(const int c){fLineColor = c;}
-    inline int GetLineColor(){return fLineColor;}
+    inline void SetName(const std::string& s) {fName = s;}
+    inline const std::string& GetName() const {return fName;}
+    inline void SetTitle(const std::string& s) {fTitle = s;}
+    inline const std::string& GetTitle() const {return fTitle;}
+    inline void SetFillColor(const int c) {fFillColor = c;}
+    inline int GetFillColor() const {return fFillColor;}
+    inline void SetLineColor(const int c) {fLineColor = c;}
+    inline int GetLineColor() const {return fLineColor;}
     
     std::vector<std::string> fResponseMatrixFiles;
     std::vector<std::string> fResponseMatrixNames;

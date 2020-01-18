@@ -36,6 +36,7 @@ class ShapeFactor;
 class TRExPlot;
 class TFile;
 class UnfoldingSample;
+class UnfoldingSystematic;
 
 class TRExFit {
 public:
@@ -316,7 +317,7 @@ public:
      */
     std::vector<std::string> FullResponseMatrixPaths(const Region* reg, 
                                                      const UnfoldingSample* smp,
-                                                     const Systematic* syst = nullptr,
+                                                     const UnfoldingSystematic* syst = nullptr,
                                                      const bool isUp = true) const;
 
     /**
@@ -388,14 +389,14 @@ public:
       * @param Folding manager
       * @param output file
       * @param Region
-      * @param Sample
-      * @param Current systematics
+      * @param UnfoldingSample
+      * @param Current UnfoldingSystystematics
       */ 
     void ProcessUnfoldingSystematics(FoldingManager* manager,
                                      TFile* file,
                                      const Region* reg,
-                                     const Sample* sample,
-                                     const Systematic* syst) const;
+                                     const UnfoldingSample* sample,
+                                     const UnfoldingSystematic* syst) const;
 
     // -------------------------
 
@@ -665,6 +666,7 @@ public:
     int fNumberUnfoldingTruthBins;
     int fNumberUnfoldingRecoBins;
     std::vector<std::unique_ptr<UnfoldingSample> > fUnfoldingSamples;
+    std::vector<std::unique_ptr<UnfoldingSystematic> > fUnfoldingSystematics;
 };
 
 #endif

@@ -223,12 +223,12 @@ void FoldingManager::PrepareFoldedDistributions(const TH1D* truth, const TH2D* r
             const double content = horizontal ?  
                                    (truth->GetBinContent(itruth) * response->GetBinContent(itruth, ireco)) :
                                    (truth->GetBinContent(itruth) * response->GetBinContent(ireco, itruth));
-            const double error   = horizontal ?  
-                                   (truth->GetBinContent(itruth) * response->GetBinError(itruth, ireco)) :
-                                   (truth->GetBinContent(itruth) * response->GetBinError(ireco, itruth));
+            //const double error   = horizontal ?  
+            //                       (truth->GetBinContent(itruth) * response->GetBinError(itruth, ireco)) :
+            //                       (truth->GetBinContent(itruth) * response->GetBinError(ireco, itruth));
             fFoldedDistributions.back().SetBinContent(ireco, content);
             /// this assumes no error on truth
-            fFoldedDistributions.back().SetBinError  (ireco, error);
+            //fFoldedDistributions.back().SetBinError  (ireco, error);
         }
     }
 }
