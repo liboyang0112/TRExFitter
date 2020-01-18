@@ -8,6 +8,8 @@
 #include "TRExFitter/StatusLogbook.h"
 #include "TRExFitter/NtupleReader.h"
 #include "TRExFitter/TRExFit.h"
+#include "TRExFitter/UnfoldingSample.h"
+#include "TRExFitter/UnfoldingSystematic.h"
 
 // RooStatsIncludes
 #include "RooStats/RooStatsUtils.h"
@@ -203,6 +205,11 @@ void FitExample(std::string opt="h",std::string configFile="config/myFit.config"
             return;
         }
         myFit->PrepareUnfolding();
+        myFit->fUnfoldingSamples.clear();
+        myFit->fUnfoldingSystematics.clear();
+    } else {
+        myFit->fUnfoldingSamples.clear();
+        myFit->fUnfoldingSystematics.clear();
     }
 
     if(readHistograms){
