@@ -5117,6 +5117,7 @@ int ConfigReader::ReadUnfoldingSystematicOptions() {
             if(param == "OVERALL") syst->SetType(Systematic::OVERALL);
             else if(param == "SHAPE") syst->SetType(Systematic::SHAPE);
             else if (param == "STAT") syst->SetType(Systematic::STAT);
+            else if (param == "HISTO") syst->SetType(Systematic::HISTO);
         }
 
         param = confSet->Get("Samples");
@@ -5536,7 +5537,16 @@ int ConfigReader::ProcessUnfoldingSystematics() {
             if(isyst->fRegions[0] != "all" && 
                 Common::FindInStringVector(isyst->fRegions, ireg->fName) < 0) continue;
        
-            const std::vector<Systematic*> systs = isyst->ConvertToSystematic(ireg, fFitter->fNumberUnfoldingTruthBins, fFitter->fName, fFitter->fSamples); 
+            if (fFitter->fUnfoldingSamples.size() == 0) {
+                WriteErrorStatus("ConfigReader::ProcessUnfoldingSystematics", "No UnfoldingSamples set!");
+                return 1;
+            }
+            const std::string& unfoldingSampleName = fFitter->fUnfoldingSamples.at(0)->GetName();
+            const std::vector<Systematic*> systs = isyst->ConvertToSystematic(ireg,
+                                                                              fFitter->fNumberUnfoldingTruthBins,
+                                                                              fFitter->fName,
+                                                                              unfoldingSampleName,
+                                                                              fFitter->fSamples); 
             fFitter->fSystematics.insert(fFitter->fSystematics.end(), systs.begin(), systs.end());
             fFitter->fNSyst += fFitter->fNumberUnfoldingTruthBins;
         }

@@ -2,6 +2,7 @@
 
 #include "TRExFitter/Region.h"
 #include "TRExFitter/Sample.h"
+#include "TRExFitter/StatusLogbook.h"
 #include "TRExFitter/Systematic.h"
 
 UnfoldingSystematic::UnfoldingSystematic() :
@@ -19,28 +20,17 @@ UnfoldingSystematic::UnfoldingSystematic() :
 {
 }
 
-    std::vector<std::string> fResponseMatrixPathsUp;
-    std::vector<std::string> fResponseMatrixPathsDown;
-    std::vector<std::string> fResponseMatrixNamesUp;
-    std::vector<std::string> fResponseMatrixNamesDown;
-    std::vector<std::string> fResponseMatrixFilesUp;
-    std::vector<std::string> fResponseMatrixFilesDown;
-    std::vector<std::string> fResponseMatrixPathSuffsUp;
-    std::vector<std::string> fResponseMatrixPathSuffsDown;
-    std::vector<std::string> fResponseMatrixNameSuffsUp;
-    std::vector<std::string> fResponseMatrixNameSuffsDown;
-    std::vector<std::string> fResponseMatrixFileSuffsUp;
-    std::vector<std::string> fResponseMatrixFileSuffsDown;
-
-    bool fSampleSmoothing;
-    HistoTools::SymmetrizationType fSymmetrisationType;
-    HistoTools::SmoothOption fSampleSmoothingOption;
-
-
 std::vector<Systematic*> UnfoldingSystematic::ConvertToSystematic(const Region* reg,
                                                                   const int bins,
                                                                   const std::string& name,
+                                                                  const std::string& unfoldingSampleName,
                                                                   std::vector<Sample*>& samples) const {
+
+    if (samples.size() < 1) {
+        WriteErrorStatus("UnfoldingSystematic::ConvertToSystematic:", "Samples size < 1");
+        exit(EXIT_FAILURE);
+    }
+
     std::vector<Systematic*> result;
     for (int ibin = 0; ibin < bins; ++ibin) {
         const std::string sampleName = "Truth_bin_" + std::to_string(ibin+1);
@@ -54,6 +44,7 @@ std::vector<Systematic*> UnfoldingSystematic::ConvertToSystematic(const Region* 
             syst->fNuisanceParameter = syst->fName;
             TRExFitter::NPMAP[syst->fName] = syst->fName;
         }
+        syst->fStoredName = fName;
         syst->fTitle = fTitle;
         syst->fHasUpVariation = fHasUpVariation;
         syst->fHasDownVariation = fHasDownVariation;
@@ -66,18 +57,18 @@ std::vector<Systematic*> UnfoldingSystematic::ConvertToSystematic(const Region* 
         syst->fSampleSmoothOption = fSampleSmoothingOption;
         
         TRExFitter::SYSTMAP[syst->fName] = syst->fTitle;
-
+    
         // Paths
         if (fHasUpVariation) {
             syst->fHistoPathsUp = Common::ToVec(name + "/UnfoldingHistograms");
             syst->fHistoFilesUp = Common::ToVec("FoldedHistograms");
-            const std::string histoName = fName + "_Up/" + reg->fName + "_" + fName + "_bin_" + std::to_string(ibin);
+            const std::string histoName = fName + "_Up/" + reg->fName + "_" + unfoldingSampleName + "_bin_" + std::to_string(ibin);
             syst->fHistoNamesUp = Common::ToVec(histoName);
         }
         if (fHasDownVariation) {
             syst->fHistoPathsDown = Common::ToVec(name + "/UnfoldingHistograms");
             syst->fHistoFilesDown = Common::ToVec("FoldedHistograms");
-            const std::string histoName = fName + "_Down/" + reg->fName + "_" + fName + "_bin_" + std::to_string(ibin);
+            const std::string histoName = fName + "_Down/" + reg->fName + "_" + unfoldingSampleName + "_bin_" + std::to_string(ibin);
             syst->fHistoNamesDown = Common::ToVec(histoName);
         }
         

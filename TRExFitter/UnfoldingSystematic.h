@@ -35,6 +35,7 @@ public:
     std::vector<Systematic*> ConvertToSystematic(const Region* reg,
                                                  const int bins,
                                                  const std::string& name,
+                                                 const std::string& unfoldingSampleName,
                                                  std::vector<Sample*>& samples) const;
 
     std::vector<std::string> fRegions;

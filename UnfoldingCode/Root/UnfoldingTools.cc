@@ -39,3 +39,14 @@ void UnfoldingTools::NormalizeMatrix(TH2* matrix, const bool byRow) {
         }
     }
 }
+    
+void UnfoldingTools::Correct2DMatrix(TH2* matrix) {
+    for (int ibinx = 0; ibinx < matrix->GetNbinsX(); ++ibinx) {
+        for (int ibiny = 0; ibiny < matrix->GetNbinsY(); ++ibiny) {
+            if (matrix->GetBinContent(ibinx, ibiny) < 0) {
+                matrix->SetBinContent(ibinx, ibiny, 1e-6);
+                matrix->SetBinError(ibinx, ibiny, 1e-6);
+            }
+        }
+    }
+}

@@ -7,6 +7,8 @@ namespace UnfoldingTools {
 
     void NormalizeMatrix(TH2* matrix, const bool byRow);
 
+    void Correct2DMatrix(TH2* matrix);
+
 }
 
 #endif

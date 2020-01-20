@@ -29,6 +29,7 @@ void FoldingManager::SetResponseMatrix(const TH2* matrix) {
     }
 
     fResponseMatrix.reset(static_cast<TH2D*>(matrix->Clone()));
+    UnfoldingTools::Correct2DMatrix(fResponseMatrix.get());
 }
 
 //__________________________________________________________________________________
@@ -93,6 +94,7 @@ void FoldingManager::SetMigrationMatrix(const TH2* matrix, const bool normalize)
     }
 
     fMigrationMatrix.reset(static_cast<TH2D*>(matrix->Clone()));
+    UnfoldingTools::Correct2DMatrix(fMigrationMatrix.get());
     if (normalize) {
         const bool horizontal = (fMatrixOrientation == FoldingManager::MATRIXORIENTATION::TRUTHONHORIZONTALAXIS);
         if (horizontal) {
@@ -220,9 +222,11 @@ void FoldingManager::PrepareFoldedDistributions(const TH1D* truth, const TH2D* r
         /// what to do with the uncertainties??
         fFoldedDistributions.emplace_back(*h);
         for (int ireco = 1; ireco <= nRecoBins; ++ireco) {
-            const double content = horizontal ?  
-                                   (truth->GetBinContent(itruth) * response->GetBinContent(itruth, ireco)) :
-                                   (truth->GetBinContent(itruth) * response->GetBinContent(ireco, itruth));
+            double content = horizontal ?  
+                             (truth->GetBinContent(itruth) * response->GetBinContent(itruth, ireco)) :
+                             (truth->GetBinContent(itruth) * response->GetBinContent(ireco, itruth));
+
+            if (content < 0) content = 1e-6;
             //const double error   = horizontal ?  
             //                       (truth->GetBinContent(itruth) * response->GetBinError(itruth, ireco)) :
             //                       (truth->GetBinContent(itruth) * response->GetBinError(ireco, itruth));
