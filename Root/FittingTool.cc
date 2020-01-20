@@ -58,6 +58,11 @@ FittingTool::FittingTool():
 
 //________________________________________________________________________
 //
+FittingTool::~FittingTool() {
+}
+
+//________________________________________________________________________
+//
 void FittingTool::SetSubCategories() {
     WriteDebugStatus("FittingTool::SetSubCategories", "finding unique SubCategories");
     // loop over m_subCategoryMap to find all unique SubCategories, save in m_subCategories set
