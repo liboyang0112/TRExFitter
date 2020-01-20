@@ -46,7 +46,14 @@ std::vector<Systematic*> UnfoldingSystematic::ConvertToSystematic(const Region* 
         const std::string sampleName = "Truth_bin_" + std::to_string(ibin+1);
 
         Systematic* syst = new Systematic(fName, fType);
-        syst->fNuisanceParameter = fNuisanceParameter;
+        if(fNuisanceParameter != ""){
+            syst->fNuisanceParameter = fNuisanceParameter;
+            TRExFitter::NPMAP[syst->fName] = syst->fNuisanceParameter;
+        }
+        else{
+            syst->fNuisanceParameter = syst->fName;
+            TRExFitter::NPMAP[syst->fName] = syst->fName;
+        }
         syst->fTitle = fTitle;
         syst->fHasUpVariation = fHasUpVariation;
         syst->fHasDownVariation = fHasDownVariation;
