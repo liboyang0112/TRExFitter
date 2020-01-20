@@ -3387,10 +3387,6 @@ int ConfigReader::ReadNormFactorOptions(){
             }
         }
 
-        // Set Tau (for Tikhonov regularization)
-        param = confSet->Get("Tau");
-        if(param!="") nfactor->fTau = atof(param.c_str());
-
         // save list of
         if (regions.size() == 0 || exclude.size() == 0){
                 WriteErrorStatus("ConfigReader::ReadNormFactorOptions", "Region or exclude region size is equal to zero. Please check this");
@@ -4973,6 +4969,22 @@ int ConfigReader::ReadUnfoldingOptions() {
         fFitter->fNumberUnfoldingRecoBins = bins;
     }
 
+    param = confSet->Get("Tau");
+    if (param != "") {
+        const std::vector<std::string>& tmp = Vectorize(param, ',');
+        for (auto& i : tmp) {
+            const std::vector<std::string>& oneTau = Vectorize(i, ':');
+            if (oneTau.size() != 2) {
+                WriteErrorStatus("ConfigReader::ReadUnfoldingOptions", "Wrong format for Tau!");
+                return 1;
+            }
+
+            int bin = std::stoi(oneTau.at(0));
+            double value = std::stof(oneTau.at(1));
+            fTaus.emplace_back(bin, value);
+        }
+    }
+
     return 0;
 }
 
@@ -5583,6 +5595,15 @@ int ConfigReader::AddUnfoldingNormFactors() {
         for(auto& isample : fFitter->fSamples) {
             if (isample->fName != sampleName) continue;
             isample->AddNormFactor(nf);
+        }
+
+        // check if the bin is in the list specifies taus
+        auto it = std::find_if(fTaus.begin(), fTaus.end(),
+        [&i](const std::pair<int, double>& element){ return element.first == i+1;});
+
+        if (it != fTaus.end()) {
+            WriteInfoStatus("ConfigReader::AddUnfoldingNormFactors", "Setting truth bin: " + std::to_string(i+1) + " to use tau = " + std::to_string(it->second));
+            nf->fTau = it->second; 
         }
     }
 

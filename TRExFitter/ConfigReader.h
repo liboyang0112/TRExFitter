@@ -387,6 +387,11 @@ class ConfigReader {
           * bool to check if there is at least one valid sample for the fit
           */
         bool fHasAtLeastOneValidSample;
+
+        /**
+          * A container for Tau parameters
+          */ 
+        std::vector<std::pair<int, double> > fTaus;
 };
 
 #endif
