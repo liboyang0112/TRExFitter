@@ -26,11 +26,8 @@ public:
     inline void SetTitle(const std::string& title) {fTitle = title;}
     inline const std::string& GetTitle() const {return fTitle;}
     inline void SetType(const int type) {fType = type;}
-    inline int GetType() const {return fType;}
     inline void SetSymmetrisationType(const HistoTools::SymmetrizationType type) {fSymmetrisationType = type;}
-    inline int GetSymmetrisationType() const {return fSymmetrisationType;}
     inline void SetSmoothOption(const HistoTools::SmoothOption opt) {fSampleSmoothingOption = opt;}
-    inline int GetSmoothOption() const {return fSampleSmoothingOption;}
 
     std::vector<Systematic*> ConvertToSystematic(const Region* reg,
                                                  const int bins,
