@@ -5516,8 +5516,10 @@ int ConfigReader::ProcessUnfoldingSamples() {
             if(isample->fRegions[0] != "all" && 
                 Common::FindInStringVector(isample->fRegions, ireg->fName) < 0) continue;
 
-            Sample* sample = isample->ConvertToSample(ireg);
-            fFitter->fSamples.emplace_back(sample);
+            // Convert the UnfoldingSample to sample and adjust the paths
+            const std::vector<Sample*> samples = isample->ConvertToSample(ireg, fFitter->fNumberUnfoldingTruthBins, fFitter->fName);
+            fFitter->fSamples.insert(fFitter->fSamples.end(), samples.begin(), samples.end());
+            fFitter->fNSamples += fFitter->fNumberUnfoldingTruthBins;
         }
     }
 

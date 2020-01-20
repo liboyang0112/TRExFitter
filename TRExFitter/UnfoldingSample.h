@@ -27,7 +27,9 @@ public:
     inline void SetLineColor(const int c) {fLineColor = c;}
     inline int GetLineColor() const {return fLineColor;}
 
-    Sample* ConvertToSample(const Region* reg) const;
+    std::vector<Sample*> ConvertToSample(const Region* reg,
+                                         const int bins,
+                                         const std::string& name) const;
     
     std::vector<std::string> fResponseMatrixFiles;
     std::vector<std::string> fResponseMatrixNames;

@@ -123,20 +123,6 @@ public:
 
     std::string fIgnoreWeight;
 
-    std::vector<std::string> fResponseMatrixPathsUp;
-    std::vector<std::string> fResponseMatrixPathSuffsUp;
-    std::vector<std::string> fResponseMatrixFilesUp;
-    std::vector<std::string> fResponseMatrixFileSuffsUp;
-    std::vector<std::string> fResponseMatrixNamesUp;
-    std::vector<std::string> fResponseMatrixNameSuffsUp;
-    
-    std::vector<std::string> fResponseMatrixPathsDown;
-    std::vector<std::string> fResponseMatrixPathSuffsDown;
-    std::vector<std::string> fResponseMatrixFilesDown;
-    std::vector<std::string> fResponseMatrixFileSuffsDown;
-    std::vector<std::string> fResponseMatrixNamesDown;
-    std::vector<std::string> fResponseMatrixNameSuffsDown;
-    
     // from histos - up
     std::vector<std::string> fHistoPathsUp;
     std::string fHistoPathSufUp;
