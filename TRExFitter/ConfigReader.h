@@ -221,6 +221,12 @@ class ConfigReader {
         int SetSystShapeDecorelate(ConfigSet *confSet, Systematic *sys, const std::vector<std::string>& samples, const std::vector<std::string>& exclude);
 
         /**
+          * Helper function that propagates samples and systematics when Unfolding is used
+          * @return int status code
+          */
+        int UnfoldingCorrections();
+
+        /**
           * Helper function that is run after config is read
           * @return int status code
           */
@@ -274,6 +280,24 @@ class ConfigReader {
           * @return flag if the systematic is problematic
           */
         bool SystHasProblematicName(const std::string& name);
+
+        /**
+          * Helper function to convert UnfoldingSample to Samples
+          * @return status code
+          */
+        int ProcessUnfoldingSamples();
+        
+        /**
+          * Helper function to convert UnfoldingSystematics to Systematics
+          * @return status code
+          */
+        int ProcessUnfoldingSystematics();
+        
+        /**
+          * Helper function to add NormFactors for truth bins when running unfolding
+          * @return status code
+          */
+        int AddUnfoldingNormFactors();
 
         /**
           * Pointer to TRExFit class, set during initialization

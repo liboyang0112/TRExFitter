@@ -87,6 +87,8 @@ int ConfigReader::ReadFullConfig(const std::string& fileName, const std::string&
     sc+= ReadUnfoldingSampleOptions();
     
     sc+= ReadUnfoldingSystematicOptions();
+    
+    sc+= UnfoldingCorrections();
 
     sc+= PostConfig();
 
@@ -5360,6 +5362,25 @@ int ConfigReader::ReadUnfoldingSystematicOptions() {
 
 //__________________________________________________________________________________
 //
+int ConfigReader::UnfoldingCorrections() {
+    if (fFitter->fFitType != TRExFit::FitType::UNFOLDING) return 0;
+
+    int sc(0);
+
+    // First process Samples
+    sc += ProcessUnfoldingSamples();
+
+    // Then process Systematics
+    sc += ProcessUnfoldingSystematics();
+   
+    // Add norm factors
+    sc += AddUnfoldingNormFactors();
+
+    return sc;
+}
+
+//__________________________________________________________________________________
+//
 std::string ConfigReader::CheckName( std::string name ){
     name = RemoveQuotes(name);
     if( std::isdigit( name.at(0) ) ){
@@ -5482,4 +5503,37 @@ bool ConfigReader::SystHasProblematicName(const std::string& name){
     }
 
     return false;
+}
+
+//__________________________________________________________________________________
+//
+int ConfigReader::ProcessUnfoldingSamples() {
+
+    for (const auto& ireg : fFitter->fRegions) {
+        if (ireg->fRegionType != Region::RegionType::SIGNAL) continue;
+
+        for (const auto& isample : fFitter->fUnfoldingSamples) {
+            if(isample->fRegions[0] != "all" && 
+                Common::FindInStringVector(isample->fRegions, ireg->fName) < 0) continue;
+
+            Sample* sample = isample->ConvertToSample(ireg);
+            fFitter->fSamples.emplace_back(sample);
+        }
+    }
+
+    return 0;
+}
+
+//__________________________________________________________________________________
+//
+int ConfigReader::ProcessUnfoldingSystematics() {
+
+    return 0;
+}
+
+//__________________________________________________________________________________
+//
+int ConfigReader::AddUnfoldingNormFactors() {
+
+    return 0;
 }

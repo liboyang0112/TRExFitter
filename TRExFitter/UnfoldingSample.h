@@ -4,6 +4,9 @@
 #include <string>
 #include <vector>
 
+class Region;
+class Sample;
+
 class UnfoldingSample {
 
 public:
@@ -23,6 +26,8 @@ public:
     inline int GetFillColor() const {return fFillColor;}
     inline void SetLineColor(const int c) {fLineColor = c;}
     inline int GetLineColor() const {return fLineColor;}
+
+    Sample* ConvertToSample(const Region* reg) const;
     
     std::vector<std::string> fResponseMatrixFiles;
     std::vector<std::string> fResponseMatrixNames;
