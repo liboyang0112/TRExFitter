@@ -5549,5 +5549,32 @@ int ConfigReader::ProcessUnfoldingSystematics() {
 //
 int ConfigReader::AddUnfoldingNormFactors() {
 
+    for (int i = 0; i < fFitter->fNumberUnfoldingTruthBins; ++i) {
+        const std::string name = "Bin_" + std::to_string(i+1);
+        NormFactor* nf = new NormFactor(name); 
+        
+        TRExFitter::SYSTMAP[nf->fName] = nf->fName;
+
+        if(Common::FindInStringVector(fFitter->fNormFactorNames, nf->fName) < 0) {
+           fFitter->fNormFactors.emplace_back(nf);
+           fFitter->fNormFactorNames.emplace_back(nf->fName);
+           fFitter->fNNorm++;
+        }
+        
+        nf->fNuisanceParameter = nf->fName;
+        TRExFitter::NPMAP[nf->fName] = nf->fName;
+        nf->fCategory = "TruthBins";
+        nf->fTitle = "UnfoldedTruthBin_"+std::to_string(i);
+        nf->fMin = 0;
+        nf->fMax = 2;
+        nf->fNominal = 1;
+        nf->fRegions = GetAvailableRegions();
+        const std::string sampleName = "Truth_bin_" + std::to_string(i+1);
+        for(auto& isample : fFitter->fSamples) {
+            if (isample->fName != sampleName) continue;
+            isample->AddNormFactor(nf);
+        }
+    }
+
     return 0;
 }
