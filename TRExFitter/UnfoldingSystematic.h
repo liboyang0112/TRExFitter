@@ -6,6 +6,10 @@
 #include <string>
 #include <vector>
 
+class Region;
+class Sample;
+class Systematic;
+
 class UnfoldingSystematic {
 public:
 
@@ -27,6 +31,11 @@ public:
     inline int GetSymmetrisationType() const {return fSymmetrisationType;}
     inline void SetSmoothOption(const HistoTools::SmoothOption opt) {fSampleSmoothingOption = opt;}
     inline int GetSmoothOption() const {return fSampleSmoothingOption;}
+
+    std::vector<Systematic*> ConvertToSystematic(const Region* reg,
+                                                 const int bins,
+                                                 const std::string& name,
+                                                 std::vector<Sample*>& samples) const;
 
     std::vector<std::string> fRegions;
     std::vector<std::string> fSamples;

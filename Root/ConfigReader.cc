@@ -5529,6 +5529,18 @@ int ConfigReader::ProcessUnfoldingSamples() {
 //__________________________________________________________________________________
 //
 int ConfigReader::ProcessUnfoldingSystematics() {
+    for (const auto& ireg : fFitter->fRegions) {
+        if (ireg->fRegionType != Region::RegionType::SIGNAL) continue;
+    
+        for (const auto& isyst : fFitter->fUnfoldingSystematics) {
+            if(isyst->fRegions[0] != "all" && 
+                Common::FindInStringVector(isyst->fRegions, ireg->fName) < 0) continue;
+       
+            const std::vector<Systematic*> systs = isyst->ConvertToSystematic(ireg, fFitter->fNumberUnfoldingTruthBins, fFitter->fName, fFitter->fSamples); 
+            fFitter->fSystematics.insert(fFitter->fSystematics.end(), systs.begin(), systs.end());
+            fFitter->fNSyst += fFitter->fNumberUnfoldingTruthBins;
+        }
+    }
 
     return 0;
 }
