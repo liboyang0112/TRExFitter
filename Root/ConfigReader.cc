@@ -2132,6 +2132,13 @@ int ConfigReader::ReadRegionOptions(const std::string& opt){
             }
             reg->fXaxisRange = range;
         }
+        
+        // Inter-region smoothing
+        param = confSet->Get("IsBinOfRegion");
+        if( param != "" ){
+            std::vector<std::string> vec_string = Vectorize( param,':' );
+            reg->fIsBinOfRegion[vec_string.at(0)] = std::stof(vec_string.at(1));
+        }
 
     }
 

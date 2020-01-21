@@ -255,6 +255,7 @@ additional options, accepting only float as arguments - useful for adding your f
 | Ymax                         | maximum value on y-axis |
 | SkipSmoothing                | if smoothing of nominal samples is used, this option can be used to disable smoothing per region (default: FALSE) |
 | XaxisRange                   | Manually call 'SetRangeUser()' on X axis. Needs two parameters(floats): min,max |
+| IsBinOfRegion                | can be set in order to declare this region as corresponding to a certain bin of another region (to be set as VALIDATION region and to be declared previously in the config file); in this way, one can perform a two-dimensional fit, by keeping the systematic smoothing in both directions: for each systematic, the smoothing applied to the VALIDATION region indicated will be propagated to the overall part of the systematic variation in this region; syntax: "region-name":binNmbr (NB: bin numbering here starts at 1 due to technical reasons) |
 
 
 ### `Sample` block settings
