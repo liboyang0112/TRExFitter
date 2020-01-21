@@ -166,6 +166,18 @@ class ConfigReader {
         int ReadUnfoldingOptions();
 
         /**
+          * A helper function to read UnfoldingSample
+          * @return int status code
+          */ 
+        int ReadUnfoldingSampleOptions();
+
+        /**
+          * A helper function to read UnfoldingSystematic
+          * @return int status code
+          */ 
+        int ReadUnfoldingSystematicOptions();
+
+        /**
           * Helper function to read Part of Syst config
           * @param COnfigSet A pointer needed for reading
           * @param Systematic A pointer to syst that is being set
@@ -207,6 +219,12 @@ class ConfigReader {
           * @return int status code
           */
         int SetSystShapeDecorelate(ConfigSet *confSet, Systematic *sys, const std::vector<std::string>& samples, const std::vector<std::string>& exclude);
+
+        /**
+          * Helper function that propagates samples and systematics when Unfolding is used
+          * @return int status code
+          */
+        int UnfoldingCorrections();
 
         /**
           * Helper function that is run after config is read
@@ -262,6 +280,24 @@ class ConfigReader {
           * @return flag if the systematic is problematic
           */
         bool SystHasProblematicName(const std::string& name);
+
+        /**
+          * Helper function to convert UnfoldingSample to Samples
+          * @return status code
+          */
+        int ProcessUnfoldingSamples();
+        
+        /**
+          * Helper function to convert UnfoldingSystematics to Systematics
+          * @return status code
+          */
+        int ProcessUnfoldingSystematics();
+        
+        /**
+          * Helper function to add NormFactors for truth bins when running unfolding
+          * @return status code
+          */
+        int AddUnfoldingNormFactors();
 
         /**
           * Pointer to TRExFit class, set during initialization
@@ -351,6 +387,11 @@ class ConfigReader {
           * bool to check if there is at least one valid sample for the fit
           */
         bool fHasAtLeastOneValidSample;
+
+        /**
+          * A container for Tau parameters
+          */ 
+        std::vector<std::pair<int, double> > fTaus;
 };
 
 #endif

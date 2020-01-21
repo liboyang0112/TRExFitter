@@ -12,6 +12,8 @@
 #include "TRExFitter/StatusLogbook.h"
 #include "TRExFitter/Systematic.h"
 #include "TRExFitter/TRExFit.h"
+#include "TRExFitter/UnfoldingSample.h"
+#include "TRExFitter/UnfoldingSystematic.h"
 
 // ROOT includes
 #include "TColor.h"
@@ -81,6 +83,12 @@ int ConfigReader::ReadFullConfig(const std::string& fileName, const std::string&
     sc+= ReadSystOptions();
     
     sc+= ReadUnfoldingOptions();
+    
+    sc+= ReadUnfoldingSampleOptions();
+    
+    sc+= ReadUnfoldingSystematicOptions();
+    
+    sc+= UnfoldingCorrections();
 
     sc+= PostConfig();
 
@@ -2632,72 +2640,6 @@ int ConfigReader::ReadSampleOptions(const std::string& opt){
         param = confSet->Get("Group");
         if(param!="") sample->fGroup = RemoveQuotes(param);
 
-        param = confSet->Get("ResponseMatrixFile");
-        if (param != "") {
-            sample->fResponseMatrixFiles.clear();
-            sample->fResponseMatrixFiles.emplace_back(RemoveQuotes(param));
-        }
-
-        param = confSet->Get("ResponseMatrixFiles");
-        if (param != "") {
-            sample->fResponseMatrixFiles = Vectorize(param, ',');
-        }
-
-        param = confSet->Get("ResponseMatrixName");
-        if (param != "") {
-            sample->fResponseMatrixNames.clear();
-            sample->fResponseMatrixNames.emplace_back(RemoveQuotes(param));
-        }
-
-        param = confSet->Get("ResponseMatrixNames");
-        if (param != "") {
-            sample->fResponseMatrixNames = Vectorize(param, ',');
-        }
-
-        param = confSet->Get("ResponseMatrixPath");
-        if (param != "") {
-            sample->fResponseMatrixPaths.clear();
-            sample->fResponseMatrixPaths.emplace_back(RemoveQuotes(param));
-        }
-
-        param = confSet->Get("ResponseMatrixPaths");
-        if (param != "") {
-            sample->fResponseMatrixPaths = Vectorize(param, ',');
-        }
-
-        param = confSet->Get("ResponseMatrixFileSuff");
-        if (param != "") {
-            sample->fResponseMatrixFileSuffs.clear();
-            sample->fResponseMatrixFileSuffs.emplace_back(RemoveQuotes(param));
-        }
-
-        param = confSet->Get("ResponseMatrixFileSuffs");
-        if (param != "") {
-            sample->fResponseMatrixFileSuffs = Vectorize(param, ',');
-        }
-
-        param = confSet->Get("ResponseMatrixNameSuff");
-        if (param != "") {
-            sample->fResponseMatrixNameSuffs.clear();
-            sample->fResponseMatrixNameSuffs.emplace_back(RemoveQuotes(param));
-        }
-
-        param = confSet->Get("ResponseMatrixNameSuffs");
-        if (param != "") {
-            sample->fResponseMatrixNameSuffs = Vectorize(param, ',');
-        }
-
-        param = confSet->Get("ResponseMatrixPathSuff");
-        if (param != "") {
-            sample->fResponseMatrixPathSuffs.clear();
-            sample->fResponseMatrixPathSuffs.emplace_back(RemoveQuotes(param));
-        }
-
-        param = confSet->Get("ResponseMatrixPathSuffs");
-        if (param != "") {
-            sample->fResponseMatrixPathSuffs = Vectorize(param, ',');
-        }
-
         // HIST input
         if (fFitter->fInputType == 0){
             // Set HistoFile
@@ -3445,10 +3387,6 @@ int ConfigReader::ReadNormFactorOptions(){
             }
         }
 
-        // Set Tau (for Tikhonov regularization)
-        param = confSet->Get("Tau");
-        if(param!="") nfactor->fTau = atof(param.c_str());
-
         // save list of
         if (regions.size() == 0 || exclude.size() == 0){
                 WriteErrorStatus("ConfigReader::ReadNormFactorOptions", "Region or exclude region size is equal to zero. Please check this");
@@ -3769,162 +3707,6 @@ int ConfigReader::ReadSystOptions(){
         if(type==Systematic::HISTO || type==Systematic::SHAPE){
             bool hasUp(false);
             bool hasDown(false);
-
-            param = confSet->Get("ResponseMatrixPathUp");
-            if (param != "") {
-                sys->fResponseMatrixPathsUp.clear();
-                sys->fResponseMatrixPathsUp.emplace_back(RemoveQuotes(param));
-                hasUp = true;
-            }
-            
-            param = confSet->Get("ResponseMatrixPathsUp");
-            if (param != "") {
-                sys->fResponseMatrixPathsUp = Vectorize(param,',');
-                hasUp = true;
-            }
-
-            param = confSet->Get("ResponseMatrixPathDown");
-            if (param != "") {
-                sys->fResponseMatrixPathsDown.clear();
-                sys->fResponseMatrixPathsDown.emplace_back(RemoveQuotes(param));
-                hasDown = true;
-            }
-            
-            param = confSet->Get("ResponseMatrixPathsDown");
-            if (param != "") {
-                sys->fResponseMatrixPathsDown = Vectorize(param,',');
-                hasDown = true;
-            }
-
-            param = confSet->Get("ResponseMatrixPathSuffUp");
-            if (param != "") {
-                sys->fResponseMatrixPathSuffsUp.clear();
-                sys->fResponseMatrixPathSuffsUp.emplace_back(RemoveQuotes(param));
-                hasUp = true;
-            }
-            
-            param = confSet->Get("ResponseMatrixPathSuffsUp");
-            if (param != "") {
-                sys->fResponseMatrixPathSuffsUp = Vectorize(param,',');
-                hasUp = true;
-            }
-
-            param = confSet->Get("ResponseMatrixPathSuffDown");
-            if (param != "") {
-                sys->fResponseMatrixPathSuffsDown.clear();
-                sys->fResponseMatrixPathSuffsDown.emplace_back(RemoveQuotes(param));
-                hasDown = true;
-            }
-            
-            param = confSet->Get("ResponseMatrixPathSuffsDown");
-            if (param != "") {
-                sys->fResponseMatrixPathSuffsDown = Vectorize(param,',');
-                hasDown = true;
-            }
-            
-            param = confSet->Get("ResponseMatrixNameUp");
-            if (param != "") {
-                sys->fResponseMatrixNamesUp.clear();
-                sys->fResponseMatrixNamesUp.emplace_back(RemoveQuotes(param));
-                hasUp = true;
-            }
-            
-            param = confSet->Get("ResponseMatrixNamesUp");
-            if (param != "") {
-                sys->fResponseMatrixNamesUp = Vectorize(param,',');
-                hasUp = true;
-            }
-
-            param = confSet->Get("ResponseMatrixNameDown");
-            if (param != "") {
-                sys->fResponseMatrixNamesDown.clear();
-                sys->fResponseMatrixNamesDown.emplace_back(RemoveQuotes(param));
-                hasDown = true;
-            }
-            
-            param = confSet->Get("ResponseMatrixNamesDown");
-            if (param != "") {
-                sys->fResponseMatrixNamesDown = Vectorize(param,',');
-                hasDown = true;
-            }
-
-            param = confSet->Get("ResponseMatrixNameSuffUp");
-            if (param != "") {
-                sys->fResponseMatrixNameSuffsUp.clear();
-                sys->fResponseMatrixNameSuffsUp.emplace_back(RemoveQuotes(param));
-                hasUp = true;
-            }
-            
-            param = confSet->Get("ResponseMatrixNameSuffsUp");
-            if (param != "") {
-                sys->fResponseMatrixNameSuffsUp = Vectorize(param,',');
-                hasUp = true;
-            }
-
-            param = confSet->Get("ResponseMatrixNameSuffDown");
-            if (param != "") {
-                sys->fResponseMatrixNameSuffsDown.clear();
-                sys->fResponseMatrixNameSuffsDown.emplace_back(RemoveQuotes(param));
-                hasDown = true;
-            }
-            
-            param = confSet->Get("ResponseMatrixNameSuffsDown");
-            if (param != "") {
-                sys->fResponseMatrixNameSuffsDown = Vectorize(param,',');
-                hasDown = true;
-            }
-
-            param = confSet->Get("ResponseMatrixFileUp");
-            if (param != "") {
-                sys->fResponseMatrixFilesUp.clear();
-                sys->fResponseMatrixFilesUp.emplace_back(RemoveQuotes(param));
-                hasUp = true;
-            }
-            
-            param = confSet->Get("ResponseMatrixFilesUp");
-            if (param != "") {
-                sys->fResponseMatrixFilesUp = Vectorize(param,',');
-                hasUp = true;
-            }
-
-            param = confSet->Get("ResponseMatrixFileDown");
-            if (param != "") {
-                sys->fResponseMatrixFilesDown.clear();
-                sys->fResponseMatrixFilesDown.emplace_back(RemoveQuotes(param));
-                hasDown = true;
-            }
-            
-            param = confSet->Get("ResponseMatrixFilesDown");
-            if (param != "") {
-                sys->fResponseMatrixFilesDown = Vectorize(param,',');
-                hasDown = true;
-            }
-
-            param = confSet->Get("ResponseMatrixFileSuffUp");
-            if (param != "") {
-                sys->fResponseMatrixFileSuffsUp.clear();
-                sys->fResponseMatrixFileSuffsUp.emplace_back(RemoveQuotes(param));
-                hasUp = true;
-            }
-            
-            param = confSet->Get("ResponseMatrixFileSuffsUp");
-            if (param != "") {
-                sys->fResponseMatrixFileSuffsUp = Vectorize(param,',');
-                hasUp = true;
-            }
-
-            param = confSet->Get("ResponseMatrixFileSuffDown");
-            if (param != "") {
-                sys->fResponseMatrixFileSuffsDown.clear();
-                sys->fResponseMatrixFileSuffsDown.emplace_back(RemoveQuotes(param));
-                hasDown = true;
-            }
-            
-            param = confSet->Get("ResponseMatrixFileSuffsDown");
-            if (param != "") {
-                sys->fResponseMatrixFileSuffsDown = Vectorize(param,',');
-                hasDown = true;
-            }
 
             if(fFitter->fInputType==0){ // HIST input
                 param = confSet->Get("HistoPathUp");
@@ -5122,6 +4904,8 @@ int ConfigReader::PostConfig(){
     return 0;
 }
 
+//__________________________________________________________________________________
+//
 int ConfigReader::ReadUnfoldingOptions() {
     ConfigSet *confSet = fParser->GetConfigSet("Unfolding");
 
@@ -5185,7 +4969,427 @@ int ConfigReader::ReadUnfoldingOptions() {
         fFitter->fNumberUnfoldingRecoBins = bins;
     }
 
+    param = confSet->Get("Tau");
+    if (param != "") {
+        const std::vector<std::string>& tmp = Vectorize(param, ',');
+        for (auto& i : tmp) {
+            const std::vector<std::string>& oneTau = Vectorize(i, ':');
+            if (oneTau.size() != 2) {
+                WriteErrorStatus("ConfigReader::ReadUnfoldingOptions", "Wrong format for Tau!");
+                return 1;
+            }
+
+            int bin = std::stoi(oneTau.at(0));
+            double value = std::stof(oneTau.at(1));
+            fTaus.emplace_back(bin, value);
+        }
+    }
+
     return 0;
+}
+
+//__________________________________________________________________________________
+//
+int ConfigReader::ReadUnfoldingSampleOptions() {
+
+    int isample = 0;
+    while(true) {
+        ConfigSet *confSet = fParser->GetConfigSet("UnfoldingSample",isample);
+        if (confSet == nullptr) break;
+        ++isample;
+    
+        auto sample = std::make_unique<UnfoldingSample>();
+        sample->SetName(RemoveQuotes(confSet->GetValue()));
+        
+        std::string param = confSet->Get("Title");
+        if (param != "") {
+            sample->SetTitle(RemoveQuotes(param));
+        }
+        
+        param = confSet->Get("ResponseMatrixFile");
+        if (param != "") {
+            sample->fResponseMatrixFiles.clear();
+            sample->fResponseMatrixFiles.emplace_back(RemoveQuotes(param));
+        }
+
+        param = confSet->Get("ResponseMatrixFiles");
+        if (param != "") {
+            sample->fResponseMatrixFiles = Vectorize(param, ',');
+        }
+
+        param = confSet->Get("ResponseMatrixName");
+        if (param != "") {
+            sample->fResponseMatrixNames.clear();
+            sample->fResponseMatrixNames.emplace_back(RemoveQuotes(param));
+        }
+
+        param = confSet->Get("ResponseMatrixNames");
+        if (param != "") {
+            sample->fResponseMatrixNames = Vectorize(param, ',');
+        }
+
+        param = confSet->Get("ResponseMatrixPath");
+        if (param != "") {
+            sample->fResponseMatrixPaths.clear();
+            sample->fResponseMatrixPaths.emplace_back(RemoveQuotes(param));
+        }
+
+        param = confSet->Get("ResponseMatrixPaths");
+        if (param != "") {
+            sample->fResponseMatrixPaths = Vectorize(param, ',');
+        }
+
+        param = confSet->Get("ResponseMatrixFileSuff");
+        if (param != "") {
+            sample->fResponseMatrixFileSuffs.clear();
+            sample->fResponseMatrixFileSuffs.emplace_back(RemoveQuotes(param));
+        }
+
+        param = confSet->Get("ResponseMatrixFileSuffs");
+        if (param != "") {
+            sample->fResponseMatrixFileSuffs = Vectorize(param, ',');
+        }
+
+        param = confSet->Get("ResponseMatrixNameSuff");
+        if (param != "") {
+            sample->fResponseMatrixNameSuffs.clear();
+            sample->fResponseMatrixNameSuffs.emplace_back(RemoveQuotes(param));
+        }
+
+        param = confSet->Get("ResponseMatrixNameSuffs");
+        if (param != "") {
+            sample->fResponseMatrixNameSuffs = Vectorize(param, ',');
+        }
+
+        param = confSet->Get("ResponseMatrixPathSuff");
+        if (param != "") {
+            sample->fResponseMatrixPathSuffs.clear();
+            sample->fResponseMatrixPathSuffs.emplace_back(RemoveQuotes(param));
+        }
+
+        param = confSet->Get("ResponseMatrixPathSuffs");
+        if (param != "") {
+            sample->fResponseMatrixPathSuffs = Vectorize(param, ',');
+        }
+        
+        // Set FillColor
+        param = confSet->Get("FillColor");
+        if(param != "") sample->SetFillColor(std::atoi(param.c_str()));
+
+        // Set LineColor
+        param = confSet->Get("LineColor");
+        if(param != "") sample->SetLineColor(std::atoi(param.c_str()));
+
+        // Set Regions
+        param = confSet->Get("Regions");
+        if(param == "") {
+            sample->fRegions.emplace_back("all");
+        } else {
+            sample->fRegions = Vectorize(param, ',');
+        }
+
+        fFitter->fUnfoldingSamples.emplace_back(std::move(sample));
+
+    }
+
+    return 0;
+}
+
+//__________________________________________________________________________________
+//
+int ConfigReader::ReadUnfoldingSystematicOptions() {
+
+    int isyst(0);
+
+    while(true) {
+        ConfigSet *confSet = fParser->GetConfigSet("UnfoldingSystematic", isyst);
+        if (confSet == nullptr) break;
+
+        ++isyst;
+
+        auto syst = std::make_unique<UnfoldingSystematic>();
+        syst->SetName(RemoveQuotes(confSet->GetValue()));
+
+        // Set NuisanceParameter
+        std::string param = confSet->Get("NuisanceParameter");
+        if(param != ""){
+            syst->fNuisanceParameter = RemoveQuotes(param);
+            TRExFitter::NPMAP[syst->GetName()] = syst->fNuisanceParameter;
+        } else {
+            syst->fNuisanceParameter = syst->GetName();
+            TRExFitter::NPMAP[syst->GetName()] = syst->GetName();
+        }
+
+        param = confSet->Get("Type");
+        if (param == "") {
+            syst->SetType(Systematic::HISTO);
+        } else {
+            std::transform(param.begin(), param.end(), param.begin(), ::toupper);
+
+            if(param == "OVERALL") syst->SetType(Systematic::OVERALL);
+            else if(param == "SHAPE") syst->SetType(Systematic::SHAPE);
+            else if (param == "STAT") syst->SetType(Systematic::STAT);
+            else if (param == "HISTO") syst->SetType(Systematic::HISTO);
+        }
+
+        param = confSet->Get("Samples");
+        if (param == "") {
+            syst->fSamples.emplace_back("all");
+        } else {
+            syst->fSamples = Vectorize(param, ',');
+        }
+        
+        param = confSet->Get("Regions");
+        if (param == "") {
+            syst->fRegions.emplace_back("all");
+        } else {
+            syst->fRegions = Vectorize(param, ',');
+        }
+    
+        param = confSet->Get("Title");
+        if (param == "") {
+            syst->SetTitle(RemoveQuotes(confSet->GetValue()));
+        } else {
+            syst->SetTitle(RemoveQuotes(param));
+        }
+        
+        // SetCategory
+        param = confSet->Get("Category");
+        if(param != ""){
+            syst->fCategory = RemoveQuotes(param);
+            syst->fCategory = RemoveQuotes(param); //SubCategory defaults to the Category setting, if the Category is explicitly set
+        }
+
+        // SetSubCategory
+        param = confSet->Get("SubCategory");
+        if (param != ""){
+            syst->fSubCategory = RemoveQuotes(param); // note this needs to happen after Category was set, in order to overwrite the default if required
+        }
+
+        bool hasUp(false);
+        bool hasDown(false);
+
+        param = confSet->Get("ResponseMatrixPathUp");
+        if (param != "") {
+            syst->fResponseMatrixPathsUp.clear();
+            syst->fResponseMatrixPathsUp.emplace_back(RemoveQuotes(param));
+            hasUp = true;
+        }
+        
+        param = confSet->Get("ResponseMatrixPathsUp");
+        if (param != "") {
+            syst->fResponseMatrixPathsUp = Vectorize(param,',');
+            hasUp = true;
+        }
+
+        param = confSet->Get("ResponseMatrixPathDown");
+        if (param != "") {
+            syst->fResponseMatrixPathsDown.clear();
+            syst->fResponseMatrixPathsDown.emplace_back(RemoveQuotes(param));
+            hasDown = true;
+        }
+        
+        param = confSet->Get("ResponseMatrixPathsDown");
+        if (param != "") {
+            syst->fResponseMatrixPathsDown = Vectorize(param,',');
+            hasDown = true;
+        }
+
+        param = confSet->Get("ResponseMatrixPathSuffUp");
+        if (param != "") {
+            syst->fResponseMatrixPathSuffsUp.clear();
+            syst->fResponseMatrixPathSuffsUp.emplace_back(RemoveQuotes(param));
+            hasUp = true;
+        }
+        
+        param = confSet->Get("ResponseMatrixPathSuffsUp");
+        if (param != "") {
+            syst->fResponseMatrixPathSuffsUp = Vectorize(param,',');
+            hasUp = true;
+        }
+
+        param = confSet->Get("ResponseMatrixPathSuffDown");
+        if (param != "") {
+            syst->fResponseMatrixPathSuffsDown.clear();
+            syst->fResponseMatrixPathSuffsDown.emplace_back(RemoveQuotes(param));
+            hasDown = true;
+        }
+        
+        param = confSet->Get("ResponseMatrixPathSuffsDown");
+        if (param != "") {
+            syst->fResponseMatrixPathSuffsDown = Vectorize(param,',');
+            hasDown = true;
+        }
+        
+        param = confSet->Get("ResponseMatrixNameUp");
+        if (param != "") {
+            syst->fResponseMatrixNamesUp.clear();
+            syst->fResponseMatrixNamesUp.emplace_back(RemoveQuotes(param));
+            hasUp = true;
+        }
+        
+        param = confSet->Get("ResponseMatrixNamesUp");
+        if (param != "") {
+            syst->fResponseMatrixNamesUp = Vectorize(param,',');
+            hasUp = true;
+        }
+
+        param = confSet->Get("ResponseMatrixNameDown");
+        if (param != "") {
+            syst->fResponseMatrixNamesDown.clear();
+            syst->fResponseMatrixNamesDown.emplace_back(RemoveQuotes(param));
+            hasDown = true;
+        }
+        
+        param = confSet->Get("ResponseMatrixNamesDown");
+        if (param != "") {
+            syst->fResponseMatrixNamesDown = Vectorize(param,',');
+            hasDown = true;
+        }
+
+        param = confSet->Get("ResponseMatrixNameSuffUp");
+        if (param != "") {
+            syst->fResponseMatrixNameSuffsUp.clear();
+            syst->fResponseMatrixNameSuffsUp.emplace_back(RemoveQuotes(param));
+            hasUp = true;
+        }
+        
+        param = confSet->Get("ResponseMatrixNameSuffsUp");
+        if (param != "") {
+            syst->fResponseMatrixNameSuffsUp = Vectorize(param,',');
+            hasUp = true;
+        }
+
+        param = confSet->Get("ResponseMatrixNameSuffDown");
+        if (param != "") {
+            syst->fResponseMatrixNameSuffsDown.clear();
+            syst->fResponseMatrixNameSuffsDown.emplace_back(RemoveQuotes(param));
+            hasDown = true;
+        }
+        
+        param = confSet->Get("ResponseMatrixNameSuffsDown");
+        if (param != "") {
+            syst->fResponseMatrixNameSuffsDown = Vectorize(param,',');
+            hasDown = true;
+        }
+
+        param = confSet->Get("ResponseMatrixFileUp");
+        if (param != "") {
+            syst->fResponseMatrixFilesUp.clear();
+            syst->fResponseMatrixFilesUp.emplace_back(RemoveQuotes(param));
+            hasUp = true;
+        }
+        
+        param = confSet->Get("ResponseMatrixFilesUp");
+        if (param != "") {
+            syst->fResponseMatrixFilesUp = Vectorize(param,',');
+            hasUp = true;
+        }
+
+        param = confSet->Get("ResponseMatrixFileDown");
+        if (param != "") {
+            syst->fResponseMatrixFilesDown.clear();
+            syst->fResponseMatrixFilesDown.emplace_back(RemoveQuotes(param));
+            hasDown = true;
+        }
+        
+        param = confSet->Get("ResponseMatrixFilesDown");
+        if (param != "") {
+            syst->fResponseMatrixFilesDown = Vectorize(param,',');
+            hasDown = true;
+        }
+
+        param = confSet->Get("ResponseMatrixFileSuffUp");
+        if (param != "") {
+            syst->fResponseMatrixFileSuffsUp.clear();
+            syst->fResponseMatrixFileSuffsUp.emplace_back(RemoveQuotes(param));
+            hasUp = true;
+        }
+        
+        param = confSet->Get("ResponseMatrixFileSuffsUp");
+        if (param != "") {
+            syst->fResponseMatrixFileSuffsUp = Vectorize(param,',');
+            hasUp = true;
+        }
+
+        param = confSet->Get("ResponseMatrixFileSuffDown");
+        if (param != "") {
+            syst->fResponseMatrixFileSuffsDown.clear();
+            syst->fResponseMatrixFileSuffsDown.emplace_back(RemoveQuotes(param));
+            hasDown = true;
+        }
+        
+        param = confSet->Get("ResponseMatrixFileSuffsDown");
+        if (param != "") {
+            syst->fResponseMatrixFileSuffsDown = Vectorize(param,',');
+            hasDown = true;
+        }
+
+        syst->fHasUpVariation = hasUp;
+        syst->fHasDownVariation = hasDown;
+ 
+        // Set Symmetrisation
+        param = confSet->Get("Symmetrisation");
+        if(param != ""){
+            std::transform(param.begin(), param.end(), param.begin(), ::toupper);
+            if(param == "ONESIDED"){
+                syst->SetSymmetrisationType(HistoTools::SYMMETRIZEONESIDED);
+            }
+            else if(param == "TWOSIDED"){
+                syst->SetSymmetrisationType(HistoTools::SYMMETRIZETWOSIDED);
+            }
+            else if(param == "ABSMEAN"){
+                syst->SetSymmetrisationType(HistoTools::SYMMETRIZEABSMEAN);
+            }
+            else if(param == "MAXIMUM"){
+                syst->SetSymmetrisationType(HistoTools::SYMMETRIZEMAXIMUM);
+            }
+            else {
+                WriteErrorStatus("ConfigReader::ReadUnfoldingSystematicOptions", "Symetrisation scheme is not recognized ... ");
+                return 1;
+            }
+        }
+
+        param = confSet->Get("SmoothingOption");
+        if(param != ""){
+            syst->fSampleSmoothing = true;
+            std::transform(param.begin(), param.end(), param.begin(), ::toupper);
+            if( param == "MAXVARIATION" ) syst->SetSmoothOption(HistoTools::SmoothOption::MAXVARIATION);
+            else if (param == "TTBARRESONANCE") syst->SetSmoothOption(HistoTools::SmoothOption::TTBARRESONANCE);
+            else if (param == "COMMONTOOLSMOOTHMONOTONIC") syst->SetSmoothOption(HistoTools::SmoothOption::COMMONTOOLSMOOTHMONOTONIC);
+            else if (param == "COMMONTOOLSMOOTHPARABOLIC") syst->SetSmoothOption(HistoTools::SmoothOption::COMMONTOOLSMOOTHPARABOLIC);
+            else if (param == "KERNELRATIOUNIFORM") syst->SetSmoothOption(HistoTools::SmoothOption::KERNELRATIOUNIFORM);
+            else if (param == "KERNELDELTAGAUSS") syst->SetSmoothOption(HistoTools::SmoothOption::KERNELDELTAGAUSS);
+            else if (param == "KERNELRATIOGAUSS") syst->SetSmoothOption(HistoTools::SmoothOption::KERNELRATIOGAUSS);
+            else {
+                WriteWarningStatus("ConfigReader::ReadUnfoldingSystematicOptions", "You specified 'SmoothingOption' option but you didn't provide valid input. Using default from job block");
+                syst->fSampleSmoothing = false;
+            }
+        }
+
+        fFitter->fUnfoldingSystematics.emplace_back(std::move(syst));
+    }
+
+    return 0;
+}
+
+//__________________________________________________________________________________
+//
+int ConfigReader::UnfoldingCorrections() {
+    if (fFitter->fFitType != TRExFit::FitType::UNFOLDING) return 0;
+
+    int sc(0);
+
+    // First process Samples
+    sc += ProcessUnfoldingSamples();
+
+    // Then process Systematics
+    sc += ProcessUnfoldingSystematics();
+   
+    // Add norm factors
+    sc += AddUnfoldingNormFactors();
+
+    return sc;
 }
 
 //__________________________________________________________________________________
@@ -5312,4 +5516,96 @@ bool ConfigReader::SystHasProblematicName(const std::string& name){
     }
 
     return false;
+}
+
+//__________________________________________________________________________________
+//
+int ConfigReader::ProcessUnfoldingSamples() {
+
+    for (const auto& ireg : fFitter->fRegions) {
+        if (ireg->fRegionType != Region::RegionType::SIGNAL) continue;
+
+        for (const auto& isample : fFitter->fUnfoldingSamples) {
+            if(isample->fRegions[0] != "all" && 
+                Common::FindInStringVector(isample->fRegions, ireg->fName) < 0) continue;
+
+            // Convert the UnfoldingSample to sample and adjust the paths
+            const std::vector<Sample*> samples = isample->ConvertToSample(ireg, fFitter->fNumberUnfoldingTruthBins, fFitter->fName);
+            fFitter->fSamples.insert(fFitter->fSamples.end(), samples.begin(), samples.end());
+            fFitter->fNSamples += fFitter->fNumberUnfoldingTruthBins;
+        }
+    }
+
+    return 0;
+}
+
+//__________________________________________________________________________________
+//
+int ConfigReader::ProcessUnfoldingSystematics() {
+    for (const auto& ireg : fFitter->fRegions) {
+        if (ireg->fRegionType != Region::RegionType::SIGNAL) continue;
+    
+        for (const auto& isyst : fFitter->fUnfoldingSystematics) {
+            if(isyst->fRegions[0] != "all" && 
+                Common::FindInStringVector(isyst->fRegions, ireg->fName) < 0) continue;
+       
+            if (fFitter->fUnfoldingSamples.size() == 0) {
+                WriteErrorStatus("ConfigReader::ProcessUnfoldingSystematics", "No UnfoldingSamples set!");
+                return 1;
+            }
+            const std::string& unfoldingSampleName = fFitter->fUnfoldingSamples.at(0)->GetName();
+            const std::vector<Systematic*> systs = isyst->ConvertToSystematic(ireg,
+                                                                              fFitter->fNumberUnfoldingTruthBins,
+                                                                              fFitter->fName,
+                                                                              unfoldingSampleName,
+                                                                              fFitter->fSamples); 
+            fFitter->fSystematics.insert(fFitter->fSystematics.end(), systs.begin(), systs.end());
+            fFitter->fNSyst += fFitter->fNumberUnfoldingTruthBins;
+        }
+    }
+
+    return 0;
+}
+
+//__________________________________________________________________________________
+//
+int ConfigReader::AddUnfoldingNormFactors() {
+
+    for (int i = 0; i < fFitter->fNumberUnfoldingTruthBins; ++i) {
+        const std::string name = "Bin_" + std::to_string(i+1);
+        NormFactor* nf = new NormFactor(name); 
+        
+        TRExFitter::SYSTMAP[nf->fName] = nf->fName;
+
+        if(Common::FindInStringVector(fFitter->fNormFactorNames, nf->fName) < 0) {
+           fFitter->fNormFactors.emplace_back(nf);
+           fFitter->fNormFactorNames.emplace_back(nf->fName);
+           fFitter->fNNorm++;
+        }
+        
+        nf->fNuisanceParameter = nf->fName;
+        TRExFitter::NPMAP[nf->fName] = nf->fName;
+        nf->fCategory = "TruthBins";
+        nf->fTitle = "UnfoldedTruthBin_"+std::to_string(i);
+        nf->fMin = 0;
+        nf->fMax = 2;
+        nf->fNominal = 1;
+        nf->fRegions = GetAvailableRegions();
+        const std::string sampleName = "Truth_bin_" + std::to_string(i+1);
+        for(auto& isample : fFitter->fSamples) {
+            if (isample->fName != sampleName) continue;
+            isample->AddNormFactor(nf);
+        }
+
+        // check if the bin is in the list specifies taus
+        auto it = std::find_if(fTaus.begin(), fTaus.end(),
+        [&i](const std::pair<int, double>& element){ return element.first == i+1;});
+
+        if (it != fTaus.end()) {
+            WriteInfoStatus("ConfigReader::AddUnfoldingNormFactors", "Setting truth bin: " + std::to_string(i+1) + " to use tau = " + std::to_string(it->second));
+            nf->fTau = it->second; 
+        }
+    }
+
+    return 0;
 }

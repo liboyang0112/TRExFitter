@@ -35,6 +35,8 @@ class SampleHist;
 class ShapeFactor;
 class TRExPlot;
 class TFile;
+class UnfoldingSample;
+class UnfoldingSystematic;
 
 class TRExFit {
 public:
@@ -308,14 +310,14 @@ public:
     /**
      * A helper function to compute the fgull paths for a response matrix
      * @param pointer to the Region
-     * @param pointer to the Sample
+     * @param pointer to the UnfoldingSample
      * @param pointer to the Systematic (default = NULL)
      * @param bool to specify up (true) or down (false) syst variation
      * @return the full path
      */
     std::vector<std::string> FullResponseMatrixPaths(const Region* reg, 
-                                                     const Sample* smp,
-                                                     const Systematic* syst = nullptr,
+                                                     const UnfoldingSample* smp,
+                                                     const UnfoldingSystematic* syst = nullptr,
                                                      const bool isUp = true) const;
 
     /**
@@ -387,14 +389,14 @@ public:
       * @param Folding manager
       * @param output file
       * @param Region
-      * @param Sample
-      * @param Current systematics
+      * @param UnfoldingSample
+      * @param Current UnfoldingSystystematics
       */ 
     void ProcessUnfoldingSystematics(FoldingManager* manager,
                                      TFile* file,
                                      const Region* reg,
-                                     const Sample* sample,
-                                     const Systematic* syst) const;
+                                     const UnfoldingSample* sample,
+                                     const UnfoldingSystematic* syst) const;
 
     // -------------------------
 
@@ -663,6 +665,8 @@ public:
     std::string fTruthDistributionName;
     int fNumberUnfoldingTruthBins;
     int fNumberUnfoldingRecoBins;
+    std::vector<std::unique_ptr<UnfoldingSample> > fUnfoldingSamples;
+    std::vector<std::unique_ptr<UnfoldingSystematic> > fUnfoldingSystematics;
 };
 
 #endif

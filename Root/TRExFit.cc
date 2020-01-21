@@ -17,6 +17,8 @@
 #include "TRExFitter/TRExPlot.h"
 #include "TRExFitter/Region.h"
 #include "TRExFitter/PruningUtil.h"
+#include "TRExFitter/UnfoldingSample.h"
+#include "TRExFitter/UnfoldingSystematic.h"
 
 // UnfoldingCode includes
 #include "UnfoldingCode/UnfoldingCode/UnfoldingTools.h"
@@ -7979,17 +7981,14 @@ void TRExFit::PrepareUnfolding() {
         if (ireg->fRegionType != Region::RegionType::SIGNAL) continue;
     
         // loop over all samples
-        for (const auto& isample : fSamples) {
+        for (const auto& isample : fUnfoldingSamples) {
        
-            // process only signal samples
-            if (isample->fType != Sample::SampleType::SIGNAL) continue;
-            
             // skip samples not associated to the region
             if(isample->fRegions[0] != "all" && 
                 Common::FindInStringVector(isample->fRegions, ireg->fName) < 0) continue;
 
             // first process nominal
-            const std::vector<std::string>& fullResponsePaths = FullResponseMatrixPaths(ireg, isample);
+            const std::vector<std::string>& fullResponsePaths = FullResponseMatrixPaths(ireg, isample.get());
 
             std::unique_ptr<TH2> matrix = Common::CombineHistos2DFromFullPaths(fullResponsePaths);
             const int nRecoBins  = horizontal ? matrix->GetNbinsY() : matrix->GetNbinsX();
@@ -8017,24 +8016,24 @@ void TRExFit::PrepareUnfolding() {
                 outputFile->mkdir("nominal");
             }
 
-            const std::string histoName = ireg->fName + "_" + isample->fName;
+            const std::string histoName = ireg->fName + "_" + isample->GetName();
             manager.WriteFoldedToHisto(outputFile.get(), "nominal", histoName);
 
             // Process systematics
-            for (const auto& isyst : fSystematics) {
+            for (const auto& isyst : fUnfoldingSystematics) {
                 if (!isyst) continue;
-                if (isyst->fName == "Dummy") continue; // wtf?
+                if (isyst->GetName() == "Dummy") continue; // wtf?
                 
-                if(isyst->fRegions.size() > 0 &&
+                if(isyst->fRegions.at(0) != "all" &&
                      Common::FindInStringVector(isyst->fRegions, ireg->fName) < 0) continue;
-                if(isyst->fSamples.size() > 0 &&
-                     Common::FindInStringVector(isyst->fSamples, isample->fName) < 0) continue;
+                if(isyst->fSamples.at(0) != "all" &&
+                     Common::FindInStringVector(isyst->fSamples, isample->GetName()) < 0) continue;
 
                 ProcessUnfoldingSystematics(&manager,
                                             outputFile.get(),
                                             ireg,
-                                            isample,
-                                            isyst);
+                                            isample.get(),
+                                            isyst.get());
             }
         }
     }
@@ -8047,8 +8046,8 @@ void TRExFit::PrepareUnfolding() {
 void TRExFit::ProcessUnfoldingSystematics(FoldingManager* manager,
                                           TFile* file,
                                           const Region* reg,
-                                          const Sample* sample,
-                                          const Systematic* syst) const {
+                                          const UnfoldingSample* sample,
+                                          const UnfoldingSystematic* syst) const {
 
     const bool horizontal = (fMatrixOrientation == FoldingManager::MATRIXORIENTATION::TRUTHONHORIZONTALAXIS);
     // lambda for processing one (up or down) variation
@@ -8071,14 +8070,14 @@ void TRExFit::ProcessUnfoldingSystematics(FoldingManager* manager,
         manager->FoldTruth();
         
         // create the folder structure
-        const std::string folderName = isUp ? syst->fName + "_Up" : syst->fName + "_Down";
+        const std::string folderName = isUp ? syst->GetName() + "_Up" : syst->GetName() + "_Down";
         TDirectory* dir = dynamic_cast<TDirectory*>(file->Get(folderName.c_str()));
         if (!dir) {
             file->cd();
             file->mkdir(folderName.c_str());
         }
 
-        const std::string histoName = reg->fName + "_" + sample->fName;
+        const std::string histoName = reg->fName + "_" + sample->GetName();
         manager->WriteFoldedToHisto(file, folderName, histoName);
     };
 
@@ -8095,8 +8094,8 @@ void TRExFit::ProcessUnfoldingSystematics(FoldingManager* manager,
 //__________________________________________________________________________________
 //
 std::vector<std::string> TRExFit::FullResponseMatrixPaths(const Region* reg, 
-                                                          const Sample* smp,
-                                                          const Systematic* syst,
+                                                          const UnfoldingSample* smp,
+                                                          const UnfoldingSystematic* syst,
                                                           const bool isUp) const {
     // protection against nullptr
     if(!reg) {

@@ -104,7 +104,9 @@ set( lib_headers
   TRExFitter/Systematic.h
   TRExFitter/SystematicHist.h
   TRExFitter/TRExFit.h
-  TRExFitter/TRExPlot.h )
+  TRExFitter/TRExPlot.h
+  TRExFitter/UnfoldingSample.h
+  TRExFitter/UnfoldingSystematic.h)
 
 # Source files for the shared/static library.
 set( lib_sources
@@ -130,7 +132,9 @@ set( lib_sources
   Root/Systematic.cc
   Root/SystematicHist.cc
   Root/TRExFit.cc
-  Root/TRExPlot.cc )
+  Root/TRExPlot.cc
+  Root/UnfoldingSample.cc
+  Root/UnfoldingSystematic.cc )
 
 # Build the shared library.
 add_library( TRExFitter SHARED ${lib_headers} ${lib_sources} )
