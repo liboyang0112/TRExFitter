@@ -35,7 +35,7 @@ std::vector<Systematic*> UnfoldingSystematic::ConvertToSystematic(const Region* 
 
     std::vector<Systematic*> result;
     for (int ibin = 0; ibin < bins; ++ibin) {
-        const std::string sampleName = "Truth_bin_" + std::to_string(ibin+1);
+        const std::string sampleName = reg->fName + "_Truth_bin_" + std::to_string(ibin+1);
 
         Systematic* syst = new Systematic(fName, fType);
         if(fNuisanceParameter != ""){

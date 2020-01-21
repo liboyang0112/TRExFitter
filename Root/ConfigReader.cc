@@ -6577,7 +6577,19 @@ int ConfigReader::ProcessUnfoldingSystematics() {
                 WriteErrorStatus("ConfigReader::ProcessUnfoldingSystematics", "No UnfoldingSamples set!");
                 return 1;
             }
-            const std::string& unfoldingSampleName = fFitter->fUnfoldingSamples.at(0)->GetName();
+            std::string unfoldingSampleName("");
+            for (const auto& isample : fFitter->fUnfoldingSamples) {
+                if(isample->fRegions[0] != "all" && 
+                    Common::FindInStringVector(isample->fRegions, ireg->fName) < 0) continue;
+
+                unfoldingSampleName = isample->GetName();
+            }
+
+            if (unfoldingSampleName == "") {
+                WriteErrorStatus("ConfigReader::ProcessUnfoldingSystematics", "Sample name not set!");
+                exit(EXIT_FAILURE);
+            }
+
             const std::vector<Systematic*> systs = isyst->ConvertToSystematic(ireg,
                                                                               fFitter->fNumberUnfoldingTruthBins,
                                                                               fFitter->fName,
@@ -6615,9 +6627,15 @@ int ConfigReader::AddUnfoldingNormFactors() {
         nf->fMax = 2;
         nf->fNominal = 1;
         nf->fRegions = GetAvailableRegions();
-        const std::string sampleName = "Truth_bin_" + std::to_string(i+1);
+        std::vector<std::string> sampleNames;
+        for (const auto& ireg : fFitter->fRegions) {
+            if (ireg->fRegionType == Region::RegionType::SIGNAL) {
+                const std::string sampleName = ireg->fName + "_Truth_bin_" + std::to_string(i+1);
+                sampleNames.emplace_back(sampleName);
+            }
+        }
         for(auto& isample : fFitter->fSamples) {
-            if (isample->fName != sampleName) continue;
+            if (std::find(sampleNames.begin(), sampleNames.end(), isample->fName) == sampleNames.end()) continue;
             isample->AddNormFactor(nf);
         }
 
