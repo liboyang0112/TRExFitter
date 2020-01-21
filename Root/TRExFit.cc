@@ -8112,10 +8112,55 @@ void TRExFit::ProcessUnfoldingSystematics(FoldingManager* manager,
                 WriteErrorStatus("TRExFit::ProcessUnfoldingSystematics", "Number of truth bins do not match the number of truth bins for the response matrix: " + reg->fName);
                 exit(EXIT_FAILURE);
             }
-            // a temporraty line for testing
-            UnfoldingTools::NormalizeMatrix(matrix.get(), false);
 
             manager->SetResponseMatrix(matrix.get());
+        } else {
+            {
+                /// migration first
+                const std::vector<std::string>& paths = FullMigrationMatrixPaths(reg, sample, syst, true);
+                std::unique_ptr<TH2> matrix = Common::CombineHistos2DFromFullPaths(paths); 
+
+                const int nRecoBins  = horizontal ? matrix->GetNbinsY() : matrix->GetNbinsX();
+                const int nTruthBins = horizontal ? matrix->GetNbinsX() : matrix->GetNbinsY();
+                if (nRecoBins != reg->fNumberUnfoldingRecoBins) {
+                    WriteErrorStatus("TRExFit::ProcessUnfoldingSystematics", "Number of reco bins do not match the number of reco bins for the migration matrix in region: " + reg->fName);
+                    exit(EXIT_FAILURE);
+                }
+                if (nTruthBins != fNumberUnfoldingTruthBins) {
+                    WriteErrorStatus("TRExFit::ProcessUnfoldingSystematics", "Number of truth bins do not match the number of truth bins for the migration matrix: " + reg->fName);
+                    exit(EXIT_FAILURE);
+                }
+
+                manager->SetMigrationMatrix(matrix.get(), true);
+            }
+
+            // selectio eff now
+            {
+                const std::vector<std::string>& paths = FullSelectionEffPaths(reg, sample, syst, true);
+                std::unique_ptr<TH1> eff = Common::CombineHistosFromFullPaths(paths); 
+                
+                const int nbins = eff->GetNbinsX();
+                if (nbins != reg->fNumberUnfoldingRecoBins) {
+                    WriteErrorStatus("TRExFit::ProcessUnfoldingSystematics", "Number of efficiency selection bins doesnt match the number of reco bins in region " + reg->fName);
+                    exit(EXIT_FAILURE);
+                }
+
+                manager->SetSelectionEfficiency(eff.get());
+            }
+
+            if (syst->GetHasAcceptance()) {
+                const std::vector<std::string>& paths = FullAcceptancePaths(reg, sample, syst, true);
+                std::unique_ptr<TH1> acc = Common::CombineHistosFromFullPaths(paths); 
+                
+                const int nbins = acc->GetNbinsX();
+                if (nbins != reg->fNumberUnfoldingRecoBins) {
+                    WriteErrorStatus("TRExFit::ProcessUnfoldingSystematics", "Number of acceptance bins doesnt match the number of reco bins in region " + reg->fName);
+                    exit(EXIT_FAILURE);
+                }
+
+                manager->SetAcceptance(acc.get());
+            }
+            manager->CalculateResponseMatrix(true);
         }
         manager->FoldTruth();
         

@@ -5856,6 +5856,499 @@ int ConfigReader::ReadUnfoldingSystematicOptions() {
             hasDown = true;
         }
 
+        param = confSet->Get("AcceptancePathUp");
+        if (param != "") {
+            syst->fAcceptancePathsUp.clear();
+            syst->fAcceptancePathsUp.emplace_back(RemoveQuotes(param));
+            hasUp = true;
+            syst->SetHasAcceptance(true);
+        }
+        
+        param = confSet->Get("AcceptancePathsUp");
+        if (param != "") {
+            syst->fAcceptancePathsUp = Vectorize(param,',');
+            hasUp = true;
+            syst->SetHasAcceptance(true);
+        }
+
+        param = confSet->Get("AcceptancePathDown");
+        if (param != "") {
+            syst->fAcceptancePathsDown.clear();
+            syst->fAcceptancePathsDown.emplace_back(RemoveQuotes(param));
+            hasDown = true;
+            syst->SetHasAcceptance(true);
+        }
+        
+        param = confSet->Get("AcceptancePathsDown");
+        if (param != "") {
+            syst->fAcceptancePathsDown = Vectorize(param,',');
+            hasDown = true;
+            syst->SetHasAcceptance(true);
+        }
+
+        param = confSet->Get("AcceptancePathSuffUp");
+        if (param != "") {
+            syst->fAcceptancePathSuffsUp.clear();
+            syst->fAcceptancePathSuffsUp.emplace_back(RemoveQuotes(param));
+            hasUp = true;
+            syst->SetHasAcceptance(true);
+        }
+        
+        param = confSet->Get("AcceptancePathSuffsUp");
+        if (param != "") {
+            syst->fAcceptancePathSuffsUp = Vectorize(param,',');
+            hasUp = true;
+            syst->SetHasAcceptance(true);
+        }
+
+        param = confSet->Get("AcceptancePathSuffDown");
+        if (param != "") {
+            syst->fAcceptancePathSuffsDown.clear();
+            syst->fAcceptancePathSuffsDown.emplace_back(RemoveQuotes(param));
+            hasDown = true;
+            syst->SetHasAcceptance(true);
+        }
+        
+        param = confSet->Get("AcceptancePathSuffsDown");
+        if (param != "") {
+            syst->fAcceptancePathSuffsDown = Vectorize(param,',');
+            hasDown = true;
+            syst->SetHasAcceptance(true);
+        }
+        
+        param = confSet->Get("AcceptanceNameUp");
+        if (param != "") {
+            syst->fAcceptanceNamesUp.clear();
+            syst->fAcceptanceNamesUp.emplace_back(RemoveQuotes(param));
+            hasUp = true;
+            syst->SetHasAcceptance(true);
+        }
+        
+        param = confSet->Get("AcceptanceNamesUp");
+        if (param != "") {
+            syst->fAcceptanceNamesUp = Vectorize(param,',');
+            hasUp = true;
+            syst->SetHasAcceptance(true);
+        }
+
+        param = confSet->Get("AcceptanceNameDown");
+        if (param != "") {
+            syst->fAcceptanceNamesDown.clear();
+            syst->fAcceptanceNamesDown.emplace_back(RemoveQuotes(param));
+            hasDown = true;
+            syst->SetHasAcceptance(true);
+        }
+        
+        param = confSet->Get("AcceptanceNamesDown");
+        if (param != "") {
+            syst->fAcceptanceNamesDown = Vectorize(param,',');
+            hasDown = true;
+            syst->SetHasAcceptance(true);
+        }
+
+        param = confSet->Get("AcceptanceNameSuffUp");
+        if (param != "") {
+            syst->fAcceptanceNameSuffsUp.clear();
+            syst->fAcceptanceNameSuffsUp.emplace_back(RemoveQuotes(param));
+            hasUp = true;
+            syst->SetHasAcceptance(true);
+        }
+        
+        param = confSet->Get("AcceptanceNameSuffsUp");
+        if (param != "") {
+            syst->fAcceptanceNameSuffsUp = Vectorize(param,',');
+            hasUp = true;
+            syst->SetHasAcceptance(true);
+        }
+
+        param = confSet->Get("AcceptanceNameSuffDown");
+        if (param != "") {
+            syst->fAcceptanceNameSuffsDown.clear();
+            syst->fAcceptanceNameSuffsDown.emplace_back(RemoveQuotes(param));
+            hasDown = true;
+            syst->SetHasAcceptance(true);
+        }
+        
+        param = confSet->Get("AcceptanceNameSuffsDown");
+        if (param != "") {
+            syst->fAcceptanceNameSuffsDown = Vectorize(param,',');
+            hasDown = true;
+            syst->SetHasAcceptance(true);
+        }
+
+        param = confSet->Get("AcceptanceFileUp");
+        if (param != "") {
+            syst->fAcceptanceFilesUp.clear();
+            syst->fAcceptanceFilesUp.emplace_back(RemoveQuotes(param));
+            hasUp = true;
+            syst->SetHasAcceptance(true);
+        }
+        
+        param = confSet->Get("AcceptanceFilesUp");
+        if (param != "") {
+            syst->fAcceptanceFilesUp = Vectorize(param,',');
+            hasUp = true;
+            syst->SetHasAcceptance(true);
+        }
+
+        param = confSet->Get("AcceptanceFileDown");
+        if (param != "") {
+            syst->fAcceptanceFilesDown.clear();
+            syst->fAcceptanceFilesDown.emplace_back(RemoveQuotes(param));
+            hasDown = true;
+            syst->SetHasAcceptance(true);
+        }
+        
+        param = confSet->Get("AcceptanceFilesDown");
+        if (param != "") {
+            syst->fAcceptanceFilesDown = Vectorize(param,',');
+            hasDown = true;
+            syst->SetHasAcceptance(true);
+        }
+
+        param = confSet->Get("AcceptanceFileSuffUp");
+        if (param != "") {
+            syst->fAcceptanceFileSuffsUp.clear();
+            syst->fAcceptanceFileSuffsUp.emplace_back(RemoveQuotes(param));
+            hasUp = true;
+            syst->SetHasAcceptance(true);
+        }
+        
+        param = confSet->Get("AcceptanceFileSuffsUp");
+        if (param != "") {
+            syst->fAcceptanceFileSuffsUp = Vectorize(param,',');
+            hasUp = true;
+            syst->SetHasAcceptance(true);
+        }
+
+        param = confSet->Get("AcceptanceFileSuffDown");
+        if (param != "") {
+            syst->fAcceptanceFileSuffsDown.clear();
+            syst->fAcceptanceFileSuffsDown.emplace_back(RemoveQuotes(param));
+            hasDown = true;
+            syst->SetHasAcceptance(true);
+        }
+        
+        param = confSet->Get("AcceptanceFileSuffsDown");
+        if (param != "") {
+            syst->fAcceptanceFileSuffsDown = Vectorize(param,',');
+            hasDown = true;
+            syst->SetHasAcceptance(true);
+        }
+        param = confSet->Get("SelectionEffPathUp");
+        if (param != "") {
+            syst->fSelectionEffPathsUp.clear();
+            syst->fSelectionEffPathsUp.emplace_back(RemoveQuotes(param));
+            hasUp = true;
+            syst->SetHasAcceptance(true);
+        }
+        
+        param = confSet->Get("SelectionEffPathsUp");
+        if (param != "") {
+            syst->fSelectionEffPathsUp = Vectorize(param,',');
+            hasUp = true;
+            syst->SetHasAcceptance(true);
+        }
+
+        param = confSet->Get("SelectionEffPathDown");
+        if (param != "") {
+            syst->fSelectionEffPathsDown.clear();
+            syst->fSelectionEffPathsDown.emplace_back(RemoveQuotes(param));
+            hasDown = true;
+        }
+        
+        param = confSet->Get("SelectionEffPathsDown");
+        if (param != "") {
+            syst->fSelectionEffPathsDown = Vectorize(param,',');
+            hasDown = true;
+        }
+
+        param = confSet->Get("SelectionEffPathSuffUp");
+        if (param != "") {
+            syst->fSelectionEffPathSuffsUp.clear();
+            syst->fSelectionEffPathSuffsUp.emplace_back(RemoveQuotes(param));
+            hasUp = true;
+        }
+        
+        param = confSet->Get("SelectionEffPathSuffsUp");
+        if (param != "") {
+            syst->fSelectionEffPathSuffsUp = Vectorize(param,',');
+            hasUp = true;
+        }
+
+        param = confSet->Get("SelectionEffPathSuffDown");
+        if (param != "") {
+            syst->fSelectionEffPathSuffsDown.clear();
+            syst->fSelectionEffPathSuffsDown.emplace_back(RemoveQuotes(param));
+            hasDown = true;
+        }
+        
+        param = confSet->Get("SelectionEffPathSuffsDown");
+        if (param != "") {
+            syst->fSelectionEffPathSuffsDown = Vectorize(param,',');
+            hasDown = true;
+        }
+        
+        param = confSet->Get("SelectionEffNameUp");
+        if (param != "") {
+            syst->fSelectionEffNamesUp.clear();
+            syst->fSelectionEffNamesUp.emplace_back(RemoveQuotes(param));
+            hasUp = true;
+        }
+        
+        param = confSet->Get("SelectionEffNamesUp");
+        if (param != "") {
+            syst->fSelectionEffNamesUp = Vectorize(param,',');
+            hasUp = true;
+        }
+
+        param = confSet->Get("SelectionEffNameDown");
+        if (param != "") {
+            syst->fSelectionEffNamesDown.clear();
+            syst->fSelectionEffNamesDown.emplace_back(RemoveQuotes(param));
+            hasDown = true;
+        }
+        
+        param = confSet->Get("SelectionEffNamesDown");
+        if (param != "") {
+            syst->fSelectionEffNamesDown = Vectorize(param,',');
+            hasDown = true;
+        }
+
+        param = confSet->Get("SelectionEffNameSuffUp");
+        if (param != "") {
+            syst->fSelectionEffNameSuffsUp.clear();
+            syst->fSelectionEffNameSuffsUp.emplace_back(RemoveQuotes(param));
+            hasUp = true;
+        }
+        
+        param = confSet->Get("SelectionEffNameSuffsUp");
+        if (param != "") {
+            syst->fSelectionEffNameSuffsUp = Vectorize(param,',');
+            hasUp = true;
+        }
+
+        param = confSet->Get("SelectionEffNameSuffDown");
+        if (param != "") {
+            syst->fSelectionEffNameSuffsDown.clear();
+            syst->fSelectionEffNameSuffsDown.emplace_back(RemoveQuotes(param));
+            hasDown = true;
+        }
+        
+        param = confSet->Get("SelectionEffNameSuffsDown");
+        if (param != "") {
+            syst->fSelectionEffNameSuffsDown = Vectorize(param,',');
+            hasDown = true;
+        }
+
+        param = confSet->Get("SelectionEffFileUp");
+        if (param != "") {
+            syst->fSelectionEffFilesUp.clear();
+            syst->fSelectionEffFilesUp.emplace_back(RemoveQuotes(param));
+            hasUp = true;
+        }
+        
+        param = confSet->Get("SelectionEffFilesUp");
+        if (param != "") {
+            syst->fSelectionEffFilesUp = Vectorize(param,',');
+            hasUp = true;
+        }
+
+        param = confSet->Get("SelectionEffFileDown");
+        if (param != "") {
+            syst->fSelectionEffFilesDown.clear();
+            syst->fSelectionEffFilesDown.emplace_back(RemoveQuotes(param));
+            hasDown = true;
+        }
+        
+        param = confSet->Get("SelectionEffFilesDown");
+        if (param != "") {
+            syst->fSelectionEffFilesDown = Vectorize(param,',');
+            hasDown = true;
+        }
+
+        param = confSet->Get("SelectionEffFileSuffUp");
+        if (param != "") {
+            syst->fSelectionEffFileSuffsUp.clear();
+            syst->fSelectionEffFileSuffsUp.emplace_back(RemoveQuotes(param));
+            hasUp = true;
+        }
+        
+        param = confSet->Get("SelectionEffFileSuffsUp");
+        if (param != "") {
+            syst->fSelectionEffFileSuffsUp = Vectorize(param,',');
+            hasUp = true;
+        }
+
+        param = confSet->Get("SelectionEffFileSuffDown");
+        if (param != "") {
+            syst->fSelectionEffFileSuffsDown.clear();
+            syst->fSelectionEffFileSuffsDown.emplace_back(RemoveQuotes(param));
+            hasDown = true;
+        }
+        
+        param = confSet->Get("SelectionEffFileSuffsDown");
+        if (param != "") {
+            syst->fSelectionEffFileSuffsDown = Vectorize(param,',');
+            hasDown = true;
+        }
+
+        param = confSet->Get("MigrationPathUp");
+        if (param != "") {
+            syst->fMigrationPathsUp.clear();
+            syst->fMigrationPathsUp.emplace_back(RemoveQuotes(param));
+            hasUp = true;
+        }
+        
+        param = confSet->Get("MigrationPathsUp");
+        if (param != "") {
+            syst->fMigrationPathsUp = Vectorize(param,',');
+            hasUp = true;
+        }
+
+        param = confSet->Get("MigrationPathDown");
+        if (param != "") {
+            syst->fMigrationPathsDown.clear();
+            syst->fMigrationPathsDown.emplace_back(RemoveQuotes(param));
+            hasDown = true;
+        }
+        
+        param = confSet->Get("MigrationPathsDown");
+        if (param != "") {
+            syst->fMigrationPathsDown = Vectorize(param,',');
+            hasDown = true;
+        }
+
+        param = confSet->Get("MigrationPathSuffUp");
+        if (param != "") {
+            syst->fMigrationPathSuffsUp.clear();
+            syst->fMigrationPathSuffsUp.emplace_back(RemoveQuotes(param));
+            hasUp = true;
+        }
+        
+        param = confSet->Get("MigrationPathSuffsUp");
+        if (param != "") {
+            syst->fMigrationPathSuffsUp = Vectorize(param,',');
+            hasUp = true;
+        }
+
+        param = confSet->Get("MigrationPathSuffDown");
+        if (param != "") {
+            syst->fMigrationPathSuffsDown.clear();
+            syst->fMigrationPathSuffsDown.emplace_back(RemoveQuotes(param));
+            hasDown = true;
+        }
+        
+        param = confSet->Get("MigrationPathSuffsDown");
+        if (param != "") {
+            syst->fMigrationPathSuffsDown = Vectorize(param,',');
+            hasDown = true;
+        }
+        
+        param = confSet->Get("MigrationNameUp");
+        if (param != "") {
+            syst->fMigrationNamesUp.clear();
+            syst->fMigrationNamesUp.emplace_back(RemoveQuotes(param));
+            hasUp = true;
+        }
+        
+        param = confSet->Get("MigrationNamesUp");
+        if (param != "") {
+            syst->fMigrationNamesUp = Vectorize(param,',');
+            hasUp = true;
+        }
+
+        param = confSet->Get("MigrationNameDown");
+        if (param != "") {
+            syst->fMigrationNamesDown.clear();
+            syst->fMigrationNamesDown.emplace_back(RemoveQuotes(param));
+            hasDown = true;
+        }
+        
+        param = confSet->Get("MigrationNamesDown");
+        if (param != "") {
+            syst->fMigrationNamesDown = Vectorize(param,',');
+            hasDown = true;
+        }
+
+        param = confSet->Get("MigrationNameSuffUp");
+        if (param != "") {
+            syst->fMigrationNameSuffsUp.clear();
+            syst->fMigrationNameSuffsUp.emplace_back(RemoveQuotes(param));
+            hasUp = true;
+        }
+        
+        param = confSet->Get("MigrationNameSuffsUp");
+        if (param != "") {
+            syst->fMigrationNameSuffsUp = Vectorize(param,',');
+            hasUp = true;
+        }
+
+        param = confSet->Get("MigrationNameSuffDown");
+        if (param != "") {
+            syst->fMigrationNameSuffsDown.clear();
+            syst->fMigrationNameSuffsDown.emplace_back(RemoveQuotes(param));
+            hasDown = true;
+        }
+        
+        param = confSet->Get("MigrationNameSuffsDown");
+        if (param != "") {
+            syst->fMigrationNameSuffsDown = Vectorize(param,',');
+            hasDown = true;
+        }
+
+        param = confSet->Get("MigrationFileUp");
+        if (param != "") {
+            syst->fMigrationFilesUp.clear();
+            syst->fMigrationFilesUp.emplace_back(RemoveQuotes(param));
+            hasUp = true;
+        }
+        
+        param = confSet->Get("MigrationFilesUp");
+        if (param != "") {
+            syst->fMigrationFilesUp = Vectorize(param,',');
+            hasUp = true;
+        }
+
+        param = confSet->Get("MigrationFileDown");
+        if (param != "") {
+            syst->fMigrationFilesDown.clear();
+            syst->fMigrationFilesDown.emplace_back(RemoveQuotes(param));
+            hasDown = true;
+        }
+        
+        param = confSet->Get("MigrationFilesDown");
+        if (param != "") {
+            syst->fMigrationFilesDown = Vectorize(param,',');
+            hasDown = true;
+        }
+
+        param = confSet->Get("MigrationFileSuffUp");
+        if (param != "") {
+            syst->fMigrationFileSuffsUp.clear();
+            syst->fMigrationFileSuffsUp.emplace_back(RemoveQuotes(param));
+            hasUp = true;
+        }
+        
+        param = confSet->Get("MigrationFileSuffsUp");
+        if (param != "") {
+            syst->fMigrationFileSuffsUp = Vectorize(param,',');
+            hasUp = true;
+        }
+
+        param = confSet->Get("MigrationFileSuffDown");
+        if (param != "") {
+            syst->fMigrationFileSuffsDown.clear();
+            syst->fMigrationFileSuffsDown.emplace_back(RemoveQuotes(param));
+            hasDown = true;
+        }
+        
+        param = confSet->Get("MigrationFileSuffsDown");
+        if (param != "") {
+            syst->fMigrationFileSuffsDown = Vectorize(param,',');
+            hasDown = true;
+        }
+
         syst->fHasUpVariation = hasUp;
         syst->fHasDownVariation = hasDown;
  
