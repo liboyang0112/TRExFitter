@@ -7992,6 +7992,9 @@ void TRExFit::PrepareUnfolding() {
                 const std::vector<std::string>& fullResponsePaths = FullResponseMatrixPaths(ireg, isample.get());
 
                 std::unique_ptr<TH2> matrix = Common::CombineHistos2DFromFullPaths(fullResponsePaths);
+                if (!matrix) {
+                    exit(EXIT_FAILURE);
+                }
                 const int nRecoBins  = horizontal ? matrix->GetNbinsY() : matrix->GetNbinsX();
                 const int nTruthBins = horizontal ? matrix->GetNbinsX() : matrix->GetNbinsY();
                 if (nRecoBins != ireg->fNumberUnfoldingRecoBins) {
@@ -8009,6 +8012,9 @@ void TRExFit::PrepareUnfolding() {
                 {
                     const std::vector<std::string>& fullMigrationMatrixPaths = FullMigrationMatrixPaths(ireg, isample.get());
                     std::unique_ptr<TH2> matrix = Common::CombineHistos2DFromFullPaths(fullMigrationMatrixPaths);
+                    if (!matrix) {
+                        exit(EXIT_FAILURE);
+                    }
                     const int nRecoBins  = horizontal ? matrix->GetNbinsY() : matrix->GetNbinsX();
                     const int nTruthBins = horizontal ? matrix->GetNbinsX() : matrix->GetNbinsY();
                     if (nRecoBins != ireg->fNumberUnfoldingRecoBins) {
@@ -8028,6 +8034,9 @@ void TRExFit::PrepareUnfolding() {
                 {
                     const std::vector<std::string>& fullSelectionEffPaths = FullSelectionEffPaths(ireg, isample.get());
                     std::unique_ptr<TH1> eff = Common::CombineHistosFromFullPaths(fullSelectionEffPaths);
+                    if (!eff) {
+                        exit(EXIT_FAILURE);
+                    }
                     const int nbins = eff->GetNbinsX();
                     if (nbins != ireg->fNumberUnfoldingRecoBins) {
                         WriteErrorStatus("TRExFit::PrepareUnfolding", "Number of efficiency selection bins doesnt match the number of reco bins in region " + ireg->fName);
@@ -8041,6 +8050,9 @@ void TRExFit::PrepareUnfolding() {
                 if (isample->GetHasAcceptance()) {
                     const std::vector<std::string>& fullAcceptancePaths = FullAcceptancePaths(ireg, isample.get());
                     std::unique_ptr<TH1> acc = Common::CombineHistosFromFullPaths(fullAcceptancePaths);
+                    if (!acc) {
+                        exit(EXIT_FAILURE);
+                    }
                     const int nbins = acc->GetNbinsX();
                     if (nbins != ireg->fNumberUnfoldingRecoBins) {
                         WriteErrorStatus("TRExFit::PrepareUnfolding", "Number of acceptance bins doesnt match the number of reco bins in region " + ireg->fName);
@@ -8102,6 +8114,9 @@ void TRExFit::ProcessUnfoldingSystematics(FoldingManager* manager,
         if (syst->GetHasResponse()) {
             const std::vector<std::string>& paths = FullResponseMatrixPaths(reg, sample, syst, true);
             std::unique_ptr<TH2> matrix = Common::CombineHistos2DFromFullPaths(paths); 
+            if (!matrix) {
+                exit(EXIT_FAILURE);
+            }
             const int nRecoBins  = horizontal ? matrix->GetNbinsY() : matrix->GetNbinsX();
             const int nTruthBins = horizontal ? matrix->GetNbinsX() : matrix->GetNbinsY();
             if (nRecoBins != reg->fNumberUnfoldingRecoBins) {
@@ -8119,6 +8134,9 @@ void TRExFit::ProcessUnfoldingSystematics(FoldingManager* manager,
                 /// migration first
                 const std::vector<std::string>& paths = FullMigrationMatrixPaths(reg, sample, syst, true);
                 std::unique_ptr<TH2> matrix = Common::CombineHistos2DFromFullPaths(paths); 
+                if (!matrix) {
+                    exit(EXIT_FAILURE);
+                }
 
                 const int nRecoBins  = horizontal ? matrix->GetNbinsY() : matrix->GetNbinsX();
                 const int nTruthBins = horizontal ? matrix->GetNbinsX() : matrix->GetNbinsY();
@@ -8138,6 +8156,9 @@ void TRExFit::ProcessUnfoldingSystematics(FoldingManager* manager,
             {
                 const std::vector<std::string>& paths = FullSelectionEffPaths(reg, sample, syst, true);
                 std::unique_ptr<TH1> eff = Common::CombineHistosFromFullPaths(paths); 
+                if (!eff) {
+                    exit(EXIT_FAILURE);
+                }
                 
                 const int nbins = eff->GetNbinsX();
                 if (nbins != reg->fNumberUnfoldingRecoBins) {
@@ -8151,6 +8172,9 @@ void TRExFit::ProcessUnfoldingSystematics(FoldingManager* manager,
             if (syst->GetHasAcceptance()) {
                 const std::vector<std::string>& paths = FullAcceptancePaths(reg, sample, syst, true);
                 std::unique_ptr<TH1> acc = Common::CombineHistosFromFullPaths(paths); 
+                if (!acc) {
+                    exit(EXIT_FAILURE);
+                }
                 
                 const int nbins = acc->GetNbinsX();
                 if (nbins != reg->fNumberUnfoldingRecoBins) {
