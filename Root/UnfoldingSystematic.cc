@@ -16,7 +16,9 @@ UnfoldingSystematic::UnfoldingSystematic() :
     fTitle(""),
     fType(0),
     fSymmetrisationType(HistoTools::SymmetrizationType::NOSYMMETRIZATION),
-    fSampleSmoothingOption(HistoTools::SmoothOption::MAXVARIATION) 
+    fSampleSmoothingOption(HistoTools::SmoothOption::MAXVARIATION),
+    fHasResponse(false), 
+    fHasAcceptance(false) 
 {
 }
 
