@@ -7988,24 +7988,71 @@ void TRExFit::PrepareUnfolding() {
                 Common::FindInStringVector(isample->fRegions, ireg->fName) < 0) continue;
 
             // first process nominal
-            const std::vector<std::string>& fullResponsePaths = FullResponseMatrixPaths(ireg, isample.get());
+            if (isample->GetHasResponse()) {
+                const std::vector<std::string>& fullResponsePaths = FullResponseMatrixPaths(ireg, isample.get());
 
-            std::unique_ptr<TH2> matrix = Common::CombineHistos2DFromFullPaths(fullResponsePaths);
-            const int nRecoBins  = horizontal ? matrix->GetNbinsY() : matrix->GetNbinsX();
-            const int nTruthBins = horizontal ? matrix->GetNbinsX() : matrix->GetNbinsY();
-            if (nRecoBins != ireg->fNumberUnfoldingRecoBins) {
-                WriteErrorStatus("TRExFit::PrepareUnfolding", "Number of reco bins do not match the number of reco bins for the response matrix in region: " + ireg->fName);
-                exit(EXIT_FAILURE);
+                std::unique_ptr<TH2> matrix = Common::CombineHistos2DFromFullPaths(fullResponsePaths);
+                const int nRecoBins  = horizontal ? matrix->GetNbinsY() : matrix->GetNbinsX();
+                const int nTruthBins = horizontal ? matrix->GetNbinsX() : matrix->GetNbinsY();
+                if (nRecoBins != ireg->fNumberUnfoldingRecoBins) {
+                    WriteErrorStatus("TRExFit::PrepareUnfolding", "Number of reco bins do not match the number of reco bins for the response matrix in region: " + ireg->fName);
+                    exit(EXIT_FAILURE);
+                }
+                if (nTruthBins != fNumberUnfoldingTruthBins) {
+                    WriteErrorStatus("TRExFit::PrepareUnfolding", "Number of truth bins do not match the number of truth bins for the response matrix in regoin: " + ireg->fName);
+                    exit(EXIT_FAILURE);
+                }
+
+                manager.SetResponseMatrix(matrix.get());
+            } else {
+                // need to add acceptance, selection and migration
+                {
+                    const std::vector<std::string>& fullMigrationMatrixPaths = FullMigrationMatrixPaths(ireg, isample.get());
+                    std::unique_ptr<TH2> matrix = Common::CombineHistos2DFromFullPaths(fullMigrationMatrixPaths);
+                    const int nRecoBins  = horizontal ? matrix->GetNbinsY() : matrix->GetNbinsX();
+                    const int nTruthBins = horizontal ? matrix->GetNbinsX() : matrix->GetNbinsY();
+                    if (nRecoBins != ireg->fNumberUnfoldingRecoBins) {
+                        WriteErrorStatus("TRExFit::PrepareUnfolding", "Number of reco bins do not match the number of reco bins for the migration matrix in region: " + ireg->fName);
+                        exit(EXIT_FAILURE);
+                    }
+                    if (nTruthBins != fNumberUnfoldingTruthBins) {
+                        WriteErrorStatus("TRExFit::PrepareUnfolding", "Number of truth bins do not match the number of truth bins for the migration matrix in region: " + ireg->fName);
+                        exit(EXIT_FAILURE);
+                    }
+                    
+                    // pass the migration to the tool
+                    manager.SetMigrationMatrix(matrix.get(), true);
+                }
+
+                // add selection eff
+                {
+                    const std::vector<std::string>& fullSelectionEffPaths = FullSelectionEffPaths(ireg, isample.get());
+                    std::unique_ptr<TH1> eff = Common::CombineHistosFromFullPaths(fullSelectionEffPaths);
+                    const int nbins = eff->GetNbinsX();
+                    if (nbins != ireg->fNumberUnfoldingRecoBins) {
+                        WriteErrorStatus("TRExFit::PrepareUnfolding", "Number of efficiency selection bins doesnt match the number of reco bins in region " + ireg->fName);
+                        exit(EXIT_FAILURE);
+                    }
+
+                    manager.SetSelectionEfficiency(eff.get());
+                }
+
+                // add acceptance
+                if (isample->GetHasAcceptance()) {
+                    const std::vector<std::string>& fullAcceptancePaths = FullAcceptancePaths(ireg, isample.get());
+                    std::unique_ptr<TH1> acc = Common::CombineHistosFromFullPaths(fullAcceptancePaths);
+                    const int nbins = acc->GetNbinsX();
+                    if (nbins != ireg->fNumberUnfoldingRecoBins) {
+                        WriteErrorStatus("TRExFit::PrepareUnfolding", "Number of acceptance bins doesnt match the number of reco bins in region " + ireg->fName);
+                        exit(EXIT_FAILURE);
+                    }
+
+                    manager.SetAcceptance(acc.get());
+                }
+
+                manager.CalculateResponseMatrix(true);
+                
             }
-            if (nTruthBins != fNumberUnfoldingTruthBins) {
-                WriteErrorStatus("TRExFit::PrepareUnfolding", "Number of truth bins do not match the number of truth bins for the response matrix in regoin: " + ireg->fName);
-                exit(EXIT_FAILURE);
-            }
-
-            // a temporraty line for testing
-            UnfoldingTools::NormalizeMatrix(matrix.get(), false);
-
-            manager.SetResponseMatrix(matrix.get());
 
             manager.FoldTruth();
 
@@ -8051,22 +8098,25 @@ void TRExFit::ProcessUnfoldingSystematics(FoldingManager* manager,
 
     const bool horizontal = (fMatrixOrientation == FoldingManager::MATRIXORIENTATION::TRUTHONHORIZONTALAXIS);
     // lambda for processing one (up or down) variation
-    auto ProcessOneVariation = [&](const std::vector<std::string>& paths, const bool isUp) {
-        std::unique_ptr<TH2> matrix = Common::CombineHistos2DFromFullPaths(paths); 
-        const int nRecoBins  = horizontal ? matrix->GetNbinsY() : matrix->GetNbinsX();
-        const int nTruthBins = horizontal ? matrix->GetNbinsX() : matrix->GetNbinsY();
-        if (nRecoBins != reg->fNumberUnfoldingRecoBins) {
-            WriteErrorStatus("TRExFit::ProcessUnfoldingSystematics", "Number of reco bins do not match the number of reco bins for the response matrix in region: " + reg->fName);
-            exit(EXIT_FAILURE);
-        }
-        if (nTruthBins != fNumberUnfoldingTruthBins) {
-            WriteErrorStatus("TRExFit::ProcessUnfoldingSystematics", "Number of truth bins do not match the number of truth bins for the response matrix: " + reg->fName);
-            exit(EXIT_FAILURE);
-        }
-        // a temporraty line for testing
-        UnfoldingTools::NormalizeMatrix(matrix.get(), false);
+    auto ProcessOneVariation = [&](const bool isUp) {
+        if (syst->GetHasResponse()) {
+            const std::vector<std::string>& paths = FullResponseMatrixPaths(reg, sample, syst, true);
+            std::unique_ptr<TH2> matrix = Common::CombineHistos2DFromFullPaths(paths); 
+            const int nRecoBins  = horizontal ? matrix->GetNbinsY() : matrix->GetNbinsX();
+            const int nTruthBins = horizontal ? matrix->GetNbinsX() : matrix->GetNbinsY();
+            if (nRecoBins != reg->fNumberUnfoldingRecoBins) {
+                WriteErrorStatus("TRExFit::ProcessUnfoldingSystematics", "Number of reco bins do not match the number of reco bins for the response matrix in region: " + reg->fName);
+                exit(EXIT_FAILURE);
+            }
+            if (nTruthBins != fNumberUnfoldingTruthBins) {
+                WriteErrorStatus("TRExFit::ProcessUnfoldingSystematics", "Number of truth bins do not match the number of truth bins for the response matrix: " + reg->fName);
+                exit(EXIT_FAILURE);
+            }
+            // a temporraty line for testing
+            UnfoldingTools::NormalizeMatrix(matrix.get(), false);
 
-        manager->SetResponseMatrix(matrix.get());
+            manager->SetResponseMatrix(matrix.get());
+        }
         manager->FoldTruth();
         
         // create the folder structure
@@ -8082,12 +8132,10 @@ void TRExFit::ProcessUnfoldingSystematics(FoldingManager* manager,
     };
 
     if (syst->fHasUpVariation) {
-        const std::vector<std::string>& fullPaths = FullResponseMatrixPaths(reg, sample, syst, true);
-        ProcessOneVariation(fullPaths, true);
+        ProcessOneVariation(true);
     }
     if (syst->fHasDownVariation) {
-        const std::vector<std::string>& fullPaths = FullResponseMatrixPaths(reg, sample, syst, false);
-        ProcessOneVariation(fullPaths, false);
+        ProcessOneVariation(false);
     }
 } 
 
@@ -8099,11 +8147,11 @@ std::vector<std::string> TRExFit::FullResponseMatrixPaths(const Region* reg,
                                                           const bool isUp) const {
     // protection against nullptr
     if(!reg) {
-        WriteErrorStatus("TRExFit::FullMigrationMatrixPaths","Null pointer for Region.");
+        WriteErrorStatus("TRExFit::FullResponseMatrixPaths","Null pointer for Region.");
         exit(EXIT_FAILURE);
     }
     if(!smp) {
-        WriteErrorStatus("TRExFit::FullMigrationMatrixPaths","Null pointer for Sample.");
+        WriteErrorStatus("TRExFit::FullResponseMatrixPaths","Null pointer for Sample.");
         exit(EXIT_FAILURE);
     }
     std::vector<std::string> fullPaths;
@@ -8163,6 +8211,243 @@ std::vector<std::string> TRExFit::FullResponseMatrixPaths(const Region* reg,
     }
     else{
       nameSuffs = Common::CombinePathSufs(Common::CombinePathSufs(reg->fResponseMatrixNameSuffs, smp->fResponseMatrixNameSuffs), fResponseMatrixNamesNominal);
+    }
+
+    // And finally put everything together
+    fullPaths = Common::CreatePathsList(paths, pathSuffs, files, fileSuffs, names, nameSuffs);
+    return fullPaths;
+}
+
+//__________________________________________________________________________________
+//
+std::vector<std::string> TRExFit::FullMigrationMatrixPaths(const Region* reg, 
+                                                           const UnfoldingSample* smp,
+                                                           const UnfoldingSystematic* syst,
+                                                           const bool isUp) const {
+    // protection against nullptr
+    if(!reg) {
+        WriteErrorStatus("TRExFit::FullMigrationMatrixPaths","Null pointer for Region.");
+        exit(EXIT_FAILURE);
+    }
+    if(!smp) {
+        WriteErrorStatus("TRExFit::FullMigrationMatrixPaths","Null pointer for Sample.");
+        exit(EXIT_FAILURE);
+    }
+    std::vector<std::string> fullPaths;
+    std::vector<std::string> paths;
+    std::vector<std::string> pathSuffs;
+    std::vector<std::string> files;
+    std::vector<std::string> fileSuffs;
+    std::vector<std::string> names;
+    std::vector<std::string> nameSuffs;
+    // precendence:
+    // 1. Systematic
+    // 2. Sample
+    // 3. Region
+    // 4. Job
+    if(syst){
+        if(isUp) {
+            if(syst->fMigrationPathsUp.size()  >0) paths = syst->fMigrationPathsUp;
+            if(syst->fMigrationFilesUp.size()  >0) files = syst->fMigrationFilesUp;
+            if(syst->fMigrationNamesUp.size()  >0) names = syst->fMigrationNamesUp;
+        } else {
+            if(syst->fMigrationPathsDown.size()>0) paths = syst->fMigrationPathsDown;
+            if(syst->fMigrationFilesDown.size()>0) files = syst->fMigrationFilesDown;
+            if(syst->fMigrationNamesDown.size()>0) names = syst->fMigrationNamesDown;
+        }
+    }
+    if(paths.size()==0 && smp->fMigrationPaths.size()>0) paths = smp->fMigrationPaths;
+    if(files.size()==0 && smp->fMigrationFiles.size()>0) files = smp->fMigrationFiles;
+    if(names.size()==0 && smp->fMigrationNames.size()>0) names = smp->fMigrationNames;
+
+    if(paths.size()==0 && reg->fMigrationPaths.size()>0) paths = reg->fMigrationPaths;
+    if(files.size()==0 && reg->fMigrationFiles.size()>0) files = reg->fMigrationFiles;
+    if(names.size()==0 && reg->fMigrationNames.size()>0) names = reg->fMigrationNames;
+
+    if(paths.size()==0 && fMigrationPaths.size()>0) paths = fMigrationPaths;
+    if(files.size()==0 && fMigrationFiles.size()>0) files = fMigrationFiles;
+    if(names.size()==0 && fMigrationNames.size()>0) names = fMigrationNames;
+
+    if(syst) {
+        if(isUp) pathSuffs = Common::CombinePathSufs(Common::CombinePathSufs(reg->fMigrationPathSuffs,smp->fMigrationPathSuffs), syst->fMigrationPathSuffsUp);
+        else     pathSuffs = Common::CombinePathSufs(Common::CombinePathSufs(reg->fMigrationPathSuffs,smp->fMigrationPathSuffs), syst->fMigrationPathSuffsDown);
+    }
+    else{
+        pathSuffs = Common::CombinePathSufs(reg->fMigrationPathSuffs, smp->fMigrationPathSuffs);
+    }
+
+    if(syst) {
+        if(isUp) fileSuffs = Common::CombinePathSufs(Common::CombinePathSufs(reg->fMigrationFileSuffs, smp->fMigrationFileSuffs), syst->fMigrationFileSuffsUp);
+        else     fileSuffs = Common::CombinePathSufs(Common::CombinePathSufs(reg->fMigrationFileSuffs, smp->fMigrationFileSuffs), syst->fMigrationFileSuffsDown);
+    }
+    else{
+        fileSuffs = Common::CombinePathSufs(reg->fMigrationFileSuffs, smp->fMigrationFileSuffs);
+    }
+
+    if(syst) {
+        if(isUp) nameSuffs = Common::CombinePathSufs(Common::CombinePathSufs(reg->fMigrationNameSuffs, smp->fMigrationNameSuffs), syst->fMigrationNameSuffsUp);
+        else     nameSuffs = Common::CombinePathSufs(Common::CombinePathSufs(reg->fMigrationNameSuffs, smp->fMigrationNameSuffs), syst->fMigrationNameSuffsDown);
+    }
+    else{
+      nameSuffs = Common::CombinePathSufs(Common::CombinePathSufs(reg->fMigrationNameSuffs, smp->fMigrationNameSuffs), fMigrationNamesNominal);
+    }
+
+    // And finally put everything together
+    fullPaths = Common::CreatePathsList(paths, pathSuffs, files, fileSuffs, names, nameSuffs);
+    return fullPaths;
+}
+
+//__________________________________________________________________________________
+//
+std::vector<std::string> TRExFit::FullAcceptancePaths(const Region* reg, 
+                                                      const UnfoldingSample* smp,
+                                                      const UnfoldingSystematic* syst,
+                                                      const bool isUp) const {
+    // protection against nullptr
+    if(!reg) {
+        WriteErrorStatus("TRExFit::FullAcceptancePaths","Null pointer for Region.");
+        exit(EXIT_FAILURE);
+    }
+    if(!smp) {
+        WriteErrorStatus("TRExFit::FullAcceptancePaths","Null pointer for Sample.");
+        exit(EXIT_FAILURE);
+    }
+    std::vector<std::string> fullPaths;
+    std::vector<std::string> paths;
+    std::vector<std::string> pathSuffs;
+    std::vector<std::string> files;
+    std::vector<std::string> fileSuffs;
+    std::vector<std::string> names;
+    std::vector<std::string> nameSuffs;
+    // precendence:
+    // 1. Systematic
+    // 2. Sample
+    // 3. Region
+    // 4. Job
+    if(syst){
+        if(isUp) {
+            if(syst->fAcceptancePathsUp.size()  >0) paths = syst->fAcceptancePathsUp;
+            if(syst->fAcceptanceFilesUp.size()  >0) files = syst->fAcceptanceFilesUp;
+            if(syst->fAcceptanceNamesUp.size()  >0) names = syst->fAcceptanceNamesUp;
+        } else {
+            if(syst->fAcceptancePathsDown.size()>0) paths = syst->fAcceptancePathsDown;
+            if(syst->fAcceptanceFilesDown.size()>0) files = syst->fAcceptanceFilesDown;
+            if(syst->fAcceptanceNamesDown.size()>0) names = syst->fAcceptanceNamesDown;
+        }
+    }
+    if(paths.size()==0 && smp->fAcceptancePaths.size()>0) paths = smp->fAcceptancePaths;
+    if(files.size()==0 && smp->fAcceptanceFiles.size()>0) files = smp->fAcceptanceFiles;
+    if(names.size()==0 && smp->fAcceptanceNames.size()>0) names = smp->fAcceptanceNames;
+
+    if(paths.size()==0 && reg->fAcceptancePaths.size()>0) paths = reg->fAcceptancePaths;
+    if(files.size()==0 && reg->fAcceptanceFiles.size()>0) files = reg->fAcceptanceFiles;
+    if(names.size()==0 && reg->fAcceptanceNames.size()>0) names = reg->fAcceptanceNames;
+
+    if(paths.size()==0 && fAcceptancePaths.size()>0) paths = fAcceptancePaths;
+    if(files.size()==0 && fAcceptanceFiles.size()>0) files = fAcceptanceFiles;
+    if(names.size()==0 && fAcceptanceNames.size()>0) names = fAcceptanceNames;
+
+    if(syst) {
+        if(isUp) pathSuffs = Common::CombinePathSufs(Common::CombinePathSufs(reg->fAcceptancePathSuffs,smp->fAcceptancePathSuffs), syst->fAcceptancePathSuffsUp);
+        else     pathSuffs = Common::CombinePathSufs(Common::CombinePathSufs(reg->fAcceptancePathSuffs,smp->fAcceptancePathSuffs), syst->fAcceptancePathSuffsDown);
+    }
+    else{
+        pathSuffs = Common::CombinePathSufs(reg->fAcceptancePathSuffs, smp->fAcceptancePathSuffs);
+    }
+
+    if(syst) {
+        if(isUp) fileSuffs = Common::CombinePathSufs(Common::CombinePathSufs(reg->fAcceptanceFileSuffs, smp->fAcceptanceFileSuffs), syst->fAcceptanceFileSuffsUp);
+        else     fileSuffs = Common::CombinePathSufs(Common::CombinePathSufs(reg->fAcceptanceFileSuffs, smp->fAcceptanceFileSuffs), syst->fAcceptanceFileSuffsDown);
+    }
+    else{
+        fileSuffs = Common::CombinePathSufs(reg->fAcceptanceFileSuffs, smp->fAcceptanceFileSuffs);
+    }
+
+    if(syst) {
+        if(isUp) nameSuffs = Common::CombinePathSufs(Common::CombinePathSufs(reg->fAcceptanceNameSuffs, smp->fAcceptanceNameSuffs), syst->fAcceptanceNameSuffsUp);
+        else     nameSuffs = Common::CombinePathSufs(Common::CombinePathSufs(reg->fAcceptanceNameSuffs, smp->fAcceptanceNameSuffs), syst->fAcceptanceNameSuffsDown);
+    }
+    else{
+      nameSuffs = Common::CombinePathSufs(Common::CombinePathSufs(reg->fAcceptanceNameSuffs, smp->fAcceptanceNameSuffs), fAcceptanceNamesNominal);
+    }
+
+    // And finally put everything together
+    fullPaths = Common::CreatePathsList(paths, pathSuffs, files, fileSuffs, names, nameSuffs);
+    return fullPaths;
+}
+
+//__________________________________________________________________________________
+//
+std::vector<std::string> TRExFit::FullSelectionEffPaths(const Region* reg, 
+                                                        const UnfoldingSample* smp,
+                                                        const UnfoldingSystematic* syst,
+                                                        const bool isUp) const {
+    // protection against nullptr
+    if(!reg) {
+        WriteErrorStatus("TRExFit::FullSelectionEffPaths","Null pointer for Region.");
+        exit(EXIT_FAILURE);
+    }
+    if(!smp) {
+        WriteErrorStatus("TRExFit::FullSelectionEffPaths","Null pointer for Sample.");
+        exit(EXIT_FAILURE);
+    }
+    std::vector<std::string> fullPaths;
+    std::vector<std::string> paths;
+    std::vector<std::string> pathSuffs;
+    std::vector<std::string> files;
+    std::vector<std::string> fileSuffs;
+    std::vector<std::string> names;
+    std::vector<std::string> nameSuffs;
+    // precendence:
+    // 1. Systematic
+    // 2. Sample
+    // 3. Region
+    // 4. Job
+    if(syst){
+        if(isUp) {
+            if(syst->fSelectionEffPathsUp.size()  >0) paths = syst->fSelectionEffPathsUp;
+            if(syst->fSelectionEffFilesUp.size()  >0) files = syst->fSelectionEffFilesUp;
+            if(syst->fSelectionEffNamesUp.size()  >0) names = syst->fSelectionEffNamesUp;
+        } else {
+            if(syst->fSelectionEffPathsDown.size()>0) paths = syst->fSelectionEffPathsDown;
+            if(syst->fSelectionEffFilesDown.size()>0) files = syst->fSelectionEffFilesDown;
+            if(syst->fSelectionEffNamesDown.size()>0) names = syst->fSelectionEffNamesDown;
+        }
+    }
+    if(paths.size()==0 && smp->fSelectionEffPaths.size()>0) paths = smp->fSelectionEffPaths;
+    if(files.size()==0 && smp->fSelectionEffFiles.size()>0) files = smp->fSelectionEffFiles;
+    if(names.size()==0 && smp->fSelectionEffNames.size()>0) names = smp->fSelectionEffNames;
+
+    if(paths.size()==0 && reg->fSelectionEffPaths.size()>0) paths = reg->fSelectionEffPaths;
+    if(files.size()==0 && reg->fSelectionEffFiles.size()>0) files = reg->fSelectionEffFiles;
+    if(names.size()==0 && reg->fSelectionEffNames.size()>0) names = reg->fSelectionEffNames;
+
+    if(paths.size()==0 && fSelectionEffPaths.size()>0) paths = fSelectionEffPaths;
+    if(files.size()==0 && fSelectionEffFiles.size()>0) files = fSelectionEffFiles;
+    if(names.size()==0 && fSelectionEffNames.size()>0) names = fSelectionEffNames;
+
+    if(syst) {
+        if(isUp) pathSuffs = Common::CombinePathSufs(Common::CombinePathSufs(reg->fSelectionEffPathSuffs,smp->fSelectionEffPathSuffs), syst->fSelectionEffPathSuffsUp);
+        else     pathSuffs = Common::CombinePathSufs(Common::CombinePathSufs(reg->fSelectionEffPathSuffs,smp->fSelectionEffPathSuffs), syst->fSelectionEffPathSuffsDown);
+    }
+    else{
+        pathSuffs = Common::CombinePathSufs(reg->fSelectionEffPathSuffs, smp->fSelectionEffPathSuffs);
+    }
+
+    if(syst) {
+        if(isUp) fileSuffs = Common::CombinePathSufs(Common::CombinePathSufs(reg->fSelectionEffFileSuffs, smp->fSelectionEffFileSuffs), syst->fSelectionEffFileSuffsUp);
+        else     fileSuffs = Common::CombinePathSufs(Common::CombinePathSufs(reg->fSelectionEffFileSuffs, smp->fSelectionEffFileSuffs), syst->fSelectionEffFileSuffsDown);
+    }
+    else{
+        fileSuffs = Common::CombinePathSufs(reg->fSelectionEffFileSuffs, smp->fSelectionEffFileSuffs);
+    }
+
+    if(syst) {
+        if(isUp) nameSuffs = Common::CombinePathSufs(Common::CombinePathSufs(reg->fSelectionEffNameSuffs, smp->fSelectionEffNameSuffs), syst->fSelectionEffNameSuffsUp);
+        else     nameSuffs = Common::CombinePathSufs(Common::CombinePathSufs(reg->fSelectionEffNameSuffs, smp->fSelectionEffNameSuffs), syst->fSelectionEffNameSuffsDown);
+    }
+    else{
+      nameSuffs = Common::CombinePathSufs(Common::CombinePathSufs(reg->fSelectionEffNameSuffs, smp->fSelectionEffNameSuffs), fSelectionEffNamesNominal);
     }
 
     // And finally put everything together

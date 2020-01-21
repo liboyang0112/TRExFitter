@@ -321,6 +321,45 @@ public:
                                                      const bool isUp = true) const;
 
     /**
+     * A helper function to compute the fgull paths for a migration matrix
+     * @param pointer to the Region
+     * @param pointer to the UnfoldingSample
+     * @param pointer to the Systematic (default = NULL)
+     * @param bool to specify up (true) or down (false) syst variation
+     * @return the full path
+     */
+    std::vector<std::string> FullMigrationMatrixPaths(const Region* reg, 
+                                                      const UnfoldingSample* smp,
+                                                      const UnfoldingSystematic* syst = nullptr,
+                                                      const bool isUp = true) const;
+
+    /**
+     * A helper function to compute the fgull paths for acceptance
+     * @param pointer to the Region
+     * @param pointer to the UnfoldingSample
+     * @param pointer to the Systematic (default = NULL)
+     * @param bool to specify up (true) or down (false) syst variation
+     * @return the full path
+     */
+    std::vector<std::string> FullAcceptancePaths(const Region* reg, 
+                                                 const UnfoldingSample* smp,
+                                                 const UnfoldingSystematic* syst = nullptr,
+                                                 const bool isUp = true) const;
+
+    /**
+     * A helper function to compute the fgull paths for selection efficiency
+     * @param pointer to the Region
+     * @param pointer to the UnfoldingSample
+     * @param pointer to the Systematic (default = NULL)
+     * @param bool to specify up (true) or down (false) syst variation
+     * @return the full path
+     */
+    std::vector<std::string> FullSelectionEffPaths(const Region* reg, 
+                                                   const UnfoldingSample* smp,
+                                                   const UnfoldingSystematic* syst = nullptr,
+                                                   const bool isUp = true) const;
+
+    /**
       * A helper function to combine paths for the truth distributions
       * @return a vector of the paths
       */ 
@@ -447,6 +486,18 @@ public:
     std::vector<std::string> fResponseMatrixFiles;
     std::vector<std::string> fResponseMatrixPaths;
     std::vector<std::string> fResponseMatrixNamesNominal;
+    std::vector<std::string> fAcceptanceNames;
+    std::vector<std::string> fAcceptanceFiles;
+    std::vector<std::string> fAcceptancePaths;
+    std::vector<std::string> fAcceptanceNamesNominal;
+    std::vector<std::string> fSelectionEffNames;
+    std::vector<std::string> fSelectionEffFiles;
+    std::vector<std::string> fSelectionEffPaths;
+    std::vector<std::string> fSelectionEffNamesNominal;
+    std::vector<std::string> fMigrationNames;
+    std::vector<std::string> fMigrationFiles;
+    std::vector<std::string> fMigrationPaths;
+    std::vector<std::string> fMigrationNamesNominal;
     
     std::vector<std::string> fHistoPaths;
     std::vector<std::string> fHistoFiles;

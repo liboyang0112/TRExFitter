@@ -341,6 +341,123 @@ int ConfigReader::ReadJobOptions(){
       fFitter->fResponseMatrixNamesNominal.emplace_back(CheckName(param));
     }
     
+    param = confSet->Get("AcceptanceName");
+    if (param != "") {
+        fFitter->fAcceptanceNames.clear();
+        fFitter->fAcceptanceNames.emplace_back(CheckName(param));
+    }
+    
+    param = confSet->Get("AcceptanceNames");
+    if (param != "") {
+        fFitter->fAcceptanceNames = Vectorize(param, ',');
+    }
+
+    param = confSet->Get("AcceptanceFile");
+    if (param != "") {
+        fFitter->fAcceptanceFiles.clear();
+        fFitter->fAcceptanceFiles.emplace_back(CheckName(param));
+    }
+    
+    param = confSet->Get("AcceptanceFiles");
+    if (param != "") {
+        fFitter->fAcceptanceFiles = Vectorize(param, ',');
+    }
+
+    param = confSet->Get("AcceptancePath");
+    if (param != "") {
+        fFitter->fAcceptancePaths.clear();
+        fFitter->fAcceptancePaths.emplace_back(CheckName(param));
+    }
+    
+    param = confSet->Get("AcceptancePaths");
+    if (param != "") {
+        fFitter->fAcceptancePaths = Vectorize(param, ',');
+    }
+
+    param = confSet->Get("AcceptanceNameNominal");
+    if(param!=""){
+      fFitter->fAcceptanceNamesNominal.clear();
+      fFitter->fAcceptanceNamesNominal.emplace_back(CheckName(param));
+    }
+    
+    param = confSet->Get("SelectionEffName");
+    if (param != "") {
+        fFitter->fSelectionEffNames.clear();
+        fFitter->fSelectionEffNames.emplace_back(CheckName(param));
+    }
+    
+    param = confSet->Get("SelectionEffNames");
+    if (param != "") {
+        fFitter->fSelectionEffNames = Vectorize(param, ',');
+    }
+
+    param = confSet->Get("SelectionEffFile");
+    if (param != "") {
+        fFitter->fSelectionEffFiles.clear();
+        fFitter->fSelectionEffFiles.emplace_back(CheckName(param));
+    }
+    
+    param = confSet->Get("SelectionEffFiles");
+    if (param != "") {
+        fFitter->fSelectionEffFiles = Vectorize(param, ',');
+    }
+
+    param = confSet->Get("SelectionEffPath");
+    if (param != "") {
+        fFitter->fSelectionEffPaths.clear();
+        fFitter->fSelectionEffPaths.emplace_back(CheckName(param));
+    }
+    
+    param = confSet->Get("SelectionEffPaths");
+    if (param != "") {
+        fFitter->fSelectionEffPaths = Vectorize(param, ',');
+    }
+
+    param = confSet->Get("SelectionEffNameNominal");
+    if(param!=""){
+      fFitter->fSelectionEffNamesNominal.clear();
+      fFitter->fSelectionEffNamesNominal.emplace_back(CheckName(param));
+    }
+    
+    param = confSet->Get("MigrationName");
+    if (param != "") {
+        fFitter->fMigrationNames.clear();
+        fFitter->fMigrationNames.emplace_back(CheckName(param));
+    }
+    
+    param = confSet->Get("MigrationNames");
+    if (param != "") {
+        fFitter->fMigrationNames = Vectorize(param, ',');
+    }
+
+    param = confSet->Get("MigrationFile");
+    if (param != "") {
+        fFitter->fMigrationFiles.clear();
+        fFitter->fMigrationFiles.emplace_back(CheckName(param));
+    }
+    
+    param = confSet->Get("MigrationFiles");
+    if (param != "") {
+        fFitter->fMigrationFiles = Vectorize(param, ',');
+    }
+
+    param = confSet->Get("MigrationPath");
+    if (param != "") {
+        fFitter->fMigrationPaths.clear();
+        fFitter->fMigrationPaths.emplace_back(CheckName(param));
+    }
+    
+    param = confSet->Get("MigrationPaths");
+    if (param != "") {
+        fFitter->fMigrationPaths = Vectorize(param, ',');
+    }
+
+    param = confSet->Get("MigrationNameNominal");
+    if(param!=""){
+      fFitter->fMigrationNamesNominal.clear();
+      fFitter->fMigrationNamesNominal.emplace_back(CheckName(param));
+    }
+    
     // Set paths
     // HIST option only
     if(fFitter->fInputType==0){
@@ -2048,6 +2165,174 @@ int ConfigReader::ReadRegionOptions(const std::string& opt){
         param = confSet->Get("ResponseMatrixPathSuffs");
         if (param != "") {
             reg->fResponseMatrixPathSuffs = Vectorize(param, ',');
+        }
+
+        param = confSet->Get("AcceptanceName");
+        if (param != "") {
+            reg->fAcceptanceNames.clear();
+            reg->fAcceptanceNames.emplace_back(RemoveQuotes(param));
+        }
+
+        param = confSet->Get("AcceptanceNames");
+        if (param != "") {
+            reg->fAcceptanceNames = Vectorize(param, ',');
+        }
+
+        // Paths for the unfolding code
+        param = confSet->Get("AcceptancePath");
+        if (param != "") {
+            reg->fAcceptancePaths.clear();
+            reg->fAcceptancePaths.emplace_back(RemoveQuotes(param));
+        }
+
+        param = confSet->Get("AcceptancePaths");
+        if (param != "") {
+            reg->fAcceptancePaths = Vectorize(param, ',');
+        }
+
+        param = confSet->Get("AcceptanceFileSuff");
+        if (param != "") {
+            reg->fAcceptanceFileSuffs.clear();
+            reg->fAcceptanceFileSuffs.emplace_back(RemoveQuotes(param));
+        }
+
+        param = confSet->Get("AcceptanceFileSuffs");
+        if (param != "") {
+            reg->fAcceptanceFileSuffs = Vectorize(param, ',');
+        }
+
+        param = confSet->Get("AcceptanceNameSuff");
+        if (param != "") {
+            reg->fAcceptanceNameSuffs.clear();
+            reg->fAcceptanceNameSuffs.emplace_back(RemoveQuotes(param));
+        }
+
+        param = confSet->Get("AcceptanceNameSuffs");
+        if (param != "") {
+            reg->fAcceptanceNameSuffs = Vectorize(param, ',');
+        }
+
+        param = confSet->Get("AcceptancePathSuff");
+        if (param != "") {
+            reg->fAcceptancePathSuffs.clear();
+            reg->fAcceptancePathSuffs.emplace_back(RemoveQuotes(param));
+        }
+
+        param = confSet->Get("AcceptancePathSuffs");
+        if (param != "") {
+            reg->fAcceptancePathSuffs = Vectorize(param, ',');
+        }
+
+        param = confSet->Get("SelectionEffName");
+        if (param != "") {
+            reg->fSelectionEffNames.clear();
+            reg->fSelectionEffNames.emplace_back(RemoveQuotes(param));
+        }
+
+        param = confSet->Get("SelectionEffNames");
+        if (param != "") {
+            reg->fSelectionEffNames = Vectorize(param, ',');
+        }
+
+        // Paths for the unfolding code
+        param = confSet->Get("SelectionEffPath");
+        if (param != "") {
+            reg->fSelectionEffPaths.clear();
+            reg->fSelectionEffPaths.emplace_back(RemoveQuotes(param));
+        }
+
+        param = confSet->Get("SelectionEffPaths");
+        if (param != "") {
+            reg->fSelectionEffPaths = Vectorize(param, ',');
+        }
+
+        param = confSet->Get("SelectionEffFileSuff");
+        if (param != "") {
+            reg->fSelectionEffFileSuffs.clear();
+            reg->fSelectionEffFileSuffs.emplace_back(RemoveQuotes(param));
+        }
+
+        param = confSet->Get("SelectionEffFileSuffs");
+        if (param != "") {
+            reg->fSelectionEffFileSuffs = Vectorize(param, ',');
+        }
+
+        param = confSet->Get("SelectionEffNameSuff");
+        if (param != "") {
+            reg->fSelectionEffNameSuffs.clear();
+            reg->fSelectionEffNameSuffs.emplace_back(RemoveQuotes(param));
+        }
+
+        param = confSet->Get("SelectionEffNameSuffs");
+        if (param != "") {
+            reg->fSelectionEffNameSuffs = Vectorize(param, ',');
+        }
+
+        param = confSet->Get("SelectionEffPathSuff");
+        if (param != "") {
+            reg->fSelectionEffPathSuffs.clear();
+            reg->fSelectionEffPathSuffs.emplace_back(RemoveQuotes(param));
+        }
+
+        param = confSet->Get("SelectionEffPathSuffs");
+        if (param != "") {
+            reg->fSelectionEffPathSuffs = Vectorize(param, ',');
+        }
+
+        param = confSet->Get("MigrationName");
+        if (param != "") {
+            reg->fMigrationNames.clear();
+            reg->fMigrationNames.emplace_back(RemoveQuotes(param));
+        }
+
+        param = confSet->Get("MigrationNames");
+        if (param != "") {
+            reg->fMigrationNames = Vectorize(param, ',');
+        }
+
+        // Paths for the unfolding code
+        param = confSet->Get("MigrationPath");
+        if (param != "") {
+            reg->fMigrationPaths.clear();
+            reg->fMigrationPaths.emplace_back(RemoveQuotes(param));
+        }
+
+        param = confSet->Get("MigrationPaths");
+        if (param != "") {
+            reg->fMigrationPaths = Vectorize(param, ',');
+        }
+
+        param = confSet->Get("MigrationFileSuff");
+        if (param != "") {
+            reg->fMigrationFileSuffs.clear();
+            reg->fMigrationFileSuffs.emplace_back(RemoveQuotes(param));
+        }
+
+        param = confSet->Get("MigrationFileSuffs");
+        if (param != "") {
+            reg->fMigrationFileSuffs = Vectorize(param, ',');
+        }
+
+        param = confSet->Get("MigrationNameSuff");
+        if (param != "") {
+            reg->fMigrationNameSuffs.clear();
+            reg->fMigrationNameSuffs.emplace_back(RemoveQuotes(param));
+        }
+
+        param = confSet->Get("MigrationNameSuffs");
+        if (param != "") {
+            reg->fMigrationNameSuffs = Vectorize(param, ',');
+        }
+
+        param = confSet->Get("MigrationPathSuff");
+        if (param != "") {
+            reg->fMigrationPathSuffs.clear();
+            reg->fMigrationPathSuffs.emplace_back(RemoveQuotes(param));
+        }
+
+        param = confSet->Get("MigrationPathSuffs");
+        if (param != "") {
+            reg->fMigrationPathSuffs = Vectorize(param, ',');
         }
         
         param = confSet->Get("NumberOfRecoBins");
@@ -5010,68 +5295,290 @@ int ConfigReader::ReadUnfoldingSampleOptions() {
         if (param != "") {
             sample->fResponseMatrixFiles.clear();
             sample->fResponseMatrixFiles.emplace_back(RemoveQuotes(param));
+            sample->SetHasResponse(true);
         }
 
         param = confSet->Get("ResponseMatrixFiles");
         if (param != "") {
             sample->fResponseMatrixFiles = Vectorize(param, ',');
+            sample->SetHasResponse(true);
         }
 
         param = confSet->Get("ResponseMatrixName");
         if (param != "") {
             sample->fResponseMatrixNames.clear();
             sample->fResponseMatrixNames.emplace_back(RemoveQuotes(param));
+            sample->SetHasResponse(true);
         }
 
         param = confSet->Get("ResponseMatrixNames");
         if (param != "") {
             sample->fResponseMatrixNames = Vectorize(param, ',');
+            sample->SetHasResponse(true);
         }
 
         param = confSet->Get("ResponseMatrixPath");
         if (param != "") {
             sample->fResponseMatrixPaths.clear();
             sample->fResponseMatrixPaths.emplace_back(RemoveQuotes(param));
+            sample->SetHasResponse(true);
         }
 
         param = confSet->Get("ResponseMatrixPaths");
         if (param != "") {
             sample->fResponseMatrixPaths = Vectorize(param, ',');
+            sample->SetHasResponse(true);
         }
 
         param = confSet->Get("ResponseMatrixFileSuff");
         if (param != "") {
             sample->fResponseMatrixFileSuffs.clear();
             sample->fResponseMatrixFileSuffs.emplace_back(RemoveQuotes(param));
+            sample->SetHasResponse(true);
         }
 
         param = confSet->Get("ResponseMatrixFileSuffs");
         if (param != "") {
             sample->fResponseMatrixFileSuffs = Vectorize(param, ',');
+            sample->SetHasResponse(true);
         }
 
         param = confSet->Get("ResponseMatrixNameSuff");
         if (param != "") {
             sample->fResponseMatrixNameSuffs.clear();
             sample->fResponseMatrixNameSuffs.emplace_back(RemoveQuotes(param));
+            sample->SetHasResponse(true);
         }
 
         param = confSet->Get("ResponseMatrixNameSuffs");
         if (param != "") {
             sample->fResponseMatrixNameSuffs = Vectorize(param, ',');
+            sample->SetHasResponse(true);
         }
 
         param = confSet->Get("ResponseMatrixPathSuff");
         if (param != "") {
             sample->fResponseMatrixPathSuffs.clear();
             sample->fResponseMatrixPathSuffs.emplace_back(RemoveQuotes(param));
+            sample->SetHasResponse(true);
         }
 
         param = confSet->Get("ResponseMatrixPathSuffs");
         if (param != "") {
             sample->fResponseMatrixPathSuffs = Vectorize(param, ',');
+            sample->SetHasResponse(true);
         }
         
+        param = confSet->Get("AcceptanceFile");
+        if (param != "") {
+            sample->fAcceptanceFiles.clear();
+            sample->fAcceptanceFiles.emplace_back(RemoveQuotes(param));
+            sample->SetHasAcceptance(true);
+        }
+
+        param = confSet->Get("AcceptanceFiles");
+        if (param != "") {
+            sample->fAcceptanceFiles = Vectorize(param, ',');
+            sample->SetHasAcceptance(true);
+        }
+
+        param = confSet->Get("AcceptanceName");
+        if (param != "") {
+            sample->fAcceptanceNames.clear();
+            sample->fAcceptanceNames.emplace_back(RemoveQuotes(param));
+            sample->SetHasAcceptance(true);
+        }
+
+        param = confSet->Get("AcceptanceNames");
+        if (param != "") {
+            sample->fAcceptanceNames = Vectorize(param, ',');
+            sample->SetHasAcceptance(true);
+        }
+
+        param = confSet->Get("AcceptancePath");
+        if (param != "") {
+            sample->fAcceptancePaths.clear();
+            sample->fAcceptancePaths.emplace_back(RemoveQuotes(param));
+            sample->SetHasAcceptance(true);
+        }
+
+        param = confSet->Get("AcceptancePaths");
+        if (param != "") {
+            sample->fAcceptancePaths = Vectorize(param, ',');
+            sample->SetHasAcceptance(true);
+        }
+
+        param = confSet->Get("AcceptanceFileSuff");
+        if (param != "") {
+            sample->fAcceptanceFileSuffs.clear();
+            sample->fAcceptanceFileSuffs.emplace_back(RemoveQuotes(param));
+            sample->SetHasAcceptance(true);
+        }
+
+        param = confSet->Get("AcceptanceFileSuffs");
+        if (param != "") {
+            sample->fAcceptanceFileSuffs = Vectorize(param, ',');
+            sample->SetHasAcceptance(true);
+        }
+
+        param = confSet->Get("AcceptanceNameSuff");
+        if (param != "") {
+            sample->fAcceptanceNameSuffs.clear();
+            sample->fAcceptanceNameSuffs.emplace_back(RemoveQuotes(param));
+            sample->SetHasAcceptance(true);
+        }
+
+        param = confSet->Get("AcceptanceNameSuffs");
+        if (param != "") {
+            sample->fAcceptanceNameSuffs = Vectorize(param, ',');
+            sample->SetHasAcceptance(true);
+        }
+
+        param = confSet->Get("AcceptancePathSuff");
+        if (param != "") {
+            sample->fAcceptancePathSuffs.clear();
+            sample->fAcceptancePathSuffs.emplace_back(RemoveQuotes(param));
+            sample->SetHasAcceptance(true);
+        }
+
+        param = confSet->Get("AcceptancePathSuffs");
+        if (param != "") {
+            sample->fAcceptancePathSuffs = Vectorize(param, ',');
+            sample->SetHasAcceptance(true);
+        }
+
+        param = confSet->Get("SelectionEffFile");
+        if (param != "") {
+            sample->fSelectionEffFiles.clear();
+            sample->fSelectionEffFiles.emplace_back(RemoveQuotes(param));
+        }
+
+        param = confSet->Get("SelectionEffFiles");
+        if (param != "") {
+            sample->fSelectionEffFiles = Vectorize(param, ',');
+        }
+
+        param = confSet->Get("SelectionEffName");
+        if (param != "") {
+            sample->fSelectionEffNames.clear();
+            sample->fSelectionEffNames.emplace_back(RemoveQuotes(param));
+        }
+
+        param = confSet->Get("SelectionEffNames");
+        if (param != "") {
+            sample->fSelectionEffNames = Vectorize(param, ',');
+        }
+
+        param = confSet->Get("SelectionEffPath");
+        if (param != "") {
+            sample->fSelectionEffPaths.clear();
+            sample->fSelectionEffPaths.emplace_back(RemoveQuotes(param));
+        }
+
+        param = confSet->Get("SelectionEffPaths");
+        if (param != "") {
+            sample->fSelectionEffPaths = Vectorize(param, ',');
+        }
+
+        param = confSet->Get("SelectionEffFileSuff");
+        if (param != "") {
+            sample->fSelectionEffFileSuffs.clear();
+            sample->fSelectionEffFileSuffs.emplace_back(RemoveQuotes(param));
+        }
+
+        param = confSet->Get("SelectionEffFileSuffs");
+        if (param != "") {
+            sample->fSelectionEffFileSuffs = Vectorize(param, ',');
+        }
+
+        param = confSet->Get("SelectionEffNameSuff");
+        if (param != "") {
+            sample->fSelectionEffNameSuffs.clear();
+            sample->fSelectionEffNameSuffs.emplace_back(RemoveQuotes(param));
+        }
+
+        param = confSet->Get("SelectionEffNameSuffs");
+        if (param != "") {
+            sample->fSelectionEffNameSuffs = Vectorize(param, ',');
+        }
+
+        param = confSet->Get("SelectionEffPathSuff");
+        if (param != "") {
+            sample->fSelectionEffPathSuffs.clear();
+            sample->fSelectionEffPathSuffs.emplace_back(RemoveQuotes(param));
+        }
+
+        param = confSet->Get("SelectionEffPathSuffs");
+        if (param != "") {
+            sample->fSelectionEffPathSuffs = Vectorize(param, ',');
+        }
+
+        param = confSet->Get("MigrationFile");
+        if (param != "") {
+            sample->fMigrationFiles.clear();
+            sample->fMigrationFiles.emplace_back(RemoveQuotes(param));
+        }
+
+        param = confSet->Get("MigrationFiles");
+        if (param != "") {
+            sample->fMigrationFiles = Vectorize(param, ',');
+        }
+
+        param = confSet->Get("MigrationName");
+        if (param != "") {
+            sample->fMigrationNames.clear();
+            sample->fMigrationNames.emplace_back(RemoveQuotes(param));
+        }
+
+        param = confSet->Get("MigrationNames");
+        if (param != "") {
+            sample->fMigrationNames = Vectorize(param, ',');
+        }
+
+        param = confSet->Get("MigrationPath");
+        if (param != "") {
+            sample->fMigrationPaths.clear();
+            sample->fMigrationPaths.emplace_back(RemoveQuotes(param));
+        }
+
+        param = confSet->Get("MigrationPaths");
+        if (param != "") {
+            sample->fMigrationPaths = Vectorize(param, ',');
+        }
+
+        param = confSet->Get("MigrationFileSuff");
+        if (param != "") {
+            sample->fMigrationFileSuffs.clear();
+            sample->fMigrationFileSuffs.emplace_back(RemoveQuotes(param));
+        }
+
+        param = confSet->Get("MigrationFileSuffs");
+        if (param != "") {
+            sample->fMigrationFileSuffs = Vectorize(param, ',');
+        }
+
+        param = confSet->Get("MigrationNameSuff");
+        if (param != "") {
+            sample->fMigrationNameSuffs.clear();
+            sample->fMigrationNameSuffs.emplace_back(RemoveQuotes(param));
+        }
+
+        param = confSet->Get("MigrationNameSuffs");
+        if (param != "") {
+            sample->fMigrationNameSuffs = Vectorize(param, ',');
+        }
+
+        param = confSet->Get("MigrationPathSuff");
+        if (param != "") {
+            sample->fMigrationPathSuffs.clear();
+            sample->fMigrationPathSuffs.emplace_back(RemoveQuotes(param));
+        }
+
+        param = confSet->Get("MigrationPathSuffs");
+        if (param != "") {
+            sample->fMigrationPathSuffs = Vectorize(param, ',');
+        }
+
         // Set FillColor
         param = confSet->Get("FillColor");
         if(param != "") sample->SetFillColor(std::atoi(param.c_str()));
@@ -5173,12 +5680,14 @@ int ConfigReader::ReadUnfoldingSystematicOptions() {
         if (param != "") {
             syst->fResponseMatrixPathsUp.clear();
             syst->fResponseMatrixPathsUp.emplace_back(RemoveQuotes(param));
+            syst->SetHasResponse(true);
             hasUp = true;
         }
         
         param = confSet->Get("ResponseMatrixPathsUp");
         if (param != "") {
             syst->fResponseMatrixPathsUp = Vectorize(param,',');
+            syst->SetHasResponse(true);
             hasUp = true;
         }
 
@@ -5186,12 +5695,14 @@ int ConfigReader::ReadUnfoldingSystematicOptions() {
         if (param != "") {
             syst->fResponseMatrixPathsDown.clear();
             syst->fResponseMatrixPathsDown.emplace_back(RemoveQuotes(param));
+            syst->SetHasResponse(true);
             hasDown = true;
         }
         
         param = confSet->Get("ResponseMatrixPathsDown");
         if (param != "") {
             syst->fResponseMatrixPathsDown = Vectorize(param,',');
+            syst->SetHasResponse(true);
             hasDown = true;
         }
 
@@ -5199,12 +5710,14 @@ int ConfigReader::ReadUnfoldingSystematicOptions() {
         if (param != "") {
             syst->fResponseMatrixPathSuffsUp.clear();
             syst->fResponseMatrixPathSuffsUp.emplace_back(RemoveQuotes(param));
+            syst->SetHasResponse(true);
             hasUp = true;
         }
         
         param = confSet->Get("ResponseMatrixPathSuffsUp");
         if (param != "") {
             syst->fResponseMatrixPathSuffsUp = Vectorize(param,',');
+            syst->SetHasResponse(true);
             hasUp = true;
         }
 
@@ -5212,12 +5725,14 @@ int ConfigReader::ReadUnfoldingSystematicOptions() {
         if (param != "") {
             syst->fResponseMatrixPathSuffsDown.clear();
             syst->fResponseMatrixPathSuffsDown.emplace_back(RemoveQuotes(param));
+            syst->SetHasResponse(true);
             hasDown = true;
         }
         
         param = confSet->Get("ResponseMatrixPathSuffsDown");
         if (param != "") {
             syst->fResponseMatrixPathSuffsDown = Vectorize(param,',');
+            syst->SetHasResponse(true);
             hasDown = true;
         }
         
@@ -5225,12 +5740,14 @@ int ConfigReader::ReadUnfoldingSystematicOptions() {
         if (param != "") {
             syst->fResponseMatrixNamesUp.clear();
             syst->fResponseMatrixNamesUp.emplace_back(RemoveQuotes(param));
+            syst->SetHasResponse(true);
             hasUp = true;
         }
         
         param = confSet->Get("ResponseMatrixNamesUp");
         if (param != "") {
             syst->fResponseMatrixNamesUp = Vectorize(param,',');
+            syst->SetHasResponse(true);
             hasUp = true;
         }
 
@@ -5238,12 +5755,14 @@ int ConfigReader::ReadUnfoldingSystematicOptions() {
         if (param != "") {
             syst->fResponseMatrixNamesDown.clear();
             syst->fResponseMatrixNamesDown.emplace_back(RemoveQuotes(param));
+            syst->SetHasResponse(true);
             hasDown = true;
         }
         
         param = confSet->Get("ResponseMatrixNamesDown");
         if (param != "") {
             syst->fResponseMatrixNamesDown = Vectorize(param,',');
+            syst->SetHasResponse(true);
             hasDown = true;
         }
 
@@ -5251,12 +5770,14 @@ int ConfigReader::ReadUnfoldingSystematicOptions() {
         if (param != "") {
             syst->fResponseMatrixNameSuffsUp.clear();
             syst->fResponseMatrixNameSuffsUp.emplace_back(RemoveQuotes(param));
+            syst->SetHasResponse(true);
             hasUp = true;
         }
         
         param = confSet->Get("ResponseMatrixNameSuffsUp");
         if (param != "") {
             syst->fResponseMatrixNameSuffsUp = Vectorize(param,',');
+            syst->SetHasResponse(true);
             hasUp = true;
         }
 
@@ -5264,12 +5785,14 @@ int ConfigReader::ReadUnfoldingSystematicOptions() {
         if (param != "") {
             syst->fResponseMatrixNameSuffsDown.clear();
             syst->fResponseMatrixNameSuffsDown.emplace_back(RemoveQuotes(param));
+            syst->SetHasResponse(true);
             hasDown = true;
         }
         
         param = confSet->Get("ResponseMatrixNameSuffsDown");
         if (param != "") {
             syst->fResponseMatrixNameSuffsDown = Vectorize(param,',');
+            syst->SetHasResponse(true);
             hasDown = true;
         }
 
@@ -5277,12 +5800,14 @@ int ConfigReader::ReadUnfoldingSystematicOptions() {
         if (param != "") {
             syst->fResponseMatrixFilesUp.clear();
             syst->fResponseMatrixFilesUp.emplace_back(RemoveQuotes(param));
+            syst->SetHasResponse(true);
             hasUp = true;
         }
         
         param = confSet->Get("ResponseMatrixFilesUp");
         if (param != "") {
             syst->fResponseMatrixFilesUp = Vectorize(param,',');
+            syst->SetHasResponse(true);
             hasUp = true;
         }
 
@@ -5290,12 +5815,14 @@ int ConfigReader::ReadUnfoldingSystematicOptions() {
         if (param != "") {
             syst->fResponseMatrixFilesDown.clear();
             syst->fResponseMatrixFilesDown.emplace_back(RemoveQuotes(param));
+            syst->SetHasResponse(true);
             hasDown = true;
         }
         
         param = confSet->Get("ResponseMatrixFilesDown");
         if (param != "") {
             syst->fResponseMatrixFilesDown = Vectorize(param,',');
+            syst->SetHasResponse(true);
             hasDown = true;
         }
 
@@ -5303,12 +5830,14 @@ int ConfigReader::ReadUnfoldingSystematicOptions() {
         if (param != "") {
             syst->fResponseMatrixFileSuffsUp.clear();
             syst->fResponseMatrixFileSuffsUp.emplace_back(RemoveQuotes(param));
+            syst->SetHasResponse(true);
             hasUp = true;
         }
         
         param = confSet->Get("ResponseMatrixFileSuffsUp");
         if (param != "") {
             syst->fResponseMatrixFileSuffsUp = Vectorize(param,',');
+            syst->SetHasResponse(true);
             hasUp = true;
         }
 
@@ -5316,12 +5845,14 @@ int ConfigReader::ReadUnfoldingSystematicOptions() {
         if (param != "") {
             syst->fResponseMatrixFileSuffsDown.clear();
             syst->fResponseMatrixFileSuffsDown.emplace_back(RemoveQuotes(param));
+            syst->SetHasResponse(true);
             hasDown = true;
         }
         
         param = confSet->Get("ResponseMatrixFileSuffsDown");
         if (param != "") {
             syst->fResponseMatrixFileSuffsDown = Vectorize(param,',');
+            syst->SetHasResponse(true);
             hasDown = true;
         }
 

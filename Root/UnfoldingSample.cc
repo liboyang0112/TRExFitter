@@ -7,7 +7,9 @@ UnfoldingSample::UnfoldingSample() :
     fName(""),
     fTitle(""),
     fFillColor(0),
-    fLineColor(0)
+    fLineColor(0),
+    fHasResponse(false),
+    fHasAcceptance(false)
 {
 }
 
