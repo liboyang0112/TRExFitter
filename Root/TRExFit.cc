@@ -240,8 +240,16 @@ TRExFit::TRExFit(std::string name) :
     fNumberUnfoldingRecoBins(0),
     fUnfoldingResultMin(0),
     fUnfoldingResultMax(2),
-    fHasAcceptance(false) {
-
+    fHasAcceptance(false),
+    fUnfoldingTitleX("X axis"),
+    fUnfoldingTitleY("Y axis"),
+    fUnfoldingRatioYmax(1.5),
+    fUnfoldingRatioYmin(0.5),
+    fUnfoldingLogX(false),
+    fUnfoldingLogY(false),
+    fUnfoldingTitleOffsetX(1.0),
+    fUnfoldingTitleOffsetY(1.0)
+{
     TRExFitter::IMAGEFORMAT.emplace_back("png");
     // Increase the limit for formula evaluations
     ROOT::v5::TFormula::SetMaxima(100000,1000,1000000);
@@ -4831,6 +4839,17 @@ void TRExFit::PlotUnfoldedData() const {
 
     PlotUnfold(truthVec, data.get(), error.get());
 
+    // Dump results into a text file
+    auto text = std::make_unique<std::ofstream>();
+    text->open(fName + "/Fits/UnfoldedResults.txt");
+    if (!text->is_open() || !text->good()) {
+        WriteErrorStatus("TRExFit::PlotUnfoldedData", "Cannot open text file in: " + fName + "/Fits/UnfoldedResults.txt");
+        exit(EXIT_FAILURE);
+    }
+
+    unfolded.DumpResults(text.get());
+    text->close();
+
     input->Close();
 }
 
@@ -8592,7 +8611,7 @@ std::vector<std::string> TRExFit::FullTruthPaths() const {
 //
 void TRExFit::PlotUnfold(const std::vector<std::unique_ptr<TH1D> >& truth,
                          TH1D* data,
-                         TGraphAsymmErrors* band) const {
+                         TGraphAsymmErrors* total) const {
 
     TCanvas c("","",800,600);
     TPad pad1("pad1","pad1",0.0, 0.3, 1.0, 1.00);
@@ -8604,40 +8623,51 @@ void TRExFit::PlotUnfold(const std::vector<std::unique_ptr<TH1D> >& truth,
     pad2.SetTicks(1,1);
     pad1.Draw();
     pad2.Draw();
-
-    pad1.cd();
-    data->SetMarkerStyle(20);
-    data->SetMarkerSize(1.45);
-    data->SetLineColor(kBlack);
-    data->SetLineStyle(1);
-
-    data->GetYaxis()->SetLabelSize(0.05);
-    data->GetYaxis()->SetLabelFont(42);
-    data->GetYaxis()->SetTitleFont(42);
-    data->GetYaxis()->SetTitleSize(0.07);
-    data->GetYaxis()->SetTitleOffset(1.1);
-
-    data->GetYaxis()->SetRangeUser(0.00001, 1.3*data->GetMaximum());
-
-    data->Draw("X0EPZ");
-    for (auto& itruth : truth) {
-        itruth->SetFillColor(0);
-        itruth->SetMarkerStyle(21);
-        itruth->SetLineColor(kRed);
-        itruth->SetLineWidth(2);
-        itruth->Draw("HIST same");
+    
+    if (fUnfoldingLogX) {
+        pad1.SetLogx();
+        pad2.SetLogx();
+    }
+    if (fUnfoldingLogX) {
+        pad1.SetLogy();
+        pad2.SetLogy();
     }
 
-    band->SetFillStyle(3002);
-    band->SetFillColor(kBlack);
-    band->SetMarkerStyle(0);
-    band->SetLineWidth(2);
 
-    band->Draw("E2 SAME");
+    pad1.cd();
+    total->SetMarkerStyle(20);
+    total->SetMarkerSize(1.45);
+    total->SetLineColor(kBlack);
+    total->SetLineStyle(1);
 
-    TLegend leg(0.65, 0.4, 0.9, 0.9);
-    leg.AddEntry(data, "Unfolded data", "p");
-    leg.AddEntry(band, "Total uncertainty", "f");
+    total->GetYaxis()->SetLabelSize(0.05);
+    total->GetYaxis()->SetLabelFont(42);
+    total->GetYaxis()->SetTitleFont(42);
+    total->GetYaxis()->SetTitleSize(0.07);
+    total->GetYaxis()->SetTitleOffset(1.1);
+
+    //total->GetYaxis()->SetRangeUser(0.00001, 1.3*total->GetMaximum());
+
+    bool isFirstHisto(true);
+    for (auto& itruth : truth) {
+        if (isFirstHisto) {
+            itruth->SetFillColor(0);
+            itruth->SetMarkerStyle(21);
+            itruth->SetLineColor(kBlue);
+            itruth->SetLineWidth(2);
+            const double corr = fUnfoldingLogY ? 1e6 : 1.5;
+            itruth->GetYaxis()->SetRangeUser(0.0001, corr*itruth->GetMaximum());
+            itruth->GetYaxis()->SetTitle(fUnfoldingTitleY.c_str());
+            itruth->GetYaxis()->SetTitleOffset(fUnfoldingTitleOffsetY * itruth->GetYaxis()->GetTitleOffset());
+            itruth->Draw("HIST same");
+        } else {
+            itruth->Draw("HIST");
+        }
+    }
+    total->Draw("P SAME");
+
+    TLegend leg(0.65, 0.6, 0.9, 0.9);
+    leg.AddEntry(total, "Unfolded data", "p");
     for (auto& itruth : truth) {
         leg.AddEntry(itruth.get(), "MC", "l");
     }
@@ -8647,7 +8677,51 @@ void TRExFit::PlotUnfold(const std::vector<std::unique_ptr<TH1D> >& truth,
     leg.SetBorderSize(0);
     leg.SetTextFont(72);
     leg.SetTextSize(0.045);
-    leg.Draw("same");
+    leg.Draw("SAME");
+        
+    if (fAtlasLabel != "none") ATLASLabel(0.2,0.87,fAtlasLabel.c_str());
+    myText(0.2,0.8,1,Form("#sqrt{s} = %s, %s",fCmeLabel.c_str(),fLumiLabel.c_str()));
+
+    // Plot ratio
+    pad2.cd();
+    std::vector<std::unique_ptr<TH1D> > ratios;
+    bool isFirst(true);
+    for (const auto& itruth : truth) {
+        ratios.emplace_back(static_cast<TH1D*>(itruth->Clone()));
+        ratios.back()->Divide(data);
+        if (isFirst) {
+            ratios.back()->GetXaxis()->SetTitleOffset(fUnfoldingTitleOffsetX*ratios.back()->GetXaxis()->GetTitleOffset());
+            ratios.back()->GetYaxis()->SetTitleOffset(fUnfoldingTitleOffsetY*ratios.back()->GetYaxis()->GetTitleOffset());
+            ratios.back()->GetYaxis()->SetRangeUser(fUnfoldingRatioYmin,fUnfoldingRatioYmax);
+            ratios.back()->GetYaxis()->SetTitle("ratio");
+            ratios.back()->GetYaxis()->SetNdivisions(505);
+            ratios.back()->GetXaxis()->SetTitle(fUnfoldingTitleX.c_str());
+            ratios.back()->Draw("HIST");
+        } else {
+            ratios.back()->Draw("HIST same");
+        }
+        isFirst = false;
+    }
+
+    // Now plot the error band
+    std::unique_ptr<TGraphAsymmErrors> band = Common::GetRatioBand(total, data);
+
+    band->SetFillStyle(3002);
+    band->SetFillColor(kBlack);
+    band->SetMarkerStyle(0);
+    band->SetLineWidth(2);
+
+    band->Draw("E2 SAME");
+
+    const float min = ratios.at(0)->GetXaxis()->GetBinLowEdge(1);
+    const float max = ratios.at(0)->GetXaxis()->GetBinUpEdge(ratios.at(0)->GetNbinsX());
+
+    TLine line (min, 1, max, 1);
+    line.SetLineColor(kRed);
+    line.SetLineStyle(2);
+    line.SetLineWidth(3);
+    line.Draw("same");
+
 
     for(const auto& format : TRExFitter::IMAGEFORMAT) {
         c.SaveAs((fName+"/UnfoldedData."+ format).c_str());

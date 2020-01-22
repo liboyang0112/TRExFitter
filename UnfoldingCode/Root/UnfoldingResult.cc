@@ -5,6 +5,8 @@
 #include "TH1D.h"
 
 #include <exception>
+#include <fstream>
+#include <iomanip>
 
 UnfoldingResult::UnfoldingResult() :
     fTruthDistribution(nullptr)
@@ -82,4 +84,28 @@ std::unique_ptr<TH1D> UnfoldingResult::GetUnfoldedResult() const {
     }
     
     return result;
+}
+
+void UnfoldingResult::DumpResults(std::ofstream* stream) const {
+    if (!stream) {
+        throw std::runtime_error{"UnfoldingResult::DumpResults : Nullptr passed"};
+    }
+
+    if (!stream->is_open() || !stream->good()) {
+        throw std::runtime_error{"UnfoldingResult::DumpResults : Problematic stream"};
+    }
+
+    if (static_cast<int>(fFitValues.size()) != fTruthDistribution->GetNbinsX()) {
+        throw std::runtime_error{"UnfoldingResult::DumpResults: Size of the passed FitValues doesnt math the number of bins of the truth distribution"};
+    }
+
+    *stream << std::fixed << std::setprecision(4);
+    *stream << "Yields in bins for unfolded data\n";
+    *stream << "Bin number nominal Up uncertainty Down uncertainty\n";
+    for (int ibin = 1; ibin <= fTruthDistribution->GetNbinsX(); ++ibin) {
+        const double mean = fFitValues.at(ibin-1).nominal * fTruthDistribution->GetBinContent(ibin);
+        const double up   = fFitValues.at(ibin-1).up * fTruthDistribution->GetBinContent(ibin) - mean;
+        const double down = fFitValues.at(ibin-1).down * fTruthDistribution->GetBinContent(ibin) - mean;
+        *stream << ibin << " " << mean << " " << up << " " << down << "\n";
+    }
 }

@@ -731,6 +731,14 @@ public:
     double fUnfoldingResultMin;
     double fUnfoldingResultMax;
     bool fHasAcceptance;
+    std::string fUnfoldingTitleX;
+    std::string fUnfoldingTitleY;
+    double fUnfoldingRatioYmax;
+    double fUnfoldingRatioYmin;
+    bool fUnfoldingLogX;
+    bool fUnfoldingLogY;
+    double fUnfoldingTitleOffsetX;
+    double fUnfoldingTitleOffsetY;
 };
 
 #endif

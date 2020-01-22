@@ -5303,6 +5303,56 @@ int ConfigReader::ReadUnfoldingOptions() {
         fFitter->fUnfoldingResultMax = std::stod(param);
     }
 
+    param = confSet->Get("TitleX");
+    if (param != "") {
+        fFitter->fUnfoldingTitleX = RemoveQuotes(param);
+    }
+
+    param = confSet->Get("TitleY");
+    if (param != "") {
+        fFitter->fUnfoldingTitleY = RemoveQuotes(param);
+    }
+
+    param = confSet->Get("TitleOffsetX");
+    if (param != "") {
+        fFitter->fUnfoldingTitleOffsetX = std::stod(param);
+    }
+
+    param = confSet->Get("TitleOffsetY");
+    if (param != "") {
+        fFitter->fUnfoldingTitleOffsetY = std::stod(param);
+    }
+
+    param = confSet->Get("RatioYmax");
+    if (param != "") {
+        fFitter->fUnfoldingRatioYmax = std::stod(param);
+    }
+    
+    param = confSet->Get("RatioYmin");
+    if (param != "") {
+        fFitter->fUnfoldingRatioYmin = std::stod(param);
+    }
+    
+    param = confSet->Get("LogX");
+    if (param != "") {
+        std::transform(param.begin(), param.end(), param.begin(), ::toupper);
+        if (param == "TRUE") {
+            fFitter->fUnfoldingLogX = true;
+        } else {
+            fFitter->fUnfoldingLogX = false;
+        }
+    }
+    
+    param = confSet->Get("LogY");
+    if (param != "") {
+        std::transform(param.begin(), param.end(), param.begin(), ::toupper);
+        if (param == "TRUE") {
+            fFitter->fUnfoldingLogY = true;
+        } else {
+            fFitter->fUnfoldingLogY = false;
+        }
+    }
+    
     return 0;
 }
 
