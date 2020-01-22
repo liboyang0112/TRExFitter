@@ -7,6 +7,7 @@
 class TGraphAsymmErrors;
 class TH1;
 class TH1D;
+class fstream;
 
 class UnfoldingResult {
 
@@ -33,6 +34,8 @@ public:
 
     void SetTruthDistribution(const TH1* truth);
     inline const TH1D* GetTruthDistribution() const {return fTruthDistribution.get();}
+
+    void DumpResults(std::ofstream* stream) const;
 
     std::unique_ptr<TGraphAsymmErrors> GetUnfoldedResultErrorBand() const;
     std::unique_ptr<TH1D> GetUnfoldedResult() const;

@@ -4829,6 +4829,17 @@ void TRExFit::PlotUnfoldedData() const {
 
     PlotUnfold(truthVec, data.get(), error.get());
 
+    // Dump results into a text file
+    auto text = std::make_unique<std::ofstream>();
+    text->open(fName + "/Fits/UnfoldedResults.txt");
+    if (!text->is_open() || !text->good()) {
+        WriteErrorStatus("TRExFit::PlotUnfoldedData", "Cannot open text file in: " + fName + "/Fits/UnfoldedResults.txt");
+        exit(EXIT_FAILURE);
+    }
+
+    unfolded.DumpResults(text.get());
+    text->close();
+
     input->Close();
 }
 
