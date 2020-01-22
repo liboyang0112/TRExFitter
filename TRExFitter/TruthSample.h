@@ -16,6 +16,8 @@ public:
     TruthSample& operator=(TruthSample&& s) = default;
 
     inline const std::string& GetName() const {return fName;};
+    inline void SetTitle(const std::string& s) {fTitle = s;}
+    inline const std::string& GetTitle() const {return fTitle;}
     inline void SetFillColor(const int c) {fFillColor = c;}
     inline int GetFillColor() const {return fFillColor;}
     inline void SetLineColor(const int c) {fLineColor = c;}
@@ -30,6 +32,7 @@ public:
 private:
 
     std::string fName;
+    std::string fTitle;
     int fFillColor;
     int fLineColor;
     std::string fTruthDistributionPath;

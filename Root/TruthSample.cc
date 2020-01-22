@@ -2,6 +2,7 @@
 
 TruthSample::TruthSample(const std::string& name) :
     fName(name),
+    fTitle(""),
     fFillColor(1),
     fLineColor(1),
     fTruthDistributionPath(""),

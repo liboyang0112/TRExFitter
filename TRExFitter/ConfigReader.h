@@ -163,6 +163,12 @@ class ConfigReader {
           * @return int status code
           */ 
         int ReadUnfoldingOptions();
+        
+        /**
+          * A helper function to read TruthSample
+          * @return int status code
+          */ 
+        int ReadTruthSamples();
 
         /**
           * A helper function to read UnfoldingSample

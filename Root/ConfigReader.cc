@@ -12,6 +12,7 @@
 #include "TRExFitter/StatusLogbook.h"
 #include "TRExFitter/Systematic.h"
 #include "TRExFitter/TRExFit.h"
+#include "TRExFitter/TruthSample.h"
 #include "TRExFitter/UnfoldingSample.h"
 #include "TRExFitter/UnfoldingSystematic.h"
 
@@ -83,6 +84,8 @@ int ConfigReader::ReadFullConfig(const std::string& fileName, const std::string&
     sc+= ReadSystOptions();
     
     sc+= ReadUnfoldingOptions();
+    
+    sc+= ReadTruthSamples();
     
     sc+= ReadUnfoldingSampleOptions();
     
@@ -5343,6 +5346,55 @@ int ConfigReader::ReadUnfoldingOptions() {
         }
     }
     
+    return 0;
+}
+
+//__________________________________________________________________________________
+//
+int ConfigReader::ReadTruthSamples() {
+
+    int isample(0);
+
+    while(true) {
+        ConfigSet *confSet = fParser->GetConfigSet("TruthSample",isample);
+        if (!confSet) break;
+        ++isample;
+
+        auto sample = std::make_unique<TruthSample>(RemoveQuotes(confSet->GetValue()));
+
+        std::string param = confSet->Get("Title");
+        if (param != "") {
+            sample->SetTitle(RemoveQuotes(param));
+        }
+
+        param = confSet->Get("FillColor");
+        if (param != "") {
+            sample->SetFillColor(std::stoi(param));
+        }
+
+        param = confSet->Get("LineColor");
+        if (param != "") {
+            sample->SetLineColor(std::stoi(param));
+        }
+        
+        param = confSet->Get("TruthDistributionPath");
+        if (param != "") {
+            sample->SetTruthDistributionPath(RemoveQuotes(param));
+        }
+
+        param = confSet->Get("TruthDistributionFile");
+        if (param != "") {
+            sample->SetTruthDistributionFile(RemoveQuotes(param));
+        }
+
+        param = confSet->Get("TruthDistributionName");
+        if (param != "") {
+            sample->SetTruthDistributionName(RemoveQuotes(param));
+        }
+
+        fFitter->fTruthSamples.emplace_back(std::move(sample));
+    }
+
     return 0;
 }
 
