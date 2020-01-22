@@ -238,6 +238,8 @@ TRExFit::TRExFit(std::string name) :
     fTruthDistributionName(""),
     fNumberUnfoldingTruthBins(0),
     fNumberUnfoldingRecoBins(0),
+    fUnfoldingResultMin(0),
+    fUnfoldingResultMax(2),
     fHasAcceptance(false),
     fUnfoldingTitleX("X axis"),
     fUnfoldingTitleY("Y axis"),
@@ -248,7 +250,6 @@ TRExFit::TRExFit(std::string name) :
     fUnfoldingTitleOffsetX(1.0),
     fUnfoldingTitleOffsetY(1.0)
 {
-
     TRExFitter::IMAGEFORMAT.emplace_back("png");
     // Increase the limit for formula evaluations
     ROOT::v5::TFormula::SetMaxima(100000,1000,1000000);

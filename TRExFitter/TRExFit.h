@@ -728,6 +728,8 @@ public:
     int fNumberUnfoldingRecoBins;
     std::vector<std::unique_ptr<UnfoldingSample> > fUnfoldingSamples;
     std::vector<std::unique_ptr<UnfoldingSystematic> > fUnfoldingSystematics;
+    double fUnfoldingResultMin;
+    double fUnfoldingResultMax;
     bool fHasAcceptance;
     std::string fUnfoldingTitleX;
     std::string fUnfoldingTitleY;

@@ -90,7 +90,7 @@ int ConfigReader::ReadFullConfig(const std::string& fileName, const std::string&
     
     sc+= UnfoldingCorrections();
 
-    sc+= PostConfig();
+    sc+= PostConfig(opt);
 
     return sc;
 }
@@ -3520,10 +3520,10 @@ int ConfigReader::ReadSampleOptions(const std::string& opt){
 
     }
 
-    if (!fHasAtLeastOneValidSample && Common::OptionRunsFit(opt)){
-        WriteErrorStatus("ConfigReader::ReadSampleOptions","You need to provide at least one sample that is either SIGNAL or BACKGROUND, otherwise the fit will crash.");
-        return 1;
-    }
+//     if (!fHasAtLeastOneValidSample && Common::OptionRunsFit(opt)){
+//         WriteErrorStatus("ConfigReader::ReadSampleOptions","You need to provide at least one sample that is either SIGNAL or BACKGROUND, otherwise the fit will crash.");
+//         return 1;
+//     }
 
     // build new samples if AsimovReplacementFor are specified
     for(int i_smp=0;i_smp<fFitter->fNSamples;i_smp++){
@@ -3543,10 +3543,10 @@ int ConfigReader::ReadSampleOptions(const std::string& opt){
         }
     }
 
-    if (nSmp == 0){
-        WriteErrorStatus("ConfigReader::ReadSampleOptions", "No 'Sample' provided. You need to provide at least one 'Sample' object. Check this!");
-        return 1;
-    }
+//     if (nSmp == 0){
+//         WriteErrorStatus("ConfigReader::ReadSampleOptions", "No 'Sample' provided. You need to provide at least one 'Sample' object. Check this!");
+//         return 1;
+//     }
 
     return 0;
 }
@@ -5092,7 +5092,13 @@ int ConfigReader::SetSystShapeDecorelate(ConfigSet *confSet, Systematic *sys, co
 
 //__________________________________________________________________________________
 //
-int ConfigReader::PostConfig(){
+int ConfigReader::PostConfig(const std::string& opt){
+
+    if (!fHasAtLeastOneValidSample && Common::OptionRunsFit(opt)){
+        WriteErrorStatus("ConfigReader::ReadSampleOptions","You need to provide at least one sample that is either SIGNAL or BACKGROUND, otherwise the fit will crash.");
+        return 1;
+    }
+
     // if StatOnly, also sets to OFF the MC stat
     if(fFitter->fStatOnly){
         WriteInfoStatus("ConfigReader::PostConfig","StatOnly option is setting to OFF the MC-stat (gammas) as well.");
@@ -5286,6 +5292,16 @@ int ConfigReader::ReadUnfoldingOptions() {
             fTaus.emplace_back(bin, value);
         }
     }
+    
+    param = confSet->Get("UnfoldingResultMin");
+    if (param != "") {
+        fFitter->fUnfoldingResultMin = std::stod(param);
+    }
+    
+    param = confSet->Get("UnfoldingResultMax");
+    if (param != "") {
+        fFitter->fUnfoldingResultMax = std::stod(param);
+    }
 
     param = confSet->Get("TitleX");
     if (param != "") {
@@ -5348,6 +5364,7 @@ int ConfigReader::ReadUnfoldingSampleOptions() {
     while(true) {
         ConfigSet *confSet = fParser->GetConfigSet("UnfoldingSample",isample);
         if (confSet == nullptr) break;
+        fHasAtLeastOneValidSample = true;
         ++isample;
     
         auto sample = std::make_unique<UnfoldingSample>();
@@ -6690,8 +6707,8 @@ int ConfigReader::AddUnfoldingNormFactors() {
         TRExFitter::NPMAP[nf->fName] = nf->fName;
         nf->fCategory = "TruthBins";
         nf->fTitle = "UnfoldedTruthBin_"+std::to_string(i);
-        nf->fMin = 0;
-        nf->fMax = 2;
+        nf->fMin = fFitter->fUnfoldingResultMin;
+        nf->fMax = fFitter->fUnfoldingResultMax;
         nf->fNominal = 1;
         nf->fRegions = GetAvailableRegions();
         std::vector<std::string> sampleNames;
