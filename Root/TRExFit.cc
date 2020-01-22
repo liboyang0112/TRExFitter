@@ -22,6 +22,7 @@
 
 // UnfoldingCode includes
 #include "UnfoldingCode/UnfoldingCode/UnfoldingTools.h"
+#include "UnfoldingCode/UnfoldingCode/UnfoldingResult.h"
 
 // CommonStatTiils includes
 #include "CommonStatTools/runSig.h"
@@ -57,6 +58,7 @@
 #include "TFormula.h"
 #include "TGaxis.h"
 #include "TGraph2D.h"
+#include "TGraphAsymmErrors.h"
 #include "TGraphErrors.h"
 #include "TH2F.h"
 #include "TLatex.h"
@@ -236,6 +238,8 @@ TRExFit::TRExFit(std::string name) :
     fTruthDistributionName(""),
     fNumberUnfoldingTruthBins(0),
     fNumberUnfoldingRecoBins(0),
+    fUnfoldingResultMin(0),
+    fUnfoldingResultMax(2),
     fHasAcceptance(false) {
 
     TRExFitter::IMAGEFORMAT.emplace_back("png");
@@ -4783,6 +4787,55 @@ void TRExFit::PlotCorrelationMatrix(){
 
 //__________________________________________________________________________________
 //
+void TRExFit::PlotUnfoldedData() const {
+    if (fFitType != TRExFit::FitType::UNFOLDING) return;
+
+    WriteInfoStatus("TRExFit::PlotUnfoldedData", "Producing unfolded plots...");
+
+    std::unique_ptr<TFile> input(TFile::Open((fName + "/UnfoldingHistograms/FoldedHistograms.root").c_str(), "READ"));
+    if (!input) {
+        WriteErrorStatus("TRExFit::PlotUnfoldedData", "Cannot read file from " + fName + "/UnfoldingHistograms/FoldedHistograms.root");
+        exit(EXIT_FAILURE);
+    }
+
+    std::unique_ptr<TH1D> truth(dynamic_cast<TH1D*>(input->Get("truth_distribution")));
+    if (!truth) {
+        WriteErrorStatus("TRExFit::PlotUnfoldedData", "Cannot read the truth distribution");
+        exit(EXIT_FAILURE);
+    }
+    truth->SetDirectory(nullptr);
+
+    std::vector<std::unique_ptr<TH1D> > truthVec;
+    
+    UnfoldingResult unfolded;
+    unfolded.SetTruthDistribution(truth.get());
+    
+    truthVec.emplace_back(std::move(truth));
+
+    // Add other plots here
+    //
+    //
+
+
+    // pass the fit results to the tool
+    for (int i = 0; i < fNumberUnfoldingTruthBins; ++i) {
+        const std::string name = "Bin_" + std::to_string(i+1);
+        const double mean = fFitResults->GetNuisParValue(name); 
+        const double up   = mean + fFitResults->GetNuisParErrUp(name);
+        const double down = mean + fFitResults->GetNuisParErrDown(name);
+        unfolded.AddFitValue(mean, up, down);
+    }
+
+    std::unique_ptr<TH1D> data               = unfolded.GetUnfoldedResult();
+    std::unique_ptr<TGraphAsymmErrors> error = unfolded.GetUnfoldedResultErrorBand();
+
+    PlotUnfold(truthVec, data.get(), error.get());
+
+    input->Close();
+}
+
+//__________________________________________________________________________________
+//
 void TRExFit::GetLimit(){
 
     //Checks if a data sample exists
@@ -8533,4 +8586,70 @@ std::vector<std::string> TRExFit::FullTruthPaths() const {
     const std::string path = fTruthDistributionPath + "/" +fTruthDistributionFile + ".root/" + fTruthDistributionName;
     result.emplace_back(path);
     return result;
+}
+    
+//__________________________________________________________________________________
+//
+void TRExFit::PlotUnfold(const std::vector<std::unique_ptr<TH1D> >& truth,
+                         TH1D* data,
+                         TGraphAsymmErrors* band) const {
+
+    TCanvas c("","",800,600);
+    TPad pad1("pad1","pad1",0.0, 0.3, 1.0, 1.00);
+    TPad pad2("pad2","pad2", 0.0, 0.010, 1.0, 0.3);
+    pad1.SetBottomMargin(0.001);
+    pad1.SetBorderMode(0);
+    pad2.SetBottomMargin(0.5);
+    pad1.SetTicks(1,1);
+    pad2.SetTicks(1,1);
+    pad1.Draw();
+    pad2.Draw();
+
+    pad1.cd();
+    data->SetMarkerStyle(20);
+    data->SetMarkerSize(1.45);
+    data->SetLineColor(kBlack);
+    data->SetLineStyle(1);
+
+    data->GetYaxis()->SetLabelSize(0.05);
+    data->GetYaxis()->SetLabelFont(42);
+    data->GetYaxis()->SetTitleFont(42);
+    data->GetYaxis()->SetTitleSize(0.07);
+    data->GetYaxis()->SetTitleOffset(1.1);
+
+    data->GetYaxis()->SetRangeUser(0.00001, 1.3*data->GetMaximum());
+
+    data->Draw("X0EPZ");
+    for (auto& itruth : truth) {
+        itruth->SetFillColor(0);
+        itruth->SetMarkerStyle(21);
+        itruth->SetLineColor(kRed);
+        itruth->SetLineWidth(2);
+        itruth->Draw("HIST same");
+    }
+
+    band->SetFillStyle(3002);
+    band->SetFillColor(kBlack);
+    band->SetMarkerStyle(0);
+    band->SetLineWidth(2);
+
+    band->Draw("E2 SAME");
+
+    TLegend leg(0.65, 0.4, 0.9, 0.9);
+    leg.AddEntry(data, "Unfolded data", "p");
+    leg.AddEntry(band, "Total uncertainty", "f");
+    for (auto& itruth : truth) {
+        leg.AddEntry(itruth.get(), "MC", "l");
+    }
+
+    leg.SetFillColor(0);
+    leg.SetLineColor(0);
+    leg.SetBorderSize(0);
+    leg.SetTextFont(72);
+    leg.SetTextSize(0.045);
+    leg.Draw("same");
+
+    for(const auto& format : TRExFitter::IMAGEFORMAT) {
+        c.SaveAs((fName+"/UnfoldedData."+ format).c_str());
+    }
 }

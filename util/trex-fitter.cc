@@ -280,6 +280,7 @@ void FitExample(std::string opt="h",std::string configFile="config/myFit.config"
         myFit->Fit(false);
         myFit->PlotFittedNP();
         myFit->PlotCorrelationMatrix();
+        myFit->PlotUnfoldedData();
     }
     if (doLHscan){
         std::cout << "Running LH scan only..." << std::endl;

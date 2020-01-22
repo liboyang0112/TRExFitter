@@ -228,9 +228,10 @@ class ConfigReader {
 
         /**
           * Helper function that is run after config is read
+          * @param Running options
           * @return int status code
           */
-        int PostConfig();
+        int PostConfig(const std::string& opt);
 
         /**
           * Helper function to check the consistency of the input
