@@ -22,6 +22,7 @@
 
 // UnfoldingCode includes
 #include "UnfoldingCode/UnfoldingCode/UnfoldingTools.h"
+#include "UnfoldingCode/UnfoldingCode/UnfoldingResult.h"
 
 // CommonStatTiils includes
 #include "CommonStatTools/runSig.h"
@@ -4779,6 +4780,44 @@ void TRExFit::PlotCorrelationMatrix(){
             fFitResults->DrawCorrelationMatrix(fName+"/CorrMatrix"+fSuffix+"."+TRExFitter::IMAGEFORMAT[i_format],
                                                fuseGammasForCorr, TRExFitter::CORRELATIONTHRESHOLD);
     }
+}
+
+//__________________________________________________________________________________
+//
+void TRExFit::PlotUnfoldedData() const {
+    if (fFitType != TRExFit::FitType::UNFOLDING) return;
+
+    WriteInfoStatus("TRExFit::PlotUnfoldedData", "Producing unfolded plots...");
+
+    std::unique_ptr<TFile> input(TFile::Open((fName + "/UnfoldingHistograms/FoldedHistograms.root").c_str(), "READ"));
+    if (!input) {
+        WriteErrorStatus("TRExFit::PlotUnfoldedData", "Cannot read file from " + fName + "/UnfoldingHistograms/FoldedHistograms.root");
+        exit(EXIT_FAILURE);
+    }
+
+    std::unique_ptr<TH1D> truth(dynamic_cast<TH1D*>(input->Get("truth_distribution")));
+    if (!truth) {
+        WriteErrorStatus("TRExFit::PlotUnfoldedData", "Cannot read the truth distribution");
+        exit(EXIT_FAILURE);
+    }
+    truth->SetDirectory(nullptr);
+
+    UnfoldingResult unfolded;
+    unfolded.SetTruthDistribution(truth.get());
+
+    // pass the fit results to the tool
+    for (int i = 0; i < fNumberUnfoldingTruthBins; ++i) {
+        const std::string name = "Bin_" + std::to_string(i+1);
+        const double mean = fFitResults->GetNuisParValue(name); 
+        const double up   = mean + fFitResults->GetNuisParErrUp(name);
+        const double down = mean + fFitResults->GetNuisParErrDown(name);
+        unfolded.AddFitValue(mean, up, down);
+    }
+
+    std::unique_ptr<TH1D> data               = unfolded.GetUnfoldedResult();
+    std::unique_ptr<TGraphAsymmErrors> error = unfolded.GetUnfoldedResultErrorBand();
+
+    input->Close();
 }
 
 //__________________________________________________________________________________

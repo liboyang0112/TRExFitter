@@ -174,6 +174,7 @@ public:
 
     void PlotFittedNP();
     void PlotCorrelationMatrix();
+    void PlotUnfoldedData() const;
     void GetLimit();
     void GetSignificance();
     void GetLikelihoodScan( RooWorkspace *ws, std::string varName, RooDataSet* data) const;

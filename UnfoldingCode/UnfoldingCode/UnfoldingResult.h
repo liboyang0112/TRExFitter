@@ -28,12 +28,14 @@ public:
     inline void SetFitValues(const std::vector<FitValue>& v) {fFitValues = v;}
     inline const std::vector<FitValue>& GetFitValues() const {return fFitValues;}
     inline void AddFitValue(const FitValue& v) {fFitValues.emplace_back(v);}
+    void AddFitValue(const double nominal, const double up, const double down);
     inline void ResetFitValues() {fFitValues.clear();}
 
     void SetTruthDistribution(const TH1* truth);
     inline const TH1D* GetTruthDistribution() const {return fTruthDistribution.get();}
 
-    std::unique_ptr<TGraphAsymmErrors> GetUnfoldedResult() const;
+    std::unique_ptr<TGraphAsymmErrors> GetUnfoldedResultErrorBand() const;
+    std::unique_ptr<TH1D> GetUnfoldedResult() const;
 
 private:
 
