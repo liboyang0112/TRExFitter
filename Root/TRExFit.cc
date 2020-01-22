@@ -8039,8 +8039,8 @@ void TRExFit::PrepareUnfolding() {
                         exit(EXIT_FAILURE);
                     }
                     const int nbins = eff->GetNbinsX();
-                    if (nbins != ireg->fNumberUnfoldingRecoBins) {
-                        WriteErrorStatus("TRExFit::PrepareUnfolding", "Number of efficiency selection bins doesnt match the number of reco bins in region " + ireg->fName);
+                    if (nbins != fNumberUnfoldingTruthBins) {
+                        WriteErrorStatus("TRExFit::PrepareUnfolding", "Number of efficiency selection bins doesnt match the number of truth bins");
                         exit(EXIT_FAILURE);
                     }
 
@@ -8162,8 +8162,8 @@ void TRExFit::ProcessUnfoldingSystematics(FoldingManager* manager,
                 }
                 
                 const int nbins = eff->GetNbinsX();
-                if (nbins != reg->fNumberUnfoldingRecoBins) {
-                    WriteErrorStatus("TRExFit::ProcessUnfoldingSystematics", "Number of efficiency selection bins doesnt match the number of reco bins in region " + reg->fName);
+                if (nbins != fNumberUnfoldingTruthBins) {
+                    WriteErrorStatus("TRExFit::ProcessUnfoldingSystematics", "Number of efficiency selection bins doesnt match the number of truth bins");
                     exit(EXIT_FAILURE);
                 }
 
