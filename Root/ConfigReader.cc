@@ -5417,7 +5417,7 @@ int ConfigReader::ReadTruthSamples() {
         fFitter->fTruthSamples.emplace_back(std::move(sample));
     }
 
-    if (!found) {
+    if (isample != 0 && !found) {
         WriteErrorStatus("ConfigReader::ReadTruthSamples", "The NominalTruthSample not found in any of the TruthSample");
         return 1;
     }

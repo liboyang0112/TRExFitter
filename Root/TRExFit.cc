@@ -8627,7 +8627,6 @@ void TRExFit::PlotUnfold(TH1D* data,
     }
     if (fUnfoldingLogY) {
         pad1.SetLogy();
-        pad2.SetLogy();
     }
 
     pad1.cd();
