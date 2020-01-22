@@ -5365,6 +5365,8 @@ int ConfigReader::ReadTruthSamples() {
 
     bool found(false);
 
+    std::vector<std::string> names;
+
     while(true) {
         ConfigSet *confSet = fParser->GetConfigSet("TruthSample",isample);
         if (!confSet) break;
@@ -5373,6 +5375,13 @@ int ConfigReader::ReadTruthSamples() {
         auto sample = std::make_unique<TruthSample>(RemoveQuotes(confSet->GetValue()));
         if (sample->GetName() == fFitter->fNominalTruthSample) {
             found = true;
+        }
+
+        if (std::find(names.begin(), names.end(), RemoveQuotes(confSet->GetValue())) == names.end()) {
+            names.emplace_back(RemoveQuotes(confSet->GetValue())); 
+        } else {
+            WriteErrorStatus("ConfigReader::ReadTruthSamples", "Multiply defined TruthSample: " + RemoveQuotes(confSet->GetValue()));
+            return 1;
         }
 
         std::string param = confSet->Get("Title");

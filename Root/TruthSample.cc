@@ -8,7 +8,7 @@
 TruthSample::TruthSample(const std::string& name) :
     fName(name),
     fTitle(""),
-    fFillColor(1),
+    fFillColor(0),
     fLineColor(1),
     fTruthDistributionPath(""),
     fTruthDistributionFile(""),
@@ -22,7 +22,7 @@ std::unique_ptr<TH1> TruthSample::GetHisto(const TRExFit* fitter) const {
     const std::string file = fTruthDistributionFile == "" ? fitter->fTruthDistributionFile : fTruthDistributionFile;
     const std::string name = fTruthDistributionName == "" ? fitter->fTruthDistributionName : fTruthDistributionName;
 
-    const std::string full = path+"/"+file+"/"+name+".root";
+    const std::string full = path+"/"+file+".root/"+name;
     
     return Common::HistFromFile(full);
 }
