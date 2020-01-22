@@ -238,7 +238,16 @@ TRExFit::TRExFit(std::string name) :
     fTruthDistributionName(""),
     fNumberUnfoldingTruthBins(0),
     fNumberUnfoldingRecoBins(0),
-    fHasAcceptance(false) {
+    fHasAcceptance(false),
+    fUnfoldingTitleX("X axis"),
+    fUnfoldingTitleY("Y axis"),
+    fUnfoldingRatioYmax(1.5),
+    fUnfoldingRatioYmin(0.5),
+    fUnfoldingLogX(false),
+    fUnfoldingLogY(false),
+    fUnfoldingTitleOffsetX(1.0),
+    fUnfoldingTitleOffsetY(1.0)
+{
 
     TRExFitter::IMAGEFORMAT.emplace_back("png");
     // Increase the limit for formula evaluations
@@ -8613,6 +8622,16 @@ void TRExFit::PlotUnfold(const std::vector<std::unique_ptr<TH1D> >& truth,
     pad2.SetTicks(1,1);
     pad1.Draw();
     pad2.Draw();
+    
+    if (fUnfoldingLogX) {
+        pad1.SetLogx();
+        pad2.SetLogx();
+    }
+    if (fUnfoldingLogX) {
+        pad1.SetLogy();
+        pad2.SetLogy();
+    }
+
 
     pad1.cd();
     total->SetMarkerStyle(20);
@@ -8635,7 +8654,10 @@ void TRExFit::PlotUnfold(const std::vector<std::unique_ptr<TH1D> >& truth,
             itruth->SetMarkerStyle(21);
             itruth->SetLineColor(kBlue);
             itruth->SetLineWidth(2);
-            itruth->GetYaxis()->SetRangeUser(0.0001, 1.5*itruth->GetMaximum());
+            const double corr = fUnfoldingLogY ? 1e6 : 1.5;
+            itruth->GetYaxis()->SetRangeUser(0.0001, corr*itruth->GetMaximum());
+            itruth->GetYaxis()->SetTitle(fUnfoldingTitleY.c_str());
+            itruth->GetYaxis()->SetTitleOffset(fUnfoldingTitleOffsetY * itruth->GetYaxis()->GetTitleOffset());
             itruth->Draw("HIST same");
         } else {
             itruth->Draw("HIST");
@@ -8667,10 +8689,12 @@ void TRExFit::PlotUnfold(const std::vector<std::unique_ptr<TH1D> >& truth,
         ratios.emplace_back(static_cast<TH1D*>(itruth->Clone()));
         ratios.back()->Divide(data);
         if (isFirst) {
-            ratios.back()->GetXaxis()->SetTitleOffset(2.0*ratios.back()->GetXaxis()->GetTitleOffset());
-            ratios.back()->GetYaxis()->SetRangeUser(0.5,1.5);
+            ratios.back()->GetXaxis()->SetTitleOffset(fUnfoldingTitleOffsetX*ratios.back()->GetXaxis()->GetTitleOffset());
+            ratios.back()->GetYaxis()->SetTitleOffset(fUnfoldingTitleOffsetY*ratios.back()->GetYaxis()->GetTitleOffset());
+            ratios.back()->GetYaxis()->SetRangeUser(fUnfoldingRatioYmin,fUnfoldingRatioYmax);
             ratios.back()->GetYaxis()->SetTitle("ratio");
             ratios.back()->GetYaxis()->SetNdivisions(505);
+            ratios.back()->GetXaxis()->SetTitle(fUnfoldingTitleX.c_str());
             ratios.back()->Draw("HIST");
         } else {
             ratios.back()->Draw("HIST same");
@@ -8696,6 +8720,7 @@ void TRExFit::PlotUnfold(const std::vector<std::unique_ptr<TH1D> >& truth,
     line.SetLineStyle(2);
     line.SetLineWidth(3);
     line.Draw("same");
+
 
     for(const auto& format : TRExFitter::IMAGEFORMAT) {
         c.SaveAs((fName+"/UnfoldedData."+ format).c_str());

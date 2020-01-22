@@ -729,6 +729,14 @@ public:
     std::vector<std::unique_ptr<UnfoldingSample> > fUnfoldingSamples;
     std::vector<std::unique_ptr<UnfoldingSystematic> > fUnfoldingSystematics;
     bool fHasAcceptance;
+    std::string fUnfoldingTitleX;
+    std::string fUnfoldingTitleY;
+    double fUnfoldingRatioYmax;
+    double fUnfoldingRatioYmin;
+    bool fUnfoldingLogX;
+    bool fUnfoldingLogY;
+    double fUnfoldingTitleOffsetX;
+    double fUnfoldingTitleOffsetY;
 };
 
 #endif
