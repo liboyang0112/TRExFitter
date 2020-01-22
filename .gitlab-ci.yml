@@ -15,6 +15,7 @@ variables:
 stages:
   - check_and_build
   - build
+  - ustep
   - hnstep
   - wstep
   - flsstep
@@ -91,6 +92,18 @@ compile:
 ## "hnstep" step: produces the input histograms for TRExFitter
 ##    Artifact: keeps the FitExample folder
 ##
+unfolding_preparation:
+    stage: ustep
+    needs:
+      - compile
+    script:
+      - trex-fitter u test/configs/FitExampleUnfolding.config
+      - ls
+      - ls FitExampleUnfolding/UnfoldingHistograms
+    artifacts:
+      paths:
+        - FitExampleUnfolding
+
 histograms_full:
     stage: hnstep
     needs:
@@ -150,6 +163,19 @@ histograms_ntuple:
     artifacts:
       paths:
         - FitExampleNtuple
+
+histograms_unfolding:
+    stage: hnstep
+    needs:
+      - compile
+      - unfolding_preparation
+    script:
+      - trex-fitter h test/configs/FitExampleUnfolding.config
+      - ls
+      - ls FitExampleUnfolding/Histograms/
+    artifacts:
+      paths:
+        - FitExampleUnfolding
 
 ##
 ## "wstep" step: produces the workspace
@@ -244,6 +270,25 @@ workspace_ntuple:
     artifacts:
       paths:
         - FitExampleNtuple
+
+workspace_unfolding:
+    stage: wstep
+    needs:
+      - compile
+      - unfolding_preparation
+      - histograms_unfolding
+    script:
+      - trex-fitter w test/configs/FitExampleUnfolding.config >& LOG_UNFOLDING_w
+      - cat LOG_UNFOLDING_w | grep -v "TRExFitter" >& temp_log && mv temp_log LOG_UNFOLDING_w
+      - ls
+      - set -e
+      - ls FitExampleUnfolding
+      - ls FitExampleUnfolding/RooStats/
+      - source test/scripts/FitExampleUnfolding/check_step_w_unfolding.sh
+      - echo "=> Passed quick logfile checks"
+    artifacts:
+      paths:
+        - FitExampleUnfolding
 
 ##
 ## "flsstep" step: performs the fit
@@ -345,6 +390,27 @@ fit_ntuple:
     artifacts:
       paths:
         - FitExampleNtuple
+
+fit_unfolding:
+    stage: flsstep
+    needs:
+      - compile
+      - unfolding_preparation
+      - histograms_unfolding
+      - workspace_unfolding
+    script:
+      - trex-fitter f test/configs/FitExampleUnfolding.config >& LOG_UNFOLDING_f
+      - cat LOG_UNFOLDING_f | grep -v "TRExFitter" >& temp_log && mv temp_log LOG_UNFOLDING_f
+      - ls
+      - set -e
+      - ls FitExampleUnfolding
+      - ls FitExampleUnfolding/Fits/
+      - cat FitExampleUnfolding/Fits/*.txt
+      - source test/scripts/FitExampleUnfolding/check_step_f_unfolding.sh
+      - echo "=> Passed quick logfile checks"
+    artifacts:
+      paths:
+        - FitExampleUnfolding
 
 ##
 ## "flsstep" step: compute the limits
