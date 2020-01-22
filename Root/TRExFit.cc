@@ -238,6 +238,8 @@ TRExFit::TRExFit(std::string name) :
     fTruthDistributionName(""),
     fNumberUnfoldingTruthBins(0),
     fNumberUnfoldingRecoBins(0),
+    fUnfoldingResultMin(0),
+    fUnfoldingResultMax(2),
     fHasAcceptance(false) {
 
     TRExFitter::IMAGEFORMAT.emplace_back("png");

@@ -156,12 +156,12 @@ bool FoldingManager::CheckConsistencyForResponse() const {
     if (!fSelectionEfficiency || !fMigrationMatrix) return false;
 
     const bool horizontal = (fMatrixOrientation == FoldingManager::MATRIXORIENTATION::TRUTHONHORIZONTALAXIS);
-    if (horizontal  && fSelectionEfficiency->GetNbinsX() != fMigrationMatrix->GetNbinsY()) return false;
-    if (!horizontal && fSelectionEfficiency->GetNbinsX() != fMigrationMatrix->GetNbinsX()) return false;
+    if (horizontal  && fSelectionEfficiency->GetNbinsX() != fMigrationMatrix->GetNbinsX()) return false;
+    if (!horizontal && fSelectionEfficiency->GetNbinsX() != fMigrationMatrix->GetNbinsY()) return false;
 
     if (fAcceptance) {
-        if (horizontal  && fAcceptance->GetNbinsX() != fMigrationMatrix->GetNbinsX()) return false;
-        if (!horizontal && fAcceptance->GetNbinsX() != fMigrationMatrix->GetNbinsY()) return false;
+        if (horizontal  && fAcceptance->GetNbinsX() != fMigrationMatrix->GetNbinsY()) return false;
+        if (!horizontal && fAcceptance->GetNbinsX() != fMigrationMatrix->GetNbinsX()) return false;
     }
 
     return true;
