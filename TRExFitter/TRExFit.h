@@ -718,6 +718,7 @@ public:
     int fNumberUnfoldingRecoBins;
     std::vector<std::unique_ptr<UnfoldingSample> > fUnfoldingSamples;
     std::vector<std::unique_ptr<UnfoldingSystematic> > fUnfoldingSystematics;
+    bool fHasAcceptance;
 };
 
 #endif

@@ -235,7 +235,8 @@ TRExFit::TRExFit(std::string name) :
     fTruthDistributionFile(""),
     fTruthDistributionName(""),
     fNumberUnfoldingTruthBins(0),
-    fNumberUnfoldingRecoBins(0) {
+    fNumberUnfoldingRecoBins(0),
+    fHasAcceptance(false) {
 
     TRExFitter::IMAGEFORMAT.emplace_back("png");
     // Increase the limit for formula evaluations
@@ -8047,7 +8048,7 @@ void TRExFit::PrepareUnfolding() {
                 }
 
                 // add acceptance
-                if (isample->GetHasAcceptance()) {
+                if (fHasAcceptance || isample->GetHasAcceptance() || ireg->fHasAcceptance) {
                     const std::vector<std::string>& fullAcceptancePaths = FullAcceptancePaths(ireg, isample.get());
                     std::unique_ptr<TH1> acc = Common::CombineHistosFromFullPaths(fullAcceptancePaths);
                     if (!acc) {
@@ -8169,7 +8170,7 @@ void TRExFit::ProcessUnfoldingSystematics(FoldingManager* manager,
                 manager->SetSelectionEfficiency(eff.get());
             }
 
-            if (syst->GetHasAcceptance()) {
+            if (fHasAcceptance || syst->GetHasAcceptance() || reg->fHasAcceptance) {
                 const std::vector<std::string>& paths = FullAcceptancePaths(reg, sample, syst, true);
                 std::unique_ptr<TH1> acc = Common::CombineHistosFromFullPaths(paths); 
                 if (!acc) {
