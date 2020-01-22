@@ -4815,8 +4815,6 @@ void TRExFit::PlotUnfoldedData() const {
     }
     truth->SetDirectory(nullptr);
 
-    std::vector<std::unique_ptr<TH1D> > truthVec;
-    
     UnfoldingResult unfolded;
     unfolded.SetTruthDistribution(truth.get());
     

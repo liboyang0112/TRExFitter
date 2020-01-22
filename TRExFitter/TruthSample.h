@@ -27,11 +27,8 @@ public:
     inline void SetLineColor(const int c) {fLineColor = c;}
     inline int GetLineColor() const {return fLineColor;}
     inline void SetTruthDistributionPath(const std::string& s) {fTruthDistributionPath = s;}
-    inline const std::string& GetTruthDistributionPath() const {return fTruthDistributionPath;}
     inline void SetTruthDistributionFile(const std::string& s) {fTruthDistributionFile = s;}
-    inline const std::string& GetTruthDistributionFile() const {return fTruthDistributionFile;}
     inline void SetTruthDistributionName(const std::string& s) {fTruthDistributionName = s;}
-    inline const std::string& GetTruthDistributionName() const {return fTruthDistributionName;}
 
     std::unique_ptr<TH1> GetHisto(const TRExFit* fitter) const;
 
