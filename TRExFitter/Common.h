@@ -19,6 +19,7 @@
 /// Forward class declaration
 class Region;
 class TFile;
+class TGraphAsymmErrors;
 class TH1;
 class TH2;
 class TH1D;
@@ -247,6 +248,14 @@ std::unique_ptr<TH1> CombineHistosFromFullPaths(const std::vector<std::string>& 
   * @return a combined 2D histogram
   */ 
 std::unique_ptr<TH2> CombineHistos2DFromFullPaths(const std::vector<std::string>& paths);
+
+/**
+  * A helper function to calculate error band on ratio
+  * @param Graph with total uncertainties
+  * @param data
+  * @return ratio graph
+  */  
+std::unique_ptr<TGraphAsymmErrors> GetRatioBand(const TGraphAsymmErrors* total, const TH1D* data);
 }
 
 #endif

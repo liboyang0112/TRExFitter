@@ -16,6 +16,7 @@
 #include "TChain.h"
 #include "TDirectory.h"
 #include "TFile.h"
+#include "TGraphAsymmErrors.h"
 #include "TH1.h"
 #include "TH2.h"
 #include "TH1D.h"
@@ -1264,6 +1265,42 @@ std::unique_ptr<TH2> Common::CombineHistos2DFromFullPaths(const std::vector<std:
             }
             result->Add(tmp.get());
         }
+    }
+
+    return result;
+}
+
+//__________________________________________________________________________________
+//
+std::unique_ptr<TGraphAsymmErrors> Common::GetRatioBand(const TGraphAsymmErrors* total,
+                                                        const TH1D* data) {
+
+    std::unique_ptr<TGraphAsymmErrors> result(static_cast<TGraphAsymmErrors*>(total->Clone()));
+
+    std::unique_ptr<TH1D> up(static_cast<TH1D*>(data->Clone()));
+    std::unique_ptr<TH1D> down(static_cast<TH1D*>(data->Clone()));
+
+    for (int ibin = 0; ibin < result->GetN(); ++ibin) {
+        double x,y;
+        result->GetPoint(ibin, x, y);
+        up->SetBinContent(ibin+1, result->GetErrorYhigh(ibin));
+        up->SetBinError(ibin+1, 0);
+        down->SetBinContent(ibin+1, result->GetErrorYlow(ibin));
+        down->SetBinError(ibin+1, 0);
+    }
+
+    std::unique_ptr<TH1D> ratio_up(static_cast<TH1D*>(up->Clone()));
+    std::unique_ptr<TH1D> ratio_down(static_cast<TH1D*>(down->Clone()));
+    ratio_up->Divide(data);
+    ratio_down->Divide(data);
+
+    for (int ibin = 0; ibin < result->GetN(); ++ibin) {
+        double x,y;
+        result->GetPoint(ibin, x, y);
+        result->SetPoint(ibin, x, 1.);
+
+        result->SetPointEYhigh(ibin, ratio_up->GetBinContent(ibin+1));
+        result->SetPointEYlow (ibin, ratio_down->GetBinContent(ibin+1));
     }
 
     return result;

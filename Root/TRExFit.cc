@@ -8590,7 +8590,7 @@ std::vector<std::string> TRExFit::FullTruthPaths() const {
 //
 void TRExFit::PlotUnfold(const std::vector<std::unique_ptr<TH1D> >& truth,
                          TH1D* data,
-                         TGraphAsymmErrors* band) const {
+                         TGraphAsymmErrors* total) const {
 
     TCanvas c("","",800,600);
     TPad pad1("pad1","pad1",0.0, 0.3, 1.0, 1.00);
@@ -8604,38 +8604,36 @@ void TRExFit::PlotUnfold(const std::vector<std::unique_ptr<TH1D> >& truth,
     pad2.Draw();
 
     pad1.cd();
-    data->SetMarkerStyle(20);
-    data->SetMarkerSize(1.45);
-    data->SetLineColor(kBlack);
-    data->SetLineStyle(1);
+    total->SetMarkerStyle(20);
+    total->SetMarkerSize(1.45);
+    total->SetLineColor(kBlack);
+    total->SetLineStyle(1);
 
-    data->GetYaxis()->SetLabelSize(0.05);
-    data->GetYaxis()->SetLabelFont(42);
-    data->GetYaxis()->SetTitleFont(42);
-    data->GetYaxis()->SetTitleSize(0.07);
-    data->GetYaxis()->SetTitleOffset(1.1);
+    total->GetYaxis()->SetLabelSize(0.05);
+    total->GetYaxis()->SetLabelFont(42);
+    total->GetYaxis()->SetTitleFont(42);
+    total->GetYaxis()->SetTitleSize(0.07);
+    total->GetYaxis()->SetTitleOffset(1.1);
 
-    data->GetYaxis()->SetRangeUser(0.00001, 1.3*data->GetMaximum());
+    //total->GetYaxis()->SetRangeUser(0.00001, 1.3*total->GetMaximum());
 
-    data->Draw("X0EPZ");
+    bool isFirstHisto(true);
     for (auto& itruth : truth) {
-        itruth->SetFillColor(0);
-        itruth->SetMarkerStyle(21);
-        itruth->SetLineColor(kRed);
-        itruth->SetLineWidth(2);
-        itruth->Draw("HIST same");
+        if (isFirstHisto) {
+            itruth->SetFillColor(0);
+            itruth->SetMarkerStyle(21);
+            itruth->SetLineColor(kBlue);
+            itruth->SetLineWidth(2);
+            itruth->GetYaxis()->SetRangeUser(0.0001, 1.5*itruth->GetMaximum());
+            itruth->Draw("HIST same");
+        } else {
+            itruth->Draw("HIST");
+        }
     }
+    total->Draw("P SAME");
 
-    band->SetFillStyle(3002);
-    band->SetFillColor(kBlack);
-    band->SetMarkerStyle(0);
-    band->SetLineWidth(2);
-
-    band->Draw("E2 SAME");
-
-    TLegend leg(0.65, 0.4, 0.9, 0.9);
-    leg.AddEntry(data, "Unfolded data", "p");
-    leg.AddEntry(band, "Total uncertainty", "f");
+    TLegend leg(0.65, 0.6, 0.9, 0.9);
+    leg.AddEntry(total, "Unfolded data", "p");
     for (auto& itruth : truth) {
         leg.AddEntry(itruth.get(), "MC", "l");
     }
@@ -8645,7 +8643,48 @@ void TRExFit::PlotUnfold(const std::vector<std::unique_ptr<TH1D> >& truth,
     leg.SetBorderSize(0);
     leg.SetTextFont(72);
     leg.SetTextSize(0.045);
-    leg.Draw("same");
+    leg.Draw("SAME");
+        
+    if (fAtlasLabel != "none") ATLASLabel(0.2,0.87,fAtlasLabel.c_str());
+    myText(0.2,0.8,1,Form("#sqrt{s} = %s, %s",fCmeLabel.c_str(),fLumiLabel.c_str()));
+
+    // Plot ratio
+    pad2.cd();
+    std::vector<std::unique_ptr<TH1D> > ratios;
+    bool isFirst(true);
+    for (const auto& itruth : truth) {
+        ratios.emplace_back(static_cast<TH1D*>(itruth->Clone()));
+        ratios.back()->Divide(data);
+        if (isFirst) {
+            ratios.back()->GetXaxis()->SetTitleOffset(2.0*ratios.back()->GetXaxis()->GetTitleOffset());
+            ratios.back()->GetYaxis()->SetRangeUser(0.5,1.5);
+            ratios.back()->GetYaxis()->SetTitle("ratio");
+            ratios.back()->GetYaxis()->SetNdivisions(505);
+            ratios.back()->Draw("HIST");
+        } else {
+            ratios.back()->Draw("HIST same");
+        }
+        isFirst = false;
+    }
+
+    // Now plot the error band
+    std::unique_ptr<TGraphAsymmErrors> band = Common::GetRatioBand(total, data);
+
+    band->SetFillStyle(3002);
+    band->SetFillColor(kBlack);
+    band->SetMarkerStyle(0);
+    band->SetLineWidth(2);
+
+    band->Draw("E2 SAME");
+
+    const float min = ratios.at(0)->GetXaxis()->GetBinLowEdge(1);
+    const float max = ratios.at(0)->GetXaxis()->GetBinUpEdge(ratios.at(0)->GetNbinsX());
+
+    TLine line (min, 1, max, 1);
+    line.SetLineColor(kRed);
+    line.SetLineStyle(2);
+    line.SetLineWidth(3);
+    line.Draw("same");
 
     for(const auto& format : TRExFitter::IMAGEFORMAT) {
         c.SaveAs((fName+"/UnfoldedData."+ format).c_str());
