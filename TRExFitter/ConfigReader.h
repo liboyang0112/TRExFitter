@@ -136,10 +136,9 @@ class ConfigReader {
 
         /**
           * Helper function to read Sample settings
-          * @param Running options
           * @return int status code
           */
-        int ReadSampleOptions(const std::string& opt);
+        int ReadSampleOptions();
 
         /**
           * Helper function to read NormFactor settings
@@ -164,6 +163,12 @@ class ConfigReader {
           * @return int status code
           */ 
         int ReadUnfoldingOptions();
+        
+        /**
+          * A helper function to read TruthSample
+          * @return int status code
+          */ 
+        int ReadTruthSamples();
 
         /**
           * A helper function to read UnfoldingSample

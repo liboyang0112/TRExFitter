@@ -35,6 +35,7 @@ class SampleHist;
 class ShapeFactor;
 class TGraphAsymmErrors;
 class TRExPlot;
+class TruthSample;
 class TFile;
 class UnfoldingSample;
 class UnfoldingSystematic;
@@ -440,12 +441,10 @@ public:
                                      const UnfoldingSystematic* syst) const;
 
     /** A helper function that does the actual plotting of unfolded data
-      * @param vector of truth histograms
       * @param unfoded data
       * @param error band
       */ 
-    void PlotUnfold(const std::vector<std::unique_ptr<TH1D> >& truth,
-                    TH1D* data,
+    void PlotUnfold(TH1D* data,
                     TGraphAsymmErrors* band) const;
     // -------------------------
 
@@ -739,6 +738,8 @@ public:
     bool fUnfoldingLogY;
     double fUnfoldingTitleOffsetX;
     double fUnfoldingTitleOffsetY;
+    std::vector<std::unique_ptr<TruthSample> > fTruthSamples;
+    std::string fNominalTruthSample;
 };
 
 #endif

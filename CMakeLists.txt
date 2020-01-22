@@ -105,6 +105,7 @@ set( lib_headers
   TRExFitter/SystematicHist.h
   TRExFitter/TRExFit.h
   TRExFitter/TRExPlot.h
+  TRExFitter/TruthSample.h
   TRExFitter/UnfoldingSample.h
   TRExFitter/UnfoldingSystematic.h)
 
@@ -133,6 +134,7 @@ set( lib_sources
   Root/SystematicHist.cc
   Root/TRExFit.cc
   Root/TRExPlot.cc
+  Root/TruthSample.cc
   Root/UnfoldingSample.cc
   Root/UnfoldingSystematic.cc )
 

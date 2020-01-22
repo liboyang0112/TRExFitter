@@ -12,6 +12,7 @@
 #include "TRExFitter/StatusLogbook.h"
 #include "TRExFitter/Systematic.h"
 #include "TRExFitter/TRExFit.h"
+#include "TRExFitter/TruthSample.h"
 #include "TRExFitter/UnfoldingSample.h"
 #include "TRExFitter/UnfoldingSystematic.h"
 
@@ -74,7 +75,7 @@ int ConfigReader::ReadFullConfig(const std::string& fileName, const std::string&
 
     sc+= ReadRegionOptions(opt);
 
-    sc+= ReadSampleOptions(opt);
+    sc+= ReadSampleOptions();
 
     sc+= ReadNormFactorOptions();
 
@@ -83,6 +84,8 @@ int ConfigReader::ReadFullConfig(const std::string& fileName, const std::string&
     sc+= ReadSystOptions();
     
     sc+= ReadUnfoldingOptions();
+    
+    sc+= ReadTruthSamples();
     
     sc+= ReadUnfoldingSampleOptions();
     
@@ -2850,7 +2853,7 @@ int ConfigReader::SetRegionNTUP(Region* reg, ConfigSet *confSet){
 
 //__________________________________________________________________________________
 //
-int ConfigReader::ReadSampleOptions(const std::string& opt){
+int ConfigReader::ReadSampleOptions() {
 
     fAvailableSamples = GetAvailableSamples();
 
@@ -3520,11 +3523,6 @@ int ConfigReader::ReadSampleOptions(const std::string& opt){
 
     }
 
-//     if (!fHasAtLeastOneValidSample && Common::OptionRunsFit(opt)){
-//         WriteErrorStatus("ConfigReader::ReadSampleOptions","You need to provide at least one sample that is either SIGNAL or BACKGROUND, otherwise the fit will crash.");
-//         return 1;
-//     }
-
     // build new samples if AsimovReplacementFor are specified
     for(int i_smp=0;i_smp<fFitter->fNSamples;i_smp++){
         if(fFitter->fSamples[i_smp]->fAsimovReplacementFor.first!=""){
@@ -3542,11 +3540,6 @@ int ConfigReader::ReadSampleOptions(const std::string& opt){
             ca->fUseSystematics = false;
         }
     }
-
-//     if (nSmp == 0){
-//         WriteErrorStatus("ConfigReader::ReadSampleOptions", "No 'Sample' provided. You need to provide at least one 'Sample' object. Check this!");
-//         return 1;
-//     }
 
     return 0;
 }
@@ -5353,6 +5346,82 @@ int ConfigReader::ReadUnfoldingOptions() {
         }
     }
     
+    param = confSet->Get("NominalTruthSample");
+    if (param == "") {
+        WriteErrorStatus("ConfigReader::ReadUnfoldingOptions", "You need to set NominalTruthSample option!");
+        return 1;
+    } else {
+        fFitter->fNominalTruthSample = RemoveQuotes(param);
+    }
+    
+    return 0;
+}
+
+//__________________________________________________________________________________
+//
+int ConfigReader::ReadTruthSamples() {
+
+    int isample(0);
+
+    bool found(false);
+
+    std::vector<std::string> names;
+
+    while(true) {
+        ConfigSet *confSet = fParser->GetConfigSet("TruthSample",isample);
+        if (!confSet) break;
+        ++isample;
+
+        auto sample = std::make_unique<TruthSample>(RemoveQuotes(confSet->GetValue()));
+        if (sample->GetName() == fFitter->fNominalTruthSample) {
+            found = true;
+        }
+
+        if (std::find(names.begin(), names.end(), RemoveQuotes(confSet->GetValue())) == names.end()) {
+            names.emplace_back(RemoveQuotes(confSet->GetValue())); 
+        } else {
+            WriteErrorStatus("ConfigReader::ReadTruthSamples", "Multiply defined TruthSample: " + RemoveQuotes(confSet->GetValue()));
+            return 1;
+        }
+
+        std::string param = confSet->Get("Title");
+        if (param != "") {
+            sample->SetTitle(RemoveQuotes(param));
+        }
+
+        param = confSet->Get("FillColor");
+        if (param != "") {
+            sample->SetFillColor(std::stoi(param));
+        }
+
+        param = confSet->Get("LineColor");
+        if (param != "") {
+            sample->SetLineColor(std::stoi(param));
+        }
+        
+        param = confSet->Get("TruthDistributionPath");
+        if (param != "") {
+            sample->SetTruthDistributionPath(RemoveQuotes(param));
+        }
+
+        param = confSet->Get("TruthDistributionFile");
+        if (param != "") {
+            sample->SetTruthDistributionFile(RemoveQuotes(param));
+        }
+
+        param = confSet->Get("TruthDistributionName");
+        if (param != "") {
+            sample->SetTruthDistributionName(RemoveQuotes(param));
+        }
+
+        fFitter->fTruthSamples.emplace_back(std::move(sample));
+    }
+
+    if (isample != 0 && !found) {
+        WriteErrorStatus("ConfigReader::ReadTruthSamples", "The NominalTruthSample not found in any of the TruthSample");
+        return 1;
+    }
+
     return 0;
 }
 

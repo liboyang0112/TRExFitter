@@ -17,6 +17,7 @@
 #include "TRExFitter/TRExPlot.h"
 #include "TRExFitter/Region.h"
 #include "TRExFitter/PruningUtil.h"
+#include "TRExFitter/TruthSample.h"
 #include "TRExFitter/UnfoldingSample.h"
 #include "TRExFitter/UnfoldingSystematic.h"
 
@@ -248,7 +249,8 @@ TRExFit::TRExFit(std::string name) :
     fUnfoldingLogX(false),
     fUnfoldingLogY(false),
     fUnfoldingTitleOffsetX(1.0),
-    fUnfoldingTitleOffsetY(1.0)
+    fUnfoldingTitleOffsetY(1.0),
+    fNominalTruthSample("SetMe")
 {
     TRExFitter::IMAGEFORMAT.emplace_back("png");
     // Increase the limit for formula evaluations
@@ -4813,18 +4815,9 @@ void TRExFit::PlotUnfoldedData() const {
     }
     truth->SetDirectory(nullptr);
 
-    std::vector<std::unique_ptr<TH1D> > truthVec;
-    
     UnfoldingResult unfolded;
     unfolded.SetTruthDistribution(truth.get());
     
-    truthVec.emplace_back(std::move(truth));
-
-    // Add other plots here
-    //
-    //
-
-
     // pass the fit results to the tool
     for (int i = 0; i < fNumberUnfoldingTruthBins; ++i) {
         const std::string name = "Bin_" + std::to_string(i+1);
@@ -4837,7 +4830,7 @@ void TRExFit::PlotUnfoldedData() const {
     std::unique_ptr<TH1D> data               = unfolded.GetUnfoldedResult();
     std::unique_ptr<TGraphAsymmErrors> error = unfolded.GetUnfoldedResultErrorBand();
 
-    PlotUnfold(truthVec, data.get(), error.get());
+    PlotUnfold(data.get(), error.get());
 
     // Dump results into a text file
     auto text = std::make_unique<std::ofstream>();
@@ -8036,9 +8029,17 @@ void TRExFit::PrepareUnfolding() {
 
     const bool horizontal = (fMatrixOrientation == FoldingManager::MATRIXORIENTATION::TRUTHONHORIZONTALAXIS);
    
-    { 
-        const std::vector<std::string>& truthPaths = FullTruthPaths();
-        std::unique_ptr<TH1> truth = Common::CombineHistosFromFullPaths(truthPaths);    
+    {
+        std::unique_ptr<TH1> truth(nullptr);
+        for (const auto& itruth : fTruthSamples) {
+            if (itruth->GetName() == fNominalTruthSample) {
+                truth = itruth->GetHisto(this);
+                break;
+            } 
+        }
+        if (!truth) {
+            exit(EXIT_FAILURE);
+        }
         if (truth->GetNbinsX() != fNumberUnfoldingTruthBins) {
             WriteErrorStatus("TRExFit::PrepareUnfolding", "The number of truth bins doesnt match the value from the config");
             exit(EXIT_FAILURE);
@@ -8599,19 +8600,15 @@ std::vector<std::string> TRExFit::FullSelectionEffPaths(const Region* reg,
 
 //__________________________________________________________________________________
 //
-std::vector<std::string> TRExFit::FullTruthPaths() const {
-    std::vector<std::string> result;
-
-    const std::string path = fTruthDistributionPath + "/" +fTruthDistributionFile + ".root/" + fTruthDistributionName;
-    result.emplace_back(path);
-    return result;
-}
-    
-//__________________________________________________________________________________
-//
-void TRExFit::PlotUnfold(const std::vector<std::unique_ptr<TH1D> >& truth,
-                         TH1D* data,
+void TRExFit::PlotUnfold(TH1D* data,
                          TGraphAsymmErrors* total) const {
+
+    std::vector<std::unique_ptr<TH1> > mc;
+    for (const auto& isample : fTruthSamples) {
+        mc.emplace_back(std::move(isample->GetHisto(this)));
+        mc.back()->SetLineColor(isample->GetLineColor());
+        mc.back()->SetFillColor(isample->GetFillColor());
+    }
 
     TCanvas c("","",800,600);
     TPad pad1("pad1","pad1",0.0, 0.3, 1.0, 1.00);
@@ -8628,11 +8625,9 @@ void TRExFit::PlotUnfold(const std::vector<std::unique_ptr<TH1D> >& truth,
         pad1.SetLogx();
         pad2.SetLogx();
     }
-    if (fUnfoldingLogX) {
+    if (fUnfoldingLogY) {
         pad1.SetLogy();
-        pad2.SetLogy();
     }
-
 
     pad1.cd();
     total->SetMarkerStyle(20);
@@ -8646,14 +8641,10 @@ void TRExFit::PlotUnfold(const std::vector<std::unique_ptr<TH1D> >& truth,
     total->GetYaxis()->SetTitleSize(0.07);
     total->GetYaxis()->SetTitleOffset(1.1);
 
-    //total->GetYaxis()->SetRangeUser(0.00001, 1.3*total->GetMaximum());
-
     bool isFirstHisto(true);
-    for (auto& itruth : truth) {
+    for (auto& itruth : mc) {
         if (isFirstHisto) {
-            itruth->SetFillColor(0);
             itruth->SetMarkerStyle(21);
-            itruth->SetLineColor(kBlue);
             itruth->SetLineWidth(2);
             const double corr = fUnfoldingLogY ? 1e6 : 1.5;
             itruth->GetYaxis()->SetRangeUser(0.0001, corr*itruth->GetMaximum());
@@ -8668,8 +8659,8 @@ void TRExFit::PlotUnfold(const std::vector<std::unique_ptr<TH1D> >& truth,
 
     TLegend leg(0.65, 0.6, 0.9, 0.9);
     leg.AddEntry(total, "Unfolded data", "p");
-    for (auto& itruth : truth) {
-        leg.AddEntry(itruth.get(), "MC", "l");
+    for (std::size_t imc = 0; imc < mc.size(); ++imc) {
+        leg.AddEntry(mc.at(imc).get(), fTruthSamples.at(imc)->GetTitle().c_str(), "l");
     }
 
     leg.SetFillColor(0);
@@ -8686,7 +8677,7 @@ void TRExFit::PlotUnfold(const std::vector<std::unique_ptr<TH1D> >& truth,
     pad2.cd();
     std::vector<std::unique_ptr<TH1D> > ratios;
     bool isFirst(true);
-    for (const auto& itruth : truth) {
+    for (const auto& itruth : mc) {
         ratios.emplace_back(static_cast<TH1D*>(itruth->Clone()));
         ratios.back()->Divide(data);
         if (isFirst) {
