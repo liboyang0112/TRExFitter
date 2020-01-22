@@ -35,6 +35,7 @@ class SampleHist;
 class ShapeFactor;
 class TGraphAsymmErrors;
 class TRExPlot;
+class TruthSample;
 class TFile;
 class UnfoldingSample;
 class UnfoldingSystematic;
@@ -739,6 +740,7 @@ public:
     bool fUnfoldingLogY;
     double fUnfoldingTitleOffsetX;
     double fUnfoldingTitleOffsetY;
+    std::vector<std::unique_ptr<TruthSample> > fTruthSamples;
 };
 
 #endif

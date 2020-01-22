@@ -17,6 +17,7 @@
 #include "TRExFitter/TRExPlot.h"
 #include "TRExFitter/Region.h"
 #include "TRExFitter/PruningUtil.h"
+#include "TRExFitter/TruthSample.h"
 #include "TRExFitter/UnfoldingSample.h"
 #include "TRExFitter/UnfoldingSystematic.h"
 
