@@ -741,6 +741,7 @@ public:
     double fUnfoldingTitleOffsetX;
     double fUnfoldingTitleOffsetY;
     std::vector<std::unique_ptr<TruthSample> > fTruthSamples;
+    std::string fNominalTruthSample;
 };
 
 #endif

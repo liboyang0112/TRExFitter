@@ -249,7 +249,8 @@ TRExFit::TRExFit(std::string name) :
     fUnfoldingLogX(false),
     fUnfoldingLogY(false),
     fUnfoldingTitleOffsetX(1.0),
-    fUnfoldingTitleOffsetY(1.0)
+    fUnfoldingTitleOffsetY(1.0),
+    fNominalTruthSample("SetMe")
 {
     TRExFitter::IMAGEFORMAT.emplace_back("png");
     // Increase the limit for formula evaluations

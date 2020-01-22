@@ -5346,6 +5346,14 @@ int ConfigReader::ReadUnfoldingOptions() {
         }
     }
     
+    param = confSet->Get("NominalTruthSample");
+    if (param == "") {
+        WriteErrorStatus("ConfigReader::ReadUnfoldingOptions", "You need to set NominalTruthSample option!");
+        return 1;
+    } else {
+        fFitter->fNominalTruthSample = RemoveQuotes(param);
+    }
+    
     return 0;
 }
 
@@ -5355,12 +5363,17 @@ int ConfigReader::ReadTruthSamples() {
 
     int isample(0);
 
+    bool found(false);
+
     while(true) {
         ConfigSet *confSet = fParser->GetConfigSet("TruthSample",isample);
         if (!confSet) break;
         ++isample;
 
         auto sample = std::make_unique<TruthSample>(RemoveQuotes(confSet->GetValue()));
+        if (sample->GetName() == fFitter->fNominalTruthSample) {
+            found = true;
+        }
 
         std::string param = confSet->Get("Title");
         if (param != "") {
@@ -5393,6 +5406,11 @@ int ConfigReader::ReadTruthSamples() {
         }
 
         fFitter->fTruthSamples.emplace_back(std::move(sample));
+    }
+
+    if (!found) {
+        WriteErrorStatus("ConfigReader::ReadTruthSamples", "The NominalTruthSample not found in any of the TruthSample");
+        return 1;
     }
 
     return 0;

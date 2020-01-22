@@ -1,7 +1,11 @@
 #ifndef TRUTHSAMPLE_H_
 #define TRUTHSAMPLE_H_
 
+#include <memory>
 #include <string>
+
+class TH1;
+class TRExFit;
 
 class TruthSample {
 
@@ -28,6 +32,8 @@ public:
     inline const std::string& GetTruthDistributionFile() const {return fTruthDistributionFile;}
     inline void SetTruthDistributionName(const std::string& s) {fTruthDistributionName = s;}
     inline const std::string& GetTruthDistributionName() const {return fTruthDistributionName;}
+
+    std::unique_ptr<TH1> GetHisto(const TRExFit* fitter) const;
 
 private:
 
