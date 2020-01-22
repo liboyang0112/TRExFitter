@@ -37,18 +37,18 @@ std::unique_ptr<TGraphAsymmErrors> UnfoldingResult::GetUnfoldedResultErrorBand()
     auto result = std::make_unique<TGraphAsymmErrors>(fTruthDistribution.get());
 
     for (int ibin = 1; ibin <= fTruthDistribution->GetNbinsX(); ++ibin) {
-        const double error_x_low = result->GetErrorXlow(ibin);
-        const double error_x_high = result->GetErrorXhigh(ibin);
+        const double error_x_low = result->GetErrorXlow(ibin-1);
+        const double error_x_high = result->GetErrorXhigh(ibin-1);
         double x;
         double y;
-        result->GetPoint(ibin, x, y);
+        result->GetPoint(ibin-1, x, y);
 
         const double mean = fFitValues.at(ibin-1).nominal * fTruthDistribution->GetBinContent(ibin);
-        const double up   = fFitValues.at(ibin-1).up      * fTruthDistribution->GetBinContent(ibin);
-        const double down = fFitValues.at(ibin-1).down    * fTruthDistribution->GetBinContent(ibin);
+        const double up   = std::fabs((fFitValues.at(ibin-1).up      * fTruthDistribution->GetBinContent(ibin)) - mean);
+        const double down = std::fabs((fFitValues.at(ibin-1).down    * fTruthDistribution->GetBinContent(ibin)) - mean);
 
-        result->SetPoint(ibin, x, mean);
-        result->SetPointError(ibin, error_x_low, error_x_high, down, up);
+        result->SetPoint(ibin-1, x, mean);
+        result->SetPointError(ibin-1, error_x_low, error_x_high, down, up);
     }
 
     return result;

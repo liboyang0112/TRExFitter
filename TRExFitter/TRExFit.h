@@ -33,6 +33,7 @@ class Region;
 class Sample;
 class SampleHist;
 class ShapeFactor;
+class TGraphAsymmErrors;
 class TRExPlot;
 class TFile;
 class UnfoldingSample;
@@ -438,6 +439,14 @@ public:
                                      const UnfoldingSample* sample,
                                      const UnfoldingSystematic* syst) const;
 
+    /** A helper function that does the actual plotting of unfolded data
+      * @param vector of truth histograms
+      * @param unfoded data
+      * @param error band
+      */ 
+    void PlotUnfold(const std::vector<std::unique_ptr<TH1D> >& truth,
+                    TH1D* data,
+                    TGraphAsymmErrors* band) const;
     // -------------------------
 
     std::string fName;
