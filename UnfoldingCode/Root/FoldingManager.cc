@@ -156,7 +156,7 @@ bool FoldingManager::CheckConsistencyForResponse() const {
     if (!fSelectionEfficiency || !fMigrationMatrix) return false;
 
     const bool horizontal = (fMatrixOrientation == FoldingManager::MATRIXORIENTATION::TRUTHONHORIZONTALAXIS);
-    if (horizontal  && fSelectionEfficiency->GetNbinsX() != fMigrationMatrix->GetNbinsX()) return false;
+    if (horizontal  && fSelectionEfficiency->GetNbinsX() != fMigrationMatrix->GetNbinsY()) return false;
     if (!horizontal && fSelectionEfficiency->GetNbinsX() != fMigrationMatrix->GetNbinsX()) return false;
 
     if (fAcceptance) {
@@ -188,20 +188,20 @@ std::unique_ptr<TH2D> FoldingManager::MultiplyAcceptanceEfficiencyAndMigration(c
     
     std::unique_ptr<TH2D> result(static_cast<TH2D*>(mig->Clone()));
     for (int itruth = 1; itruth <= nTruthBins; ++itruth) {
-        double acceptance(1.);
-        if (fAcceptance) {
-            if (acc->GetBinContent(itruth) > 1) {
-                throw std::runtime_error{"FoldingManager::MultiplyAcceptanceEfficiencyAndMigration: The acceptance in bin" + std::to_string(itruth) + " is > 1"};
-            }
-            acceptance = acc->GetBinContent(itruth);
+        const double eff = sel->GetBinContent(itruth);
+        if (eff > 1) {
+            throw std::runtime_error{"FoldingManager::MultiplyAcceptanceEfficiencyAndMigration: Selection efficiency is > 1"};
         }
         for (int ireco = 1; ireco <= nRecoBins; ++ireco) {
+            double acceptance(1.);
+            if (fAcceptance) {
+                if (acc->GetBinContent(ireco) > 1) {
+                    throw std::runtime_error{"FoldingManager::MultiplyAcceptanceEfficiencyAndMigration: The acceptance in bin" + std::to_string(itruth) + " is > 1"};
+                }
+                acceptance = acc->GetBinContent(ireco);
+            }
             const double content = horizontal ? mig->GetBinContent(itruth, ireco) : mig->GetBinContent(ireco, itruth);
             //const double error = horizontal ? mig->GetBinError(itruth, ireco) : mig->GetBinError(ireco, itruth);
-            const double eff = sel->GetBinContent(itruth);
-            if (eff > 1) {
-                throw std::runtime_error{"FoldingManager::MultiplyAcceptanceEfficiencyAndMigration: Selection efficiency is > 1"};
-            }
             result->SetBinContent(itruth, ireco, content*eff/acceptance);
             /// this assumes no error on truth
             //result->SetBinError(itruth, ireco, error*eff/acceptance);

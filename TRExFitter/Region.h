@@ -295,6 +295,7 @@ public:
 
     int fNumberUnfoldingRecoBins;
     bool fNormalizeMigrationMatrix;
+    bool fHasAcceptance;
 
 private:
 

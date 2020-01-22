@@ -345,39 +345,46 @@ int ConfigReader::ReadJobOptions(){
     if (param != "") {
         fFitter->fAcceptanceNames.clear();
         fFitter->fAcceptanceNames.emplace_back(CheckName(param));
+        fFitter->fHasAcceptance = true;
     }
     
     param = confSet->Get("AcceptanceNames");
     if (param != "") {
         fFitter->fAcceptanceNames = Vectorize(param, ',');
+        fFitter->fHasAcceptance = true;
     }
 
     param = confSet->Get("AcceptanceFile");
     if (param != "") {
         fFitter->fAcceptanceFiles.clear();
         fFitter->fAcceptanceFiles.emplace_back(CheckName(param));
+        fFitter->fHasAcceptance = true;
     }
     
     param = confSet->Get("AcceptanceFiles");
     if (param != "") {
         fFitter->fAcceptanceFiles = Vectorize(param, ',');
+        fFitter->fHasAcceptance = true;
     }
 
     param = confSet->Get("AcceptancePath");
     if (param != "") {
         fFitter->fAcceptancePaths.clear();
         fFitter->fAcceptancePaths.emplace_back(CheckName(param));
+        fFitter->fHasAcceptance = true;
     }
     
     param = confSet->Get("AcceptancePaths");
     if (param != "") {
         fFitter->fAcceptancePaths = Vectorize(param, ',');
+        fFitter->fHasAcceptance = true;
     }
 
     param = confSet->Get("AcceptanceNameNominal");
     if(param!=""){
-      fFitter->fAcceptanceNamesNominal.clear();
-      fFitter->fAcceptanceNamesNominal.emplace_back(CheckName(param));
+        fFitter->fAcceptanceNamesNominal.clear();
+        fFitter->fAcceptanceNamesNominal.emplace_back(CheckName(param));
+        fFitter->fHasAcceptance = true;
     }
     
     param = confSet->Get("SelectionEffName");
@@ -2171,11 +2178,13 @@ int ConfigReader::ReadRegionOptions(const std::string& opt){
         if (param != "") {
             reg->fAcceptanceNames.clear();
             reg->fAcceptanceNames.emplace_back(RemoveQuotes(param));
+            reg->fHasAcceptance = true;
         }
 
         param = confSet->Get("AcceptanceNames");
         if (param != "") {
             reg->fAcceptanceNames = Vectorize(param, ',');
+            reg->fHasAcceptance = true;
         }
 
         // Paths for the unfolding code
@@ -2183,44 +2192,52 @@ int ConfigReader::ReadRegionOptions(const std::string& opt){
         if (param != "") {
             reg->fAcceptancePaths.clear();
             reg->fAcceptancePaths.emplace_back(RemoveQuotes(param));
+            reg->fHasAcceptance = true;
         }
 
         param = confSet->Get("AcceptancePaths");
         if (param != "") {
             reg->fAcceptancePaths = Vectorize(param, ',');
+            reg->fHasAcceptance = true;
         }
 
         param = confSet->Get("AcceptanceFileSuff");
         if (param != "") {
             reg->fAcceptanceFileSuffs.clear();
             reg->fAcceptanceFileSuffs.emplace_back(RemoveQuotes(param));
+            reg->fHasAcceptance = true;
         }
 
         param = confSet->Get("AcceptanceFileSuffs");
         if (param != "") {
             reg->fAcceptanceFileSuffs = Vectorize(param, ',');
+            reg->fHasAcceptance = true;
         }
 
         param = confSet->Get("AcceptanceNameSuff");
         if (param != "") {
             reg->fAcceptanceNameSuffs.clear();
             reg->fAcceptanceNameSuffs.emplace_back(RemoveQuotes(param));
+            reg->fHasAcceptance = true;
         }
 
         param = confSet->Get("AcceptanceNameSuffs");
         if (param != "") {
             reg->fAcceptanceNameSuffs = Vectorize(param, ',');
+            reg->fHasAcceptance = true;
         }
 
         param = confSet->Get("AcceptancePathSuff");
         if (param != "") {
             reg->fAcceptancePathSuffs.clear();
             reg->fAcceptancePathSuffs.emplace_back(RemoveQuotes(param));
+            reg->fHasAcceptance = true;
         }
 
         param = confSet->Get("AcceptancePathSuffs");
         if (param != "") {
             reg->fAcceptancePathSuffs = Vectorize(param, ',');
+            reg->fHasAcceptance = true;
         }
 
         param = confSet->Get("SelectionEffName");
@@ -6577,7 +6594,19 @@ int ConfigReader::ProcessUnfoldingSystematics() {
                 WriteErrorStatus("ConfigReader::ProcessUnfoldingSystematics", "No UnfoldingSamples set!");
                 return 1;
             }
-            const std::string& unfoldingSampleName = fFitter->fUnfoldingSamples.at(0)->GetName();
+            std::string unfoldingSampleName("");
+            for (const auto& isample : fFitter->fUnfoldingSamples) {
+                if(isample->fRegions[0] != "all" && 
+                    Common::FindInStringVector(isample->fRegions, ireg->fName) < 0) continue;
+
+                unfoldingSampleName = isample->GetName();
+            }
+
+            if (unfoldingSampleName == "") {
+                WriteErrorStatus("ConfigReader::ProcessUnfoldingSystematics", "Sample name not set!");
+                exit(EXIT_FAILURE);
+            }
+
             const std::vector<Systematic*> systs = isyst->ConvertToSystematic(ireg,
                                                                               fFitter->fNumberUnfoldingTruthBins,
                                                                               fFitter->fName,
@@ -6615,9 +6644,15 @@ int ConfigReader::AddUnfoldingNormFactors() {
         nf->fMax = 2;
         nf->fNominal = 1;
         nf->fRegions = GetAvailableRegions();
-        const std::string sampleName = "Truth_bin_" + std::to_string(i+1);
+        std::vector<std::string> sampleNames;
+        for (const auto& ireg : fFitter->fRegions) {
+            if (ireg->fRegionType == Region::RegionType::SIGNAL) {
+                const std::string sampleName = ireg->fName + "_Truth_bin_" + std::to_string(i+1);
+                sampleNames.emplace_back(sampleName);
+            }
+        }
         for(auto& isample : fFitter->fSamples) {
-            if (isample->fName != sampleName) continue;
+            if (std::find(sampleNames.begin(), sampleNames.end(), isample->fName) == sampleNames.end()) continue;
             isample->AddNormFactor(nf);
         }
 
