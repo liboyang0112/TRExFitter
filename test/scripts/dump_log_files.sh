@@ -123,6 +123,13 @@ for step in w f; do
   rm -f LOG_MORPH_MULTI_$step
 done
 
+for step in u h w f; do
+  echo "==> Unfolding $step step ongoing"
+  ./build/bin/trex-fitter $step test/configs/FitExampleUnfolding.config >& LOG_UNFOLDING_$step
+  cat LOG_UNFOLDING_$step | grep -v "TRExFitter" >& test/logs/FitExampleUnfolding/LOG_UNFOLDING_$step
+  rm -f LOG_UNFOLDING_$step
+done
+
 ##
 ## Making a git status and asks if the files have to be added
 ##
