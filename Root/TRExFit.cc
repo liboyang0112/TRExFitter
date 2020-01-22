@@ -8628,11 +8628,10 @@ void TRExFit::PlotUnfold(const std::vector<std::unique_ptr<TH1D> >& truth,
         pad1.SetLogx();
         pad2.SetLogx();
     }
-    if (fUnfoldingLogX) {
+    if (fUnfoldingLogY) {
         pad1.SetLogy();
         pad2.SetLogy();
     }
-
 
     pad1.cd();
     total->SetMarkerStyle(20);
@@ -8645,8 +8644,6 @@ void TRExFit::PlotUnfold(const std::vector<std::unique_ptr<TH1D> >& truth,
     total->GetYaxis()->SetTitleFont(42);
     total->GetYaxis()->SetTitleSize(0.07);
     total->GetYaxis()->SetTitleOffset(1.1);
-
-    //total->GetYaxis()->SetRangeUser(0.00001, 1.3*total->GetMaximum());
 
     bool isFirstHisto(true);
     for (auto& itruth : truth) {

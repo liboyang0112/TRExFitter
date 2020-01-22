@@ -74,7 +74,7 @@ int ConfigReader::ReadFullConfig(const std::string& fileName, const std::string&
 
     sc+= ReadRegionOptions(opt);
 
-    sc+= ReadSampleOptions(opt);
+    sc+= ReadSampleOptions();
 
     sc+= ReadNormFactorOptions();
 
@@ -2850,7 +2850,7 @@ int ConfigReader::SetRegionNTUP(Region* reg, ConfigSet *confSet){
 
 //__________________________________________________________________________________
 //
-int ConfigReader::ReadSampleOptions(const std::string& opt){
+int ConfigReader::ReadSampleOptions() {
 
     fAvailableSamples = GetAvailableSamples();
 
@@ -3520,11 +3520,6 @@ int ConfigReader::ReadSampleOptions(const std::string& opt){
 
     }
 
-//     if (!fHasAtLeastOneValidSample && Common::OptionRunsFit(opt)){
-//         WriteErrorStatus("ConfigReader::ReadSampleOptions","You need to provide at least one sample that is either SIGNAL or BACKGROUND, otherwise the fit will crash.");
-//         return 1;
-//     }
-
     // build new samples if AsimovReplacementFor are specified
     for(int i_smp=0;i_smp<fFitter->fNSamples;i_smp++){
         if(fFitter->fSamples[i_smp]->fAsimovReplacementFor.first!=""){
@@ -3542,11 +3537,6 @@ int ConfigReader::ReadSampleOptions(const std::string& opt){
             ca->fUseSystematics = false;
         }
     }
-
-//     if (nSmp == 0){
-//         WriteErrorStatus("ConfigReader::ReadSampleOptions", "No 'Sample' provided. You need to provide at least one 'Sample' object. Check this!");
-//         return 1;
-//     }
 
     return 0;
 }
