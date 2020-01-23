@@ -28,12 +28,13 @@ Please have a look at [CONTRIBUTING.md](CONTRIBUTING.md) to get started.
 7.  [Grouped Impact](#grouped-impact)
 8.  [Multi-Fit](#multi-fit)
     * [Available multi-fit settings](#available-multi-fit-settings)
-9.  [Input File Merging with hupdate](#input-file-merging-with-hupdate)
-10. [Output Directories Structure](#output-directories-structure)
-11. [ShapeFactor example](#shapefactor-example)
-12. [Replacement file](#replacement-file)
-13. [FAQ](#faq)
-14. [TRExFitter package authors](#trexfitter-package-authors)
+9.  [Running Unfolding](#running-unfolding)
+10. [Input File Merging with hupdate](#input-file-merging-with-hupdate)
+11. [Output Directories Structure](#output-directories-structure)
+12. [ShapeFactor example](#shapefactor-example)
+13. [Replacement file](#replacement-file)
+14. [FAQ](#faq)
+15. [TRExFitter package authors](#trexfitter-package-authors)
 
 
 
