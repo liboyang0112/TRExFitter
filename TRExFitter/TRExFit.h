@@ -446,6 +446,18 @@ public:
       */ 
     void PlotUnfold(TH1D* data,
                     TGraphAsymmErrors* band) const;
+
+    /**
+      * A helper function to plot migration or reposne matrix
+      * @param matrix
+      * @param flag if sample is migration
+      * @param name of the region
+      * @param name of the systematic
+      */ 
+    void PlotMigrationResponse(const TH2* matrix,
+                               const bool isMigration,
+                               const std::string& regionName,
+                               const std::string& systematicName) const;
     // -------------------------
 
     std::string fName;
@@ -740,6 +752,17 @@ public:
     double fUnfoldingTitleOffsetY;
     std::vector<std::unique_ptr<TruthSample> > fTruthSamples;
     std::string fNominalTruthSample;
+    std::string fMigrationTitleX;
+    std::string fMigrationTitleY;
+    bool fMigrationLogX;
+    bool fMigrationLogY;
+    double fMigrationTitleOffsetX;
+    double fMigrationTitleOffsetY;
+    bool fPlotSystematicMigrations;
+    double fMigrationZmin;
+    double fMigrationZmax;
+    double fResponseZmin;
+    double fResponseZmax;
 };
 
 #endif

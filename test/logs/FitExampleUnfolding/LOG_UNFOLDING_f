@@ -351,20 +351,20 @@ RooAbsTestStatistic::initSimMode: creating slave calculator #0 for state SR1 (11
 [1;32m=== INFO::FittingTool::FitPDF:  ---> Setting Bin_9 to 1.000000[0m
 [#1] INFO:Minization -- RooNLLVar::evaluatePartition(SR1) first = 0 last = 11 Likelihood offset now set to 967.993
 === DEBUG::FittingTool::FitPDF:    -> Initial value of the NLL = 972.749336
-  1) 0x4477e20 RooRealVar::                  Bin_1 = 0  L(-100 - 100)  "Bin_1"
-  2) 0x4569860 RooRealVar::                 Bin_10 = 1  L(-100 - 100)  "Bin_10"
-  3) 0x4583d20 RooRealVar::                 Bin_11 = 1  L(-100 - 100)  "Bin_11"
-  4) 0x44924e0 RooRealVar::                  Bin_2 = 1  L(-100 - 100)  "Bin_2"
-  5) 0x44b0de0 RooRealVar::                  Bin_3 = 1  L(-100 - 100)  "Bin_3"
-  6) 0x44cb480 RooRealVar::                  Bin_4 = 1  L(-100 - 100)  "Bin_4"
-  7) 0x44e5d20 RooRealVar::                  Bin_5 = 1  L(-100 - 100)  "Bin_5"
-  8) 0x45001e0 RooRealVar::                  Bin_6 = 1  L(-100 - 100)  "Bin_6"
-  9) 0x451a650 RooRealVar::                  Bin_7 = 1  L(-100 - 100)  "Bin_7"
- 10) 0x4534af0 RooRealVar::                  Bin_8 = 1  L(-100 - 100)  "Bin_8"
- 11) 0x454f3a0 RooRealVar::                  Bin_9 = 1  L(-100 - 100)  "Bin_9"
- 12) 0x4433400 RooRealVar::         alpha_Bkg_norm = 0  L(-5 - 5)  "alpha_Bkg_norm"
- 13) 0x4434fc0 RooRealVar::               alpha_PS = 0  L(-5 - 5)  "alpha_PS"
- 14) 0x44314f0 RooRealVar:: alpha_bTag_SF_B_eigen0 = 0  L(-5 - 5)  "alpha_bTag_SF_B_eigen0"
+  1) 0x3e5deb0 RooRealVar::                  Bin_1 = 0  L(-100 - 100)  "Bin_1"
+  2) 0x3f4f8f0 RooRealVar::                 Bin_10 = 1  L(-100 - 100)  "Bin_10"
+  3) 0x3f69db0 RooRealVar::                 Bin_11 = 1  L(-100 - 100)  "Bin_11"
+  4) 0x3e78570 RooRealVar::                  Bin_2 = 1  L(-100 - 100)  "Bin_2"
+  5) 0x3e96e70 RooRealVar::                  Bin_3 = 1  L(-100 - 100)  "Bin_3"
+  6) 0x3eb1510 RooRealVar::                  Bin_4 = 1  L(-100 - 100)  "Bin_4"
+  7) 0x3ecbdb0 RooRealVar::                  Bin_5 = 1  L(-100 - 100)  "Bin_5"
+  8) 0x3ee6270 RooRealVar::                  Bin_6 = 1  L(-100 - 100)  "Bin_6"
+  9) 0x3f006e0 RooRealVar::                  Bin_7 = 1  L(-100 - 100)  "Bin_7"
+ 10) 0x3f1ab80 RooRealVar::                  Bin_8 = 1  L(-100 - 100)  "Bin_8"
+ 11) 0x3f35430 RooRealVar::                  Bin_9 = 1  L(-100 - 100)  "Bin_9"
+ 12) 0x3e19490 RooRealVar::         alpha_Bkg_norm = 0  L(-5 - 5)  "alpha_Bkg_norm"
+ 13) 0x3e1b050 RooRealVar::               alpha_PS = 0  L(-5 - 5)  "alpha_PS"
+ 14) 0x3e17580 RooRealVar:: alpha_bTag_SF_B_eigen0 = 0  L(-5 - 5)  "alpha_bTag_SF_B_eigen0"
 [#1] INFO:Fitting -- RooAddition::defaultErrorLevel(nll_simPdf_newasimovData_with_constr) Summation contains a RooNLLVar, using its error level
 [1;32m=== INFO::FittingTool::FitPDF: [0m
 [1;32m=== INFO::FittingTool::FitPDF: [0m
@@ -375,46 +375,46 @@ RooAbsTestStatistic::initSimMode: creating slave calculator #0 for state SR1 (11
 Minuit2Minimizer: Minimize with max-calls 7000 convergence for edm < 1 strategy 1
 MnSeedGenerator: for initial parameters FCN = 972.7493363484
 MnSeedGenerator: Initial state:   - FCN =   972.7493363484 Edm =    -0.525886 NCalls =     69
-MnSeedGenerator: Negative G2 found - new state:   - FCN =  -644.3620825779 Edm =      738.909 NCalls =    119
+MnSeedGenerator: Negative G2 found - new state:   - FCN =  -644.3620825779 Edm =      738.504 NCalls =    119
 VariableMetric: start iterating until Edm is < 0.001
-VariableMetric: Initial state   - FCN =  -644.3620825779 Edm =      738.909 NCalls =    119
-VariableMetric: Iteration #   0 - FCN =  -644.3620825779 Edm =      738.909 NCalls =    119
-VariableMetric: Iteration #   1 - FCN =  -767.2984367986 Edm =      233.471 NCalls =    149
-VariableMetric: Iteration #   2 - FCN =  -849.7504029141 Edm =      29.4123 NCalls =    179
-VariableMetric: Iteration #   3 - FCN =  -871.1564898177 Edm =      11.3126 NCalls =    209
-VariableMetric: Iteration #   4 - FCN =   -891.834744457 Edm =      12.9606 NCalls =    240
-VariableMetric: Iteration #   5 - FCN =  -898.1403932695 Edm =       1.8059 NCalls =    270
-VariableMetric: Iteration #   6 - FCN =  -900.5468960352 Edm =      0.97904 NCalls =    300
-VariableMetric: Iteration #   7 - FCN =  -901.6066058795 Edm =      1.06885 NCalls =    330
-VariableMetric: Iteration #   8 - FCN =  -903.0189301103 Edm =     0.587157 NCalls =    360
-VariableMetric: Iteration #   9 - FCN =  -903.9216881936 Edm =     0.271423 NCalls =    390
-VariableMetric: Iteration #  10 - FCN =  -904.3435770419 Edm =     0.104033 NCalls =    420
-VariableMetric: Iteration #  11 - FCN =  -904.5962221703 Edm =    0.0975622 NCalls =    450
-VariableMetric: Iteration #  12 - FCN =  -905.2752633652 Edm =     0.515833 NCalls =    481
-VariableMetric: Iteration #  13 - FCN =  -909.8281972418 Edm =     0.632045 NCalls =    512
-VariableMetric: Iteration #  14 - FCN =  -910.5059036895 Edm =    0.0202627 NCalls =    542
-VariableMetric: Iteration #  15 - FCN =  -910.6018171008 Edm =    0.0873104 NCalls =    572
-VariableMetric: Iteration #  16 - FCN =   -911.354578178 Edm =     0.172222 NCalls =    604
-VariableMetric: Iteration #  17 - FCN =  -911.5653715905 Edm =   0.00168676 NCalls =    634
-VariableMetric: Iteration #  18 - FCN =  -911.5674744907 Edm =  7.84092e-05 NCalls =    664
+VariableMetric: Initial state   - FCN =  -644.3620825779 Edm =      738.504 NCalls =    119
+VariableMetric: Iteration #   0 - FCN =  -644.3620825779 Edm =      738.504 NCalls =    119
+VariableMetric: Iteration #   1 - FCN =  -767.6991550234 Edm =       231.38 NCalls =    149
+VariableMetric: Iteration #   2 - FCN =  -849.9461060507 Edm =      28.9887 NCalls =    179
+VariableMetric: Iteration #   3 - FCN =  -871.0233573393 Edm =      11.9882 NCalls =    209
+VariableMetric: Iteration #   4 - FCN =  -889.9607067053 Edm =      12.7329 NCalls =    240
+VariableMetric: Iteration #   5 - FCN =  -898.2959907302 Edm =      1.77985 NCalls =    271
+VariableMetric: Iteration #   6 - FCN =  -900.2867281603 Edm =      1.37503 NCalls =    301
+VariableMetric: Iteration #   7 - FCN =  -901.4373442417 Edm =     0.792407 NCalls =    331
+VariableMetric: Iteration #   8 - FCN =  -903.0978032994 Edm =     0.534726 NCalls =    361
+VariableMetric: Iteration #   9 - FCN =  -903.9740236577 Edm =     0.253707 NCalls =    391
+VariableMetric: Iteration #  10 - FCN =  -904.3573050862 Edm =     0.102273 NCalls =    421
+VariableMetric: Iteration #  11 - FCN =   -904.605837748 Edm =     0.102851 NCalls =    451
+VariableMetric: Iteration #  12 - FCN =  -905.2951485291 Edm =     0.511385 NCalls =    482
+VariableMetric: Iteration #  13 - FCN =  -910.0202419559 Edm =     0.480093 NCalls =    513
+VariableMetric: Iteration #  14 - FCN =  -910.5082523172 Edm =    0.0202511 NCalls =    543
+VariableMetric: Iteration #  15 - FCN =  -910.6077539232 Edm =    0.0928541 NCalls =    573
+VariableMetric: Iteration #  16 - FCN =  -911.3890214862 Edm =     0.122489 NCalls =    605
+VariableMetric: Iteration #  17 - FCN =  -911.5615839572 Edm =   0.00459593 NCalls =    635
+VariableMetric: Iteration #  18 - FCN =  -911.5676009925 Edm =   6.1748e-05 NCalls =    665
 Minuit2Minimizer : Valid minimum - status = 0
-FVAL  = -911.567474490730319
-Edm   = 7.84092093724859566e-05
-Nfcn  = 664
-Bin_1	  = 1.04717	 +/-  0.0738615	(limited)
-Bin_10	  = 1.1209	 +/-  0.060331	(limited)
-Bin_11	  = 0.584378	 +/-  0.123063	(limited)
-Bin_2	  = -0.232185	 +/-  0.233628	(limited)
-Bin_3	  = 1.89952	 +/-  0.372571	(limited)
-Bin_4	  = -0.666612	 +/-  0.473106	(limited)
-Bin_5	  = 2.62845	 +/-  0.548335	(limited)
-Bin_6	  = -1.56736	 +/-  0.476251	(limited)
-Bin_7	  = 1.30902	 +/-  0.105083	(limited)
-Bin_8	  = 0.981888	 +/-  0.119593	(limited)
-Bin_9	  = -0.0530826	 +/-  0.136883	(limited)
-alpha_Bkg_norm	  = 0.372869	 +/-  0.0856712	(limited)
-alpha_PS	  = -0.290363	 +/-  0.95407	(limited)
-alpha_bTag_SF_B_eigen0	  = 0.000323082	 +/-  0.993247	(limited)
+FVAL  = -911.567600992530174
+Edm   = 6.17479910471758602e-05
+Nfcn  = 665
+Bin_1	  = 1.04714	 +/-  0.0741587	(limited)
+Bin_10	  = 1.12098	 +/-  0.0603381	(limited)
+Bin_11	  = 0.584673	 +/-  0.123318	(limited)
+Bin_2	  = -0.231931	 +/-  0.234577	(limited)
+Bin_3	  = 1.89969	 +/-  0.373902	(limited)
+Bin_4	  = -0.666544	 +/-  0.475402	(limited)
+Bin_5	  = 2.62813	 +/-  0.552906	(limited)
+Bin_6	  = -1.56719	 +/-  0.478751	(limited)
+Bin_7	  = 1.30915	 +/-  0.105186	(limited)
+Bin_8	  = 0.982005	 +/-  0.12028	(limited)
+Bin_9	  = -0.053029	 +/-  0.136888	(limited)
+alpha_Bkg_norm	  = 0.372358	 +/-  0.085346	(limited)
+alpha_PS	  = -0.29435	 +/-  0.961043	(limited)
+alpha_bTag_SF_B_eigen0	  = 0.000394583	 +/-  0.993267	(limited)
 Info in Minuit2Minimizer::Hesse : Hesse is valid - matrix is accurate
 [1;32m=== INFO::FittingTool::FitPDF: [0m
 [1;32m=== INFO::FittingTool::FitPDF: [0m
@@ -423,16 +423,16 @@ Info in Minuit2Minimizer::Hesse : Hesse is valid - matrix is accurate
 [1;32m=== INFO::FittingTool::FitPDF:          FIT FINALIZED SUCCESSFULLY : [0m
 [1;32m=== INFO::FittingTool::FitPDF:             - minuit status 0[0m
 [1;32m=== INFO::FittingTool::FitPDF:             - hess status 0[0m
-[1;32m=== INFO::FittingTool::FitPDF:             - Edm = 0.000538[0m
+[1;32m=== INFO::FittingTool::FitPDF:             - Edm = 0.000501[0m
 [1;32m=== INFO::FittingTool::FitPDF: ***********************************************************[0m
 Real time 0:00:00, CP time 0.080
 [1;32m=== INFO::FittingTool::FitPDF: [0m
 [1;32m=== INFO::FittingTool::FitPDF: [0m
 [1;32m=== INFO::FittingTool::FitPDF: [0m
-[1;32m=== INFO::FittingTool::FitPDF:    -> Reduced Final value of the NLL = -999943.57495374197605997324[0m
-[1;32m=== INFO::FittingTool::FitPDF:    -> Final value of the NLL = 56.425046[0m
+[1;32m=== INFO::FittingTool::FitPDF:    -> Reduced Final value of the NLL = -999943.57508024375420063734[0m
+[1;32m=== INFO::FittingTool::FitPDF:    -> Final value of the NLL = 56.424920[0m
 [1;32m=== INFO::FittingTool::FitPDF:    -> Final value of offset = 967.992521[0m
-[1;32m=== INFO::FittingTool::FitPDF:    -> Final NLL - offset = -911.567474[0m
+[1;32m=== INFO::FittingTool::FitPDF:    -> Final NLL - offset = -911.567601[0m
 [1;32m=== INFO::TRExFit::ReadFitResults: ------------------------------------------------------[0m
 [1;32m=== INFO::TRExFit::ReadFitResults: Reading fit results from file [0m
 === DEBUG::FitResults::ReadFromTXT: --------------------
@@ -445,7 +445,7 @@ Real time 0:00:00, CP time 0.080
 === DEBUG::FitResults::ReadFromTXT: Reading Negative Log-Likelihood (NLL) value...
 === DEBUG::FitResults::ReadFromTXT: --------------------
 === DEBUG::FitResults::ReadFromTXT: Found 14 systematics.
-=== DEBUG::FitResults::ReadFromTXT: Negative Log-Likelihood value NLL = -911.567000
+=== DEBUG::FitResults::ReadFromTXT: Negative Log-Likelihood value NLL = -911.568000
 Info in <TCanvas::Print>: png file FitExampleUnfolding/NuisPar.png has been created
 Error in <TCanvas::Range>: illegal world coordinates range: x1=8.810811, y1=-0.470588, x2=-12.810811, y2=2.470588
 Error in <TCanvas::RangeAxis>: illegal axis coordinates range: xmin=8.000000, ymin=0.000000, xmax=-2.000000, ymax=1.000000
@@ -464,6 +464,6 @@ Info in <TCanvas::Print>: png file FitExampleUnfolding/CorrMatrix.png has been c
 === DEBUG::FitResults::ReadFromTXT: Reading Negative Log-Likelihood (NLL) value...
 === DEBUG::FitResults::ReadFromTXT: --------------------
 === DEBUG::FitResults::ReadFromTXT: Found 14 systematics.
-=== DEBUG::FitResults::ReadFromTXT: Negative Log-Likelihood value NLL = -911.567000
+=== DEBUG::FitResults::ReadFromTXT: Negative Log-Likelihood value NLL = -911.568000
 [1;32m=== INFO::TRExFit::PlotUnfoldedData: Producing unfolded plots...[0m
 Info in <TCanvas::Print>: png file FitExampleUnfolding/UnfoldedData.png has been created
