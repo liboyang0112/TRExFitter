@@ -181,7 +181,6 @@ See the section [Command line options](#command-line-options) below.
 
 
 ## Config File
-
 The structure of the file should be the following:
 ```
 <ObjectType>: <ObjectName>
@@ -262,13 +261,13 @@ Currently the supported options are:
 | **BootstrapIdx**      | see description of Bootstrap option in config (under Job) |
 | **BootstrapSYst**     | see description of BootstrapSyst option in config (under Job) |
 | **GroupedImpact**     | see [Grouped Impact](#grouped-impact) section |
-| **OutputDir**         | see [Job options](#job-block-options) section |
-| **LimitParamValue**   | see [Limit options](#limit-block-options) section (ParamValue) |
+| **OutputDir**         | see [Job settings](docs/Settings.md#job-block-settings) section |
+| **LimitParamValue**   | see [Limit settings](docs/Settings.md#limit-block-settings) section (ParamValue) |
 | **LHscan**            | set a NP/POI for the likelihood scan can be used for parallelization of the code |
 | **Parallel2Dscan**    | run only slice of LH2D scan in x-direction can be used for parallelization of the code |
 | **Parallel2Dscan**    | define which step of the parallelized 2D scan should be performed (has to be an integer between 0 and LHscanSteps-1) |
-| **FitBlind**          | see[Fit options](#fit-block-options) section |
-| **BlindedParameters** | see[Fit options](#fit-block-options) section |
+| **FitBlind**          | see [Fit settings](docs/Settings.md#fit-block-settings) section |
+| **BlindedParameters** | see [Fit settings](docs/Settings.md#fit-block-settings) section |
 
 Note: the wild-card `*` is supported, but only as last character.
 Example:
