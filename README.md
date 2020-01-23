@@ -232,6 +232,7 @@ Currently the supported options are:
 
 | **Option** | **Effect** |
 | ---------- | ---------- |
+| **Job**               | to to provide a new name for the output folder |
 | **Regions**           | to limit the regions to use to the list specified |
 | **Samples**           | to limit the samples to use to the list specified |
 | **Systematics**       | to limit the systematics to use to the list specified |
