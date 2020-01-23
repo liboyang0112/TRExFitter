@@ -1,0 +1,2 @@
+#!/bin/bash
+diff -w -I "Real time"  -I "RooRealVar::" -I "mkdir" -I "libSM.so" -I "libASImage" -I "png file FitExampleUnfolding" LOG_UNFOLDING_f test/logs/FitExampleUnfolding/LOG_UNFOLDING_f && diff -w FitExampleUnfolding/Fits/FitExampleUnfolding.txt test/reference/FitExampleUnfolding/Fits/FitExampleUnfolding.txt && diff -w FitExampleUnfolding/Fits/UnfoldedResults.txt test/reference/FitExampleUnfolding/Fits/UnfoldedResults.txt

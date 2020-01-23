@@ -16,7 +16,9 @@
 #include "TChain.h"
 #include "TDirectory.h"
 #include "TFile.h"
+#include "TGraphAsymmErrors.h"
 #include "TH1.h"
+#include "TH2.h"
 #include "TH1D.h"
 #include "TH2F.h"
 #include "TObject.h"
@@ -203,6 +205,36 @@ std::unique_ptr<TH1> Common::HistFromFile(const std::string& fileName,
     }
     h->SetDirectory(0);
     if(TRExFitter::MERGEUNDEROVERFLOW) Common::MergeUnderOverFlow(h.get());
+    return h;
+}
+
+//__________________________________________________________________________________
+//
+std::unique_ptr<TH2> Common::Hist2DFromFile(const std::string& fullName) {
+    const std::string fileName  = fullName.substr(0,fullName.find_last_of(".")+5);
+    const std::string histoName = fullName.substr(fullName.find_last_of(".")+6,std::string::npos);
+    return Hist2DFromFile(fileName,histoName);
+}
+
+//__________________________________________________________________________________
+//
+std::unique_ptr<TH2> Common::Hist2DFromFile(const std::string& fileName,
+                                            const std::string& histoName) {
+    if(fileName=="") return nullptr;
+    if(histoName=="") return nullptr;
+    WriteVerboseStatus("Common::Hist2DFromFile", "  Extracting histogram    " + histoName + "  from file    " + fileName + "    ...");
+    std::unique_ptr<TH2> h = nullptr;
+    TFile *f = Common::GetFile(fileName);
+    if(!f){
+            WriteErrorStatus("Common::Hist2DFromFile", "cannot find input file '" + fileName + "'");
+            return nullptr;
+    }
+    h = std::unique_ptr<TH2>(dynamic_cast<TH2*>(f->Get(histoName.c_str())));
+    if(!h){
+            WriteErrorStatus("Common::Hist2DFromFile", "cannot find histogram '" + histoName + "' from input file '" + fileName + "'");
+            return nullptr;
+    }
+    h->SetDirectory(0);
     return h;
 }
 
@@ -1191,6 +1223,84 @@ std::vector<int> Common::ComputeBlindedBins(const TH1* signal,
                 WriteErrorStatus("Common::BlindedBins","Unknown blinding type");
                 exit(EXIT_FAILURE);
         }
+    }
+
+    return result;
+}
+
+//__________________________________________________________________________________
+//
+std::unique_ptr<TH1> Common::CombineHistosFromFullPaths(const std::vector<std::string>& paths) {
+    std::unique_ptr<TH1> result(nullptr);
+
+    for (const auto& ipath : paths) {
+        if (!result) {
+            result = Common::HistFromFile(ipath);
+        } else {
+            std::unique_ptr<TH1> tmp = Common::HistFromFile(ipath);
+            if (!tmp) {
+                WriteWarningStatus("Common::CombineHistosFromFullPaths", "Cannot add histogram from: " + ipath + ", skipping");
+                continue;
+            }
+            result->Add(tmp.get());
+        }
+    }
+
+    return result;
+}
+
+//__________________________________________________________________________________
+//
+std::unique_ptr<TH2> Common::CombineHistos2DFromFullPaths(const std::vector<std::string>& paths) {
+    std::unique_ptr<TH2> result(nullptr);
+
+    for (const auto& ipath : paths) {
+        if (!result) {
+            result = Common::Hist2DFromFile(ipath);
+        } else {
+            std::unique_ptr<TH2> tmp = Common::Hist2DFromFile(ipath);
+            if (!tmp) {
+                WriteWarningStatus("Common::CombineHistos2DFromFullPaths", "Cannot add histogram from: " + ipath + ", skipping");
+                continue;
+            }
+            result->Add(tmp.get());
+        }
+    }
+
+    return result;
+}
+
+//__________________________________________________________________________________
+//
+std::unique_ptr<TGraphAsymmErrors> Common::GetRatioBand(const TGraphAsymmErrors* total,
+                                                        const TH1D* data) {
+
+    std::unique_ptr<TGraphAsymmErrors> result(static_cast<TGraphAsymmErrors*>(total->Clone()));
+
+    std::unique_ptr<TH1D> up(static_cast<TH1D*>(data->Clone()));
+    std::unique_ptr<TH1D> down(static_cast<TH1D*>(data->Clone()));
+
+    for (int ibin = 0; ibin < result->GetN(); ++ibin) {
+        double x,y;
+        result->GetPoint(ibin, x, y);
+        up->SetBinContent(ibin+1, result->GetErrorYhigh(ibin));
+        up->SetBinError(ibin+1, 0);
+        down->SetBinContent(ibin+1, result->GetErrorYlow(ibin));
+        down->SetBinError(ibin+1, 0);
+    }
+
+    std::unique_ptr<TH1D> ratio_up(static_cast<TH1D*>(up->Clone()));
+    std::unique_ptr<TH1D> ratio_down(static_cast<TH1D*>(down->Clone()));
+    ratio_up->Divide(data);
+    ratio_down->Divide(data);
+
+    for (int ibin = 0; ibin < result->GetN(); ++ibin) {
+        double x,y;
+        result->GetPoint(ibin, x, y);
+        result->SetPoint(ibin, x, 1.);
+
+        result->SetPointEYhigh(ibin, ratio_up->GetBinContent(ibin+1));
+        result->SetPointEYlow (ibin, ratio_down->GetBinContent(ibin+1));
     }
 
     return result;

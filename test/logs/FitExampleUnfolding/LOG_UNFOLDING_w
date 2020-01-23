@@ -1,0 +1,1179 @@
+
+[1mRooFit v3.60 -- Developed by Wouter Verkerke and David Kirkby[0m 
+                Copyright (C) 2000-2013 NIKHEF, University of California & Stanford University
+                All rights reserved, please read http://roofit.sourceforge.net/license.txt
+
+                    No rights reserved, feel free to use and modify it ;)
+
+Applying ATLAS style settings...
+
+[1;32m=== INFO::ConfigReader::ConfigReader: Started reading the config[0m
+[1;32m=== INFO::ConfigParser::ReadFile: Reading config file: test/configs/FitExampleUnfolding.config[0m
+=== DEBUG::ConfigReader::SetJobPlot: PlotOptionsSummary not specified setting Summary values to 'PlotOptions'
+=== DEBUG::ConfigReader::ReadGeneralOptions: You do not have 'Options' option in the config. It is ok, we just want to let you know.
+=== DEBUG::ConfigReader::ReadLimitOptions: You do not have Limit option in the config. It is ok, we just want to let you know.
+=== DEBUG::ConfigReader::ReadSignificanceOptions: You do not have Significance option in the config. It is ok, we just want to let you know.
+[1;32m=== INFO::ConfigReader::AddUnfoldingNormFactors: Setting truth bin: 1 to use tau = 2.000000[0m
+[1;32m=== INFO::ConfigReader::AddUnfoldingNormFactors: Setting truth bin: 3 to use tau = 2.000000[0m
+[1;32m=== INFO::trex-fitter::FitExample: Successfully read config file.[0m
+[1;32m=== INFO::TRExFit::PrintConfigSummary: -------------------------------------------[0m
+[1;32m=== INFO::TRExFit::PrintConfigSummary: Job name: FitExampleUnfolding[0m
+[1;32m=== INFO::TRExFit::PrintConfigSummary: Reading the following regions:[0m
+[1;32m=== INFO::Region::Print:     Region: SR1[0m
+[1;32m=== INFO::TRExFit::PrintConfigSummary: Reading the following samples:[0m
+[1;32m=== INFO::Sample::Print::      Data[0m
+[1;32m=== INFO::Sample::Print::      Bkg[0m
+[1;32m=== INFO::Sample::Print::      SR1_Truth_bin_1[0m
+[1;32m=== INFO::Sample::Print::      SR1_Truth_bin_2[0m
+[1;32m=== INFO::Sample::Print::      SR1_Truth_bin_3[0m
+[1;32m=== INFO::Sample::Print::      SR1_Truth_bin_4[0m
+[1;32m=== INFO::Sample::Print::      SR1_Truth_bin_5[0m
+[1;32m=== INFO::Sample::Print::      SR1_Truth_bin_6[0m
+[1;32m=== INFO::Sample::Print::      SR1_Truth_bin_7[0m
+[1;32m=== INFO::Sample::Print::      SR1_Truth_bin_8[0m
+[1;32m=== INFO::Sample::Print::      SR1_Truth_bin_9[0m
+[1;32m=== INFO::Sample::Print::      SR1_Truth_bin_10[0m
+[1;32m=== INFO::Sample::Print::      SR1_Truth_bin_11[0m
+[1;32m=== INFO::TRExFit::PrintConfigSummary: Reading the following systematics:[0m
+[1;32m=== INFO::TRExFit::PrintConfigSummary:  bTag_SF_B_eigen0[0m
+[1;32m=== INFO::TRExFit::PrintConfigSummary:  Bkg_norm[0m
+[1;32m=== INFO::TRExFit::PrintConfigSummary:  PS[0m
+[1;32m=== INFO::TRExFit::PrintConfigSummary: -------------------------------------------[0m
+[1;32m=== INFO::HistoReader::ReadTRExProducedHistograms: -----------------------------[0m
+[1;32m=== INFO::HistoReader::ReadTRExProducedHistograms: Reading histograms from file FitExampleUnfolding/Histograms/FitExampleUnfolding_histos.root ...[0m
+=== DEBUG::HistoReader::ReadTRExProducedHistograms:   Reading region SR1
+=== DEBUG::HistoReader::ReadTRExProducedHistograms:     Reading sample Data
+=== DEBUG::HistoReader::ReadTRExProducedHistograms:     Reading sample Bkg
+=== DEBUG::HistoReader::ReadTRExProducedHistograms:       Reading syst bTag_SF_B_eigen0
+=== DEBUG::HistoReader::ReadTRExProducedHistograms:       Reading syst Bkg_norm
+=== DEBUG::HistoReader::ReadTRExProducedHistograms:     Reading sample SR1_Truth_bin_1
+=== DEBUG::HistoReader::ReadTRExProducedHistograms:       Reading norm Bin_1
+=== DEBUG::HistoReader::ReadTRExProducedHistograms:       Reading syst bTag_SF_B_eigen0
+=== DEBUG::HistoReader::ReadTRExProducedHistograms:       Reading syst PS
+=== DEBUG::HistoReader::ReadTRExProducedHistograms:     Reading sample SR1_Truth_bin_2
+=== DEBUG::HistoReader::ReadTRExProducedHistograms:       Reading norm Bin_2
+=== DEBUG::HistoReader::ReadTRExProducedHistograms:       Reading syst bTag_SF_B_eigen0
+=== DEBUG::HistoReader::ReadTRExProducedHistograms:       Reading syst PS
+=== DEBUG::HistoReader::ReadTRExProducedHistograms:     Reading sample SR1_Truth_bin_3
+=== DEBUG::HistoReader::ReadTRExProducedHistograms:       Reading norm Bin_3
+=== DEBUG::HistoReader::ReadTRExProducedHistograms:       Reading syst bTag_SF_B_eigen0
+=== DEBUG::HistoReader::ReadTRExProducedHistograms:       Reading syst PS
+=== DEBUG::HistoReader::ReadTRExProducedHistograms:     Reading sample SR1_Truth_bin_4
+=== DEBUG::HistoReader::ReadTRExProducedHistograms:       Reading norm Bin_4
+=== DEBUG::HistoReader::ReadTRExProducedHistograms:       Reading syst bTag_SF_B_eigen0
+=== DEBUG::HistoReader::ReadTRExProducedHistograms:       Reading syst PS
+=== DEBUG::HistoReader::ReadTRExProducedHistograms:     Reading sample SR1_Truth_bin_5
+=== DEBUG::HistoReader::ReadTRExProducedHistograms:       Reading norm Bin_5
+=== DEBUG::HistoReader::ReadTRExProducedHistograms:       Reading syst bTag_SF_B_eigen0
+=== DEBUG::HistoReader::ReadTRExProducedHistograms:       Reading syst PS
+=== DEBUG::HistoReader::ReadTRExProducedHistograms:     Reading sample SR1_Truth_bin_6
+=== DEBUG::HistoReader::ReadTRExProducedHistograms:       Reading norm Bin_6
+=== DEBUG::HistoReader::ReadTRExProducedHistograms:       Reading syst bTag_SF_B_eigen0
+=== DEBUG::HistoReader::ReadTRExProducedHistograms:       Reading syst PS
+=== DEBUG::HistoReader::ReadTRExProducedHistograms:     Reading sample SR1_Truth_bin_7
+=== DEBUG::HistoReader::ReadTRExProducedHistograms:       Reading norm Bin_7
+=== DEBUG::HistoReader::ReadTRExProducedHistograms:       Reading syst bTag_SF_B_eigen0
+=== DEBUG::HistoReader::ReadTRExProducedHistograms:       Reading syst PS
+=== DEBUG::HistoReader::ReadTRExProducedHistograms:     Reading sample SR1_Truth_bin_8
+=== DEBUG::HistoReader::ReadTRExProducedHistograms:       Reading norm Bin_8
+=== DEBUG::HistoReader::ReadTRExProducedHistograms:       Reading syst bTag_SF_B_eigen0
+=== DEBUG::HistoReader::ReadTRExProducedHistograms:       Reading syst PS
+=== DEBUG::HistoReader::ReadTRExProducedHistograms:     Reading sample SR1_Truth_bin_9
+=== DEBUG::HistoReader::ReadTRExProducedHistograms:       Reading norm Bin_9
+=== DEBUG::HistoReader::ReadTRExProducedHistograms:       Reading syst bTag_SF_B_eigen0
+=== DEBUG::HistoReader::ReadTRExProducedHistograms:       Reading syst PS
+=== DEBUG::HistoReader::ReadTRExProducedHistograms:     Reading sample SR1_Truth_bin_10
+=== DEBUG::HistoReader::ReadTRExProducedHistograms:       Reading norm Bin_10
+=== DEBUG::HistoReader::ReadTRExProducedHistograms:       Reading syst bTag_SF_B_eigen0
+=== DEBUG::HistoReader::ReadTRExProducedHistograms:       Reading syst PS
+=== DEBUG::HistoReader::ReadTRExProducedHistograms:     Reading sample SR1_Truth_bin_11
+=== DEBUG::HistoReader::ReadTRExProducedHistograms:       Reading norm Bin_11
+=== DEBUG::HistoReader::ReadTRExProducedHistograms:       Reading syst bTag_SF_B_eigen0
+=== DEBUG::HistoReader::ReadTRExProducedHistograms:       Reading syst PS
+Applying systematics pruning...
+[1;32m=== INFO::TRExFit::SystPruning: ------------------------------------------------------[0m
+[1;32m=== INFO::TRExFit::SystPruning: Apply Systematics Pruning ...[0m
+Info in <TCanvas::Print>: png file FitExampleUnfolding/NormalisationPlot.png has been created
+Info in <TCanvas::Print>: png file FitExampleUnfolding/Pruning.png has been created
+Creating workspace...
+[1;32m=== INFO::TRExFit::ToRooStat: -------------------------------------------[0m
+[1;32m=== INFO::TRExFit::ToRooStat: Exporting to RooStats...[0m
+=== DEBUG::TRExFit::ToRooStat: Adding Channel: SR1
+=== DEBUG::TRExFit::OneChannelToRooStats:   Adding Data: SR1_Data
+=== DEBUG::TRExFit::OneChannelToRooStats:   Adding Sample: Bkg
+=== DEBUG::TRExFit::OneSampleToRooStats:     Adding Systematic: bTag_SF_B_eigen0
+=== DEBUG::TRExFit::OneSampleToRooStats:     Adding Systematic: Bkg_norm
+=== DEBUG::TRExFit::OneChannelToRooStats:   Adding Sample: SR1_Truth_bin_1
+=== DEBUG::TRExFit::OneSampleToRooStats:     Adding NormFactor: Bin_1, 1.000000
+=== DEBUG::TRExFit::OneSampleToRooStats:     Adding Systematic: bTag_SF_B_eigen0
+=== DEBUG::TRExFit::OneSampleToRooStats:     Adding Systematic: PS
+=== DEBUG::TRExFit::OneChannelToRooStats:   Adding Sample: SR1_Truth_bin_2
+=== DEBUG::TRExFit::OneSampleToRooStats:     Adding NormFactor: Bin_2, 1.000000
+=== DEBUG::TRExFit::OneSampleToRooStats:     Adding Systematic: bTag_SF_B_eigen0
+=== DEBUG::TRExFit::OneSampleToRooStats:     Adding Systematic: PS
+=== DEBUG::TRExFit::OneChannelToRooStats:   Adding Sample: SR1_Truth_bin_3
+=== DEBUG::TRExFit::OneSampleToRooStats:     Adding NormFactor: Bin_3, 1.000000
+=== DEBUG::TRExFit::OneSampleToRooStats:     Adding Systematic: bTag_SF_B_eigen0
+=== DEBUG::TRExFit::OneSampleToRooStats:     Adding Systematic: PS
+=== DEBUG::TRExFit::OneChannelToRooStats:   Adding Sample: SR1_Truth_bin_4
+=== DEBUG::TRExFit::OneSampleToRooStats:     Adding NormFactor: Bin_4, 1.000000
+=== DEBUG::TRExFit::OneSampleToRooStats:     Adding Systematic: bTag_SF_B_eigen0
+=== DEBUG::TRExFit::OneSampleToRooStats:     Adding Systematic: PS
+=== DEBUG::TRExFit::OneChannelToRooStats:   Adding Sample: SR1_Truth_bin_5
+=== DEBUG::TRExFit::OneSampleToRooStats:     Adding NormFactor: Bin_5, 1.000000
+=== DEBUG::TRExFit::OneSampleToRooStats:     Adding Systematic: bTag_SF_B_eigen0
+=== DEBUG::TRExFit::OneSampleToRooStats:     Adding Systematic: PS
+=== DEBUG::TRExFit::OneChannelToRooStats:   Adding Sample: SR1_Truth_bin_6
+=== DEBUG::TRExFit::OneSampleToRooStats:     Adding NormFactor: Bin_6, 1.000000
+=== DEBUG::TRExFit::OneSampleToRooStats:     Adding Systematic: bTag_SF_B_eigen0
+=== DEBUG::TRExFit::OneSampleToRooStats:     Adding Systematic: PS
+=== DEBUG::TRExFit::OneChannelToRooStats:   Adding Sample: SR1_Truth_bin_7
+=== DEBUG::TRExFit::OneSampleToRooStats:     Adding NormFactor: Bin_7, 1.000000
+=== DEBUG::TRExFit::OneSampleToRooStats:     Adding Systematic: bTag_SF_B_eigen0
+=== DEBUG::TRExFit::OneSampleToRooStats:     Adding Systematic: PS
+=== DEBUG::TRExFit::OneChannelToRooStats:   Adding Sample: SR1_Truth_bin_8
+=== DEBUG::TRExFit::OneSampleToRooStats:     Adding NormFactor: Bin_8, 1.000000
+=== DEBUG::TRExFit::OneSampleToRooStats:     Adding Systematic: bTag_SF_B_eigen0
+=== DEBUG::TRExFit::OneSampleToRooStats:     Adding Systematic: PS
+=== DEBUG::TRExFit::OneChannelToRooStats:   Adding Sample: SR1_Truth_bin_9
+=== DEBUG::TRExFit::OneSampleToRooStats:     Adding NormFactor: Bin_9, 1.000000
+=== DEBUG::TRExFit::OneSampleToRooStats:     Adding Systematic: bTag_SF_B_eigen0
+=== DEBUG::TRExFit::OneSampleToRooStats:     Adding Systematic: PS
+=== DEBUG::TRExFit::OneChannelToRooStats:   Adding Sample: SR1_Truth_bin_10
+=== DEBUG::TRExFit::OneSampleToRooStats:     Adding NormFactor: Bin_10, 1.000000
+=== DEBUG::TRExFit::OneSampleToRooStats:     Adding Systematic: bTag_SF_B_eigen0
+=== DEBUG::TRExFit::OneSampleToRooStats:     Adding Systematic: PS
+=== DEBUG::TRExFit::OneChannelToRooStats:   Adding Sample: SR1_Truth_bin_11
+=== DEBUG::TRExFit::OneSampleToRooStats:     Adding NormFactor: Bin_11, 1.000000
+=== DEBUG::TRExFit::OneSampleToRooStats:     Adding Systematic: bTag_SF_B_eigen0
+=== DEBUG::TRExFit::OneSampleToRooStats:     Adding Systematic: PS
+Printing XML Files for measurement: FitExampleUnfolding
+Printing XML Files for channel: SR1
+Finished printing XML files
+Finished printing XML files
+Getting histogram.  InputFile FitExampleUnfolding/Histograms/FitExampleUnfolding_histos.root HistoPath  HistoName SR1_Data_regBin
+Opened input file: FitExampleUnfolding/Histograms/FitExampleUnfolding_histos.root: 0x3a96880
+Collecting Nominal Histogram
+Getting histogram.  InputFile FitExampleUnfolding/Histograms/FitExampleUnfolding_histos.root HistoPath  HistoName SR1_Bkg_regBin
+Opened input file: FitExampleUnfolding/Histograms/FitExampleUnfolding_histos.root: 0x2d1e660
+Getting histogram.  InputFile FitExampleUnfolding/Histograms/FitExampleUnfolding_histos.root HistoPath  HistoName SR1_Bkg_bTag_SF_B_eigen0_Shape_Down_regBin
+Opened input file: FitExampleUnfolding/Histograms/FitExampleUnfolding_histos.root: 0x38185e0
+Getting histogram.  InputFile FitExampleUnfolding/Histograms/FitExampleUnfolding_histos.root HistoPath  HistoName SR1_Bkg_bTag_SF_B_eigen0_Shape_Up_regBin
+Opened input file: FitExampleUnfolding/Histograms/FitExampleUnfolding_histos.root: 0x3b9cfe0
+Collecting Nominal Histogram
+Getting histogram.  InputFile FitExampleUnfolding/Histograms/FitExampleUnfolding_histos.root HistoPath  HistoName SR1_SR1_Truth_bin_1_regBin
+Opened input file: FitExampleUnfolding/Histograms/FitExampleUnfolding_histos.root: 0x3bd8bc0
+Getting histogram.  InputFile FitExampleUnfolding/Histograms/FitExampleUnfolding_histos.root HistoPath  HistoName SR1_SR1_Truth_bin_1_bTag_SF_B_eigen0_Shape_Down_regBin
+Opened input file: FitExampleUnfolding/Histograms/FitExampleUnfolding_histos.root: 0x3b90b90
+Getting histogram.  InputFile FitExampleUnfolding/Histograms/FitExampleUnfolding_histos.root HistoPath  HistoName SR1_SR1_Truth_bin_1_bTag_SF_B_eigen0_Shape_Up_regBin
+Opened input file: FitExampleUnfolding/Histograms/FitExampleUnfolding_histos.root: 0x3b8f360
+Getting histogram.  InputFile FitExampleUnfolding/Histograms/FitExampleUnfolding_histos.root HistoPath  HistoName SR1_SR1_Truth_bin_1_PS_Shape_Down_regBin
+Opened input file: FitExampleUnfolding/Histograms/FitExampleUnfolding_histos.root: 0x3b5ebd0
+Getting histogram.  InputFile FitExampleUnfolding/Histograms/FitExampleUnfolding_histos.root HistoPath  HistoName SR1_SR1_Truth_bin_1_PS_Shape_Up_regBin
+Opened input file: FitExampleUnfolding/Histograms/FitExampleUnfolding_histos.root: 0x3b9c700
+Collecting Nominal Histogram
+Getting histogram.  InputFile FitExampleUnfolding/Histograms/FitExampleUnfolding_histos.root HistoPath  HistoName SR1_SR1_Truth_bin_2_regBin
+Opened input file: FitExampleUnfolding/Histograms/FitExampleUnfolding_histos.root: 0x3be1b50
+Getting histogram.  InputFile FitExampleUnfolding/Histograms/FitExampleUnfolding_histos.root HistoPath  HistoName SR1_SR1_Truth_bin_2_bTag_SF_B_eigen0_Shape_Down_regBin
+Opened input file: FitExampleUnfolding/Histograms/FitExampleUnfolding_histos.root: 0x3147d10
+Getting histogram.  InputFile FitExampleUnfolding/Histograms/FitExampleUnfolding_histos.root HistoPath  HistoName SR1_SR1_Truth_bin_2_bTag_SF_B_eigen0_Shape_Up_regBin
+Opened input file: FitExampleUnfolding/Histograms/FitExampleUnfolding_histos.root: 0x3bd0ad0
+Getting histogram.  InputFile FitExampleUnfolding/Histograms/FitExampleUnfolding_histos.root HistoPath  HistoName SR1_SR1_Truth_bin_2_PS_Shape_Down_regBin
+Opened input file: FitExampleUnfolding/Histograms/FitExampleUnfolding_histos.root: 0x3c0fe50
+Getting histogram.  InputFile FitExampleUnfolding/Histograms/FitExampleUnfolding_histos.root HistoPath  HistoName SR1_SR1_Truth_bin_2_PS_Shape_Up_regBin
+Opened input file: FitExampleUnfolding/Histograms/FitExampleUnfolding_histos.root: 0x31465e0
+Collecting Nominal Histogram
+Getting histogram.  InputFile FitExampleUnfolding/Histograms/FitExampleUnfolding_histos.root HistoPath  HistoName SR1_SR1_Truth_bin_3_regBin
+Opened input file: FitExampleUnfolding/Histograms/FitExampleUnfolding_histos.root: 0x3bc3bd0
+Getting histogram.  InputFile FitExampleUnfolding/Histograms/FitExampleUnfolding_histos.root HistoPath  HistoName SR1_SR1_Truth_bin_3_bTag_SF_B_eigen0_Shape_Down_regBin
+Opened input file: FitExampleUnfolding/Histograms/FitExampleUnfolding_histos.root: 0x3bcd2e0
+Getting histogram.  InputFile FitExampleUnfolding/Histograms/FitExampleUnfolding_histos.root HistoPath  HistoName SR1_SR1_Truth_bin_3_bTag_SF_B_eigen0_Shape_Up_regBin
+Opened input file: FitExampleUnfolding/Histograms/FitExampleUnfolding_histos.root: 0x3b40eb0
+Getting histogram.  InputFile FitExampleUnfolding/Histograms/FitExampleUnfolding_histos.root HistoPath  HistoName SR1_SR1_Truth_bin_3_PS_Shape_Down_regBin
+Opened input file: FitExampleUnfolding/Histograms/FitExampleUnfolding_histos.root: 0x3bce710
+Getting histogram.  InputFile FitExampleUnfolding/Histograms/FitExampleUnfolding_histos.root HistoPath  HistoName SR1_SR1_Truth_bin_3_PS_Shape_Up_regBin
+Opened input file: FitExampleUnfolding/Histograms/FitExampleUnfolding_histos.root: 0x3b44170
+Collecting Nominal Histogram
+Getting histogram.  InputFile FitExampleUnfolding/Histograms/FitExampleUnfolding_histos.root HistoPath  HistoName SR1_SR1_Truth_bin_4_regBin
+Opened input file: FitExampleUnfolding/Histograms/FitExampleUnfolding_histos.root: 0x3bfa7b0
+Getting histogram.  InputFile FitExampleUnfolding/Histograms/FitExampleUnfolding_histos.root HistoPath  HistoName SR1_SR1_Truth_bin_4_bTag_SF_B_eigen0_Shape_Down_regBin
+Opened input file: FitExampleUnfolding/Histograms/FitExampleUnfolding_histos.root: 0x3bdd3b0
+Getting histogram.  InputFile FitExampleUnfolding/Histograms/FitExampleUnfolding_histos.root HistoPath  HistoName SR1_SR1_Truth_bin_4_bTag_SF_B_eigen0_Shape_Up_regBin
+Opened input file: FitExampleUnfolding/Histograms/FitExampleUnfolding_histos.root: 0x3c0fab0
+Getting histogram.  InputFile FitExampleUnfolding/Histograms/FitExampleUnfolding_histos.root HistoPath  HistoName SR1_SR1_Truth_bin_4_PS_Shape_Down_regBin
+Opened input file: FitExampleUnfolding/Histograms/FitExampleUnfolding_histos.root: 0x3a872d0
+Getting histogram.  InputFile FitExampleUnfolding/Histograms/FitExampleUnfolding_histos.root HistoPath  HistoName SR1_SR1_Truth_bin_4_PS_Shape_Up_regBin
+Opened input file: FitExampleUnfolding/Histograms/FitExampleUnfolding_histos.root: 0x3c17ec0
+Collecting Nominal Histogram
+Getting histogram.  InputFile FitExampleUnfolding/Histograms/FitExampleUnfolding_histos.root HistoPath  HistoName SR1_SR1_Truth_bin_5_regBin
+Opened input file: FitExampleUnfolding/Histograms/FitExampleUnfolding_histos.root: 0x38521e0
+Getting histogram.  InputFile FitExampleUnfolding/Histograms/FitExampleUnfolding_histos.root HistoPath  HistoName SR1_SR1_Truth_bin_5_bTag_SF_B_eigen0_Shape_Down_regBin
+Opened input file: FitExampleUnfolding/Histograms/FitExampleUnfolding_histos.root: 0x3c11f80
+Getting histogram.  InputFile FitExampleUnfolding/Histograms/FitExampleUnfolding_histos.root HistoPath  HistoName SR1_SR1_Truth_bin_5_bTag_SF_B_eigen0_Shape_Up_regBin
+Opened input file: FitExampleUnfolding/Histograms/FitExampleUnfolding_histos.root: 0x3c13bd0
+Getting histogram.  InputFile FitExampleUnfolding/Histograms/FitExampleUnfolding_histos.root HistoPath  HistoName SR1_SR1_Truth_bin_5_PS_Shape_Down_regBin
+Opened input file: FitExampleUnfolding/Histograms/FitExampleUnfolding_histos.root: 0x3bdbcd0
+Getting histogram.  InputFile FitExampleUnfolding/Histograms/FitExampleUnfolding_histos.root HistoPath  HistoName SR1_SR1_Truth_bin_5_PS_Shape_Up_regBin
+Opened input file: FitExampleUnfolding/Histograms/FitExampleUnfolding_histos.root: 0x3c1b860
+Collecting Nominal Histogram
+Getting histogram.  InputFile FitExampleUnfolding/Histograms/FitExampleUnfolding_histos.root HistoPath  HistoName SR1_SR1_Truth_bin_6_regBin
+Opened input file: FitExampleUnfolding/Histograms/FitExampleUnfolding_histos.root: 0x3c18bc0
+Getting histogram.  InputFile FitExampleUnfolding/Histograms/FitExampleUnfolding_histos.root HistoPath  HistoName SR1_SR1_Truth_bin_6_bTag_SF_B_eigen0_Shape_Down_regBin
+Opened input file: FitExampleUnfolding/Histograms/FitExampleUnfolding_histos.root: 0x3c1eed0
+Getting histogram.  InputFile FitExampleUnfolding/Histograms/FitExampleUnfolding_histos.root HistoPath  HistoName SR1_SR1_Truth_bin_6_bTag_SF_B_eigen0_Shape_Up_regBin
+Opened input file: FitExampleUnfolding/Histograms/FitExampleUnfolding_histos.root: 0x3c1c200
+Getting histogram.  InputFile FitExampleUnfolding/Histograms/FitExampleUnfolding_histos.root HistoPath  HistoName SR1_SR1_Truth_bin_6_PS_Shape_Down_regBin
+Opened input file: FitExampleUnfolding/Histograms/FitExampleUnfolding_histos.root: 0x3c21e80
+Getting histogram.  InputFile FitExampleUnfolding/Histograms/FitExampleUnfolding_histos.root HistoPath  HistoName SR1_SR1_Truth_bin_6_PS_Shape_Up_regBin
+Opened input file: FitExampleUnfolding/Histograms/FitExampleUnfolding_histos.root: 0x3bec240
+Collecting Nominal Histogram
+Getting histogram.  InputFile FitExampleUnfolding/Histograms/FitExampleUnfolding_histos.root HistoPath  HistoName SR1_SR1_Truth_bin_7_regBin
+Opened input file: FitExampleUnfolding/Histograms/FitExampleUnfolding_histos.root: 0x3becb50
+Getting histogram.  InputFile FitExampleUnfolding/Histograms/FitExampleUnfolding_histos.root HistoPath  HistoName SR1_SR1_Truth_bin_7_bTag_SF_B_eigen0_Shape_Down_regBin
+Opened input file: FitExampleUnfolding/Histograms/FitExampleUnfolding_histos.root: 0x3c27b00
+Getting histogram.  InputFile FitExampleUnfolding/Histograms/FitExampleUnfolding_histos.root HistoPath  HistoName SR1_SR1_Truth_bin_7_bTag_SF_B_eigen0_Shape_Up_regBin
+Opened input file: FitExampleUnfolding/Histograms/FitExampleUnfolding_histos.root: 0x3c2cfc0
+Getting histogram.  InputFile FitExampleUnfolding/Histograms/FitExampleUnfolding_histos.root HistoPath  HistoName SR1_SR1_Truth_bin_7_PS_Shape_Down_regBin
+Opened input file: FitExampleUnfolding/Histograms/FitExampleUnfolding_histos.root: 0x3c2b0f0
+Getting histogram.  InputFile FitExampleUnfolding/Histograms/FitExampleUnfolding_histos.root HistoPath  HistoName SR1_SR1_Truth_bin_7_PS_Shape_Up_regBin
+Opened input file: FitExampleUnfolding/Histograms/FitExampleUnfolding_histos.root: 0x3c2dce0
+Collecting Nominal Histogram
+Getting histogram.  InputFile FitExampleUnfolding/Histograms/FitExampleUnfolding_histos.root HistoPath  HistoName SR1_SR1_Truth_bin_8_regBin
+Opened input file: FitExampleUnfolding/Histograms/FitExampleUnfolding_histos.root: 0x3c2e100
+Getting histogram.  InputFile FitExampleUnfolding/Histograms/FitExampleUnfolding_histos.root HistoPath  HistoName SR1_SR1_Truth_bin_8_bTag_SF_B_eigen0_Shape_Down_regBin
+Opened input file: FitExampleUnfolding/Histograms/FitExampleUnfolding_histos.root: 0x3c2e650
+Getting histogram.  InputFile FitExampleUnfolding/Histograms/FitExampleUnfolding_histos.root HistoPath  HistoName SR1_SR1_Truth_bin_8_bTag_SF_B_eigen0_Shape_Up_regBin
+Opened input file: FitExampleUnfolding/Histograms/FitExampleUnfolding_histos.root: 0x3bd2f70
+Getting histogram.  InputFile FitExampleUnfolding/Histograms/FitExampleUnfolding_histos.root HistoPath  HistoName SR1_SR1_Truth_bin_8_PS_Shape_Down_regBin
+Opened input file: FitExampleUnfolding/Histograms/FitExampleUnfolding_histos.root: 0x3c30a70
+Getting histogram.  InputFile FitExampleUnfolding/Histograms/FitExampleUnfolding_histos.root HistoPath  HistoName SR1_SR1_Truth_bin_8_PS_Shape_Up_regBin
+Opened input file: FitExampleUnfolding/Histograms/FitExampleUnfolding_histos.root: 0x3c20f70
+Collecting Nominal Histogram
+Getting histogram.  InputFile FitExampleUnfolding/Histograms/FitExampleUnfolding_histos.root HistoPath  HistoName SR1_SR1_Truth_bin_9_regBin
+Opened input file: FitExampleUnfolding/Histograms/FitExampleUnfolding_histos.root: 0x3c36920
+Getting histogram.  InputFile FitExampleUnfolding/Histograms/FitExampleUnfolding_histos.root HistoPath  HistoName SR1_SR1_Truth_bin_9_bTag_SF_B_eigen0_Shape_Down_regBin
+Opened input file: FitExampleUnfolding/Histograms/FitExampleUnfolding_histos.root: 0x3a85dc0
+Getting histogram.  InputFile FitExampleUnfolding/Histograms/FitExampleUnfolding_histos.root HistoPath  HistoName SR1_SR1_Truth_bin_9_bTag_SF_B_eigen0_Shape_Up_regBin
+Opened input file: FitExampleUnfolding/Histograms/FitExampleUnfolding_histos.root: 0x3c2bd30
+Getting histogram.  InputFile FitExampleUnfolding/Histograms/FitExampleUnfolding_histos.root HistoPath  HistoName SR1_SR1_Truth_bin_9_PS_Shape_Down_regBin
+Opened input file: FitExampleUnfolding/Histograms/FitExampleUnfolding_histos.root: 0x3bb9080
+Getting histogram.  InputFile FitExampleUnfolding/Histograms/FitExampleUnfolding_histos.root HistoPath  HistoName SR1_SR1_Truth_bin_9_PS_Shape_Up_regBin
+Opened input file: FitExampleUnfolding/Histograms/FitExampleUnfolding_histos.root: 0x3c40520
+Collecting Nominal Histogram
+Getting histogram.  InputFile FitExampleUnfolding/Histograms/FitExampleUnfolding_histos.root HistoPath  HistoName SR1_SR1_Truth_bin_10_regBin
+Opened input file: FitExampleUnfolding/Histograms/FitExampleUnfolding_histos.root: 0x3c3edb0
+Getting histogram.  InputFile FitExampleUnfolding/Histograms/FitExampleUnfolding_histos.root HistoPath  HistoName SR1_SR1_Truth_bin_10_bTag_SF_B_eigen0_Shape_Down_regBin
+Opened input file: FitExampleUnfolding/Histograms/FitExampleUnfolding_histos.root: 0x3c35e00
+Getting histogram.  InputFile FitExampleUnfolding/Histograms/FitExampleUnfolding_histos.root HistoPath  HistoName SR1_SR1_Truth_bin_10_bTag_SF_B_eigen0_Shape_Up_regBin
+Opened input file: FitExampleUnfolding/Histograms/FitExampleUnfolding_histos.root: 0x3c45580
+Getting histogram.  InputFile FitExampleUnfolding/Histograms/FitExampleUnfolding_histos.root HistoPath  HistoName SR1_SR1_Truth_bin_10_PS_Shape_Down_regBin
+Opened input file: FitExampleUnfolding/Histograms/FitExampleUnfolding_histos.root: 0x3c3c680
+Getting histogram.  InputFile FitExampleUnfolding/Histograms/FitExampleUnfolding_histos.root HistoPath  HistoName SR1_SR1_Truth_bin_10_PS_Shape_Up_regBin
+Opened input file: FitExampleUnfolding/Histograms/FitExampleUnfolding_histos.root: 0x3c4bde0
+Collecting Nominal Histogram
+Getting histogram.  InputFile FitExampleUnfolding/Histograms/FitExampleUnfolding_histos.root HistoPath  HistoName SR1_SR1_Truth_bin_11_regBin
+Opened input file: FitExampleUnfolding/Histograms/FitExampleUnfolding_histos.root: 0x3c41250
+Getting histogram.  InputFile FitExampleUnfolding/Histograms/FitExampleUnfolding_histos.root HistoPath  HistoName SR1_SR1_Truth_bin_11_bTag_SF_B_eigen0_Shape_Down_regBin
+Opened input file: FitExampleUnfolding/Histograms/FitExampleUnfolding_histos.root: 0x3c41e90
+Getting histogram.  InputFile FitExampleUnfolding/Histograms/FitExampleUnfolding_histos.root HistoPath  HistoName SR1_SR1_Truth_bin_11_bTag_SF_B_eigen0_Shape_Up_regBin
+Opened input file: FitExampleUnfolding/Histograms/FitExampleUnfolding_histos.root: 0x3c4b830
+Getting histogram.  InputFile FitExampleUnfolding/Histograms/FitExampleUnfolding_histos.root HistoPath  HistoName SR1_SR1_Truth_bin_11_PS_Shape_Down_regBin
+Opened input file: FitExampleUnfolding/Histograms/FitExampleUnfolding_histos.root: 0x3c4c780
+Getting histogram.  InputFile FitExampleUnfolding/Histograms/FitExampleUnfolding_histos.root HistoPath  HistoName SR1_SR1_Truth_bin_11_PS_Shape_Up_regBin
+Opened input file: FitExampleUnfolding/Histograms/FitExampleUnfolding_histos.root: 0x3c4e300
+Measurement Name: FitExampleUnfolding	 OutputFilePrefix: FitExampleUnfolding/RooStats/FitExampleUnfolding	 POI: Bin_1	 Lumi: 1	 LumiRelErr: 0.1	 BinLow: 0	 BinHigh: 1	 ExportOnly: 1
+Constant Params:  Lumi
+Channels:
+	 Channel Name: SR1	 InputFile: 
+	 Data:
+	 	 InputFile: FitExampleUnfolding/Histograms/FitExampleUnfolding_histos.root	 HistoName: SR1_Data_regBin	 HistoPath: 	 HistoAddress: 0x3817230
+	 statErrorConfig:
+	 	 RelErrorThreshold: 0	 ConstraintType: Poisson
+	 Samples: 
+	 	 Name: Bkg	 	 Channel: SR1	 NormalizeByTheory: True	 StatErrorActivate: False
+	 	 	 	 	 InputFile: FitExampleUnfolding/Histograms/FitExampleUnfolding_histos.root	 HistName: SR1_Bkg_regBin	 HistoPath: 	 HistoAddress: 0x3b36140
+	 	 Name: SR1_Truth_bin_1	 	 Channel: SR1	 NormalizeByTheory: True	 StatErrorActivate: False
+	 	 	 	 	 InputFile: FitExampleUnfolding/Histograms/FitExampleUnfolding_histos.root	 HistName: SR1_SR1_Truth_bin_1_regBin	 HistoPath: 	 HistoAddress: 0x3bf77d0
+	 	 Name: SR1_Truth_bin_2	 	 Channel: SR1	 NormalizeByTheory: True	 StatErrorActivate: False
+	 	 	 	 	 InputFile: FitExampleUnfolding/Histograms/FitExampleUnfolding_histos.root	 HistName: SR1_SR1_Truth_bin_2_regBin	 HistoPath: 	 HistoAddress: 0x3b3e4f0
+	 	 Name: SR1_Truth_bin_3	 	 Channel: SR1	 NormalizeByTheory: True	 StatErrorActivate: False
+	 	 	 	 	 InputFile: FitExampleUnfolding/Histograms/FitExampleUnfolding_histos.root	 HistName: SR1_SR1_Truth_bin_3_regBin	 HistoPath: 	 HistoAddress: 0x3a83670
+	 	 Name: SR1_Truth_bin_4	 	 Channel: SR1	 NormalizeByTheory: True	 StatErrorActivate: False
+	 	 	 	 	 InputFile: FitExampleUnfolding/Histograms/FitExampleUnfolding_histos.root	 HistName: SR1_SR1_Truth_bin_4_regBin	 HistoPath: 	 HistoAddress: 0x3c114f0
+	 	 Name: SR1_Truth_bin_5	 	 Channel: SR1	 NormalizeByTheory: True	 StatErrorActivate: False
+	 	 	 	 	 InputFile: FitExampleUnfolding/Histograms/FitExampleUnfolding_histos.root	 HistName: SR1_SR1_Truth_bin_5_regBin	 HistoPath: 	 HistoAddress: 0x3c1d770
+	 	 Name: SR1_Truth_bin_6	 	 Channel: SR1	 NormalizeByTheory: True	 StatErrorActivate: False
+	 	 	 	 	 InputFile: FitExampleUnfolding/Histograms/FitExampleUnfolding_histos.root	 HistName: SR1_SR1_Truth_bin_6_regBin	 HistoPath: 	 HistoAddress: 0x3c22240
+	 	 Name: SR1_Truth_bin_7	 	 Channel: SR1	 NormalizeByTheory: True	 StatErrorActivate: False
+	 	 	 	 	 InputFile: FitExampleUnfolding/Histograms/FitExampleUnfolding_histos.root	 HistName: SR1_SR1_Truth_bin_7_regBin	 HistoPath: 	 HistoAddress: 0x3c2c450
+	 	 Name: SR1_Truth_bin_8	 	 Channel: SR1	 NormalizeByTheory: True	 StatErrorActivate: False
+	 	 	 	 	 InputFile: FitExampleUnfolding/Histograms/FitExampleUnfolding_histos.root	 HistName: SR1_SR1_Truth_bin_8_regBin	 HistoPath: 	 HistoAddress: 0x3c33600
+	 	 Name: SR1_Truth_bin_9	 	 Channel: SR1	 NormalizeByTheory: True	 StatErrorActivate: False
+	 	 	 	 	 InputFile: FitExampleUnfolding/Histograms/FitExampleUnfolding_histos.root	 HistName: SR1_SR1_Truth_bin_9_regBin	 HistoPath: 	 HistoAddress: 0x3c39240
+	 	 Name: SR1_Truth_bin_10	 	 Channel: SR1	 NormalizeByTheory: True	 StatErrorActivate: False
+	 	 	 	 	 InputFile: FitExampleUnfolding/Histograms/FitExampleUnfolding_histos.root	 HistName: SR1_SR1_Truth_bin_10_regBin	 HistoPath: 	 HistoAddress: 0x3c45f20
+	 	 Name: SR1_Truth_bin_11	 	 Channel: SR1	 NormalizeByTheory: True	 StatErrorActivate: False
+	 	 	 	 	 InputFile: FitExampleUnfolding/Histograms/FitExampleUnfolding_histos.root	 HistName: SR1_SR1_Truth_bin_11_regBin	 HistoPath: 	 HistoAddress: 0x3c48920
+	 End of Channel SR1
+End Measurement: FitExampleUnfolding
+Making Model and Measurements (Fast) for measurement: FitExampleUnfolding
+using lumi = 1 and lumiError = 0.1 including bins between 0 and 1
+fixing the following parameters:
+   Lumi
+Checking if output directory : FitExampleUnfolding/RooStats -  exists
+Creating the output file: FitExampleUnfolding/RooStats/FitExampleUnfolding_FitExampleUnfolding.root
+Creating the table file: FitExampleUnfolding/RooStats/FitExampleUnfolding_results.table
+Creating the HistoToWorkspaceFactoryFast factory
+Setting preprocess functions
+Starting to process channel: SR1
+
+
+-------------------
+Starting to process SR1 channel with 1 observables
+lumi str = [1,0,10]
+lumi Error str = nominalLumi[1,0,2],0.1
+[#1] INFO:ObjectHandling -- RooWorkspace::import(SR1) importing RooStats::HistFactory::FlexibleInterpVar::Bkg_SR1_epsilon
+[#1] INFO:ObjectHandling -- RooWorkspace::import(SR1) importing dataset Bkg_SR1_Hist_alphanominalDHist
+[#1] INFO:ObjectHandling -- RooWorkspace::import(SR1) importing dataset Bkg_SR1_Hist_alpha_0lowDHist
+[#1] INFO:ObjectHandling -- RooWorkspace::import(SR1) importing dataset Bkg_SR1_Hist_alpha_0highDHist
+[#1] INFO:ObjectHandling -- RooWorkspace::import(SR1) importing PiecewiseInterpolation::Bkg_SR1_Hist_alpha
+[#1] INFO:ObjectHandling -- RooWorkspace::import(SR1) importing RooHistFunc::Bkg_SR1_Hist_alphanominal
+[#1] INFO:ObjectHandling -- RooWorkspace::import(SR1) importing RooHistFunc::Bkg_SR1_Hist_alpha_0low
+[#1] INFO:ObjectHandling -- RooWorkspace::import(SR1) importing RooHistFunc::Bkg_SR1_Hist_alpha_0high
+[#1] INFO:ObjectHandling -- RooWorkspace::import(SR1) importing RooStats::HistFactory::FlexibleInterpVar::SR1_Truth_bin_1_SR1_epsilon
+making normFactor: Bin_1
+[#1] INFO:ObjectHandling -- RooWorkspace::import(SR1) importing dataset SR1_Truth_bin_1_SR1_Hist_alphanominalDHist
+[#1] INFO:ObjectHandling -- RooWorkspace::import(SR1) importing dataset SR1_Truth_bin_1_SR1_Hist_alpha_0lowDHist
+[#1] INFO:ObjectHandling -- RooWorkspace::import(SR1) importing dataset SR1_Truth_bin_1_SR1_Hist_alpha_1lowDHist
+[#1] INFO:ObjectHandling -- RooWorkspace::import(SR1) importing dataset SR1_Truth_bin_1_SR1_Hist_alpha_0highDHist
+[#1] INFO:ObjectHandling -- RooWorkspace::import(SR1) importing dataset SR1_Truth_bin_1_SR1_Hist_alpha_1highDHist
+[#1] INFO:ObjectHandling -- RooWorkspace::import(SR1) importing PiecewiseInterpolation::SR1_Truth_bin_1_SR1_Hist_alpha
+[#1] INFO:ObjectHandling -- RooWorkspace::import(SR1) importing RooHistFunc::SR1_Truth_bin_1_SR1_Hist_alphanominal
+[#1] INFO:ObjectHandling -- RooWorkspace::import(SR1) importing RooHistFunc::SR1_Truth_bin_1_SR1_Hist_alpha_0low
+[#1] INFO:ObjectHandling -- RooWorkspace::import(SR1) importing RooHistFunc::SR1_Truth_bin_1_SR1_Hist_alpha_1low
+[#1] INFO:ObjectHandling -- RooWorkspace::import(SR1) importing RooHistFunc::SR1_Truth_bin_1_SR1_Hist_alpha_0high
+[#1] INFO:ObjectHandling -- RooWorkspace::import(SR1) importing RooHistFunc::SR1_Truth_bin_1_SR1_Hist_alpha_1high
+[#1] INFO:ObjectHandling -- RooWorkspace::import(SR1) importing RooStats::HistFactory::FlexibleInterpVar::SR1_Truth_bin_2_SR1_epsilon
+making normFactor: Bin_2
+[#1] INFO:ObjectHandling -- RooWorkspace::import(SR1) importing dataset SR1_Truth_bin_2_SR1_Hist_alphanominalDHist
+[#1] INFO:ObjectHandling -- RooWorkspace::import(SR1) importing dataset SR1_Truth_bin_2_SR1_Hist_alpha_0lowDHist
+[#1] INFO:ObjectHandling -- RooWorkspace::import(SR1) importing dataset SR1_Truth_bin_2_SR1_Hist_alpha_1lowDHist
+[#1] INFO:ObjectHandling -- RooWorkspace::import(SR1) importing dataset SR1_Truth_bin_2_SR1_Hist_alpha_0highDHist
+[#1] INFO:ObjectHandling -- RooWorkspace::import(SR1) importing dataset SR1_Truth_bin_2_SR1_Hist_alpha_1highDHist
+[#1] INFO:ObjectHandling -- RooWorkspace::import(SR1) importing PiecewiseInterpolation::SR1_Truth_bin_2_SR1_Hist_alpha
+[#1] INFO:ObjectHandling -- RooWorkspace::import(SR1) importing RooHistFunc::SR1_Truth_bin_2_SR1_Hist_alphanominal
+[#1] INFO:ObjectHandling -- RooWorkspace::import(SR1) importing RooHistFunc::SR1_Truth_bin_2_SR1_Hist_alpha_0low
+[#1] INFO:ObjectHandling -- RooWorkspace::import(SR1) importing RooHistFunc::SR1_Truth_bin_2_SR1_Hist_alpha_1low
+[#1] INFO:ObjectHandling -- RooWorkspace::import(SR1) importing RooHistFunc::SR1_Truth_bin_2_SR1_Hist_alpha_0high
+[#1] INFO:ObjectHandling -- RooWorkspace::import(SR1) importing RooHistFunc::SR1_Truth_bin_2_SR1_Hist_alpha_1high
+[#1] INFO:ObjectHandling -- RooWorkspace::import(SR1) importing RooStats::HistFactory::FlexibleInterpVar::SR1_Truth_bin_3_SR1_epsilon
+making normFactor: Bin_3
+[#1] INFO:ObjectHandling -- RooWorkspace::import(SR1) importing dataset SR1_Truth_bin_3_SR1_Hist_alphanominalDHist
+[#1] INFO:ObjectHandling -- RooWorkspace::import(SR1) importing dataset SR1_Truth_bin_3_SR1_Hist_alpha_0lowDHist
+[#1] INFO:ObjectHandling -- RooWorkspace::import(SR1) importing dataset SR1_Truth_bin_3_SR1_Hist_alpha_1lowDHist
+[#1] INFO:ObjectHandling -- RooWorkspace::import(SR1) importing dataset SR1_Truth_bin_3_SR1_Hist_alpha_0highDHist
+[#1] INFO:ObjectHandling -- RooWorkspace::import(SR1) importing dataset SR1_Truth_bin_3_SR1_Hist_alpha_1highDHist
+[#1] INFO:ObjectHandling -- RooWorkspace::import(SR1) importing PiecewiseInterpolation::SR1_Truth_bin_3_SR1_Hist_alpha
+[#1] INFO:ObjectHandling -- RooWorkspace::import(SR1) importing RooHistFunc::SR1_Truth_bin_3_SR1_Hist_alphanominal
+[#1] INFO:ObjectHandling -- RooWorkspace::import(SR1) importing RooHistFunc::SR1_Truth_bin_3_SR1_Hist_alpha_0low
+[#1] INFO:ObjectHandling -- RooWorkspace::import(SR1) importing RooHistFunc::SR1_Truth_bin_3_SR1_Hist_alpha_1low
+[#1] INFO:ObjectHandling -- RooWorkspace::import(SR1) importing RooHistFunc::SR1_Truth_bin_3_SR1_Hist_alpha_0high
+[#1] INFO:ObjectHandling -- RooWorkspace::import(SR1) importing RooHistFunc::SR1_Truth_bin_3_SR1_Hist_alpha_1high
+[#1] INFO:ObjectHandling -- RooWorkspace::import(SR1) importing RooStats::HistFactory::FlexibleInterpVar::SR1_Truth_bin_4_SR1_epsilon
+making normFactor: Bin_4
+[#1] INFO:ObjectHandling -- RooWorkspace::import(SR1) importing dataset SR1_Truth_bin_4_SR1_Hist_alphanominalDHist
+[#1] INFO:ObjectHandling -- RooWorkspace::import(SR1) importing dataset SR1_Truth_bin_4_SR1_Hist_alpha_0lowDHist
+[#1] INFO:ObjectHandling -- RooWorkspace::import(SR1) importing dataset SR1_Truth_bin_4_SR1_Hist_alpha_1lowDHist
+[#1] INFO:ObjectHandling -- RooWorkspace::import(SR1) importing dataset SR1_Truth_bin_4_SR1_Hist_alpha_0highDHist
+[#1] INFO:ObjectHandling -- RooWorkspace::import(SR1) importing dataset SR1_Truth_bin_4_SR1_Hist_alpha_1highDHist
+[#1] INFO:ObjectHandling -- RooWorkspace::import(SR1) importing PiecewiseInterpolation::SR1_Truth_bin_4_SR1_Hist_alpha
+[#1] INFO:ObjectHandling -- RooWorkspace::import(SR1) importing RooHistFunc::SR1_Truth_bin_4_SR1_Hist_alphanominal
+[#1] INFO:ObjectHandling -- RooWorkspace::import(SR1) importing RooHistFunc::SR1_Truth_bin_4_SR1_Hist_alpha_0low
+[#1] INFO:ObjectHandling -- RooWorkspace::import(SR1) importing RooHistFunc::SR1_Truth_bin_4_SR1_Hist_alpha_1low
+[#1] INFO:ObjectHandling -- RooWorkspace::import(SR1) importing RooHistFunc::SR1_Truth_bin_4_SR1_Hist_alpha_0high
+[#1] INFO:ObjectHandling -- RooWorkspace::import(SR1) importing RooHistFunc::SR1_Truth_bin_4_SR1_Hist_alpha_1high
+[#1] INFO:ObjectHandling -- RooWorkspace::import(SR1) importing RooStats::HistFactory::FlexibleInterpVar::SR1_Truth_bin_5_SR1_epsilon
+making normFactor: Bin_5
+[#1] INFO:ObjectHandling -- RooWorkspace::import(SR1) importing dataset SR1_Truth_bin_5_SR1_Hist_alphanominalDHist
+[#1] INFO:ObjectHandling -- RooWorkspace::import(SR1) importing dataset SR1_Truth_bin_5_SR1_Hist_alpha_0lowDHist
+[#1] INFO:ObjectHandling -- RooWorkspace::import(SR1) importing dataset SR1_Truth_bin_5_SR1_Hist_alpha_1lowDHist
+[#1] INFO:ObjectHandling -- RooWorkspace::import(SR1) importing dataset SR1_Truth_bin_5_SR1_Hist_alpha_0highDHist
+[#1] INFO:ObjectHandling -- RooWorkspace::import(SR1) importing dataset SR1_Truth_bin_5_SR1_Hist_alpha_1highDHist
+[#1] INFO:ObjectHandling -- RooWorkspace::import(SR1) importing PiecewiseInterpolation::SR1_Truth_bin_5_SR1_Hist_alpha
+[#1] INFO:ObjectHandling -- RooWorkspace::import(SR1) importing RooHistFunc::SR1_Truth_bin_5_SR1_Hist_alphanominal
+[#1] INFO:ObjectHandling -- RooWorkspace::import(SR1) importing RooHistFunc::SR1_Truth_bin_5_SR1_Hist_alpha_0low
+[#1] INFO:ObjectHandling -- RooWorkspace::import(SR1) importing RooHistFunc::SR1_Truth_bin_5_SR1_Hist_alpha_1low
+[#1] INFO:ObjectHandling -- RooWorkspace::import(SR1) importing RooHistFunc::SR1_Truth_bin_5_SR1_Hist_alpha_0high
+[#1] INFO:ObjectHandling -- RooWorkspace::import(SR1) importing RooHistFunc::SR1_Truth_bin_5_SR1_Hist_alpha_1high
+[#1] INFO:ObjectHandling -- RooWorkspace::import(SR1) importing RooStats::HistFactory::FlexibleInterpVar::SR1_Truth_bin_6_SR1_epsilon
+making normFactor: Bin_6
+[#1] INFO:ObjectHandling -- RooWorkspace::import(SR1) importing dataset SR1_Truth_bin_6_SR1_Hist_alphanominalDHist
+[#1] INFO:ObjectHandling -- RooWorkspace::import(SR1) importing dataset SR1_Truth_bin_6_SR1_Hist_alpha_0lowDHist
+[#1] INFO:ObjectHandling -- RooWorkspace::import(SR1) importing dataset SR1_Truth_bin_6_SR1_Hist_alpha_1lowDHist
+[#1] INFO:ObjectHandling -- RooWorkspace::import(SR1) importing dataset SR1_Truth_bin_6_SR1_Hist_alpha_0highDHist
+[#1] INFO:ObjectHandling -- RooWorkspace::import(SR1) importing dataset SR1_Truth_bin_6_SR1_Hist_alpha_1highDHist
+[#1] INFO:ObjectHandling -- RooWorkspace::import(SR1) importing PiecewiseInterpolation::SR1_Truth_bin_6_SR1_Hist_alpha
+[#1] INFO:ObjectHandling -- RooWorkspace::import(SR1) importing RooHistFunc::SR1_Truth_bin_6_SR1_Hist_alphanominal
+[#1] INFO:ObjectHandling -- RooWorkspace::import(SR1) importing RooHistFunc::SR1_Truth_bin_6_SR1_Hist_alpha_0low
+[#1] INFO:ObjectHandling -- RooWorkspace::import(SR1) importing RooHistFunc::SR1_Truth_bin_6_SR1_Hist_alpha_1low
+[#1] INFO:ObjectHandling -- RooWorkspace::import(SR1) importing RooHistFunc::SR1_Truth_bin_6_SR1_Hist_alpha_0high
+[#1] INFO:ObjectHandling -- RooWorkspace::import(SR1) importing RooHistFunc::SR1_Truth_bin_6_SR1_Hist_alpha_1high
+[#1] INFO:ObjectHandling -- RooWorkspace::import(SR1) importing RooStats::HistFactory::FlexibleInterpVar::SR1_Truth_bin_7_SR1_epsilon
+making normFactor: Bin_7
+[#1] INFO:ObjectHandling -- RooWorkspace::import(SR1) importing dataset SR1_Truth_bin_7_SR1_Hist_alphanominalDHist
+[#1] INFO:ObjectHandling -- RooWorkspace::import(SR1) importing dataset SR1_Truth_bin_7_SR1_Hist_alpha_0lowDHist
+[#1] INFO:ObjectHandling -- RooWorkspace::import(SR1) importing dataset SR1_Truth_bin_7_SR1_Hist_alpha_1lowDHist
+[#1] INFO:ObjectHandling -- RooWorkspace::import(SR1) importing dataset SR1_Truth_bin_7_SR1_Hist_alpha_0highDHist
+[#1] INFO:ObjectHandling -- RooWorkspace::import(SR1) importing dataset SR1_Truth_bin_7_SR1_Hist_alpha_1highDHist
+[#1] INFO:ObjectHandling -- RooWorkspace::import(SR1) importing PiecewiseInterpolation::SR1_Truth_bin_7_SR1_Hist_alpha
+[#1] INFO:ObjectHandling -- RooWorkspace::import(SR1) importing RooHistFunc::SR1_Truth_bin_7_SR1_Hist_alphanominal
+[#1] INFO:ObjectHandling -- RooWorkspace::import(SR1) importing RooHistFunc::SR1_Truth_bin_7_SR1_Hist_alpha_0low
+[#1] INFO:ObjectHandling -- RooWorkspace::import(SR1) importing RooHistFunc::SR1_Truth_bin_7_SR1_Hist_alpha_1low
+[#1] INFO:ObjectHandling -- RooWorkspace::import(SR1) importing RooHistFunc::SR1_Truth_bin_7_SR1_Hist_alpha_0high
+[#1] INFO:ObjectHandling -- RooWorkspace::import(SR1) importing RooHistFunc::SR1_Truth_bin_7_SR1_Hist_alpha_1high
+[#1] INFO:ObjectHandling -- RooWorkspace::import(SR1) importing RooStats::HistFactory::FlexibleInterpVar::SR1_Truth_bin_8_SR1_epsilon
+making normFactor: Bin_8
+[#1] INFO:ObjectHandling -- RooWorkspace::import(SR1) importing dataset SR1_Truth_bin_8_SR1_Hist_alphanominalDHist
+[#1] INFO:ObjectHandling -- RooWorkspace::import(SR1) importing dataset SR1_Truth_bin_8_SR1_Hist_alpha_0lowDHist
+[#1] INFO:ObjectHandling -- RooWorkspace::import(SR1) importing dataset SR1_Truth_bin_8_SR1_Hist_alpha_1lowDHist
+[#1] INFO:ObjectHandling -- RooWorkspace::import(SR1) importing dataset SR1_Truth_bin_8_SR1_Hist_alpha_0highDHist
+[#1] INFO:ObjectHandling -- RooWorkspace::import(SR1) importing dataset SR1_Truth_bin_8_SR1_Hist_alpha_1highDHist
+[#1] INFO:ObjectHandling -- RooWorkspace::import(SR1) importing PiecewiseInterpolation::SR1_Truth_bin_8_SR1_Hist_alpha
+[#1] INFO:ObjectHandling -- RooWorkspace::import(SR1) importing RooHistFunc::SR1_Truth_bin_8_SR1_Hist_alphanominal
+[#1] INFO:ObjectHandling -- RooWorkspace::import(SR1) importing RooHistFunc::SR1_Truth_bin_8_SR1_Hist_alpha_0low
+[#1] INFO:ObjectHandling -- RooWorkspace::import(SR1) importing RooHistFunc::SR1_Truth_bin_8_SR1_Hist_alpha_1low
+[#1] INFO:ObjectHandling -- RooWorkspace::import(SR1) importing RooHistFunc::SR1_Truth_bin_8_SR1_Hist_alpha_0high
+[#1] INFO:ObjectHandling -- RooWorkspace::import(SR1) importing RooHistFunc::SR1_Truth_bin_8_SR1_Hist_alpha_1high
+[#1] INFO:ObjectHandling -- RooWorkspace::import(SR1) importing RooStats::HistFactory::FlexibleInterpVar::SR1_Truth_bin_9_SR1_epsilon
+making normFactor: Bin_9
+[#1] INFO:ObjectHandling -- RooWorkspace::import(SR1) importing dataset SR1_Truth_bin_9_SR1_Hist_alphanominalDHist
+[#1] INFO:ObjectHandling -- RooWorkspace::import(SR1) importing dataset SR1_Truth_bin_9_SR1_Hist_alpha_0lowDHist
+[#1] INFO:ObjectHandling -- RooWorkspace::import(SR1) importing dataset SR1_Truth_bin_9_SR1_Hist_alpha_1lowDHist
+[#1] INFO:ObjectHandling -- RooWorkspace::import(SR1) importing dataset SR1_Truth_bin_9_SR1_Hist_alpha_0highDHist
+[#1] INFO:ObjectHandling -- RooWorkspace::import(SR1) importing dataset SR1_Truth_bin_9_SR1_Hist_alpha_1highDHist
+[#1] INFO:ObjectHandling -- RooWorkspace::import(SR1) importing PiecewiseInterpolation::SR1_Truth_bin_9_SR1_Hist_alpha
+[#1] INFO:ObjectHandling -- RooWorkspace::import(SR1) importing RooHistFunc::SR1_Truth_bin_9_SR1_Hist_alphanominal
+[#1] INFO:ObjectHandling -- RooWorkspace::import(SR1) importing RooHistFunc::SR1_Truth_bin_9_SR1_Hist_alpha_0low
+[#1] INFO:ObjectHandling -- RooWorkspace::import(SR1) importing RooHistFunc::SR1_Truth_bin_9_SR1_Hist_alpha_1low
+[#1] INFO:ObjectHandling -- RooWorkspace::import(SR1) importing RooHistFunc::SR1_Truth_bin_9_SR1_Hist_alpha_0high
+[#1] INFO:ObjectHandling -- RooWorkspace::import(SR1) importing RooHistFunc::SR1_Truth_bin_9_SR1_Hist_alpha_1high
+[#1] INFO:ObjectHandling -- RooWorkspace::import(SR1) importing RooStats::HistFactory::FlexibleInterpVar::SR1_Truth_bin_10_SR1_epsilon
+making normFactor: Bin_10
+[#1] INFO:ObjectHandling -- RooWorkspace::import(SR1) importing dataset SR1_Truth_bin_10_SR1_Hist_alphanominalDHist
+[#1] INFO:ObjectHandling -- RooWorkspace::import(SR1) importing dataset SR1_Truth_bin_10_SR1_Hist_alpha_0lowDHist
+[#1] INFO:ObjectHandling -- RooWorkspace::import(SR1) importing dataset SR1_Truth_bin_10_SR1_Hist_alpha_1lowDHist
+[#1] INFO:ObjectHandling -- RooWorkspace::import(SR1) importing dataset SR1_Truth_bin_10_SR1_Hist_alpha_0highDHist
+[#1] INFO:ObjectHandling -- RooWorkspace::import(SR1) importing dataset SR1_Truth_bin_10_SR1_Hist_alpha_1highDHist
+[#1] INFO:ObjectHandling -- RooWorkspace::import(SR1) importing PiecewiseInterpolation::SR1_Truth_bin_10_SR1_Hist_alpha
+[#1] INFO:ObjectHandling -- RooWorkspace::import(SR1) importing RooHistFunc::SR1_Truth_bin_10_SR1_Hist_alphanominal
+[#1] INFO:ObjectHandling -- RooWorkspace::import(SR1) importing RooHistFunc::SR1_Truth_bin_10_SR1_Hist_alpha_0low
+[#1] INFO:ObjectHandling -- RooWorkspace::import(SR1) importing RooHistFunc::SR1_Truth_bin_10_SR1_Hist_alpha_1low
+[#1] INFO:ObjectHandling -- RooWorkspace::import(SR1) importing RooHistFunc::SR1_Truth_bin_10_SR1_Hist_alpha_0high
+[#1] INFO:ObjectHandling -- RooWorkspace::import(SR1) importing RooHistFunc::SR1_Truth_bin_10_SR1_Hist_alpha_1high
+[#1] INFO:ObjectHandling -- RooWorkspace::import(SR1) importing RooStats::HistFactory::FlexibleInterpVar::SR1_Truth_bin_11_SR1_epsilon
+making normFactor: Bin_11
+[#1] INFO:ObjectHandling -- RooWorkspace::import(SR1) importing dataset SR1_Truth_bin_11_SR1_Hist_alphanominalDHist
+[#1] INFO:ObjectHandling -- RooWorkspace::import(SR1) importing dataset SR1_Truth_bin_11_SR1_Hist_alpha_0lowDHist
+[#1] INFO:ObjectHandling -- RooWorkspace::import(SR1) importing dataset SR1_Truth_bin_11_SR1_Hist_alpha_1lowDHist
+[#1] INFO:ObjectHandling -- RooWorkspace::import(SR1) importing dataset SR1_Truth_bin_11_SR1_Hist_alpha_0highDHist
+[#1] INFO:ObjectHandling -- RooWorkspace::import(SR1) importing dataset SR1_Truth_bin_11_SR1_Hist_alpha_1highDHist
+[#1] INFO:ObjectHandling -- RooWorkspace::import(SR1) importing PiecewiseInterpolation::SR1_Truth_bin_11_SR1_Hist_alpha
+[#1] INFO:ObjectHandling -- RooWorkspace::import(SR1) importing RooHistFunc::SR1_Truth_bin_11_SR1_Hist_alphanominal
+[#1] INFO:ObjectHandling -- RooWorkspace::import(SR1) importing RooHistFunc::SR1_Truth_bin_11_SR1_Hist_alpha_0low
+[#1] INFO:ObjectHandling -- RooWorkspace::import(SR1) importing RooHistFunc::SR1_Truth_bin_11_SR1_Hist_alpha_1low
+[#1] INFO:ObjectHandling -- RooWorkspace::import(SR1) importing RooHistFunc::SR1_Truth_bin_11_SR1_Hist_alpha_0high
+[#1] INFO:ObjectHandling -- RooWorkspace::import(SR1) importing RooHistFunc::SR1_Truth_bin_11_SR1_Hist_alpha_1high
+[#1] INFO:ObjectHandling -- RooWorkspace::import(SR1) importing RooRealSumPdf::SR1_model
+-----------------------------------------
+import model into workspace
+[#1] INFO:ObjectHandling -- RooWorkspace::import(SR1) importing RooProdPdf::model_SR1
+[#1] INFO:ObjectHandling -- RooWorkspace::import(SR1) using existing copy of RooGaussian::lumiConstraint for import of RooProdPdf::model_SR1
+[#1] INFO:ObjectHandling -- RooWorkspace::import(SR1) using existing copy of RooConstVar::0.1 for import of RooProdPdf::model_SR1
+[#1] INFO:ObjectHandling -- RooWorkspace::import(SR1) using existing copy of RooRealVar::Lumi for import of RooProdPdf::model_SR1
+[#1] INFO:ObjectHandling -- RooWorkspace::import(SR1) using existing copy of RooRealVar::nominalLumi for import of RooProdPdf::model_SR1
+[#1] INFO:ObjectHandling -- RooWorkspace::import(SR1) using existing copy of RooGaussian::alpha_bTag_SF_B_eigen0Constraint for import of RooProdPdf::model_SR1
+[#1] INFO:ObjectHandling -- RooWorkspace::import(SR1) using existing copy of RooConstVar::1 for import of RooProdPdf::model_SR1
+[#1] INFO:ObjectHandling -- RooWorkspace::import(SR1) using existing copy of RooRealVar::alpha_bTag_SF_B_eigen0 for import of RooProdPdf::model_SR1
+[#1] INFO:ObjectHandling -- RooWorkspace::import(SR1) using existing copy of RooRealVar::nom_alpha_bTag_SF_B_eigen0 for import of RooProdPdf::model_SR1
+[#1] INFO:ObjectHandling -- RooWorkspace::import(SR1) using existing copy of RooGaussian::alpha_Bkg_normConstraint for import of RooProdPdf::model_SR1
+[#1] INFO:ObjectHandling -- RooWorkspace::import(SR1) using existing copy of RooRealVar::alpha_Bkg_norm for import of RooProdPdf::model_SR1
+[#1] INFO:ObjectHandling -- RooWorkspace::import(SR1) using existing copy of RooRealVar::nom_alpha_Bkg_norm for import of RooProdPdf::model_SR1
+[#1] INFO:ObjectHandling -- RooWorkspace::import(SR1) using existing copy of RooGaussian::alpha_PSConstraint for import of RooProdPdf::model_SR1
+[#1] INFO:ObjectHandling -- RooWorkspace::import(SR1) using existing copy of RooRealVar::alpha_PS for import of RooProdPdf::model_SR1
+[#1] INFO:ObjectHandling -- RooWorkspace::import(SR1) using existing copy of RooRealVar::nom_alpha_PS for import of RooProdPdf::model_SR1
+[#1] INFO:ObjectHandling -- RooWorkspace::import(SR1) using existing copy of RooRealSumPdf::SR1_model for import of RooProdPdf::model_SR1
+[#1] INFO:ObjectHandling -- RooWorkspace::import(SR1) using existing copy of RooProduct::L_x_Bkg_SR1_overallSyst_x_HistSyst for import of RooProdPdf::model_SR1
+[#1] INFO:ObjectHandling -- RooWorkspace::import(SR1) using existing copy of RooProduct::Bkg_SR1_overallSyst_x_HistSyst for import of RooProdPdf::model_SR1
+[#1] INFO:ObjectHandling -- RooWorkspace::import(SR1) using existing copy of PiecewiseInterpolation::Bkg_SR1_Hist_alpha for import of RooProdPdf::model_SR1
+[#1] INFO:ObjectHandling -- RooWorkspace::import(SR1) using existing copy of RooHistFunc::Bkg_SR1_Hist_alphanominal for import of RooProdPdf::model_SR1
+[#1] INFO:ObjectHandling -- RooWorkspace::import(SR1) using existing copy of RooRealVar::obs_x_SR1 for import of RooProdPdf::model_SR1
+[#1] INFO:ObjectHandling -- RooWorkspace::import(SR1) using existing copy of RooHistFunc::Bkg_SR1_Hist_alpha_0low for import of RooProdPdf::model_SR1
+[#1] INFO:ObjectHandling -- RooWorkspace::import(SR1) using existing copy of RooHistFunc::Bkg_SR1_Hist_alpha_0high for import of RooProdPdf::model_SR1
+[#1] INFO:ObjectHandling -- RooWorkspace::import(SR1) using existing copy of RooStats::HistFactory::FlexibleInterpVar::Bkg_SR1_epsilon for import of RooProdPdf::model_SR1
+[#1] INFO:ObjectHandling -- RooWorkspace::import(SR1) using existing copy of RooRealVar::binWidth_obs_x_SR1_0 for import of RooProdPdf::model_SR1
+[#1] INFO:ObjectHandling -- RooWorkspace::import(SR1) using existing copy of RooProduct::L_x_SR1_Truth_bin_1_SR1_overallSyst_x_HistSyst for import of RooProdPdf::model_SR1
+[#1] INFO:ObjectHandling -- RooWorkspace::import(SR1) using existing copy of RooProduct::SR1_Truth_bin_1_SR1_overallSyst_x_HistSyst for import of RooProdPdf::model_SR1
+[#1] INFO:ObjectHandling -- RooWorkspace::import(SR1) using existing copy of PiecewiseInterpolation::SR1_Truth_bin_1_SR1_Hist_alpha for import of RooProdPdf::model_SR1
+[#1] INFO:ObjectHandling -- RooWorkspace::import(SR1) using existing copy of RooHistFunc::SR1_Truth_bin_1_SR1_Hist_alphanominal for import of RooProdPdf::model_SR1
+[#1] INFO:ObjectHandling -- RooWorkspace::import(SR1) using existing copy of RooHistFunc::SR1_Truth_bin_1_SR1_Hist_alpha_0low for import of RooProdPdf::model_SR1
+[#1] INFO:ObjectHandling -- RooWorkspace::import(SR1) using existing copy of RooHistFunc::SR1_Truth_bin_1_SR1_Hist_alpha_1low for import of RooProdPdf::model_SR1
+[#1] INFO:ObjectHandling -- RooWorkspace::import(SR1) using existing copy of RooHistFunc::SR1_Truth_bin_1_SR1_Hist_alpha_0high for import of RooProdPdf::model_SR1
+[#1] INFO:ObjectHandling -- RooWorkspace::import(SR1) using existing copy of RooHistFunc::SR1_Truth_bin_1_SR1_Hist_alpha_1high for import of RooProdPdf::model_SR1
+[#1] INFO:ObjectHandling -- RooWorkspace::import(SR1) using existing copy of RooProduct::SR1_Truth_bin_1_SR1_overallNorm_x_sigma_epsilon for import of RooProdPdf::model_SR1
+[#1] INFO:ObjectHandling -- RooWorkspace::import(SR1) using existing copy of RooRealVar::Bin_1 for import of RooProdPdf::model_SR1
+[#1] INFO:ObjectHandling -- RooWorkspace::import(SR1) using existing copy of RooStats::HistFactory::FlexibleInterpVar::SR1_Truth_bin_1_SR1_epsilon for import of RooProdPdf::model_SR1
+[#1] INFO:ObjectHandling -- RooWorkspace::import(SR1) using existing copy of RooRealVar::binWidth_obs_x_SR1_1 for import of RooProdPdf::model_SR1
+[#1] INFO:ObjectHandling -- RooWorkspace::import(SR1) using existing copy of RooProduct::L_x_SR1_Truth_bin_2_SR1_overallSyst_x_HistSyst for import of RooProdPdf::model_SR1
+[#1] INFO:ObjectHandling -- RooWorkspace::import(SR1) using existing copy of RooProduct::SR1_Truth_bin_2_SR1_overallSyst_x_HistSyst for import of RooProdPdf::model_SR1
+[#1] INFO:ObjectHandling -- RooWorkspace::import(SR1) using existing copy of PiecewiseInterpolation::SR1_Truth_bin_2_SR1_Hist_alpha for import of RooProdPdf::model_SR1
+[#1] INFO:ObjectHandling -- RooWorkspace::import(SR1) using existing copy of RooHistFunc::SR1_Truth_bin_2_SR1_Hist_alphanominal for import of RooProdPdf::model_SR1
+[#1] INFO:ObjectHandling -- RooWorkspace::import(SR1) using existing copy of RooHistFunc::SR1_Truth_bin_2_SR1_Hist_alpha_0low for import of RooProdPdf::model_SR1
+[#1] INFO:ObjectHandling -- RooWorkspace::import(SR1) using existing copy of RooHistFunc::SR1_Truth_bin_2_SR1_Hist_alpha_1low for import of RooProdPdf::model_SR1
+[#1] INFO:ObjectHandling -- RooWorkspace::import(SR1) using existing copy of RooHistFunc::SR1_Truth_bin_2_SR1_Hist_alpha_0high for import of RooProdPdf::model_SR1
+[#1] INFO:ObjectHandling -- RooWorkspace::import(SR1) using existing copy of RooHistFunc::SR1_Truth_bin_2_SR1_Hist_alpha_1high for import of RooProdPdf::model_SR1
+[#1] INFO:ObjectHandling -- RooWorkspace::import(SR1) using existing copy of RooProduct::SR1_Truth_bin_2_SR1_overallNorm_x_sigma_epsilon for import of RooProdPdf::model_SR1
+[#1] INFO:ObjectHandling -- RooWorkspace::import(SR1) using existing copy of RooRealVar::Bin_2 for import of RooProdPdf::model_SR1
+[#1] INFO:ObjectHandling -- RooWorkspace::import(SR1) using existing copy of RooStats::HistFactory::FlexibleInterpVar::SR1_Truth_bin_2_SR1_epsilon for import of RooProdPdf::model_SR1
+[#1] INFO:ObjectHandling -- RooWorkspace::import(SR1) using existing copy of RooRealVar::binWidth_obs_x_SR1_2 for import of RooProdPdf::model_SR1
+[#1] INFO:ObjectHandling -- RooWorkspace::import(SR1) using existing copy of RooProduct::L_x_SR1_Truth_bin_3_SR1_overallSyst_x_HistSyst for import of RooProdPdf::model_SR1
+[#1] INFO:ObjectHandling -- RooWorkspace::import(SR1) using existing copy of RooProduct::SR1_Truth_bin_3_SR1_overallSyst_x_HistSyst for import of RooProdPdf::model_SR1
+[#1] INFO:ObjectHandling -- RooWorkspace::import(SR1) using existing copy of PiecewiseInterpolation::SR1_Truth_bin_3_SR1_Hist_alpha for import of RooProdPdf::model_SR1
+[#1] INFO:ObjectHandling -- RooWorkspace::import(SR1) using existing copy of RooHistFunc::SR1_Truth_bin_3_SR1_Hist_alphanominal for import of RooProdPdf::model_SR1
+[#1] INFO:ObjectHandling -- RooWorkspace::import(SR1) using existing copy of RooHistFunc::SR1_Truth_bin_3_SR1_Hist_alpha_0low for import of RooProdPdf::model_SR1
+[#1] INFO:ObjectHandling -- RooWorkspace::import(SR1) using existing copy of RooHistFunc::SR1_Truth_bin_3_SR1_Hist_alpha_1low for import of RooProdPdf::model_SR1
+[#1] INFO:ObjectHandling -- RooWorkspace::import(SR1) using existing copy of RooHistFunc::SR1_Truth_bin_3_SR1_Hist_alpha_0high for import of RooProdPdf::model_SR1
+[#1] INFO:ObjectHandling -- RooWorkspace::import(SR1) using existing copy of RooHistFunc::SR1_Truth_bin_3_SR1_Hist_alpha_1high for import of RooProdPdf::model_SR1
+[#1] INFO:ObjectHandling -- RooWorkspace::import(SR1) using existing copy of RooProduct::SR1_Truth_bin_3_SR1_overallNorm_x_sigma_epsilon for import of RooProdPdf::model_SR1
+[#1] INFO:ObjectHandling -- RooWorkspace::import(SR1) using existing copy of RooRealVar::Bin_3 for import of RooProdPdf::model_SR1
+[#1] INFO:ObjectHandling -- RooWorkspace::import(SR1) using existing copy of RooStats::HistFactory::FlexibleInterpVar::SR1_Truth_bin_3_SR1_epsilon for import of RooProdPdf::model_SR1
+[#1] INFO:ObjectHandling -- RooWorkspace::import(SR1) using existing copy of RooRealVar::binWidth_obs_x_SR1_3 for import of RooProdPdf::model_SR1
+[#1] INFO:ObjectHandling -- RooWorkspace::import(SR1) using existing copy of RooProduct::L_x_SR1_Truth_bin_4_SR1_overallSyst_x_HistSyst for import of RooProdPdf::model_SR1
+[#1] INFO:ObjectHandling -- RooWorkspace::import(SR1) using existing copy of RooProduct::SR1_Truth_bin_4_SR1_overallSyst_x_HistSyst for import of RooProdPdf::model_SR1
+[#1] INFO:ObjectHandling -- RooWorkspace::import(SR1) using existing copy of PiecewiseInterpolation::SR1_Truth_bin_4_SR1_Hist_alpha for import of RooProdPdf::model_SR1
+[#1] INFO:ObjectHandling -- RooWorkspace::import(SR1) using existing copy of RooHistFunc::SR1_Truth_bin_4_SR1_Hist_alphanominal for import of RooProdPdf::model_SR1
+[#1] INFO:ObjectHandling -- RooWorkspace::import(SR1) using existing copy of RooHistFunc::SR1_Truth_bin_4_SR1_Hist_alpha_0low for import of RooProdPdf::model_SR1
+[#1] INFO:ObjectHandling -- RooWorkspace::import(SR1) using existing copy of RooHistFunc::SR1_Truth_bin_4_SR1_Hist_alpha_1low for import of RooProdPdf::model_SR1
+[#1] INFO:ObjectHandling -- RooWorkspace::import(SR1) using existing copy of RooHistFunc::SR1_Truth_bin_4_SR1_Hist_alpha_0high for import of RooProdPdf::model_SR1
+[#1] INFO:ObjectHandling -- RooWorkspace::import(SR1) using existing copy of RooHistFunc::SR1_Truth_bin_4_SR1_Hist_alpha_1high for import of RooProdPdf::model_SR1
+[#1] INFO:ObjectHandling -- RooWorkspace::import(SR1) using existing copy of RooProduct::SR1_Truth_bin_4_SR1_overallNorm_x_sigma_epsilon for import of RooProdPdf::model_SR1
+[#1] INFO:ObjectHandling -- RooWorkspace::import(SR1) using existing copy of RooRealVar::Bin_4 for import of RooProdPdf::model_SR1
+[#1] INFO:ObjectHandling -- RooWorkspace::import(SR1) using existing copy of RooStats::HistFactory::FlexibleInterpVar::SR1_Truth_bin_4_SR1_epsilon for import of RooProdPdf::model_SR1
+[#1] INFO:ObjectHandling -- RooWorkspace::import(SR1) using existing copy of RooRealVar::binWidth_obs_x_SR1_4 for import of RooProdPdf::model_SR1
+[#1] INFO:ObjectHandling -- RooWorkspace::import(SR1) using existing copy of RooProduct::L_x_SR1_Truth_bin_5_SR1_overallSyst_x_HistSyst for import of RooProdPdf::model_SR1
+[#1] INFO:ObjectHandling -- RooWorkspace::import(SR1) using existing copy of RooProduct::SR1_Truth_bin_5_SR1_overallSyst_x_HistSyst for import of RooProdPdf::model_SR1
+[#1] INFO:ObjectHandling -- RooWorkspace::import(SR1) using existing copy of PiecewiseInterpolation::SR1_Truth_bin_5_SR1_Hist_alpha for import of RooProdPdf::model_SR1
+[#1] INFO:ObjectHandling -- RooWorkspace::import(SR1) using existing copy of RooHistFunc::SR1_Truth_bin_5_SR1_Hist_alphanominal for import of RooProdPdf::model_SR1
+[#1] INFO:ObjectHandling -- RooWorkspace::import(SR1) using existing copy of RooHistFunc::SR1_Truth_bin_5_SR1_Hist_alpha_0low for import of RooProdPdf::model_SR1
+[#1] INFO:ObjectHandling -- RooWorkspace::import(SR1) using existing copy of RooHistFunc::SR1_Truth_bin_5_SR1_Hist_alpha_1low for import of RooProdPdf::model_SR1
+[#1] INFO:ObjectHandling -- RooWorkspace::import(SR1) using existing copy of RooHistFunc::SR1_Truth_bin_5_SR1_Hist_alpha_0high for import of RooProdPdf::model_SR1
+[#1] INFO:ObjectHandling -- RooWorkspace::import(SR1) using existing copy of RooHistFunc::SR1_Truth_bin_5_SR1_Hist_alpha_1high for import of RooProdPdf::model_SR1
+[#1] INFO:ObjectHandling -- RooWorkspace::import(SR1) using existing copy of RooProduct::SR1_Truth_bin_5_SR1_overallNorm_x_sigma_epsilon for import of RooProdPdf::model_SR1
+[#1] INFO:ObjectHandling -- RooWorkspace::import(SR1) using existing copy of RooRealVar::Bin_5 for import of RooProdPdf::model_SR1
+[#1] INFO:ObjectHandling -- RooWorkspace::import(SR1) using existing copy of RooStats::HistFactory::FlexibleInterpVar::SR1_Truth_bin_5_SR1_epsilon for import of RooProdPdf::model_SR1
+[#1] INFO:ObjectHandling -- RooWorkspace::import(SR1) using existing copy of RooRealVar::binWidth_obs_x_SR1_5 for import of RooProdPdf::model_SR1
+[#1] INFO:ObjectHandling -- RooWorkspace::import(SR1) using existing copy of RooProduct::L_x_SR1_Truth_bin_6_SR1_overallSyst_x_HistSyst for import of RooProdPdf::model_SR1
+[#1] INFO:ObjectHandling -- RooWorkspace::import(SR1) using existing copy of RooProduct::SR1_Truth_bin_6_SR1_overallSyst_x_HistSyst for import of RooProdPdf::model_SR1
+[#1] INFO:ObjectHandling -- RooWorkspace::import(SR1) using existing copy of PiecewiseInterpolation::SR1_Truth_bin_6_SR1_Hist_alpha for import of RooProdPdf::model_SR1
+[#1] INFO:ObjectHandling -- RooWorkspace::import(SR1) using existing copy of RooHistFunc::SR1_Truth_bin_6_SR1_Hist_alphanominal for import of RooProdPdf::model_SR1
+[#1] INFO:ObjectHandling -- RooWorkspace::import(SR1) using existing copy of RooHistFunc::SR1_Truth_bin_6_SR1_Hist_alpha_0low for import of RooProdPdf::model_SR1
+[#1] INFO:ObjectHandling -- RooWorkspace::import(SR1) using existing copy of RooHistFunc::SR1_Truth_bin_6_SR1_Hist_alpha_1low for import of RooProdPdf::model_SR1
+[#1] INFO:ObjectHandling -- RooWorkspace::import(SR1) using existing copy of RooHistFunc::SR1_Truth_bin_6_SR1_Hist_alpha_0high for import of RooProdPdf::model_SR1
+[#1] INFO:ObjectHandling -- RooWorkspace::import(SR1) using existing copy of RooHistFunc::SR1_Truth_bin_6_SR1_Hist_alpha_1high for import of RooProdPdf::model_SR1
+[#1] INFO:ObjectHandling -- RooWorkspace::import(SR1) using existing copy of RooProduct::SR1_Truth_bin_6_SR1_overallNorm_x_sigma_epsilon for import of RooProdPdf::model_SR1
+[#1] INFO:ObjectHandling -- RooWorkspace::import(SR1) using existing copy of RooRealVar::Bin_6 for import of RooProdPdf::model_SR1
+[#1] INFO:ObjectHandling -- RooWorkspace::import(SR1) using existing copy of RooStats::HistFactory::FlexibleInterpVar::SR1_Truth_bin_6_SR1_epsilon for import of RooProdPdf::model_SR1
+[#1] INFO:ObjectHandling -- RooWorkspace::import(SR1) using existing copy of RooRealVar::binWidth_obs_x_SR1_6 for import of RooProdPdf::model_SR1
+[#1] INFO:ObjectHandling -- RooWorkspace::import(SR1) using existing copy of RooProduct::L_x_SR1_Truth_bin_7_SR1_overallSyst_x_HistSyst for import of RooProdPdf::model_SR1
+[#1] INFO:ObjectHandling -- RooWorkspace::import(SR1) using existing copy of RooProduct::SR1_Truth_bin_7_SR1_overallSyst_x_HistSyst for import of RooProdPdf::model_SR1
+[#1] INFO:ObjectHandling -- RooWorkspace::import(SR1) using existing copy of PiecewiseInterpolation::SR1_Truth_bin_7_SR1_Hist_alpha for import of RooProdPdf::model_SR1
+[#1] INFO:ObjectHandling -- RooWorkspace::import(SR1) using existing copy of RooHistFunc::SR1_Truth_bin_7_SR1_Hist_alphanominal for import of RooProdPdf::model_SR1
+[#1] INFO:ObjectHandling -- RooWorkspace::import(SR1) using existing copy of RooHistFunc::SR1_Truth_bin_7_SR1_Hist_alpha_0low for import of RooProdPdf::model_SR1
+[#1] INFO:ObjectHandling -- RooWorkspace::import(SR1) using existing copy of RooHistFunc::SR1_Truth_bin_7_SR1_Hist_alpha_1low for import of RooProdPdf::model_SR1
+[#1] INFO:ObjectHandling -- RooWorkspace::import(SR1) using existing copy of RooHistFunc::SR1_Truth_bin_7_SR1_Hist_alpha_0high for import of RooProdPdf::model_SR1
+[#1] INFO:ObjectHandling -- RooWorkspace::import(SR1) using existing copy of RooHistFunc::SR1_Truth_bin_7_SR1_Hist_alpha_1high for import of RooProdPdf::model_SR1
+[#1] INFO:ObjectHandling -- RooWorkspace::import(SR1) using existing copy of RooProduct::SR1_Truth_bin_7_SR1_overallNorm_x_sigma_epsilon for import of RooProdPdf::model_SR1
+[#1] INFO:ObjectHandling -- RooWorkspace::import(SR1) using existing copy of RooRealVar::Bin_7 for import of RooProdPdf::model_SR1
+[#1] INFO:ObjectHandling -- RooWorkspace::import(SR1) using existing copy of RooStats::HistFactory::FlexibleInterpVar::SR1_Truth_bin_7_SR1_epsilon for import of RooProdPdf::model_SR1
+[#1] INFO:ObjectHandling -- RooWorkspace::import(SR1) using existing copy of RooRealVar::binWidth_obs_x_SR1_7 for import of RooProdPdf::model_SR1
+[#1] INFO:ObjectHandling -- RooWorkspace::import(SR1) using existing copy of RooProduct::L_x_SR1_Truth_bin_8_SR1_overallSyst_x_HistSyst for import of RooProdPdf::model_SR1
+[#1] INFO:ObjectHandling -- RooWorkspace::import(SR1) using existing copy of RooProduct::SR1_Truth_bin_8_SR1_overallSyst_x_HistSyst for import of RooProdPdf::model_SR1
+[#1] INFO:ObjectHandling -- RooWorkspace::import(SR1) using existing copy of PiecewiseInterpolation::SR1_Truth_bin_8_SR1_Hist_alpha for import of RooProdPdf::model_SR1
+[#1] INFO:ObjectHandling -- RooWorkspace::import(SR1) using existing copy of RooHistFunc::SR1_Truth_bin_8_SR1_Hist_alphanominal for import of RooProdPdf::model_SR1
+[#1] INFO:ObjectHandling -- RooWorkspace::import(SR1) using existing copy of RooHistFunc::SR1_Truth_bin_8_SR1_Hist_alpha_0low for import of RooProdPdf::model_SR1
+[#1] INFO:ObjectHandling -- RooWorkspace::import(SR1) using existing copy of RooHistFunc::SR1_Truth_bin_8_SR1_Hist_alpha_1low for import of RooProdPdf::model_SR1
+[#1] INFO:ObjectHandling -- RooWorkspace::import(SR1) using existing copy of RooHistFunc::SR1_Truth_bin_8_SR1_Hist_alpha_0high for import of RooProdPdf::model_SR1
+[#1] INFO:ObjectHandling -- RooWorkspace::import(SR1) using existing copy of RooHistFunc::SR1_Truth_bin_8_SR1_Hist_alpha_1high for import of RooProdPdf::model_SR1
+[#1] INFO:ObjectHandling -- RooWorkspace::import(SR1) using existing copy of RooProduct::SR1_Truth_bin_8_SR1_overallNorm_x_sigma_epsilon for import of RooProdPdf::model_SR1
+[#1] INFO:ObjectHandling -- RooWorkspace::import(SR1) using existing copy of RooRealVar::Bin_8 for import of RooProdPdf::model_SR1
+[#1] INFO:ObjectHandling -- RooWorkspace::import(SR1) using existing copy of RooStats::HistFactory::FlexibleInterpVar::SR1_Truth_bin_8_SR1_epsilon for import of RooProdPdf::model_SR1
+[#1] INFO:ObjectHandling -- RooWorkspace::import(SR1) using existing copy of RooRealVar::binWidth_obs_x_SR1_8 for import of RooProdPdf::model_SR1
+[#1] INFO:ObjectHandling -- RooWorkspace::import(SR1) using existing copy of RooProduct::L_x_SR1_Truth_bin_9_SR1_overallSyst_x_HistSyst for import of RooProdPdf::model_SR1
+[#1] INFO:ObjectHandling -- RooWorkspace::import(SR1) using existing copy of RooProduct::SR1_Truth_bin_9_SR1_overallSyst_x_HistSyst for import of RooProdPdf::model_SR1
+[#1] INFO:ObjectHandling -- RooWorkspace::import(SR1) using existing copy of PiecewiseInterpolation::SR1_Truth_bin_9_SR1_Hist_alpha for import of RooProdPdf::model_SR1
+[#1] INFO:ObjectHandling -- RooWorkspace::import(SR1) using existing copy of RooHistFunc::SR1_Truth_bin_9_SR1_Hist_alphanominal for import of RooProdPdf::model_SR1
+[#1] INFO:ObjectHandling -- RooWorkspace::import(SR1) using existing copy of RooHistFunc::SR1_Truth_bin_9_SR1_Hist_alpha_0low for import of RooProdPdf::model_SR1
+[#1] INFO:ObjectHandling -- RooWorkspace::import(SR1) using existing copy of RooHistFunc::SR1_Truth_bin_9_SR1_Hist_alpha_1low for import of RooProdPdf::model_SR1
+[#1] INFO:ObjectHandling -- RooWorkspace::import(SR1) using existing copy of RooHistFunc::SR1_Truth_bin_9_SR1_Hist_alpha_0high for import of RooProdPdf::model_SR1
+[#1] INFO:ObjectHandling -- RooWorkspace::import(SR1) using existing copy of RooHistFunc::SR1_Truth_bin_9_SR1_Hist_alpha_1high for import of RooProdPdf::model_SR1
+[#1] INFO:ObjectHandling -- RooWorkspace::import(SR1) using existing copy of RooProduct::SR1_Truth_bin_9_SR1_overallNorm_x_sigma_epsilon for import of RooProdPdf::model_SR1
+[#1] INFO:ObjectHandling -- RooWorkspace::import(SR1) using existing copy of RooRealVar::Bin_9 for import of RooProdPdf::model_SR1
+[#1] INFO:ObjectHandling -- RooWorkspace::import(SR1) using existing copy of RooStats::HistFactory::FlexibleInterpVar::SR1_Truth_bin_9_SR1_epsilon for import of RooProdPdf::model_SR1
+[#1] INFO:ObjectHandling -- RooWorkspace::import(SR1) using existing copy of RooRealVar::binWidth_obs_x_SR1_9 for import of RooProdPdf::model_SR1
+[#1] INFO:ObjectHandling -- RooWorkspace::import(SR1) using existing copy of RooProduct::L_x_SR1_Truth_bin_10_SR1_overallSyst_x_HistSyst for import of RooProdPdf::model_SR1
+[#1] INFO:ObjectHandling -- RooWorkspace::import(SR1) using existing copy of RooProduct::SR1_Truth_bin_10_SR1_overallSyst_x_HistSyst for import of RooProdPdf::model_SR1
+[#1] INFO:ObjectHandling -- RooWorkspace::import(SR1) using existing copy of PiecewiseInterpolation::SR1_Truth_bin_10_SR1_Hist_alpha for import of RooProdPdf::model_SR1
+[#1] INFO:ObjectHandling -- RooWorkspace::import(SR1) using existing copy of RooHistFunc::SR1_Truth_bin_10_SR1_Hist_alphanominal for import of RooProdPdf::model_SR1
+[#1] INFO:ObjectHandling -- RooWorkspace::import(SR1) using existing copy of RooHistFunc::SR1_Truth_bin_10_SR1_Hist_alpha_0low for import of RooProdPdf::model_SR1
+[#1] INFO:ObjectHandling -- RooWorkspace::import(SR1) using existing copy of RooHistFunc::SR1_Truth_bin_10_SR1_Hist_alpha_1low for import of RooProdPdf::model_SR1
+[#1] INFO:ObjectHandling -- RooWorkspace::import(SR1) using existing copy of RooHistFunc::SR1_Truth_bin_10_SR1_Hist_alpha_0high for import of RooProdPdf::model_SR1
+[#1] INFO:ObjectHandling -- RooWorkspace::import(SR1) using existing copy of RooHistFunc::SR1_Truth_bin_10_SR1_Hist_alpha_1high for import of RooProdPdf::model_SR1
+[#1] INFO:ObjectHandling -- RooWorkspace::import(SR1) using existing copy of RooProduct::SR1_Truth_bin_10_SR1_overallNorm_x_sigma_epsilon for import of RooProdPdf::model_SR1
+[#1] INFO:ObjectHandling -- RooWorkspace::import(SR1) using existing copy of RooRealVar::Bin_10 for import of RooProdPdf::model_SR1
+[#1] INFO:ObjectHandling -- RooWorkspace::import(SR1) using existing copy of RooStats::HistFactory::FlexibleInterpVar::SR1_Truth_bin_10_SR1_epsilon for import of RooProdPdf::model_SR1
+[#1] INFO:ObjectHandling -- RooWorkspace::import(SR1) using existing copy of RooRealVar::binWidth_obs_x_SR1_10 for import of RooProdPdf::model_SR1
+[#1] INFO:ObjectHandling -- RooWorkspace::import(SR1) using existing copy of RooProduct::L_x_SR1_Truth_bin_11_SR1_overallSyst_x_HistSyst for import of RooProdPdf::model_SR1
+[#1] INFO:ObjectHandling -- RooWorkspace::import(SR1) using existing copy of RooProduct::SR1_Truth_bin_11_SR1_overallSyst_x_HistSyst for import of RooProdPdf::model_SR1
+[#1] INFO:ObjectHandling -- RooWorkspace::import(SR1) using existing copy of PiecewiseInterpolation::SR1_Truth_bin_11_SR1_Hist_alpha for import of RooProdPdf::model_SR1
+[#1] INFO:ObjectHandling -- RooWorkspace::import(SR1) using existing copy of RooHistFunc::SR1_Truth_bin_11_SR1_Hist_alphanominal for import of RooProdPdf::model_SR1
+[#1] INFO:ObjectHandling -- RooWorkspace::import(SR1) using existing copy of RooHistFunc::SR1_Truth_bin_11_SR1_Hist_alpha_0low for import of RooProdPdf::model_SR1
+[#1] INFO:ObjectHandling -- RooWorkspace::import(SR1) using existing copy of RooHistFunc::SR1_Truth_bin_11_SR1_Hist_alpha_1low for import of RooProdPdf::model_SR1
+[#1] INFO:ObjectHandling -- RooWorkspace::import(SR1) using existing copy of RooHistFunc::SR1_Truth_bin_11_SR1_Hist_alpha_0high for import of RooProdPdf::model_SR1
+[#1] INFO:ObjectHandling -- RooWorkspace::import(SR1) using existing copy of RooHistFunc::SR1_Truth_bin_11_SR1_Hist_alpha_1high for import of RooProdPdf::model_SR1
+[#1] INFO:ObjectHandling -- RooWorkspace::import(SR1) using existing copy of RooProduct::SR1_Truth_bin_11_SR1_overallNorm_x_sigma_epsilon for import of RooProdPdf::model_SR1
+[#1] INFO:ObjectHandling -- RooWorkspace::import(SR1) using existing copy of RooRealVar::Bin_11 for import of RooProdPdf::model_SR1
+[#1] INFO:ObjectHandling -- RooWorkspace::import(SR1) using existing copy of RooStats::HistFactory::FlexibleInterpVar::SR1_Truth_bin_11_SR1_epsilon for import of RooProdPdf::model_SR1
+[#1] INFO:ObjectHandling -- RooWorkspace::import(SR1) using existing copy of RooRealVar::binWidth_obs_x_SR1_11 for import of RooProdPdf::model_SR1
+[#1] INFO:NumericIntegration -- RooRealIntegral::init(SR1_model_Int[obs_x_SR1]) using numeric integrator RooBinIntegrator to calculate Int(obs_x_SR1)
+RooDataSet::AsimovData[obs_x_SR1,weight:binWeightAsimov] = 11 entries (25722.8 weighted)
+[#1] INFO:ObjectHandling -- RooWorkspace::import(SR1) importing dataset AsimovData
+[#1] INFO:ObjectHandling -- RooWorkSpace::import(SR1) changing name of dataset from  AsimovData to asimovData
+[#1] INFO:ObjectHandling -- RooWorkspace::import(SR1) importing dataset obsData
+
+RooWorkspace(SR1) SR1 workspace contents
+
+variables
+---------
+(Bin_1,Bin_10,Bin_11,Bin_2,Bin_3,Bin_4,Bin_5,Bin_6,Bin_7,Bin_8,Bin_9,Lumi,alpha_Bkg_norm,alpha_PS,alpha_bTag_SF_B_eigen0,binWidth_obs_x_SR1_0,binWidth_obs_x_SR1_1,binWidth_obs_x_SR1_10,binWidth_obs_x_SR1_11,binWidth_obs_x_SR1_2,binWidth_obs_x_SR1_3,binWidth_obs_x_SR1_4,binWidth_obs_x_SR1_5,binWidth_obs_x_SR1_6,binWidth_obs_x_SR1_7,binWidth_obs_x_SR1_8,binWidth_obs_x_SR1_9,nom_alpha_Bkg_norm,nom_alpha_PS,nom_alpha_bTag_SF_B_eigen0,nominalLumi,obs_x_SR1,weightVar)
+
+p.d.f.s
+-------
+RooRealSumPdf::SR1_model[ binWidth_obs_x_SR1_0 * L_x_Bkg_SR1_overallSyst_x_HistSyst + binWidth_obs_x_SR1_1 * L_x_SR1_Truth_bin_1_SR1_overallSyst_x_HistSyst + binWidth_obs_x_SR1_2 * L_x_SR1_Truth_bin_2_SR1_overallSyst_x_HistSyst + binWidth_obs_x_SR1_3 * L_x_SR1_Truth_bin_3_SR1_overallSyst_x_HistSyst + binWidth_obs_x_SR1_4 * L_x_SR1_Truth_bin_4_SR1_overallSyst_x_HistSyst + binWidth_obs_x_SR1_5 * L_x_SR1_Truth_bin_5_SR1_overallSyst_x_HistSyst + binWidth_obs_x_SR1_6 * L_x_SR1_Truth_bin_6_SR1_overallSyst_x_HistSyst + binWidth_obs_x_SR1_7 * L_x_SR1_Truth_bin_7_SR1_overallSyst_x_HistSyst + binWidth_obs_x_SR1_8 * L_x_SR1_Truth_bin_8_SR1_overallSyst_x_HistSyst + binWidth_obs_x_SR1_9 * L_x_SR1_Truth_bin_9_SR1_overallSyst_x_HistSyst + binWidth_obs_x_SR1_10 * L_x_SR1_Truth_bin_10_SR1_overallSyst_x_HistSyst + binWidth_obs_x_SR1_11 * L_x_SR1_Truth_bin_11_SR1_overallSyst_x_HistSyst ] = 1644.92/25722.8
+RooGaussian::alpha_Bkg_normConstraint[ x=alpha_Bkg_norm mean=nom_alpha_Bkg_norm sigma=1 ] = 1
+RooGaussian::alpha_PSConstraint[ x=alpha_PS mean=nom_alpha_PS sigma=1 ] = 1
+RooGaussian::alpha_bTag_SF_B_eigen0Constraint[ x=alpha_bTag_SF_B_eigen0 mean=nom_alpha_bTag_SF_B_eigen0 sigma=1 ] = 1
+RooGaussian::lumiConstraint[ x=Lumi mean=nominalLumi sigma=0.1 ] = 1
+RooProdPdf::model_SR1[ lumiConstraint * alpha_bTag_SF_B_eigen0Constraint * alpha_Bkg_normConstraint * alpha_PSConstraint * SR1_model(obs_x_SR1) ] = 1644.92
+
+functions
+--------
+PiecewiseInterpolation::Bkg_SR1_Hist_alpha[ ] = 33.4721
+RooHistFunc::Bkg_SR1_Hist_alpha_0high[ depList=(obs_x_SR1) ] = 33.4305
+RooHistFunc::Bkg_SR1_Hist_alpha_0low[ depList=(obs_x_SR1) ] = 33.5137
+RooHistFunc::Bkg_SR1_Hist_alphanominal[ depList=(obs_x_SR1) ] = 33.4721
+RooStats::HistFactory::FlexibleInterpVar::Bkg_SR1_epsilon[ paramList=(alpha_bTag_SF_B_eigen0,alpha_Bkg_norm) ] = 1
+RooProduct::Bkg_SR1_overallSyst_x_HistSyst[ Bkg_SR1_Hist_alpha * Bkg_SR1_epsilon ] = 33.4721
+RooProduct::L_x_Bkg_SR1_overallSyst_x_HistSyst[ Lumi * Bkg_SR1_overallSyst_x_HistSyst ] = 33.4721
+RooProduct::L_x_SR1_Truth_bin_10_SR1_overallSyst_x_HistSyst[ Lumi * SR1_Truth_bin_10_SR1_overallSyst_x_HistSyst ] = 25.7152
+RooProduct::L_x_SR1_Truth_bin_11_SR1_overallSyst_x_HistSyst[ Lumi * SR1_Truth_bin_11_SR1_overallSyst_x_HistSyst ] = 90.3216
+RooProduct::L_x_SR1_Truth_bin_1_SR1_overallSyst_x_HistSyst[ Lumi * SR1_Truth_bin_1_SR1_overallSyst_x_HistSyst ] = 0
+RooProduct::L_x_SR1_Truth_bin_2_SR1_overallSyst_x_HistSyst[ Lumi * SR1_Truth_bin_2_SR1_overallSyst_x_HistSyst ] = 0
+RooProduct::L_x_SR1_Truth_bin_3_SR1_overallSyst_x_HistSyst[ Lumi * SR1_Truth_bin_3_SR1_overallSyst_x_HistSyst ] = 0
+RooProduct::L_x_SR1_Truth_bin_4_SR1_overallSyst_x_HistSyst[ Lumi * SR1_Truth_bin_4_SR1_overallSyst_x_HistSyst ] = 0
+RooProduct::L_x_SR1_Truth_bin_5_SR1_overallSyst_x_HistSyst[ Lumi * SR1_Truth_bin_5_SR1_overallSyst_x_HistSyst ] = 0
+RooProduct::L_x_SR1_Truth_bin_6_SR1_overallSyst_x_HistSyst[ Lumi * SR1_Truth_bin_6_SR1_overallSyst_x_HistSyst ] = 0
+RooProduct::L_x_SR1_Truth_bin_7_SR1_overallSyst_x_HistSyst[ Lumi * SR1_Truth_bin_7_SR1_overallSyst_x_HistSyst ] = 0
+RooProduct::L_x_SR1_Truth_bin_8_SR1_overallSyst_x_HistSyst[ Lumi * SR1_Truth_bin_8_SR1_overallSyst_x_HistSyst ] = 0
+RooProduct::L_x_SR1_Truth_bin_9_SR1_overallSyst_x_HistSyst[ Lumi * SR1_Truth_bin_9_SR1_overallSyst_x_HistSyst ] = 0.0295972
+PiecewiseInterpolation::SR1_Truth_bin_10_SR1_Hist_alpha[ ] = 25.7152
+RooHistFunc::SR1_Truth_bin_10_SR1_Hist_alpha_0high[ depList=(obs_x_SR1) ] = 25.7152
+RooHistFunc::SR1_Truth_bin_10_SR1_Hist_alpha_0low[ depList=(obs_x_SR1) ] = 25.7152
+RooHistFunc::SR1_Truth_bin_10_SR1_Hist_alpha_1high[ depList=(obs_x_SR1) ] = 25.8419
+RooHistFunc::SR1_Truth_bin_10_SR1_Hist_alpha_1low[ depList=(obs_x_SR1) ] = 25.5855
+RooHistFunc::SR1_Truth_bin_10_SR1_Hist_alphanominal[ depList=(obs_x_SR1) ] = 25.7152
+RooStats::HistFactory::FlexibleInterpVar::SR1_Truth_bin_10_SR1_epsilon[ paramList=(alpha_bTag_SF_B_eigen0,alpha_PS) ] = 1
+RooProduct::SR1_Truth_bin_10_SR1_overallNorm_x_sigma_epsilon[ Bin_10 * SR1_Truth_bin_10_SR1_epsilon ] = 1
+RooProduct::SR1_Truth_bin_10_SR1_overallSyst_x_HistSyst[ SR1_Truth_bin_10_SR1_Hist_alpha * SR1_Truth_bin_10_SR1_overallNorm_x_sigma_epsilon ] = 25.7152
+PiecewiseInterpolation::SR1_Truth_bin_11_SR1_Hist_alpha[ ] = 90.3216
+RooHistFunc::SR1_Truth_bin_11_SR1_Hist_alpha_0high[ depList=(obs_x_SR1) ] = 90.3216
+RooHistFunc::SR1_Truth_bin_11_SR1_Hist_alpha_0low[ depList=(obs_x_SR1) ] = 90.3216
+RooHistFunc::SR1_Truth_bin_11_SR1_Hist_alpha_1high[ depList=(obs_x_SR1) ] = 89.6489
+RooHistFunc::SR1_Truth_bin_11_SR1_Hist_alpha_1low[ depList=(obs_x_SR1) ] = 91.0026
+RooHistFunc::SR1_Truth_bin_11_SR1_Hist_alphanominal[ depList=(obs_x_SR1) ] = 90.3216
+RooStats::HistFactory::FlexibleInterpVar::SR1_Truth_bin_11_SR1_epsilon[ paramList=(alpha_bTag_SF_B_eigen0,alpha_PS) ] = 1
+RooProduct::SR1_Truth_bin_11_SR1_overallNorm_x_sigma_epsilon[ Bin_11 * SR1_Truth_bin_11_SR1_epsilon ] = 1
+RooProduct::SR1_Truth_bin_11_SR1_overallSyst_x_HistSyst[ SR1_Truth_bin_11_SR1_Hist_alpha * SR1_Truth_bin_11_SR1_overallNorm_x_sigma_epsilon ] = 90.3216
+PiecewiseInterpolation::SR1_Truth_bin_1_SR1_Hist_alpha[ ] = 0
+RooHistFunc::SR1_Truth_bin_1_SR1_Hist_alpha_0high[ depList=(obs_x_SR1) ] = 0
+RooHistFunc::SR1_Truth_bin_1_SR1_Hist_alpha_0low[ depList=(obs_x_SR1) ] = 0
+RooHistFunc::SR1_Truth_bin_1_SR1_Hist_alpha_1high[ depList=(obs_x_SR1) ] = 0
+RooHistFunc::SR1_Truth_bin_1_SR1_Hist_alpha_1low[ depList=(obs_x_SR1) ] = 0
+RooHistFunc::SR1_Truth_bin_1_SR1_Hist_alphanominal[ depList=(obs_x_SR1) ] = 0
+RooStats::HistFactory::FlexibleInterpVar::SR1_Truth_bin_1_SR1_epsilon[ paramList=(alpha_bTag_SF_B_eigen0,alpha_PS) ] = 1
+RooProduct::SR1_Truth_bin_1_SR1_overallNorm_x_sigma_epsilon[ Bin_1 * SR1_Truth_bin_1_SR1_epsilon ] = 1
+RooProduct::SR1_Truth_bin_1_SR1_overallSyst_x_HistSyst[ SR1_Truth_bin_1_SR1_Hist_alpha * SR1_Truth_bin_1_SR1_overallNorm_x_sigma_epsilon ] = 0
+PiecewiseInterpolation::SR1_Truth_bin_2_SR1_Hist_alpha[ ] = 0
+RooHistFunc::SR1_Truth_bin_2_SR1_Hist_alpha_0high[ depList=(obs_x_SR1) ] = 0
+RooHistFunc::SR1_Truth_bin_2_SR1_Hist_alpha_0low[ depList=(obs_x_SR1) ] = 0
+RooHistFunc::SR1_Truth_bin_2_SR1_Hist_alpha_1high[ depList=(obs_x_SR1) ] = 0
+RooHistFunc::SR1_Truth_bin_2_SR1_Hist_alpha_1low[ depList=(obs_x_SR1) ] = 0
+RooHistFunc::SR1_Truth_bin_2_SR1_Hist_alphanominal[ depList=(obs_x_SR1) ] = 0
+RooStats::HistFactory::FlexibleInterpVar::SR1_Truth_bin_2_SR1_epsilon[ paramList=(alpha_bTag_SF_B_eigen0,alpha_PS) ] = 1
+RooProduct::SR1_Truth_bin_2_SR1_overallNorm_x_sigma_epsilon[ Bin_2 * SR1_Truth_bin_2_SR1_epsilon ] = 1
+RooProduct::SR1_Truth_bin_2_SR1_overallSyst_x_HistSyst[ SR1_Truth_bin_2_SR1_Hist_alpha * SR1_Truth_bin_2_SR1_overallNorm_x_sigma_epsilon ] = 0
+PiecewiseInterpolation::SR1_Truth_bin_3_SR1_Hist_alpha[ ] = 0
+RooHistFunc::SR1_Truth_bin_3_SR1_Hist_alpha_0high[ depList=(obs_x_SR1) ] = 0
+RooHistFunc::SR1_Truth_bin_3_SR1_Hist_alpha_0low[ depList=(obs_x_SR1) ] = 0
+RooHistFunc::SR1_Truth_bin_3_SR1_Hist_alpha_1high[ depList=(obs_x_SR1) ] = 0
+RooHistFunc::SR1_Truth_bin_3_SR1_Hist_alpha_1low[ depList=(obs_x_SR1) ] = 0
+RooHistFunc::SR1_Truth_bin_3_SR1_Hist_alphanominal[ depList=(obs_x_SR1) ] = 0
+RooStats::HistFactory::FlexibleInterpVar::SR1_Truth_bin_3_SR1_epsilon[ paramList=(alpha_bTag_SF_B_eigen0,alpha_PS) ] = 1
+RooProduct::SR1_Truth_bin_3_SR1_overallNorm_x_sigma_epsilon[ Bin_3 * SR1_Truth_bin_3_SR1_epsilon ] = 1
+RooProduct::SR1_Truth_bin_3_SR1_overallSyst_x_HistSyst[ SR1_Truth_bin_3_SR1_Hist_alpha * SR1_Truth_bin_3_SR1_overallNorm_x_sigma_epsilon ] = 0
+PiecewiseInterpolation::SR1_Truth_bin_4_SR1_Hist_alpha[ ] = 0
+RooHistFunc::SR1_Truth_bin_4_SR1_Hist_alpha_0high[ depList=(obs_x_SR1) ] = 0
+RooHistFunc::SR1_Truth_bin_4_SR1_Hist_alpha_0low[ depList=(obs_x_SR1) ] = 0
+RooHistFunc::SR1_Truth_bin_4_SR1_Hist_alpha_1high[ depList=(obs_x_SR1) ] = 0
+RooHistFunc::SR1_Truth_bin_4_SR1_Hist_alpha_1low[ depList=(obs_x_SR1) ] = 0
+RooHistFunc::SR1_Truth_bin_4_SR1_Hist_alphanominal[ depList=(obs_x_SR1) ] = 0
+RooStats::HistFactory::FlexibleInterpVar::SR1_Truth_bin_4_SR1_epsilon[ paramList=(alpha_bTag_SF_B_eigen0,alpha_PS) ] = 1
+RooProduct::SR1_Truth_bin_4_SR1_overallNorm_x_sigma_epsilon[ Bin_4 * SR1_Truth_bin_4_SR1_epsilon ] = 1
+RooProduct::SR1_Truth_bin_4_SR1_overallSyst_x_HistSyst[ SR1_Truth_bin_4_SR1_Hist_alpha * SR1_Truth_bin_4_SR1_overallNorm_x_sigma_epsilon ] = 0
+PiecewiseInterpolation::SR1_Truth_bin_5_SR1_Hist_alpha[ ] = 0
+RooHistFunc::SR1_Truth_bin_5_SR1_Hist_alpha_0high[ depList=(obs_x_SR1) ] = 0
+RooHistFunc::SR1_Truth_bin_5_SR1_Hist_alpha_0low[ depList=(obs_x_SR1) ] = 0
+RooHistFunc::SR1_Truth_bin_5_SR1_Hist_alpha_1high[ depList=(obs_x_SR1) ] = 0
+RooHistFunc::SR1_Truth_bin_5_SR1_Hist_alpha_1low[ depList=(obs_x_SR1) ] = 0
+RooHistFunc::SR1_Truth_bin_5_SR1_Hist_alphanominal[ depList=(obs_x_SR1) ] = 0
+RooStats::HistFactory::FlexibleInterpVar::SR1_Truth_bin_5_SR1_epsilon[ paramList=(alpha_bTag_SF_B_eigen0,alpha_PS) ] = 1
+RooProduct::SR1_Truth_bin_5_SR1_overallNorm_x_sigma_epsilon[ Bin_5 * SR1_Truth_bin_5_SR1_epsilon ] = 1
+RooProduct::SR1_Truth_bin_5_SR1_overallSyst_x_HistSyst[ SR1_Truth_bin_5_SR1_Hist_alpha * SR1_Truth_bin_5_SR1_overallNorm_x_sigma_epsilon ] = 0
+PiecewiseInterpolation::SR1_Truth_bin_6_SR1_Hist_alpha[ ] = 0
+RooHistFunc::SR1_Truth_bin_6_SR1_Hist_alpha_0high[ depList=(obs_x_SR1) ] = 0
+RooHistFunc::SR1_Truth_bin_6_SR1_Hist_alpha_0low[ depList=(obs_x_SR1) ] = 0
+RooHistFunc::SR1_Truth_bin_6_SR1_Hist_alpha_1high[ depList=(obs_x_SR1) ] = 0
+RooHistFunc::SR1_Truth_bin_6_SR1_Hist_alpha_1low[ depList=(obs_x_SR1) ] = 0
+RooHistFunc::SR1_Truth_bin_6_SR1_Hist_alphanominal[ depList=(obs_x_SR1) ] = 0
+RooStats::HistFactory::FlexibleInterpVar::SR1_Truth_bin_6_SR1_epsilon[ paramList=(alpha_bTag_SF_B_eigen0,alpha_PS) ] = 1
+RooProduct::SR1_Truth_bin_6_SR1_overallNorm_x_sigma_epsilon[ Bin_6 * SR1_Truth_bin_6_SR1_epsilon ] = 1
+RooProduct::SR1_Truth_bin_6_SR1_overallSyst_x_HistSyst[ SR1_Truth_bin_6_SR1_Hist_alpha * SR1_Truth_bin_6_SR1_overallNorm_x_sigma_epsilon ] = 0
+PiecewiseInterpolation::SR1_Truth_bin_7_SR1_Hist_alpha[ ] = 0
+RooHistFunc::SR1_Truth_bin_7_SR1_Hist_alpha_0high[ depList=(obs_x_SR1) ] = 0
+RooHistFunc::SR1_Truth_bin_7_SR1_Hist_alpha_0low[ depList=(obs_x_SR1) ] = 0
+RooHistFunc::SR1_Truth_bin_7_SR1_Hist_alpha_1high[ depList=(obs_x_SR1) ] = 0
+RooHistFunc::SR1_Truth_bin_7_SR1_Hist_alpha_1low[ depList=(obs_x_SR1) ] = 0
+RooHistFunc::SR1_Truth_bin_7_SR1_Hist_alphanominal[ depList=(obs_x_SR1) ] = 0
+RooStats::HistFactory::FlexibleInterpVar::SR1_Truth_bin_7_SR1_epsilon[ paramList=(alpha_bTag_SF_B_eigen0,alpha_PS) ] = 1
+RooProduct::SR1_Truth_bin_7_SR1_overallNorm_x_sigma_epsilon[ Bin_7 * SR1_Truth_bin_7_SR1_epsilon ] = 1
+RooProduct::SR1_Truth_bin_7_SR1_overallSyst_x_HistSyst[ SR1_Truth_bin_7_SR1_Hist_alpha * SR1_Truth_bin_7_SR1_overallNorm_x_sigma_epsilon ] = 0
+PiecewiseInterpolation::SR1_Truth_bin_8_SR1_Hist_alpha[ ] = 0
+RooHistFunc::SR1_Truth_bin_8_SR1_Hist_alpha_0high[ depList=(obs_x_SR1) ] = 0
+RooHistFunc::SR1_Truth_bin_8_SR1_Hist_alpha_0low[ depList=(obs_x_SR1) ] = 0
+RooHistFunc::SR1_Truth_bin_8_SR1_Hist_alpha_1high[ depList=(obs_x_SR1) ] = 0
+RooHistFunc::SR1_Truth_bin_8_SR1_Hist_alpha_1low[ depList=(obs_x_SR1) ] = 0
+RooHistFunc::SR1_Truth_bin_8_SR1_Hist_alphanominal[ depList=(obs_x_SR1) ] = 0
+RooStats::HistFactory::FlexibleInterpVar::SR1_Truth_bin_8_SR1_epsilon[ paramList=(alpha_bTag_SF_B_eigen0,alpha_PS) ] = 1
+RooProduct::SR1_Truth_bin_8_SR1_overallNorm_x_sigma_epsilon[ Bin_8 * SR1_Truth_bin_8_SR1_epsilon ] = 1
+RooProduct::SR1_Truth_bin_8_SR1_overallSyst_x_HistSyst[ SR1_Truth_bin_8_SR1_Hist_alpha * SR1_Truth_bin_8_SR1_overallNorm_x_sigma_epsilon ] = 0
+PiecewiseInterpolation::SR1_Truth_bin_9_SR1_Hist_alpha[ ] = 0.0295972
+RooHistFunc::SR1_Truth_bin_9_SR1_Hist_alpha_0high[ depList=(obs_x_SR1) ] = 0.0295972
+RooHistFunc::SR1_Truth_bin_9_SR1_Hist_alpha_0low[ depList=(obs_x_SR1) ] = 0.0295972
+RooHistFunc::SR1_Truth_bin_9_SR1_Hist_alpha_1high[ depList=(obs_x_SR1) ] = 0.0456587
+RooHistFunc::SR1_Truth_bin_9_SR1_Hist_alpha_1low[ depList=(obs_x_SR1) ] = 0.0134157
+RooHistFunc::SR1_Truth_bin_9_SR1_Hist_alphanominal[ depList=(obs_x_SR1) ] = 0.0295972
+RooStats::HistFactory::FlexibleInterpVar::SR1_Truth_bin_9_SR1_epsilon[ paramList=(alpha_bTag_SF_B_eigen0,alpha_PS) ] = 1
+RooProduct::SR1_Truth_bin_9_SR1_overallNorm_x_sigma_epsilon[ Bin_9 * SR1_Truth_bin_9_SR1_epsilon ] = 1
+RooProduct::SR1_Truth_bin_9_SR1_overallSyst_x_HistSyst[ SR1_Truth_bin_9_SR1_Hist_alpha * SR1_Truth_bin_9_SR1_overallNorm_x_sigma_epsilon ] = 0.0295972
+
+datasets
+--------
+RooDataSet::asimovData(obs_x_SR1)
+RooDataSet::obsData(obs_x_SR1)
+
+embedded datasets (in pdfs and functions)
+-----------------------------------------
+RooDataHist::Bkg_SR1_Hist_alphanominalDHist(obs_x_SR1)
+RooDataHist::Bkg_SR1_Hist_alpha_0lowDHist(obs_x_SR1)
+RooDataHist::Bkg_SR1_Hist_alpha_0highDHist(obs_x_SR1)
+RooDataHist::SR1_Truth_bin_1_SR1_Hist_alphanominalDHist(obs_x_SR1)
+RooDataHist::SR1_Truth_bin_1_SR1_Hist_alpha_0lowDHist(obs_x_SR1)
+RooDataHist::SR1_Truth_bin_1_SR1_Hist_alpha_1lowDHist(obs_x_SR1)
+RooDataHist::SR1_Truth_bin_1_SR1_Hist_alpha_0highDHist(obs_x_SR1)
+RooDataHist::SR1_Truth_bin_1_SR1_Hist_alpha_1highDHist(obs_x_SR1)
+RooDataHist::SR1_Truth_bin_2_SR1_Hist_alphanominalDHist(obs_x_SR1)
+RooDataHist::SR1_Truth_bin_2_SR1_Hist_alpha_0lowDHist(obs_x_SR1)
+RooDataHist::SR1_Truth_bin_2_SR1_Hist_alpha_1lowDHist(obs_x_SR1)
+RooDataHist::SR1_Truth_bin_2_SR1_Hist_alpha_0highDHist(obs_x_SR1)
+RooDataHist::SR1_Truth_bin_2_SR1_Hist_alpha_1highDHist(obs_x_SR1)
+RooDataHist::SR1_Truth_bin_3_SR1_Hist_alphanominalDHist(obs_x_SR1)
+RooDataHist::SR1_Truth_bin_3_SR1_Hist_alpha_0lowDHist(obs_x_SR1)
+RooDataHist::SR1_Truth_bin_3_SR1_Hist_alpha_1lowDHist(obs_x_SR1)
+RooDataHist::SR1_Truth_bin_3_SR1_Hist_alpha_0highDHist(obs_x_SR1)
+RooDataHist::SR1_Truth_bin_3_SR1_Hist_alpha_1highDHist(obs_x_SR1)
+RooDataHist::SR1_Truth_bin_4_SR1_Hist_alphanominalDHist(obs_x_SR1)
+RooDataHist::SR1_Truth_bin_4_SR1_Hist_alpha_0lowDHist(obs_x_SR1)
+RooDataHist::SR1_Truth_bin_4_SR1_Hist_alpha_1lowDHist(obs_x_SR1)
+RooDataHist::SR1_Truth_bin_4_SR1_Hist_alpha_0highDHist(obs_x_SR1)
+RooDataHist::SR1_Truth_bin_4_SR1_Hist_alpha_1highDHist(obs_x_SR1)
+RooDataHist::SR1_Truth_bin_5_SR1_Hist_alphanominalDHist(obs_x_SR1)
+RooDataHist::SR1_Truth_bin_5_SR1_Hist_alpha_0lowDHist(obs_x_SR1)
+RooDataHist::SR1_Truth_bin_5_SR1_Hist_alpha_1lowDHist(obs_x_SR1)
+RooDataHist::SR1_Truth_bin_5_SR1_Hist_alpha_0highDHist(obs_x_SR1)
+RooDataHist::SR1_Truth_bin_5_SR1_Hist_alpha_1highDHist(obs_x_SR1)
+RooDataHist::SR1_Truth_bin_6_SR1_Hist_alphanominalDHist(obs_x_SR1)
+RooDataHist::SR1_Truth_bin_6_SR1_Hist_alpha_0lowDHist(obs_x_SR1)
+RooDataHist::SR1_Truth_bin_6_SR1_Hist_alpha_1lowDHist(obs_x_SR1)
+RooDataHist::SR1_Truth_bin_6_SR1_Hist_alpha_0highDHist(obs_x_SR1)
+RooDataHist::SR1_Truth_bin_6_SR1_Hist_alpha_1highDHist(obs_x_SR1)
+RooDataHist::SR1_Truth_bin_7_SR1_Hist_alphanominalDHist(obs_x_SR1)
+RooDataHist::SR1_Truth_bin_7_SR1_Hist_alpha_0lowDHist(obs_x_SR1)
+RooDataHist::SR1_Truth_bin_7_SR1_Hist_alpha_1lowDHist(obs_x_SR1)
+RooDataHist::SR1_Truth_bin_7_SR1_Hist_alpha_0highDHist(obs_x_SR1)
+RooDataHist::SR1_Truth_bin_7_SR1_Hist_alpha_1highDHist(obs_x_SR1)
+RooDataHist::SR1_Truth_bin_8_SR1_Hist_alphanominalDHist(obs_x_SR1)
+RooDataHist::SR1_Truth_bin_8_SR1_Hist_alpha_0lowDHist(obs_x_SR1)
+RooDataHist::SR1_Truth_bin_8_SR1_Hist_alpha_1lowDHist(obs_x_SR1)
+RooDataHist::SR1_Truth_bin_8_SR1_Hist_alpha_0highDHist(obs_x_SR1)
+RooDataHist::SR1_Truth_bin_8_SR1_Hist_alpha_1highDHist(obs_x_SR1)
+RooDataHist::SR1_Truth_bin_9_SR1_Hist_alphanominalDHist(obs_x_SR1)
+RooDataHist::SR1_Truth_bin_9_SR1_Hist_alpha_0lowDHist(obs_x_SR1)
+RooDataHist::SR1_Truth_bin_9_SR1_Hist_alpha_1lowDHist(obs_x_SR1)
+RooDataHist::SR1_Truth_bin_9_SR1_Hist_alpha_0highDHist(obs_x_SR1)
+RooDataHist::SR1_Truth_bin_9_SR1_Hist_alpha_1highDHist(obs_x_SR1)
+RooDataHist::SR1_Truth_bin_10_SR1_Hist_alphanominalDHist(obs_x_SR1)
+RooDataHist::SR1_Truth_bin_10_SR1_Hist_alpha_0lowDHist(obs_x_SR1)
+RooDataHist::SR1_Truth_bin_10_SR1_Hist_alpha_1lowDHist(obs_x_SR1)
+RooDataHist::SR1_Truth_bin_10_SR1_Hist_alpha_0highDHist(obs_x_SR1)
+RooDataHist::SR1_Truth_bin_10_SR1_Hist_alpha_1highDHist(obs_x_SR1)
+RooDataHist::SR1_Truth_bin_11_SR1_Hist_alphanominalDHist(obs_x_SR1)
+RooDataHist::SR1_Truth_bin_11_SR1_Hist_alpha_0lowDHist(obs_x_SR1)
+RooDataHist::SR1_Truth_bin_11_SR1_Hist_alpha_1lowDHist(obs_x_SR1)
+RooDataHist::SR1_Truth_bin_11_SR1_Hist_alpha_0highDHist(obs_x_SR1)
+RooDataHist::SR1_Truth_bin_11_SR1_Hist_alpha_1highDHist(obs_x_SR1)
+
+named sets
+----------
+ModelConfig_GlobalObservables:(nom_alpha_bTag_SF_B_eigen0,nom_alpha_Bkg_norm,nom_alpha_PS)
+ModelConfig_Observables:(obs_x_SR1)
+coefList:(binWidth_obs_x_SR1_0,binWidth_obs_x_SR1_1,binWidth_obs_x_SR1_2,binWidth_obs_x_SR1_3,binWidth_obs_x_SR1_4,binWidth_obs_x_SR1_5,binWidth_obs_x_SR1_6,binWidth_obs_x_SR1_7,binWidth_obs_x_SR1_8,binWidth_obs_x_SR1_9,binWidth_obs_x_SR1_10,binWidth_obs_x_SR1_11)
+constraintTerms:(lumiConstraint,alpha_bTag_SF_B_eigen0Constraint,alpha_Bkg_normConstraint,alpha_PSConstraint)
+globalObservables:(nom_alpha_bTag_SF_B_eigen0,nom_alpha_Bkg_norm,nom_alpha_PS)
+likelihoodTerms:(SR1_model)
+obsAndWeight:(weightVar,obs_x_SR1)
+observables:(obs_x_SR1)
+observablesSet:(obs_x_SR1)
+shapeList:(L_x_Bkg_SR1_overallSyst_x_HistSyst,L_x_SR1_Truth_bin_1_SR1_overallSyst_x_HistSyst,L_x_SR1_Truth_bin_2_SR1_overallSyst_x_HistSyst,L_x_SR1_Truth_bin_3_SR1_overallSyst_x_HistSyst,L_x_SR1_Truth_bin_4_SR1_overallSyst_x_HistSyst,L_x_SR1_Truth_bin_5_SR1_overallSyst_x_HistSyst,L_x_SR1_Truth_bin_6_SR1_overallSyst_x_HistSyst,L_x_SR1_Truth_bin_7_SR1_overallSyst_x_HistSyst,L_x_SR1_Truth_bin_8_SR1_overallSyst_x_HistSyst,L_x_SR1_Truth_bin_9_SR1_overallSyst_x_HistSyst,L_x_SR1_Truth_bin_10_SR1_overallSyst_x_HistSyst,L_x_SR1_Truth_bin_11_SR1_overallSyst_x_HistSyst)
+
+generic objects
+---------------
+RooStats::ModelConfig::ModelConfig
+
+Setting Parameter(s) of Interest as: Bin_1 
+
+=== Using the following for ModelConfig ===
+Observables:             RooArgSet:: = (obs_x_SR1)
+Parameters of Interest:  RooArgSet:: = (Bin_1)
+Nuisance Parameters:     RooArgSet:: = (Bin_10,Bin_11,Bin_2,Bin_3,Bin_4,Bin_5,Bin_6,Bin_7,Bin_8,Bin_9,alpha_Bkg_norm,alpha_PS,alpha_bTag_SF_B_eigen0)
+Global Observables:      RooArgSet:: = (nom_alpha_bTag_SF_B_eigen0,nom_alpha_Bkg_norm,nom_alpha_PS)
+PDF:                     RooProdPdf::model_SR1[ lumiConstraint * alpha_bTag_SF_B_eigen0Constraint * alpha_Bkg_normConstraint * alpha_PSConstraint * SR1_model(obs_x_SR1) ] = 1644.92
+
+Opening File to hold channel: FitExampleUnfolding/RooStats/FitExampleUnfolding_SR1_FitExampleUnfolding_model.root
+About to write channel measurement to file
+Writing sample: Bkg
+Writing sample: SR1_Truth_bin_1
+Writing sample: SR1_Truth_bin_2
+Writing sample: SR1_Truth_bin_3
+Writing sample: SR1_Truth_bin_4
+Writing sample: SR1_Truth_bin_5
+Writing sample: SR1_Truth_bin_6
+Writing sample: SR1_Truth_bin_7
+Writing sample: SR1_Truth_bin_8
+Writing sample: SR1_Truth_bin_9
+Writing sample: SR1_Truth_bin_10
+Writing sample: SR1_Truth_bin_11
+Saved all histograms
+Saved Measurement
+Successfully wrote channel to file
+full list of observables:
+RooArgList:: = (obs_x_SR1)
+
+
+------------------
+ Entering combination
+[#1] INFO:ObjectHandling -- RooWorkspace::import(combined) importing RooRealVar::nom_alpha_bTag_SF_B_eigen0
+[#1] INFO:ObjectHandling -- RooWorkspace::import(combined) importing RooRealVar::nom_alpha_Bkg_norm
+[#1] INFO:ObjectHandling -- RooWorkspace::import(combined) importing RooRealVar::nom_alpha_PS
+-----------------------------------------
+create toy data for SR1
+RooDataSet::AsimovData0[obs_x_SR1,channelCat,weight:binWeightAsimov] = 11 entries (25722.8 weighted)
+[#1] INFO:ObjectHandling -- RooWorkspace::import(combined) importing dataset asimovDataFullModel
+[#1] INFO:ObjectHandling -- RooWorkSpace::import(combined) changing name of dataset from  asimovDataFullModel to asimovData
+[#1] INFO:ObjectHandling -- RooWorkspace::import(combined) importing RooRealVar::obs_x_SR1
+Merging data for channel SR1
+[#1] INFO:ObjectHandling -- RooWorkspace::import(combined) importing dataset SR1
+[#1] INFO:ObjectHandling -- RooWorkSpace::import(combined) changing name of dataset from  SR1 to obsData
+
+RooWorkspace(combined) combined contents
+
+variables
+---------
+(channelCat,nom_alpha_Bkg_norm,nom_alpha_PS,nom_alpha_bTag_SF_B_eigen0,obs_x_SR1,weightVar)
+
+datasets
+--------
+RooDataSet::asimovData(obs_x_SR1,weightVar,channelCat)
+RooDataSet::obsData(channelCat,obs_x_SR1)
+
+named sets
+----------
+ModelConfig_GlobalObservables:(nom_alpha_bTag_SF_B_eigen0,nom_alpha_Bkg_norm,nom_alpha_PS)
+ModelConfig_Observables:(obs_x_SR1,weightVar,channelCat)
+globalObservables:(nom_alpha_bTag_SF_B_eigen0,nom_alpha_Bkg_norm,nom_alpha_PS)
+observables:(obs_x_SR1,weightVar,channelCat)
+
+
+
+----------------
+ Importing combined model
+[#1] INFO:ObjectHandling -- RooWorkspace::import(combined) importing dataset Bkg_SR1_Hist_alphanominalDHist
+[#1] INFO:ObjectHandling -- RooWorkspace::import(combined) importing dataset Bkg_SR1_Hist_alpha_0lowDHist
+[#1] INFO:ObjectHandling -- RooWorkspace::import(combined) importing dataset Bkg_SR1_Hist_alpha_0highDHist
+[#1] INFO:ObjectHandling -- RooWorkspace::import(combined) importing dataset SR1_Truth_bin_1_SR1_Hist_alphanominalDHist
+[#1] INFO:ObjectHandling -- RooWorkspace::import(combined) importing dataset SR1_Truth_bin_1_SR1_Hist_alpha_0lowDHist
+[#1] INFO:ObjectHandling -- RooWorkspace::import(combined) importing dataset SR1_Truth_bin_1_SR1_Hist_alpha_1lowDHist
+[#1] INFO:ObjectHandling -- RooWorkspace::import(combined) importing dataset SR1_Truth_bin_1_SR1_Hist_alpha_0highDHist
+[#1] INFO:ObjectHandling -- RooWorkspace::import(combined) importing dataset SR1_Truth_bin_1_SR1_Hist_alpha_1highDHist
+[#1] INFO:ObjectHandling -- RooWorkspace::import(combined) importing dataset SR1_Truth_bin_2_SR1_Hist_alphanominalDHist
+[#1] INFO:ObjectHandling -- RooWorkspace::import(combined) importing dataset SR1_Truth_bin_2_SR1_Hist_alpha_0lowDHist
+[#1] INFO:ObjectHandling -- RooWorkspace::import(combined) importing dataset SR1_Truth_bin_2_SR1_Hist_alpha_1lowDHist
+[#1] INFO:ObjectHandling -- RooWorkspace::import(combined) importing dataset SR1_Truth_bin_2_SR1_Hist_alpha_0highDHist
+[#1] INFO:ObjectHandling -- RooWorkspace::import(combined) importing dataset SR1_Truth_bin_2_SR1_Hist_alpha_1highDHist
+[#1] INFO:ObjectHandling -- RooWorkspace::import(combined) importing dataset SR1_Truth_bin_3_SR1_Hist_alphanominalDHist
+[#1] INFO:ObjectHandling -- RooWorkspace::import(combined) importing dataset SR1_Truth_bin_3_SR1_Hist_alpha_0lowDHist
+[#1] INFO:ObjectHandling -- RooWorkspace::import(combined) importing dataset SR1_Truth_bin_3_SR1_Hist_alpha_1lowDHist
+[#1] INFO:ObjectHandling -- RooWorkspace::import(combined) importing dataset SR1_Truth_bin_3_SR1_Hist_alpha_0highDHist
+[#1] INFO:ObjectHandling -- RooWorkspace::import(combined) importing dataset SR1_Truth_bin_3_SR1_Hist_alpha_1highDHist
+[#1] INFO:ObjectHandling -- RooWorkspace::import(combined) importing dataset SR1_Truth_bin_4_SR1_Hist_alphanominalDHist
+[#1] INFO:ObjectHandling -- RooWorkspace::import(combined) importing dataset SR1_Truth_bin_4_SR1_Hist_alpha_0lowDHist
+[#1] INFO:ObjectHandling -- RooWorkspace::import(combined) importing dataset SR1_Truth_bin_4_SR1_Hist_alpha_1lowDHist
+[#1] INFO:ObjectHandling -- RooWorkspace::import(combined) importing dataset SR1_Truth_bin_4_SR1_Hist_alpha_0highDHist
+[#1] INFO:ObjectHandling -- RooWorkspace::import(combined) importing dataset SR1_Truth_bin_4_SR1_Hist_alpha_1highDHist
+[#1] INFO:ObjectHandling -- RooWorkspace::import(combined) importing dataset SR1_Truth_bin_5_SR1_Hist_alphanominalDHist
+[#1] INFO:ObjectHandling -- RooWorkspace::import(combined) importing dataset SR1_Truth_bin_5_SR1_Hist_alpha_0lowDHist
+[#1] INFO:ObjectHandling -- RooWorkspace::import(combined) importing dataset SR1_Truth_bin_5_SR1_Hist_alpha_1lowDHist
+[#1] INFO:ObjectHandling -- RooWorkspace::import(combined) importing dataset SR1_Truth_bin_5_SR1_Hist_alpha_0highDHist
+[#1] INFO:ObjectHandling -- RooWorkspace::import(combined) importing dataset SR1_Truth_bin_5_SR1_Hist_alpha_1highDHist
+[#1] INFO:ObjectHandling -- RooWorkspace::import(combined) importing dataset SR1_Truth_bin_6_SR1_Hist_alphanominalDHist
+[#1] INFO:ObjectHandling -- RooWorkspace::import(combined) importing dataset SR1_Truth_bin_6_SR1_Hist_alpha_0lowDHist
+[#1] INFO:ObjectHandling -- RooWorkspace::import(combined) importing dataset SR1_Truth_bin_6_SR1_Hist_alpha_1lowDHist
+[#1] INFO:ObjectHandling -- RooWorkspace::import(combined) importing dataset SR1_Truth_bin_6_SR1_Hist_alpha_0highDHist
+[#1] INFO:ObjectHandling -- RooWorkspace::import(combined) importing dataset SR1_Truth_bin_6_SR1_Hist_alpha_1highDHist
+[#1] INFO:ObjectHandling -- RooWorkspace::import(combined) importing dataset SR1_Truth_bin_7_SR1_Hist_alphanominalDHist
+[#1] INFO:ObjectHandling -- RooWorkspace::import(combined) importing dataset SR1_Truth_bin_7_SR1_Hist_alpha_0lowDHist
+[#1] INFO:ObjectHandling -- RooWorkspace::import(combined) importing dataset SR1_Truth_bin_7_SR1_Hist_alpha_1lowDHist
+[#1] INFO:ObjectHandling -- RooWorkspace::import(combined) importing dataset SR1_Truth_bin_7_SR1_Hist_alpha_0highDHist
+[#1] INFO:ObjectHandling -- RooWorkspace::import(combined) importing dataset SR1_Truth_bin_7_SR1_Hist_alpha_1highDHist
+[#1] INFO:ObjectHandling -- RooWorkspace::import(combined) importing dataset SR1_Truth_bin_8_SR1_Hist_alphanominalDHist
+[#1] INFO:ObjectHandling -- RooWorkspace::import(combined) importing dataset SR1_Truth_bin_8_SR1_Hist_alpha_0lowDHist
+[#1] INFO:ObjectHandling -- RooWorkspace::import(combined) importing dataset SR1_Truth_bin_8_SR1_Hist_alpha_1lowDHist
+[#1] INFO:ObjectHandling -- RooWorkspace::import(combined) importing dataset SR1_Truth_bin_8_SR1_Hist_alpha_0highDHist
+[#1] INFO:ObjectHandling -- RooWorkspace::import(combined) importing dataset SR1_Truth_bin_8_SR1_Hist_alpha_1highDHist
+[#1] INFO:ObjectHandling -- RooWorkspace::import(combined) importing dataset SR1_Truth_bin_9_SR1_Hist_alphanominalDHist
+[#1] INFO:ObjectHandling -- RooWorkspace::import(combined) importing dataset SR1_Truth_bin_9_SR1_Hist_alpha_0lowDHist
+[#1] INFO:ObjectHandling -- RooWorkspace::import(combined) importing dataset SR1_Truth_bin_9_SR1_Hist_alpha_1lowDHist
+[#1] INFO:ObjectHandling -- RooWorkspace::import(combined) importing dataset SR1_Truth_bin_9_SR1_Hist_alpha_0highDHist
+[#1] INFO:ObjectHandling -- RooWorkspace::import(combined) importing dataset SR1_Truth_bin_9_SR1_Hist_alpha_1highDHist
+[#1] INFO:ObjectHandling -- RooWorkspace::import(combined) importing dataset SR1_Truth_bin_10_SR1_Hist_alphanominalDHist
+[#1] INFO:ObjectHandling -- RooWorkspace::import(combined) importing dataset SR1_Truth_bin_10_SR1_Hist_alpha_0lowDHist
+[#1] INFO:ObjectHandling -- RooWorkspace::import(combined) importing dataset SR1_Truth_bin_10_SR1_Hist_alpha_1lowDHist
+[#1] INFO:ObjectHandling -- RooWorkspace::import(combined) importing dataset SR1_Truth_bin_10_SR1_Hist_alpha_0highDHist
+[#1] INFO:ObjectHandling -- RooWorkspace::import(combined) importing dataset SR1_Truth_bin_10_SR1_Hist_alpha_1highDHist
+[#1] INFO:ObjectHandling -- RooWorkspace::import(combined) importing dataset SR1_Truth_bin_11_SR1_Hist_alphanominalDHist
+[#1] INFO:ObjectHandling -- RooWorkspace::import(combined) importing dataset SR1_Truth_bin_11_SR1_Hist_alpha_0lowDHist
+[#1] INFO:ObjectHandling -- RooWorkspace::import(combined) importing dataset SR1_Truth_bin_11_SR1_Hist_alpha_1lowDHist
+[#1] INFO:ObjectHandling -- RooWorkspace::import(combined) importing dataset SR1_Truth_bin_11_SR1_Hist_alpha_0highDHist
+[#1] INFO:ObjectHandling -- RooWorkspace::import(combined) importing dataset SR1_Truth_bin_11_SR1_Hist_alpha_1highDHist
+[#1] INFO:ObjectHandling -- RooWorkspace::import(combined) importing RooSimultaneous::simPdf
+[#1] INFO:ObjectHandling -- RooWorkspace::import(combined) using existing copy of RooCategory::channelCat for import of RooSimultaneous::simPdf
+[#1] INFO:ObjectHandling -- RooWorkspace::import(combined) importing RooProdPdf::model_SR1
+[#1] INFO:ObjectHandling -- RooWorkspace::import(combined) importing RooGaussian::lumiConstraint
+[#1] INFO:ObjectHandling -- RooWorkspace::import(combined) importing RooConstVar::0.1
+[#1] INFO:ObjectHandling -- RooWorkspace::import(combined) importing RooRealVar::Lumi
+[#1] INFO:ObjectHandling -- RooWorkspace::import(combined) importing RooRealVar::nominalLumi
+[#1] INFO:ObjectHandling -- RooWorkspace::import(combined) importing RooGaussian::alpha_bTag_SF_B_eigen0Constraint
+[#1] INFO:ObjectHandling -- RooWorkspace::import(combined) importing RooConstVar::1
+[#1] INFO:ObjectHandling -- RooWorkspace::import(combined) importing RooRealVar::alpha_bTag_SF_B_eigen0
+[#1] INFO:ObjectHandling -- RooWorkspace::import(combined) using existing copy of RooRealVar::nom_alpha_bTag_SF_B_eigen0 for import of RooSimultaneous::simPdf
+[#1] INFO:ObjectHandling -- RooWorkspace::import(combined) importing RooGaussian::alpha_Bkg_normConstraint
+[#1] INFO:ObjectHandling -- RooWorkspace::import(combined) importing RooRealVar::alpha_Bkg_norm
+[#1] INFO:ObjectHandling -- RooWorkspace::import(combined) using existing copy of RooRealVar::nom_alpha_Bkg_norm for import of RooSimultaneous::simPdf
+[#1] INFO:ObjectHandling -- RooWorkspace::import(combined) importing RooGaussian::alpha_PSConstraint
+[#1] INFO:ObjectHandling -- RooWorkspace::import(combined) importing RooRealVar::alpha_PS
+[#1] INFO:ObjectHandling -- RooWorkspace::import(combined) using existing copy of RooRealVar::nom_alpha_PS for import of RooSimultaneous::simPdf
+[#1] INFO:ObjectHandling -- RooWorkspace::import(combined) importing RooRealSumPdf::SR1_model
+[#1] INFO:ObjectHandling -- RooWorkspace::import(combined) importing RooProduct::L_x_Bkg_SR1_overallSyst_x_HistSyst
+[#1] INFO:ObjectHandling -- RooWorkspace::import(combined) importing RooProduct::Bkg_SR1_overallSyst_x_HistSyst
+[#1] INFO:ObjectHandling -- RooWorkspace::import(combined) importing PiecewiseInterpolation::Bkg_SR1_Hist_alpha
+[#1] INFO:ObjectHandling -- RooWorkspace::import(combined) importing RooHistFunc::Bkg_SR1_Hist_alphanominal
+[#1] INFO:ObjectHandling -- RooWorkspace::import(combined) using existing copy of RooRealVar::obs_x_SR1 for import of RooSimultaneous::simPdf
+[#1] INFO:ObjectHandling -- RooWorkspace::import(combined) importing RooHistFunc::Bkg_SR1_Hist_alpha_0low
+[#1] INFO:ObjectHandling -- RooWorkspace::import(combined) importing RooHistFunc::Bkg_SR1_Hist_alpha_0high
+[#1] INFO:ObjectHandling -- RooWorkspace::import(combined) importing RooStats::HistFactory::FlexibleInterpVar::Bkg_SR1_epsilon
+[#1] INFO:ObjectHandling -- RooWorkspace::import(combined) importing RooRealVar::binWidth_obs_x_SR1_0
+[#1] INFO:ObjectHandling -- RooWorkspace::import(combined) importing RooProduct::L_x_SR1_Truth_bin_1_SR1_overallSyst_x_HistSyst
+[#1] INFO:ObjectHandling -- RooWorkspace::import(combined) importing RooProduct::SR1_Truth_bin_1_SR1_overallSyst_x_HistSyst
+[#1] INFO:ObjectHandling -- RooWorkspace::import(combined) importing PiecewiseInterpolation::SR1_Truth_bin_1_SR1_Hist_alpha
+[#1] INFO:ObjectHandling -- RooWorkspace::import(combined) importing RooHistFunc::SR1_Truth_bin_1_SR1_Hist_alphanominal
+[#1] INFO:ObjectHandling -- RooWorkspace::import(combined) importing RooHistFunc::SR1_Truth_bin_1_SR1_Hist_alpha_0low
+[#1] INFO:ObjectHandling -- RooWorkspace::import(combined) importing RooHistFunc::SR1_Truth_bin_1_SR1_Hist_alpha_1low
+[#1] INFO:ObjectHandling -- RooWorkspace::import(combined) importing RooHistFunc::SR1_Truth_bin_1_SR1_Hist_alpha_0high
+[#1] INFO:ObjectHandling -- RooWorkspace::import(combined) importing RooHistFunc::SR1_Truth_bin_1_SR1_Hist_alpha_1high
+[#1] INFO:ObjectHandling -- RooWorkspace::import(combined) importing RooProduct::SR1_Truth_bin_1_SR1_overallNorm_x_sigma_epsilon
+[#1] INFO:ObjectHandling -- RooWorkspace::import(combined) importing RooRealVar::Bin_1
+[#1] INFO:ObjectHandling -- RooWorkspace::import(combined) importing RooStats::HistFactory::FlexibleInterpVar::SR1_Truth_bin_1_SR1_epsilon
+[#1] INFO:ObjectHandling -- RooWorkspace::import(combined) importing RooRealVar::binWidth_obs_x_SR1_1
+[#1] INFO:ObjectHandling -- RooWorkspace::import(combined) importing RooProduct::L_x_SR1_Truth_bin_2_SR1_overallSyst_x_HistSyst
+[#1] INFO:ObjectHandling -- RooWorkspace::import(combined) importing RooProduct::SR1_Truth_bin_2_SR1_overallSyst_x_HistSyst
+[#1] INFO:ObjectHandling -- RooWorkspace::import(combined) importing PiecewiseInterpolation::SR1_Truth_bin_2_SR1_Hist_alpha
+[#1] INFO:ObjectHandling -- RooWorkspace::import(combined) importing RooHistFunc::SR1_Truth_bin_2_SR1_Hist_alphanominal
+[#1] INFO:ObjectHandling -- RooWorkspace::import(combined) importing RooHistFunc::SR1_Truth_bin_2_SR1_Hist_alpha_0low
+[#1] INFO:ObjectHandling -- RooWorkspace::import(combined) importing RooHistFunc::SR1_Truth_bin_2_SR1_Hist_alpha_1low
+[#1] INFO:ObjectHandling -- RooWorkspace::import(combined) importing RooHistFunc::SR1_Truth_bin_2_SR1_Hist_alpha_0high
+[#1] INFO:ObjectHandling -- RooWorkspace::import(combined) importing RooHistFunc::SR1_Truth_bin_2_SR1_Hist_alpha_1high
+[#1] INFO:ObjectHandling -- RooWorkspace::import(combined) importing RooProduct::SR1_Truth_bin_2_SR1_overallNorm_x_sigma_epsilon
+[#1] INFO:ObjectHandling -- RooWorkspace::import(combined) importing RooRealVar::Bin_2
+[#1] INFO:ObjectHandling -- RooWorkspace::import(combined) importing RooStats::HistFactory::FlexibleInterpVar::SR1_Truth_bin_2_SR1_epsilon
+[#1] INFO:ObjectHandling -- RooWorkspace::import(combined) importing RooRealVar::binWidth_obs_x_SR1_2
+[#1] INFO:ObjectHandling -- RooWorkspace::import(combined) importing RooProduct::L_x_SR1_Truth_bin_3_SR1_overallSyst_x_HistSyst
+[#1] INFO:ObjectHandling -- RooWorkspace::import(combined) importing RooProduct::SR1_Truth_bin_3_SR1_overallSyst_x_HistSyst
+[#1] INFO:ObjectHandling -- RooWorkspace::import(combined) importing PiecewiseInterpolation::SR1_Truth_bin_3_SR1_Hist_alpha
+[#1] INFO:ObjectHandling -- RooWorkspace::import(combined) importing RooHistFunc::SR1_Truth_bin_3_SR1_Hist_alphanominal
+[#1] INFO:ObjectHandling -- RooWorkspace::import(combined) importing RooHistFunc::SR1_Truth_bin_3_SR1_Hist_alpha_0low
+[#1] INFO:ObjectHandling -- RooWorkspace::import(combined) importing RooHistFunc::SR1_Truth_bin_3_SR1_Hist_alpha_1low
+[#1] INFO:ObjectHandling -- RooWorkspace::import(combined) importing RooHistFunc::SR1_Truth_bin_3_SR1_Hist_alpha_0high
+[#1] INFO:ObjectHandling -- RooWorkspace::import(combined) importing RooHistFunc::SR1_Truth_bin_3_SR1_Hist_alpha_1high
+[#1] INFO:ObjectHandling -- RooWorkspace::import(combined) importing RooProduct::SR1_Truth_bin_3_SR1_overallNorm_x_sigma_epsilon
+[#1] INFO:ObjectHandling -- RooWorkspace::import(combined) importing RooRealVar::Bin_3
+[#1] INFO:ObjectHandling -- RooWorkspace::import(combined) importing RooStats::HistFactory::FlexibleInterpVar::SR1_Truth_bin_3_SR1_epsilon
+[#1] INFO:ObjectHandling -- RooWorkspace::import(combined) importing RooRealVar::binWidth_obs_x_SR1_3
+[#1] INFO:ObjectHandling -- RooWorkspace::import(combined) importing RooProduct::L_x_SR1_Truth_bin_4_SR1_overallSyst_x_HistSyst
+[#1] INFO:ObjectHandling -- RooWorkspace::import(combined) importing RooProduct::SR1_Truth_bin_4_SR1_overallSyst_x_HistSyst
+[#1] INFO:ObjectHandling -- RooWorkspace::import(combined) importing PiecewiseInterpolation::SR1_Truth_bin_4_SR1_Hist_alpha
+[#1] INFO:ObjectHandling -- RooWorkspace::import(combined) importing RooHistFunc::SR1_Truth_bin_4_SR1_Hist_alphanominal
+[#1] INFO:ObjectHandling -- RooWorkspace::import(combined) importing RooHistFunc::SR1_Truth_bin_4_SR1_Hist_alpha_0low
+[#1] INFO:ObjectHandling -- RooWorkspace::import(combined) importing RooHistFunc::SR1_Truth_bin_4_SR1_Hist_alpha_1low
+[#1] INFO:ObjectHandling -- RooWorkspace::import(combined) importing RooHistFunc::SR1_Truth_bin_4_SR1_Hist_alpha_0high
+[#1] INFO:ObjectHandling -- RooWorkspace::import(combined) importing RooHistFunc::SR1_Truth_bin_4_SR1_Hist_alpha_1high
+[#1] INFO:ObjectHandling -- RooWorkspace::import(combined) importing RooProduct::SR1_Truth_bin_4_SR1_overallNorm_x_sigma_epsilon
+[#1] INFO:ObjectHandling -- RooWorkspace::import(combined) importing RooRealVar::Bin_4
+[#1] INFO:ObjectHandling -- RooWorkspace::import(combined) importing RooStats::HistFactory::FlexibleInterpVar::SR1_Truth_bin_4_SR1_epsilon
+[#1] INFO:ObjectHandling -- RooWorkspace::import(combined) importing RooRealVar::binWidth_obs_x_SR1_4
+[#1] INFO:ObjectHandling -- RooWorkspace::import(combined) importing RooProduct::L_x_SR1_Truth_bin_5_SR1_overallSyst_x_HistSyst
+[#1] INFO:ObjectHandling -- RooWorkspace::import(combined) importing RooProduct::SR1_Truth_bin_5_SR1_overallSyst_x_HistSyst
+[#1] INFO:ObjectHandling -- RooWorkspace::import(combined) importing PiecewiseInterpolation::SR1_Truth_bin_5_SR1_Hist_alpha
+[#1] INFO:ObjectHandling -- RooWorkspace::import(combined) importing RooHistFunc::SR1_Truth_bin_5_SR1_Hist_alphanominal
+[#1] INFO:ObjectHandling -- RooWorkspace::import(combined) importing RooHistFunc::SR1_Truth_bin_5_SR1_Hist_alpha_0low
+[#1] INFO:ObjectHandling -- RooWorkspace::import(combined) importing RooHistFunc::SR1_Truth_bin_5_SR1_Hist_alpha_1low
+[#1] INFO:ObjectHandling -- RooWorkspace::import(combined) importing RooHistFunc::SR1_Truth_bin_5_SR1_Hist_alpha_0high
+[#1] INFO:ObjectHandling -- RooWorkspace::import(combined) importing RooHistFunc::SR1_Truth_bin_5_SR1_Hist_alpha_1high
+[#1] INFO:ObjectHandling -- RooWorkspace::import(combined) importing RooProduct::SR1_Truth_bin_5_SR1_overallNorm_x_sigma_epsilon
+[#1] INFO:ObjectHandling -- RooWorkspace::import(combined) importing RooRealVar::Bin_5
+[#1] INFO:ObjectHandling -- RooWorkspace::import(combined) importing RooStats::HistFactory::FlexibleInterpVar::SR1_Truth_bin_5_SR1_epsilon
+[#1] INFO:ObjectHandling -- RooWorkspace::import(combined) importing RooRealVar::binWidth_obs_x_SR1_5
+[#1] INFO:ObjectHandling -- RooWorkspace::import(combined) importing RooProduct::L_x_SR1_Truth_bin_6_SR1_overallSyst_x_HistSyst
+[#1] INFO:ObjectHandling -- RooWorkspace::import(combined) importing RooProduct::SR1_Truth_bin_6_SR1_overallSyst_x_HistSyst
+[#1] INFO:ObjectHandling -- RooWorkspace::import(combined) importing PiecewiseInterpolation::SR1_Truth_bin_6_SR1_Hist_alpha
+[#1] INFO:ObjectHandling -- RooWorkspace::import(combined) importing RooHistFunc::SR1_Truth_bin_6_SR1_Hist_alphanominal
+[#1] INFO:ObjectHandling -- RooWorkspace::import(combined) importing RooHistFunc::SR1_Truth_bin_6_SR1_Hist_alpha_0low
+[#1] INFO:ObjectHandling -- RooWorkspace::import(combined) importing RooHistFunc::SR1_Truth_bin_6_SR1_Hist_alpha_1low
+[#1] INFO:ObjectHandling -- RooWorkspace::import(combined) importing RooHistFunc::SR1_Truth_bin_6_SR1_Hist_alpha_0high
+[#1] INFO:ObjectHandling -- RooWorkspace::import(combined) importing RooHistFunc::SR1_Truth_bin_6_SR1_Hist_alpha_1high
+[#1] INFO:ObjectHandling -- RooWorkspace::import(combined) importing RooProduct::SR1_Truth_bin_6_SR1_overallNorm_x_sigma_epsilon
+[#1] INFO:ObjectHandling -- RooWorkspace::import(combined) importing RooRealVar::Bin_6
+[#1] INFO:ObjectHandling -- RooWorkspace::import(combined) importing RooStats::HistFactory::FlexibleInterpVar::SR1_Truth_bin_6_SR1_epsilon
+[#1] INFO:ObjectHandling -- RooWorkspace::import(combined) importing RooRealVar::binWidth_obs_x_SR1_6
+[#1] INFO:ObjectHandling -- RooWorkspace::import(combined) importing RooProduct::L_x_SR1_Truth_bin_7_SR1_overallSyst_x_HistSyst
+[#1] INFO:ObjectHandling -- RooWorkspace::import(combined) importing RooProduct::SR1_Truth_bin_7_SR1_overallSyst_x_HistSyst
+[#1] INFO:ObjectHandling -- RooWorkspace::import(combined) importing PiecewiseInterpolation::SR1_Truth_bin_7_SR1_Hist_alpha
+[#1] INFO:ObjectHandling -- RooWorkspace::import(combined) importing RooHistFunc::SR1_Truth_bin_7_SR1_Hist_alphanominal
+[#1] INFO:ObjectHandling -- RooWorkspace::import(combined) importing RooHistFunc::SR1_Truth_bin_7_SR1_Hist_alpha_0low
+[#1] INFO:ObjectHandling -- RooWorkspace::import(combined) importing RooHistFunc::SR1_Truth_bin_7_SR1_Hist_alpha_1low
+[#1] INFO:ObjectHandling -- RooWorkspace::import(combined) importing RooHistFunc::SR1_Truth_bin_7_SR1_Hist_alpha_0high
+[#1] INFO:ObjectHandling -- RooWorkspace::import(combined) importing RooHistFunc::SR1_Truth_bin_7_SR1_Hist_alpha_1high
+[#1] INFO:ObjectHandling -- RooWorkspace::import(combined) importing RooProduct::SR1_Truth_bin_7_SR1_overallNorm_x_sigma_epsilon
+[#1] INFO:ObjectHandling -- RooWorkspace::import(combined) importing RooRealVar::Bin_7
+[#1] INFO:ObjectHandling -- RooWorkspace::import(combined) importing RooStats::HistFactory::FlexibleInterpVar::SR1_Truth_bin_7_SR1_epsilon
+[#1] INFO:ObjectHandling -- RooWorkspace::import(combined) importing RooRealVar::binWidth_obs_x_SR1_7
+[#1] INFO:ObjectHandling -- RooWorkspace::import(combined) importing RooProduct::L_x_SR1_Truth_bin_8_SR1_overallSyst_x_HistSyst
+[#1] INFO:ObjectHandling -- RooWorkspace::import(combined) importing RooProduct::SR1_Truth_bin_8_SR1_overallSyst_x_HistSyst
+[#1] INFO:ObjectHandling -- RooWorkspace::import(combined) importing PiecewiseInterpolation::SR1_Truth_bin_8_SR1_Hist_alpha
+[#1] INFO:ObjectHandling -- RooWorkspace::import(combined) importing RooHistFunc::SR1_Truth_bin_8_SR1_Hist_alphanominal
+[#1] INFO:ObjectHandling -- RooWorkspace::import(combined) importing RooHistFunc::SR1_Truth_bin_8_SR1_Hist_alpha_0low
+[#1] INFO:ObjectHandling -- RooWorkspace::import(combined) importing RooHistFunc::SR1_Truth_bin_8_SR1_Hist_alpha_1low
+[#1] INFO:ObjectHandling -- RooWorkspace::import(combined) importing RooHistFunc::SR1_Truth_bin_8_SR1_Hist_alpha_0high
+[#1] INFO:ObjectHandling -- RooWorkspace::import(combined) importing RooHistFunc::SR1_Truth_bin_8_SR1_Hist_alpha_1high
+[#1] INFO:ObjectHandling -- RooWorkspace::import(combined) importing RooProduct::SR1_Truth_bin_8_SR1_overallNorm_x_sigma_epsilon
+[#1] INFO:ObjectHandling -- RooWorkspace::import(combined) importing RooRealVar::Bin_8
+[#1] INFO:ObjectHandling -- RooWorkspace::import(combined) importing RooStats::HistFactory::FlexibleInterpVar::SR1_Truth_bin_8_SR1_epsilon
+[#1] INFO:ObjectHandling -- RooWorkspace::import(combined) importing RooRealVar::binWidth_obs_x_SR1_8
+[#1] INFO:ObjectHandling -- RooWorkspace::import(combined) importing RooProduct::L_x_SR1_Truth_bin_9_SR1_overallSyst_x_HistSyst
+[#1] INFO:ObjectHandling -- RooWorkspace::import(combined) importing RooProduct::SR1_Truth_bin_9_SR1_overallSyst_x_HistSyst
+[#1] INFO:ObjectHandling -- RooWorkspace::import(combined) importing PiecewiseInterpolation::SR1_Truth_bin_9_SR1_Hist_alpha
+[#1] INFO:ObjectHandling -- RooWorkspace::import(combined) importing RooHistFunc::SR1_Truth_bin_9_SR1_Hist_alphanominal
+[#1] INFO:ObjectHandling -- RooWorkspace::import(combined) importing RooHistFunc::SR1_Truth_bin_9_SR1_Hist_alpha_0low
+[#1] INFO:ObjectHandling -- RooWorkspace::import(combined) importing RooHistFunc::SR1_Truth_bin_9_SR1_Hist_alpha_1low
+[#1] INFO:ObjectHandling -- RooWorkspace::import(combined) importing RooHistFunc::SR1_Truth_bin_9_SR1_Hist_alpha_0high
+[#1] INFO:ObjectHandling -- RooWorkspace::import(combined) importing RooHistFunc::SR1_Truth_bin_9_SR1_Hist_alpha_1high
+[#1] INFO:ObjectHandling -- RooWorkspace::import(combined) importing RooProduct::SR1_Truth_bin_9_SR1_overallNorm_x_sigma_epsilon
+[#1] INFO:ObjectHandling -- RooWorkspace::import(combined) importing RooRealVar::Bin_9
+[#1] INFO:ObjectHandling -- RooWorkspace::import(combined) importing RooStats::HistFactory::FlexibleInterpVar::SR1_Truth_bin_9_SR1_epsilon
+[#1] INFO:ObjectHandling -- RooWorkspace::import(combined) importing RooRealVar::binWidth_obs_x_SR1_9
+[#1] INFO:ObjectHandling -- RooWorkspace::import(combined) importing RooProduct::L_x_SR1_Truth_bin_10_SR1_overallSyst_x_HistSyst
+[#1] INFO:ObjectHandling -- RooWorkspace::import(combined) importing RooProduct::SR1_Truth_bin_10_SR1_overallSyst_x_HistSyst
+[#1] INFO:ObjectHandling -- RooWorkspace::import(combined) importing PiecewiseInterpolation::SR1_Truth_bin_10_SR1_Hist_alpha
+[#1] INFO:ObjectHandling -- RooWorkspace::import(combined) importing RooHistFunc::SR1_Truth_bin_10_SR1_Hist_alphanominal
+[#1] INFO:ObjectHandling -- RooWorkspace::import(combined) importing RooHistFunc::SR1_Truth_bin_10_SR1_Hist_alpha_0low
+[#1] INFO:ObjectHandling -- RooWorkspace::import(combined) importing RooHistFunc::SR1_Truth_bin_10_SR1_Hist_alpha_1low
+[#1] INFO:ObjectHandling -- RooWorkspace::import(combined) importing RooHistFunc::SR1_Truth_bin_10_SR1_Hist_alpha_0high
+[#1] INFO:ObjectHandling -- RooWorkspace::import(combined) importing RooHistFunc::SR1_Truth_bin_10_SR1_Hist_alpha_1high
+[#1] INFO:ObjectHandling -- RooWorkspace::import(combined) importing RooProduct::SR1_Truth_bin_10_SR1_overallNorm_x_sigma_epsilon
+[#1] INFO:ObjectHandling -- RooWorkspace::import(combined) importing RooRealVar::Bin_10
+[#1] INFO:ObjectHandling -- RooWorkspace::import(combined) importing RooStats::HistFactory::FlexibleInterpVar::SR1_Truth_bin_10_SR1_epsilon
+[#1] INFO:ObjectHandling -- RooWorkspace::import(combined) importing RooRealVar::binWidth_obs_x_SR1_10
+[#1] INFO:ObjectHandling -- RooWorkspace::import(combined) importing RooProduct::L_x_SR1_Truth_bin_11_SR1_overallSyst_x_HistSyst
+[#1] INFO:ObjectHandling -- RooWorkspace::import(combined) importing RooProduct::SR1_Truth_bin_11_SR1_overallSyst_x_HistSyst
+[#1] INFO:ObjectHandling -- RooWorkspace::import(combined) importing PiecewiseInterpolation::SR1_Truth_bin_11_SR1_Hist_alpha
+[#1] INFO:ObjectHandling -- RooWorkspace::import(combined) importing RooHistFunc::SR1_Truth_bin_11_SR1_Hist_alphanominal
+[#1] INFO:ObjectHandling -- RooWorkspace::import(combined) importing RooHistFunc::SR1_Truth_bin_11_SR1_Hist_alpha_0low
+[#1] INFO:ObjectHandling -- RooWorkspace::import(combined) importing RooHistFunc::SR1_Truth_bin_11_SR1_Hist_alpha_1low
+[#1] INFO:ObjectHandling -- RooWorkspace::import(combined) importing RooHistFunc::SR1_Truth_bin_11_SR1_Hist_alpha_0high
+[#1] INFO:ObjectHandling -- RooWorkspace::import(combined) importing RooHistFunc::SR1_Truth_bin_11_SR1_Hist_alpha_1high
+[#1] INFO:ObjectHandling -- RooWorkspace::import(combined) importing RooProduct::SR1_Truth_bin_11_SR1_overallNorm_x_sigma_epsilon
+[#1] INFO:ObjectHandling -- RooWorkspace::import(combined) importing RooRealVar::Bin_11
+[#1] INFO:ObjectHandling -- RooWorkspace::import(combined) importing RooStats::HistFactory::FlexibleInterpVar::SR1_Truth_bin_11_SR1_epsilon
+[#1] INFO:ObjectHandling -- RooWorkspace::import(combined) importing RooRealVar::binWidth_obs_x_SR1_11
+setting Lumi constant
+Setting Parameter(s) of Interest as: Bin_1 
+
+=== Using the following for ModelConfig ===
+Observables:             RooArgSet:: = (obs_x_SR1,weightVar,channelCat)
+Parameters of Interest:  RooArgSet:: = (Bin_1)
+Nuisance Parameters:     RooArgSet:: = (Bin_10,Bin_11,Bin_2,Bin_3,Bin_4,Bin_5,Bin_6,Bin_7,Bin_8,Bin_9,alpha_Bkg_norm,alpha_PS,alpha_bTag_SF_B_eigen0)
+Global Observables:      RooArgSet:: = (nom_alpha_bTag_SF_B_eigen0,nom_alpha_Bkg_norm,nom_alpha_PS)
+PDF:                     RooSimultaneous::simPdf[ indexCat=channelCat SR1=model_SR1 ] = 1644.92
+
+Writing combined workspace to file: FitExampleUnfolding/RooStats/FitExampleUnfolding_combined_FitExampleUnfolding_model.root
+Writing combined measurement to file: FitExampleUnfolding/RooStats/FitExampleUnfolding_combined_FitExampleUnfolding_model.root
+Writing sample: Bkg
+Writing sample: SR1_Truth_bin_1
+Writing sample: SR1_Truth_bin_2
+Writing sample: SR1_Truth_bin_3
+Writing sample: SR1_Truth_bin_4
+Writing sample: SR1_Truth_bin_5
+Writing sample: SR1_Truth_bin_6
+Writing sample: SR1_Truth_bin_7
+Writing sample: SR1_Truth_bin_8
+Writing sample: SR1_Truth_bin_9
+Writing sample: SR1_Truth_bin_10
+Writing sample: SR1_Truth_bin_11
+Saved all histograms
+Saved Measurement

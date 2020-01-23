@@ -12,6 +12,9 @@
 #include "TRExFitter/StatusLogbook.h"
 #include "TRExFitter/Systematic.h"
 #include "TRExFitter/TRExFit.h"
+#include "TRExFitter/TruthSample.h"
+#include "TRExFitter/UnfoldingSample.h"
+#include "TRExFitter/UnfoldingSystematic.h"
 
 // ROOT includes
 #include "TColor.h"
@@ -72,15 +75,25 @@ int ConfigReader::ReadFullConfig(const std::string& fileName, const std::string&
 
     sc+= ReadRegionOptions(opt);
 
-    sc+= ReadSampleOptions(opt);
+    sc+= ReadSampleOptions();
 
     sc+= ReadNormFactorOptions();
 
     sc+= ReadShapeFactorOptions();
 
     sc+= ReadSystOptions();
+    
+    sc+= ReadUnfoldingOptions();
+    
+    sc+= ReadTruthSamples();
+    
+    sc+= ReadUnfoldingSampleOptions();
+    
+    sc+= ReadUnfoldingSystematicOptions();
+    
+    sc+= UnfoldingCorrections();
 
-    sc+= PostConfig();
+    sc+= PostConfig(opt);
 
     return sc;
 }
@@ -143,6 +156,7 @@ int ConfigReader::ReadCommandLineOptions(const std::string& option){
     if(optMap["FitType"]!=""){
         if(optMap["FitType"]=="SPLUSB") fFitter->SetFitType(TRExFit::SPLUSB);
         if(optMap["FitType"]=="BONLY")  fFitter->SetFitType(TRExFit::BONLY);
+        if(optMap["FitType"]=="UNFOLDING")  fFitter->SetFitType(TRExFit::UNFOLDING);
     }
     if(optMap["LumiScale"]!=""){
         fFitter->fLumiScale = atof(optMap["LumiScale"].c_str());
@@ -298,6 +312,170 @@ int ConfigReader::ReadJobOptions(){
         }
     }
 
+    // Set paths for the unfolding preprocessing
+    param = confSet->Get("ResponseMatrixName");
+    if (param != "") {
+        fFitter->fResponseMatrixNames.clear();
+        fFitter->fResponseMatrixNames.emplace_back(CheckName(param));
+    }
+    
+    param = confSet->Get("ResponseMatrixNames");
+    if (param != "") {
+        fFitter->fResponseMatrixNames = Vectorize(param, ',');
+    }
+
+    param = confSet->Get("ResponseMatrixFile");
+    if (param != "") {
+        fFitter->fResponseMatrixFiles.clear();
+        fFitter->fResponseMatrixFiles.emplace_back(CheckName(param));
+    }
+    
+    param = confSet->Get("ResponseMatrixFiles");
+    if (param != "") {
+        fFitter->fResponseMatrixFiles = Vectorize(param, ',');
+    }
+
+    param = confSet->Get("ResponseMatrixPath");
+    if (param != "") {
+        fFitter->fResponseMatrixPaths.clear();
+        fFitter->fResponseMatrixPaths.emplace_back(CheckName(param));
+    }
+    
+    param = confSet->Get("ResponseMatrixPaths");
+    if (param != "") {
+        fFitter->fResponseMatrixPaths = Vectorize(param, ',');
+    }
+
+    param = confSet->Get("ResponseMatrixNameNominal");
+    if(param!=""){
+      fFitter->fResponseMatrixNamesNominal.clear();
+      fFitter->fResponseMatrixNamesNominal.emplace_back(CheckName(param));
+    }
+    
+    param = confSet->Get("AcceptanceName");
+    if (param != "") {
+        fFitter->fAcceptanceNames.clear();
+        fFitter->fAcceptanceNames.emplace_back(CheckName(param));
+        fFitter->fHasAcceptance = true;
+    }
+    
+    param = confSet->Get("AcceptanceNames");
+    if (param != "") {
+        fFitter->fAcceptanceNames = Vectorize(param, ',');
+        fFitter->fHasAcceptance = true;
+    }
+
+    param = confSet->Get("AcceptanceFile");
+    if (param != "") {
+        fFitter->fAcceptanceFiles.clear();
+        fFitter->fAcceptanceFiles.emplace_back(CheckName(param));
+        fFitter->fHasAcceptance = true;
+    }
+    
+    param = confSet->Get("AcceptanceFiles");
+    if (param != "") {
+        fFitter->fAcceptanceFiles = Vectorize(param, ',');
+        fFitter->fHasAcceptance = true;
+    }
+
+    param = confSet->Get("AcceptancePath");
+    if (param != "") {
+        fFitter->fAcceptancePaths.clear();
+        fFitter->fAcceptancePaths.emplace_back(CheckName(param));
+        fFitter->fHasAcceptance = true;
+    }
+    
+    param = confSet->Get("AcceptancePaths");
+    if (param != "") {
+        fFitter->fAcceptancePaths = Vectorize(param, ',');
+        fFitter->fHasAcceptance = true;
+    }
+
+    param = confSet->Get("AcceptanceNameNominal");
+    if(param!=""){
+        fFitter->fAcceptanceNamesNominal.clear();
+        fFitter->fAcceptanceNamesNominal.emplace_back(CheckName(param));
+        fFitter->fHasAcceptance = true;
+    }
+    
+    param = confSet->Get("SelectionEffName");
+    if (param != "") {
+        fFitter->fSelectionEffNames.clear();
+        fFitter->fSelectionEffNames.emplace_back(CheckName(param));
+    }
+    
+    param = confSet->Get("SelectionEffNames");
+    if (param != "") {
+        fFitter->fSelectionEffNames = Vectorize(param, ',');
+    }
+
+    param = confSet->Get("SelectionEffFile");
+    if (param != "") {
+        fFitter->fSelectionEffFiles.clear();
+        fFitter->fSelectionEffFiles.emplace_back(CheckName(param));
+    }
+    
+    param = confSet->Get("SelectionEffFiles");
+    if (param != "") {
+        fFitter->fSelectionEffFiles = Vectorize(param, ',');
+    }
+
+    param = confSet->Get("SelectionEffPath");
+    if (param != "") {
+        fFitter->fSelectionEffPaths.clear();
+        fFitter->fSelectionEffPaths.emplace_back(CheckName(param));
+    }
+    
+    param = confSet->Get("SelectionEffPaths");
+    if (param != "") {
+        fFitter->fSelectionEffPaths = Vectorize(param, ',');
+    }
+
+    param = confSet->Get("SelectionEffNameNominal");
+    if(param!=""){
+      fFitter->fSelectionEffNamesNominal.clear();
+      fFitter->fSelectionEffNamesNominal.emplace_back(CheckName(param));
+    }
+    
+    param = confSet->Get("MigrationName");
+    if (param != "") {
+        fFitter->fMigrationNames.clear();
+        fFitter->fMigrationNames.emplace_back(CheckName(param));
+    }
+    
+    param = confSet->Get("MigrationNames");
+    if (param != "") {
+        fFitter->fMigrationNames = Vectorize(param, ',');
+    }
+
+    param = confSet->Get("MigrationFile");
+    if (param != "") {
+        fFitter->fMigrationFiles.clear();
+        fFitter->fMigrationFiles.emplace_back(CheckName(param));
+    }
+    
+    param = confSet->Get("MigrationFiles");
+    if (param != "") {
+        fFitter->fMigrationFiles = Vectorize(param, ',');
+    }
+
+    param = confSet->Get("MigrationPath");
+    if (param != "") {
+        fFitter->fMigrationPaths.clear();
+        fFitter->fMigrationPaths.emplace_back(CheckName(param));
+    }
+    
+    param = confSet->Get("MigrationPaths");
+    if (param != "") {
+        fFitter->fMigrationPaths = Vectorize(param, ',');
+    }
+
+    param = confSet->Get("MigrationNameNominal");
+    if(param!=""){
+      fFitter->fMigrationNamesNominal.clear();
+      fFitter->fMigrationNamesNominal.emplace_back(CheckName(param));
+    }
+    
     // Set paths
     // HIST option only
     if(fFitter->fInputType==0){
@@ -1326,13 +1504,16 @@ int ConfigReader::ReadFitOptions(){
         else if( param == "BONLY" ){
             fFitter->SetFitType(TRExFit::BONLY);
         }
+        else if( param == "UNFOLDING" ){
+            fFitter->SetFitType(TRExFit::UNFOLDING);
+        }
         else{
             WriteErrorStatus("ConfigReader::ReadFitOptions", "Unknown FitType argument : " + confSet->Get("FitType"));
             return 1;
         }
     }
     else if( fFitter->fFitType == TRExFit::UNDEFINED ){
-        WriteInfoStatus("ConfigReader::ReadFitOptions","Setting default fit Type SPLUSB");
+        WriteWarningStatus("ConfigReader::ReadFitOptions","Setting default fit Type SPLUSB");
         fFitter->SetFitType(TRExFit::SPLUSB);
     }
 
@@ -1935,6 +2116,285 @@ int ConfigReader::ReadRegionOptions(const std::string& opt){
         param = confSet->Get("Group");
         if( param != "") reg->fGroup = RemoveQuotes(param);
 
+        // Paths for the unfolding code
+        param = confSet->Get("ResponseMatrixFile");
+        if (param != "") {
+            reg->fResponseMatrixFiles.clear();
+            reg->fResponseMatrixFiles.emplace_back(RemoveQuotes(param));
+        }
+
+        param = confSet->Get("ResponseMatrixFiles");
+        if (param != "") {
+            reg->fResponseMatrixFiles = Vectorize(param, ',');
+        }
+
+        // Paths for the unfolding code
+        param = confSet->Get("ResponseMatrixName");
+        if (param != "") {
+            reg->fResponseMatrixNames.clear();
+            reg->fResponseMatrixNames.emplace_back(RemoveQuotes(param));
+        }
+
+        param = confSet->Get("ResponseMatrixNames");
+        if (param != "") {
+            reg->fResponseMatrixNames = Vectorize(param, ',');
+        }
+
+        // Paths for the unfolding code
+        param = confSet->Get("ResponseMatrixPath");
+        if (param != "") {
+            reg->fResponseMatrixPaths.clear();
+            reg->fResponseMatrixPaths.emplace_back(RemoveQuotes(param));
+        }
+
+        param = confSet->Get("ResponseMatrixPaths");
+        if (param != "") {
+            reg->fResponseMatrixPaths = Vectorize(param, ',');
+        }
+
+        param = confSet->Get("ResponseMatrixFileSuff");
+        if (param != "") {
+            reg->fResponseMatrixFileSuffs.clear();
+            reg->fResponseMatrixFileSuffs.emplace_back(RemoveQuotes(param));
+        }
+
+        param = confSet->Get("ResponseMatrixFileSuffs");
+        if (param != "") {
+            reg->fResponseMatrixFileSuffs = Vectorize(param, ',');
+        }
+
+        param = confSet->Get("ResponseMatrixNameSuff");
+        if (param != "") {
+            reg->fResponseMatrixNameSuffs.clear();
+            reg->fResponseMatrixNameSuffs.emplace_back(RemoveQuotes(param));
+        }
+
+        param = confSet->Get("ResponseMatrixNameSuffs");
+        if (param != "") {
+            reg->fResponseMatrixNameSuffs = Vectorize(param, ',');
+        }
+
+        param = confSet->Get("ResponseMatrixPathSuff");
+        if (param != "") {
+            reg->fResponseMatrixPathSuffs.clear();
+            reg->fResponseMatrixPathSuffs.emplace_back(RemoveQuotes(param));
+        }
+
+        param = confSet->Get("ResponseMatrixPathSuffs");
+        if (param != "") {
+            reg->fResponseMatrixPathSuffs = Vectorize(param, ',');
+        }
+
+        param = confSet->Get("AcceptanceName");
+        if (param != "") {
+            reg->fAcceptanceNames.clear();
+            reg->fAcceptanceNames.emplace_back(RemoveQuotes(param));
+            reg->fHasAcceptance = true;
+        }
+
+        param = confSet->Get("AcceptanceNames");
+        if (param != "") {
+            reg->fAcceptanceNames = Vectorize(param, ',');
+            reg->fHasAcceptance = true;
+        }
+
+        // Paths for the unfolding code
+        param = confSet->Get("AcceptancePath");
+        if (param != "") {
+            reg->fAcceptancePaths.clear();
+            reg->fAcceptancePaths.emplace_back(RemoveQuotes(param));
+            reg->fHasAcceptance = true;
+        }
+
+        param = confSet->Get("AcceptancePaths");
+        if (param != "") {
+            reg->fAcceptancePaths = Vectorize(param, ',');
+            reg->fHasAcceptance = true;
+        }
+
+        param = confSet->Get("AcceptanceFileSuff");
+        if (param != "") {
+            reg->fAcceptanceFileSuffs.clear();
+            reg->fAcceptanceFileSuffs.emplace_back(RemoveQuotes(param));
+            reg->fHasAcceptance = true;
+        }
+
+        param = confSet->Get("AcceptanceFileSuffs");
+        if (param != "") {
+            reg->fAcceptanceFileSuffs = Vectorize(param, ',');
+            reg->fHasAcceptance = true;
+        }
+
+        param = confSet->Get("AcceptanceNameSuff");
+        if (param != "") {
+            reg->fAcceptanceNameSuffs.clear();
+            reg->fAcceptanceNameSuffs.emplace_back(RemoveQuotes(param));
+            reg->fHasAcceptance = true;
+        }
+
+        param = confSet->Get("AcceptanceNameSuffs");
+        if (param != "") {
+            reg->fAcceptanceNameSuffs = Vectorize(param, ',');
+            reg->fHasAcceptance = true;
+        }
+
+        param = confSet->Get("AcceptancePathSuff");
+        if (param != "") {
+            reg->fAcceptancePathSuffs.clear();
+            reg->fAcceptancePathSuffs.emplace_back(RemoveQuotes(param));
+            reg->fHasAcceptance = true;
+        }
+
+        param = confSet->Get("AcceptancePathSuffs");
+        if (param != "") {
+            reg->fAcceptancePathSuffs = Vectorize(param, ',');
+            reg->fHasAcceptance = true;
+        }
+
+        param = confSet->Get("SelectionEffName");
+        if (param != "") {
+            reg->fSelectionEffNames.clear();
+            reg->fSelectionEffNames.emplace_back(RemoveQuotes(param));
+        }
+
+        param = confSet->Get("SelectionEffNames");
+        if (param != "") {
+            reg->fSelectionEffNames = Vectorize(param, ',');
+        }
+
+        // Paths for the unfolding code
+        param = confSet->Get("SelectionEffPath");
+        if (param != "") {
+            reg->fSelectionEffPaths.clear();
+            reg->fSelectionEffPaths.emplace_back(RemoveQuotes(param));
+        }
+
+        param = confSet->Get("SelectionEffPaths");
+        if (param != "") {
+            reg->fSelectionEffPaths = Vectorize(param, ',');
+        }
+
+        param = confSet->Get("SelectionEffFileSuff");
+        if (param != "") {
+            reg->fSelectionEffFileSuffs.clear();
+            reg->fSelectionEffFileSuffs.emplace_back(RemoveQuotes(param));
+        }
+
+        param = confSet->Get("SelectionEffFileSuffs");
+        if (param != "") {
+            reg->fSelectionEffFileSuffs = Vectorize(param, ',');
+        }
+
+        param = confSet->Get("SelectionEffNameSuff");
+        if (param != "") {
+            reg->fSelectionEffNameSuffs.clear();
+            reg->fSelectionEffNameSuffs.emplace_back(RemoveQuotes(param));
+        }
+
+        param = confSet->Get("SelectionEffNameSuffs");
+        if (param != "") {
+            reg->fSelectionEffNameSuffs = Vectorize(param, ',');
+        }
+
+        param = confSet->Get("SelectionEffPathSuff");
+        if (param != "") {
+            reg->fSelectionEffPathSuffs.clear();
+            reg->fSelectionEffPathSuffs.emplace_back(RemoveQuotes(param));
+        }
+
+        param = confSet->Get("SelectionEffPathSuffs");
+        if (param != "") {
+            reg->fSelectionEffPathSuffs = Vectorize(param, ',');
+        }
+
+        param = confSet->Get("MigrationName");
+        if (param != "") {
+            reg->fMigrationNames.clear();
+            reg->fMigrationNames.emplace_back(RemoveQuotes(param));
+        }
+
+        param = confSet->Get("MigrationNames");
+        if (param != "") {
+            reg->fMigrationNames = Vectorize(param, ',');
+        }
+
+        // Paths for the unfolding code
+        param = confSet->Get("MigrationPath");
+        if (param != "") {
+            reg->fMigrationPaths.clear();
+            reg->fMigrationPaths.emplace_back(RemoveQuotes(param));
+        }
+
+        param = confSet->Get("MigrationPaths");
+        if (param != "") {
+            reg->fMigrationPaths = Vectorize(param, ',');
+        }
+
+        param = confSet->Get("MigrationFileSuff");
+        if (param != "") {
+            reg->fMigrationFileSuffs.clear();
+            reg->fMigrationFileSuffs.emplace_back(RemoveQuotes(param));
+        }
+
+        param = confSet->Get("MigrationFileSuffs");
+        if (param != "") {
+            reg->fMigrationFileSuffs = Vectorize(param, ',');
+        }
+
+        param = confSet->Get("MigrationNameSuff");
+        if (param != "") {
+            reg->fMigrationNameSuffs.clear();
+            reg->fMigrationNameSuffs.emplace_back(RemoveQuotes(param));
+        }
+
+        param = confSet->Get("MigrationNameSuffs");
+        if (param != "") {
+            reg->fMigrationNameSuffs = Vectorize(param, ',');
+        }
+
+        param = confSet->Get("MigrationPathSuff");
+        if (param != "") {
+            reg->fMigrationPathSuffs.clear();
+            reg->fMigrationPathSuffs.emplace_back(RemoveQuotes(param));
+        }
+
+        param = confSet->Get("MigrationPathSuffs");
+        if (param != "") {
+            reg->fMigrationPathSuffs = Vectorize(param, ',');
+        }
+        
+        param = confSet->Get("NumberOfRecoBins");
+        if (param != "") {
+            const int bins = std::stoi(param);
+            if (bins < 2 || bins > 100) {
+                WriteErrorStatus("ConfigReader::ReadRegionOptions", "Number of reco bins is < 2 or > 100. This does not seem correct");
+                return 1;
+            }
+            reg->fNumberUnfoldingRecoBins = bins;
+        } else {
+            if (fFitter->fFitType == TRExFit::UNFOLDING) {
+                WriteErrorStatus("ConfigReader::ReadRegionOptions", "You need to provide the number of reco bins (NumberOfRecoBins) in each Region.");
+                return 1;
+            }
+        }
+
+        param = confSet->Get("NormalizeMigrationMatrix");
+        if (param != "") {
+            std::transform(param.begin(), param.end(), param.begin(), ::toupper);
+            if (param == "TRUE") {
+                reg->fNormalizeMigrationMatrix = true;
+            } else if (param == "FALSE") {
+                reg->fNormalizeMigrationMatrix = false;
+            } else {
+                WriteErrorStatus("ConfigReader::ReadRegionOptions", "You specified `NormalizeMigrationMatrix` option, but you did not provide any reasonable option. Using the default (TRUE)!");
+                reg->fNormalizeMigrationMatrix = true;
+            }
+        }
+        
+
+        // Paths for the unfolding code
+        // Paths for the unfolding code
+        // Paths for the unfolding code
         // Setting based on input type
         if (fFitter->fInputType == 0){
             if (SetRegionHIST(reg, confSet) != 0) return 1;
@@ -2413,7 +2873,7 @@ int ConfigReader::SetRegionNTUP(Region* reg, ConfigSet *confSet){
 
 //__________________________________________________________________________________
 //
-int ConfigReader::ReadSampleOptions(const std::string& opt){
+int ConfigReader::ReadSampleOptions() {
 
     fAvailableSamples = GetAvailableSamples();
 
@@ -3083,11 +3543,6 @@ int ConfigReader::ReadSampleOptions(const std::string& opt){
 
     }
 
-    if (!fHasAtLeastOneValidSample && Common::OptionRunsFit(opt)){
-        WriteErrorStatus("ConfigReader::ReadSampleOptions","You need to provide at least one sample that is either SIGNAL or BACKGROUND, otherwise the fit will crash.");
-        return 1;
-    }
-
     // build new samples if AsimovReplacementFor are specified
     for(int i_smp=0;i_smp<fFitter->fNSamples;i_smp++){
         if(fFitter->fSamples[i_smp]->fAsimovReplacementFor.first!=""){
@@ -3104,11 +3559,6 @@ int ConfigReader::ReadSampleOptions(const std::string& opt){
             ca->SetTitle("Pseudo-Data ("+fFitter->fSamples[i_smp]->fAsimovReplacementFor.first+")");
             ca->fUseSystematics = false;
         }
-    }
-
-    if (nSmp == 0){
-        WriteErrorStatus("ConfigReader::ReadSampleOptions", "No 'Sample' provided. You need to provide at least one 'Sample' object. Check this!");
-        return 1;
     }
 
     return 0;
@@ -3251,10 +3701,6 @@ int ConfigReader::ReadNormFactorOptions(){
                 }
             }
         }
-
-        // Set Tau (for Tikhonov regularization)
-        param = confSet->Get("Tau");
-        if(param!="") nfactor->fTau = atof(param.c_str());
 
         // save list of
         if (regions.size() == 0 || exclude.size() == 0){
@@ -3576,6 +4022,7 @@ int ConfigReader::ReadSystOptions(){
         if(type==Systematic::HISTO || type==Systematic::SHAPE){
             bool hasUp(false);
             bool hasDown(false);
+
             if(fFitter->fInputType==0){ // HIST input
                 param = confSet->Get("HistoPathUp");
                 if(param!=""){
@@ -4658,7 +5105,13 @@ int ConfigReader::SetSystShapeDecorelate(ConfigSet *confSet, Systematic *sys, co
 
 //__________________________________________________________________________________
 //
-int ConfigReader::PostConfig(){
+int ConfigReader::PostConfig(const std::string& opt){
+
+    if (!fHasAtLeastOneValidSample && Common::OptionRunsFit(opt)){
+        WriteErrorStatus("ConfigReader::ReadSampleOptions","You need to provide at least one sample that is either SIGNAL or BACKGROUND, otherwise the fit will crash.");
+        return 1;
+    }
+
     // if StatOnly, also sets to OFF the MC stat
     if(fFitter->fStatOnly){
         WriteInfoStatus("ConfigReader::PostConfig","StatOnly option is setting to OFF the MC-stat (gammas) as well.");
@@ -4770,6 +5223,1440 @@ int ConfigReader::PostConfig(){
     }
 
     return 0;
+}
+
+//__________________________________________________________________________________
+//
+int ConfigReader::ReadUnfoldingOptions() {
+    ConfigSet *confSet = fParser->GetConfigSet("Unfolding");
+
+    if (fFitter->fFitType == TRExFit::UNFOLDING && !confSet) {
+        WriteErrorStatus("ConfigReader::ReadUnfoldingOptions", "You set FitType == UNFOLDING, but didnt provide Unfolding block!");
+        return 1;
+    } 
+
+    if (!confSet) {
+        return 0;
+    }   
+ 
+    std::string param = confSet->Get("MatrixOrientation");
+    if (param != "") {
+        std::transform(param.begin(), param.end(), param.begin(), ::toupper);
+        if (param == "TRUTHONHORIZONTAL") {
+            fFitter->fMatrixOrientation = FoldingManager::MATRIXORIENTATION::TRUTHONHORIZONTALAXIS;
+        } else if (param == "TRUTHONVERTICAL") {
+            fFitter->fMatrixOrientation = FoldingManager::MATRIXORIENTATION::TRUTHONVERTICALAXIS;
+        } else {
+            WriteWarningStatus("ConfigReader::ReadUnfoldingOptions", "You specified 'MatrixOrientation' option, but you didnt provide a valid config. Setting to TRUTHONHORIZONTAL.");
+            fFitter->fMatrixOrientation = FoldingManager::MATRIXORIENTATION::TRUTHONHORIZONTALAXIS;
+        }
+    }
+
+    param = confSet->Get("TruthDistributionPath");
+    if (param != "") {
+        fFitter->fTruthDistributionPath = RemoveQuotes(param);
+    }
+
+    param = confSet->Get("TruthDistributionFile");
+    if (param != "") {
+        fFitter->fTruthDistributionFile = RemoveQuotes(param);
+    }
+
+    param = confSet->Get("TruthDistributionName");
+    if (param != "") {
+        fFitter->fTruthDistributionName = RemoveQuotes(param);
+    }
+
+    param = confSet->Get("NumberOfTruthBins");
+    if (param == "") {
+        WriteErrorStatus("ConfigReader::ReadUnfoldingOptions", "You need to set the number of truth bins!");
+        return 1;
+    } else {
+        const int bins = std::stoi(param);
+        if (bins < 2 || bins > 100) {
+            WriteErrorStatus("ConfigReader::ReadUnfoldingOptions", "You set the number of truth bins which is < 2 or > 100, that loooks wrong");
+            return 1;
+        }
+        fFitter->fNumberUnfoldingTruthBins = bins;
+    }
+
+    param = confSet->Get("NumberOfRecoBins");
+    if (param != "") {
+        const int bins = std::stoi(param);
+        if (bins < 2 || bins > 100) {
+            WriteErrorStatus("ConfigReader::ReadUnfoldingOptions", "You set the number of reco bins which is < 2 or > 100, that loooks wrong");
+            return 1;
+        }
+        fFitter->fNumberUnfoldingRecoBins = bins;
+    }
+
+    param = confSet->Get("Tau");
+    if (param != "") {
+        const std::vector<std::string>& tmp = Vectorize(param, ',');
+        for (auto& i : tmp) {
+            const std::vector<std::string>& oneTau = Vectorize(i, ':');
+            if (oneTau.size() != 2) {
+                WriteErrorStatus("ConfigReader::ReadUnfoldingOptions", "Wrong format for Tau!");
+                return 1;
+            }
+
+            int bin = std::stoi(oneTau.at(0));
+            double value = std::stof(oneTau.at(1));
+            fTaus.emplace_back(bin, value);
+        }
+    }
+    
+    param = confSet->Get("UnfoldingResultMin");
+    if (param != "") {
+        fFitter->fUnfoldingResultMin = std::stod(param);
+    }
+    
+    param = confSet->Get("UnfoldingResultMax");
+    if (param != "") {
+        fFitter->fUnfoldingResultMax = std::stod(param);
+    }
+
+    param = confSet->Get("TitleX");
+    if (param != "") {
+        fFitter->fUnfoldingTitleX = RemoveQuotes(param);
+    }
+
+    param = confSet->Get("TitleY");
+    if (param != "") {
+        fFitter->fUnfoldingTitleY = RemoveQuotes(param);
+    }
+
+    param = confSet->Get("TitleOffsetX");
+    if (param != "") {
+        fFitter->fUnfoldingTitleOffsetX = std::stod(param);
+    }
+
+    param = confSet->Get("TitleOffsetY");
+    if (param != "") {
+        fFitter->fUnfoldingTitleOffsetY = std::stod(param);
+    }
+
+    param = confSet->Get("RatioYmax");
+    if (param != "") {
+        fFitter->fUnfoldingRatioYmax = std::stod(param);
+    }
+    
+    param = confSet->Get("RatioYmin");
+    if (param != "") {
+        fFitter->fUnfoldingRatioYmin = std::stod(param);
+    }
+    
+    param = confSet->Get("LogX");
+    if (param != "") {
+        std::transform(param.begin(), param.end(), param.begin(), ::toupper);
+        if (param == "TRUE") {
+            fFitter->fUnfoldingLogX = true;
+        } else {
+            fFitter->fUnfoldingLogX = false;
+        }
+    }
+    
+    param = confSet->Get("LogY");
+    if (param != "") {
+        std::transform(param.begin(), param.end(), param.begin(), ::toupper);
+        if (param == "TRUE") {
+            fFitter->fUnfoldingLogY = true;
+        } else {
+            fFitter->fUnfoldingLogY = false;
+        }
+    }
+    
+    param = confSet->Get("MigrationTitleX");
+    if (param != "") {
+        fFitter->fMigrationTitleX = RemoveQuotes(param);
+    }
+    
+    param = confSet->Get("MigrationTitleY");
+    if (param != "") {
+        fFitter->fMigrationTitleY = RemoveQuotes(param);
+    }
+    
+    param = confSet->Get("MigrationLogX");
+    if (param != "") {
+        std::transform(param.begin(), param.end(), param.begin(), ::toupper);
+        if (param == "TRUE") {
+            fFitter->fMigrationLogX = true;
+        } else {
+            fFitter->fMigrationLogX = false;
+        }
+    }
+    
+    param = confSet->Get("MigrationLogY");
+    if (param != "") {
+        std::transform(param.begin(), param.end(), param.begin(), ::toupper);
+        if (param == "TRUE") {
+            fFitter->fMigrationLogY = true;
+        } else {
+            fFitter->fMigrationLogY = false;
+        }
+    }
+    
+    param = confSet->Get("MigrationTitleOffsetX");
+    if (param != "") {
+        fFitter->fMigrationTitleOffsetX = std::stod(param);
+    }
+    
+    param = confSet->Get("MigrationTitleOffsetY");
+    if (param != "") {
+        fFitter->fMigrationTitleOffsetY = std::stod(param);
+    }
+    
+    param = confSet->Get("MigrationZmin");
+    if (param != "") {
+        fFitter->fMigrationZmin = std::stod(param);
+    }
+    
+    param = confSet->Get("MigrationZmax");
+    if (param != "") {
+        fFitter->fMigrationZmax = std::stod(param);
+    }
+    
+    param = confSet->Get("ResponseZmin");
+    if (param != "") {
+        fFitter->fResponseZmin = std::stod(param);
+    }
+    
+    param = confSet->Get("ResponseZmax");
+    if (param != "") {
+        fFitter->fResponseZmax = std::stod(param);
+    }
+    
+    param = confSet->Get("PlotSystematicMigrations");
+    if (param != "") {
+        std::transform(param.begin(), param.end(), param.begin(), ::toupper);
+        if (param == "TRUE") {
+            fFitter->fPlotSystematicMigrations = true;
+        } else {
+            fFitter->fPlotSystematicMigrations = false;
+        }
+    }
+    
+    param = confSet->Get("NominalTruthSample");
+    if (param == "") {
+        WriteErrorStatus("ConfigReader::ReadUnfoldingOptions", "You need to set NominalTruthSample option!");
+        return 1;
+    } else {
+        fFitter->fNominalTruthSample = RemoveQuotes(param);
+    }
+    
+    return 0;
+}
+
+//__________________________________________________________________________________
+//
+int ConfigReader::ReadTruthSamples() {
+
+    int isample(0);
+
+    bool found(false);
+
+    std::vector<std::string> names;
+
+    while(true) {
+        ConfigSet *confSet = fParser->GetConfigSet("TruthSample",isample);
+        if (!confSet) break;
+        ++isample;
+
+        auto sample = std::make_unique<TruthSample>(RemoveQuotes(confSet->GetValue()));
+        if (sample->GetName() == fFitter->fNominalTruthSample) {
+            found = true;
+        }
+
+        if (std::find(names.begin(), names.end(), RemoveQuotes(confSet->GetValue())) == names.end()) {
+            names.emplace_back(RemoveQuotes(confSet->GetValue())); 
+        } else {
+            WriteErrorStatus("ConfigReader::ReadTruthSamples", "Multiply defined TruthSample: " + RemoveQuotes(confSet->GetValue()));
+            return 1;
+        }
+
+        std::string param = confSet->Get("Title");
+        if (param != "") {
+            sample->SetTitle(RemoveQuotes(param));
+        }
+
+        param = confSet->Get("FillColor");
+        if (param != "") {
+            sample->SetFillColor(std::stoi(param));
+        }
+
+        param = confSet->Get("LineColor");
+        if (param != "") {
+            sample->SetLineColor(std::stoi(param));
+        }
+        
+        param = confSet->Get("TruthDistributionPath");
+        if (param != "") {
+            sample->SetTruthDistributionPath(RemoveQuotes(param));
+        }
+
+        param = confSet->Get("TruthDistributionFile");
+        if (param != "") {
+            sample->SetTruthDistributionFile(RemoveQuotes(param));
+        }
+
+        param = confSet->Get("TruthDistributionName");
+        if (param != "") {
+            sample->SetTruthDistributionName(RemoveQuotes(param));
+        }
+
+        fFitter->fTruthSamples.emplace_back(std::move(sample));
+    }
+
+    if (isample != 0 && !found) {
+        WriteErrorStatus("ConfigReader::ReadTruthSamples", "The NominalTruthSample not found in any of the TruthSample");
+        return 1;
+    }
+
+    return 0;
+}
+
+//__________________________________________________________________________________
+//
+int ConfigReader::ReadUnfoldingSampleOptions() {
+
+    int isample = 0;
+    while(true) {
+        ConfigSet *confSet = fParser->GetConfigSet("UnfoldingSample",isample);
+        if (confSet == nullptr) break;
+        fHasAtLeastOneValidSample = true;
+        ++isample;
+    
+        auto sample = std::make_unique<UnfoldingSample>();
+        sample->SetName(RemoveQuotes(confSet->GetValue()));
+        
+        std::string param = confSet->Get("Title");
+        if (param != "") {
+            sample->SetTitle(RemoveQuotes(param));
+        }
+        
+        param = confSet->Get("ResponseMatrixFile");
+        if (param != "") {
+            sample->fResponseMatrixFiles.clear();
+            sample->fResponseMatrixFiles.emplace_back(RemoveQuotes(param));
+            sample->SetHasResponse(true);
+        }
+
+        param = confSet->Get("ResponseMatrixFiles");
+        if (param != "") {
+            sample->fResponseMatrixFiles = Vectorize(param, ',');
+            sample->SetHasResponse(true);
+        }
+
+        param = confSet->Get("ResponseMatrixName");
+        if (param != "") {
+            sample->fResponseMatrixNames.clear();
+            sample->fResponseMatrixNames.emplace_back(RemoveQuotes(param));
+            sample->SetHasResponse(true);
+        }
+
+        param = confSet->Get("ResponseMatrixNames");
+        if (param != "") {
+            sample->fResponseMatrixNames = Vectorize(param, ',');
+            sample->SetHasResponse(true);
+        }
+
+        param = confSet->Get("ResponseMatrixPath");
+        if (param != "") {
+            sample->fResponseMatrixPaths.clear();
+            sample->fResponseMatrixPaths.emplace_back(RemoveQuotes(param));
+            sample->SetHasResponse(true);
+        }
+
+        param = confSet->Get("ResponseMatrixPaths");
+        if (param != "") {
+            sample->fResponseMatrixPaths = Vectorize(param, ',');
+            sample->SetHasResponse(true);
+        }
+
+        param = confSet->Get("ResponseMatrixFileSuff");
+        if (param != "") {
+            sample->fResponseMatrixFileSuffs.clear();
+            sample->fResponseMatrixFileSuffs.emplace_back(RemoveQuotes(param));
+            sample->SetHasResponse(true);
+        }
+
+        param = confSet->Get("ResponseMatrixFileSuffs");
+        if (param != "") {
+            sample->fResponseMatrixFileSuffs = Vectorize(param, ',');
+            sample->SetHasResponse(true);
+        }
+
+        param = confSet->Get("ResponseMatrixNameSuff");
+        if (param != "") {
+            sample->fResponseMatrixNameSuffs.clear();
+            sample->fResponseMatrixNameSuffs.emplace_back(RemoveQuotes(param));
+            sample->SetHasResponse(true);
+        }
+
+        param = confSet->Get("ResponseMatrixNameSuffs");
+        if (param != "") {
+            sample->fResponseMatrixNameSuffs = Vectorize(param, ',');
+            sample->SetHasResponse(true);
+        }
+
+        param = confSet->Get("ResponseMatrixPathSuff");
+        if (param != "") {
+            sample->fResponseMatrixPathSuffs.clear();
+            sample->fResponseMatrixPathSuffs.emplace_back(RemoveQuotes(param));
+            sample->SetHasResponse(true);
+        }
+
+        param = confSet->Get("ResponseMatrixPathSuffs");
+        if (param != "") {
+            sample->fResponseMatrixPathSuffs = Vectorize(param, ',');
+            sample->SetHasResponse(true);
+        }
+        
+        param = confSet->Get("AcceptanceFile");
+        if (param != "") {
+            sample->fAcceptanceFiles.clear();
+            sample->fAcceptanceFiles.emplace_back(RemoveQuotes(param));
+            sample->SetHasAcceptance(true);
+        }
+
+        param = confSet->Get("AcceptanceFiles");
+        if (param != "") {
+            sample->fAcceptanceFiles = Vectorize(param, ',');
+            sample->SetHasAcceptance(true);
+        }
+
+        param = confSet->Get("AcceptanceName");
+        if (param != "") {
+            sample->fAcceptanceNames.clear();
+            sample->fAcceptanceNames.emplace_back(RemoveQuotes(param));
+            sample->SetHasAcceptance(true);
+        }
+
+        param = confSet->Get("AcceptanceNames");
+        if (param != "") {
+            sample->fAcceptanceNames = Vectorize(param, ',');
+            sample->SetHasAcceptance(true);
+        }
+
+        param = confSet->Get("AcceptancePath");
+        if (param != "") {
+            sample->fAcceptancePaths.clear();
+            sample->fAcceptancePaths.emplace_back(RemoveQuotes(param));
+            sample->SetHasAcceptance(true);
+        }
+
+        param = confSet->Get("AcceptancePaths");
+        if (param != "") {
+            sample->fAcceptancePaths = Vectorize(param, ',');
+            sample->SetHasAcceptance(true);
+        }
+
+        param = confSet->Get("AcceptanceFileSuff");
+        if (param != "") {
+            sample->fAcceptanceFileSuffs.clear();
+            sample->fAcceptanceFileSuffs.emplace_back(RemoveQuotes(param));
+            sample->SetHasAcceptance(true);
+        }
+
+        param = confSet->Get("AcceptanceFileSuffs");
+        if (param != "") {
+            sample->fAcceptanceFileSuffs = Vectorize(param, ',');
+            sample->SetHasAcceptance(true);
+        }
+
+        param = confSet->Get("AcceptanceNameSuff");
+        if (param != "") {
+            sample->fAcceptanceNameSuffs.clear();
+            sample->fAcceptanceNameSuffs.emplace_back(RemoveQuotes(param));
+            sample->SetHasAcceptance(true);
+        }
+
+        param = confSet->Get("AcceptanceNameSuffs");
+        if (param != "") {
+            sample->fAcceptanceNameSuffs = Vectorize(param, ',');
+            sample->SetHasAcceptance(true);
+        }
+
+        param = confSet->Get("AcceptancePathSuff");
+        if (param != "") {
+            sample->fAcceptancePathSuffs.clear();
+            sample->fAcceptancePathSuffs.emplace_back(RemoveQuotes(param));
+            sample->SetHasAcceptance(true);
+        }
+
+        param = confSet->Get("AcceptancePathSuffs");
+        if (param != "") {
+            sample->fAcceptancePathSuffs = Vectorize(param, ',');
+            sample->SetHasAcceptance(true);
+        }
+
+        param = confSet->Get("SelectionEffFile");
+        if (param != "") {
+            sample->fSelectionEffFiles.clear();
+            sample->fSelectionEffFiles.emplace_back(RemoveQuotes(param));
+        }
+
+        param = confSet->Get("SelectionEffFiles");
+        if (param != "") {
+            sample->fSelectionEffFiles = Vectorize(param, ',');
+        }
+
+        param = confSet->Get("SelectionEffName");
+        if (param != "") {
+            sample->fSelectionEffNames.clear();
+            sample->fSelectionEffNames.emplace_back(RemoveQuotes(param));
+        }
+
+        param = confSet->Get("SelectionEffNames");
+        if (param != "") {
+            sample->fSelectionEffNames = Vectorize(param, ',');
+        }
+
+        param = confSet->Get("SelectionEffPath");
+        if (param != "") {
+            sample->fSelectionEffPaths.clear();
+            sample->fSelectionEffPaths.emplace_back(RemoveQuotes(param));
+        }
+
+        param = confSet->Get("SelectionEffPaths");
+        if (param != "") {
+            sample->fSelectionEffPaths = Vectorize(param, ',');
+        }
+
+        param = confSet->Get("SelectionEffFileSuff");
+        if (param != "") {
+            sample->fSelectionEffFileSuffs.clear();
+            sample->fSelectionEffFileSuffs.emplace_back(RemoveQuotes(param));
+        }
+
+        param = confSet->Get("SelectionEffFileSuffs");
+        if (param != "") {
+            sample->fSelectionEffFileSuffs = Vectorize(param, ',');
+        }
+
+        param = confSet->Get("SelectionEffNameSuff");
+        if (param != "") {
+            sample->fSelectionEffNameSuffs.clear();
+            sample->fSelectionEffNameSuffs.emplace_back(RemoveQuotes(param));
+        }
+
+        param = confSet->Get("SelectionEffNameSuffs");
+        if (param != "") {
+            sample->fSelectionEffNameSuffs = Vectorize(param, ',');
+        }
+
+        param = confSet->Get("SelectionEffPathSuff");
+        if (param != "") {
+            sample->fSelectionEffPathSuffs.clear();
+            sample->fSelectionEffPathSuffs.emplace_back(RemoveQuotes(param));
+        }
+
+        param = confSet->Get("SelectionEffPathSuffs");
+        if (param != "") {
+            sample->fSelectionEffPathSuffs = Vectorize(param, ',');
+        }
+
+        param = confSet->Get("MigrationFile");
+        if (param != "") {
+            sample->fMigrationFiles.clear();
+            sample->fMigrationFiles.emplace_back(RemoveQuotes(param));
+        }
+
+        param = confSet->Get("MigrationFiles");
+        if (param != "") {
+            sample->fMigrationFiles = Vectorize(param, ',');
+        }
+
+        param = confSet->Get("MigrationName");
+        if (param != "") {
+            sample->fMigrationNames.clear();
+            sample->fMigrationNames.emplace_back(RemoveQuotes(param));
+        }
+
+        param = confSet->Get("MigrationNames");
+        if (param != "") {
+            sample->fMigrationNames = Vectorize(param, ',');
+        }
+
+        param = confSet->Get("MigrationPath");
+        if (param != "") {
+            sample->fMigrationPaths.clear();
+            sample->fMigrationPaths.emplace_back(RemoveQuotes(param));
+        }
+
+        param = confSet->Get("MigrationPaths");
+        if (param != "") {
+            sample->fMigrationPaths = Vectorize(param, ',');
+        }
+
+        param = confSet->Get("MigrationFileSuff");
+        if (param != "") {
+            sample->fMigrationFileSuffs.clear();
+            sample->fMigrationFileSuffs.emplace_back(RemoveQuotes(param));
+        }
+
+        param = confSet->Get("MigrationFileSuffs");
+        if (param != "") {
+            sample->fMigrationFileSuffs = Vectorize(param, ',');
+        }
+
+        param = confSet->Get("MigrationNameSuff");
+        if (param != "") {
+            sample->fMigrationNameSuffs.clear();
+            sample->fMigrationNameSuffs.emplace_back(RemoveQuotes(param));
+        }
+
+        param = confSet->Get("MigrationNameSuffs");
+        if (param != "") {
+            sample->fMigrationNameSuffs = Vectorize(param, ',');
+        }
+
+        param = confSet->Get("MigrationPathSuff");
+        if (param != "") {
+            sample->fMigrationPathSuffs.clear();
+            sample->fMigrationPathSuffs.emplace_back(RemoveQuotes(param));
+        }
+
+        param = confSet->Get("MigrationPathSuffs");
+        if (param != "") {
+            sample->fMigrationPathSuffs = Vectorize(param, ',');
+        }
+
+        // Set FillColor
+        param = confSet->Get("FillColor");
+        if(param != "") sample->SetFillColor(std::atoi(param.c_str()));
+
+        // Set LineColor
+        param = confSet->Get("LineColor");
+        if(param != "") sample->SetLineColor(std::atoi(param.c_str()));
+
+        // Set Regions
+        param = confSet->Get("Regions");
+        if(param == "") {
+            sample->fRegions.emplace_back("all");
+        } else {
+            sample->fRegions = Vectorize(param, ',');
+        }
+
+        fFitter->fUnfoldingSamples.emplace_back(std::move(sample));
+
+    }
+
+    return 0;
+}
+
+//__________________________________________________________________________________
+//
+int ConfigReader::ReadUnfoldingSystematicOptions() {
+
+    int isyst(0);
+
+    while(true) {
+        ConfigSet *confSet = fParser->GetConfigSet("UnfoldingSystematic", isyst);
+        if (confSet == nullptr) break;
+
+        ++isyst;
+
+        auto syst = std::make_unique<UnfoldingSystematic>();
+        syst->SetName(RemoveQuotes(confSet->GetValue()));
+
+        // Set NuisanceParameter
+        std::string param = confSet->Get("NuisanceParameter");
+        if(param != ""){
+            syst->fNuisanceParameter = RemoveQuotes(param);
+            TRExFitter::NPMAP[syst->GetName()] = syst->fNuisanceParameter;
+        } else {
+            syst->fNuisanceParameter = syst->GetName();
+            TRExFitter::NPMAP[syst->GetName()] = syst->GetName();
+        }
+
+        param = confSet->Get("Type");
+        if (param == "") {
+            syst->SetType(Systematic::HISTO);
+        } else {
+            std::transform(param.begin(), param.end(), param.begin(), ::toupper);
+
+            if(param == "OVERALL") syst->SetType(Systematic::OVERALL);
+            else if(param == "SHAPE") syst->SetType(Systematic::SHAPE);
+            else if (param == "STAT") syst->SetType(Systematic::STAT);
+            else if (param == "HISTO") syst->SetType(Systematic::HISTO);
+        }
+
+        param = confSet->Get("Samples");
+        if (param == "") {
+            syst->fSamples.emplace_back("all");
+        } else {
+            syst->fSamples = Vectorize(param, ',');
+        }
+        
+        param = confSet->Get("Regions");
+        if (param == "") {
+            syst->fRegions.emplace_back("all");
+        } else {
+            syst->fRegions = Vectorize(param, ',');
+        }
+    
+        param = confSet->Get("Title");
+        if (param == "") {
+            syst->SetTitle(RemoveQuotes(confSet->GetValue()));
+        } else {
+            syst->SetTitle(RemoveQuotes(param));
+        }
+        
+        // SetCategory
+        param = confSet->Get("Category");
+        if(param != ""){
+            syst->fCategory = RemoveQuotes(param);
+            syst->fCategory = RemoveQuotes(param); //SubCategory defaults to the Category setting, if the Category is explicitly set
+        }
+
+        // SetSubCategory
+        param = confSet->Get("SubCategory");
+        if (param != ""){
+            syst->fSubCategory = RemoveQuotes(param); // note this needs to happen after Category was set, in order to overwrite the default if required
+        }
+
+        bool hasUp(false);
+        bool hasDown(false);
+
+        param = confSet->Get("ResponseMatrixPathUp");
+        if (param != "") {
+            syst->fResponseMatrixPathsUp.clear();
+            syst->fResponseMatrixPathsUp.emplace_back(RemoveQuotes(param));
+            syst->SetHasResponse(true);
+            hasUp = true;
+        }
+        
+        param = confSet->Get("ResponseMatrixPathsUp");
+        if (param != "") {
+            syst->fResponseMatrixPathsUp = Vectorize(param,',');
+            syst->SetHasResponse(true);
+            hasUp = true;
+        }
+
+        param = confSet->Get("ResponseMatrixPathDown");
+        if (param != "") {
+            syst->fResponseMatrixPathsDown.clear();
+            syst->fResponseMatrixPathsDown.emplace_back(RemoveQuotes(param));
+            syst->SetHasResponse(true);
+            hasDown = true;
+        }
+        
+        param = confSet->Get("ResponseMatrixPathsDown");
+        if (param != "") {
+            syst->fResponseMatrixPathsDown = Vectorize(param,',');
+            syst->SetHasResponse(true);
+            hasDown = true;
+        }
+
+        param = confSet->Get("ResponseMatrixPathSuffUp");
+        if (param != "") {
+            syst->fResponseMatrixPathSuffsUp.clear();
+            syst->fResponseMatrixPathSuffsUp.emplace_back(RemoveQuotes(param));
+            syst->SetHasResponse(true);
+            hasUp = true;
+        }
+        
+        param = confSet->Get("ResponseMatrixPathSuffsUp");
+        if (param != "") {
+            syst->fResponseMatrixPathSuffsUp = Vectorize(param,',');
+            syst->SetHasResponse(true);
+            hasUp = true;
+        }
+
+        param = confSet->Get("ResponseMatrixPathSuffDown");
+        if (param != "") {
+            syst->fResponseMatrixPathSuffsDown.clear();
+            syst->fResponseMatrixPathSuffsDown.emplace_back(RemoveQuotes(param));
+            syst->SetHasResponse(true);
+            hasDown = true;
+        }
+        
+        param = confSet->Get("ResponseMatrixPathSuffsDown");
+        if (param != "") {
+            syst->fResponseMatrixPathSuffsDown = Vectorize(param,',');
+            syst->SetHasResponse(true);
+            hasDown = true;
+        }
+        
+        param = confSet->Get("ResponseMatrixNameUp");
+        if (param != "") {
+            syst->fResponseMatrixNamesUp.clear();
+            syst->fResponseMatrixNamesUp.emplace_back(RemoveQuotes(param));
+            syst->SetHasResponse(true);
+            hasUp = true;
+        }
+        
+        param = confSet->Get("ResponseMatrixNamesUp");
+        if (param != "") {
+            syst->fResponseMatrixNamesUp = Vectorize(param,',');
+            syst->SetHasResponse(true);
+            hasUp = true;
+        }
+
+        param = confSet->Get("ResponseMatrixNameDown");
+        if (param != "") {
+            syst->fResponseMatrixNamesDown.clear();
+            syst->fResponseMatrixNamesDown.emplace_back(RemoveQuotes(param));
+            syst->SetHasResponse(true);
+            hasDown = true;
+        }
+        
+        param = confSet->Get("ResponseMatrixNamesDown");
+        if (param != "") {
+            syst->fResponseMatrixNamesDown = Vectorize(param,',');
+            syst->SetHasResponse(true);
+            hasDown = true;
+        }
+
+        param = confSet->Get("ResponseMatrixNameSuffUp");
+        if (param != "") {
+            syst->fResponseMatrixNameSuffsUp.clear();
+            syst->fResponseMatrixNameSuffsUp.emplace_back(RemoveQuotes(param));
+            syst->SetHasResponse(true);
+            hasUp = true;
+        }
+        
+        param = confSet->Get("ResponseMatrixNameSuffsUp");
+        if (param != "") {
+            syst->fResponseMatrixNameSuffsUp = Vectorize(param,',');
+            syst->SetHasResponse(true);
+            hasUp = true;
+        }
+
+        param = confSet->Get("ResponseMatrixNameSuffDown");
+        if (param != "") {
+            syst->fResponseMatrixNameSuffsDown.clear();
+            syst->fResponseMatrixNameSuffsDown.emplace_back(RemoveQuotes(param));
+            syst->SetHasResponse(true);
+            hasDown = true;
+        }
+        
+        param = confSet->Get("ResponseMatrixNameSuffsDown");
+        if (param != "") {
+            syst->fResponseMatrixNameSuffsDown = Vectorize(param,',');
+            syst->SetHasResponse(true);
+            hasDown = true;
+        }
+
+        param = confSet->Get("ResponseMatrixFileUp");
+        if (param != "") {
+            syst->fResponseMatrixFilesUp.clear();
+            syst->fResponseMatrixFilesUp.emplace_back(RemoveQuotes(param));
+            syst->SetHasResponse(true);
+            hasUp = true;
+        }
+        
+        param = confSet->Get("ResponseMatrixFilesUp");
+        if (param != "") {
+            syst->fResponseMatrixFilesUp = Vectorize(param,',');
+            syst->SetHasResponse(true);
+            hasUp = true;
+        }
+
+        param = confSet->Get("ResponseMatrixFileDown");
+        if (param != "") {
+            syst->fResponseMatrixFilesDown.clear();
+            syst->fResponseMatrixFilesDown.emplace_back(RemoveQuotes(param));
+            syst->SetHasResponse(true);
+            hasDown = true;
+        }
+        
+        param = confSet->Get("ResponseMatrixFilesDown");
+        if (param != "") {
+            syst->fResponseMatrixFilesDown = Vectorize(param,',');
+            syst->SetHasResponse(true);
+            hasDown = true;
+        }
+
+        param = confSet->Get("ResponseMatrixFileSuffUp");
+        if (param != "") {
+            syst->fResponseMatrixFileSuffsUp.clear();
+            syst->fResponseMatrixFileSuffsUp.emplace_back(RemoveQuotes(param));
+            syst->SetHasResponse(true);
+            hasUp = true;
+        }
+        
+        param = confSet->Get("ResponseMatrixFileSuffsUp");
+        if (param != "") {
+            syst->fResponseMatrixFileSuffsUp = Vectorize(param,',');
+            syst->SetHasResponse(true);
+            hasUp = true;
+        }
+
+        param = confSet->Get("ResponseMatrixFileSuffDown");
+        if (param != "") {
+            syst->fResponseMatrixFileSuffsDown.clear();
+            syst->fResponseMatrixFileSuffsDown.emplace_back(RemoveQuotes(param));
+            syst->SetHasResponse(true);
+            hasDown = true;
+        }
+        
+        param = confSet->Get("ResponseMatrixFileSuffsDown");
+        if (param != "") {
+            syst->fResponseMatrixFileSuffsDown = Vectorize(param,',');
+            syst->SetHasResponse(true);
+            hasDown = true;
+        }
+
+        param = confSet->Get("AcceptancePathUp");
+        if (param != "") {
+            syst->fAcceptancePathsUp.clear();
+            syst->fAcceptancePathsUp.emplace_back(RemoveQuotes(param));
+            hasUp = true;
+            syst->SetHasAcceptance(true);
+        }
+        
+        param = confSet->Get("AcceptancePathsUp");
+        if (param != "") {
+            syst->fAcceptancePathsUp = Vectorize(param,',');
+            hasUp = true;
+            syst->SetHasAcceptance(true);
+        }
+
+        param = confSet->Get("AcceptancePathDown");
+        if (param != "") {
+            syst->fAcceptancePathsDown.clear();
+            syst->fAcceptancePathsDown.emplace_back(RemoveQuotes(param));
+            hasDown = true;
+            syst->SetHasAcceptance(true);
+        }
+        
+        param = confSet->Get("AcceptancePathsDown");
+        if (param != "") {
+            syst->fAcceptancePathsDown = Vectorize(param,',');
+            hasDown = true;
+            syst->SetHasAcceptance(true);
+        }
+
+        param = confSet->Get("AcceptancePathSuffUp");
+        if (param != "") {
+            syst->fAcceptancePathSuffsUp.clear();
+            syst->fAcceptancePathSuffsUp.emplace_back(RemoveQuotes(param));
+            hasUp = true;
+            syst->SetHasAcceptance(true);
+        }
+        
+        param = confSet->Get("AcceptancePathSuffsUp");
+        if (param != "") {
+            syst->fAcceptancePathSuffsUp = Vectorize(param,',');
+            hasUp = true;
+            syst->SetHasAcceptance(true);
+        }
+
+        param = confSet->Get("AcceptancePathSuffDown");
+        if (param != "") {
+            syst->fAcceptancePathSuffsDown.clear();
+            syst->fAcceptancePathSuffsDown.emplace_back(RemoveQuotes(param));
+            hasDown = true;
+            syst->SetHasAcceptance(true);
+        }
+        
+        param = confSet->Get("AcceptancePathSuffsDown");
+        if (param != "") {
+            syst->fAcceptancePathSuffsDown = Vectorize(param,',');
+            hasDown = true;
+            syst->SetHasAcceptance(true);
+        }
+        
+        param = confSet->Get("AcceptanceNameUp");
+        if (param != "") {
+            syst->fAcceptanceNamesUp.clear();
+            syst->fAcceptanceNamesUp.emplace_back(RemoveQuotes(param));
+            hasUp = true;
+            syst->SetHasAcceptance(true);
+        }
+        
+        param = confSet->Get("AcceptanceNamesUp");
+        if (param != "") {
+            syst->fAcceptanceNamesUp = Vectorize(param,',');
+            hasUp = true;
+            syst->SetHasAcceptance(true);
+        }
+
+        param = confSet->Get("AcceptanceNameDown");
+        if (param != "") {
+            syst->fAcceptanceNamesDown.clear();
+            syst->fAcceptanceNamesDown.emplace_back(RemoveQuotes(param));
+            hasDown = true;
+            syst->SetHasAcceptance(true);
+        }
+        
+        param = confSet->Get("AcceptanceNamesDown");
+        if (param != "") {
+            syst->fAcceptanceNamesDown = Vectorize(param,',');
+            hasDown = true;
+            syst->SetHasAcceptance(true);
+        }
+
+        param = confSet->Get("AcceptanceNameSuffUp");
+        if (param != "") {
+            syst->fAcceptanceNameSuffsUp.clear();
+            syst->fAcceptanceNameSuffsUp.emplace_back(RemoveQuotes(param));
+            hasUp = true;
+            syst->SetHasAcceptance(true);
+        }
+        
+        param = confSet->Get("AcceptanceNameSuffsUp");
+        if (param != "") {
+            syst->fAcceptanceNameSuffsUp = Vectorize(param,',');
+            hasUp = true;
+            syst->SetHasAcceptance(true);
+        }
+
+        param = confSet->Get("AcceptanceNameSuffDown");
+        if (param != "") {
+            syst->fAcceptanceNameSuffsDown.clear();
+            syst->fAcceptanceNameSuffsDown.emplace_back(RemoveQuotes(param));
+            hasDown = true;
+            syst->SetHasAcceptance(true);
+        }
+        
+        param = confSet->Get("AcceptanceNameSuffsDown");
+        if (param != "") {
+            syst->fAcceptanceNameSuffsDown = Vectorize(param,',');
+            hasDown = true;
+            syst->SetHasAcceptance(true);
+        }
+
+        param = confSet->Get("AcceptanceFileUp");
+        if (param != "") {
+            syst->fAcceptanceFilesUp.clear();
+            syst->fAcceptanceFilesUp.emplace_back(RemoveQuotes(param));
+            hasUp = true;
+            syst->SetHasAcceptance(true);
+        }
+        
+        param = confSet->Get("AcceptanceFilesUp");
+        if (param != "") {
+            syst->fAcceptanceFilesUp = Vectorize(param,',');
+            hasUp = true;
+            syst->SetHasAcceptance(true);
+        }
+
+        param = confSet->Get("AcceptanceFileDown");
+        if (param != "") {
+            syst->fAcceptanceFilesDown.clear();
+            syst->fAcceptanceFilesDown.emplace_back(RemoveQuotes(param));
+            hasDown = true;
+            syst->SetHasAcceptance(true);
+        }
+        
+        param = confSet->Get("AcceptanceFilesDown");
+        if (param != "") {
+            syst->fAcceptanceFilesDown = Vectorize(param,',');
+            hasDown = true;
+            syst->SetHasAcceptance(true);
+        }
+
+        param = confSet->Get("AcceptanceFileSuffUp");
+        if (param != "") {
+            syst->fAcceptanceFileSuffsUp.clear();
+            syst->fAcceptanceFileSuffsUp.emplace_back(RemoveQuotes(param));
+            hasUp = true;
+            syst->SetHasAcceptance(true);
+        }
+        
+        param = confSet->Get("AcceptanceFileSuffsUp");
+        if (param != "") {
+            syst->fAcceptanceFileSuffsUp = Vectorize(param,',');
+            hasUp = true;
+            syst->SetHasAcceptance(true);
+        }
+
+        param = confSet->Get("AcceptanceFileSuffDown");
+        if (param != "") {
+            syst->fAcceptanceFileSuffsDown.clear();
+            syst->fAcceptanceFileSuffsDown.emplace_back(RemoveQuotes(param));
+            hasDown = true;
+            syst->SetHasAcceptance(true);
+        }
+        
+        param = confSet->Get("AcceptanceFileSuffsDown");
+        if (param != "") {
+            syst->fAcceptanceFileSuffsDown = Vectorize(param,',');
+            hasDown = true;
+            syst->SetHasAcceptance(true);
+        }
+        param = confSet->Get("SelectionEffPathUp");
+        if (param != "") {
+            syst->fSelectionEffPathsUp.clear();
+            syst->fSelectionEffPathsUp.emplace_back(RemoveQuotes(param));
+            hasUp = true;
+            syst->SetHasAcceptance(true);
+        }
+        
+        param = confSet->Get("SelectionEffPathsUp");
+        if (param != "") {
+            syst->fSelectionEffPathsUp = Vectorize(param,',');
+            hasUp = true;
+            syst->SetHasAcceptance(true);
+        }
+
+        param = confSet->Get("SelectionEffPathDown");
+        if (param != "") {
+            syst->fSelectionEffPathsDown.clear();
+            syst->fSelectionEffPathsDown.emplace_back(RemoveQuotes(param));
+            hasDown = true;
+        }
+        
+        param = confSet->Get("SelectionEffPathsDown");
+        if (param != "") {
+            syst->fSelectionEffPathsDown = Vectorize(param,',');
+            hasDown = true;
+        }
+
+        param = confSet->Get("SelectionEffPathSuffUp");
+        if (param != "") {
+            syst->fSelectionEffPathSuffsUp.clear();
+            syst->fSelectionEffPathSuffsUp.emplace_back(RemoveQuotes(param));
+            hasUp = true;
+        }
+        
+        param = confSet->Get("SelectionEffPathSuffsUp");
+        if (param != "") {
+            syst->fSelectionEffPathSuffsUp = Vectorize(param,',');
+            hasUp = true;
+        }
+
+        param = confSet->Get("SelectionEffPathSuffDown");
+        if (param != "") {
+            syst->fSelectionEffPathSuffsDown.clear();
+            syst->fSelectionEffPathSuffsDown.emplace_back(RemoveQuotes(param));
+            hasDown = true;
+        }
+        
+        param = confSet->Get("SelectionEffPathSuffsDown");
+        if (param != "") {
+            syst->fSelectionEffPathSuffsDown = Vectorize(param,',');
+            hasDown = true;
+        }
+        
+        param = confSet->Get("SelectionEffNameUp");
+        if (param != "") {
+            syst->fSelectionEffNamesUp.clear();
+            syst->fSelectionEffNamesUp.emplace_back(RemoveQuotes(param));
+            hasUp = true;
+        }
+        
+        param = confSet->Get("SelectionEffNamesUp");
+        if (param != "") {
+            syst->fSelectionEffNamesUp = Vectorize(param,',');
+            hasUp = true;
+        }
+
+        param = confSet->Get("SelectionEffNameDown");
+        if (param != "") {
+            syst->fSelectionEffNamesDown.clear();
+            syst->fSelectionEffNamesDown.emplace_back(RemoveQuotes(param));
+            hasDown = true;
+        }
+        
+        param = confSet->Get("SelectionEffNamesDown");
+        if (param != "") {
+            syst->fSelectionEffNamesDown = Vectorize(param,',');
+            hasDown = true;
+        }
+
+        param = confSet->Get("SelectionEffNameSuffUp");
+        if (param != "") {
+            syst->fSelectionEffNameSuffsUp.clear();
+            syst->fSelectionEffNameSuffsUp.emplace_back(RemoveQuotes(param));
+            hasUp = true;
+        }
+        
+        param = confSet->Get("SelectionEffNameSuffsUp");
+        if (param != "") {
+            syst->fSelectionEffNameSuffsUp = Vectorize(param,',');
+            hasUp = true;
+        }
+
+        param = confSet->Get("SelectionEffNameSuffDown");
+        if (param != "") {
+            syst->fSelectionEffNameSuffsDown.clear();
+            syst->fSelectionEffNameSuffsDown.emplace_back(RemoveQuotes(param));
+            hasDown = true;
+        }
+        
+        param = confSet->Get("SelectionEffNameSuffsDown");
+        if (param != "") {
+            syst->fSelectionEffNameSuffsDown = Vectorize(param,',');
+            hasDown = true;
+        }
+
+        param = confSet->Get("SelectionEffFileUp");
+        if (param != "") {
+            syst->fSelectionEffFilesUp.clear();
+            syst->fSelectionEffFilesUp.emplace_back(RemoveQuotes(param));
+            hasUp = true;
+        }
+        
+        param = confSet->Get("SelectionEffFilesUp");
+        if (param != "") {
+            syst->fSelectionEffFilesUp = Vectorize(param,',');
+            hasUp = true;
+        }
+
+        param = confSet->Get("SelectionEffFileDown");
+        if (param != "") {
+            syst->fSelectionEffFilesDown.clear();
+            syst->fSelectionEffFilesDown.emplace_back(RemoveQuotes(param));
+            hasDown = true;
+        }
+        
+        param = confSet->Get("SelectionEffFilesDown");
+        if (param != "") {
+            syst->fSelectionEffFilesDown = Vectorize(param,',');
+            hasDown = true;
+        }
+
+        param = confSet->Get("SelectionEffFileSuffUp");
+        if (param != "") {
+            syst->fSelectionEffFileSuffsUp.clear();
+            syst->fSelectionEffFileSuffsUp.emplace_back(RemoveQuotes(param));
+            hasUp = true;
+        }
+        
+        param = confSet->Get("SelectionEffFileSuffsUp");
+        if (param != "") {
+            syst->fSelectionEffFileSuffsUp = Vectorize(param,',');
+            hasUp = true;
+        }
+
+        param = confSet->Get("SelectionEffFileSuffDown");
+        if (param != "") {
+            syst->fSelectionEffFileSuffsDown.clear();
+            syst->fSelectionEffFileSuffsDown.emplace_back(RemoveQuotes(param));
+            hasDown = true;
+        }
+        
+        param = confSet->Get("SelectionEffFileSuffsDown");
+        if (param != "") {
+            syst->fSelectionEffFileSuffsDown = Vectorize(param,',');
+            hasDown = true;
+        }
+
+        param = confSet->Get("MigrationPathUp");
+        if (param != "") {
+            syst->fMigrationPathsUp.clear();
+            syst->fMigrationPathsUp.emplace_back(RemoveQuotes(param));
+            hasUp = true;
+        }
+        
+        param = confSet->Get("MigrationPathsUp");
+        if (param != "") {
+            syst->fMigrationPathsUp = Vectorize(param,',');
+            hasUp = true;
+        }
+
+        param = confSet->Get("MigrationPathDown");
+        if (param != "") {
+            syst->fMigrationPathsDown.clear();
+            syst->fMigrationPathsDown.emplace_back(RemoveQuotes(param));
+            hasDown = true;
+        }
+        
+        param = confSet->Get("MigrationPathsDown");
+        if (param != "") {
+            syst->fMigrationPathsDown = Vectorize(param,',');
+            hasDown = true;
+        }
+
+        param = confSet->Get("MigrationPathSuffUp");
+        if (param != "") {
+            syst->fMigrationPathSuffsUp.clear();
+            syst->fMigrationPathSuffsUp.emplace_back(RemoveQuotes(param));
+            hasUp = true;
+        }
+        
+        param = confSet->Get("MigrationPathSuffsUp");
+        if (param != "") {
+            syst->fMigrationPathSuffsUp = Vectorize(param,',');
+            hasUp = true;
+        }
+
+        param = confSet->Get("MigrationPathSuffDown");
+        if (param != "") {
+            syst->fMigrationPathSuffsDown.clear();
+            syst->fMigrationPathSuffsDown.emplace_back(RemoveQuotes(param));
+            hasDown = true;
+        }
+        
+        param = confSet->Get("MigrationPathSuffsDown");
+        if (param != "") {
+            syst->fMigrationPathSuffsDown = Vectorize(param,',');
+            hasDown = true;
+        }
+        
+        param = confSet->Get("MigrationNameUp");
+        if (param != "") {
+            syst->fMigrationNamesUp.clear();
+            syst->fMigrationNamesUp.emplace_back(RemoveQuotes(param));
+            hasUp = true;
+        }
+        
+        param = confSet->Get("MigrationNamesUp");
+        if (param != "") {
+            syst->fMigrationNamesUp = Vectorize(param,',');
+            hasUp = true;
+        }
+
+        param = confSet->Get("MigrationNameDown");
+        if (param != "") {
+            syst->fMigrationNamesDown.clear();
+            syst->fMigrationNamesDown.emplace_back(RemoveQuotes(param));
+            hasDown = true;
+        }
+        
+        param = confSet->Get("MigrationNamesDown");
+        if (param != "") {
+            syst->fMigrationNamesDown = Vectorize(param,',');
+            hasDown = true;
+        }
+
+        param = confSet->Get("MigrationNameSuffUp");
+        if (param != "") {
+            syst->fMigrationNameSuffsUp.clear();
+            syst->fMigrationNameSuffsUp.emplace_back(RemoveQuotes(param));
+            hasUp = true;
+        }
+        
+        param = confSet->Get("MigrationNameSuffsUp");
+        if (param != "") {
+            syst->fMigrationNameSuffsUp = Vectorize(param,',');
+            hasUp = true;
+        }
+
+        param = confSet->Get("MigrationNameSuffDown");
+        if (param != "") {
+            syst->fMigrationNameSuffsDown.clear();
+            syst->fMigrationNameSuffsDown.emplace_back(RemoveQuotes(param));
+            hasDown = true;
+        }
+        
+        param = confSet->Get("MigrationNameSuffsDown");
+        if (param != "") {
+            syst->fMigrationNameSuffsDown = Vectorize(param,',');
+            hasDown = true;
+        }
+
+        param = confSet->Get("MigrationFileUp");
+        if (param != "") {
+            syst->fMigrationFilesUp.clear();
+            syst->fMigrationFilesUp.emplace_back(RemoveQuotes(param));
+            hasUp = true;
+        }
+        
+        param = confSet->Get("MigrationFilesUp");
+        if (param != "") {
+            syst->fMigrationFilesUp = Vectorize(param,',');
+            hasUp = true;
+        }
+
+        param = confSet->Get("MigrationFileDown");
+        if (param != "") {
+            syst->fMigrationFilesDown.clear();
+            syst->fMigrationFilesDown.emplace_back(RemoveQuotes(param));
+            hasDown = true;
+        }
+        
+        param = confSet->Get("MigrationFilesDown");
+        if (param != "") {
+            syst->fMigrationFilesDown = Vectorize(param,',');
+            hasDown = true;
+        }
+
+        param = confSet->Get("MigrationFileSuffUp");
+        if (param != "") {
+            syst->fMigrationFileSuffsUp.clear();
+            syst->fMigrationFileSuffsUp.emplace_back(RemoveQuotes(param));
+            hasUp = true;
+        }
+        
+        param = confSet->Get("MigrationFileSuffsUp");
+        if (param != "") {
+            syst->fMigrationFileSuffsUp = Vectorize(param,',');
+            hasUp = true;
+        }
+
+        param = confSet->Get("MigrationFileSuffDown");
+        if (param != "") {
+            syst->fMigrationFileSuffsDown.clear();
+            syst->fMigrationFileSuffsDown.emplace_back(RemoveQuotes(param));
+            hasDown = true;
+        }
+        
+        param = confSet->Get("MigrationFileSuffsDown");
+        if (param != "") {
+            syst->fMigrationFileSuffsDown = Vectorize(param,',');
+            hasDown = true;
+        }
+
+        syst->fHasUpVariation = hasUp;
+        syst->fHasDownVariation = hasDown;
+ 
+        // Set Symmetrisation
+        param = confSet->Get("Symmetrisation");
+        if(param != ""){
+            std::transform(param.begin(), param.end(), param.begin(), ::toupper);
+            if(param == "ONESIDED"){
+                syst->SetSymmetrisationType(HistoTools::SYMMETRIZEONESIDED);
+            }
+            else if(param == "TWOSIDED"){
+                syst->SetSymmetrisationType(HistoTools::SYMMETRIZETWOSIDED);
+            }
+            else if(param == "ABSMEAN"){
+                syst->SetSymmetrisationType(HistoTools::SYMMETRIZEABSMEAN);
+            }
+            else if(param == "MAXIMUM"){
+                syst->SetSymmetrisationType(HistoTools::SYMMETRIZEMAXIMUM);
+            }
+            else {
+                WriteErrorStatus("ConfigReader::ReadUnfoldingSystematicOptions", "Symetrisation scheme is not recognized ... ");
+                return 1;
+            }
+        }
+
+        param = confSet->Get("SmoothingOption");
+        if(param != ""){
+            syst->fSampleSmoothing = true;
+            std::transform(param.begin(), param.end(), param.begin(), ::toupper);
+            if( param == "MAXVARIATION" ) syst->SetSmoothOption(HistoTools::SmoothOption::MAXVARIATION);
+            else if (param == "TTBARRESONANCE") syst->SetSmoothOption(HistoTools::SmoothOption::TTBARRESONANCE);
+            else if (param == "COMMONTOOLSMOOTHMONOTONIC") syst->SetSmoothOption(HistoTools::SmoothOption::COMMONTOOLSMOOTHMONOTONIC);
+            else if (param == "COMMONTOOLSMOOTHPARABOLIC") syst->SetSmoothOption(HistoTools::SmoothOption::COMMONTOOLSMOOTHPARABOLIC);
+            else if (param == "KERNELRATIOUNIFORM") syst->SetSmoothOption(HistoTools::SmoothOption::KERNELRATIOUNIFORM);
+            else if (param == "KERNELDELTAGAUSS") syst->SetSmoothOption(HistoTools::SmoothOption::KERNELDELTAGAUSS);
+            else if (param == "KERNELRATIOGAUSS") syst->SetSmoothOption(HistoTools::SmoothOption::KERNELRATIOGAUSS);
+            else {
+                WriteWarningStatus("ConfigReader::ReadUnfoldingSystematicOptions", "You specified 'SmoothingOption' option but you didn't provide valid input. Using default from job block");
+                syst->fSampleSmoothing = false;
+            }
+        }
+
+        fFitter->fUnfoldingSystematics.emplace_back(std::move(syst));
+    }
+
+    return 0;
+}
+
+//__________________________________________________________________________________
+//
+int ConfigReader::UnfoldingCorrections() {
+    if (fFitter->fFitType != TRExFit::FitType::UNFOLDING) return 0;
+
+    int sc(0);
+
+    // First process Samples
+    sc += ProcessUnfoldingSamples();
+
+    // Then process Systematics
+    sc += ProcessUnfoldingSystematics();
+   
+    // Add norm factors
+    sc += AddUnfoldingNormFactors();
+
+    return sc;
 }
 
 //__________________________________________________________________________________
@@ -4896,4 +6783,114 @@ bool ConfigReader::SystHasProblematicName(const std::string& name){
     }
 
     return false;
+}
+
+//__________________________________________________________________________________
+//
+int ConfigReader::ProcessUnfoldingSamples() {
+
+    for (const auto& ireg : fFitter->fRegions) {
+        if (ireg->fRegionType != Region::RegionType::SIGNAL) continue;
+
+        for (const auto& isample : fFitter->fUnfoldingSamples) {
+            if(isample->fRegions[0] != "all" && 
+                Common::FindInStringVector(isample->fRegions, ireg->fName) < 0) continue;
+
+            // Convert the UnfoldingSample to sample and adjust the paths
+            const std::vector<Sample*> samples = isample->ConvertToSample(ireg, fFitter->fNumberUnfoldingTruthBins, fFitter->fName);
+            fFitter->fSamples.insert(fFitter->fSamples.end(), samples.begin(), samples.end());
+            fFitter->fNSamples += fFitter->fNumberUnfoldingTruthBins;
+        }
+    }
+
+    return 0;
+}
+
+//__________________________________________________________________________________
+//
+int ConfigReader::ProcessUnfoldingSystematics() {
+    for (const auto& ireg : fFitter->fRegions) {
+        if (ireg->fRegionType != Region::RegionType::SIGNAL) continue;
+    
+        for (const auto& isyst : fFitter->fUnfoldingSystematics) {
+            if(isyst->fRegions[0] != "all" && 
+                Common::FindInStringVector(isyst->fRegions, ireg->fName) < 0) continue;
+       
+            if (fFitter->fUnfoldingSamples.size() == 0) {
+                WriteErrorStatus("ConfigReader::ProcessUnfoldingSystematics", "No UnfoldingSamples set!");
+                return 1;
+            }
+            std::string unfoldingSampleName("");
+            for (const auto& isample : fFitter->fUnfoldingSamples) {
+                if(isample->fRegions[0] != "all" && 
+                    Common::FindInStringVector(isample->fRegions, ireg->fName) < 0) continue;
+
+                unfoldingSampleName = isample->GetName();
+            }
+
+            if (unfoldingSampleName == "") {
+                WriteErrorStatus("ConfigReader::ProcessUnfoldingSystematics", "Sample name not set!");
+                exit(EXIT_FAILURE);
+            }
+
+            const std::vector<Systematic*> systs = isyst->ConvertToSystematic(ireg,
+                                                                              fFitter->fNumberUnfoldingTruthBins,
+                                                                              fFitter->fName,
+                                                                              unfoldingSampleName,
+                                                                              fFitter->fSamples); 
+            fFitter->fSystematics.insert(fFitter->fSystematics.end(), systs.begin(), systs.end());
+            fFitter->fNSyst += fFitter->fNumberUnfoldingTruthBins;
+        }
+    }
+
+    return 0;
+}
+
+//__________________________________________________________________________________
+//
+int ConfigReader::AddUnfoldingNormFactors() {
+
+    for (int i = 0; i < fFitter->fNumberUnfoldingTruthBins; ++i) {
+        const std::string name = "Bin_" + std::to_string(i+1);
+        NormFactor* nf = new NormFactor(name); 
+        
+        TRExFitter::SYSTMAP[nf->fName] = nf->fName;
+
+        if(Common::FindInStringVector(fFitter->fNormFactorNames, nf->fName) < 0) {
+           fFitter->fNormFactors.emplace_back(nf);
+           fFitter->fNormFactorNames.emplace_back(nf->fName);
+           fFitter->fNNorm++;
+        }
+        
+        nf->fNuisanceParameter = nf->fName;
+        TRExFitter::NPMAP[nf->fName] = nf->fName;
+        nf->fCategory = "TruthBins";
+        nf->fTitle = "UnfoldedTruthBin_"+std::to_string(i);
+        nf->fMin = fFitter->fUnfoldingResultMin;
+        nf->fMax = fFitter->fUnfoldingResultMax;
+        nf->fNominal = 1;
+        nf->fRegions = GetAvailableRegions();
+        std::vector<std::string> sampleNames;
+        for (const auto& ireg : fFitter->fRegions) {
+            if (ireg->fRegionType == Region::RegionType::SIGNAL) {
+                const std::string sampleName = ireg->fName + "_Truth_bin_" + std::to_string(i+1);
+                sampleNames.emplace_back(sampleName);
+            }
+        }
+        for(auto& isample : fFitter->fSamples) {
+            if (std::find(sampleNames.begin(), sampleNames.end(), isample->fName) == sampleNames.end()) continue;
+            isample->AddNormFactor(nf);
+        }
+
+        // check if the bin is in the list specifies taus
+        auto it = std::find_if(fTaus.begin(), fTaus.end(),
+        [&i](const std::pair<int, double>& element){ return element.first == i+1;});
+
+        if (it != fTaus.end()) {
+            WriteInfoStatus("ConfigReader::AddUnfoldingNormFactors", "Setting truth bin: " + std::to_string(i+1) + " to use tau = " + std::to_string(it->second));
+            nf->fTau = it->second; 
+        }
+    }
+
+    return 0;
 }

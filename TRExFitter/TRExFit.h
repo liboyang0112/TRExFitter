@@ -6,6 +6,9 @@
 #include "TRExFitter/HistoTools.h"
 #include "TRExFitter/Systematic.h"
 
+// Unfolding includes
+#include "UnfoldingCode/UnfoldingCode/FoldingManager.h"
+
 // RooFit
 #include "RooSimultaneous.h"
 #include "RooStats/ModelConfig.h"
@@ -30,8 +33,12 @@ class Region;
 class Sample;
 class SampleHist;
 class ShapeFactor;
+class TGraphAsymmErrors;
 class TRExPlot;
+class TruthSample;
 class TFile;
+class UnfoldingSample;
+class UnfoldingSystematic;
 
 class TRExFit {
 public:
@@ -39,7 +46,8 @@ public:
     enum FitType {
         UNDEFINED = 0,
         SPLUSB = 1,
-        BONLY = 2
+        BONLY = 2 ,
+        UNFOLDING = 3
     };
 
     enum FitRegion {
@@ -168,6 +176,7 @@ public:
 
     void PlotFittedNP();
     void PlotCorrelationMatrix();
+    void PlotUnfoldedData() const;
     void GetLimit();
     void GetSignificance();
     void GetLikelihoodScan( RooWorkspace *ws, std::string varName, RooDataSet* data) const;
@@ -302,6 +311,64 @@ public:
     std::vector<std::string> FullHistogramPaths(Region *reg,Sample *smp,Systematic *syst=nullptr,bool isUp=true);
 
     /**
+     * A helper function to compute the fgull paths for a response matrix
+     * @param pointer to the Region
+     * @param pointer to the UnfoldingSample
+     * @param pointer to the Systematic (default = NULL)
+     * @param bool to specify up (true) or down (false) syst variation
+     * @return the full path
+     */
+    std::vector<std::string> FullResponseMatrixPaths(const Region* reg, 
+                                                     const UnfoldingSample* smp,
+                                                     const UnfoldingSystematic* syst = nullptr,
+                                                     const bool isUp = true) const;
+
+    /**
+     * A helper function to compute the fgull paths for a migration matrix
+     * @param pointer to the Region
+     * @param pointer to the UnfoldingSample
+     * @param pointer to the Systematic (default = NULL)
+     * @param bool to specify up (true) or down (false) syst variation
+     * @return the full path
+     */
+    std::vector<std::string> FullMigrationMatrixPaths(const Region* reg, 
+                                                      const UnfoldingSample* smp,
+                                                      const UnfoldingSystematic* syst = nullptr,
+                                                      const bool isUp = true) const;
+
+    /**
+     * A helper function to compute the fgull paths for acceptance
+     * @param pointer to the Region
+     * @param pointer to the UnfoldingSample
+     * @param pointer to the Systematic (default = NULL)
+     * @param bool to specify up (true) or down (false) syst variation
+     * @return the full path
+     */
+    std::vector<std::string> FullAcceptancePaths(const Region* reg, 
+                                                 const UnfoldingSample* smp,
+                                                 const UnfoldingSystematic* syst = nullptr,
+                                                 const bool isUp = true) const;
+
+    /**
+     * A helper function to compute the fgull paths for selection efficiency
+     * @param pointer to the Region
+     * @param pointer to the UnfoldingSample
+     * @param pointer to the Systematic (default = NULL)
+     * @param bool to specify up (true) or down (false) syst variation
+     * @return the full path
+     */
+    std::vector<std::string> FullSelectionEffPaths(const Region* reg, 
+                                                   const UnfoldingSample* smp,
+                                                   const UnfoldingSystematic* syst = nullptr,
+                                                   const bool isUp = true) const;
+
+    /**
+      * A helper function to combine paths for the truth distributions
+      * @return a vector of the paths
+      */ 
+    std::vector<std::string> FullTruthPaths() const;
+
+    /**
     * A helper function to get SampleHisto from a region that matches a name of the sample
     * @param Region
     * @@param name
@@ -353,6 +420,44 @@ public:
       */
     void DropBins();
 
+    /**
+      * A function that prepares signal inputs for unfolding.
+      * Folded distributions are created
+      */ 
+    void PrepareUnfolding();
+
+    /**
+      * A helper function to fold systematic distributions needed for unfolding
+      * @param Folding manager
+      * @param output file
+      * @param Region
+      * @param UnfoldingSample
+      * @param Current UnfoldingSystystematics
+      */ 
+    void ProcessUnfoldingSystematics(FoldingManager* manager,
+                                     TFile* file,
+                                     const Region* reg,
+                                     const UnfoldingSample* sample,
+                                     const UnfoldingSystematic* syst) const;
+
+    /** A helper function that does the actual plotting of unfolded data
+      * @param unfoded data
+      * @param error band
+      */ 
+    void PlotUnfold(TH1D* data,
+                    TGraphAsymmErrors* band) const;
+
+    /**
+      * A helper function to plot migration or reposne matrix
+      * @param matrix
+      * @param flag if sample is migration
+      * @param name of the region
+      * @param name of the systematic
+      */ 
+    void PlotMigrationResponse(const TH2* matrix,
+                               const bool isMigration,
+                               const std::string& regionName,
+                               const std::string& systematicName) const;
     // -------------------------
 
     std::string fName;
@@ -398,6 +503,23 @@ public:
     std::string fMCweight;
     std::string fSelection;
 
+    std::vector<std::string> fResponseMatrixNames;
+    std::vector<std::string> fResponseMatrixFiles;
+    std::vector<std::string> fResponseMatrixPaths;
+    std::vector<std::string> fResponseMatrixNamesNominal;
+    std::vector<std::string> fAcceptanceNames;
+    std::vector<std::string> fAcceptanceFiles;
+    std::vector<std::string> fAcceptancePaths;
+    std::vector<std::string> fAcceptanceNamesNominal;
+    std::vector<std::string> fSelectionEffNames;
+    std::vector<std::string> fSelectionEffFiles;
+    std::vector<std::string> fSelectionEffPaths;
+    std::vector<std::string> fSelectionEffNamesNominal;
+    std::vector<std::string> fMigrationNames;
+    std::vector<std::string> fMigrationFiles;
+    std::vector<std::string> fMigrationPaths;
+    std::vector<std::string> fMigrationNamesNominal;
+    
     std::vector<std::string> fHistoPaths;
     std::vector<std::string> fHistoFiles;
     std::vector<std::string> fHistoNames;
@@ -607,6 +729,40 @@ public:
     bool fDoSystNormalizationPlots;
 
     int fDebugNev;
+
+    FoldingManager::MATRIXORIENTATION fMatrixOrientation;
+
+    std::string fTruthDistributionPath;
+    std::string fTruthDistributionFile;
+    std::string fTruthDistributionName;
+    int fNumberUnfoldingTruthBins;
+    int fNumberUnfoldingRecoBins;
+    std::vector<std::unique_ptr<UnfoldingSample> > fUnfoldingSamples;
+    std::vector<std::unique_ptr<UnfoldingSystematic> > fUnfoldingSystematics;
+    double fUnfoldingResultMin;
+    double fUnfoldingResultMax;
+    bool fHasAcceptance;
+    std::string fUnfoldingTitleX;
+    std::string fUnfoldingTitleY;
+    double fUnfoldingRatioYmax;
+    double fUnfoldingRatioYmin;
+    bool fUnfoldingLogX;
+    bool fUnfoldingLogY;
+    double fUnfoldingTitleOffsetX;
+    double fUnfoldingTitleOffsetY;
+    std::vector<std::unique_ptr<TruthSample> > fTruthSamples;
+    std::string fNominalTruthSample;
+    std::string fMigrationTitleX;
+    std::string fMigrationTitleY;
+    bool fMigrationLogX;
+    bool fMigrationLogY;
+    double fMigrationTitleOffsetX;
+    double fMigrationTitleOffsetY;
+    bool fPlotSystematicMigrations;
+    double fMigrationZmin;
+    double fMigrationZmax;
+    double fResponseZmin;
+    double fResponseZmax;
 };
 
 #endif

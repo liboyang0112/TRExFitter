@@ -586,8 +586,9 @@ void HistoReader::ReadOneRegion(const int i_ch, const bool is_data) {
         if (!is_data) {
             ReadNormShape(sh, i_ch, ismp);
         }
-    
+   
         for(const auto& isyst : ismp->fSystematics) {
+            
             Systematic *syst = isyst.get();
             // only relevant for systs that have this sample as reference
             if (is_data && 

@@ -136,10 +136,9 @@ class ConfigReader {
 
         /**
           * Helper function to read Sample settings
-          * @param Running options
           * @return int status code
           */
-        int ReadSampleOptions(const std::string& opt);
+        int ReadSampleOptions();
 
         /**
           * Helper function to read NormFactor settings
@@ -158,6 +157,30 @@ class ConfigReader {
           * @return int status code
           */
         int ReadSystOptions();
+
+        /**
+          * A helper function to read Unfolding settings
+          * @return int status code
+          */ 
+        int ReadUnfoldingOptions();
+        
+        /**
+          * A helper function to read TruthSample
+          * @return int status code
+          */ 
+        int ReadTruthSamples();
+
+        /**
+          * A helper function to read UnfoldingSample
+          * @return int status code
+          */ 
+        int ReadUnfoldingSampleOptions();
+
+        /**
+          * A helper function to read UnfoldingSystematic
+          * @return int status code
+          */ 
+        int ReadUnfoldingSystematicOptions();
 
         /**
           * Helper function to read Part of Syst config
@@ -203,10 +226,17 @@ class ConfigReader {
         int SetSystShapeDecorelate(ConfigSet *confSet, Systematic *sys, const std::vector<std::string>& samples, const std::vector<std::string>& exclude);
 
         /**
-          * Helper function that is run after config is read
+          * Helper function that propagates samples and systematics when Unfolding is used
           * @return int status code
           */
-        int PostConfig();
+        int UnfoldingCorrections();
+
+        /**
+          * Helper function that is run after config is read
+          * @param Running options
+          * @return int status code
+          */
+        int PostConfig(const std::string& opt);
 
         /**
           * Helper function to check the consistency of the input
@@ -256,6 +286,24 @@ class ConfigReader {
           * @return flag if the systematic is problematic
           */
         bool SystHasProblematicName(const std::string& name);
+
+        /**
+          * Helper function to convert UnfoldingSample to Samples
+          * @return status code
+          */
+        int ProcessUnfoldingSamples();
+        
+        /**
+          * Helper function to convert UnfoldingSystematics to Systematics
+          * @return status code
+          */
+        int ProcessUnfoldingSystematics();
+        
+        /**
+          * Helper function to add NormFactors for truth bins when running unfolding
+          * @return status code
+          */
+        int AddUnfoldingNormFactors();
 
         /**
           * Pointer to TRExFit class, set during initialization
@@ -345,6 +393,11 @@ class ConfigReader {
           * bool to check if there is at least one valid sample for the fit
           */
         bool fHasAtLeastOneValidSample;
+
+        /**
+          * A container for Tau parameters
+          */ 
+        std::vector<std::pair<int, double> > fTaus;
 };
 
 #endif

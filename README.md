@@ -73,7 +73,7 @@ To compile:
 3. Compile the code with `cmake --build ./`
 4. The binary file will appear in `bin/` directory
 
-(this will take as main code the file `util/trex-fitter.C`)
+(this will take as main code the file `util/trex-fitter.cc`)
 
 The setup script also adds a path to the binary into your PATH and you can execute the code with `trex-fitter`
 
@@ -154,6 +154,7 @@ For instance, if you use the default file `util/trex-fitter.C`, the available ac
 
 | **Option** | **Action** |
 | ---------- | ---------- |
+| `u` | read efficiencies, migration/response matrices an acceptances for unfolding and then fold them |
 | `h` | read input histograms (valid only if the proper option is specified in the config file) |
 | `n` | read input ntuples (valid only if the proper option is specified in the config file) |
 | `w` | create the RooStats xmls and workspace |
@@ -205,6 +206,12 @@ The file should contain:
   * any number of objects of type `Systematic` (even 0 is ok)
   * any number of objects of type `NormFactor` (even 0 is ok)
 
+In case of unfolding you need:
+  * exactly one object of type `Job`
+  * exactly one object of type `Unfolding`
+  * at least one object of type `TruthSample`
+  * at least one object of type `UnfoldingSample`
+
 Note that each object should have unique `<ObjectName>`.
 
 At the beginning of TRExFitter execution, the config file used will be checked against a reference file.
@@ -221,6 +228,10 @@ The available blocks are:
 - `NormFactor`
 - `ShapeFactor`
 - `Systematic`
+- `TruthSample`
+- `Unfolding`
+- `UnfoldingSample`
+- `UnfoldingSystematic`
 
 ### Available settings
 For each object type (or "block"), you can find the available settings in [our documentation (docs/Settings.md)](docs/Settings.md#standard-fit).
@@ -363,6 +374,16 @@ trex-fitter mr config/myTopWS_multifit.config Ranking="XXX"
 Find all available multi-fit settings in [our documentation (docs/Settings.md)](docs/Settings.md#multi-fit).
 
 
+### Running unfolding
+To run the unfolding, you need to run steps: `u`, followed by `h`, then the other steps will work as usual
+Example:
+```
+trex-fitter u test/configs/FitExampleUnfolding.config
+trex-fitter h test/configs/FitExampleUnfolding.config
+trex-fitter w test/configs/FitExampleUnfolding.config
+trex-fitter f test/configs/FitExampleUnfolding.config
+```
+
 
 ## Input File Merging with hupdate
 A macro `hupdate` is included, which mimics hadd functionality, but without adding histograms if they have the same name.
@@ -400,6 +421,7 @@ Inside this directory, at every step, some outputs are created, following the st
 | `Toys/`               | plots and ROOT files with pseudoexperiments output |
 | `Histograms/`         | root file(s) with all the inputs |
 | `LHoodPlots/`         | likelihood scan with respect to the specified parameter |
+| `UnfoldingHistograms/`| folded histograms produced during `u` step |
 
 
 

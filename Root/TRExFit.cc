@@ -17,6 +17,13 @@
 #include "TRExFitter/TRExPlot.h"
 #include "TRExFitter/Region.h"
 #include "TRExFitter/PruningUtil.h"
+#include "TRExFitter/TruthSample.h"
+#include "TRExFitter/UnfoldingSample.h"
+#include "TRExFitter/UnfoldingSystematic.h"
+
+// UnfoldingCode includes
+#include "UnfoldingCode/UnfoldingCode/UnfoldingTools.h"
+#include "UnfoldingCode/UnfoldingCode/UnfoldingResult.h"
 
 // CommonStatTiils includes
 #include "CommonStatTools/runSig.h"
@@ -52,6 +59,7 @@
 #include "TFormula.h"
 #include "TGaxis.h"
 #include "TGraph2D.h"
+#include "TGraphAsymmErrors.h"
 #include "TGraphErrors.h"
 #include "TH2F.h"
 #include "TLatex.h"
@@ -224,8 +232,37 @@ TRExFit::TRExFit(std::string name) :
     fExcludeFromMorphing(""),
     fSaturatedModel(false),
     fDoSystNormalizationPlots(true),
-    fDebugNev(-1) {
-
+    fDebugNev(-1),
+    fMatrixOrientation(FoldingManager::MATRIXORIENTATION::TRUTHONHORIZONTALAXIS),
+    fTruthDistributionPath(""),
+    fTruthDistributionFile(""),
+    fTruthDistributionName(""),
+    fNumberUnfoldingTruthBins(0),
+    fNumberUnfoldingRecoBins(0),
+    fUnfoldingResultMin(0),
+    fUnfoldingResultMax(2),
+    fHasAcceptance(false),
+    fUnfoldingTitleX("X axis"),
+    fUnfoldingTitleY("Y axis"),
+    fUnfoldingRatioYmax(1.5),
+    fUnfoldingRatioYmin(0.5),
+    fUnfoldingLogX(false),
+    fUnfoldingLogY(false),
+    fUnfoldingTitleOffsetX(1.0),
+    fUnfoldingTitleOffsetY(1.0),
+    fNominalTruthSample("SetMe"),
+    fMigrationTitleX("X"),
+    fMigrationTitleY("Y"),
+    fMigrationLogX(false),
+    fMigrationLogY(false),
+    fMigrationTitleOffsetX(1),
+    fMigrationTitleOffsetY(1),
+    fPlotSystematicMigrations(false),
+    fMigrationZmin(0),
+    fMigrationZmax(1),
+    fResponseZmin(0),
+    fResponseZmax(1)
+{
     TRExFitter::IMAGEFORMAT.emplace_back("png");
     // Increase the limit for formula evaluations
     ROOT::v5::TFormula::SetMaxima(100000,1000,1000000);
@@ -4808,6 +4845,57 @@ void TRExFit::PlotCorrelationMatrix(){
 
 //__________________________________________________________________________________
 //
+void TRExFit::PlotUnfoldedData() const {
+    if (fFitType != TRExFit::FitType::UNFOLDING) return;
+
+    WriteInfoStatus("TRExFit::PlotUnfoldedData", "Producing unfolded plots...");
+
+    std::unique_ptr<TFile> input(TFile::Open((fName + "/UnfoldingHistograms/FoldedHistograms.root").c_str(), "READ"));
+    if (!input) {
+        WriteErrorStatus("TRExFit::PlotUnfoldedData", "Cannot read file from " + fName + "/UnfoldingHistograms/FoldedHistograms.root");
+        exit(EXIT_FAILURE);
+    }
+
+    std::unique_ptr<TH1D> truth(dynamic_cast<TH1D*>(input->Get("truth_distribution")));
+    if (!truth) {
+        WriteErrorStatus("TRExFit::PlotUnfoldedData", "Cannot read the truth distribution");
+        exit(EXIT_FAILURE);
+    }
+    truth->SetDirectory(nullptr);
+
+    UnfoldingResult unfolded;
+    unfolded.SetTruthDistribution(truth.get());
+    
+    // pass the fit results to the tool
+    for (int i = 0; i < fNumberUnfoldingTruthBins; ++i) {
+        const std::string name = "Bin_" + std::to_string(i+1);
+        const double mean = fFitResults->GetNuisParValue(name); 
+        const double up   = mean + fFitResults->GetNuisParErrUp(name);
+        const double down = mean + fFitResults->GetNuisParErrDown(name);
+        unfolded.AddFitValue(mean, up, down);
+    }
+
+    std::unique_ptr<TH1D> data               = unfolded.GetUnfoldedResult();
+    std::unique_ptr<TGraphAsymmErrors> error = unfolded.GetUnfoldedResultErrorBand();
+
+    PlotUnfold(data.get(), error.get());
+
+    // Dump results into a text file
+    auto text = std::make_unique<std::ofstream>();
+    text->open(fName + "/Fits/UnfoldedResults.txt");
+    if (!text->is_open() || !text->good()) {
+        WriteErrorStatus("TRExFit::PlotUnfoldedData", "Cannot open text file in: " + fName + "/Fits/UnfoldedResults.txt");
+        exit(EXIT_FAILURE);
+    }
+
+    unfolded.DumpResults(text.get());
+    text->close();
+
+    input->Close();
+}
+
+//__________________________________________________________________________________
+//
 void TRExFit::GetLimit(){
 
     //Checks if a data sample exists
@@ -7970,3 +8058,791 @@ void TRExFit::DropBins() {
     }
 }
 
+//__________________________________________________________________________________
+//
+void TRExFit::PrepareUnfolding() {
+    // Prepare the folder structure
+    gSystem->mkdir(fName.c_str());
+    gSystem->mkdir((fName+"/UnfoldingHistograms").c_str());
+
+    // Open the otuput ROOT file
+    std::unique_ptr<TFile> outputFile(TFile::Open((fName+"/UnfoldingHistograms/FoldedHistograms.root").c_str(), "RECREATE"));
+    if (!outputFile) {
+        WriteErrorStatus("TRExFit::PrepareUnfolding", "Cannot open the output file at: " + fName + "/UnfoldingHistograms/FoldedHistograms.root");
+        exit(EXIT_FAILURE);
+    }
+
+    FoldingManager manager{};
+    manager.SetMatrixOrientation(fMatrixOrientation);
+
+    const bool horizontal = (fMatrixOrientation == FoldingManager::MATRIXORIENTATION::TRUTHONHORIZONTALAXIS);
+   
+    {
+        std::unique_ptr<TH1> truth(nullptr);
+        for (const auto& itruth : fTruthSamples) {
+            if (itruth->GetName() == fNominalTruthSample) {
+                truth = itruth->GetHisto(this);
+                break;
+            } 
+        }
+        if (!truth) {
+            exit(EXIT_FAILURE);
+        }
+        if (truth->GetNbinsX() != fNumberUnfoldingTruthBins) {
+            WriteErrorStatus("TRExFit::PrepareUnfolding", "The number of truth bins doesnt match the value from the config");
+            exit(EXIT_FAILURE);
+        }
+        manager.SetTruthDistribution(truth.get());
+        manager.WriteTruthToHisto(outputFile.get(), "", "truth_distribution");
+    }
+
+    // loop over regions
+    for (const auto& ireg : fRegions) {
+        
+        // only signal regions are processed at this step
+        if (ireg->fRegionType != Region::RegionType::SIGNAL) continue;
+    
+        // loop over all samples
+        for (const auto& isample : fUnfoldingSamples) {
+       
+            // skip samples not associated to the region
+            if(isample->fRegions[0] != "all" && 
+                Common::FindInStringVector(isample->fRegions, ireg->fName) < 0) continue;
+
+            // first process nominal
+            if (isample->GetHasResponse()) {
+                const std::vector<std::string>& fullResponsePaths = FullResponseMatrixPaths(ireg, isample.get());
+
+                std::unique_ptr<TH2> matrix = Common::CombineHistos2DFromFullPaths(fullResponsePaths);
+                if (!matrix) {
+                    exit(EXIT_FAILURE);
+                }
+                const int nRecoBins  = horizontal ? matrix->GetNbinsY() : matrix->GetNbinsX();
+                const int nTruthBins = horizontal ? matrix->GetNbinsX() : matrix->GetNbinsY();
+                if (nRecoBins != ireg->fNumberUnfoldingRecoBins) {
+                    WriteErrorStatus("TRExFit::PrepareUnfolding", "Number of reco bins do not match the number of reco bins for the response matrix in region: " + ireg->fName);
+                    exit(EXIT_FAILURE);
+                }
+                if (nTruthBins != fNumberUnfoldingTruthBins) {
+                    WriteErrorStatus("TRExFit::PrepareUnfolding", "Number of truth bins do not match the number of truth bins for the response matrix in regoin: " + ireg->fName);
+                    exit(EXIT_FAILURE);
+                }
+
+                PlotMigrationResponse(matrix.get(), false, ireg->fName, "");
+
+                manager.SetResponseMatrix(matrix.get());
+            } else {
+                // need to add acceptance, selection and migration
+                {
+                    const std::vector<std::string>& fullMigrationMatrixPaths = FullMigrationMatrixPaths(ireg, isample.get());
+                    std::unique_ptr<TH2> matrix = Common::CombineHistos2DFromFullPaths(fullMigrationMatrixPaths);
+                    if (!matrix) {
+                        exit(EXIT_FAILURE);
+                    }
+                    const int nRecoBins  = horizontal ? matrix->GetNbinsY() : matrix->GetNbinsX();
+                    const int nTruthBins = horizontal ? matrix->GetNbinsX() : matrix->GetNbinsY();
+                    if (nRecoBins != ireg->fNumberUnfoldingRecoBins) {
+                        WriteErrorStatus("TRExFit::PrepareUnfolding", "Number of reco bins do not match the number of reco bins for the migration matrix in region: " + ireg->fName);
+                        exit(EXIT_FAILURE);
+                    }
+                    if (nTruthBins != fNumberUnfoldingTruthBins) {
+                        WriteErrorStatus("TRExFit::PrepareUnfolding", "Number of truth bins do not match the number of truth bins for the migration matrix in region: " + ireg->fName);
+                        exit(EXIT_FAILURE);
+                    }
+
+                    UnfoldingTools::NormalizeMatrix(matrix.get(), !horizontal);       
+                    
+                    PlotMigrationResponse(matrix.get(), true, ireg->fName, "");
+    
+                    // pass the migration to the tool
+                    manager.SetMigrationMatrix(matrix.get(), false);
+                }
+
+                // add selection eff
+                {
+                    const std::vector<std::string>& fullSelectionEffPaths = FullSelectionEffPaths(ireg, isample.get());
+                    std::unique_ptr<TH1> eff = Common::CombineHistosFromFullPaths(fullSelectionEffPaths);
+                    if (!eff) {
+                        exit(EXIT_FAILURE);
+                    }
+                    const int nbins = eff->GetNbinsX();
+                    if (nbins != fNumberUnfoldingTruthBins) {
+                        WriteErrorStatus("TRExFit::PrepareUnfolding", "Number of efficiency selection bins doesnt match the number of truth bins");
+                        exit(EXIT_FAILURE);
+                    }
+
+                    manager.SetSelectionEfficiency(eff.get());
+                }
+
+                // add acceptance
+                if (fHasAcceptance || isample->GetHasAcceptance() || ireg->fHasAcceptance) {
+                    const std::vector<std::string>& fullAcceptancePaths = FullAcceptancePaths(ireg, isample.get());
+                    std::unique_ptr<TH1> acc = Common::CombineHistosFromFullPaths(fullAcceptancePaths);
+                    if (!acc) {
+                        exit(EXIT_FAILURE);
+                    }
+                    const int nbins = acc->GetNbinsX();
+                    if (nbins != ireg->fNumberUnfoldingRecoBins) {
+                        WriteErrorStatus("TRExFit::PrepareUnfolding", "Number of acceptance bins doesnt match the number of reco bins in region " + ireg->fName);
+                        exit(EXIT_FAILURE);
+                    }
+
+                    manager.SetAcceptance(acc.get());
+                }
+
+                manager.CalculateResponseMatrix(true);
+                PlotMigrationResponse(manager.GetResponseMatrix(), false, ireg->fName, "");
+            }
+
+            manager.FoldTruth();
+
+            // create the folder structure
+            TDirectory* dir = dynamic_cast<TDirectory*>(outputFile->Get("nominal"));
+            if (!dir) {
+                outputFile->cd();
+                outputFile->mkdir("nominal");
+            }
+
+            const std::string histoName = ireg->fName + "_" + isample->GetName();
+            manager.WriteFoldedToHisto(outputFile.get(), "nominal", histoName);
+
+            // Process systematics
+            for (const auto& isyst : fUnfoldingSystematics) {
+                if (!isyst) continue;
+                if (isyst->GetName() == "Dummy") continue; // wtf?
+                
+                if(isyst->fRegions.at(0) != "all" &&
+                     Common::FindInStringVector(isyst->fRegions, ireg->fName) < 0) continue;
+                if(isyst->fSamples.at(0) != "all" &&
+                     Common::FindInStringVector(isyst->fSamples, isample->GetName()) < 0) continue;
+
+                ProcessUnfoldingSystematics(&manager,
+                                            outputFile.get(),
+                                            ireg,
+                                            isample.get(),
+                                            isyst.get());
+            }
+        }
+    }
+
+    outputFile->Close();
+}
+
+//__________________________________________________________________________________
+//
+void TRExFit::ProcessUnfoldingSystematics(FoldingManager* manager,
+                                          TFile* file,
+                                          const Region* reg,
+                                          const UnfoldingSample* sample,
+                                          const UnfoldingSystematic* syst) const {
+
+    const bool horizontal = (fMatrixOrientation == FoldingManager::MATRIXORIENTATION::TRUTHONHORIZONTALAXIS);
+    // lambda for processing one (up or down) variation
+    auto ProcessOneVariation = [&](const bool isUp) {
+        if (syst->GetHasResponse()) {
+            const std::vector<std::string>& paths = FullResponseMatrixPaths(reg, sample, syst, true);
+            std::unique_ptr<TH2> matrix = Common::CombineHistos2DFromFullPaths(paths); 
+            if (!matrix) {
+                exit(EXIT_FAILURE);
+            }
+            const int nRecoBins  = horizontal ? matrix->GetNbinsY() : matrix->GetNbinsX();
+            const int nTruthBins = horizontal ? matrix->GetNbinsX() : matrix->GetNbinsY();
+            if (nRecoBins != reg->fNumberUnfoldingRecoBins) {
+                WriteErrorStatus("TRExFit::ProcessUnfoldingSystematics", "Number of reco bins do not match the number of reco bins for the response matrix in region: " + reg->fName);
+                exit(EXIT_FAILURE);
+            }
+            if (nTruthBins != fNumberUnfoldingTruthBins) {
+                WriteErrorStatus("TRExFit::ProcessUnfoldingSystematics", "Number of truth bins do not match the number of truth bins for the response matrix: " + reg->fName);
+                exit(EXIT_FAILURE);
+            }
+            if (fPlotSystematicMigrations) {
+                PlotMigrationResponse(matrix.get(), false, reg->fName, syst->GetName());
+            }
+
+            manager->SetResponseMatrix(matrix.get());
+        } else {
+            {
+                /// migration first
+                const std::vector<std::string>& paths = FullMigrationMatrixPaths(reg, sample, syst, true);
+                std::unique_ptr<TH2> matrix = Common::CombineHistos2DFromFullPaths(paths); 
+                if (!matrix) {
+                    exit(EXIT_FAILURE);
+                }
+
+                const int nRecoBins  = horizontal ? matrix->GetNbinsY() : matrix->GetNbinsX();
+                const int nTruthBins = horizontal ? matrix->GetNbinsX() : matrix->GetNbinsY();
+                if (nRecoBins != reg->fNumberUnfoldingRecoBins) {
+                    WriteErrorStatus("TRExFit::ProcessUnfoldingSystematics", "Number of reco bins do not match the number of reco bins for the migration matrix in region: " + reg->fName);
+                    exit(EXIT_FAILURE);
+                }
+                if (nTruthBins != fNumberUnfoldingTruthBins) {
+                    WriteErrorStatus("TRExFit::ProcessUnfoldingSystematics", "Number of truth bins do not match the number of truth bins for the migration matrix: " + reg->fName);
+                    exit(EXIT_FAILURE);
+                }
+                UnfoldingTools::NormalizeMatrix(matrix.get(), !horizontal);       
+                
+                if (fPlotSystematicMigrations) {
+                    PlotMigrationResponse(matrix.get(), true, reg->fName, syst->GetName());
+                }
+
+                manager->SetMigrationMatrix(matrix.get(), false);
+            }
+
+            // selectio eff now
+            {
+                const std::vector<std::string>& paths = FullSelectionEffPaths(reg, sample, syst, true);
+                std::unique_ptr<TH1> eff = Common::CombineHistosFromFullPaths(paths); 
+                if (!eff) {
+                    exit(EXIT_FAILURE);
+                }
+                
+                const int nbins = eff->GetNbinsX();
+                if (nbins != fNumberUnfoldingTruthBins) {
+                    WriteErrorStatus("TRExFit::ProcessUnfoldingSystematics", "Number of efficiency selection bins doesnt match the number of truth bins");
+                    exit(EXIT_FAILURE);
+                }
+
+                manager->SetSelectionEfficiency(eff.get());
+            }
+
+            if (fHasAcceptance || syst->GetHasAcceptance() || reg->fHasAcceptance) {
+                const std::vector<std::string>& paths = FullAcceptancePaths(reg, sample, syst, true);
+                std::unique_ptr<TH1> acc = Common::CombineHistosFromFullPaths(paths); 
+                if (!acc) {
+                    exit(EXIT_FAILURE);
+                }
+                
+                const int nbins = acc->GetNbinsX();
+                if (nbins != reg->fNumberUnfoldingRecoBins) {
+                    WriteErrorStatus("TRExFit::ProcessUnfoldingSystematics", "Number of acceptance bins doesnt match the number of reco bins in region " + reg->fName);
+                    exit(EXIT_FAILURE);
+                }
+
+                manager->SetAcceptance(acc.get());
+            }
+            manager->CalculateResponseMatrix(true);
+            if (fPlotSystematicMigrations) {
+                PlotMigrationResponse(manager->GetResponseMatrix(), false, reg->fName, syst->GetName()); 
+            }
+        }
+        manager->FoldTruth();
+        
+        // create the folder structure
+        const std::string folderName = isUp ? syst->GetName() + "_Up" : syst->GetName() + "_Down";
+        TDirectory* dir = dynamic_cast<TDirectory*>(file->Get(folderName.c_str()));
+        if (!dir) {
+            file->cd();
+            file->mkdir(folderName.c_str());
+        }
+
+        const std::string histoName = reg->fName + "_" + sample->GetName();
+        manager->WriteFoldedToHisto(file, folderName, histoName);
+    };
+
+    if (syst->fHasUpVariation) {
+        ProcessOneVariation(true);
+    }
+    if (syst->fHasDownVariation) {
+        ProcessOneVariation(false);
+    }
+} 
+
+//__________________________________________________________________________________
+//
+std::vector<std::string> TRExFit::FullResponseMatrixPaths(const Region* reg, 
+                                                          const UnfoldingSample* smp,
+                                                          const UnfoldingSystematic* syst,
+                                                          const bool isUp) const {
+    // protection against nullptr
+    if(!reg) {
+        WriteErrorStatus("TRExFit::FullResponseMatrixPaths","Null pointer for Region.");
+        exit(EXIT_FAILURE);
+    }
+    if(!smp) {
+        WriteErrorStatus("TRExFit::FullResponseMatrixPaths","Null pointer for Sample.");
+        exit(EXIT_FAILURE);
+    }
+    std::vector<std::string> fullPaths;
+    std::vector<std::string> paths;
+    std::vector<std::string> pathSuffs;
+    std::vector<std::string> files;
+    std::vector<std::string> fileSuffs;
+    std::vector<std::string> names;
+    std::vector<std::string> nameSuffs;
+    // precendence:
+    // 1. Systematic
+    // 2. Sample
+    // 3. Region
+    // 4. Job
+    if(syst){
+        if(isUp) {
+            if(syst->fResponseMatrixPathsUp.size()  >0) paths = syst->fResponseMatrixPathsUp;
+            if(syst->fResponseMatrixFilesUp.size()  >0) files = syst->fResponseMatrixFilesUp;
+            if(syst->fResponseMatrixNamesUp.size()  >0) names = syst->fResponseMatrixNamesUp;
+        } else {
+            if(syst->fResponseMatrixPathsDown.size()>0) paths = syst->fResponseMatrixPathsDown;
+            if(syst->fResponseMatrixFilesDown.size()>0) files = syst->fResponseMatrixFilesDown;
+            if(syst->fResponseMatrixNamesDown.size()>0) names = syst->fResponseMatrixNamesDown;
+        }
+    }
+    if(paths.size()==0 && smp->fResponseMatrixPaths.size()>0) paths = smp->fResponseMatrixPaths;
+    if(files.size()==0 && smp->fResponseMatrixFiles.size()>0) files = smp->fResponseMatrixFiles;
+    if(names.size()==0 && smp->fResponseMatrixNames.size()>0) names = smp->fResponseMatrixNames;
+
+    if(paths.size()==0 && reg->fResponseMatrixPaths.size()>0) paths = reg->fResponseMatrixPaths;
+    if(files.size()==0 && reg->fResponseMatrixFiles.size()>0) files = reg->fResponseMatrixFiles;
+    if(names.size()==0 && reg->fResponseMatrixNames.size()>0) names = reg->fResponseMatrixNames;
+
+    if(paths.size()==0 && fResponseMatrixPaths.size()>0) paths = fResponseMatrixPaths;
+    if(files.size()==0 && fResponseMatrixFiles.size()>0) files = fResponseMatrixFiles;
+    if(names.size()==0 && fResponseMatrixNames.size()>0) names = fResponseMatrixNames;
+
+    if(syst) {
+        if(isUp) pathSuffs = Common::CombinePathSufs(Common::CombinePathSufs(reg->fResponseMatrixPathSuffs,smp->fResponseMatrixPathSuffs), syst->fResponseMatrixPathSuffsUp);
+        else     pathSuffs = Common::CombinePathSufs(Common::CombinePathSufs(reg->fResponseMatrixPathSuffs,smp->fResponseMatrixPathSuffs), syst->fResponseMatrixPathSuffsDown);
+    }
+    else{
+        pathSuffs = Common::CombinePathSufs(reg->fResponseMatrixPathSuffs, smp->fResponseMatrixPathSuffs);
+    }
+
+    if(syst) {
+        if(isUp) fileSuffs = Common::CombinePathSufs(Common::CombinePathSufs(reg->fResponseMatrixFileSuffs, smp->fResponseMatrixFileSuffs), syst->fResponseMatrixFileSuffsUp);
+        else     fileSuffs = Common::CombinePathSufs(Common::CombinePathSufs(reg->fResponseMatrixFileSuffs, smp->fResponseMatrixFileSuffs), syst->fResponseMatrixFileSuffsDown);
+    }
+    else{
+        fileSuffs = Common::CombinePathSufs(reg->fResponseMatrixFileSuffs, smp->fResponseMatrixFileSuffs);
+    }
+
+    if(syst) {
+        if(isUp) nameSuffs = Common::CombinePathSufs(Common::CombinePathSufs(reg->fResponseMatrixNameSuffs, smp->fResponseMatrixNameSuffs), syst->fResponseMatrixNameSuffsUp);
+        else     nameSuffs = Common::CombinePathSufs(Common::CombinePathSufs(reg->fResponseMatrixNameSuffs, smp->fResponseMatrixNameSuffs), syst->fResponseMatrixNameSuffsDown);
+    }
+    else{
+      nameSuffs = Common::CombinePathSufs(Common::CombinePathSufs(reg->fResponseMatrixNameSuffs, smp->fResponseMatrixNameSuffs), fResponseMatrixNamesNominal);
+    }
+
+    // And finally put everything together
+    fullPaths = Common::CreatePathsList(paths, pathSuffs, files, fileSuffs, names, nameSuffs);
+    return fullPaths;
+}
+
+//__________________________________________________________________________________
+//
+std::vector<std::string> TRExFit::FullMigrationMatrixPaths(const Region* reg, 
+                                                           const UnfoldingSample* smp,
+                                                           const UnfoldingSystematic* syst,
+                                                           const bool isUp) const {
+    // protection against nullptr
+    if(!reg) {
+        WriteErrorStatus("TRExFit::FullMigrationMatrixPaths","Null pointer for Region.");
+        exit(EXIT_FAILURE);
+    }
+    if(!smp) {
+        WriteErrorStatus("TRExFit::FullMigrationMatrixPaths","Null pointer for Sample.");
+        exit(EXIT_FAILURE);
+    }
+    std::vector<std::string> fullPaths;
+    std::vector<std::string> paths;
+    std::vector<std::string> pathSuffs;
+    std::vector<std::string> files;
+    std::vector<std::string> fileSuffs;
+    std::vector<std::string> names;
+    std::vector<std::string> nameSuffs;
+    // precendence:
+    // 1. Systematic
+    // 2. Sample
+    // 3. Region
+    // 4. Job
+    if(syst){
+        if(isUp) {
+            if(syst->fMigrationPathsUp.size()  >0) paths = syst->fMigrationPathsUp;
+            if(syst->fMigrationFilesUp.size()  >0) files = syst->fMigrationFilesUp;
+            if(syst->fMigrationNamesUp.size()  >0) names = syst->fMigrationNamesUp;
+        } else {
+            if(syst->fMigrationPathsDown.size()>0) paths = syst->fMigrationPathsDown;
+            if(syst->fMigrationFilesDown.size()>0) files = syst->fMigrationFilesDown;
+            if(syst->fMigrationNamesDown.size()>0) names = syst->fMigrationNamesDown;
+        }
+    }
+    if(paths.size()==0 && smp->fMigrationPaths.size()>0) paths = smp->fMigrationPaths;
+    if(files.size()==0 && smp->fMigrationFiles.size()>0) files = smp->fMigrationFiles;
+    if(names.size()==0 && smp->fMigrationNames.size()>0) names = smp->fMigrationNames;
+
+    if(paths.size()==0 && reg->fMigrationPaths.size()>0) paths = reg->fMigrationPaths;
+    if(files.size()==0 && reg->fMigrationFiles.size()>0) files = reg->fMigrationFiles;
+    if(names.size()==0 && reg->fMigrationNames.size()>0) names = reg->fMigrationNames;
+
+    if(paths.size()==0 && fMigrationPaths.size()>0) paths = fMigrationPaths;
+    if(files.size()==0 && fMigrationFiles.size()>0) files = fMigrationFiles;
+    if(names.size()==0 && fMigrationNames.size()>0) names = fMigrationNames;
+
+    if(syst) {
+        if(isUp) pathSuffs = Common::CombinePathSufs(Common::CombinePathSufs(reg->fMigrationPathSuffs,smp->fMigrationPathSuffs), syst->fMigrationPathSuffsUp);
+        else     pathSuffs = Common::CombinePathSufs(Common::CombinePathSufs(reg->fMigrationPathSuffs,smp->fMigrationPathSuffs), syst->fMigrationPathSuffsDown);
+    }
+    else{
+        pathSuffs = Common::CombinePathSufs(reg->fMigrationPathSuffs, smp->fMigrationPathSuffs);
+    }
+
+    if(syst) {
+        if(isUp) fileSuffs = Common::CombinePathSufs(Common::CombinePathSufs(reg->fMigrationFileSuffs, smp->fMigrationFileSuffs), syst->fMigrationFileSuffsUp);
+        else     fileSuffs = Common::CombinePathSufs(Common::CombinePathSufs(reg->fMigrationFileSuffs, smp->fMigrationFileSuffs), syst->fMigrationFileSuffsDown);
+    }
+    else{
+        fileSuffs = Common::CombinePathSufs(reg->fMigrationFileSuffs, smp->fMigrationFileSuffs);
+    }
+
+    if(syst) {
+        if(isUp) nameSuffs = Common::CombinePathSufs(Common::CombinePathSufs(reg->fMigrationNameSuffs, smp->fMigrationNameSuffs), syst->fMigrationNameSuffsUp);
+        else     nameSuffs = Common::CombinePathSufs(Common::CombinePathSufs(reg->fMigrationNameSuffs, smp->fMigrationNameSuffs), syst->fMigrationNameSuffsDown);
+    }
+    else{
+      nameSuffs = Common::CombinePathSufs(Common::CombinePathSufs(reg->fMigrationNameSuffs, smp->fMigrationNameSuffs), fMigrationNamesNominal);
+    }
+
+    // And finally put everything together
+    fullPaths = Common::CreatePathsList(paths, pathSuffs, files, fileSuffs, names, nameSuffs);
+    return fullPaths;
+}
+
+//__________________________________________________________________________________
+//
+std::vector<std::string> TRExFit::FullAcceptancePaths(const Region* reg, 
+                                                      const UnfoldingSample* smp,
+                                                      const UnfoldingSystematic* syst,
+                                                      const bool isUp) const {
+    // protection against nullptr
+    if(!reg) {
+        WriteErrorStatus("TRExFit::FullAcceptancePaths","Null pointer for Region.");
+        exit(EXIT_FAILURE);
+    }
+    if(!smp) {
+        WriteErrorStatus("TRExFit::FullAcceptancePaths","Null pointer for Sample.");
+        exit(EXIT_FAILURE);
+    }
+    std::vector<std::string> fullPaths;
+    std::vector<std::string> paths;
+    std::vector<std::string> pathSuffs;
+    std::vector<std::string> files;
+    std::vector<std::string> fileSuffs;
+    std::vector<std::string> names;
+    std::vector<std::string> nameSuffs;
+    // precendence:
+    // 1. Systematic
+    // 2. Sample
+    // 3. Region
+    // 4. Job
+    if(syst){
+        if(isUp) {
+            if(syst->fAcceptancePathsUp.size()  >0) paths = syst->fAcceptancePathsUp;
+            if(syst->fAcceptanceFilesUp.size()  >0) files = syst->fAcceptanceFilesUp;
+            if(syst->fAcceptanceNamesUp.size()  >0) names = syst->fAcceptanceNamesUp;
+        } else {
+            if(syst->fAcceptancePathsDown.size()>0) paths = syst->fAcceptancePathsDown;
+            if(syst->fAcceptanceFilesDown.size()>0) files = syst->fAcceptanceFilesDown;
+            if(syst->fAcceptanceNamesDown.size()>0) names = syst->fAcceptanceNamesDown;
+        }
+    }
+    if(paths.size()==0 && smp->fAcceptancePaths.size()>0) paths = smp->fAcceptancePaths;
+    if(files.size()==0 && smp->fAcceptanceFiles.size()>0) files = smp->fAcceptanceFiles;
+    if(names.size()==0 && smp->fAcceptanceNames.size()>0) names = smp->fAcceptanceNames;
+
+    if(paths.size()==0 && reg->fAcceptancePaths.size()>0) paths = reg->fAcceptancePaths;
+    if(files.size()==0 && reg->fAcceptanceFiles.size()>0) files = reg->fAcceptanceFiles;
+    if(names.size()==0 && reg->fAcceptanceNames.size()>0) names = reg->fAcceptanceNames;
+
+    if(paths.size()==0 && fAcceptancePaths.size()>0) paths = fAcceptancePaths;
+    if(files.size()==0 && fAcceptanceFiles.size()>0) files = fAcceptanceFiles;
+    if(names.size()==0 && fAcceptanceNames.size()>0) names = fAcceptanceNames;
+
+    if(syst) {
+        if(isUp) pathSuffs = Common::CombinePathSufs(Common::CombinePathSufs(reg->fAcceptancePathSuffs,smp->fAcceptancePathSuffs), syst->fAcceptancePathSuffsUp);
+        else     pathSuffs = Common::CombinePathSufs(Common::CombinePathSufs(reg->fAcceptancePathSuffs,smp->fAcceptancePathSuffs), syst->fAcceptancePathSuffsDown);
+    }
+    else{
+        pathSuffs = Common::CombinePathSufs(reg->fAcceptancePathSuffs, smp->fAcceptancePathSuffs);
+    }
+
+    if(syst) {
+        if(isUp) fileSuffs = Common::CombinePathSufs(Common::CombinePathSufs(reg->fAcceptanceFileSuffs, smp->fAcceptanceFileSuffs), syst->fAcceptanceFileSuffsUp);
+        else     fileSuffs = Common::CombinePathSufs(Common::CombinePathSufs(reg->fAcceptanceFileSuffs, smp->fAcceptanceFileSuffs), syst->fAcceptanceFileSuffsDown);
+    }
+    else{
+        fileSuffs = Common::CombinePathSufs(reg->fAcceptanceFileSuffs, smp->fAcceptanceFileSuffs);
+    }
+
+    if(syst) {
+        if(isUp) nameSuffs = Common::CombinePathSufs(Common::CombinePathSufs(reg->fAcceptanceNameSuffs, smp->fAcceptanceNameSuffs), syst->fAcceptanceNameSuffsUp);
+        else     nameSuffs = Common::CombinePathSufs(Common::CombinePathSufs(reg->fAcceptanceNameSuffs, smp->fAcceptanceNameSuffs), syst->fAcceptanceNameSuffsDown);
+    }
+    else{
+      nameSuffs = Common::CombinePathSufs(Common::CombinePathSufs(reg->fAcceptanceNameSuffs, smp->fAcceptanceNameSuffs), fAcceptanceNamesNominal);
+    }
+
+    // And finally put everything together
+    fullPaths = Common::CreatePathsList(paths, pathSuffs, files, fileSuffs, names, nameSuffs);
+    return fullPaths;
+}
+
+//__________________________________________________________________________________
+//
+std::vector<std::string> TRExFit::FullSelectionEffPaths(const Region* reg, 
+                                                        const UnfoldingSample* smp,
+                                                        const UnfoldingSystematic* syst,
+                                                        const bool isUp) const {
+    // protection against nullptr
+    if(!reg) {
+        WriteErrorStatus("TRExFit::FullSelectionEffPaths","Null pointer for Region.");
+        exit(EXIT_FAILURE);
+    }
+    if(!smp) {
+        WriteErrorStatus("TRExFit::FullSelectionEffPaths","Null pointer for Sample.");
+        exit(EXIT_FAILURE);
+    }
+    std::vector<std::string> fullPaths;
+    std::vector<std::string> paths;
+    std::vector<std::string> pathSuffs;
+    std::vector<std::string> files;
+    std::vector<std::string> fileSuffs;
+    std::vector<std::string> names;
+    std::vector<std::string> nameSuffs;
+    // precendence:
+    // 1. Systematic
+    // 2. Sample
+    // 3. Region
+    // 4. Job
+    if(syst){
+        if(isUp) {
+            if(syst->fSelectionEffPathsUp.size()  >0) paths = syst->fSelectionEffPathsUp;
+            if(syst->fSelectionEffFilesUp.size()  >0) files = syst->fSelectionEffFilesUp;
+            if(syst->fSelectionEffNamesUp.size()  >0) names = syst->fSelectionEffNamesUp;
+        } else {
+            if(syst->fSelectionEffPathsDown.size()>0) paths = syst->fSelectionEffPathsDown;
+            if(syst->fSelectionEffFilesDown.size()>0) files = syst->fSelectionEffFilesDown;
+            if(syst->fSelectionEffNamesDown.size()>0) names = syst->fSelectionEffNamesDown;
+        }
+    }
+    if(paths.size()==0 && smp->fSelectionEffPaths.size()>0) paths = smp->fSelectionEffPaths;
+    if(files.size()==0 && smp->fSelectionEffFiles.size()>0) files = smp->fSelectionEffFiles;
+    if(names.size()==0 && smp->fSelectionEffNames.size()>0) names = smp->fSelectionEffNames;
+
+    if(paths.size()==0 && reg->fSelectionEffPaths.size()>0) paths = reg->fSelectionEffPaths;
+    if(files.size()==0 && reg->fSelectionEffFiles.size()>0) files = reg->fSelectionEffFiles;
+    if(names.size()==0 && reg->fSelectionEffNames.size()>0) names = reg->fSelectionEffNames;
+
+    if(paths.size()==0 && fSelectionEffPaths.size()>0) paths = fSelectionEffPaths;
+    if(files.size()==0 && fSelectionEffFiles.size()>0) files = fSelectionEffFiles;
+    if(names.size()==0 && fSelectionEffNames.size()>0) names = fSelectionEffNames;
+
+    if(syst) {
+        if(isUp) pathSuffs = Common::CombinePathSufs(Common::CombinePathSufs(reg->fSelectionEffPathSuffs,smp->fSelectionEffPathSuffs), syst->fSelectionEffPathSuffsUp);
+        else     pathSuffs = Common::CombinePathSufs(Common::CombinePathSufs(reg->fSelectionEffPathSuffs,smp->fSelectionEffPathSuffs), syst->fSelectionEffPathSuffsDown);
+    }
+    else{
+        pathSuffs = Common::CombinePathSufs(reg->fSelectionEffPathSuffs, smp->fSelectionEffPathSuffs);
+    }
+
+    if(syst) {
+        if(isUp) fileSuffs = Common::CombinePathSufs(Common::CombinePathSufs(reg->fSelectionEffFileSuffs, smp->fSelectionEffFileSuffs), syst->fSelectionEffFileSuffsUp);
+        else     fileSuffs = Common::CombinePathSufs(Common::CombinePathSufs(reg->fSelectionEffFileSuffs, smp->fSelectionEffFileSuffs), syst->fSelectionEffFileSuffsDown);
+    }
+    else{
+        fileSuffs = Common::CombinePathSufs(reg->fSelectionEffFileSuffs, smp->fSelectionEffFileSuffs);
+    }
+
+    if(syst) {
+        if(isUp) nameSuffs = Common::CombinePathSufs(Common::CombinePathSufs(reg->fSelectionEffNameSuffs, smp->fSelectionEffNameSuffs), syst->fSelectionEffNameSuffsUp);
+        else     nameSuffs = Common::CombinePathSufs(Common::CombinePathSufs(reg->fSelectionEffNameSuffs, smp->fSelectionEffNameSuffs), syst->fSelectionEffNameSuffsDown);
+    }
+    else{
+      nameSuffs = Common::CombinePathSufs(Common::CombinePathSufs(reg->fSelectionEffNameSuffs, smp->fSelectionEffNameSuffs), fSelectionEffNamesNominal);
+    }
+
+    // And finally put everything together
+    fullPaths = Common::CreatePathsList(paths, pathSuffs, files, fileSuffs, names, nameSuffs);
+    return fullPaths;
+}
+
+//__________________________________________________________________________________
+//
+void TRExFit::PlotUnfold(TH1D* data,
+                         TGraphAsymmErrors* total) const {
+
+    std::vector<std::unique_ptr<TH1> > mc;
+    for (const auto& isample : fTruthSamples) {
+        mc.emplace_back(std::move(isample->GetHisto(this)));
+        mc.back()->SetLineColor(isample->GetLineColor());
+        mc.back()->SetFillColor(isample->GetFillColor());
+    }
+
+    TCanvas c("","",800,600);
+    TPad pad1("pad1","pad1",0.0, 0.3, 1.0, 1.00);
+    TPad pad2("pad2","pad2", 0.0, 0.010, 1.0, 0.3);
+    pad1.SetBottomMargin(0.001);
+    pad1.SetBorderMode(0);
+    pad2.SetBottomMargin(0.5);
+    pad1.SetTicks(1,1);
+    pad2.SetTicks(1,1);
+    pad1.Draw();
+    pad2.Draw();
+    
+    if (fUnfoldingLogX) {
+        pad1.SetLogx();
+        pad2.SetLogx();
+    }
+    if (fUnfoldingLogY) {
+        pad1.SetLogy();
+    }
+
+    pad1.cd();
+    total->SetMarkerStyle(20);
+    total->SetMarkerSize(1.45);
+    total->SetLineColor(kBlack);
+    total->SetLineStyle(1);
+
+    total->GetYaxis()->SetLabelSize(0.05);
+    total->GetYaxis()->SetLabelFont(42);
+    total->GetYaxis()->SetTitleFont(42);
+    total->GetYaxis()->SetTitleSize(0.07);
+    total->GetYaxis()->SetTitleOffset(1.1);
+
+    bool isFirstHisto(true);
+    for (auto& itruth : mc) {
+        if (isFirstHisto) {
+            itruth->SetMarkerStyle(21);
+            itruth->SetLineWidth(2);
+            const double corr = fUnfoldingLogY ? 1e6 : 1.5;
+            itruth->GetYaxis()->SetRangeUser(0.0001, corr*itruth->GetMaximum());
+            itruth->GetYaxis()->SetTitle(fUnfoldingTitleY.c_str());
+            itruth->GetYaxis()->SetTitleOffset(fUnfoldingTitleOffsetY * itruth->GetYaxis()->GetTitleOffset());
+            itruth->Draw("HIST same");
+        } else {
+            itruth->Draw("HIST");
+        }
+    }
+    total->Draw("P SAME");
+
+    TLegend leg(0.65, 0.6, 0.9, 0.9);
+    leg.AddEntry(total, "Unfolded data", "p");
+    for (std::size_t imc = 0; imc < mc.size(); ++imc) {
+        leg.AddEntry(mc.at(imc).get(), fTruthSamples.at(imc)->GetTitle().c_str(), "l");
+    }
+
+    leg.SetFillColor(0);
+    leg.SetLineColor(0);
+    leg.SetBorderSize(0);
+    leg.SetTextFont(72);
+    leg.SetTextSize(0.045);
+    leg.Draw("SAME");
+        
+    if (fAtlasLabel != "none") ATLASLabel(0.2,0.87,fAtlasLabel.c_str());
+    myText(0.2,0.8,1,Form("#sqrt{s} = %s, %s",fCmeLabel.c_str(),fLumiLabel.c_str()));
+
+    // Plot ratio
+    pad2.cd();
+    std::vector<std::unique_ptr<TH1D> > ratios;
+    bool isFirst(true);
+    for (const auto& itruth : mc) {
+        ratios.emplace_back(static_cast<TH1D*>(itruth->Clone()));
+        ratios.back()->Divide(data);
+        if (isFirst) {
+            ratios.back()->GetXaxis()->SetTitleOffset(fUnfoldingTitleOffsetX*ratios.back()->GetXaxis()->GetTitleOffset());
+            ratios.back()->GetYaxis()->SetTitleOffset(fUnfoldingTitleOffsetY*ratios.back()->GetYaxis()->GetTitleOffset());
+            ratios.back()->GetYaxis()->SetRangeUser(fUnfoldingRatioYmin,fUnfoldingRatioYmax);
+            ratios.back()->GetYaxis()->SetTitle("ratio");
+            ratios.back()->GetYaxis()->SetNdivisions(505);
+            ratios.back()->GetXaxis()->SetTitle(fUnfoldingTitleX.c_str());
+            ratios.back()->Draw("HIST");
+        } else {
+            ratios.back()->Draw("HIST same");
+        }
+        isFirst = false;
+    }
+
+    // Now plot the error band
+    std::unique_ptr<TGraphAsymmErrors> band = Common::GetRatioBand(total, data);
+
+    band->SetFillStyle(3002);
+    band->SetFillColor(kBlack);
+    band->SetMarkerStyle(0);
+    band->SetLineWidth(2);
+
+    band->Draw("E2 SAME");
+
+    const float min = ratios.at(0)->GetXaxis()->GetBinLowEdge(1);
+    const float max = ratios.at(0)->GetXaxis()->GetBinUpEdge(ratios.at(0)->GetNbinsX());
+
+    TLine line (min, 1, max, 1);
+    line.SetLineColor(kRed);
+    line.SetLineStyle(2);
+    line.SetLineWidth(3);
+    line.Draw("same");
+
+    for(const auto& format : TRExFitter::IMAGEFORMAT) {
+        c.SaveAs((fName+"/UnfoldedData."+ format).c_str());
+    }
+}
+    
+//__________________________________________________________________________________
+//
+void TRExFit::PlotMigrationResponse(const TH2* matrix,
+                                    const bool isMigration,
+                                    const std::string& regionName,
+                                    const std::string& systematicName) const {
+
+    std::unique_ptr<TH2D> m(static_cast<TH2D*>(matrix->Clone()));
+    
+    gStyle->SetPalette(87);
+    gStyle->SetPaintTextFormat("2.1f");
+    TCanvas c("","",800,600);
+    c.cd();
+
+    TPad pad("","",0,0.0,1,1);
+    pad.SetRightMargin(0.2);
+    pad.SetLeftMargin(0.13);
+    pad.SetTopMargin(0.09);
+    pad.SetBottomMargin(0.13);
+    pad.Draw();
+    pad.cd();
+
+    if (fMigrationLogX) {
+        pad.SetLogx();
+    }
+    if (fMigrationLogY) {
+        pad.SetLogy();
+    }
+
+    m->SetMarkerSize(5);
+    m->SetMarkerColor(kRed);
+    m->GetXaxis()->SetTitle(fMigrationTitleX.c_str());
+    m->GetXaxis()->SetTitleOffset(fMigrationTitleOffsetX * m->GetXaxis()->GetTitleOffset());
+    m->GetYaxis()->SetTitleOffset(fMigrationTitleOffsetY * m->GetYaxis()->GetTitleOffset());
+    m->GetYaxis()->SetTitle(fMigrationTitleY.c_str());
+    m->GetXaxis()->SetNdivisions(505);
+    if (isMigration) {
+        m->GetZaxis()->SetTitle("Migrations");
+        m->GetZaxis()->SetRangeUser(fMigrationZmin,fMigrationZmax);
+    } else {
+        m->GetZaxis()->SetTitle("Response");
+        m->GetZaxis()->SetRangeUser(fResponseZmin,fResponseZmax);
+    }
+
+    c.SetGrid();
+    m->Draw("COLZ TEXT");
+    
+    if (fAtlasLabel != "none") ATLASLabel(0.2,0.92,fAtlasLabel.c_str());
+    myText(0.6,0.92,1,Form("#sqrt{s} = %s, %s",fCmeLabel.c_str(),fLumiLabel.c_str()));
+    
+    c.RedrawAxis("g");
+
+    if (systematicName != "") {
+        gSystem->mkdir("Systematics");
+        gSystem->mkdir(("Systematics/"+systematicName).c_str());
+    }
+    const std::string tmp = isMigration ? "migration" : "response";
+    const std::string name = systematicName == "" ? tmp + "_" + regionName : "Systematics/" + systematicName+"/"+tmp + "_" + regionName;
+
+    for(const auto& format : TRExFitter::IMAGEFORMAT) {
+        c.SaveAs((fName+"/" + name+ "."+ format).c_str());
+    }
+}
