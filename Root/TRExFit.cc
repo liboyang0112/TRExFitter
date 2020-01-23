@@ -250,7 +250,18 @@ TRExFit::TRExFit(std::string name) :
     fUnfoldingLogY(false),
     fUnfoldingTitleOffsetX(1.0),
     fUnfoldingTitleOffsetY(1.0),
-    fNominalTruthSample("SetMe")
+    fNominalTruthSample("SetMe"),
+    fMigrationTitleX("X"),
+    fMigrationTitleY("Y"),
+    fMigrationLogX(false),
+    fMigrationLogY(false),
+    fMigrationTitleOffsetX(1),
+    fMigrationTitleOffsetY(1),
+    fPlotSystematicMigrations(false),
+    fMigrationZmin(0),
+    fMigrationZmax(1),
+    fResponseZmin(0),
+    fResponseZmax(1)
 {
     TRExFitter::IMAGEFORMAT.emplace_back("png");
     // Increase the limit for formula evaluations
@@ -8080,6 +8091,8 @@ void TRExFit::PrepareUnfolding() {
                     exit(EXIT_FAILURE);
                 }
 
+                PlotMigrationResponse(matrix.get(), false, ireg->fName, "");
+
                 manager.SetResponseMatrix(matrix.get());
             } else {
                 // need to add acceptance, selection and migration
@@ -8099,9 +8112,13 @@ void TRExFit::PrepareUnfolding() {
                         WriteErrorStatus("TRExFit::PrepareUnfolding", "Number of truth bins do not match the number of truth bins for the migration matrix in region: " + ireg->fName);
                         exit(EXIT_FAILURE);
                     }
+
+                    UnfoldingTools::NormalizeMatrix(matrix.get(), !horizontal);       
                     
+                    PlotMigrationResponse(matrix.get(), true, ireg->fName, "");
+    
                     // pass the migration to the tool
-                    manager.SetMigrationMatrix(matrix.get(), true);
+                    manager.SetMigrationMatrix(matrix.get(), false);
                 }
 
                 // add selection eff
@@ -8137,7 +8154,7 @@ void TRExFit::PrepareUnfolding() {
                 }
 
                 manager.CalculateResponseMatrix(true);
-                
+                PlotMigrationResponse(manager.GetResponseMatrix(), false, ireg->fName, "");
             }
 
             manager.FoldTruth();
@@ -8201,6 +8218,9 @@ void TRExFit::ProcessUnfoldingSystematics(FoldingManager* manager,
                 WriteErrorStatus("TRExFit::ProcessUnfoldingSystematics", "Number of truth bins do not match the number of truth bins for the response matrix: " + reg->fName);
                 exit(EXIT_FAILURE);
             }
+            if (fPlotSystematicMigrations) {
+                PlotMigrationResponse(matrix.get(), false, reg->fName, syst->GetName());
+            }
 
             manager->SetResponseMatrix(matrix.get());
         } else {
@@ -8222,8 +8242,13 @@ void TRExFit::ProcessUnfoldingSystematics(FoldingManager* manager,
                     WriteErrorStatus("TRExFit::ProcessUnfoldingSystematics", "Number of truth bins do not match the number of truth bins for the migration matrix: " + reg->fName);
                     exit(EXIT_FAILURE);
                 }
+                UnfoldingTools::NormalizeMatrix(matrix.get(), !horizontal);       
+                
+                if (fPlotSystematicMigrations) {
+                    PlotMigrationResponse(matrix.get(), true, reg->fName, syst->GetName());
+                }
 
-                manager->SetMigrationMatrix(matrix.get(), true);
+                manager->SetMigrationMatrix(matrix.get(), false);
             }
 
             // selectio eff now
@@ -8259,6 +8284,9 @@ void TRExFit::ProcessUnfoldingSystematics(FoldingManager* manager,
                 manager->SetAcceptance(acc.get());
             }
             manager->CalculateResponseMatrix(true);
+            if (fPlotSystematicMigrations) {
+                PlotMigrationResponse(manager->GetResponseMatrix(), false, reg->fName, syst->GetName()); 
+            }
         }
         manager->FoldTruth();
         
@@ -8713,8 +8741,71 @@ void TRExFit::PlotUnfold(TH1D* data,
     line.SetLineWidth(3);
     line.Draw("same");
 
-
     for(const auto& format : TRExFitter::IMAGEFORMAT) {
         c.SaveAs((fName+"/UnfoldedData."+ format).c_str());
+    }
+}
+    
+//__________________________________________________________________________________
+//
+void TRExFit::PlotMigrationResponse(const TH2* matrix,
+                                    const bool isMigration,
+                                    const std::string& regionName,
+                                    const std::string& systematicName) const {
+
+    std::unique_ptr<TH2D> m(static_cast<TH2D*>(matrix->Clone()));
+    
+    gStyle->SetPalette(87);
+    gStyle->SetPaintTextFormat("2.1f");
+    TCanvas c("","",800,600);
+    c.cd();
+
+    TPad pad("","",0,0.0,1,1);
+    pad.SetRightMargin(0.2);
+    pad.SetLeftMargin(0.13);
+    pad.SetTopMargin(0.09);
+    pad.SetBottomMargin(0.13);
+    pad.Draw();
+    pad.cd();
+
+    if (fMigrationLogX) {
+        pad.SetLogx();
+    }
+    if (fMigrationLogY) {
+        pad.SetLogy();
+    }
+
+    m->SetMarkerSize(5);
+    m->SetMarkerColor(kRed);
+    m->GetXaxis()->SetTitle(fMigrationTitleX.c_str());
+    m->GetXaxis()->SetTitleOffset(fMigrationTitleOffsetX * m->GetXaxis()->GetTitleOffset());
+    m->GetYaxis()->SetTitleOffset(fMigrationTitleOffsetY * m->GetYaxis()->GetTitleOffset());
+    m->GetYaxis()->SetTitle(fMigrationTitleY.c_str());
+    m->GetXaxis()->SetNdivisions(505);
+    if (isMigration) {
+        m->GetZaxis()->SetTitle("Migrations");
+        m->GetZaxis()->SetRangeUser(fMigrationZmin,fMigrationZmax);
+    } else {
+        m->GetZaxis()->SetTitle("Response");
+        m->GetZaxis()->SetRangeUser(fResponseZmin,fResponseZmax);
+    }
+
+    c.SetGrid();
+    m->Draw("COLZ TEXT");
+    
+    if (fAtlasLabel != "none") ATLASLabel(0.2,0.92,fAtlasLabel.c_str());
+    myText(0.6,0.92,1,Form("#sqrt{s} = %s, %s",fCmeLabel.c_str(),fLumiLabel.c_str()));
+    
+    c.RedrawAxis("g");
+
+    if (systematicName != "") {
+        gSystem->mkdir("Systematics");
+        gSystem->mkdir(("Systematics/"+systematicName).c_str());
+    }
+    const std::string tmp = isMigration ? "migration" : "response";
+    const std::string name = systematicName == "" ? tmp + "_" + regionName : "Systematics/" + systematicName+"/"+tmp + "_" + regionName;
+
+    for(const auto& format : TRExFitter::IMAGEFORMAT) {
+        c.SaveAs((fName+"/" + name+ "."+ format).c_str());
     }
 }
