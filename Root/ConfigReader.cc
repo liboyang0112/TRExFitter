@@ -230,9 +230,10 @@ int ConfigReader::ReadJobOptions(){
     }
 
     if (fFitter->fDir == "") {
-        if (fFitter->fName == "") fFitter->fName = CheckName(confSet->GetValue());
+        // default
+        if (fFitter->fName == "MyMeasurement") fFitter->fName = CheckName(confSet->GetValue());
     } else {
-        if (fFitter->fName == "") fFitter->fName = fFitter->fDir + CheckName(confSet->GetValue());
+        if (fFitter->fName == "MyMeasurement") fFitter->fName = fFitter->fDir + CheckName(confSet->GetValue());
         else fFitter->fName = fFitter->fDir + fFitter->fName;
     }
     fFitter->fInputName = CheckName(confSet->GetValue());
