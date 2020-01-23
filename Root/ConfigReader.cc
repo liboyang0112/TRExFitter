@@ -157,10 +157,12 @@ int ConfigReader::ReadCommandLineOptions(const std::string& option){
         fFitter->fGroupedImpactCategory = optMap["GroupedImpact"];
     }
     if(optMap["OutputDir"]!=""){
-      fFitter->fDir = RemoveQuotes(optMap["OutputDir"]);
-      if(fFitter->fDir.back() != '/') fFitter->fDir += '/';
-      fFitter->fName = fFitter->fDir + fFitter->fName;
-      gSystem->mkdir((fFitter->fName).c_str(), true);
+        fFitter->fDir = RemoveQuotes(optMap["OutputDir"]);
+        if(fFitter->fDir.back() != '/') fFitter->fDir += '/';
+        gSystem->mkdir(fFitter->fDir.c_str());
+    }
+    if(optMap["Job"]!=""){
+        fFitter->fName = RemoveQuotes(optMap["Job"]);
     }
     if(optMap["LimitParamValue"]!=""){
         fFitter->fLimitParamValue = atof(optMap["LimitParamValue"].c_str());
@@ -227,8 +229,14 @@ int ConfigReader::ReadJobOptions(){
         return 1;
     }
 
-    fFitter->fName = CheckName(confSet->GetValue());
-    fFitter->fInputName = fFitter->fName;
+    if (fFitter->fDir == "") {
+        // default
+        if (fFitter->fName == "MyMeasurement") fFitter->fName = CheckName(confSet->GetValue());
+    } else {
+        if (fFitter->fName == "MyMeasurement") fFitter->fName = fFitter->fDir + CheckName(confSet->GetValue());
+        else fFitter->fName = fFitter->fDir + fFitter->fName;
+    }
+    fFitter->fInputName = CheckName(confSet->GetValue());
 
     //Set DebugLevel
     param = confSet->Get("DebugLevel");
