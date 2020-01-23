@@ -292,6 +292,8 @@ public:
     int fLegendNColumns;
 
     std::vector<std::string> fScaleSamplesToData;
+    
+    std::map<std::string,int> fIsBinOfRegion;
 
     int fNumberUnfoldingRecoBins;
     bool fNormalizeMigrationMatrix;

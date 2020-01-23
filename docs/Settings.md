@@ -74,7 +74,7 @@ The following settings are for normal fits, performed without the action `m`.
 | FixNPforStatOnly             | if set to TRUE, when running stat-only (with either of the two options) also the norm factors other than the POI are kept fixed |
 | InputFolder                  | specify it to read fit input histograms from a different directory than `<jobName>/Histograms/` |
 | InputName                    | specify it to read fit input histograms from files with different name than `<jobName>_blabla.root` |
-| OutputDir                    | specify it to write everything in a different directory than `<jobName>` |
+| OutputDir                    | specify it to write everything in a different directory, the full directory structure will be: "OutputDirName/" (if set) + jobname (can be set via a command line option 'Job') |
 | WorkspaceFileName            | if specified, an external ws can be used as input for fitting (not 100% supported) |
 | KeepPruning                  | if set to TRUE, the first time the ws is created (option w) a Pruning.root file is created under `<jobName>/` and used for future operations to skip pruned systematics (makes operations much faster in case many syst are pruned) |
 | AtlasLabel                   | to specify Internal, Preliminary, etc... If set to `none` the whole label will be removed |
@@ -284,6 +284,7 @@ additional options, accepting only float as arguments - useful for adding your f
 | SkipSmoothing                | if smoothing of nominal samples is used, this option can be used to disable smoothing per region (default: FALSE) |
 | XaxisRange                   | Manually call 'SetRangeUser()' on X axis. Needs two parameters(floats): min,max |
 | NumberOfRecoBins             | Number of reco bins in this region when Unfolding is used |
+| IsBinOfRegion                | can be set in order to declare this region as corresponding to a certain bin of another region (to be set as VALIDATION region and to be declared previously in the config file); in this way, one can perform a two-dimensional fit, by keeping the systematic smoothing in both directions: for each systematic, the smoothing applied to the VALIDATION region indicated will be propagated to the overall part of the systematic variation in this region; syntax: "region-name":binNmbr (NB: bin numbering here starts at 1 due to technical reasons) |
 
 
 ### `Sample` block settings

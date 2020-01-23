@@ -171,10 +171,12 @@ int ConfigReader::ReadCommandLineOptions(const std::string& option){
         fFitter->fGroupedImpactCategory = optMap["GroupedImpact"];
     }
     if(optMap["OutputDir"]!=""){
-      fFitter->fDir = RemoveQuotes(optMap["OutputDir"]);
-      if(fFitter->fDir.back() != '/') fFitter->fDir += '/';
-      fFitter->fName = fFitter->fDir + fFitter->fName;
-      gSystem->mkdir((fFitter->fName).c_str(), true);
+        fFitter->fDir = RemoveQuotes(optMap["OutputDir"]);
+        if(fFitter->fDir.back() != '/') fFitter->fDir += '/';
+        gSystem->mkdir(fFitter->fDir.c_str());
+    }
+    if(optMap["Job"]!=""){
+        fFitter->fName = RemoveQuotes(optMap["Job"]);
     }
     if(optMap["LimitParamValue"]!=""){
         fFitter->fLimitParamValue = atof(optMap["LimitParamValue"].c_str());
@@ -241,8 +243,14 @@ int ConfigReader::ReadJobOptions(){
         return 1;
     }
 
-    fFitter->fName = CheckName(confSet->GetValue());
-    fFitter->fInputName = fFitter->fName;
+    if (fFitter->fDir == "") {
+        // default
+        if (fFitter->fName == "MyMeasurement") fFitter->fName = CheckName(confSet->GetValue());
+    } else {
+        if (fFitter->fName == "MyMeasurement") fFitter->fName = fFitter->fDir + CheckName(confSet->GetValue());
+        else fFitter->fName = fFitter->fDir + fFitter->fName;
+    }
+    fFitter->fInputName = CheckName(confSet->GetValue());
 
     //Set DebugLevel
     param = confSet->Get("DebugLevel");
@@ -2591,6 +2599,18 @@ int ConfigReader::ReadRegionOptions(const std::string& opt){
                 WriteWarningStatus("ConfigReader::ReadRegionOptions", "Setting 'XaxisRange' needs the first parameter to be smaller than the second parameter. Ignoring.");
             }
             reg->fXaxisRange = range;
+        }
+        
+        // Inter-region smoothing
+        param = confSet->Get("IsBinOfRegion");
+        if( param != "" ){
+            std::vector<std::string> vec_string = Vectorize( param,':' );
+            if (vec_string.size() != 2){
+                WriteWarningStatus("ConfigReader::IsBinOfRegion", "Setting 'IsBinOfRegion' needs exactly two parameters (in the form string:int). Ignoring.");
+            }
+            else{
+                reg->fIsBinOfRegion[vec_string.at(0)] = std::stof(vec_string.at(1));
+            }
         }
 
     }
