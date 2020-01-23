@@ -375,7 +375,8 @@ trex-fitter mr config/myTopWS_multifit.config Ranking="XXX"
 Find all available multi-fit settings in [our documentation (docs/Settings.md)](docs/Settings.md#multi-fit).
 
 
-### Running unfolding
+
+## Running Unfolding
 To run the unfolding, you need to run steps: `u`, followed by `h`, then the other steps will work as usual
 Example:
 ```
