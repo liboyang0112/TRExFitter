@@ -41,7 +41,7 @@ cppcheck:
     - cppcheck --version
     - echo "running cppcheck"
     - set +e
-    - cppcheck --enable=all --verbose --output-file=cppcheck.txt --inline-suppr -I TRExFitter/*h --language=c++ --suppress=useStlAlgorithm Root/*cc
+    - cppcheck --enable=all --verbose --output-file=cppcheck.txt --inline-suppr -ITRExFitter/ -IUnfoldingCode/UnfoldingCode/ --language=c++ --suppress=useStlAlgorithm Root/*cc UnfoldingCode/Root/*cc
     - cat cppcheck.txt
     - source test/scripts/cppcheck_output.sh
   allow_failure: true
