@@ -161,6 +161,9 @@ int ConfigReader::ReadCommandLineOptions(const std::string& option){
         if(fFitter->fDir.back() != '/') fFitter->fDir += '/';
         gSystem->mkdir(fFitter->fDir.c_str());
     }
+    if(optMap["Job"]!=""){
+        fFitter->fName = RemoveQuotes(optMap["Job"]);
+    }
     if(optMap["LimitParamValue"]!=""){
         fFitter->fLimitParamValue = atof(optMap["LimitParamValue"].c_str());
     }
@@ -227,9 +230,10 @@ int ConfigReader::ReadJobOptions(){
     }
 
     if (fFitter->fDir == "") {
-        fFitter->fName = CheckName(confSet->GetValue());
+        if (fFitter->fName == "") fFitter->fName = CheckName(confSet->GetValue());
     } else {
-        fFitter->fName = fFitter->fDir + CheckName(confSet->GetValue());
+        if (fFitter->fName == "") fFitter->fName = fFitter->fDir + CheckName(confSet->GetValue());
+        else fFitter->fName = fFitter->fDir + fFitter->fName;
     }
     fFitter->fInputName = CheckName(confSet->GetValue());
 
