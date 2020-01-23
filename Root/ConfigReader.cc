@@ -5346,6 +5346,76 @@ int ConfigReader::ReadUnfoldingOptions() {
         }
     }
     
+    param = confSet->Get("MigrationTitleX");
+    if (param != "") {
+        fFitter->fMigrationTitleX = RemoveQuotes(param);
+    }
+    
+    param = confSet->Get("MigrationTitleY");
+    if (param != "") {
+        fFitter->fMigrationTitleY = RemoveQuotes(param);
+    }
+    
+    param = confSet->Get("MigrationLogX");
+    if (param != "") {
+        std::transform(param.begin(), param.end(), param.begin(), ::toupper);
+        if (param == "TRUE") {
+            fFitter->fMigrationLogX = true;
+        } else {
+            fFitter->fMigrationLogX = false;
+        }
+    }
+    
+    param = confSet->Get("MigrationLogY");
+    if (param != "") {
+        std::transform(param.begin(), param.end(), param.begin(), ::toupper);
+        if (param == "TRUE") {
+            fFitter->fMigrationLogY = true;
+        } else {
+            fFitter->fMigrationLogY = false;
+        }
+    }
+    
+    param = confSet->Get("MigrationTitleOffsetX");
+    if (param != "") {
+        fFitter->fMigrationTitleOffsetX = std::stod(param);
+    }
+    
+    param = confSet->Get("MigrationTitleOffsetY");
+    if (param != "") {
+        fFitter->fMigrationTitleOffsetY = std::stod(param);
+    }
+    
+    param = confSet->Get("MigrationZmin");
+    if (param != "") {
+        fFitter->fMigrationZmin = std::stod(param);
+    }
+    
+    param = confSet->Get("MigrationZmax");
+    if (param != "") {
+        fFitter->fMigrationZmax = std::stod(param);
+    }
+    
+    param = confSet->Get("ResponseZmin");
+    if (param != "") {
+        fFitter->fResponseZmin = std::stod(param);
+    }
+    
+    param = confSet->Get("ResponseZmax");
+    if (param != "") {
+        fFitter->fResponseZmax = std::stod(param);
+    }
+    
+    param = confSet->Get("PlotSystematicMigrations");
+    if (param != "") {
+        std::transform(param.begin(), param.end(), param.begin(), ::toupper);
+        if (param == "TRUE") {
+            fFitter->fPlotSystematicMigrations = true;
+        } else {
+            fFitter->fPlotSystematicMigrations = false;
+        }
+    }
+    
     param = confSet->Get("NominalTruthSample");
     if (param == "") {
         WriteErrorStatus("ConfigReader::ReadUnfoldingOptions", "You need to set NominalTruthSample option!");

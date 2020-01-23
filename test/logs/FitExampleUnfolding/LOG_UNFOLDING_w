@@ -687,7 +687,7 @@ RooProduct::L_x_SR1_Truth_bin_9_SR1_overallSyst_x_HistSyst[ Lumi * SR1_Truth_bin
 PiecewiseInterpolation::SR1_Truth_bin_10_SR1_Hist_alpha[ ] = 25.7152
 RooHistFunc::SR1_Truth_bin_10_SR1_Hist_alpha_0high[ depList=(obs_x_SR1) ] = 25.7152
 RooHistFunc::SR1_Truth_bin_10_SR1_Hist_alpha_0low[ depList=(obs_x_SR1) ] = 25.7152
-RooHistFunc::SR1_Truth_bin_10_SR1_Hist_alpha_1high[ depList=(obs_x_SR1) ] = 25.842
+RooHistFunc::SR1_Truth_bin_10_SR1_Hist_alpha_1high[ depList=(obs_x_SR1) ] = 25.8419
 RooHistFunc::SR1_Truth_bin_10_SR1_Hist_alpha_1low[ depList=(obs_x_SR1) ] = 25.5855
 RooHistFunc::SR1_Truth_bin_10_SR1_Hist_alphanominal[ depList=(obs_x_SR1) ] = 25.7152
 RooStats::HistFactory::FlexibleInterpVar::SR1_Truth_bin_10_SR1_epsilon[ paramList=(alpha_bTag_SF_B_eigen0,alpha_PS) ] = 1
@@ -777,7 +777,7 @@ RooProduct::SR1_Truth_bin_8_SR1_overallSyst_x_HistSyst[ SR1_Truth_bin_8_SR1_Hist
 PiecewiseInterpolation::SR1_Truth_bin_9_SR1_Hist_alpha[ ] = 0.0295972
 RooHistFunc::SR1_Truth_bin_9_SR1_Hist_alpha_0high[ depList=(obs_x_SR1) ] = 0.0295972
 RooHistFunc::SR1_Truth_bin_9_SR1_Hist_alpha_0low[ depList=(obs_x_SR1) ] = 0.0295972
-RooHistFunc::SR1_Truth_bin_9_SR1_Hist_alpha_1high[ depList=(obs_x_SR1) ] = 0.0456588
+RooHistFunc::SR1_Truth_bin_9_SR1_Hist_alpha_1high[ depList=(obs_x_SR1) ] = 0.0456587
 RooHistFunc::SR1_Truth_bin_9_SR1_Hist_alpha_1low[ depList=(obs_x_SR1) ] = 0.0134157
 RooHistFunc::SR1_Truth_bin_9_SR1_Hist_alphanominal[ depList=(obs_x_SR1) ] = 0.0295972
 RooStats::HistFactory::FlexibleInterpVar::SR1_Truth_bin_9_SR1_epsilon[ paramList=(alpha_bTag_SF_B_eigen0,alpha_PS) ] = 1
