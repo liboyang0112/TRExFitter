@@ -149,12 +149,28 @@ The following settings are for normal fits, performed without the action `m`.
 | ExcludeFromMorphing          | The specified sample is left our from the morphing (useful to do closure tests for morphing). |
 | ScaleSamplesToData           | The specified samples will be scaled to data (when doing the d step). |
 | MaxNtupleEvents              | valid only for option NTUP; if set to N, only first N entries per ntuple read (useful for debugging) |
+| ResponseMatrixName(s)        | Name(s) of the histogram for response matrix |
+| ResponseMatrixFile(s)        | File path(s) of the histogram for response matrix |
+| ResponseMatrixPaths(s)       | Folder path(s) of the histogram for response matrix |
+| ResponseMatrixNameNominal    | Nominal histogram name |
+| AcceptanceName(s)        | Name(s) of the histogram for acceptance |
+| AcceptanceFile(s)        | File path(s) of the histogram for acceptance |
+| AcceptancePaths(s)       | Folder path(s) of the histogram for acceptance |
+| AcceptanceNameNominal    | Nominal histogram name |
+| SelectionEffName(s)       | Name(s) of the histogram for selection efficiency |
+| SelectionEffFile(s)       | File path(s) of the histogram for selection efficiency |
+| SelectionEffPaths(s)      | Folder path(s) of the histogram for selection efficiency |
+| SelectionEffNameNominal   | Nominal histogram name |
+| MigrationName(s)        | Name(s) of the histogram for migration matrix |
+| MigrationFile(s)        | File path(s) of the histogram for migration matrix |
+| MigrationPaths(s)       | Folder path(s) of the histogram for migration matrix |
+| MigrationNameNominal    | Nominal histogram name |
 
 
 ### `Fit` block settings
 | **Option** | **Function** |
 | ---------- | ------------ |
-| FitType                      | can be SPLUSB (default) or BONLY to fit under the s+b or the b-only hypothesis |
+| FitType                      | can be SPLUSB (default) or BONLY to fit under the s+b or the b-only hypothesis. Use UNFOLDING for unfolding|
 | FitRegion                    | can be CRSR (default) or CRONLY to fit considering both signal and control regions in the fit, or only control regions. You can also specify a comma-separated list of regions to use in the fit |
 | FitBlind                     | specify is real data or Asimov data should be used in the fit (TRUE or FALSE). By default, fit are NOT blind. |
 | POIAsimov                    | value of the parameter of interest in the AsimovDataset used in the fit |
@@ -220,6 +236,18 @@ additional options, accepting only float as arguments - useful for adding your f
 | ---------- | ------------ |
 | VariableTitle                | it's the label which will be displayed on the x-axis in the plots |
 | Label                        | it's the label which will be showed on the plots and specifies which region is shown |
+| ResponseMatrixFile(s)        | same as for Job but for Region |
+| ResponseMatrixName(s)        | same as for Job but for Region |
+| ResponseMatrixPath(s)        | same as for Job but for Region |
+| AcceptanceFile(s)            | same as for Job but for Region |
+| AcceptanceName(s)            | same as for Job but for Region |
+| AcceptancePath(s)            | same as for Job but for Region |
+| SelectionEffFile(s)          | same as for Job but for Region |
+| SelectionEffName(s)          | same as for Job but for Region |
+| SelectionEffPath(s)          | same as for Job but for Region |
+| MigrationEffFile(s)          | same as for Job but for Region |
+| MigrationEffName(s)          | same as for Job but for Region |
+| MigrationEffPath(s)          | same as for Job but for Region |
 | TexLabel                     | label for tex files |
 | ShortLabel                   | same as above, but a shorter version for plots with smaller available place |
 | LumiLabel                    | label for luminosity to be put on plots |
@@ -255,6 +283,7 @@ additional options, accepting only float as arguments - useful for adding your f
 | Ymax                         | maximum value on y-axis |
 | SkipSmoothing                | if smoothing of nominal samples is used, this option can be used to disable smoothing per region (default: FALSE) |
 | XaxisRange                   | Manually call 'SetRangeUser()' on X axis. Needs two parameters(floats): min,max |
+| NumberOfRecoBins             | Number of reco bins in this region when Unfolding is used |
 
 
 ### `Sample` block settings
@@ -320,7 +349,6 @@ additional options, accepting only float as arguments - useful for adding your f
 | Category                     | major category to which the NormFactor belongs (instrumental, theory, ttbar, ...) |
 | SubCategory                  | minor category for the NormFactor, used to evaluate impact on POI per SubCategory in "i" step, defaults to "NormFactors", do not use "Gammas", "FullSyst", or "combine" as SubCategory names (reserved for special functionality) |
 | Expression                   | a way to correlate this norm factor with other norm factors (using AddPreprocessFunction); two arguments, in the form `<expression>:<dependencies>`, where `<dependencies>` should contain the names of the norm factors the expression depends on, their nominal values and existence ranges [example: `(1.+Pmag*cos(theta))/2.:Pmag[0.9,0,1],theta[0,0,3.14]`] |
-| Tau                          | if set, it will add a constraint term for this norm factor (needed for unfolding regularization); the value is the value of the Tikhonov "tau" parameter: the largest the value, the stronger the regularization (smaller pre-fit uncertainty) |
 
 
 ### `ShapeFactor` block settings
@@ -527,3 +555,102 @@ These options are for multi-fits, performed with action `m`.
 | ParamName                    | Name for the parameter in the output ROOT file |
 | ParamValue                   | Value of the parameter in the output file (e.g. 172.5 for top mass) |
 | OutputPrefixName             | Prefix for the output ROOT file |
+
+### UnfoldingSample block
+| **Option** | **Function** |
+| ---------- | ------------ |
+| Title                    | for plots |
+| FillColor                | for plots |
+| LineColor                | for plots |
+| ResponseMatrixFile(s)        | same as for Job but per sample |
+| ResponseMatrixName(s)        | same as for Job but per sample |
+| ResponseMatrixPath(s)        | same as for Job but per sample |
+| AcceptanceFile(s)            | same as for Job but per sample |
+| AcceptanceName(s)            | same as for Job but per sample |
+| AcceptancePath(s)            | same as for Job but per sample |
+| SelectionEffFile(s)          | same as for Job but per sample |
+| SelectionEffName(s)          | same as for Job but per sample |
+| SelectionEffPath(s)          | same as for Job but per sample |
+| MigrationEffFile(s)          | same as for Job but per sample |
+| MigrationEffName(s)          | same as for Job but per sample |
+| MigrationEffPath(s)          | same as for Job but per sample |
+| Regions                  | Comma separated list of regions |
+
+### UnfoldingSystematic block
+| **Option** | **Function** |
+| ---------- | ------------ |
+| Samples                   | UnfoldingSamples affected by this uncertainty |
+| Region                    | Regions affected by this uncertainty |
+| NuisanceParameter         | Used to correlate systematics |
+| Type                      | HISTO/OVERALL/SHAPE/STAT |
+| Title                     | for plots |
+| Category                  | same as for Systematic |
+| Category                  | same as for Systematic |
+| Symmetrisation            | same as for Systematic |
+| SmoothingOption            | same as for Systematic |
+| ResponseMatrixFile(s)Up        | self-explanatory |
+| ResponseMatrixName(s)Up        | self-explanatory |
+| ResponseMatrixPath(s)Up        | self-explanatory |
+| ResponseMatrixFile(s)Down        | self-explanatory |
+| ResponseMatrixName(s)Down        | self-explanatory |
+| ResponseMatrixPath(s)Down        | self-explanatory |
+| AcceptanceFile(s)Up        | self-explanatory |
+| AcceptanceName(s)Up        | self-explanatory |
+| AcceptancePath(s)Up        | self-explanatory |
+| AcceptanceFile(s)Down        | self-explanatory |
+| AcceptanceName(s)Down        | self-explanatory |
+| AcceptancePath(s)Down        | self-explanatory |
+| SelectionEffFile(s)Up        | self-explanatory |
+| SelectionEffName(s)Up        | self-explanatory |
+| SelectionEffPath(s)Up        | self-explanatory |
+| SelectionEffFile(s)Down        | self-explanatory |
+| SelectionEffName(s)Down        | self-explanatory |
+| SelectionEffPath(s)Down        | self-explanatory |
+| MigrationFile(s)Up        | self-explanatory |
+| MigrationName(s)Up        | self-explanatory |
+| MigrationPath(s)Up        | self-explanatory |
+| MigrationFile(s)Down        | self-explanatory |
+| MigrationName(s)Down        | self-explanatory |
+| MigrationPath(s)Down        | self-explanatory |
+
+### Unfolding block
+| **Option** | **Function** |
+| ---------- | ------------ |
+| MatrixOrientation         | Can be TRUTHONHORIZONTAL/TRUTHONVERTICAL, self explanatory |
+| TruthDistributionPath         | Globally set the path, will be overwritten by TruthSample |
+| TruthDistributionFile         | Globally set the path, will be overwritten by TruthSample |
+| TruthDistributionName         | Globally set the path, will be overwritten by TruthSample |
+| NumberOfTruthBins         | Number of truth bins (can be only one truth distribution but can have more reco distributions - regions) |
+| Tau         | Tikhonov regularization parameter, use as e.g. `1:2,3:1.7`, this will set the parameter to bins 1 and 3, with values 2 and 1.7 respectively |
+| TitleX         | Name of the title on unfolded plots |
+| TitleY         | Name of the title on unfolded plots |
+| RatioYmax         | Used for SetRangeUser |
+| RatioYmin         | Used for SetRangeUser |
+| LogX         | Set to TRUE to use logarithmic scale for unfolded plots |
+| LogY         | Set to TRUE to use logarithmic scale for unfolded plots |
+| TitleOffsetX         | scale of the original offset (default is 1) |
+| TitleOffsetY         | scale of the original offset (default is 1) |
+| UnfoldingResultMin   | Minimum for the normalisation factors for bins (Default is 0) |
+| UnfoldingResultMax   | Maximum for the normalisation factors for bins (Default is 2) |
+| NominalTruthSample   | Name of the TruthSample that should be used as nominal for folding. Has to be set! |
+| MigrationTitleX   | name of the title on migration/response matrix plots |
+| MigrationTitleY   | name of the title on migration/response matrix plots |
+| MigrationLogX   | for migration/response plots |
+| MigrationLogY   | for migration/response plots |
+| MigrationTitleOffsetX   | for migration/response plots |
+| MigrationTitleOffsetY   | for migration/response plots |
+| MigrationZmin   | for migration plots |
+| MigrationZmax   | for migration plots |
+| ResponseZmax   | for response plots |
+| ResponseZmin   | for response plots |
+| PlotSystematicMigrations   | if set to TRUE will plot migration/response plots for all systematics |
+
+### TruthSample block
+| **Option** | **Function** |
+| ---------- | ------------ |
+| Title         | for plots |
+| FillColor         | for plots |
+| LineColor         | for plots |
+| TruthDistributionPath         | folder path for truth distributions |
+| TruthDistributionFile         | file path for truth distributions |
+| TruthDistributionName         | name of the histogram in the file for truth distributions |
