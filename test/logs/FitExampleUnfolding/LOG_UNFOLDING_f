@@ -445,7 +445,7 @@ Real time 0:00:00, CP time 0.080
 === DEBUG::FitResults::ReadFromTXT: Reading Negative Log-Likelihood (NLL) value...
 === DEBUG::FitResults::ReadFromTXT: --------------------
 === DEBUG::FitResults::ReadFromTXT: Found 14 systematics.
-=== DEBUG::FitResults::ReadFromTXT: Negative Log-Likelihood value NLL = -911.567000
+=== DEBUG::FitResults::ReadFromTXT: Negative Log-Likelihood value NLL = -911.568000
 Info in <TCanvas::Print>: png file FitExampleUnfolding/NuisPar.png has been created
 Error in <TCanvas::Range>: illegal world coordinates range: x1=8.810811, y1=-0.470588, x2=-12.810811, y2=2.470588
 Error in <TCanvas::RangeAxis>: illegal axis coordinates range: xmin=8.000000, ymin=0.000000, xmax=-2.000000, ymax=1.000000
@@ -464,6 +464,6 @@ Info in <TCanvas::Print>: png file FitExampleUnfolding/CorrMatrix.png has been c
 === DEBUG::FitResults::ReadFromTXT: Reading Negative Log-Likelihood (NLL) value...
 === DEBUG::FitResults::ReadFromTXT: --------------------
 === DEBUG::FitResults::ReadFromTXT: Found 14 systematics.
-=== DEBUG::FitResults::ReadFromTXT: Negative Log-Likelihood value NLL = -911.567000
+=== DEBUG::FitResults::ReadFromTXT: Negative Log-Likelihood value NLL = -911.568000
 [1;32m=== INFO::TRExFit::PlotUnfoldedData: Producing unfolded plots...[0m
 Info in <TCanvas::Print>: png file FitExampleUnfolding/UnfoldedData.png has been created
