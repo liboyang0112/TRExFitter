@@ -403,7 +403,8 @@ void TRExFit::SmoothSystematics(std::string syst){
                                 float systVarDown_orig = syh_ref->fHistDown_orig->GetBinContent(binIdx);
                                 float systVarUp = syh_ref->fHistUp->GetBinContent(binIdx);
                                 float systVarDown = syh_ref->fHistDown->GetBinContent(binIdx);
-                                scaleUp = systVarUp/systVarUp_orig;
+                                if(systVarUp_orig!=0) scaleUp = systVarUp/systVarUp_orig;
+                                else WriteWarningStatus("TRExFit::SmoothSystematics","In inter-region smoothing attempting to divide by zero. Skipping scaling.");
                                 if(syh->fSystematic->fSymmetrisationType==HistoTools::SYMMETRIZEONESIDED) scaleDown = scaleUp;
                                 else scaleDown = systVarDown/systVarDown_orig;
                             }

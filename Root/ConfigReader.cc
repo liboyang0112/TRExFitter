@@ -2137,7 +2137,12 @@ int ConfigReader::ReadRegionOptions(const std::string& opt){
         param = confSet->Get("IsBinOfRegion");
         if( param != "" ){
             std::vector<std::string> vec_string = Vectorize( param,':' );
-            reg->fIsBinOfRegion[vec_string.at(0)] = std::stof(vec_string.at(1));
+            if (vec_string.size() != 2){
+                WriteWarningStatus("ConfigReader::IsBinOfRegion", "Setting 'IsBinOfRegion' needs exactly two parameters (in the form string:int). Ignoring.");
+            }
+            else{
+                reg->fIsBinOfRegion[vec_string.at(0)] = std::stof(vec_string.at(1));
+            }
         }
 
     }
