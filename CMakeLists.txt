@@ -62,7 +62,9 @@ target_link_libraries( CommonSystSmoothingTool ${ROOT_LIBRARIES} )
 
 # Add Unfolding code
 include_directories( UnfoldingCode )
-add_subdirectory( UnfoldingCode )
+if(NOT DEFINED ENV{AtlasProject})
+  add_subdirectory( UnfoldingCode )
+endif()
 
 # Handle the build of the three auxiliary classes for ATLAS-type
 # labels etc. We don't want to throw this into the TRExFitter
@@ -143,7 +145,7 @@ add_library( TRExFitter SHARED ${lib_headers} ${lib_sources} )
 target_include_directories( TRExFitter
    PUBLIC ${ROOT_INCLUDE_DIRS}
    $<BUILD_INTERFACE:${CMAKE_SOURCE_DIR}> $<INSTALL_INTERFACE:> )
-target_link_libraries( TRExFitter CommonSystSmoothingTool ExoStats AtlasUtils ${ROOT_LIBRARIES} )
+target_link_libraries( TRExFitter CommonSystSmoothingTool ExoStats AtlasUtils UnfoldingCode ${ROOT_LIBRARIES} )
 set_property( TARGET TRExFitter
    PROPERTY PUBLIC_HEADER ${lib_headers} )
 target_include_directories(TRExFitter PUBLIC ${CMAKE_CURRENT_LIST_DIR} )
