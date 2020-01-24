@@ -1743,11 +1743,14 @@ int ConfigReader::ReadFitOptions(){
         std::transform(param.begin(), param.end(), param.begin(), ::toupper);
         if( param == "TRUE" ){
             fFitter->fGetGoodnessOfFit = true;
+            fFitter->fSaturatedModel = true;
         } else if (param == "FALSE"){
             fFitter->fGetGoodnessOfFit = false;
+            fFitter->fSaturatedModel = false;
         } else {
             WriteWarningStatus("ConfigReader::ReadFitOptions", "You specified 'GetGoodnessOfFit' option but did not provide valid parameter. Using default (false)");
             fFitter->fGetGoodnessOfFit = false;
+            fFitter->fSaturatedModel = false;
         }
     }
 

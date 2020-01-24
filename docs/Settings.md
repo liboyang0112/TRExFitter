@@ -499,7 +499,7 @@ These options are for multi-fits, performed with action `m`.
 | LimitsFile       | a name of the file with limits results |
 | BonlySuffix      | a suffix of the background only fits |
 | ShowSystForPOI   | can be TRUE or FALSE, set to TRUE if you want to show systematics for POI |
-| GetGoodnessOfFit | can be TRUE or FALSE, set to TRUE to get chi2/NDF for the fit |
+| GetGoodnessOfFit | can be TRUE or FALSE, set to TRUE to get chi2/NDF for the fit. By default, the "SaturatedModel" is used (which is the only correct way how to estiamte the chi2/NDF). If you want to use the old test using Asimov, set GetGoodnessOfFit to TRUE and set SaturatedModel to FALSE |
 | doLHscan         | comma separated list of NP(or POIs) to run LH scan, if first parameter is "all" it will be run for all NP |
 | do2DLHscan       | produces 2D likelihood scan between the chosen parameters. Syntax: "paramX1,paramY1:param X2,paramY2". Warning takes long time. You can reduce the number of steps via `LHscanSteps`. Alternatively you can split up the 2D scan in slices with `Parallel2Dscan` |
 | LHscanMin        | minimum value for the LH scan on x-axis (default is Norm min). This also effect the x-axis in a 2D scan |
