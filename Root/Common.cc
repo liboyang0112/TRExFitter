@@ -1281,8 +1281,6 @@ std::unique_ptr<TGraphAsymmErrors> Common::GetRatioBand(const TGraphAsymmErrors*
     std::unique_ptr<TH1D> down(static_cast<TH1D*>(data->Clone()));
 
     for (int ibin = 0; ibin < result->GetN(); ++ibin) {
-        double x,y;
-        result->GetPoint(ibin, x, y);
         up->SetBinContent(ibin+1, result->GetErrorYhigh(ibin));
         up->SetBinError(ibin+1, 0);
         down->SetBinContent(ibin+1, result->GetErrorYlow(ibin));

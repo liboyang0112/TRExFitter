@@ -20,7 +20,7 @@ void UnfoldingTools::NormalizeMatrix(TH2* matrix, const bool byRow) {
                 const double content = matrix->GetBinContent(ibinx, ibiny);
                 const double error = matrix->GetBinError(ibinx, ibiny);
                 matrix->SetBinContent(ibinx, ibiny, content/sum);
-                matrix->SetBinError  (ibinx, ibiny, error*(content/sum));
+                matrix->SetBinError  (ibinx, ibiny, error/sum);
             }
         }
     } else {
@@ -34,13 +34,16 @@ void UnfoldingTools::NormalizeMatrix(TH2* matrix, const bool byRow) {
                 const double content = matrix->GetBinContent(ibinx, ibiny);
                 const double error = matrix->GetBinError(ibinx, ibiny);
                 matrix->SetBinContent(ibinx, ibiny, content/sum);
-                matrix->SetBinError  (ibinx, ibiny, error*(content/sum));
+                matrix->SetBinError  (ibinx, ibiny, error/sum);
             }
         }
     }
 }
     
 void UnfoldingTools::Correct2DMatrix(TH2* matrix) {
+    if (!matrix) {
+        throw std::runtime_error{"UnfoldingTools::Correct2DMatrix: Nullptr passed!"};
+    }
     for (int ibinx = 0; ibinx < matrix->GetNbinsX(); ++ibinx) {
         for (int ibiny = 0; ibiny < matrix->GetNbinsY(); ++ibiny) {
             if (matrix->GetBinContent(ibinx, ibiny) < 0) {

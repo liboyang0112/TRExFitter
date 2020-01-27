@@ -201,10 +201,10 @@ std::unique_ptr<TH2D> FoldingManager::MultiplyAcceptanceEfficiencyAndMigration(c
                 acceptance = acc->GetBinContent(ireco);
             }
             const double content = horizontal ? mig->GetBinContent(itruth, ireco) : mig->GetBinContent(ireco, itruth);
-            //const double error = horizontal ? mig->GetBinError(itruth, ireco) : mig->GetBinError(ireco, itruth);
+            const double error = horizontal ? mig->GetBinError(itruth, ireco) : mig->GetBinError(ireco, itruth);
             result->SetBinContent(itruth, ireco, content*eff/acceptance);
             /// this assumes no error on truth
-            //result->SetBinError(itruth, ireco, error*eff/acceptance);
+            result->SetBinError(itruth, ireco, error*eff/acceptance);
         }
     }
 
@@ -223,6 +223,7 @@ void FoldingManager::PrepareFoldedDistributions(const TH1D* truth, const TH2D* r
     for (int itruth = 1; itruth <= nTruthBins; ++itruth) {
         // doing projection to get the bin edges correctly
         TH1D* h = horizontal ? response->ProjectionY() : response->ProjectionX();
+        h->Reset();
         /// what to do with the uncertainties??
         fFoldedDistributions.emplace_back(*h);
         for (int ireco = 1; ireco <= nRecoBins; ++ireco) {
@@ -231,12 +232,13 @@ void FoldingManager::PrepareFoldedDistributions(const TH1D* truth, const TH2D* r
                              (truth->GetBinContent(itruth) * response->GetBinContent(ireco, itruth));
 
             if (content < 0) content = 1e-6;
-            //const double error   = horizontal ?  
-            //                       (truth->GetBinContent(itruth) * response->GetBinError(itruth, ireco)) :
-            //                       (truth->GetBinContent(itruth) * response->GetBinError(ireco, itruth));
+            const double error   = horizontal ?  
+                                   (truth->GetBinContent(itruth) * response->GetBinError(itruth, ireco)) :
+                                   (truth->GetBinContent(itruth) * response->GetBinError(ireco, itruth));
+
             fFoldedDistributions.back().SetBinContent(ireco, content);
             /// this assumes no error on truth
-            //fFoldedDistributions.back().SetBinError  (ireco, error);
+            fFoldedDistributions.back().SetBinError  (ireco, error);
         }
     }
 }
