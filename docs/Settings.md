@@ -65,7 +65,6 @@ The following settings are for normal fits, performed without the action `m`.
 | BlindingThreshold            | blind bins when S/B is greater than this threshold, use the `BlindingType` option for other definitions than just S/B |
 | BlindingType                 | how to calculate the quantity to determine blinding, options are SOVERB (for S/B), SOVERSPLUSB(for S/(S+B)), SOVERSQRTB (for S/sqrt(B)) and SOVERSQRTSPLUSB (for S/sqrt(S+B)), default is SOVERB |
 | KeepPrefitBlindedBins        | if set to TRUE, and if pre-fit an post-fit plots are produced together ("dp" option) pre-fit blinding is kept in post-fit plots |
-| AutomaticDropBins            | if set to TRUE (default) will drop bins (set _both data and prediction_ to zero) for the blinded bins automatically. Setting to FALSE witll only blind the bins (will show prediction and all bins will be used in the fit). Setting DropBins manually sets this option to FALSE |
 | RankingMaxNP                 | max number of NP to show in ranking plot |
 | RankingPlot                  | NP categories in gammas or systs, if set to Systs(Gammas) then plot only systs(Gammas) in ranking, default produce plot for systs+gammas, can also set to all to have the 3 plots. |
 | ImageFormat                  | png, pdf or eps |
@@ -268,6 +267,7 @@ additional options, accepting only float as arguments - useful for adding your f
 | Rebinning                    | if specified, the histograms will be rebinned according to the new binning specified, in the form like `0,10,20,50,100`. Differently from the BInning option, this one performs the rebinning aftre the original histograms are created. This means that this option can changed (or removed) before running the b step. |
 | BinWidth                     | if specified, two things are done: this number is used to decorate the y axis label and the bin content is scaled for bins with a bin width different from this number |
 | BinLabels                    | if specified, bin labels are set according to provided comma separated list (list length must be equal to number of bins) |
+| AutomaticDropBins            | if set to TRUE (default is FALSE) will drop bins (set _both data and prediction_ to zero) for the blinded bins automatically. Setting to FALSE will only blind the bins (will show prediction and all bins will be used in the fit). Setting DropBins manually sets this option to FALSE |
 | Type                         | can be SIGNAL, CONTROL or VALIDATION; used depending on Fit->FitType; if VALIDATION is set, the region is never fitted; default is SIGNAL |
 | DataType                     | ASIMOV or DATA. Is Asimov is set, the limits and significances are computed without taking into account the data in these region, but a projection of the fit performed in the regions with DATA |
 | Ymax                         | if set, it will force the plot to use this value as max y-maxis value |
