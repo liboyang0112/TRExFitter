@@ -541,6 +541,7 @@ public:
 
     std::string fBootstrap;
     std::string fBootstrapSyst;
+    std::string fBootstrapSample;
     int fBootstrapIdx;
 
     std::vector<std::string> fDecorrSysts;

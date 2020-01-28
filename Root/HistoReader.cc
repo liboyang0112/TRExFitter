@@ -199,7 +199,7 @@ void HistoReader::ReadTRExProducedHistograms() {
         else                          fileName = fFitter->fName + "/Histograms/" + fFitter->fInputName + "_histos.root";
         // Bootstrap
         if(fFitter->fBootstrap!="" && fFitter->fBootstrapIdx>=0){
-            fileName = Common::ReplaceString(fileName,"_histos.root",Form("_histos__%d.root",fFitter->fBootstrapIdx));
+            fileName = Common::ReplaceString(fileName,"_histos.root",Form("_histos__%s%d.root",fFitter->fBootstrapSample.c_str(),fFitter->fBootstrapIdx));
         }
         WriteInfoStatus("HistoReader::ReadTRExProducedHistograms", "-----------------------------");
         WriteInfoStatus("HistoReader::ReadTRExProducedHistograms", "Reading histograms from file " + fileName + " ...");
@@ -370,10 +370,12 @@ void HistoReader::ReadTRExProducedHistograms() {
             else                          fileName = fFitter->fName + "/Histograms/" + fFitter->fInputName + "_" + regionName + "_histos.root";
             // Bootstrap
             if(fFitter->fBootstrap!="" && fFitter->fBootstrapIdx>=0){
-                if(fFitter->fBootstrapSyst == "") {
-                    fileName = Common::ReplaceString(fileName,"_histos.root",Form("_histos__%d.root",fFitter->fBootstrapIdx));
-                } else {
+                if(fFitter->fBootstrapSyst!="") {
                     fileNameBootstrap = Common::ReplaceString(fileName,"_histos.root",Form("_histos__%d.root",fFitter->fBootstrapIdx));
+                } else if(fFitter->fBootstrapSample!="") {
+                    fileNameBootstrap = Common::ReplaceString(fileName,"_histos.root",Form("_histos__%s%d.root",fFitter->fBootstrapSample.c_str(),fFitter->fBootstrapIdx));
+                } else{
+                    fileName = Common::ReplaceString(fileName,"_histos.root",Form("_histos__%d.root",fFitter->fBootstrapIdx));
                 }
             }
             WriteInfoStatus("HistoReader::ReadTRExProducedHistograms", "-----------------------------");
@@ -388,7 +390,12 @@ void HistoReader::ReadTRExProducedHistograms() {
             //
             const std::string sampleName = fFitter->fSamples[i_smp]->fName;
             WriteDebugStatus("HistoReader::ReadTRExProducedHistograms", "    Reading sample " + sampleName);
-            fFitter->fRegions[i_ch]->SetSampleHist(fFitter->fSamples[i_smp],regionName+"_"+sampleName,fileName);
+            if(fFitter->fBootstrap!="" && fFitter->fBootstrapIdx>=0 && fFitter->fBootstrapSample == sampleName ){
+                fFitter->fRegions[i_ch]->SetSampleHist(fFitter->fSamples[i_smp],regionName+"_"+sampleName,fileNameBootstrap);
+            }
+            else{
+                fFitter->fRegions[i_ch]->SetSampleHist(fFitter->fSamples[i_smp],regionName+"_"+sampleName,fileName);
+            }
             SampleHist* sh = fFitter->fRegions[i_ch]->GetSampleHist(sampleName);
             if(!sh) continue;
             
@@ -496,6 +503,14 @@ void HistoReader::ReadTRExProducedHistograms() {
                                                pruned
                                               );
                     }
+                    else if(fFitter->fBootstrap!="" && fFitter->fBootstrapIdx>=0 && fFitter->fBootstrapSample == sampleName ){
+                        syh = sh->AddHistoSyst(systName,
+                                               systStoredName,
+                                               Form("%s_%s_%s_Up",  regionName.c_str(),sampleName.c_str(),systStoredName.c_str()), fileNameBootstrap,
+                                               Form("%s_%s_%s_Down",regionName.c_str(),sampleName.c_str(),systStoredName.c_str()), fileNameBootstrap,
+                                               pruned
+                                              );
+                    }
                     else{
                         syh = sh->AddHistoSyst(systName,
                                                systStoredName,
@@ -514,6 +529,10 @@ void HistoReader::ReadTRExProducedHistograms() {
                 syh->fHistoNameShapeUp   = Form("%s_%s_%s_Shape_Up",  regionName.c_str(),sampleName.c_str(),systStoredName.c_str());
                 syh->fHistoNameShapeDown = Form("%s_%s_%s_Shape_Down",regionName.c_str(),sampleName.c_str(),systStoredName.c_str());
                 if(fFitter->fBootstrap!="" && fFitter->fBootstrapIdx>=0 && fFitter->fBootstrapSyst == systName ){
+                    syh->fFileNameShapeUp    = fileNameBootstrap;
+                    syh->fFileNameShapeDown  = fileNameBootstrap;
+                }
+                else if(fFitter->fBootstrap!="" && fFitter->fBootstrapIdx>=0 && fFitter->fBootstrapSample == sampleName ){
                     syh->fFileNameShapeUp    = fileNameBootstrap;
                     syh->fFileNameShapeDown  = fileNameBootstrap;
                 }

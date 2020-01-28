@@ -153,6 +153,13 @@ int ConfigReader::ReadCommandLineOptions(const std::string& option){
     if(optMap["BootstrapSyst"]!=""){
         fFitter->fBootstrapSyst = optMap["BootstrapSyst"];
     }
+    if(optMap["BootstrapSample"]!=""){
+        fFitter->fBootstrapSample = optMap["BootstrapSample"];
+    }        
+    if( fFitter->fBootstrapSyst!="" && fFitter->fBootstrapSample!=""  ){
+            WriteErrorStatus("ConfigReader::ReadCommandLineOptions", "Cannot do bootstrap on both Sample and Syst!");
+            return 1;
+    }
     if(optMap["GroupedImpact"]!=""){
         fFitter->fGroupedImpactCategory = optMap["GroupedImpact"];
     }
@@ -749,10 +756,16 @@ int ConfigReader::ReadJobOptions(){
         fFitter->fBootstrap = RemoveQuotes(param);
     }
 
-    // Set Bootstrap
+    // Set Bootstrap systematic
     param = confSet->Get("BootstrapSyst");
     if( param != "" ){
         fFitter->fBootstrapSyst = RemoveQuotes(param);
+    }
+
+    // Set Bootstrap sample
+    param = confSet->Get("BootstrapSample");
+    if( param != "" ){
+        fFitter->fBootstrapSample = RemoveQuotes(param);
     }
 
     // Set DecorrSuff
