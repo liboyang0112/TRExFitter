@@ -3658,7 +3658,7 @@ void TRExFit::DrawPruningPlot() const{
     int loSize = 150;
     int mainHeight = uniqueSyst.size()*20;
     int leftSize = 250;
-    int regionSize = 20*fNSamples;
+    int regionSize = 20*nSmp;
     int separation = 10;
     int mainWidth = iReg*(regionSize+separation);
     //
