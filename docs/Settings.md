@@ -267,7 +267,6 @@ additional options, accepting only float as arguments - useful for adding your f
 | Rebinning                    | if specified, the histograms will be rebinned according to the new binning specified, in the form like `0,10,20,50,100`. Differently from the BInning option, this one performs the rebinning aftre the original histograms are created. This means that this option can changed (or removed) before running the b step. |
 | BinWidth                     | if specified, two things are done: this number is used to decorate the y axis label and the bin content is scaled for bins with a bin width different from this number |
 | BinLabels                    | if specified, bin labels are set according to provided comma separated list (list length must be equal to number of bins) |
-| AutomaticDropBins            | if set to TRUE (default is FALSE) will drop bins (set _both data and prediction_ to zero) for the blinded bins automatically. Setting to FALSE will only blind the bins (will show prediction and all bins will be used in the fit). Setting DropBins manually sets this option to FALSE |
 | Type                         | can be SIGNAL, CONTROL or VALIDATION; used depending on Fit->FitType; if VALIDATION is set, the region is never fitted; default is SIGNAL |
 | DataType                     | ASIMOV or DATA. Is Asimov is set, the limits and significances are computed without taking into account the data in these region, but a projection of the fit performed in the regions with DATA |
 | Ymax                         | if set, it will force the plot to use this value as max y-maxis value |
@@ -276,7 +275,8 @@ additional options, accepting only float as arguments - useful for adding your f
 | RatioYmin                    | if set, it will specify the min of the range of the ratio plot for this region only |
 | RatioYmaxPostFit             | if set, it will specify the max of the range of the ratio plot for this region only, for post-fit only |
 | RatioYminPostFit             | if set, it will specify the min of the range of the ratio plot for this region only, for post-fit only |
-| DropBins                     | allows to specify a comma-separated list of bins to set to 0 (both for data and prediction), starting from 1 for the index as is the ROOT convention for bin indices |
+| DropBins                     | Allows to specify a comma-separated list of bins where the yield will be set to 0 (both for data and prediction), starting from 1 for the index as is the ROOT convention for bin indices. |
+| AutomaticDropBins            | Set this to TRUE to automatically drop bins (= set yield to 0 for data and prediction) above the `BlindingThreshold`. Default setting is FALSE, and manual use of `DropBins` also sets this option to FALSE. When FALSE, the bins are still blinded in plots via `BlindingThreshold`, but they will enter the fit (unless manually removed with `DropBins`). |
 | Group                        | if specified, regions of the same group appear together in several places, see RegionGroups option |
 | YaxisTitle                   | title of y-axis used for plots of the region |
 | YmaxScale                    | scales range of y-axis (default: 2.0, meaning the maximum axis value is twice the largest yield in any bin) |
