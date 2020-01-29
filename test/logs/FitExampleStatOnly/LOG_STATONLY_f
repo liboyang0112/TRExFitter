@@ -182,15 +182,15 @@ RooAbsTestStatistic::initSimMode: creating slave calculator #1 for state SR_2 (4
 [#1] INFO:Fitting -- RooAbsTestStatistic::initSimMode: created 2 slave calculators.
 [#1] INFO:Minization --  The following expressions have been identified as constant and will be precalculated and cached: (Bkg1_SR_1_nominal,Bkg2_SR_1_nominal,Signal_SR_1_nominal)
 [#1] INFO:Minization --  The following expressions have been identified as constant and will be precalculated and cached: (Bkg1_SR_2_nominal,Bkg2_SR_2_nominal,Signal_SR_2_nominal)
-=== DEBUG::FittingTool::FitPDF: Setting starting mu = 0.000000
+=== DEBUG::FittingTool::FitPDF: Setting starting mu = 1.000000
 === DEBUG::FittingTool::FitPDF:    -> Constant POI : 0
-=== DEBUG::FittingTool::FitPDF:    -> Value of POI : 0.000000
+=== DEBUG::FittingTool::FitPDF:    -> Value of POI : 1.000000
 === DEBUG::FittingTool::FitPDF: setting to constant : alpha_Dummy at value 0.000000
-[#1] INFO:Minization -- RooNLLVar::evaluatePartition(SR_1) first = 0 last = 4 Likelihood offset now set to 234.163
-[#1] INFO:Minization -- RooNLLVar::evaluatePartition(SR_2) first = 0 last = 4 Likelihood offset now set to 234.163
-=== DEBUG::FittingTool::FitPDF:    -> Initial value of the NLL = 469.244195
-  1) 0x2e43380 RooRealVar:: SigXsecOverSM = 0  L(0 - 100)  "SigXsecOverSM"
-  2) 0x2e24ea0 RooRealVar::   alpha_Dummy = 0 C  L(-5 - 5)  "alpha_Dummy"
+[#1] INFO:Minization -- RooNLLVar::evaluatePartition(SR_1) first = 0 last = 4 Likelihood offset now set to 234.667
+[#1] INFO:Minization -- RooNLLVar::evaluatePartition(SR_2) first = 0 last = 4 Likelihood offset now set to 234.667
+=== DEBUG::FittingTool::FitPDF:    -> Initial value of the NLL = 470.253914
+  1) 0x3d8e070 RooRealVar:: SigXsecOverSM = 1  L(0 - 100)  "SigXsecOverSM"
+  2) 0x3d6fb90 RooRealVar::   alpha_Dummy = 0 C  L(-5 - 5)  "alpha_Dummy"
 [#1] INFO:Fitting -- RooAddition::defaultErrorLevel(nll_simPdf_newasimovData_with_constr) Summation contains a RooNLLVar, using its error level
 [1;32m=== INFO::FittingTool::FitPDF: [0m
 [1;32m=== INFO::FittingTool::FitPDF: [0m
@@ -199,38 +199,38 @@ RooAbsTestStatistic::initSimMode: creating slave calculator #1 for state SR_2 (4
 [1;32m=== INFO::FittingTool::FitPDF: ======================[0m
 [1;32m=== INFO::FittingTool::FitPDF: [0m
 Minuit2Minimizer: Minimize with max-calls 500 convergence for edm < 1 strategy 1
-MnSeedGenerator: for initial parameters FCN = 1.928657374276
-MnSeedGenerator: Initial state:   - FCN =   1.928657374276 Edm =     0.703893 NCalls =      5
+MnSeedGenerator: for initial parameters FCN = 0.9189385332047
+MnSeedGenerator: Initial state:   - FCN =  0.9189385332047 Edm =     0.703891 NCalls =      5
 VariableMetric: start iterating until Edm is < 0.001
-VariableMetric: Initial state   - FCN =   1.928657374276 Edm =     0.703893 NCalls =      5
-VariableMetric: Iteration #   0 - FCN =   1.928657374276 Edm =     0.703893 NCalls =      5
-VariableMetric: Iteration #   1 - FCN =  0.9209265340757 Edm =  0.000530483 NCalls =     13
-VariableMetric: Iteration #   2 - FCN =  0.9189385617643 Edm =  1.39069e-08 NCalls =     17
-VariableMetric: After Hessian   - FCN =  0.9189385617643 Edm =  2.85593e-08 NCalls =     22
-VariableMetric: Iteration #   3 - FCN =  0.9189385617643 Edm =  2.85593e-08 NCalls =     22
+VariableMetric: Initial state   - FCN =  0.9189385332047 Edm =     0.703891 NCalls =      5
+VariableMetric: Iteration #   0 - FCN =  0.9189385332047 Edm =     0.703891 NCalls =      5
+VariableMetric: Iteration #   1 - FCN = -0.08879230879777 Edm =  0.000530482 NCalls =     13
+VariableMetric: Iteration #   2 - FCN = -0.09078027932274 Edm =  1.38994e-08 NCalls =     17
+VariableMetric: After Hessian   - FCN = -0.09078027932274 Edm =  2.85439e-08 NCalls =     22
+VariableMetric: Iteration #   3 - FCN = -0.09078027932274 Edm =  2.85439e-08 NCalls =     22
 Minuit2Minimizer : Valid minimum - status = 0
-FVAL  = 0.918938561764284234
-Edm   = 2.85592660883992237e-08
+FVAL  = -0.0907802793227374671
+Edm   = 2.8543924728444334e-08
 Nfcn  = 22
-SigXsecOverSM	  = 4.30729e-08	 +/-  0.7522	(limited)
+SigXsecOverSM	  = 4.30495e-08	 +/-  0.752201	(limited)
 Info in Minuit2Minimizer::Hesse : Hesse is valid - matrix is accurate
 === DEBUG::FittingTool::FitPDF: Size of variables for MINOS: 1
 Minuit2Minimizer::GetMinosError for parameter 0  SigXsecOverSM using max-calls 500, tolerance 1
-MnFunctionCross: parameter 0 set to -0.752211
-MnSeedGenerator: for initial parameters FCN = 0.9189385332047
-MnSeedGenerator: Initial state:   - FCN =  0.9189385332047 Edm =            0 NCalls =      1
+MnFunctionCross: parameter 0 set to -0.752221
+MnSeedGenerator: for initial parameters FCN = -0.09078030786672
+MnSeedGenerator: Initial state:   - FCN = -0.09078030786672 Edm =            0 NCalls =      1
 Info in MnMinos Parameter is at Lower limit. : par_name = SigXsecOverSM
-MnFunctionCross: parameter 0 set to 0.752211
-MnSeedGenerator: for initial parameters FCN = 1.617263480159
-MnSeedGenerator: Initial state:   - FCN =   1.617263480159 Edm =            0 NCalls =      1
-MnFunctionCross: parameter 0 set to 0.636496
-MnSeedGenerator: for initial parameters FCN = 1.485038928054
-MnSeedGenerator: Initial state:   - FCN =   1.485038928054 Edm =            0 NCalls =      1
-MnFunctionCross: parameter 0 set to 0.578649
-MnSeedGenerator: for initial parameters FCN = 1.422180314689
-MnSeedGenerator: Initial state:   - FCN =   1.422180314689 Edm =            0 NCalls =      1
+MnFunctionCross: parameter 0 set to 0.752221
+MnSeedGenerator: for initial parameters FCN = 0.6075564142669
+MnSeedGenerator: Initial state:   - FCN =  0.6075564142669 Edm =            0 NCalls =      1
+MnFunctionCross: parameter 0 set to 0.636499
+MnSeedGenerator: for initial parameters FCN = 0.4753234923267
+MnSeedGenerator: Initial state:   - FCN =  0.4753234923267 Edm =            0 NCalls =      1
+MnFunctionCross: parameter 0 set to 0.57865
+MnSeedGenerator: for initial parameters FCN = 0.4124618063897
+MnSeedGenerator: Initial state:   - FCN =  0.4124618063897 Edm =            0 NCalls =      1
 Minos:  Parameter : SigXsecOverSM  is at Lower limit.
-Minos: Lower error for parameter SigXsecOverSM  :  -4.30729e-08
+Minos: Lower error for parameter SigXsecOverSM  :  -4.30495e-08
 Minos: Upper error for parameter SigXsecOverSM  :  0.575666
 [1;32m=== INFO::FittingTool::FitPDF: [0m
 [1;32m=== INFO::FittingTool::FitPDF: [0m
@@ -241,14 +241,14 @@ Minos: Upper error for parameter SigXsecOverSM  :  0.575666
 [1;32m=== INFO::FittingTool::FitPDF:             - hess status 0[0m
 [1;32m=== INFO::FittingTool::FitPDF:             - Edm = 0.000000[0m
 [1;32m=== INFO::FittingTool::FitPDF: ***********************************************************[0m
-Real time 0:00:00, CP time 0.060
+Real time 0:00:00, CP time 0.050
 [1;32m=== INFO::FittingTool::FitPDF: [0m
 [1;32m=== INFO::FittingTool::FitPDF: [0m
 [1;32m=== INFO::FittingTool::FitPDF: [0m
 [1;32m=== INFO::FittingTool::FitPDF:    -> Reduced Final value of the NLL = -999530.75580515374895185232[0m
 [1;32m=== INFO::FittingTool::FitPDF:    -> Final value of the NLL = 469.244195[0m
-[1;32m=== INFO::FittingTool::FitPDF:    -> Final value of offset = 468.325256[0m
-[1;32m=== INFO::FittingTool::FitPDF:    -> Final NLL - offset = 0.918939[0m
+[1;32m=== INFO::FittingTool::FitPDF:    -> Final value of offset = 469.334975[0m
+[1;32m=== INFO::FittingTool::FitPDF:    -> Final NLL - offset = -0.090780[0m
 [1;32m=== INFO::TRExFit::RunToys: [0m
 [1;32m=== INFO::TRExFit::RunToys: -------------------------------------------[0m
 [1;32m=== INFO::TRExFit::RunToys: Generating and fitting toys...[0m
@@ -501,6 +501,7 @@ RooAbsTestStatistic::initSimMode: creating slave calculator #1 for state SR_2 (4
 [1;32m=== INFO::TRExFit::GetLikelihoodScan: Running LHscan for point 28 out of 30 points[0m
 [1;32m=== INFO::TRExFit::GetLikelihoodScan: Running LHscan for point 29 out of 30 points[0m
 [1;32m=== INFO::TRExFit::GetLikelihoodScan: Running LHscan for point 30 out of 30 points[0m
+mkdir: created directory ‘FitExampleStatOnly/LHoodPlots/’
 Info in <TCanvas::Print>: png file FitExampleStatOnly/LHoodPlots/NLLscan_SigXsecOverSM.png has been created
 [1;32m=== INFO::TRExFit::PlotFittedNP: Stat only fit => No NP Pull plots generated.[0m
 [1;32m=== INFO::TRExFit::ReadFitResults: ------------------------------------------------------[0m
@@ -516,5 +517,5 @@ Info in <TCanvas::Print>: png file FitExampleStatOnly/NormFactors_statOnly.png h
 === DEBUG::FitResults::ReadFromTXT: Reading Negative Log-Likelihood (NLL) value...
 === DEBUG::FitResults::ReadFromTXT: --------------------
 === DEBUG::FitResults::ReadFromTXT: Found 1 systematics.
-=== DEBUG::FitResults::ReadFromTXT: Negative Log-Likelihood value NLL = 0.918939
+=== DEBUG::FitResults::ReadFromTXT: Negative Log-Likelihood value NLL = -0.090780
 [1;32m=== INFO::TRExFit::PlotCorrelationMatrix: Stat only fit => No Correlation Matrix generated.[0m
