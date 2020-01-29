@@ -1,4 +1,4 @@
-# TRExFitter   [![build status](https://gitlab.cern.ch/TRExStats/TRExFitter/badges/master/build.svg "build status")](https://gitlab.cern.ch/TRExStats/TRExFitter/commits/master)
+# TRExFitter   [![build status](https://gitlab.cern.ch/TRExStats/TRExFitter/badges/master/pipeline.svg "build status")](https://gitlab.cern.ch/TRExStats/TRExFitter/commits/master)
 
 This package provides a framework to perform profile likelihood fits. In addition to that, many convenient features are available. TRExFitter was previously also known as TtHFitter. Here are a few important references to make use of:
 
