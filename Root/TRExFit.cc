@@ -4463,10 +4463,14 @@ std::map < std::string, double > TRExFit::PerformFit( RooWorkspace *ws, RooDataS
     // prepare vectors for starting point of normfactors
     std::vector<std::string> NPnames;
     std::vector<double> NPvalues;
-    for(int i_norm=0;i_norm<fNNorm;i_norm++){
-        if (fNormFactors[i_norm]->fName == fPOI) continue;
-        NPnames. emplace_back( fNormFactors[i_norm]->fName);
-        NPvalues.emplace_back( fNormFactors[i_norm]->fNominal);
+    double poiInitial(0.);
+    for(const auto& inf : fNormFactors) {
+        if (inf->fName == fPOI) {
+            poiInitial = inf->fNominal;
+            continue;
+        }
+        NPnames. emplace_back(inf->fName);
+        NPvalues.emplace_back(inf->fNominal);
     }
     //
     // Fit configuration (SPLUSB or BONLY)
@@ -4477,7 +4481,7 @@ std::map < std::string, double > TRExFit::PerformFit( RooWorkspace *ws, RooDataS
         fitTool.ValPOI(0.);
         fitTool.ConstPOI(true);
     } else if(fitType==SPLUSB){
-        fitTool.ValPOI(fFitPOIAsimov);
+        fitTool.ValPOI(poiInitial);
         fitTool.ConstPOI(false);
     }
     fitTool.SetNPs( NPnames,NPvalues );
@@ -5495,9 +5499,16 @@ void TRExFit::ProduceNPRanking( std::string NPnames/*="all"*/ ){
     //
     // Initialize the FittingTool object
     //
+    double poiInitial(0.);
+    for(const auto& inf : fNormFactors) {
+        if (inf->fName == fPOI) {
+            poiInitial = inf->fNominal;
+            break;
+        }
+    }
     FittingTool fitTool{};
     fitTool.SetDebug(TRExFitter::DEBUGLEVEL);
-    fitTool.ValPOI(fFitPOIAsimov);
+    fitTool.ValPOI(poiInitial);
     fitTool.ConstPOI(false);
     if(fStatOnly){
         fitTool.NoGammas();
