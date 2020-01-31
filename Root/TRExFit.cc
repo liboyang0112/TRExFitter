@@ -4308,6 +4308,7 @@ void TRExFit::InjectGlobalObservables( RooWorkspace * ws ) {
         }
 
         // set gamma values to gamma*nom_gamma
+        // cppcheck-suppress stlIfStrFind
         if(glob_name.find("nom_gamma_") == 0) {
             this_value = this_value * this_glob->getVal();
         }
