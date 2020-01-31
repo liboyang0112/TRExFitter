@@ -147,6 +147,7 @@ TRExFit::TRExFit(std::string name) :
     fSummaryPrefix(""),
     fFitType(UNDEFINED),
     fFitRegion(CRSR),
+    fInjectGlobalObservables(false),
     fFitPOIAsimov(0),
     fFitIsBlind(false),
     fUseRnd(false),
@@ -3879,6 +3880,11 @@ void TRExFit::Fit(bool isLHscanOnly){
         // If needed (only if needed), create a RooDataSet object
         //
         data = std::unique_ptr<RooDataSet>(DumpData( ws.get(), regionDataType, fFitNPValues, fFitPOIAsimov ));
+
+        if(fInjectGlobalObservables && fFitNPValues.size()) {
+            InjectGlobalObservables( ws.get() );
+        }
+
         //
         if (TRExFitter::DEBUGLEVEL < 2) std::cout.clear();
     }
@@ -4269,6 +4275,47 @@ void TRExFit::Fit(bool isLHscanOnly){
             Get2DLikelihoodScan( ws.get(), ipair, data.get());
         }
     }
+}
+
+void TRExFit::InjectGlobalObservables( RooWorkspace * ws ) {
+    RooStats::ModelConfig* mc = static_cast<RooStats::ModelConfig*>(ws->obj("ModelConfig"));
+    RooArgSet mc_globs = *mc->GetGlobalObservables();
+
+    WriteInfoStatus("TRExFit::InjectGlobalObservables", "Injecting the following NP values to global observables");
+    for(auto const& np_value : fFitNPValues) {
+        const std::string this_name = np_value.first;
+        double this_value = np_value.second;
+    
+        std::ostringstream tmp;
+        tmp << this_name << ": " << this_value;
+        WriteInfoStatus("TRExFit::InjectGlobalObservables", tmp.str());
+    
+        // find the corresponding glob
+        const std::string glob_name = "nom_" + this_name;
+        TIterator* gIter = mc_globs.createIterator();
+        RooRealVar* glob = nullptr;
+        RooRealVar* this_glob = nullptr;
+        while ((glob = static_cast<RooRealVar*>(gIter->Next()))) {
+            if(glob->GetName() == glob_name) {
+                this_glob = glob;
+                break;
+            }
+        }
+
+        if(!this_glob) {
+            WriteErrorStatus("TRExFit::InjectGlobalObservables", "Could not find global observable "+glob_name);
+            continue;
+        }
+
+        // set gamma values to gamma*nom_gamma
+        if(glob_name.find("nom_gamma_") == 0) {
+            this_value = this_value * this_glob->getVal();
+        }
+
+        this_glob->setVal(this_value);
+    }
+
+    return ;
 }
 
 //__________________________________________________________________________________
@@ -5461,6 +5508,10 @@ void TRExFit::ProduceNPRanking( std::string NPnames/*="all"*/ ){
         else                        data = std::unique_ptr<RooDataSet>(static_cast<RooDataSet*>(ws->data("asimovData")));
     } else {
         data = std::unique_ptr<RooDataSet>(DumpData( ws.get(), regionDataType, fFitNPValues, fFitPOIAsimov ));
+
+        if(fInjectGlobalObservables && fFitNPValues.size()) {
+            InjectGlobalObservables( ws.get() );
+        }
     }
 
     if (!mc || !simPdf || !data){

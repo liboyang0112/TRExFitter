@@ -171,6 +171,7 @@ public:
     // fit etc...
     void Fit(bool isLHscanOnly);
     RooDataSet* DumpData( RooWorkspace *ws, std::map < std::string, int > &regionDataType, std::map < std::string, double > &npValues, const double poiValue);
+    void InjectGlobalObservables( RooWorkspace *ws );
     std::map < std::string, double > PerformFit( RooWorkspace *ws, RooDataSet* inputData, FitType fitType=SPLUSB, bool save=false, int debugLevel=1 );
     RooWorkspace* PerformWorkspaceCombination( std::vector < std::string > &regionsToFit ) const;
 
@@ -591,6 +592,7 @@ public:
     std::vector< std::string > fFitRegionsToFit;
     std::map< std::string, double > fFitNPValues;
     std::map< std::string, double > fFitFixedNPs;
+    bool fInjectGlobalObservables;
     double fFitPOIAsimov;
     bool fFitIsBlind;
     bool fUseRnd;
