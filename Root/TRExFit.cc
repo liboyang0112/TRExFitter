@@ -4530,7 +4530,7 @@ std::map < std::string, double > TRExFit::PerformFit( RooWorkspace *ws, RooDataS
     if (debugLevel < 1 && fBlindedParameters.size() == 0) std::cout.clear();
     if(save){
         if(fBootstrap!="" && fBootstrapIdx>=0){
-            gSystem -> mkdir((fName+"/Fits/"+fBootstrapSyst+Form("_BSId%d/",fBootstrapIdx)).c_str(),true);
+            gSystem -> mkdir((fName+"/Fits/"+fBootstrapSyst+fBootstrapSample+Form("_BSId%d/",fBootstrapIdx)).c_str(),true);
             if(fStatOnlyFit) fitTool.ExportFitResultInTextFile(fName+"/Fits/"+fBootstrapSyst+fBootstrapSample+Form("_BSId%d/",fBootstrapIdx)+fInputName+fSuffix+"_statOnly.txt", fBlindedParameters);
             else             fitTool.ExportFitResultInTextFile(fName+"/Fits/"+fBootstrapSyst+fBootstrapSample+Form("_BSId%d/",fBootstrapIdx)+fInputName+fSuffix+".txt", fBlindedParameters);
         }

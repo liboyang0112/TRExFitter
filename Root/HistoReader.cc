@@ -495,7 +495,7 @@ void HistoReader::ReadTRExProducedHistograms() {
                         if(binContent==1 || binContent==-2) pruned = 1;
                         if(binContent==2 || binContent==-3) pruned = 2;
                     }
-                    if(fFitter->fBootstrap!="" && fFitter->fBootstrapIdx>=0 && fFitter->fBootstrapSyst == systName ){
+                    if(fFitter->fBootstrap!="" && fFitter->fBootstrapIdx>=0 && ( fFitter->fBootstrapSyst == fFitter->fSamples[i_smp]->fSystematics[i_syst]->fNuisanceParameter ||  fFitter->fBootstrapSyst == systName ) ){
                         syh = sh->AddHistoSyst(systName,
                                                systStoredName,
                                                Form("%s_%s_%s_Up",  regionName.c_str(),sampleName.c_str(),systStoredName.c_str()), fileNameBootstrap,
@@ -528,7 +528,7 @@ void HistoReader::ReadTRExProducedHistograms() {
                 syh->fSystematic = fFitter->fSamples[i_smp]->fSystematics[i_syst].get();
                 syh->fHistoNameShapeUp   = Form("%s_%s_%s_Shape_Up",  regionName.c_str(),sampleName.c_str(),systStoredName.c_str());
                 syh->fHistoNameShapeDown = Form("%s_%s_%s_Shape_Down",regionName.c_str(),sampleName.c_str(),systStoredName.c_str());
-                if(fFitter->fBootstrap!="" && fFitter->fBootstrapIdx>=0 && fFitter->fBootstrapSyst == systName ){
+                if(fFitter->fBootstrap!="" && fFitter->fBootstrapIdx>=0 && ( fFitter->fBootstrapSyst == fFitter->fSamples[i_smp]->fSystematics[i_syst]->fNuisanceParameter ||  fFitter->fBootstrapSyst == systName ) ){
                     syh->fFileNameShapeUp    = fileNameBootstrap;
                     syh->fFileNameShapeDown  = fileNameBootstrap;
                 }
