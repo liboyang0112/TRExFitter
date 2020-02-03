@@ -189,8 +189,8 @@ RooAbsTestStatistic::initSimMode: creating slave calculator #1 for state SR_2 (4
 [#1] INFO:Minization -- RooNLLVar::evaluatePartition(SR_1) first = 0 last = 4 Likelihood offset now set to 234.667
 [#1] INFO:Minization -- RooNLLVar::evaluatePartition(SR_2) first = 0 last = 4 Likelihood offset now set to 234.667
 === DEBUG::FittingTool::FitPDF:    -> Initial value of the NLL = 470.253914
-  1) 0x3d8e070 RooRealVar:: SigXsecOverSM = 1  L(0 - 100)  "SigXsecOverSM"
-  2) 0x3d6fb90 RooRealVar::   alpha_Dummy = 0 C  L(-5 - 5)  "alpha_Dummy"
+  1) 0x382a130 RooRealVar:: SigXsecOverSM = 1  L(0 - 100)  "SigXsecOverSM"
+  2) 0x380bc50 RooRealVar::   alpha_Dummy = 0 C  L(-5 - 5)  "alpha_Dummy"
 [#1] INFO:Fitting -- RooAddition::defaultErrorLevel(nll_simPdf_newasimovData_with_constr) Summation contains a RooNLLVar, using its error level
 [1;32m=== INFO::FittingTool::FitPDF: [0m
 [1;32m=== INFO::FittingTool::FitPDF: [0m
@@ -241,7 +241,7 @@ Minos: Upper error for parameter SigXsecOverSM  :  0.575666
 [1;32m=== INFO::FittingTool::FitPDF:             - hess status 0[0m
 [1;32m=== INFO::FittingTool::FitPDF:             - Edm = 0.000000[0m
 [1;32m=== INFO::FittingTool::FitPDF: ***********************************************************[0m
-Real time 0:00:00, CP time 0.050
+Real time 0:00:00, CP time 0.060
 [1;32m=== INFO::FittingTool::FitPDF: [0m
 [1;32m=== INFO::FittingTool::FitPDF: [0m
 [1;32m=== INFO::FittingTool::FitPDF: [0m
@@ -383,7 +383,7 @@ RooAbsTestStatistic::initSimMode: creating slave calculator #1 for state SR_2 (4
 [#1] INFO:Fitting -- RooAddition::defaultErrorLevel(nll_simPdf_hmaster_with_constr) Summation contains a RooNLLVar, using its error level
 [#1] INFO:Minization -- RooNLLVar::evaluatePartition(SR_1) first = 0 last = 4 Likelihood offset now set to 234.502
 [#1] INFO:Minization -- RooNLLVar::evaluatePartition(SR_2) first = 0 last = 4 Likelihood offset now set to 241.653
-[1;32m=== INFO::TRExFit::RunToys: Toy n. 1, fitted value: 0.758559[0m
+[1;32m=== INFO::TRExFit::RunToys: Toy n. 1, fitted value of NF: SigXsecOverSM: 0.758559[0m
 [1;32m=== INFO::TRExFit::RunToys: Generating toy n. 2 out of 10 toys[0m
 [#1] INFO:NumericIntegration -- RooRealIntegral::init(SR_1_model_Int[obs_x_SR_1]) using numeric integrator RooBinIntegrator to calculate Int(obs_x_SR_1)
 [#1] INFO:NumericIntegration -- RooRealIntegral::init(SR_2_model_Int[obs_x_SR_2]) using numeric integrator RooBinIntegrator to calculate Int(obs_x_SR_2)
@@ -391,7 +391,7 @@ RooAbsTestStatistic::initSimMode: creating slave calculator #1 for state SR_2 (4
 [#1] INFO:Fitting -- RooAddition::defaultErrorLevel(nll_simPdf_hmaster_with_constr) Summation contains a RooNLLVar, using its error level
 [#1] INFO:Minization -- RooNLLVar::evaluatePartition(SR_1) first = 0 last = 4 Likelihood offset now set to 232.359
 [#1] INFO:Minization -- RooNLLVar::evaluatePartition(SR_2) first = 0 last = 4 Likelihood offset now set to 226.443
-[1;32m=== INFO::TRExFit::RunToys: Toy n. 2, fitted value: 1.069866[0m
+[1;32m=== INFO::TRExFit::RunToys: Toy n. 2, fitted value of NF: SigXsecOverSM: 1.069866[0m
 [1;32m=== INFO::TRExFit::RunToys: Generating toy n. 3 out of 10 toys[0m
 [#1] INFO:NumericIntegration -- RooRealIntegral::init(SR_1_model_Int[obs_x_SR_1]) using numeric integrator RooBinIntegrator to calculate Int(obs_x_SR_1)
 [#1] INFO:NumericIntegration -- RooRealIntegral::init(SR_2_model_Int[obs_x_SR_2]) using numeric integrator RooBinIntegrator to calculate Int(obs_x_SR_2)
@@ -399,7 +399,7 @@ RooAbsTestStatistic::initSimMode: creating slave calculator #1 for state SR_2 (4
 [#1] INFO:Fitting -- RooAddition::defaultErrorLevel(nll_simPdf_hmaster_with_constr) Summation contains a RooNLLVar, using its error level
 [#1] INFO:Minization -- RooNLLVar::evaluatePartition(SR_1) first = 0 last = 4 Likelihood offset now set to 224.43
 [#1] INFO:Minization -- RooNLLVar::evaluatePartition(SR_2) first = 0 last = 4 Likelihood offset now set to 253.321
-[1;32m=== INFO::TRExFit::RunToys: Toy n. 3, fitted value: 0.515441[0m
+[1;32m=== INFO::TRExFit::RunToys: Toy n. 3, fitted value of NF: SigXsecOverSM: 0.515441[0m
 [1;32m=== INFO::TRExFit::RunToys: Generating toy n. 4 out of 10 toys[0m
 [#1] INFO:NumericIntegration -- RooRealIntegral::init(SR_1_model_Int[obs_x_SR_1]) using numeric integrator RooBinIntegrator to calculate Int(obs_x_SR_1)
 [#1] INFO:NumericIntegration -- RooRealIntegral::init(SR_2_model_Int[obs_x_SR_2]) using numeric integrator RooBinIntegrator to calculate Int(obs_x_SR_2)
@@ -407,7 +407,7 @@ RooAbsTestStatistic::initSimMode: creating slave calculator #1 for state SR_2 (4
 [#1] INFO:Fitting -- RooAddition::defaultErrorLevel(nll_simPdf_hmaster_with_constr) Summation contains a RooNLLVar, using its error level
 [#1] INFO:Minization -- RooNLLVar::evaluatePartition(SR_1) first = 0 last = 4 Likelihood offset now set to 241.367
 [#1] INFO:Minization -- RooNLLVar::evaluatePartition(SR_2) first = 0 last = 4 Likelihood offset now set to 205.925
-[1;32m=== INFO::TRExFit::RunToys: Toy n. 4, fitted value: 0.548952[0m
+[1;32m=== INFO::TRExFit::RunToys: Toy n. 4, fitted value of NF: SigXsecOverSM: 0.548952[0m
 [1;32m=== INFO::TRExFit::RunToys: Generating toy n. 5 out of 10 toys[0m
 [#1] INFO:NumericIntegration -- RooRealIntegral::init(SR_1_model_Int[obs_x_SR_1]) using numeric integrator RooBinIntegrator to calculate Int(obs_x_SR_1)
 [#1] INFO:NumericIntegration -- RooRealIntegral::init(SR_2_model_Int[obs_x_SR_2]) using numeric integrator RooBinIntegrator to calculate Int(obs_x_SR_2)
@@ -415,7 +415,7 @@ RooAbsTestStatistic::initSimMode: creating slave calculator #1 for state SR_2 (4
 [#1] INFO:Fitting -- RooAddition::defaultErrorLevel(nll_simPdf_hmaster_with_constr) Summation contains a RooNLLVar, using its error level
 [#1] INFO:Minization -- RooNLLVar::evaluatePartition(SR_1) first = 0 last = 4 Likelihood offset now set to 248.029
 [#1] INFO:Minization -- RooNLLVar::evaluatePartition(SR_2) first = 0 last = 4 Likelihood offset now set to 217.559
-[1;32m=== INFO::TRExFit::RunToys: Toy n. 5, fitted value: 0.044677[0m
+[1;32m=== INFO::TRExFit::RunToys: Toy n. 5, fitted value of NF: SigXsecOverSM: 0.044677[0m
 [1;32m=== INFO::TRExFit::RunToys: Generating toy n. 6 out of 10 toys[0m
 [#1] INFO:NumericIntegration -- RooRealIntegral::init(SR_1_model_Int[obs_x_SR_1]) using numeric integrator RooBinIntegrator to calculate Int(obs_x_SR_1)
 [#1] INFO:NumericIntegration -- RooRealIntegral::init(SR_2_model_Int[obs_x_SR_2]) using numeric integrator RooBinIntegrator to calculate Int(obs_x_SR_2)
@@ -423,7 +423,7 @@ RooAbsTestStatistic::initSimMode: creating slave calculator #1 for state SR_2 (4
 [#1] INFO:Fitting -- RooAddition::defaultErrorLevel(nll_simPdf_hmaster_with_constr) Summation contains a RooNLLVar, using its error level
 [#1] INFO:Minization -- RooNLLVar::evaluatePartition(SR_1) first = 0 last = 4 Likelihood offset now set to 252.637
 [#1] INFO:Minization -- RooNLLVar::evaluatePartition(SR_2) first = 0 last = 4 Likelihood offset now set to 233.817
-[1;32m=== INFO::TRExFit::RunToys: Toy n. 6, fitted value: 3.067057[0m
+[1;32m=== INFO::TRExFit::RunToys: Toy n. 6, fitted value of NF: SigXsecOverSM: 3.067057[0m
 [1;32m=== INFO::TRExFit::RunToys: Generating toy n. 7 out of 10 toys[0m
 [#1] INFO:NumericIntegration -- RooRealIntegral::init(SR_1_model_Int[obs_x_SR_1]) using numeric integrator RooBinIntegrator to calculate Int(obs_x_SR_1)
 [#1] INFO:NumericIntegration -- RooRealIntegral::init(SR_2_model_Int[obs_x_SR_2]) using numeric integrator RooBinIntegrator to calculate Int(obs_x_SR_2)
@@ -431,7 +431,7 @@ RooAbsTestStatistic::initSimMode: creating slave calculator #1 for state SR_2 (4
 [#1] INFO:Fitting -- RooAddition::defaultErrorLevel(nll_simPdf_hmaster_with_constr) Summation contains a RooNLLVar, using its error level
 [#1] INFO:Minization -- RooNLLVar::evaluatePartition(SR_1) first = 0 last = 4 Likelihood offset now set to 225.276
 [#1] INFO:Minization -- RooNLLVar::evaluatePartition(SR_2) first = 0 last = 4 Likelihood offset now set to 230.175
-[1;32m=== INFO::TRExFit::RunToys: Toy n. 7, fitted value: 0.793635[0m
+[1;32m=== INFO::TRExFit::RunToys: Toy n. 7, fitted value of NF: SigXsecOverSM: 0.793635[0m
 [1;32m=== INFO::TRExFit::RunToys: Generating toy n. 8 out of 10 toys[0m
 [#1] INFO:NumericIntegration -- RooRealIntegral::init(SR_1_model_Int[obs_x_SR_1]) using numeric integrator RooBinIntegrator to calculate Int(obs_x_SR_1)
 [#1] INFO:NumericIntegration -- RooRealIntegral::init(SR_2_model_Int[obs_x_SR_2]) using numeric integrator RooBinIntegrator to calculate Int(obs_x_SR_2)
@@ -439,7 +439,7 @@ RooAbsTestStatistic::initSimMode: creating slave calculator #1 for state SR_2 (4
 [#1] INFO:Fitting -- RooAddition::defaultErrorLevel(nll_simPdf_hmaster_with_constr) Summation contains a RooNLLVar, using its error level
 [#1] INFO:Minization -- RooNLLVar::evaluatePartition(SR_1) first = 0 last = 4 Likelihood offset now set to 227.646
 [#1] INFO:Minization -- RooNLLVar::evaluatePartition(SR_2) first = 0 last = 4 Likelihood offset now set to 231.276
-[1;32m=== INFO::TRExFit::RunToys: Toy n. 8, fitted value: 0.460611[0m
+[1;32m=== INFO::TRExFit::RunToys: Toy n. 8, fitted value of NF: SigXsecOverSM: 0.460611[0m
 [1;32m=== INFO::TRExFit::RunToys: Generating toy n. 9 out of 10 toys[0m
 [#1] INFO:NumericIntegration -- RooRealIntegral::init(SR_1_model_Int[obs_x_SR_1]) using numeric integrator RooBinIntegrator to calculate Int(obs_x_SR_1)
 [#1] INFO:NumericIntegration -- RooRealIntegral::init(SR_2_model_Int[obs_x_SR_2]) using numeric integrator RooBinIntegrator to calculate Int(obs_x_SR_2)
@@ -447,7 +447,7 @@ RooAbsTestStatistic::initSimMode: creating slave calculator #1 for state SR_2 (4
 [#1] INFO:Fitting -- RooAddition::defaultErrorLevel(nll_simPdf_hmaster_with_constr) Summation contains a RooNLLVar, using its error level
 [#1] INFO:Minization -- RooNLLVar::evaluatePartition(SR_1) first = 0 last = 4 Likelihood offset now set to 222.891
 [#1] INFO:Minization -- RooNLLVar::evaluatePartition(SR_2) first = 0 last = 4 Likelihood offset now set to 222.173
-[1;32m=== INFO::TRExFit::RunToys: Toy n. 9, fitted value: 0.115124[0m
+[1;32m=== INFO::TRExFit::RunToys: Toy n. 9, fitted value of NF: SigXsecOverSM: 0.115124[0m
 [1;32m=== INFO::TRExFit::RunToys: Generating toy n. 10 out of 10 toys[0m
 [#1] INFO:NumericIntegration -- RooRealIntegral::init(SR_1_model_Int[obs_x_SR_1]) using numeric integrator RooBinIntegrator to calculate Int(obs_x_SR_1)
 [#1] INFO:NumericIntegration -- RooRealIntegral::init(SR_2_model_Int[obs_x_SR_2]) using numeric integrator RooBinIntegrator to calculate Int(obs_x_SR_2)
@@ -455,8 +455,8 @@ RooAbsTestStatistic::initSimMode: creating slave calculator #1 for state SR_2 (4
 [#1] INFO:Fitting -- RooAddition::defaultErrorLevel(nll_simPdf_hmaster_with_constr) Summation contains a RooNLLVar, using its error level
 [#1] INFO:Minization -- RooNLLVar::evaluatePartition(SR_1) first = 0 last = 4 Likelihood offset now set to 242.705
 [#1] INFO:Minization -- RooNLLVar::evaluatePartition(SR_2) first = 0 last = 4 Likelihood offset now set to 255.238
-[1;32m=== INFO::TRExFit::RunToys: Toy n. 10, fitted value: 2.682334[0m
-Info in <TCanvas::Print>: png file FitExampleStatOnly/Toys/ToysPlot.png has been created
+[1;32m=== INFO::TRExFit::RunToys: Toy n. 10, fitted value of NF: SigXsecOverSM: 2.682334[0m
+Info in <TCanvas::Print>: png file FitExampleStatOnly/Toys/ToysPlot_SigXsecOverSM.png has been created
 [1;32m=== INFO::TRExFit::GetLikelihoodScan: Running likelihood scan for the parameter = SigXsecOverSM[0m
 [1;32m=== INFO::TRExFit::GetLikelihoodScan: GetLikelihoodScan for POI = SigXsecOverSM[0m
 [1;32m=== INFO::TRExFit::GetLikelihoodScan: GetLikelihoodScan for parameter = SigXsecOverSM[0m
