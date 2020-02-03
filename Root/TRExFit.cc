@@ -261,7 +261,8 @@ TRExFit::TRExFit(std::string name) :
     fMigrationZmin(0),
     fMigrationZmax(1),
     fResponseZmin(0),
-    fResponseZmax(1)
+    fResponseZmax(1),
+    fPruningShapeOption(PruningUtil::SHAPEOPTION::MAXBIN)
 {
     TRExFitter::IMAGEFORMAT.emplace_back("png");
     // Increase the limit for formula evaluations
@@ -3423,7 +3424,8 @@ void TRExFit::SystPruning() const {
     }
 
     PruningUtil pu{};
-    pu.SetStrategy((int)fPruningType);
+    pu.SetShapeOption(fPruningShapeOption);
+    pu.SetStrategy(static_cast<int>(fPruningType));
     pu.SetThresholdNorm(fThresholdSystPruning_Normalisation);
     pu.SetThresholdShape(fThresholdSystPruning_Shape);
     pu.SetThresholdIsLarge(fThresholdSystLarge);

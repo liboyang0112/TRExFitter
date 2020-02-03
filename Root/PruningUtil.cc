@@ -12,6 +12,7 @@
 //
 PruningUtil::PruningUtil() :
     fStrategy(0),
+    fShapeOption(PruningUtil::SHAPEOPTION::MAXBIN),
     fThresholdNorm(-1),
     fThresholdShape(-1),
     fThresholdIsLarge(-1) {
@@ -21,6 +22,12 @@ PruningUtil::PruningUtil() :
 //
 void PruningUtil::SetStrategy(const int strat) {
     fStrategy = strat;
+}
+
+//__________________________________________________________________________________
+//
+void PruningUtil::SetShapeOption(const PruningUtil::SHAPEOPTION opt) {
+    fShapeOption = opt;
 }
 
 //__________________________________________________________________________________

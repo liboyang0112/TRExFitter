@@ -6,6 +6,12 @@
 
 class PruningUtil {
 public:
+
+    enum class SHAPEOPTION {
+        MAXBIN = 0,
+        KSTEST = 1
+    };
+
     explicit PruningUtil();
     ~PruningUtil() = default;
 
@@ -17,6 +23,7 @@ public:
     // 0 = sample-by-sample, 1 = relative to tot background, 2 = relative to tot S+B
     void SetStrategy(const int strat);
     inline int GetStrategy() const {return fStrategy;}
+    void SetShapeOption(const SHAPEOPTION opt);
     void SetThresholdNorm(const double thres);
     void SetThresholdShape(const double thres);
     void SetThresholdIsLarge(const double thres);
@@ -44,6 +51,7 @@ public:
 
  private:
     int fStrategy;
+    SHAPEOPTION fShapeOption;
     double fThresholdNorm;
     double fThresholdShape;
     double fThresholdIsLarge;

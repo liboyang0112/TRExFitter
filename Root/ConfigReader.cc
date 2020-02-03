@@ -1462,6 +1462,19 @@ int ConfigReader::SetJobPlot(ConfigSet *confSet){
 
     param = confSet->Get("MaxNtupleEvents");
     if(param != "") fFitter->fDebugNev = atoi(param.c_str());
+    
+    param = confSet->Get("PruningShapeOption");
+    if(param != "") {
+        std::transform(param.begin(), param.end(), param.begin(), ::toupper);
+        if (param == "MAXBIN") {
+            fFitter->fPruningShapeOption = PruningUtil::SHAPEOPTION::MAXBIN;
+        } else if (param == "KSTEST") {
+            fFitter->fPruningShapeOption = PruningUtil::SHAPEOPTION::KSTEST;
+        } else {
+            WriteWarningStatus("ConfigReader::SetJobPlot", "You specified 'PruningShapeOption' option but did not provide valid parameter. Using default (MAXBIN)");
+            fFitter->fPruningShapeOption = PruningUtil::SHAPEOPTION::MAXBIN;
+        }
+    }
 
     return 0;
 }
