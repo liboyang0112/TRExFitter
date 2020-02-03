@@ -163,15 +163,20 @@ bool PruningUtil::HasShapeKS(const TH1* const hNom,
 
     if (hUp->GetNbinsX() == 1) return false;
 
-    bool hasShape(false);
-
-    const double& upProb   = hUp->KolmogorovTest(hNom, "X");
-    const double& downProb = hDown->KolmogorovTest(hNom, "X");
     const double probThreshold = 1 - threshold;
 
-    if ((upProb <= probThreshold) || (downProb <= probThreshold)) {
-        hasShape = true;
+    // first try up histogram
+    const double& upProb   = hUp->KolmogorovTest(hNom, "X");
+    if (upProb <= probThreshold) {
+        return true;
     }
 
-    return hasShape;
+    // up is not significant, try down
+    const double& downProb = hDown->KolmogorovTest(hNom, "X");
+
+    if (downProb <= probThreshold) {
+        return true;
+    }
+
+    return false;
 }
