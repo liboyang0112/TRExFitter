@@ -3418,6 +3418,9 @@ RooStats::HistFactory::Sample TRExFit::OneSampleToRooStats(RooStats::HistFactory
 void TRExFit::SystPruning() const {
     WriteInfoStatus("TRExFit::SystPruning", "------------------------------------------------------");
     WriteInfoStatus("TRExFit::SystPruning", "Apply Systematics Pruning ...");
+    if (fPruningShapeOption == PruningUtil::SHAPEOPTION::KSTEST) {
+        WriteInfoStatus("TRExFit::SystPruning", "Will run KS test to determine the shape pruning. This is much slower. Patience young padawan.");
+    }
     if(fSystematics.size()==0 || fStatOnly){
         WriteInfoStatus("TRExFit::SystPruning", "No systematics => No Pruning applied.");
         return;
