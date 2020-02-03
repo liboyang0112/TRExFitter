@@ -7383,9 +7383,14 @@ void TRExFit::RunToys(){
             }
 
             // setting POI to constant, not to allow it to fluctuate in toy creation
-            for (auto& inf : nfs) {
-                inf->setConstant(1);
-                inf->setVal(fFitPOIAsimov);
+            for (std::size_t inf = 0; inf < nfs.size(); ++inf) {
+                nfs.at(inf)->setConstant(1);
+                if (fNormFactorNames.at(inf) == fPOI) {
+                    nfs.at(inf)->setVal(fFitPOIAsimov);
+                } else {
+                    auto&& nf = fNormFactors[inf];
+                    nfs.at(inf)->setVal(nf->fNominal);
+                }
             }
             if (fToysPseudodataNP != "") {
                 NPtoShift->setConstant(1);
@@ -7418,9 +7423,10 @@ void TRExFit::RunToys(){
                     delete vartmp;
                 }
             }
-            for (auto& inf : nfs) {
-                inf->setConstant(0);
-                inf->setVal(POInf->fNominal);
+            for (std::size_t inf = 0; inf < nfs.size(); ++inf) {
+                auto&& nf = fNormFactors[inf];
+                nfs.at(inf)->setConstant(0);
+                nfs.at(inf)->setVal(nf->fNominal);
             }
 
             // NP is fixed constant for each fit, and to nominal value
@@ -7463,7 +7469,7 @@ void TRExFit::RunToys(){
             myText(0.60,0.85,1,Form("Sigma = %.2f #pm %.2f",g.GetParameter(2),g.GetParError(2)));
             myText(0.60,0.80,1,Form("#chi^{2}/ndf = %.2f / %d",g.GetChisquare(),g.GetNDF()));
             for(const auto& format : TRExFitter::IMAGEFORMAT) {
-                c.SaveAs((fName+"/Toys/ToysPlot."+format).c_str());
+                c.SaveAs((fName+"/Toys/ToysPlot_"+fNormFactorNames.at(inf)+"."+format).c_str());
             }
             fVarNameMinos = varMinosTmp; // retore Minos settings
 
