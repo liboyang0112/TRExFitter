@@ -49,6 +49,11 @@ public:
                           const TH1* const combined,
                           const double threshold) const;
 
+    bool HasShapeKS(const TH1* const hNom,
+                    const TH1* const hUp,
+                    const TH1* const hDown,
+                    const double threshold) const;
+
  private:
     int fStrategy;
     SHAPEOPTION fShapeOption;
