@@ -7337,7 +7337,10 @@ void TRExFit::RunToys(){
         RooSimultaneous simPdf = *(static_cast<RooSimultaneous*>((mc.GetPdf())));
         RooAbsPdf *pdf = mc.GetPdf();
         RooArgSet obsSet = *(mc.GetObservables());
-        RooRealVar* poiVar = static_cast<RooRealVar*>((& ws->allVars()[fPOI.c_str()]));
+        std::vector<RooRealVar*> nfs;
+        for (const auto& iname : fNormFactorNames) {
+            nfs.emplace_back(static_cast<RooRealVar*>((& ws->allVars()[iname.c_str()])));
+        }
 
         //Get the desired NP
         RooRealVar* NPtoShift = nullptr;
@@ -7356,7 +7359,10 @@ void TRExFit::RunToys(){
                                            NumCPU(1, RooFit::Hybrid),
                                            RooFit::Optimize(kTRUE));
 
-        TH1D h_toys ("h_toys","h_toys",fToysHistoNbins,min,max);
+        std::vector<TH1D> h_toys;
+        for (std::size_t inf = 0; inf < nfs.size(); ++inf) {
+            h_toys.emplace_back(("h_toys_nf_"+std::to_string(inf)).c_str(),("h_toys_nf_"+std::to_string(inf)).c_str(),fToysHistoNbins,min,max);
+        }
         for(int i_toy = 0; i_toy < fFitToys; ++i_toy) {
 
             if (fToysPseudodataNP != "") {
@@ -7377,8 +7383,10 @@ void TRExFit::RunToys(){
             }
 
             // setting POI to constant, not to allow it to fluctuate in toy creation
-            poiVar->setConstant(1);
-            poiVar->setVal(fFitPOIAsimov);
+            for (auto& inf : nfs) {
+                inf->setConstant(1);
+                inf->setVal(fFitPOIAsimov);
+            }
             if (fToysPseudodataNP != "") {
                 NPtoShift->setConstant(1);
                 NPtoShift->setVal(fToysPseudodataNPShift);
@@ -7410,8 +7418,10 @@ void TRExFit::RunToys(){
                     delete vartmp;
                 }
             }
-            poiVar->setConstant(0);
-            poiVar->setVal(POInf->fNominal);
+            for (auto& inf : nfs) {
+                inf->setConstant(0);
+                inf->setVal(POInf->fNominal);
+            }
 
             // NP is fixed constant for each fit, and to nominal value
             if (fToysPseudodataNP != "") {
@@ -7429,33 +7439,37 @@ void TRExFit::RunToys(){
             m.migrad();
             RooFitResult* r = m.save(); // save fit result
 
-            h_toys.Fill(poiVar->getVal());
-            WriteInfoStatus("TRExFit::RunToys","Toy n. " + std::to_string(i_toy+1) + ", fitted value: " + std::to_string(poiVar->getVal()));
+            for (std::size_t inf = 0; inf < nfs.size(); ++inf) {
+                h_toys.at(inf).Fill(nfs.at(inf)->getVal());
+                WriteInfoStatus("TRExFit::RunToys","Toy n. " + std::to_string(i_toy+1) + ", fitted value of NF: " + fNormFactorNames.at(inf) + ": " + std::to_string(nfs.at(inf)->getVal()));
+            }
 
             delete r;
             delete toyData;
         }
-        // plot, fit and save toy histogram
-        TCanvas c("c","c",600,600);
-        h_toys.Draw("E");
-        TF1 g("g","gaus",POInf->fMin,POInf->fMax);
-        g.SetLineColor(kRed);
-        h_toys.Fit("g","RQ");
-        g.Draw("same");
-        h_toys.GetXaxis()->SetTitle(TRExFitter::SYSTMAP[fPOI].c_str());
-        h_toys.GetYaxis()->SetTitle("Pseudo-experiements");
-        myText(0.60,0.90,1,Form("Mean  = %.2f #pm %.2f",g.GetParameter(1), g.GetParError(1)));
-        myText(0.60,0.85,1,Form("Sigma = %.2f #pm %.2f",g.GetParameter(2),g.GetParError(2)));
-        myText(0.60,0.80,1,Form("#chi^{2}/ndf = %.2f / %d",g.GetChisquare(),g.GetNDF()));
-        for(const auto& format : TRExFitter::IMAGEFORMAT) {
-            c.SaveAs((fName+"/Toys/ToysPlot."+format).c_str());
-        }
-        fVarNameMinos = varMinosTmp; // retore Minos settings
-
-        // Also create a ROOT file
+        
         std::unique_ptr<TFile> out (TFile::Open((fName+"/Toys/Toys"+fSuffix+".root").c_str(), "RECREATE"));
-        out->cd();
-        h_toys.Write();
+        for (std::size_t inf = 0; inf < nfs.size(); ++inf) {
+            out->cd();
+            TCanvas c("c","c",600,600);
+            h_toys.at(inf).Draw("E");
+            TF1 g("g","gaus",POInf->fMin,POInf->fMax);
+            g.SetLineColor(kRed);
+            h_toys.at(inf).Fit("g","RQ");
+            g.Draw("same");
+            h_toys.at(inf).GetXaxis()->SetTitle(fNormFactorNames.at(inf).c_str());
+            h_toys.at(inf).GetYaxis()->SetTitle("Pseudo-experiements");
+            myText(0.60,0.90,1,Form("Mean  = %.2f #pm %.2f",g.GetParameter(1), g.GetParError(1)));
+            myText(0.60,0.85,1,Form("Sigma = %.2f #pm %.2f",g.GetParameter(2),g.GetParError(2)));
+            myText(0.60,0.80,1,Form("#chi^{2}/ndf = %.2f / %d",g.GetChisquare(),g.GetNDF()));
+            for(const auto& format : TRExFitter::IMAGEFORMAT) {
+                c.SaveAs((fName+"/Toys/ToysPlot."+format).c_str());
+            }
+            fVarNameMinos = varMinosTmp; // retore Minos settings
+
+            // Also create a ROOT file
+            h_toys.at(inf).Write();
+        }
         out->Close();
 }
 
