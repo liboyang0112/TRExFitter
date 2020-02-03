@@ -7298,14 +7298,17 @@ void TRExFit::RunToys(){
         // set all regions as ASIMOVDATA and create combined ws
         std::vector < std:: string > regionsToFit;
         std::map < std::string, int > regionDataType;
-        for(auto reg : fRegions) regionDataType[reg->fName] = Region::ASIMOVDATA;
-        for( int i_ch = 0; i_ch < fNRegions; i_ch++ ){
-            if ( fFitRegion == CRONLY && fRegions[i_ch] -> fRegionType == Region::CONTROL )
-                regionsToFit.push_back( fRegions[i_ch] -> fName );
-            else if ( fFitRegion == CRSR && (fRegions[i_ch] -> fRegionType == Region::CONTROL || fRegions[i_ch] -> fRegionType == Region::SIGNAL) )
-                regionsToFit.push_back( fRegions[i_ch] -> fName );
+        for(const auto& reg : fRegions) {
+            regionDataType[reg->fName] = Region::ASIMOVDATA;
         }
-        std::unique_ptr<RooWorkspace> ws (PerformWorkspaceCombination( regionsToFit ));
+        for(const auto& ireg : fRegions) {
+            if (fFitRegion == CRONLY && ireg->fRegionType == Region::CONTROL) {
+                regionsToFit.emplace_back(ireg->fName);
+            } else if (fFitRegion == CRSR && (ireg->fRegionType == Region::CONTROL || ireg->fRegionType == Region::SIGNAL)) {
+                regionsToFit.emplace_back(ireg->fName);
+            }
+        }
+        std::unique_ptr<RooWorkspace> ws (PerformWorkspaceCombination(regionsToFit));
         if (!ws){
             WriteErrorStatus("TRExFit::RunToys","Cannot retrieve the workspace, exiting!");
             exit(EXIT_FAILURE);
@@ -7316,7 +7319,7 @@ void TRExFit::RunToys(){
         while ((arg = rfiter.next())) {
             if (arg->IsA() == RooRealSumPdf::Class()) {
                 arg->setAttribute("BinnedLikelihood");
-                std::string temp_string = arg->GetName();
+                const std::string& temp_string = arg->GetName();
                 WriteDebugStatus("TRExFit::DumpData", "Activating binned likelihood attribute for " + temp_string);
             }
         }
@@ -7329,38 +7332,37 @@ void TRExFit::RunToys(){
             min = fToysHistoMin;
             max = fToysHistoMax;
         }
-        TH1D h_toys ("h_toys","h_toys",fToysHistoNbins,min,max);
         // get RooStats stuff
-        RooStats::ModelConfig mc = *((RooStats::ModelConfig*)ws -> obj("ModelConfig"));
-        RooSimultaneous simPdf = *((RooSimultaneous*)(mc.GetPdf()));
+        RooStats::ModelConfig mc = *(static_cast<RooStats::ModelConfig*>(ws -> obj("ModelConfig")));
+        RooSimultaneous simPdf = *(static_cast<RooSimultaneous*>((mc.GetPdf())));
         RooAbsPdf *pdf = mc.GetPdf();
-        const RooArgSet obsSet = *(mc.GetObservables());
-        RooRealVar* poiVar = (RooRealVar*) (& ws->allVars()[fPOI.c_str()]);
+        RooArgSet obsSet = *(mc.GetObservables());
+        RooRealVar* poiVar = static_cast<RooRealVar*>((& ws->allVars()[fPOI.c_str()]));
 
         //Get the desired NP
         RooRealVar* NPtoShift = nullptr;
         if (fToysPseudodataNP != "") {
-            NPtoShift = (RooRealVar*) (& ws->allVars()[fToysPseudodataNP.c_str()]);
+            NPtoShift = static_cast<RooRealVar*>((& ws->allVars()[fToysPseudodataNP.c_str()]));
         }
 
         //For the loop over NPs
         std::string varname{};
 
         //Create NLL only once
-        RooDataSet *dummy = pdf->generate( obsSet, RooFit::Extended() );
+        RooDataSet* dummy = pdf->generate(obsSet, RooFit::Extended());
         RooAbsReal* nll = simPdf.createNLL(*dummy,
                                            Constrain(*mc.GetNuisanceParameters()),
                                            Offset(1),
                                            NumCPU(1, RooFit::Hybrid),
                                            RooFit::Optimize(kTRUE));
 
-
-        for(int i_toy=0;i_toy<fFitToys;i_toy++){
+        TH1D h_toys ("h_toys","h_toys",fToysHistoNbins,min,max);
+        for(int i_toy = 0; i_toy < fFitToys; ++i_toy) {
 
             if (fToysPseudodataNP != "") {
                 TIterator* it = mc.GetNuisanceParameters()->createIterator();
                 RooRealVar* var = nullptr;
-                while( (var = (RooRealVar*) it->Next()) ){
+                while( (var = static_cast<RooRealVar*>(it->Next()))){
                     varname = var->GetName();
                     if (varname.find("alpha_")!=std::string::npos) {
                         var->setConstant(1);
@@ -7383,20 +7385,20 @@ void TRExFit::RunToys(){
             }
 
             WriteInfoStatus("TRExFit::RunToys","Generating toy n. " + std::to_string(i_toy+1) + " out of " + std::to_string(fFitToys) + " toys");
-            RooDataSet *toyData = pdf->generate( obsSet, RooFit::Extended() );
+            RooDataSet* toyData = pdf->generate(obsSet, RooFit::Extended());
             // re-set POI to free-floating, and to nominal value
             if (fToysPseudodataNP != "") {
-                RooArgSet* nuis = (RooArgSet*) mc.GetNuisanceParameters();
+                const RooArgSet* nuis = static_cast<const RooArgSet*>(mc.GetNuisanceParameters());
                 if (nuis){
                     RooRealVar* vartmp = nullptr;
                     TIterator* it2 = nuis->createIterator();
-                    while( (vartmp = (RooRealVar*) it2->Next()) ){
-                        std::string np = vartmp->GetName();
+                    while( (vartmp = static_cast<RooRealVar*>(it2->Next()))){
+                        const std::string& np = vartmp->GetName();
                         if (np.find("alpha_")!=std::string::npos) {
                             vartmp->setConstant(0);
                             vartmp->setVal(0);
                         }
-                        else if( np.find("gamma_")!=std::string::npos ){
+                        else if(np.find("gamma_")!=std::string::npos){
                             vartmp->setVal(1);
                             vartmp->setConstant(0);
                         }
@@ -7445,11 +7447,13 @@ void TRExFit::RunToys(){
         myText(0.60,0.90,1,Form("Mean  = %.2f #pm %.2f",g.GetParameter(1), g.GetParError(1)));
         myText(0.60,0.85,1,Form("Sigma = %.2f #pm %.2f",g.GetParameter(2),g.GetParError(2)));
         myText(0.60,0.80,1,Form("#chi^{2}/ndf = %.2f / %d",g.GetChisquare(),g.GetNDF()));
-        for(auto format : TRExFitter::IMAGEFORMAT) c.SaveAs((fName+"/Toys/ToysPlot."+format).c_str());
+        for(const auto& format : TRExFitter::IMAGEFORMAT) {
+            c.SaveAs((fName+"/Toys/ToysPlot."+format).c_str());
+        }
         fVarNameMinos = varMinosTmp; // retore Minos settings
 
         // Also create a ROOT file
-        std::unique_ptr<TFile> out (new TFile ((fName+"/Toys/Toys"+fSuffix+".root").c_str(), "RECREATE"));
+        std::unique_ptr<TFile> out (TFile::Open((fName+"/Toys/Toys"+fSuffix+".root").c_str(), "RECREATE"));
         out->cd();
         h_toys.Write();
         out->Close();
