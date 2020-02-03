@@ -19,31 +19,35 @@ PruningUtil::PruningUtil() :
 
 //__________________________________________________________________________________
 //
-void PruningUtil::SetStrategy(int strat){
+void PruningUtil::SetStrategy(const int strat) {
     fStrategy = strat;
 }
 
 //__________________________________________________________________________________
 //
-void PruningUtil::SetThresholdNorm(double thres){
+void PruningUtil::SetThresholdNorm(const double thres) {
     fThresholdNorm = thres;
 }
 
 //__________________________________________________________________________________
 //
-void PruningUtil::SetThresholdShape(double thres){
+void PruningUtil::SetThresholdShape(const double thres) {
     fThresholdShape = thres;
 }
 
 //__________________________________________________________________________________
 //
-void PruningUtil::SetThresholdIsLarge(double thres){
+void PruningUtil::SetThresholdIsLarge(const double thres) {
     fThresholdIsLarge = thres;
 }
 
 //__________________________________________________________________________________
 //
-int PruningUtil::CheckSystPruning(const TH1* const hUp,const TH1* const hDown,const TH1* const hNom,const TH1* hTot){
+int PruningUtil::CheckSystPruning(const TH1* const hUp,
+                                  const TH1* const hDown,
+                                  const TH1* const hNom,
+                                  const TH1* hTot) {
+
     if(fStrategy!=0 && hTot==nullptr){
         std::cout << "PruningUtil::ERROR: hTot set to 0 while asking for relative pruning... Reverting to sample-by-sample pruning." << std::endl;
         fStrategy = 0;
@@ -92,7 +96,11 @@ int PruningUtil::CheckSystPruning(const TH1* const hUp,const TH1* const hDown,co
 
 //_________________________________________________________________________
 //
-bool PruningUtil::HasShapeRelative(const TH1* const hNom, const TH1* const hUp, const TH1* const hDown, const TH1* const combined, double threshold) const {
+bool PruningUtil::HasShapeRelative(const TH1* const hNom,
+                                   const TH1* const hUp,
+                                   const TH1* const hDown,
+                                   const TH1* const combined,
+                                   const double threshold) const {
     if (!hNom || !hUp || !hDown || !combined) return false;
 
     if (hUp->GetNbinsX() == 1) return false;

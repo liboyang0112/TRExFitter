@@ -2494,10 +2494,10 @@ void Region::PrepareMorphScales(FitResults *fitRes, std::vector<double> *morph_s
 //
 void Region::SystPruning(PruningUtil *pu){
     std::unique_ptr<TH1> hTot(nullptr);
-    if(pu->fStrategy==1){
+    if(pu->GetStrategy() == 1){
         hTot = GetTotHist(false); // don't include signal
     }
-    else if(pu->fStrategy==2){
+    else if(pu->GetStrategy() == 2){
         hTot = GetTotHist(true); // include signal
     }
     for(auto& sh : fSampleHists){
