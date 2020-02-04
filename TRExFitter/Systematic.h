@@ -24,6 +24,7 @@ public:
          STAT // 3
     };
 
+
     explicit Systematic(const std::string& name,int type=0,double up=0.,double down=0.);
     
     Systematic(const Systematic& sys) = default;  // copy constructor
@@ -165,6 +166,7 @@ public:
 
     std::string fCombineName;
     COMBINATIONTYPE fCombineType;
+    HistoTools::FORCESHAPETYPE fForceShape;
 
 };
 

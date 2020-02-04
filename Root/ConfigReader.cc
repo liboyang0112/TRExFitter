@@ -4701,6 +4701,22 @@ int ConfigReader::ReadSystOptions(){
             sys->fDummyForSamples = tmp;
         }
 
+        // Set ForceShape
+        param = confSet->Get("ForceShape");
+        if(param!="") {
+            std::transform(param.begin(), param.end(), param.begin(), ::toupper);
+            if (param == "NOSHAPE") {
+                sys->fForceShape = HistoTools::FORCESHAPETYPE::NOSHAPE;
+            } else if (param == "LINEAR") {
+                sys->fForceShape = HistoTools::FORCESHAPETYPE::LINEAR;
+            } else if (param == "TRIANGULAR") {
+                sys->fForceShape = HistoTools::FORCESHAPETYPE::TRIANGULAR;
+            } else {
+                WriteWarningStatus("ConfigReader::ReadSystOptions", "You specified 'ForceShape' option but did not provide valid parameter. Using default (NOSHAPE)");
+                sys->fForceShape = HistoTools::FORCESHAPETYPE::NOSHAPE;
+            }
+        }
+
         // Set SubtractRefSampleVar
         // New: for systematics which also vary Data (e.g. JER with Full NPs)
         // This will subtract linearly the relative variation on Data from each relative variation on MC

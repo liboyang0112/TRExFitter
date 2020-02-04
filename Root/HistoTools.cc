@@ -751,3 +751,59 @@ void HistoTools::CheckSameShift(const TH1* const var1, const TH1* const var2, co
         WriteWarningStatus("HistoTools::CheckSameShift", "You should check this");
     }
 }
+    
+//_________________________________________________________________________
+//
+void HistoTools::ForceShape(TH1* syst, const TH1* nominal, const HistoTools::FORCESHAPETYPE type) {
+
+    if (type == HistoTools::FORCESHAPETYPE::NOSHAPE) return;
+    
+    if (type == HistoTools::FORCESHAPETYPE::LINEAR) {
+        ForceShapeLinear(syst, nominal);
+    } else if (type == HistoTools::FORCESHAPETYPE::TRIANGULAR) {
+        ForceShapeTriangular(syst, nominal);
+    } else {
+        WriteWarningStatus("HistoTools::ForceShape", "Unknown type for ForceShape, ignoring");
+    }
+}
+
+//_________________________________________________________________________
+//
+void HistoTools::ForceShapeLinear(TH1* syst, const TH1* nominal) {
+    const int nbins = syst->GetNbinsX();
+    if (nbins < 2) return;
+
+    for (int ibin = 1; ibin <= nbins; ++ibin) {
+        const double correction = static_cast<double>(1. - 2.*(ibin-1.)/(nbins-1.));
+        const double content = (syst->GetBinContent(ibin) - nominal->GetBinContent(ibin)) * correction + nominal->GetBinContent(ibin);
+        syst->SetBinContent(ibin, content);
+    }
+}
+
+//_________________________________________________________________________
+//
+void HistoTools::ForceShapeTriangular(TH1* syst, const TH1* nominal) {
+    const int nbins = syst->GetNbinsX();
+    const int nbinsHalf = nbins / 2;
+    if (nbins < 3) return;
+
+    for (int ibin = 1; ibin <= nbins; ++ibin) {
+        double correction(1.0);
+        if (nbins % 2 == 0){
+            correction = ibin <= nbinsHalf ?
+                static_cast<double>((ibin - 1.)/nbinsHalf) :
+                static_cast<double>(1. - 1.0*(ibin - nbinsHalf)/nbinsHalf);
+        } else {
+            if (ibin <= nbinsHalf) {
+                correction = static_cast<double>((ibin - 1.)/nbinsHalf);
+            } else if (ibin == (nbinsHalf+1)) {
+                correction = 1.0;
+            } else {
+                correction = static_cast<double>(1. - 1.0*(ibin - nbinsHalf)/nbinsHalf);
+            }
+        }
+
+        const double content = (syst->GetBinContent(ibin) - nominal->GetBinContent(ibin)) * correction + nominal->GetBinContent(ibin);
+        syst->SetBinContent(ibin, content);
+    }
+}
