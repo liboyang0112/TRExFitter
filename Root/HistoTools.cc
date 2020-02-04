@@ -758,8 +758,6 @@ void HistoTools::ForceShape(TH1* syst, const TH1* nominal, const HistoTools::FOR
 
     if (type == HistoTools::FORCESHAPETYPE::NOSHAPE) return;
     
-    //const double norm = syst->Integral()/nominal->Integral();
-    
     if (type == HistoTools::FORCESHAPETYPE::LINEAR) {
         ForceShapeLinear(syst, nominal);
     } else if (type == HistoTools::FORCESHAPETYPE::TRIANGULAR) {
@@ -767,10 +765,6 @@ void HistoTools::ForceShape(TH1* syst, const TH1* nominal, const HistoTools::FOR
     } else {
         WriteWarningStatus("HistoTools::ForceShape", "Unknown type for ForceShape, ignoring");
     }
-
-    // return the overall effect
-    //const double newNorm = syst->Integral()/nominal->Integral();
-    //if (newNorm > 1e-6) syst->Scale(norm/newNorm);
 }
 
 //_________________________________________________________________________
