@@ -763,6 +763,7 @@ public:
     double fMigrationZmax;
     double fResponseZmin;
     double fResponseZmax;
+    PruningUtil::SHAPEOPTION fPruningShapeOption;
 };
 
 #endif

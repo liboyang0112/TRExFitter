@@ -42,6 +42,7 @@ The following settings are for normal fits, performed without the action `m`.
 | SystPruningShape             | Lower threshold to remove a shape systematic from the fit/limit (suppression is done per sample and per region) (e.g.: 0.02 for 2%) |
 | SystPruningNorm              | Lower threshold to remove a normalisation systematic from the fit/limit (suppression is done per sample and per region) (e.g.: 0.02 for 2%) |
 | SystLarge                    | all systematics above this threshold will be flagged in the pruning plot) (e.g. 0.4 will flag systematics that are larger than 40%) |
+| PruningShapeOption           | Can be `MAXBIN` (Default) or `KSTEST`. `MAXBIN` checks if the systematic variation has at least one bin which is different compared to the nominal (variation is >= threshold). `KSTEST` runs the Kolmogorov test (using the `X` option, a.k.a running pseudoexperiments). When using `KSTEST`, if the probability is <= (1-threshold) then the systematic is marked as having shape component. |
 | DoSystNormalizationPlots     | Set to `FALSE` to disable the normalization summary plot that is produced during the `w` step |
 | IntCodeOverall               | interpolation code used for the normalization component of systematics (should match the one used in RooStats) |
 | IntCodeShape                 | interpolation code used for the shape component of systematics (should match the one used in RooStats) |

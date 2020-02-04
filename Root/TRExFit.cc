@@ -261,7 +261,8 @@ TRExFit::TRExFit(std::string name) :
     fMigrationZmin(0),
     fMigrationZmax(1),
     fResponseZmin(0),
-    fResponseZmax(1)
+    fResponseZmax(1),
+    fPruningShapeOption(PruningUtil::SHAPEOPTION::MAXBIN)
 {
     TRExFitter::IMAGEFORMAT.emplace_back("png");
     // Increase the limit for formula evaluations
@@ -3417,13 +3418,17 @@ RooStats::HistFactory::Sample TRExFit::OneSampleToRooStats(RooStats::HistFactory
 void TRExFit::SystPruning() const {
     WriteInfoStatus("TRExFit::SystPruning", "------------------------------------------------------");
     WriteInfoStatus("TRExFit::SystPruning", "Apply Systematics Pruning ...");
+    if (fPruningShapeOption == PruningUtil::SHAPEOPTION::KSTEST) {
+        WriteInfoStatus("TRExFit::SystPruning", "Will run KS test to determine the shape pruning. This is slow compared to the default option (MAXBIN). Patience young padawan.");
+    }
     if(fSystematics.size()==0 || fStatOnly){
         WriteInfoStatus("TRExFit::SystPruning", "No systematics => No Pruning applied.");
         return;
     }
 
     PruningUtil pu{};
-    pu.SetStrategy((int)fPruningType);
+    pu.SetShapeOption(fPruningShapeOption);
+    pu.SetStrategy(static_cast<int>(fPruningType));
     pu.SetThresholdNorm(fThresholdSystPruning_Normalisation);
     pu.SetThresholdShape(fThresholdSystPruning_Shape);
     pu.SetThresholdIsLarge(fThresholdSystLarge);
