@@ -451,6 +451,7 @@ additional options, accepting only float as arguments - useful for adding your f
 | NtupleNameSufUpRefSample     | only for option NTUP, for HISTO or SHAPE systematic: reference sample suffix of the ntuple names for systematic up variation |
 | NtupleNameSufDownRefSample   | only for option NTUP, for HISTO or SHAPE systematic: reference sample suffix of the ntuple names for systematic down variation |
 | Decorrelate                  | decorrelate systematic, can take values REGION (decorrelate across regions), SAMPLE (decorrelate across samples), SHAPEACC (decorrelate shape and acceptance effects); can be used to change behaviour of a systematic without having to re-run the n or b step |
+| ForceShape                   | Can be: `NOSHAPE` (default) - no changes to the uncertainty, `LINEAR` will create a linear shape from left up variation to bottom down variation ased on the original up and down variations or `TRIANGULAR` that will create a triangular shape that is increasing until the middle of the distribution and then decreasing back to 0. The other variation is symmetrised. |
 
 
 
