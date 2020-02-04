@@ -8906,7 +8906,11 @@ void TRExFit::RunForceShape() {
                 if(!syh) continue;
 
                 HistoTools::ForceShape(syh->fHistUp.get(), sh->fHist.get(), isyst->fForceShape);
-                HistoTools::ForceShape(syh->fHistDown.get(), sh->fHist.get(), isyst->fForceShape);
+                // Symmetrise
+                for (int ibin = 1; ibin <= sh->fHist->GetNbinsX(); ++ibin) {
+                    const double diff = syh->fHistUp->GetBinContent(ibin) - sh->fHist->GetBinContent(ibin);
+                    syh->fHistDown->SetBinContent(ibin, sh->fHist->GetBinContent(ibin) - diff);
+                }
             }
         }
     }

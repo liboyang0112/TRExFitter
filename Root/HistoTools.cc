@@ -758,7 +758,7 @@ void HistoTools::ForceShape(TH1* syst, const TH1* nominal, const HistoTools::FOR
 
     if (type == HistoTools::FORCESHAPETYPE::NOSHAPE) return;
     
-    const double norm = syst->Integral()/nominal->Integral();
+    //const double norm = syst->Integral()/nominal->Integral();
     
     if (type == HistoTools::FORCESHAPETYPE::LINEAR) {
         ForceShapeLinear(syst, nominal);
@@ -769,18 +769,27 @@ void HistoTools::ForceShape(TH1* syst, const TH1* nominal, const HistoTools::FOR
     }
 
     // return the overall effect
-    const double newNorm = syst->Integral()/nominal->Integral();
-    if (newNorm > 1e-6) syst->Scale(norm/newNorm);
+    //const double newNorm = syst->Integral()/nominal->Integral();
+    //if (newNorm > 1e-6) syst->Scale(norm/newNorm);
 }
 
 //_________________________________________________________________________
 //
 void HistoTools::ForceShapeLinear(TH1* syst, const TH1* nominal) {
+    const int nbins = syst->GetNbinsX();
+    if (nbins < 2) return;
 
+    for (int ibin = 1; ibin <= nbins; ++ibin) {
+        const double correction = static_cast<double>(1. - 2.*(ibin-1.)/(nbins-1.));
+        const double content = (syst->GetBinContent(ibin) - nominal->GetBinContent(ibin)) * correction + nominal->GetBinContent(ibin);
+        syst->SetBinContent(ibin, content);
+    }
 }
 
 //_________________________________________________________________________
 //
 void HistoTools::ForceShapeTriangular(TH1* syst, const TH1* nominal) {
+    const int nbins = syst->GetNbinsX();
+    if (nbins < 3) return;
 
 }
