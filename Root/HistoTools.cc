@@ -790,6 +790,26 @@ void HistoTools::ForceShapeLinear(TH1* syst, const TH1* nominal) {
 //
 void HistoTools::ForceShapeTriangular(TH1* syst, const TH1* nominal) {
     const int nbins = syst->GetNbinsX();
+    const int nbinsHalf = nbins / 2;
     if (nbins < 3) return;
 
+    for (int ibin = 1; ibin <= nbins; ++ibin) {
+        double correction(1.0);
+        if (nbins % 2 == 0){
+            correction = ibin <= nbinsHalf ?
+                static_cast<double>((ibin - 1.)/nbinsHalf) :
+                static_cast<double>(1. - 1.0*(ibin - nbinsHalf)/nbinsHalf);
+        } else {
+            if (ibin <= nbinsHalf) {
+                correction = static_cast<double>((ibin - 1.)/nbinsHalf);
+            } else if (ibin == (nbinsHalf+1)) {
+                correction = 1.0;
+            } else {
+                correction = static_cast<double>(1. - 1.0*(ibin - nbinsHalf)/nbinsHalf);
+            }
+        }
+
+        const double content = (syst->GetBinContent(ibin) - nominal->GetBinContent(ibin)) * correction + nominal->GetBinContent(ibin);
+        syst->SetBinContent(ibin, content);
+    }
 }

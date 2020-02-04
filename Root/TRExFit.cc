@@ -8899,6 +8899,7 @@ void TRExFit::RunForceShape() {
             SampleHist *sh = ireg->GetSampleHist(ismp->fName);
             if(!sh) continue;
             for (const auto& isyst : ismp->fSystematics) {
+                if (isyst->fForceShape == HistoTools::FORCESHAPETYPE::NOSHAPE) continue;
                 if(isyst->fRegions.size()>0 && Common::FindInStringVector(isyst->fRegions,ireg->fName)<0  ) continue;
                 if(isyst->fExclude.size()>0 && Common::FindInStringVector(isyst->fExclude,ireg->fName)>=0 ) continue;
                 if(isyst->fExcludeRegionSample.size()>0 && Common::FindInStringVectorOfVectors(isyst->fExcludeRegionSample, ireg->fName, ismp->fName)>=0 ) continue;
