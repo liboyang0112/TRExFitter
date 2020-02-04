@@ -1211,7 +1211,7 @@ void TRExFit::CorrectHistograms(){
     //
     // set the hasData flag
     bool hasData = false;
-    for(auto smp : fSamples){
+    for(const auto& smp : fSamples){
         if(smp->fType==Sample::DATA){
             hasData = true;
             break;
@@ -1234,6 +1234,9 @@ void TRExFit::CorrectHistograms(){
             }
         }
     }
+
+    // Manually change the shape of systematics
+    RunForceShape();
 
     DropBins();
 }
@@ -8884,5 +8887,27 @@ void TRExFit::PlotMigrationResponse(const TH2* matrix,
 
     for(const auto& format : TRExFitter::IMAGEFORMAT) {
         c.SaveAs((fName+"/" + name+ "."+ format).c_str());
+    }
+}
+    
+//__________________________________________________________________________________
+//
+void TRExFit::RunForceShape() {
+    for (const auto& ireg : fRegions) {
+        for (const auto& ismp : fSamples) {
+            if(Common::FindInStringVector(ismp->fRegions, ireg->fName) < 0) continue;
+            SampleHist *sh = ireg->GetSampleHist(ismp->fName);
+            if(!sh) continue;
+            for (const auto& isyst : ismp->fSystematics) {
+                if(isyst->fRegions.size()>0 && Common::FindInStringVector(isyst->fRegions,ireg->fName)<0  ) continue;
+                if(isyst->fExclude.size()>0 && Common::FindInStringVector(isyst->fExclude,ireg->fName)>=0 ) continue;
+                if(isyst->fExcludeRegionSample.size()>0 && Common::FindInStringVectorOfVectors(isyst->fExcludeRegionSample, ireg->fName, ismp->fName)>=0 ) continue;
+                SystematicHist *syh = sh->GetSystematic(isyst->fName);
+                if(!syh) continue;
+
+                HistoTools::ForceShape(syh->fHistUp.get(), sh->fHist.get(), isyst->fForceShape);
+                HistoTools::ForceShape(syh->fHistDown.get(), sh->fHist.get(), isyst->fForceShape);
+            }
+        }
     }
 }

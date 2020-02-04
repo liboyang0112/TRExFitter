@@ -4706,14 +4706,14 @@ int ConfigReader::ReadSystOptions(){
         if(param!="") {
             std::transform(param.begin(), param.end(), param.begin(), ::toupper);
             if (param == "NOSHAPE") {
-                sys->fForceShape = Systematic::FORCESHAPETYPE::NOSHAPE;
+                sys->fForceShape = HistoTools::FORCESHAPETYPE::NOSHAPE;
             } else if (param == "LINEAR") {
-                sys->fForceShape = Systematic::FORCESHAPETYPE::LINEAR;
+                sys->fForceShape = HistoTools::FORCESHAPETYPE::LINEAR;
             } else if (param == "TRIANGULAR") {
-                sys->fForceShape = Systematic::FORCESHAPETYPE::TRIANGULAR;
+                sys->fForceShape = HistoTools::FORCESHAPETYPE::TRIANGULAR;
             } else {
                 WriteWarningStatus("ConfigReader::ReadSystOptions", "You specified 'ForceShape' option but did not provide valid parameter. Using default (NOSHAPE)");
-                sys->fForceShape = Systematic::FORCESHAPETYPE::NOSHAPE;
+                sys->fForceShape = HistoTools::FORCESHAPETYPE::NOSHAPE;
             }
         }
 

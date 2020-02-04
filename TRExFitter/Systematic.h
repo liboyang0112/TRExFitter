@@ -25,12 +25,6 @@ public:
     };
 
 
-    enum class FORCESHAPETYPE {
-        NOSHAPE = 0,
-        LINEAR = 1,
-        TRIANGULAR
-    };
-
     explicit Systematic(const std::string& name,int type=0,double up=0.,double down=0.);
     
     Systematic(const Systematic& sys) = default;  // copy constructor
@@ -172,7 +166,7 @@ public:
 
     std::string fCombineName;
     COMBINATIONTYPE fCombineType;
-    FORCESHAPETYPE fForceShape;
+    HistoTools::FORCESHAPETYPE fForceShape;
 
 };
 

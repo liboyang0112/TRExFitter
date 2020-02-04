@@ -64,5 +64,5 @@ Systematic::Systematic(const std::string& name,int type,double up,double down) :
     fHistoNameSufDownRefSample(""),
     fSampleUp(""),
     fSampleDown(""),
-    fForceShape(Systematic::FORCESHAPETYPE::NOSHAPE) {
+    fForceShape(HistoTools::FORCESHAPETYPE::NOSHAPE) {
 }

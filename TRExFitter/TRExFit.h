@@ -458,6 +458,9 @@ public:
                                const bool isMigration,
                                const std::string& regionName,
                                const std::string& systematicName) const;
+
+    void RunForceShape();
+
     // -------------------------
 
     std::string fName;

@@ -751,3 +751,36 @@ void HistoTools::CheckSameShift(const TH1* const var1, const TH1* const var2, co
         WriteWarningStatus("HistoTools::CheckSameShift", "You should check this");
     }
 }
+    
+//_________________________________________________________________________
+//
+void HistoTools::ForceShape(TH1* syst, const TH1* nominal, const HistoTools::FORCESHAPETYPE type) {
+
+    if (type == HistoTools::FORCESHAPETYPE::NOSHAPE) return;
+    
+    const double norm = syst->Integral()/nominal->Integral();
+    
+    if (type == HistoTools::FORCESHAPETYPE::LINEAR) {
+        ForceShapeLinear(syst, nominal);
+    } else if (type == HistoTools::FORCESHAPETYPE::TRIANGULAR) {
+        ForceShapeTriangular(syst, nominal);
+    } else {
+        WriteWarningStatus("HistoTools::ForceShape", "Unknown type for ForceShape, ignoring");
+    }
+
+    // return the overall effect
+    const double newNorm = syst->Integral()/nominal->Integral();
+    if (newNorm > 1e-6) syst->Scale(norm/newNorm);
+}
+
+//_________________________________________________________________________
+//
+void HistoTools::ForceShapeLinear(TH1* syst, const TH1* nominal) {
+
+}
+
+//_________________________________________________________________________
+//
+void HistoTools::ForceShapeTriangular(TH1* syst, const TH1* nominal) {
+
+}
