@@ -4898,7 +4898,7 @@ int ConfigReader::SetSystRegionDecorelate(ConfigSet *confSet,
                 param = confSet->Get("NuisanceParameter");
                 if(param != ""){
                     mySys->fNuisanceParameter = (sys->fNuisanceParameter)+"_"+ireg+"_bin"+std::to_string(i_bin);
-                    TRExFitter::NPMAP[mySys->fName] = sys->fNuisanceParameter;
+                    TRExFitter::NPMAP[mySys->fName] = mySys->fNuisanceParameter;
                 } else {
                     mySys->fNuisanceParameter = mySys->fName;
                     TRExFitter::NPMAP[mySys->fName] = mySys->fName;
@@ -4937,7 +4937,7 @@ int ConfigReader::SetSystRegionDecorelate(ConfigSet *confSet,
             param = confSet->Get("NuisanceParameter");
             if(param != ""){
                 mySys->fNuisanceParameter = (sys->fNuisanceParameter)+"_"+ireg;
-                TRExFitter::NPMAP[mySys->fName] = sys->fNuisanceParameter;
+                TRExFitter::NPMAP[mySys->fName] = mySys->fNuisanceParameter;
             }
             else{
                 mySys->fNuisanceParameter = mySys->fName;
@@ -5014,7 +5014,7 @@ int ConfigReader::SetSystSampleDecorelate(ConfigSet *confSet, Systematic *sys, c
         param = confSet->Get("NuisanceParameter");
         if(param != ""){
             mySys->fNuisanceParameter = (sys->fNuisanceParameter)+"_"+sam->fName;
-            TRExFitter::NPMAP[mySys->fName] = sys->fNuisanceParameter;
+            TRExFitter::NPMAP[mySys->fName] = mySys->fNuisanceParameter;
         }
         else{
             mySys->fNuisanceParameter = mySys->fName;
@@ -5057,7 +5057,7 @@ int ConfigReader::SetSystShapeDecorelate(ConfigSet *confSet, Systematic *sys, co
     param = confSet->Get("NuisanceParameter");
     if(param != ""){
         mySys1->fNuisanceParameter = (sys->fNuisanceParameter)+"_Acc";
-        TRExFitter::NPMAP[mySys1->fName] = sys->fNuisanceParameter;
+        TRExFitter::NPMAP[mySys1->fName] = mySys1->fNuisanceParameter;
     }
     else{
         mySys1->fNuisanceParameter = mySys1->fName;
@@ -5103,7 +5103,7 @@ int ConfigReader::SetSystShapeDecorelate(ConfigSet *confSet, Systematic *sys, co
         param = confSet->Get("NuisanceParameter");
         if(param != ""){
             mySys2->fNuisanceParameter = (sys->fNuisanceParameter)+"_Shape";
-            TRExFitter::NPMAP[mySys2->fName] = sys->fNuisanceParameter;
+            TRExFitter::NPMAP[mySys2->fName] = mySys2->fNuisanceParameter;
         }
         else{
             mySys2->fNuisanceParameter = mySys2->fName;

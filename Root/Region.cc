@@ -495,6 +495,10 @@ void Region::BuildPreFitErrorHist(){
             if(TRExFitter::NPMAP[fSystNames[i_syst]]==TRExFitter::NPMAP[fSystNames[j_syst]]){
                 found = true;
                 const int whichsyst = Common::FindInStringVector(fNpNames,TRExFitter::NPMAP[fSystNames[i_syst]]);
+                if (whichsyst < 0) {
+                    WriteErrorStatus("Region::BuildPreFitErrorHist", "Systematic not found in the list of systematics. This should not happen...");
+                    exit(EXIT_FAILURE);
+                }
                 auto h_diff_up   = std::unique_ptr<TH1> (static_cast<TH1*> (h_up[whichsyst]  ->Clone(Form("%s_%s","clone_",h_up[whichsyst]  ->GetName()))));
                 auto h_diff_down = std::unique_ptr<TH1> (static_cast<TH1*> (h_down[whichsyst]->Clone(Form("%s_%s","clone_",h_down[whichsyst]->GetName()))));
                 h_diff_up  ->Add(fTotUp[  i_syst].get(),fTot.get(),1,-1);
