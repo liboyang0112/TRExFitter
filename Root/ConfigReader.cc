@@ -4971,7 +4971,6 @@ int ConfigReader::SetSystRegionDecorelate(ConfigSet *confSet,
             }
         }
     }
-    delete sys;
 
     return 0;
 }
@@ -5035,7 +5034,6 @@ int ConfigReader::SetSystSampleDecorelate(ConfigSet *confSet, Systematic *sys, c
         sam->AddSystematic(mySys);
         mySys->fSamples = { sam->fName };
     }
-    delete sys;
 
     return 0;
 }
@@ -5130,7 +5128,6 @@ int ConfigReader::SetSystShapeDecorelate(ConfigSet *confSet, Systematic *sys, co
             }
         }
     }
-    delete sys;
 
     return 0;
 }
