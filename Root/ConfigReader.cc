@@ -1323,6 +1323,19 @@ int ConfigReader::SetJobPlot(ConfigSet *confSet){
     param = confSet->Get("SummaryPlotYmax");
     if(param != "") fFitter->fYmax = atof(param.c_str());
 
+    // Set SummaryLogY
+    param = confSet->Get("SummaryLogY");
+    if(param != "") {
+        std::transform(param.begin(), param.end(), param.begin(), ::toupper);
+        if (param == "TRUE") {
+            fFitter->fSummaryLogY = true;
+        } else if (param == "FALSE") {
+            fFitter->fSummaryLogY = false;
+        } else {
+            WriteWarningStatus("ConfigReader::SetJobPlot", "You specified SummaryLogY option but did not provide valid parameter. Using default (TRUE)");
+        }
+    }
+
     // Set RatioYmin
     param = confSet->Get("RatioYmin");
     if(param != "") {

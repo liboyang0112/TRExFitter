@@ -8,6 +8,7 @@
 #include "TRExFitter/StatusLogbook.h"
 #include "TRExFitter/NtupleReader.h"
 #include "TRExFitter/TRExFit.h"
+#include "TRExFitter/TRExPlot.h"
 #include "TRExFitter/UnfoldingSample.h"
 #include "TRExFitter/UnfoldingSystematic.h"
 
@@ -309,11 +310,13 @@ void FitExample(std::string opt="h",std::string configFile="config/myFit.config"
         else                                         myFit->BuildGroupedImpactTable();
     }
 
-    TRExPlot* prefit_plot = 0;
-    TRExPlot* prefit_plot_valid = 0;
+    TRExPlot* prefit_plot = nullptr;
+    TRExPlot* prefit_plot_valid = nullptr;
     if( drawPostFit && TRExFitter::PREFITONPOSTFIT ) {
         drawPreFit = true;
     }
+
+    const std::string log = myFit->fSummaryLogY ?  "log " : "";
 
     if(drawPreFit){
         std::cout << "Drawing pre-fit plots..." << std::endl;
@@ -327,8 +330,8 @@ void FitExample(std::string opt="h",std::string configFile="config/myFit.config"
                 }
             }
             if(myFit->fDoSummaryPlot){
-                prefit_plot       = myFit->DrawSummary("log prefit");
-                prefit_plot_valid = myFit->DrawSummary("log valid prefit");
+                prefit_plot       = myFit->DrawSummary(log + "prefit");
+                prefit_plot_valid = myFit->DrawSummary(log + "valid prefit");
             }
         }
         else{
@@ -341,8 +344,8 @@ void FitExample(std::string opt="h",std::string configFile="config/myFit.config"
                 }
             }
             if(myFit->fDoSummaryPlot){
-                prefit_plot       = myFit->DrawSummary("log");
-                prefit_plot_valid = myFit->DrawSummary("log valid");
+                prefit_plot       = myFit->DrawSummary(log);
+                prefit_plot_valid = myFit->DrawSummary(log + "valid");
             }
         }
         if(myFit->fDoTables){
@@ -375,8 +378,8 @@ void FitExample(std::string opt="h",std::string configFile="config/myFit.config"
             }
         }
         if(myFit->fDoSummaryPlot){
-            myFit->DrawSummary("log post",      prefit_plot);
-            myFit->DrawSummary("log post valid",prefit_plot_valid);
+            myFit->DrawSummary(log + "post",      prefit_plot);
+            myFit->DrawSummary(log + "post valid",prefit_plot_valid);
         }
         if(myFit->fDoTables){
             myFit->BuildYieldTable("post");
