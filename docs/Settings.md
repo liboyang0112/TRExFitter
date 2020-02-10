@@ -82,6 +82,7 @@ The following settings are for normal fits, performed without the action `m`.
 | SystCategoryTables           | if set to TRUE, additional syst tables with systematics grouped by category are created |
 | SummaryPlotYmax              | if set, it will force the summary plot to use this value as max y-maxis value |
 | SummaryPlotYmin              | if set, it will force the summary plot to use this value as min y-maxis value |
+| SummaryLogY                  | Can be set to `TRUE` (default) or `FALSE`, controls the use of logarithmic scale on Y axis for summary plots |
 | RatioYmax                    | if set, it will specify the max of the range of the ratio plots |
 | RatioYmin                    | if set, it will specify the min of the range of the ratio plots |
 | RatioYmaxPostFit             | if set, it will specify the max of the range of the ratio plots, for post-fit only |
