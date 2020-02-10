@@ -137,7 +137,7 @@ public:
     // separation plots
     void DrawAndSaveSeparationPlots() const;
 
-    TRExPlot* DrawSummary(std::string opt="", TRExPlot* = 0) ;
+    TRExPlot* DrawSummary(std::string opt="", TRExPlot* = nullptr) ;
     void DrawMergedPlot(std::string opt="",std::string group="") const;
     void BuildYieldTable(std::string opt="",std::string group="") const;
 
@@ -767,6 +767,7 @@ public:
     double fResponseZmin;
     double fResponseZmax;
     PruningUtil::SHAPEOPTION fPruningShapeOption;
+    bool fSummaryLogY;
 };
 
 #endif
