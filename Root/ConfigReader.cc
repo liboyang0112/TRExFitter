@@ -4772,38 +4772,6 @@ int ConfigReader::ReadSystOptions(){
         }
 
 
-        if(Common::FindInStringVector(fFitter->fDecorrSysts,sys->fNuisanceParameter)>=0){
-            WriteInfoStatus("ConfigReader::ReadSystOptions","Decorrelating systematic with NP = " + sys->fNuisanceParameter);
-            sys->fNuisanceParameter += fFitter->fDecorrSuff;
-        }
-
-        // Set paths for reference sample
-        // Histo:
-        if (sys->fHistoPathsUpRefSample.size()     == 0) sys->fHistoPathsUpRefSample     = sys->fHistoPathsUp;
-        if (sys->fHistoPathsDownRefSample.size()   == 0) sys->fHistoPathsDownRefSample   = sys->fHistoPathsDown;
-        if (sys->fHistoPathSufUpRefSample.size()   == 0) sys->fHistoPathSufUpRefSample   = sys->fHistoPathSufUp;
-        if (sys->fHistoPathSufDownRefSample.size() == 0) sys->fHistoPathSufDownRefSample = sys->fHistoPathSufDown;
-        if (sys->fHistoFilesUpRefSample.size()     == 0) sys->fHistoFilesUpRefSample     = sys->fHistoFilesUp;
-        if (sys->fHistoFilesDownRefSample.size()   == 0) sys->fHistoFilesDownRefSample   = sys->fHistoFilesDown;
-        if (sys->fHistoFileSufUpRefSample.size()   == 0) sys->fHistoFileSufUpRefSample   = sys->fHistoFileSufUp;
-        if (sys->fHistoFileSufDownRefSample.size() == 0) sys->fHistoFileSufDownRefSample = sys->fHistoFileSufDown;
-        if (sys->fHistoNamesUpRefSample.size()     == 0) sys->fHistoNamesUpRefSample     = sys->fHistoNamesUp;
-        if (sys->fHistoNamesDownRefSample.size()   == 0) sys->fHistoNamesDownRefSample   = sys->fHistoNamesDown;
-        if (sys->fHistoNameSufUpRefSample.size()   == 0) sys->fHistoNameSufUpRefSample   = sys->fHistoNameSufUp;
-        if (sys->fHistoNameSufDownRefSample.size() == 0) sys->fHistoNameSufDownRefSample = sys->fHistoNameSufDown;
-
-        if (sys->fNtuplePathsUpRefSample.size()    == 0) sys->fNtuplePathsUpRefSample     = sys->fNtuplePathsUp;
-        if (sys->fNtuplePathsDownRefSample.size()  == 0) sys->fNtuplePathsDownRefSample   = sys->fNtuplePathsDown;
-        if (sys->fNtuplePathSufUpRefSample.size()  == 0) sys->fNtuplePathSufUpRefSample   = sys->fNtuplePathSufUp;
-        if (sys->fNtuplePathSufDownRefSample.size()== 0) sys->fNtuplePathSufDownRefSample = sys->fNtuplePathSufDown;
-        if (sys->fNtupleFilesUpRefSample.size()    == 0) sys->fNtupleFilesUpRefSample     = sys->fNtupleFilesUp;
-        if (sys->fNtupleFilesDownRefSample.size()  == 0) sys->fNtupleFilesDownRefSample   = sys->fNtupleFilesDown;
-        if (sys->fNtupleFileSufUpRefSample.size()  == 0) sys->fNtupleFileSufUpRefSample   = sys->fNtupleFileSufUp;
-        if (sys->fNtupleFileSufDownRefSample.size()== 0) sys->fNtupleFileSufDownRefSample = sys->fNtupleFileSufDown;
-        if (sys->fNtupleNamesUpRefSample.size()    == 0) sys->fNtupleNamesUpRefSample     = sys->fNtupleNamesUp;
-        if (sys->fNtupleNamesDownRefSample.size()  == 0) sys->fNtupleNamesDownRefSample   = sys->fNtupleNamesDown;
-        if (sys->fNtupleNameSufUpRefSample.size()  == 0) sys->fNtupleNameSufUpRefSample   = sys->fNtupleNameSufUp;
-        if (sys->fNtupleNameSufDownRefSample.size()== 0) sys->fNtupleNameSufDownRefSample = sys->fNtupleNameSufDown;
     }
 
     return 0;
@@ -4857,6 +4825,12 @@ int ConfigReader::SetSystNoDecorelate(ConfigSet *confSet, Systematic *sys, const
             sam->AddSystematic(sys);
         }
     }
+    if(Common::FindInStringVector(fFitter->fDecorrSysts,sys->fNuisanceParameter)>=0){
+        WriteInfoStatus("ConfigReader::ReadSystOptions","Decorrelating systematic with NP = " + sys->fNuisanceParameter);
+        sys->fNuisanceParameter += fFitter->fDecorrSuff;
+    }
+
+    FixReferenceSamples(sys);
 
     return 0;
 }
@@ -4872,7 +4846,7 @@ int ConfigReader::SetSystRegionDecorelate(ConfigSet *confSet,
     Sample *sam = nullptr;
     std::string param = "";
 
-    for(std::string ireg : fRegNames) {
+    for(const auto& ireg : fRegNames) {
         bool keepReg=false;
         if ( regions[0]=="all" ) keepReg=true;
         else {
@@ -4935,6 +4909,8 @@ int ConfigReader::SetSystRegionDecorelate(ConfigSet *confSet,
                         sam->AddSystematic(mySys);
                     }
                 }
+
+                FixReferenceSamples(mySys);
             }
         } else {
             //
@@ -4982,8 +4958,11 @@ int ConfigReader::SetSystRegionDecorelate(ConfigSet *confSet,
                     sam->AddSystematic(mySys);
                 }
             }
+            FixReferenceSamples(mySys);
         }
     }
+
+    delete sys;
 
     return 0;
 }
@@ -5046,7 +5025,11 @@ int ConfigReader::SetSystSampleDecorelate(ConfigSet *confSet, Systematic *sys, c
         // Add sample/syst cross-reference
         sam->AddSystematic(mySys);
         mySys->fSamples = { sam->fName };
+            
+        FixReferenceSamples(mySys);
     }
+
+    delete sys;
 
     return 0;
 }
@@ -5100,6 +5083,7 @@ int ConfigReader::SetSystShapeDecorelate(ConfigSet *confSet, Systematic *sys, co
             sam->AddSystematic(mySys1);
         }
     }
+    FixReferenceSamples(mySys1);
 
     if ( sys->fType!=Systematic::OVERALL ) {
         // cloning the sys
@@ -5140,7 +5124,10 @@ int ConfigReader::SetSystShapeDecorelate(ConfigSet *confSet, Systematic *sys, co
                 sam->AddSystematic(mySys2);
             }
         }
+        FixReferenceSamples(mySys2);
     }
+
+    delete sys;
 
     return 0;
 }
@@ -6936,3 +6923,35 @@ int ConfigReader::AddUnfoldingNormFactors() {
 
     return 0;
 }
+
+//__________________________________________________________________________________
+//
+void ConfigReader::FixReferenceSamples(Systematic* sys) const {
+
+    if (sys->fHistoPathsUpRefSample.size()     == 0) sys->fHistoPathsUpRefSample     = sys->fHistoPathsUp;
+    if (sys->fHistoPathsDownRefSample.size()   == 0) sys->fHistoPathsDownRefSample   = sys->fHistoPathsDown;
+    if (sys->fHistoPathSufUpRefSample.size()   == 0) sys->fHistoPathSufUpRefSample   = sys->fHistoPathSufUp;
+    if (sys->fHistoPathSufDownRefSample.size() == 0) sys->fHistoPathSufDownRefSample = sys->fHistoPathSufDown;
+    if (sys->fHistoFilesUpRefSample.size()     == 0) sys->fHistoFilesUpRefSample     = sys->fHistoFilesUp;
+    if (sys->fHistoFilesDownRefSample.size()   == 0) sys->fHistoFilesDownRefSample   = sys->fHistoFilesDown;
+    if (sys->fHistoFileSufUpRefSample.size()   == 0) sys->fHistoFileSufUpRefSample   = sys->fHistoFileSufUp;
+    if (sys->fHistoFileSufDownRefSample.size() == 0) sys->fHistoFileSufDownRefSample = sys->fHistoFileSufDown;
+    if (sys->fHistoNamesUpRefSample.size()     == 0) sys->fHistoNamesUpRefSample     = sys->fHistoNamesUp;
+    if (sys->fHistoNamesDownRefSample.size()   == 0) sys->fHistoNamesDownRefSample   = sys->fHistoNamesDown;
+    if (sys->fHistoNameSufUpRefSample.size()   == 0) sys->fHistoNameSufUpRefSample   = sys->fHistoNameSufUp;
+    if (sys->fHistoNameSufDownRefSample.size() == 0) sys->fHistoNameSufDownRefSample = sys->fHistoNameSufDown;
+    
+    if (sys->fNtuplePathsUpRefSample.size()    == 0) sys->fNtuplePathsUpRefSample     = sys->fNtuplePathsUp;
+    if (sys->fNtuplePathsDownRefSample.size()  == 0) sys->fNtuplePathsDownRefSample   = sys->fNtuplePathsDown;
+    if (sys->fNtuplePathSufUpRefSample.size()  == 0) sys->fNtuplePathSufUpRefSample   = sys->fNtuplePathSufUp;
+    if (sys->fNtuplePathSufDownRefSample.size()== 0) sys->fNtuplePathSufDownRefSample = sys->fNtuplePathSufDown;
+    if (sys->fNtupleFilesUpRefSample.size()    == 0) sys->fNtupleFilesUpRefSample     = sys->fNtupleFilesUp;
+    if (sys->fNtupleFilesDownRefSample.size()  == 0) sys->fNtupleFilesDownRefSample   = sys->fNtupleFilesDown;
+    if (sys->fNtupleFileSufUpRefSample.size()  == 0) sys->fNtupleFileSufUpRefSample   = sys->fNtupleFileSufUp;
+    if (sys->fNtupleFileSufDownRefSample.size()== 0) sys->fNtupleFileSufDownRefSample = sys->fNtupleFileSufDown;
+    if (sys->fNtupleNamesUpRefSample.size()    == 0) sys->fNtupleNamesUpRefSample     = sys->fNtupleNamesUp;
+    if (sys->fNtupleNamesDownRefSample.size()  == 0) sys->fNtupleNamesDownRefSample   = sys->fNtupleNamesDown;
+    if (sys->fNtupleNameSufUpRefSample.size()  == 0) sys->fNtupleNameSufUpRefSample   = sys->fNtupleNameSufUp;
+    if (sys->fNtupleNameSufDownRefSample.size()== 0) sys->fNtupleNameSufDownRefSample = sys->fNtupleNameSufDown;
+}
+

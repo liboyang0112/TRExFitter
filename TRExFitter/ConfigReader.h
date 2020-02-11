@@ -306,6 +306,12 @@ class ConfigReader {
         int AddUnfoldingNormFactors();
 
         /**
+          * A helper function to fix reference samples at the end of the config
+          * @param Given systematic
+          */
+        void FixReferenceSamples(Systematic* sys) const;
+
+        /**
           * Pointer to TRExFit class, set during initialization
           */
         TRExFit *fFitter;
