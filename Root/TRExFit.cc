@@ -1347,8 +1347,9 @@ void TRExFit::DrawAndSaveAll(std::string opt){
             gSystem->mkdir( (fName + "/Histograms/").c_str() );
             if(fRegions[i_ch]->fRegionDataType==Region::ASIMOVDATA) p = fRegions[i_ch]->DrawPostFit(fFitResults,pullTex,fMorphParams,fPrePostFitCanvasSize,opt+" blind");
             else                                                    p = fRegions[i_ch]->DrawPostFit(fFitResults,pullTex,fMorphParams,fPrePostFitCanvasSize,opt);
-            for(int i_format=0;i_format<(int)TRExFitter::IMAGEFORMAT.size();i_format++)
-                p->SaveAs(     (fName+"/Plots/"+fRegions[i_ch]->fName+"_postFit"+fSuffix+"."+TRExFitter::IMAGEFORMAT[i_format] ).c_str());
+            for(const auto& format : TRExFitter::IMAGEFORMAT) {
+                p->SaveAs((fName+"/Plots/"+fRegions[i_ch]->fName+"_postFit"+fSuffix+"."+format).c_str());
+            }
 
             if(fWithPullTables){
                 pullTex << "\\hline\\hline\n" << std::endl;
@@ -1365,8 +1366,8 @@ void TRExFit::DrawAndSaveAll(std::string opt){
                 if(!fRegions[i_ch]->fLogScale) p->h_dummy->GetYaxis()->SetRangeUser(p->h_dummy->GetYaxis()->GetXmin(),p->h_dummy->GetMaximum());
                 else                           p->h_dummy->GetYaxis()->SetRangeUser(1                                ,p->h_dummy->GetMaximum());
             }
-            for(int i_format=0;i_format<(int)TRExFitter::IMAGEFORMAT.size();i_format++){
-                p->SaveAs(     (fName+"/Plots/"+fRegions[i_ch]->fName+fSuffix+"."+TRExFitter::IMAGEFORMAT[i_format] ).c_str());
+            for(const auto& format : TRExFitter::IMAGEFORMAT) {
+                p->SaveAs((fName+"/Plots/"+fRegions[i_ch]->fName+fSuffix+"."+format).c_str());
             }
         }
     }
@@ -1922,18 +1923,18 @@ TRExPlot* TRExFit::DrawSummary(std::string opt, TRExPlot* prefit_plot) {
     //
     gSystem->mkdir(fName.c_str());
     gSystem->mkdir((fName+"/Plots").c_str());
-    for(int i_format=0;i_format<(int)TRExFitter::IMAGEFORMAT.size();i_format++){
+    for(const auto& format : TRExFitter::IMAGEFORMAT) {
         if(fSummaryPrefix!=""){
-            if(isPostFit)  p->SaveAs((fName+"/Plots/"+fSummaryPrefix+"_Summary_postFit"+(checkVR?"_VR":"")+fSuffix+"."+TRExFitter::IMAGEFORMAT[i_format]).c_str());
-            else           p->SaveAs((fName+"/Plots/"+fSummaryPrefix+"_Summary"        +(checkVR?"_VR":"")+fSuffix+"."+TRExFitter::IMAGEFORMAT[i_format]).c_str());
+            if(isPostFit)  p->SaveAs((fName+"/Plots/"+fSummaryPrefix+"_Summary_postFit"+(checkVR?"_VR":"")+fSuffix+"."+format).c_str());
+            else           p->SaveAs((fName+"/Plots/"+fSummaryPrefix+"_Summary"        +(checkVR?"_VR":"")+fSuffix+"."+format).c_str());
         }
         else{
-            if(isPostFit)  p->SaveAs((fName+"/Plots/Summary_postFit"+(checkVR?"_VR":"")+fSuffix+"."+TRExFitter::IMAGEFORMAT[i_format]).c_str());
-            else           p->SaveAs((fName+"/Plots/Summary"        +(checkVR?"_VR":"")+fSuffix+"."+TRExFitter::IMAGEFORMAT[i_format]).c_str());
+            if(isPostFit)  p->SaveAs((fName+"/Plots/Summary_postFit"+(checkVR?"_VR":"")+fSuffix+"."+format).c_str());
+            else           p->SaveAs((fName+"/Plots/Summary"        +(checkVR?"_VR":"")+fSuffix+"."+format).c_str());
         }
     }
     //
-    for(int i_syst=0;i_syst<(int)h_up.size();i_syst++){
+    for(std::size_t i_syst=0; i_syst < h_up.size(); ++i_syst) {
         delete h_up[i_syst];
         delete h_down[i_syst];
     }
@@ -2222,8 +2223,8 @@ void TRExFit::DrawMergedPlot(std::string opt,std::string group) const{
     if(group!="") saveName += "_"+group;
     if(isPostFit) saveName += "_postFit";
     saveName += fSuffix;
-    for(int i_format=0;i_format<(int)TRExFitter::IMAGEFORMAT.size();i_format++){
-        p->SaveAs((saveName+"."+TRExFitter::IMAGEFORMAT[i_format]).c_str());
+    for(const auto& format : TRExFitter::IMAGEFORMAT){
+        p->SaveAs((saveName+"."+format).c_str());
     }
 }
 
@@ -2916,8 +2917,8 @@ void TRExFit::DrawSignalRegionsPlot(int nCols,int nRows, std::vector < Region* >
         }
     }
     //
-    for(std::size_t i_format=0;i_format<TRExFitter::IMAGEFORMAT.size();i_format++) {
-        c.SaveAs((fName+"/SignalRegions"+fSuffix+"."+TRExFitter::IMAGEFORMAT[i_format]).c_str());
+    for(const auto& format : TRExFitter::IMAGEFORMAT) {
+        c.SaveAs((fName+"/SignalRegions"+fSuffix+"."+format).c_str());
     }
 
 }
@@ -3120,8 +3121,8 @@ void TRExFit::DrawPieChartPlot(const std::string &opt, int nCols,int nRows, std:
     //
     // Stores the pie chart in the desired format
     //
-    for(std::size_t i_format=0;i_format<TRExFitter::IMAGEFORMAT.size(); ++i_format){
-        c.SaveAs((fName+"/PieChart" + fSuffix + ( isPostFit ? "_postFit" : "" ) + "."+TRExFitter::IMAGEFORMAT[i_format]).c_str());
+    for(const auto& format : TRExFitter::IMAGEFORMAT) {
+        c.SaveAs((fName+"/PieChart" + fSuffix + (isPostFit ? "_postFit" : "") + "."+format).c_str());
     }
 }
 
@@ -4808,31 +4809,31 @@ void TRExFit::PlotFittedNP(){
     if(fFitResults){
         fFitResults->fNuisParToHide = fVarNameHide;
         std::set < std::string > npCategories;
-        for(unsigned int i=0;i<fSystematics.size();i++){
-            npCategories.insert(fSystematics[i]->fCategory);
+        for(const auto& syst : fSystematics) {
+            npCategories.insert(syst->fCategory);
         }
-        for(int i_format=0;i_format<(int)TRExFitter::IMAGEFORMAT.size();i_format++){
+        for(const auto& format: TRExFitter::IMAGEFORMAT) {
             if(!fStatOnly && !fStatOnlyFit){
-                fFitResults->DrawNPPulls(fName+"/NuisPar"+fSuffix+"."+TRExFitter::IMAGEFORMAT[i_format],"all",fNormFactors, fBlindedParameters);
-                fFitResults->DrawGammaPulls(fName+"/Gammas"+fSuffix+"."+TRExFitter::IMAGEFORMAT[i_format], fBlindedParameters);
+                fFitResults->DrawNPPulls(fName+"/NuisPar"+fSuffix+"."+format,"all",fNormFactors, fBlindedParameters);
+                fFitResults->DrawGammaPulls(fName+"/Gammas"+fSuffix+"."+format, fBlindedParameters);
             }
             if(fStatOnlyFit){
-                fFitResults->DrawNormFactors(fName+"/NormFactors"+fSuffix+"_statOnly."+TRExFitter::IMAGEFORMAT[i_format],fNormFactors, fBlindedParameters);
+                fFitResults->DrawNormFactors(fName+"/NormFactors"+fSuffix+"_statOnly."+format,fNormFactors, fBlindedParameters);
             }
             else{
-                fFitResults->DrawNormFactors(fName+"/NormFactors"+fSuffix+"."+TRExFitter::IMAGEFORMAT[i_format],fNormFactors, fBlindedParameters);
+                fFitResults->DrawNormFactors(fName+"/NormFactors"+fSuffix+"."+format,fNormFactors, fBlindedParameters);
             }
 
         }
         if(npCategories.size()>1 && !fStatOnly && !fStatOnlyFit){
-            for( const std::string cat : npCategories ){
+            for(const std::string& cat : npCategories){
                 std::string cat_for_name = cat;
-                std::replace( cat_for_name.begin(), cat_for_name.end(), ' ', '_');
-                std::replace( cat_for_name.begin(), cat_for_name.end(), '#', '_');
-                std::replace( cat_for_name.begin(), cat_for_name.end(), '{', '_');
-                std::replace( cat_for_name.begin(), cat_for_name.end(), '}', '_');
-                for(int i_format=0;i_format<(int)TRExFitter::IMAGEFORMAT.size();i_format++){
-                  fFitResults->DrawNPPulls(fName+"/NuisPar_"+cat_for_name+fSuffix+"."+TRExFitter::IMAGEFORMAT[i_format],cat,fNormFactors, fBlindedParameters);
+                std::replace(cat_for_name.begin(), cat_for_name.end(), ' ', '_');
+                std::replace(cat_for_name.begin(), cat_for_name.end(), '#', '_');
+                std::replace(cat_for_name.begin(), cat_for_name.end(), '{', '_');
+                std::replace(cat_for_name.begin(), cat_for_name.end(), '}', '_');
+                for(const auto& format : TRExFitter::IMAGEFORMAT) {
+                  fFitResults->DrawNPPulls(fName+"/NuisPar_"+cat_for_name+fSuffix+"."+format,cat,fNormFactors, fBlindedParameters);
                 }
             }
         }
@@ -4850,9 +4851,11 @@ void TRExFit::PlotCorrelationMatrix(){
     ReadFitResults(fName+"/Fits/"+fInputName+fSuffix+".txt");
     if(fFitResults){
         fFitResults->fNuisParToHide = fVarNameHide;
-        for(int i_format=0;i_format<(int)TRExFitter::IMAGEFORMAT.size();i_format++)
-            fFitResults->DrawCorrelationMatrix(fName+"/CorrMatrix"+fSuffix+"."+TRExFitter::IMAGEFORMAT[i_format],
-                                               fuseGammasForCorr, TRExFitter::CORRELATIONTHRESHOLD);
+        for(const auto& format : TRExFitter::IMAGEFORMAT) {
+            fFitResults->DrawCorrelationMatrix(fName+"/CorrMatrix"+fSuffix+"."+format,
+                                               fuseGammasForCorr,
+                                               TRExFitter::CORRELATIONTHRESHOLD);
+        }
     }
 }
 
@@ -5333,8 +5336,9 @@ void TRExFit::DrawAndSaveSeparationPlots() const{
         SEP << "Separation: " << Common::GetSeparation(sig.get(),bkg.get())*100 << "%";
         myText(0.55,0.73,1,SEP.str().c_str());
 
-        for(int i_format=0;i_format<(int)TRExFitter::IMAGEFORMAT.size();i_format++)
-            dummy3.SaveAs((fName+"/Plots/Separation/"+fRegions[i_ch]->fName+fSuffix+"."+TRExFitter::IMAGEFORMAT[i_format] ).c_str());
+        for(const auto& format : TRExFitter::IMAGEFORMAT) {
+            dummy3.SaveAs((fName+"/Plots/Separation/"+fRegions[i_ch]->fName+fSuffix+"."+format).c_str());
+        }
 
     }// regions
 
@@ -6002,21 +6006,22 @@ void TRExFit::PlotNPRanking(bool flagSysts, bool flagGammas) const{
     gPad->RedrawAxis();
 
     if(flagGammas && flagSysts){
-      for(int i_format=0;i_format<(int)TRExFitter::IMAGEFORMAT.size();i_format++)
-        c.SaveAs( (fName+"/Ranking"+fSuffix+"."+TRExFitter::IMAGEFORMAT[i_format]).c_str() );
-    }
-    else if(flagGammas){
-      for(int i_format=0;i_format<(int)TRExFitter::IMAGEFORMAT.size();i_format++)
-        c.SaveAs( (fName+"/RankingGammas"+fSuffix+"."+TRExFitter::IMAGEFORMAT[i_format]).c_str() );
-    }
-    else if(flagSysts){
-      for(int i_format=0;i_format<(int)TRExFitter::IMAGEFORMAT.size();i_format++)
-        c.SaveAs( (fName+"/RankingSysts"+fSuffix+"."+TRExFitter::IMAGEFORMAT[i_format]).c_str() );
-    }
-    else{
+        for(const auto& format : TRExFitter::IMAGEFORMAT) {
+            c.SaveAs((fName+"/Ranking"+fSuffix+"."+format).c_str());
+        }
+    } else if(flagGammas){
+        for(const auto& format : TRExFitter::IMAGEFORMAT) {
+            c.SaveAs((fName+"/RankingGammas"+fSuffix+"."+format).c_str());
+        }
+    } else if(flagSysts){
+        for(const auto& format: TRExFitter::IMAGEFORMAT) {
+            c.SaveAs((fName+"/RankingSysts"+fSuffix+"."+format).c_str() );
+        }
+    } else{
         WriteWarningStatus("TRExFit::PlotNPRanking", "Your ranking plot felt in unknown category :s");
-      for(int i_format=0;i_format<(int)TRExFitter::IMAGEFORMAT.size();i_format++)
-        c.SaveAs( (fName+"/RankingUnknown"+fSuffix+"."+TRExFitter::IMAGEFORMAT[i_format]).c_str() );
+        for(const auto& format : TRExFitter::IMAGEFORMAT) {
+            c.SaveAs((fName+"/RankingUnknown"+fSuffix+"."+format).c_str() );
+        }
     }
 }
 
@@ -6656,15 +6661,19 @@ void TRExFit::GetLikelihoodScan( RooWorkspace *ws, std::string varName, RooDataS
 
     can.RedrawAxis();
 
-    for(int i_format=0;i_format<(int)TRExFitter::IMAGEFORMAT.size();i_format++)
-        can.SaveAs( fName+"/"+LHDir+"NLLscan_"+varName+fSuffix+"."+TRExFitter::IMAGEFORMAT[i_format] );
+    for(const auto& format : TRExFitter::IMAGEFORMAT) {
+        can.SaveAs(fName+"/"+LHDir+"NLLscan_"+varName+fSuffix+"."+format);
+    }
 
     // write it to a ROOT file as well
-    TFile *f = new TFile(fName+"/"+LHDir+"NLLscan_"+varName+fSuffix+"_curve.root","UPDATE");
+    std::unique_ptr<TFile> f(TFile::Open(fName+"/"+LHDir+"NLLscan_"+varName+fSuffix+"_curve.root","UPDATE"));
+    if (!f) {
+        WriteWarningStatus("TRExFit::GetLikelihoodScan", "Cannot open ROOT file for likelihood scan!");
+        return;
+    }
     f->cd();
     graph.Write("LHscan",TObject::kOverwrite);
     f->Close();
-    delete f;
 }
 
 //____________________________________________________________________________________
@@ -6882,8 +6891,8 @@ void TRExFit::Get2DLikelihoodScan( RooWorkspace *ws, const std::vector<std::stri
         graph.GetYaxis()->SetTitle(varNames.at(1).c_str());
 
         // Print the canvas
-        for(int i_format=0;i_format<(int)TRExFitter::IMAGEFORMAT.size();i_format++){
-            can.SaveAs( fName+"/"+LHDir+"NLLscan_"+varNames.at(0)+"_"+varNames.at(1)+fSuffix+"."+TRExFitter::IMAGEFORMAT[i_format] );
+        for(const auto& format : TRExFitter::IMAGEFORMAT) {
+            can.SaveAs(fName+"/"+LHDir+"NLLscan_"+varNames.at(0)+"_"+varNames.at(1)+fSuffix+"."+format);
         }
 
         // write it to a ROOT file as well
@@ -7205,7 +7214,9 @@ void TRExFit::SmoothMorphTemplates(const std::string& name,const std::string& fo
             l.SetLineColor(kRed);
             l.Draw("same");
             gSystem->mkdir((fName+"/Morphing/").c_str());
-            for(auto format : TRExFitter::IMAGEFORMAT) c.SaveAs((fName+"/Morphing/g_"+name+"_"+reg->fName+"_bin"+std::to_string(i_bin)+"."+format).c_str());
+            for(const auto& format : TRExFitter::IMAGEFORMAT) {
+                c.SaveAs((fName+"/Morphing/g_"+name+"_"+reg->fName+"_bin"+std::to_string(i_bin)+"."+format).c_str());
+            }
             for(auto vh : hMap){
                 vh.second->SetBinContent(i_bin,l.Eval(vh.first));
             }

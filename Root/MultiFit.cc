@@ -809,8 +809,8 @@ void MultiFit::ComparePOI(const string& POI) const {
         }
     }
 
-    for(int i_format=0;i_format<(int)TRExFitter::IMAGEFORMAT.size();i_format++){
-        c.SaveAs( (fOutDir+"/POI"+fSaveSuf+"."+TRExFitter::IMAGEFORMAT[i_format]).c_str() );
+    for(const auto& format : TRExFitter::IMAGEFORMAT) {
+        c.SaveAs((fOutDir+"/POI"+fSaveSuf+"."+format).c_str() );
     }
 }
 
@@ -978,8 +978,8 @@ void MultiFit::CompareLimit(){
     if(fSignalInjection) leg->AddEntry(&g_inj,("Expected ("+fPOIName+"=1)").c_str(),"l");
     leg->Draw();
 
-    for(int i_format=0;i_format<(int)TRExFitter::IMAGEFORMAT.size();i_format++){
-        c.SaveAs( (fOutDir+"/Limits" + fSaveSuf +  + "."+TRExFitter::IMAGEFORMAT[i_format]).c_str() );
+    for(const auto& format : TRExFitter::IMAGEFORMAT) {
+        c.SaveAs( (fOutDir+"/Limits" + fSaveSuf +  + "."+format).c_str() );
     }
 }
 
@@ -1227,9 +1227,9 @@ void MultiFit::ComparePulls(string category) const{
 
     gPad->RedrawAxis();
 
-    for(int i_format=0;i_format<(int)TRExFitter::IMAGEFORMAT.size();i_format++){
-        if(category=="") c.SaveAs((fOutDir+"/NuisPar_comp"+fSaveSuf+"."+TRExFitter::IMAGEFORMAT[i_format]).c_str());
-        else             c.SaveAs((fOutDir+"/NuisPar_comp"+fSaveSuf+"_"+category+"."+TRExFitter::IMAGEFORMAT[i_format]).c_str());
+    for(const auto& format : TRExFitter::IMAGEFORMAT) {
+        if(category=="") c.SaveAs((fOutDir+"/NuisPar_comp"+fSaveSuf+"."+format).c_str());
+        else             c.SaveAs((fOutDir+"/NuisPar_comp"+fSaveSuf+"_"+category+"."+format).c_str());
     }
 }
 
@@ -1471,9 +1471,9 @@ void MultiFit::CompareNormFactors(string category) const{
 
     gPad->RedrawAxis();
 
-    for(int i_format=0;i_format<(int)TRExFitter::IMAGEFORMAT.size();i_format++){
-        if(category=="") c.SaveAs((fOutDir+"/NormFactors_comp"+fSaveSuf+"."+TRExFitter::IMAGEFORMAT[i_format]).c_str());
-        else             c.SaveAs((fOutDir+"/NormFactors_comp"+fSaveSuf+"_"+category+"."+TRExFitter::IMAGEFORMAT[i_format]).c_str());
+    for(const auto& format : TRExFitter::IMAGEFORMAT) {
+        if(category=="") c.SaveAs((fOutDir+"/NormFactors_comp"+fSaveSuf+"."+format).c_str());
+        else             c.SaveAs((fOutDir+"/NormFactors_comp"+fSaveSuf+"_"+category+"."+format).c_str());
     }
 }
 
@@ -1488,8 +1488,9 @@ void MultiFit::PlotCombinedCorrelationMatrix() const{
     //plot the correlation matrix (considering only correlations larger than TRExFitter::CORRELATIONTHRESHOLD)
     fit->ReadFitResults(fOutDir+"/Fits/"+fName+fSaveSuf+".txt");
     if(fit->fFitResults){
-        for(int i_format=0;i_format<(int)TRExFitter::IMAGEFORMAT.size();i_format++)
-            fit->fFitResults->DrawCorrelationMatrix(fOutDir+"/CorrMatrix_comb"+fSaveSuf+"."+TRExFitter::IMAGEFORMAT[i_format],fuseGammasForCorr,TRExFitter::CORRELATIONTHRESHOLD);
+        for(const auto& format : TRExFitter::IMAGEFORMAT) {
+            fit->fFitResults->DrawCorrelationMatrix(fOutDir+"/CorrMatrix_comb"+fSaveSuf+"."+format,fuseGammasForCorr,TRExFitter::CORRELATIONTHRESHOLD);
+        }
     }
 }
 
@@ -2102,21 +2103,22 @@ void MultiFit::PlotNPRanking(bool flagSysts, bool flagGammas) const {
     gPad->RedrawAxis();
 
     if(flagGammas && flagSysts){
-      for(int i_format=0;i_format<(int)TRExFitter::IMAGEFORMAT.size();i_format++)
-        c.SaveAs( (fOutDir+"/Ranking."+TRExFitter::IMAGEFORMAT[i_format]).c_str() );
-    }
-    else if(flagGammas){
-      for(int i_format=0;i_format<(int)TRExFitter::IMAGEFORMAT.size();i_format++)
-        c.SaveAs( (fOutDir+"/RankingGammas."+TRExFitter::IMAGEFORMAT[i_format]).c_str() );
-    }
-    else if(flagSysts){
-      for(int i_format=0;i_format<(int)TRExFitter::IMAGEFORMAT.size();i_format++)
-        c.SaveAs( (fOutDir+"/RankingSysts."+TRExFitter::IMAGEFORMAT[i_format]).c_str() );
-    }
-    else{
-      WriteWarningStatus("MultiFit::PlotNPRanking", "Your ranking plot felt in unknown category :s");
-      for(int i_format=0;i_format<(int)TRExFitter::IMAGEFORMAT.size();i_format++)
-        c.SaveAs( (fOutDir+"/RankingUnknown."+TRExFitter::IMAGEFORMAT[i_format]).c_str() );
+        for(const auto& format : TRExFitter::IMAGEFORMAT) {
+            c.SaveAs((fOutDir+"/Ranking."+format).c_str());
+        }
+    } else if(flagGammas){
+        for(const auto& format : TRExFitter::IMAGEFORMAT) {
+            c.SaveAs((fOutDir+"/RankingGammas."+format).c_str());
+        }
+    } else if(flagSysts){
+        for(const auto& format : TRExFitter::IMAGEFORMAT) {
+            c.SaveAs((fOutDir+"/RankingSysts."+format).c_str());
+        }
+    } else{
+        WriteWarningStatus("MultiFit::PlotNPRanking", "Your ranking plot felt in unknown category :s");
+        for(const auto& format : TRExFitter::IMAGEFORMAT) {
+            c.SaveAs((fOutDir+"/RankingUnknown."+format).c_str());
+        }
     }
 }
 
@@ -2354,8 +2356,9 @@ void MultiFit::GetLikelihoodScan( RooWorkspace *ws, const std::string& varName, 
 
     can.RedrawAxis();
 
-    for(int i_format=0;i_format<(int)TRExFitter::IMAGEFORMAT.size();i_format++)
-        can.SaveAs( fName+"/"+LHDir+"NLLscan_"+varName+"."+TRExFitter::IMAGEFORMAT[i_format] );
+    for(const auto& format : TRExFitter::IMAGEFORMAT) {
+        can.SaveAs( fName+"/"+LHDir+"NLLscan_"+varName+"."+format);
+    }
 
     if(recreate){
         // write it to a ROOT file as well
@@ -2577,8 +2580,8 @@ void MultiFit::Get2DLikelihoodScan( RooWorkspace *ws, const std::vector<std::str
         graph.GetYaxis()->SetTitle(varNames.at(1).c_str());
 
         // Print the canvas
-        for(int i_format=0;i_format<(int)TRExFitter::IMAGEFORMAT.size();i_format++){
-            can.SaveAs( fName+"/"+LHDir+"NLLscan_"+varNames.at(0)+"_"+varNames.at(1)+"."+TRExFitter::IMAGEFORMAT[i_format] );
+        for(const auto& format : TRExFitter::IMAGEFORMAT) {
+            can.SaveAs(fName+"/"+LHDir+"NLLscan_"+varNames.at(0)+"_"+varNames.at(1)+"."+format);
         }
 
         // write it to a ROOT file as well
@@ -3022,8 +3025,8 @@ void MultiFit::PlotSummarySoverB() const {
     pad0.RedrawAxis();
     pad1.RedrawAxis();
 
-    for(int i_format=0;i_format<(int)TRExFitter::IMAGEFORMAT.size();i_format++) {
-        c.SaveAs( (fOutDir+"/SoverB_postFit."+TRExFitter::IMAGEFORMAT[i_format]).c_str() );
+    for(const auto& format : TRExFitter::IMAGEFORMAT) {
+        c.SaveAs( (fOutDir+"/SoverB_postFit."+format).c_str() );
     }
 }
 
