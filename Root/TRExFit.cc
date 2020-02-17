@@ -248,16 +248,17 @@ TRExFit::TRExFit(std::string name) :
     fUnfoldingRatioYmin(0.5),
     fUnfoldingLogX(false),
     fUnfoldingLogY(false),
-    fUnfoldingTitleOffsetX(1.0),
-    fUnfoldingTitleOffsetY(1.0),
+    fUnfoldingTitleOffsetX(3.5),
+    fUnfoldingTitleOffsetY(1.6),
     fNominalTruthSample("SetMe"),
     fMigrationTitleX("X"),
     fMigrationTitleY("Y"),
     fMigrationLogX(false),
     fMigrationLogY(false),
     fMigrationTitleOffsetX(1),
-    fMigrationTitleOffsetY(1),
+    fMigrationTitleOffsetY(1.5),
     fPlotSystematicMigrations(false),
+    fMigrationText(false),
     fMigrationZmin(0),
     fMigrationZmax(1),
     fResponseZmin(0),
@@ -8715,10 +8716,10 @@ void TRExFit::PlotUnfold(TH1D* data,
     for (const auto& isample : fTruthSamples) {
         mc.emplace_back(std::move(isample->GetHisto(this)));
         mc.back()->SetLineColor(isample->GetLineColor());
-        mc.back()->SetFillColor(isample->GetFillColor());
+        mc.back()->SetLineStyle(isample->GetLineStyle());
     }
 
-    TCanvas c("","",800,600);
+    TCanvas c("","",600,600);
     TPad pad1("pad1","pad1",0.0, 0.3, 1.0, 1.00);
     TPad pad2("pad2","pad2", 0.0, 0.010, 1.0, 0.3);
     pad1.SetBottomMargin(0.001);
@@ -8739,7 +8740,7 @@ void TRExFit::PlotUnfold(TH1D* data,
 
     pad1.cd();
     total->SetMarkerStyle(20);
-    total->SetMarkerSize(1.45);
+    total->SetMarkerSize(1.2);
     total->SetLineColor(kBlack);
     total->SetLineStyle(1);
 
@@ -8749,77 +8750,77 @@ void TRExFit::PlotUnfold(TH1D* data,
     total->GetYaxis()->SetTitleSize(0.07);
     total->GetYaxis()->SetTitleOffset(1.1);
 
-    bool isFirstHisto(true);
-    for (auto& itruth : mc) {
-        if (isFirstHisto) {
-            itruth->SetMarkerStyle(21);
-            itruth->SetLineWidth(2);
-            const double corr = fUnfoldingLogY ? 1e6 : 1.5;
-            itruth->GetYaxis()->SetRangeUser(0.0001, corr*itruth->GetMaximum());
-            itruth->GetYaxis()->SetTitle(fUnfoldingTitleY.c_str());
-            itruth->GetYaxis()->SetTitleOffset(fUnfoldingTitleOffsetY * itruth->GetYaxis()->GetTitleOffset());
-            itruth->Draw("HIST same");
-        } else {
-            itruth->Draw("HIST");
-        }
-    }
-    total->Draw("P SAME");
+    std::unique_ptr<TH1> h_dummy(static_cast<TH1*>(mc[0]->Clone()));
+    const double corr = fUnfoldingLogY ? 1e6 : 1.5;
+    h_dummy->GetYaxis()->SetRangeUser(0.0001, corr*h_dummy->GetMaximum());
+    h_dummy->GetYaxis()->SetTitle(fUnfoldingTitleY.c_str());
+    h_dummy->GetYaxis()->SetTitleOffset(fUnfoldingTitleOffsetY*h_dummy->GetYaxis()->GetTitleOffset());
+    h_dummy->SetLineWidth(0);
+    h_dummy->SetLineColor(kWhite);
+    h_dummy->DrawClone("HIST");
+    
+    std::unique_ptr<TGraphAsymmErrors> error(static_cast<TGraphAsymmErrors*>(total->Clone()));
+    error->SetFillStyle(1001);
+    error->SetFillColor(kGray);
+    error->SetLineColor(kGray);
+    error->Draw("E2 same");
 
-    TLegend leg(0.65, 0.6, 0.9, 0.9);
+    for (auto& itruth : mc) {
+        itruth->SetLineWidth(2);
+        itruth->Draw("HIST same");
+    }
+    
+    total->Draw("pX SAME");
+    
+    float legH = (mc.size()+2)*0.07;
+    TLegend leg(0.55, 0.9-legH, 0.9, 0.9);
     leg.AddEntry(total, "Unfolded data", "p");
     for (std::size_t imc = 0; imc < mc.size(); ++imc) {
         leg.AddEntry(mc.at(imc).get(), fTruthSamples.at(imc)->GetTitle().c_str(), "l");
     }
+    leg.AddEntry(error.get(), "Total uncertainty","f");
 
     leg.SetFillColor(0);
     leg.SetLineColor(0);
     leg.SetBorderSize(0);
-    leg.SetTextFont(72);
-    leg.SetTextSize(0.045);
+    leg.SetTextFont(gStyle->GetTextFont());
+    leg.SetTextSize(gStyle->GetTextSize());
     leg.Draw("SAME");
         
     if (fAtlasLabel != "none") ATLASLabel(0.2,0.87,fAtlasLabel.c_str());
     myText(0.2,0.8,1,Form("#sqrt{s} = %s, %s",fCmeLabel.c_str(),fLumiLabel.c_str()));
 
+    pad1.RedrawAxis();
+    
     // Plot ratio
     pad2.cd();
+    h_dummy->GetXaxis()->SetTitleOffset(fUnfoldingTitleOffsetX*h_dummy->GetXaxis()->GetTitleOffset());
+    h_dummy->GetYaxis()->SetTitleOffset(fUnfoldingTitleOffsetY*0.55*h_dummy->GetYaxis()->GetTitleOffset());
+    h_dummy->GetYaxis()->SetRangeUser(fUnfoldingRatioYmin,fUnfoldingRatioYmax);
+    h_dummy->GetYaxis()->SetTitle("#frac{Prediction}{Data}");
+    h_dummy->GetYaxis()->SetNdivisions(505);
+    h_dummy->GetXaxis()->SetTitle(fUnfoldingTitleX.c_str());
+//     h_dummy->GetXaxis()->SetMoreLogLabels();
+    h_dummy->Draw("HIST");
+
+    // Plot the error band
+    std::unique_ptr<TGraphAsymmErrors> band = Common::GetRatioBand(total, data);
+    band->SetFillStyle(1001);
+    band->SetFillColor(kGray);
+    band->SetLineColor(kGray);
+    band->SetMarkerStyle(0);
+    band->SetLineWidth(2);
+    band->Draw("E2 SAME");
+    
+    // Plot the theory predictions
     std::vector<std::unique_ptr<TH1D> > ratios;
-    bool isFirst(true);
     for (const auto& itruth : mc) {
         ratios.emplace_back(static_cast<TH1D*>(itruth->Clone()));
         ratios.back()->Divide(data);
-        if (isFirst) {
-            ratios.back()->GetXaxis()->SetTitleOffset(fUnfoldingTitleOffsetX*ratios.back()->GetXaxis()->GetTitleOffset());
-            ratios.back()->GetYaxis()->SetTitleOffset(fUnfoldingTitleOffsetY*ratios.back()->GetYaxis()->GetTitleOffset());
-            ratios.back()->GetYaxis()->SetRangeUser(fUnfoldingRatioYmin,fUnfoldingRatioYmax);
-            ratios.back()->GetYaxis()->SetTitle("ratio");
-            ratios.back()->GetYaxis()->SetNdivisions(505);
-            ratios.back()->GetXaxis()->SetTitle(fUnfoldingTitleX.c_str());
-            ratios.back()->Draw("HIST");
-        } else {
-            ratios.back()->Draw("HIST same");
-        }
-        isFirst = false;
+        ratios.back()->Draw("HIST same");
     }
 
-    // Now plot the error band
-    std::unique_ptr<TGraphAsymmErrors> band = Common::GetRatioBand(total, data);
-
-    band->SetFillStyle(3002);
-    band->SetFillColor(kBlack);
-    band->SetMarkerStyle(0);
-    band->SetLineWidth(2);
-
-    band->Draw("E2 SAME");
-
-    const float min = ratios.at(0)->GetXaxis()->GetBinLowEdge(1);
-    const float max = ratios.at(0)->GetXaxis()->GetBinUpEdge(ratios.at(0)->GetNbinsX());
-
-    TLine line (min, 1, max, 1);
-    line.SetLineColor(kRed);
-    line.SetLineStyle(2);
-    line.SetLineWidth(3);
-    line.Draw("same");
+    pad2.RedrawAxis();
 
     for(const auto& format : TRExFitter::IMAGEFORMAT) {
         c.SaveAs((fName+"/UnfoldedData."+ format).c_str());
@@ -8836,15 +8837,16 @@ void TRExFit::PlotMigrationResponse(const TH2* matrix,
     std::unique_ptr<TH2D> m(static_cast<TH2D*>(matrix->Clone()));
     
     gStyle->SetPalette(87);
-    gStyle->SetPaintTextFormat("2.1f");
-    TCanvas c("","",800,600);
+    if (isMigration) gStyle->SetPaintTextFormat("1.2f");
+    else gStyle->SetPaintTextFormat("2.1f");
+    TCanvas c("","",600,600);
     c.cd();
 
     TPad pad("","",0,0.0,1,1);
-    pad.SetRightMargin(0.2);
-    pad.SetLeftMargin(0.13);
-    pad.SetTopMargin(0.09);
-    pad.SetBottomMargin(0.13);
+    pad.SetRightMargin(0.15);
+    pad.SetLeftMargin(0.15);
+    pad.SetTopMargin(0.15);
+    pad.SetBottomMargin(0.15);
     pad.Draw();
     pad.cd();
 
@@ -8855,15 +8857,16 @@ void TRExFit::PlotMigrationResponse(const TH2* matrix,
         pad.SetLogy();
     }
 
-    m->SetMarkerSize(5);
-    m->SetMarkerColor(kRed);
+    m->SetMarkerSize(850);
+    m->SetMarkerColor(kBlack);
     m->GetXaxis()->SetTitle(fMigrationTitleX.c_str());
     m->GetXaxis()->SetTitleOffset(fMigrationTitleOffsetX * m->GetXaxis()->GetTitleOffset());
     m->GetYaxis()->SetTitleOffset(fMigrationTitleOffsetY * m->GetYaxis()->GetTitleOffset());
     m->GetYaxis()->SetTitle(fMigrationTitleY.c_str());
     m->GetXaxis()->SetNdivisions(505);
+    m->GetZaxis()->SetTitleOffset(1.3);
     if (isMigration) {
-        m->GetZaxis()->SetTitle("Migrations");
+        m->GetZaxis()->SetTitle("Migration");
         m->GetZaxis()->SetRangeUser(fMigrationZmin,fMigrationZmax);
     } else {
         m->GetZaxis()->SetTitle("Response");
@@ -8871,10 +8874,11 @@ void TRExFit::PlotMigrationResponse(const TH2* matrix,
     }
 
     c.SetGrid();
-    m->Draw("COLZ TEXT");
+    if(fMigrationText) m->Draw("COLZ TEXT");
+    else m->Draw("COLZ");
     
-    if (fAtlasLabel != "none") ATLASLabel(0.2,0.92,fAtlasLabel.c_str());
-    myText(0.6,0.92,1,Form("#sqrt{s} = %s, %s",fCmeLabel.c_str(),fLumiLabel.c_str()));
+    if (fAtlasLabel != "none") ATLASLabel(0.03,0.92,fAtlasLabel.c_str());
+    myText(0.68,0.92,1,Form("#sqrt{s} = %s, %s",fCmeLabel.c_str(),fLumiLabel.c_str()));
     
     c.RedrawAxis("g");
 

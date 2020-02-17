@@ -8,8 +8,8 @@
 TruthSample::TruthSample(const std::string& name) :
     fName(name),
     fTitle(""),
-    fFillColor(0),
     fLineColor(1),
+    fLineStyle(0),
     fTruthDistributionPath(""),
     fTruthDistributionFile(""),
     fTruthDistributionName("")

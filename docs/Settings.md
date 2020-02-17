@@ -647,6 +647,7 @@ These options are for multi-fits, performed with action `m`.
 | ResponseZmax   | for response plots |
 | ResponseZmin   | for response plots |
 | PlotSystematicMigrations   | if set to TRUE will plot migration/response plots for all systematics |
+| MigrationText   | if set to TRUE will show numbers in migration/response matrix plots |
 
 ### TruthSample block
 | **Option** | **Function** |

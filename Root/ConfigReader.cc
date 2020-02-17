@@ -5325,16 +5325,21 @@ int ConfigReader::ReadUnfoldingOptions() {
     param = confSet->Get("Tau");
     if (param != "") {
         const std::vector<std::string>& tmp = Vectorize(param, ',');
-        for (auto& i : tmp) {
-            const std::vector<std::string>& oneTau = Vectorize(i, ':');
-            if (oneTau.size() != 2) {
-                WriteErrorStatus("ConfigReader::ReadUnfoldingOptions", "Wrong format for Tau!");
-                return 1;
-            }
+        if (tmp.size()==1) {
+            fTaus.emplace_back(-1,std::stof(param));
+        }
+        else {
+            for (auto& i : tmp) {
+                const std::vector<std::string>& oneTau = Vectorize(i, ':');
+                if (oneTau.size() != 2) {
+                    WriteErrorStatus("ConfigReader::ReadUnfoldingOptions", "Wrong format for Tau!");
+                    return 1;
+                }
 
-            int bin = std::stoi(oneTau.at(0));
-            double value = std::stof(oneTau.at(1));
-            fTaus.emplace_back(bin, value);
+                int bin = std::stoi(oneTau.at(0));
+                double value = std::stof(oneTau.at(1));
+                fTaus.emplace_back(bin, value);
+            }
         }
     }
     
@@ -5468,6 +5473,16 @@ int ConfigReader::ReadUnfoldingOptions() {
         }
     }
     
+    param = confSet->Get("MigrationText");
+    if (param != "") {
+        std::transform(param.begin(), param.end(), param.begin(), ::toupper);
+        if (param == "TRUE") {
+            fFitter->fMigrationText = true;
+        } else {
+            fFitter->fMigrationText = false;
+        }
+    }
+    
     param = confSet->Get("NominalTruthSample");
     if (param == "") {
         WriteErrorStatus("ConfigReader::ReadUnfoldingOptions", "You need to set NominalTruthSample option!");
@@ -5511,9 +5526,9 @@ int ConfigReader::ReadTruthSamples() {
             sample->SetTitle(RemoveQuotes(param));
         }
 
-        param = confSet->Get("FillColor");
+        param = confSet->Get("LineStyle");
         if (param != "") {
-            sample->SetFillColor(std::stoi(param));
+            sample->SetLineStyle(std::stoi(param));
         }
 
         param = confSet->Get("LineColor");
@@ -6915,12 +6930,25 @@ int ConfigReader::AddUnfoldingNormFactors() {
         }
 
         // check if the bin is in the list specifies taus
-        auto it = std::find_if(fTaus.begin(), fTaus.end(),
-        [&i](const std::pair<int, double>& element){ return element.first == i+1;});
-
-        if (it != fTaus.end()) {
-            WriteInfoStatus("ConfigReader::AddUnfoldingNormFactors", "Setting truth bin: " + std::to_string(i+1) + " to use tau = " + std::to_string(it->second));
-            nf->fTau = it->second; 
+        bool hasTau = false;
+        double tauValue = 0.;
+        if (fTaus.size()==1) {
+            if (fTaus[0].first==-1){
+                hasTau = true;
+                tauValue = fTaus[0].second;
+            }
+        }
+        else {
+            auto it = std::find_if(fTaus.begin(), fTaus.end(),
+            [&i](const std::pair<int, double>& element){ return element.first == i+1;});
+            if (it != fTaus.end()) {
+                hasTau = true;
+                tauValue = it->second;
+            }
+        }
+        if (hasTau) {
+            WriteInfoStatus("ConfigReader::AddUnfoldingNormFactors", "Setting truth bin: " + std::to_string(i+1) + " to use tau = " + std::to_string(tauValue));
+            nf->fTau = tauValue; 
         }
     }
 
