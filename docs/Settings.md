@@ -624,7 +624,7 @@ These options are for multi-fits, performed with action `m`.
 | TruthDistributionFile         | Globally set the path, will be overwritten by TruthSample |
 | TruthDistributionName         | Globally set the path, will be overwritten by TruthSample |
 | NumberOfTruthBins         | Number of truth bins (can be only one truth distribution but can have more reco distributions - regions) |
-| Tau         | Tikhonov regularization parameter, use as e.g. `1:2,3:1.7`, this will set the parameter to bins 1 and 3, with values 2 and 1.7 respectively |
+| Tau         | Tikhonov regularization parameter, use as e.g. `1:2,3:1.7`, this will set the parameter to bins 1 and 3, with values 2 and 1.7 respectively; alternatively, a single value can be given, which will be used for all the unfolding norm-factors |
 | TitleX         | Name of the title on unfolded plots |
 | TitleY         | Name of the title on unfolded plots |
 | RatioYmax         | Used for SetRangeUser |
@@ -654,7 +654,7 @@ These options are for multi-fits, performed with action `m`.
 | ---------- | ------------ |
 | Title         | for plots |
 | FillColor         | for plots |
-| LineColor         | for plots |
+| LineStyle         | for plots |
 | TruthDistributionPath         | folder path for truth distributions |
 | TruthDistributionFile         | file path for truth distributions |
 | TruthDistributionName         | name of the histogram in the file for truth distributions |
