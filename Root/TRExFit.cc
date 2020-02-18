@@ -258,11 +258,11 @@ TRExFit::TRExFit(std::string name) :
     fMigrationTitleOffsetX(1),
     fMigrationTitleOffsetY(1.5),
     fPlotSystematicMigrations(false),
-    fMigrationText(false),
     fMigrationZmin(0),
     fMigrationZmax(1),
     fResponseZmin(0),
     fResponseZmax(1),
+    fMigrationText(false),
     fPruningShapeOption(PruningUtil::SHAPEOPTION::MAXBIN),
     fSummaryLogY(true)
 {
