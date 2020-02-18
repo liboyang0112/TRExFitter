@@ -22,8 +22,8 @@ public:
     inline const std::string& GetName() const {return fName;};
     inline void SetTitle(const std::string& s) {fTitle = s;}
     inline const std::string& GetTitle() const {return fTitle;}
-    inline void SetFillColor(const int c) {fFillColor = c;}
-    inline int GetFillColor() const {return fFillColor;}
+    inline void SetLineStyle(const int s) {fLineStyle = s;}
+    inline int GetLineStyle() const {return fLineStyle;}
     inline void SetLineColor(const int c) {fLineColor = c;}
     inline int GetLineColor() const {return fLineColor;}
     inline void SetTruthDistributionPath(const std::string& s) {fTruthDistributionPath = s;}
@@ -36,7 +36,7 @@ private:
 
     std::string fName;
     std::string fTitle;
-    int fFillColor;
+    int fLineStyle;
     int fLineColor;
     std::string fTruthDistributionPath;
     std::string fTruthDistributionFile;

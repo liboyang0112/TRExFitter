@@ -766,6 +766,7 @@ public:
     double fMigrationZmax;
     double fResponseZmin;
     double fResponseZmax;
+    bool fMigrationText;
     PruningUtil::SHAPEOPTION fPruningShapeOption;
     bool fSummaryLogY;
 };
