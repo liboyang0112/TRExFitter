@@ -13,6 +13,7 @@
 
 // ROOT includes
 #include "TCanvas.h"
+#include "TFile.h"
 #include "TH1.h"
 #include "TLatex.h"
 #include "TLegend.h"
