@@ -191,7 +191,7 @@ RooWorkspace* MultiFit::CombineWS() const{
         std::string fileName = fitDir + "/RooStats/" + fitName + "_combined_" + fitName + fFitSuffs[i_fit] + "_model.root";
         if(fWsFiles[i_fit]!="") fileName = fWsFiles[i_fit];
         WriteDebugStatus("MultiFit::CombineWS", "Opening file " + fileName );
-        TFile *rootFile = new TFile(fileName.c_str(),"read");
+        TFile *rootFile = TFile::Open(fileName.c_str(),"read");
         RooWorkspace* m_ws = (RooWorkspace*) rootFile->Get("combined");
         WriteDebugStatus("MultiFit::CombineWS", "Getting " + fitName+fFitSuffs[i_fit] );
         meas = (RooStats::HistFactory::Measurement*) rootFile -> Get( (fitName+fFitSuffs[i_fit]).c_str());
@@ -220,7 +220,7 @@ RooWorkspace* MultiFit::CombineWS() const{
                 if(reg->fRegionType==Region::VALIDATION) continue;
                 std::string fileName_tmp = fitDir + "/RooStats/" + fitName + "_" + reg->fName + "_" + fitName + fFitSuffs[i_fit] + "_model.root";
                 WriteDebugStatus("MultiFit::CombineWS", "  Opening file " + fileName_tmp );
-                TFile *rootFile_tmp = new TFile(fileName_tmp.c_str(),"read");
+                TFile *rootFile_tmp = TFile::Open(fileName_tmp.c_str(),"read");
                 RooWorkspace* m_ws_tmp = (RooWorkspace*) rootFile_tmp->Get(reg->fName.c_str());
                 WriteDebugStatus("MultiFit::CombineWS", "  Getting " + reg->fName );
                 vec_ws.push_back(m_ws_tmp);
@@ -261,7 +261,7 @@ void MultiFit::SaveCombinedWS() const{
     //
     // Creating the rootfile
     //
-    TFile *f = new TFile( (fOutDir+"/ws_combined"+fSaveSuf+".root").c_str() , "recreate" );
+    TFile *f = TFile::Open( (fOutDir+"/ws_combined"+fSaveSuf+".root").c_str() , "recreate" );
     //
     // Creating the workspace
     //
@@ -279,7 +279,7 @@ void MultiFit::SaveCombinedWS() const{
 //
 std::map < std::string, double > MultiFit::FitCombinedWS(int fitType, const std::string& inputData, bool doLHscanOnly) const {
     if (TRExFitter::DEBUGLEVEL < 2) std::cout.setstate(std::ios_base::failbit);
-    TFile *f = new TFile((fOutDir+"/ws_combined"+fSaveSuf+".root").c_str() );
+    TFile *f = TFile::Open((fOutDir+"/ws_combined"+fSaveSuf+".root").c_str() );
     RooWorkspace *ws = (RooWorkspace*)f->Get("combWS");
 
     std::map < std::string, double > result;
@@ -879,16 +879,16 @@ void MultiFit::CompareLimit(){
         }
         if(fLimitsFiles[i]==""){
             if(fSignalInjection){
-                f = std::make_unique<TFile>(Form("%s/Limits/%s_injection.root",dirs[i].c_str(),(names[i]+suffs[i]).c_str()));
+                f.reset(TFile::Open(Form("%s/Limits/%s_injection.root",dirs[i].c_str(),(names[i]+suffs[i]).c_str())));
                 WriteInfoStatus("MultiFit::CompareLimit", "Reading file " + dirs[i] + "/Limits/" + (names[i]+suffs[i]) + "_injection.root");
             }
             else{
-                f = std::make_unique<TFile> (Form("%s/Limits/%s.root",dirs[i].c_str(),(names[i]+suffs[i]).c_str()));
+                f.reset(TFile::Open(Form("%s/Limits/%s.root",dirs[i].c_str(),(names[i]+suffs[i]).c_str())));
                 WriteInfoStatus("MultiFit::CompareLimit", "Reading file " + dirs[i] + "/Limits/" + (names[i]+suffs[i]) + ".root");
             }
         }
         else{
-            f = std::make_unique<TFile>(fLimitsFiles[i].c_str());
+            f.reset(TFile::Open(fLimitsFiles[i].c_str()));
             WriteInfoStatus("MultiFit::CompareLimit", "Reading file " + fLimitsFiles[i]);
         }
         h = std::unique_ptr<TH1>(static_cast<TH1*>(f->Get("limit")));
@@ -1590,7 +1590,7 @@ void MultiFit::ProduceNPRanking( string NPnames/*="all"*/ ) const{
     //
     // Get the combined model
     //
-    TFile *f = new TFile((fOutDir+"/ws_combined"+fSaveSuf+".root").c_str() );
+    TFile *f = TFile::Open((fOutDir+"/ws_combined"+fSaveSuf+".root").c_str() );
     RooWorkspace *ws = (RooWorkspace*)f->Get("combWS");
 
     //
@@ -2251,7 +2251,7 @@ void MultiFit::GetLikelihoodScan( RooWorkspace *ws, const std::string& varName, 
 
     }
     else{
-        TFile *f = new TFile(fName+"/"+LHDir+"NLLscan_"+varName+"_curve.root", "READ");
+        TFile *f = TFile::Open(fName+"/"+LHDir+"NLLscan_"+varName+"_curve.root", "READ");
         graph = std::unique_ptr<TGraph>(static_cast<TGraph*>(f->Get("LHscan")));
         graph->SetLineColor(kRed);
         graph->SetLineWidth(3);
@@ -2278,10 +2278,10 @@ void MultiFit::GetLikelihoodScan( RooWorkspace *ws, const std::string& varName, 
             TFile *f = nullptr;
             if(fit->fFitResultsFile!=""){
                 std::vector<std::string> v = Vectorize(fit->fFitResultsFile,'/');
-                f = new TFile(v[0]+"/"+LHDir+"NLLscan_"+varName+"_curve.root");
+                f = TFile::Open(v[0]+"/"+LHDir+"NLLscan_"+varName+"_curve.root");
             }
             else{
-                f = new TFile(fit->fName+"/"+LHDir+"NLLscan_"+varName+"_curve.root");
+                f = TFile::Open(fit->fName+"/"+LHDir+"NLLscan_"+varName+"_curve.root");
             }
             if(f!=nullptr) {
                 curve_fit.push_back(static_cast<TGraph*>(f->Get("LHscan")));
@@ -2366,7 +2366,7 @@ void MultiFit::GetLikelihoodScan( RooWorkspace *ws, const std::string& varName, 
 
     if(recreate){
         // write it to a ROOT file as well
-        TFile *f = new TFile(fName+"/"+LHDir+"NLLscan_"+varName+"_curve.root","UPDATE");
+        TFile *f = TFile::Open(fName+"/"+LHDir+"NLLscan_"+varName+"_curve.root","UPDATE");
         f->cd();
         graph->Write("LHscan",TObject::kOverwrite);
         f->Close();
@@ -2589,7 +2589,7 @@ void MultiFit::Get2DLikelihoodScan( RooWorkspace *ws, const std::vector<std::str
         }
 
         // write it to a ROOT file as well
-        std::unique_ptr<TFile> f = std::make_unique<TFile>(fName+"/"+LHDir+"NLLscan_"+varNames.at(0)+"_"+varNames.at(1)+"_curve.root","UPDATE");
+        std::unique_ptr<TFile> f(TFile::Open(fName+"/"+LHDir+"NLLscan_"+varNames.at(0)+"_"+varNames.at(1)+"_curve.root","UPDATE"));
         f->cd();
         graph.Write(("LHscan_2D_"+varNames.at(0)+"_"+varNames.at(1)).c_str(),TObject::kOverwrite);
         f->Close();
@@ -2600,11 +2600,11 @@ void MultiFit::Get2DLikelihoodScan( RooWorkspace *ws, const std::vector<std::str
         std::ostringstream step_os;
         step_os << fParal2Dstep;
         std::string paral2Dstep_str=step_os.str();
-        std::unique_ptr<TFile> f2 = std::make_unique<TFile>(fName+"/"+LHDir+"NLLscan_"+varNames.at(0)+"_"+varNames.at(1)+"_step"+paral2Dstep_str+"_histo.root","UPDATE");
+        std::unique_ptr<TFile> f2(TFile::Open(fName+"/"+LHDir+"NLLscan_"+varNames.at(0)+"_"+varNames.at(1)+"_step"+paral2Dstep_str+"_histo.root","UPDATE"));
         h_nll.Write("NLL",TObject::kOverwrite);
         f2->Close();
     } else {
-        std::unique_ptr<TFile> f2 = std::make_unique<TFile>(fName+"/"+LHDir+"NLLscan_"+varNames.at(0)+"_"+varNames.at(1)+"_histo.root","UPDATE");
+        std::unique_ptr<TFile> f2(TFile::Open(fName+"/"+LHDir+"NLLscan_"+varNames.at(0)+"_"+varNames.at(1)+"_histo.root","UPDATE"));
         h_nll.Write("NLL",TObject::kOverwrite);
         f2->Close();
     }
@@ -2687,10 +2687,10 @@ void MultiFit::PlotSummarySoverB() const {
         TH1D* h_tmp = nullptr;
         TH1D* h_tmpBonly = nullptr;
         WriteDebugStatus("MultiFit::PlotSummarySoverB",  "Opening file " + fileNames[i_hist]);
-        file.push_back(new TFile(fileNames[i_hist].c_str()));
+        file.push_back(TFile::Open(fileNames[i_hist].c_str()));
         if(includeBonly){
             WriteDebugStatus("MultiFit::PlotSummarySoverB", "Opening file " + fileNamesBonly[i_hist]);
-            fileBonly.push_back(new TFile(fileNamesBonly[i_hist].c_str()));
+            fileBonly.push_back(TFile::Open(fileNamesBonly[i_hist].c_str()));
         }
         //
         // initialize null histogram pointers

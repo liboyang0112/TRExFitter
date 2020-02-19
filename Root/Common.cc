@@ -168,7 +168,7 @@ TFile* Common::GetFile(const std::string& fileName) {
     auto it = TRExFitter::TFILEMAP.find(fileName);
     if(it != TRExFitter::TFILEMAP.end()) return it->second;
     else {
-       TFile *f = new TFile(fileName.c_str());
+       TFile *f = TFile::Open(fileName.c_str());
        TRExFitter::TFILEMAP.insert(std::pair<std::string,TFile*>(fileName,f));
        return f;
     }
@@ -244,7 +244,7 @@ void Common::WriteHistToFile(TH1* h,
                              const std::string& fileName,
                              const std::string& option) {
     TDirectory *dir = gDirectory;
-    TFile *f = new TFile(fileName.c_str(),option.c_str());
+    TFile *f = TFile::Open(fileName.c_str(),option.c_str());
     h->Write("",TObject::kOverwrite);
     h->SetDirectory(0);
     delete f;

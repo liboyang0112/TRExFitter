@@ -1704,7 +1704,7 @@ std::unique_ptr<TRExPlot> Region::DrawPostFit(FitResults* fitRes,
     //
     gSystem->mkdir((fFitName+"/Histograms").c_str());
     WriteInfoStatus("Region::DrawPostFit", "Writing file " + fFitName+"/Histograms/"+fName+fSuffix+"_postFit.root");
-    std::unique_ptr<TFile> f = std::make_unique<TFile>((fFitName+"/Histograms/"+fName+fSuffix+"_postFit.root").c_str(),"RECREATE");
+    std::unique_ptr<TFile> f(TFile::Open((fFitName+"/Histograms/"+fName+fSuffix+"_postFit.root").c_str(),"RECREATE"));
     f->cd();
     fErr_postFit->Write("",TObject::kOverwrite);
     fTot_postFit->Write("",TObject::kOverwrite);
