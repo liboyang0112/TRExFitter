@@ -208,7 +208,7 @@ void HistoReader::ReadTRExProducedHistograms() {
     std::vector< std::unique_ptr<TH2> > histPrun;
     std::unique_ptr<TFile> filePrun(nullptr);
     if( fFitter->fKeepPruning ){
-        filePrun = std::unique_ptr<TFile>(TFile::Open( (fFitter->fName+"/Pruning.root").c_str() ));
+        filePrun.reset(TFile::Open((fFitter->fName+"/Pruning.root").c_str()));
         if(!filePrun) fFitter->fKeepPruning = false;
     }
     //
