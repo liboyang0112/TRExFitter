@@ -68,7 +68,7 @@ std::vector <std::string> TRExFitter::IMAGEFORMAT;
 int TRExFitter::NCPU = 1;
 //
 std::map<std::string,double> TRExFitter::OPTION;
-std::map<std::string,TFile*> TRExFitter::TFILEMAP;
+std::map<std::string,std::unique_ptr<TFile> > TRExFitter::TFILEMAP;
 
 //----------------------------------------------------------------------------------
 //----------------------------------------------------------------------------------
@@ -166,11 +166,12 @@ TH1D* Common::HistFromNtupleBinArr(const std::string& ntuple,
 //
 TFile* Common::GetFile(const std::string& fileName) {
     auto it = TRExFitter::TFILEMAP.find(fileName);
-    if(it != TRExFitter::TFILEMAP.end()) return it->second;
+    if(it != TRExFitter::TFILEMAP.end()) return it->second.get();
     else {
-       TFile *f = TFile::Open(fileName.c_str());
-       TRExFitter::TFILEMAP.insert(std::pair<std::string,TFile*>(fileName,f));
-       return f;
+       std::unique_ptr<TFile> f(TFile::Open(fileName.c_str()));
+       TFile* result = f.get();
+       TRExFitter::TFILEMAP.insert(std::pair<std::string,std::unique_ptr<TFile> >(fileName,std::move(f)));
+       return result;
     }
 }
 

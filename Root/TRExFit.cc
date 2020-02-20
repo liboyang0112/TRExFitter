@@ -1248,13 +1248,12 @@ void TRExFit::CorrectHistograms(){
 void TRExFit::CloseInputFiles(){
     //
     // Close all input files
-    for(auto it : TRExFitter::TFILEMAP){
+    for(auto& it : TRExFitter::TFILEMAP){
         TDirectory *dir = gDirectory;
-        TFile *f = it.second;
+        TFile *f = it.second.get();
         if(f!=nullptr)
         dir->cd();
         f->Close();
-        delete f;
     }
     TRExFitter::TFILEMAP.clear();
 }
