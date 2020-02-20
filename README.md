@@ -123,7 +123,7 @@ Replace `latest` by another tag to get the corresponding version of the code. In
 You might want to add the flag ```--silent``` to suppress the warnings occuring for AnalysisBase images based on CentOS7.
 
 #### Setup using Docker image with Docker
-These steps describe how to use the image with the Docker software, for example on your own local machine. Get started by creating an account and downloading docker here: [https://hub.docker.com/](https://hub.docker.com/).
+These steps describe how to use the image with the Docker software, for example on your own local machine. Get started by downloading docker [here](https://www.docker.com/products/docker-desktop).
 
 To get access to the images, start with an authentication by running the following command:
 ```
