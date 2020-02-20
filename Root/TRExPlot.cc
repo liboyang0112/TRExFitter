@@ -957,7 +957,11 @@ void TRExPlot::SaveAs(const std::string& name) const{
 //
 void TRExPlot::WriteToFile(const std::string& name) const{
     TDirectory *here = gDirectory;
-    TFile *f = TFile::Open(name.c_str(),"RECREATE");
+    std::unique_ptr<TFile> f (TFile::Open(name.c_str(),"RECREATE"));
+    if (!f) {
+        WriteWarningStatus("TRExPlot::WriteToFile", "Cannot open file: " + name + ". Not writing into a file!");
+        return;
+    }
     f->cd();
     if(h_data) h_data->Write(Form("h_%s",fDataName.c_str()),TObject::kOverwrite);
     h_tot->Write("h_totErr",TObject::kOverwrite);
@@ -971,7 +975,6 @@ void TRExPlot::WriteToFile(const std::string& name) const{
     }
     here->cd();
     f->Close();
-    delete f;
 }
 
 //_____________________________________________________________________________

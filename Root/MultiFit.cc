@@ -191,10 +191,14 @@ RooWorkspace* MultiFit::CombineWS() const{
         std::string fileName = fitDir + "/RooStats/" + fitName + "_combined_" + fitName + fFitSuffs[i_fit] + "_model.root";
         if(fWsFiles[i_fit]!="") fileName = fWsFiles[i_fit];
         WriteDebugStatus("MultiFit::CombineWS", "Opening file " + fileName );
-        TFile *rootFile = TFile::Open(fileName.c_str(),"read");
-        RooWorkspace* m_ws = (RooWorkspace*) rootFile->Get("combined");
+        TFile* rootFile = TFile::Open(fileName.c_str(),"read");
+        if (!rootFile) {
+            WriteErrorStatus("MultiFit::CombineWS", "Cannot open file: " + fileName);
+            exit(EXIT_FAILURE);
+        }
+        RooWorkspace* m_ws = dynamic_cast<RooWorkspace*>(rootFile->Get("combined"));
         WriteDebugStatus("MultiFit::CombineWS", "Getting " + fitName+fFitSuffs[i_fit] );
-        meas = (RooStats::HistFactory::Measurement*) rootFile -> Get( (fitName+fFitSuffs[i_fit]).c_str());
+        meas = dynamic_cast<RooStats::HistFactory::Measurement*>(rootFile -> Get( (fitName+fFitSuffs[i_fit]).c_str()));
         //
         // import measurement if not there yet
         if(!measurement){
@@ -218,16 +222,20 @@ RooWorkspace* MultiFit::CombineWS() const{
             for(unsigned int i_reg=0;i_reg<fFitList[i_fit]->fRegions.size();i_reg++){
                 Region *reg = fFitList[i_fit]->fRegions[i_reg];
                 if(reg->fRegionType==Region::VALIDATION) continue;
-                std::string fileName_tmp = fitDir + "/RooStats/" + fitName + "_" + reg->fName + "_" + fitName + fFitSuffs[i_fit] + "_model.root";
+                const std::string fileName_tmp = fitDir + "/RooStats/" + fitName + "_" + reg->fName + "_" + fitName + fFitSuffs[i_fit] + "_model.root";
                 WriteDebugStatus("MultiFit::CombineWS", "  Opening file " + fileName_tmp );
-                TFile *rootFile_tmp = TFile::Open(fileName_tmp.c_str(),"read");
-                RooWorkspace* m_ws_tmp = (RooWorkspace*) rootFile_tmp->Get(reg->fName.c_str());
+                TFile* rootFile_tmp = TFile::Open(fileName_tmp.c_str(),"read");
+                if (!rootFile_tmp) {
+                    WriteErrorStatus("MultiFit::CombineWS", "Cannot open file: " + fileName_tmp);
+                    exit(EXIT_FAILURE);
+                }
+
+                RooWorkspace* m_ws_tmp = dynamic_cast<RooWorkspace*>(rootFile_tmp->Get(reg->fName.c_str()));
                 WriteDebugStatus("MultiFit::CombineWS", "  Getting " + reg->fName );
                 vec_ws.push_back(m_ws_tmp);
                 vec_chName.push_back(reg->fName);
             }
         }
-        //
     }
 
     //
@@ -261,7 +269,11 @@ void MultiFit::SaveCombinedWS() const{
     //
     // Creating the rootfile
     //
-    TFile *f = TFile::Open( (fOutDir+"/ws_combined"+fSaveSuf+".root").c_str() , "recreate" );
+    std::unique_ptr<TFile> f(TFile::Open( (fOutDir+"/ws_combined"+fSaveSuf+".root").c_str(), "recreate"));
+    if (!f) {
+        WriteErrorStatus("MultiFit::SaveCombinedWS", "Cannot open file!");
+        exit(EXIT_FAILURE);
+    }
     //
     // Creating the workspace
     //
@@ -279,8 +291,12 @@ void MultiFit::SaveCombinedWS() const{
 //
 std::map < std::string, double > MultiFit::FitCombinedWS(int fitType, const std::string& inputData, bool doLHscanOnly) const {
     if (TRExFitter::DEBUGLEVEL < 2) std::cout.setstate(std::ios_base::failbit);
-    TFile *f = TFile::Open((fOutDir+"/ws_combined"+fSaveSuf+".root").c_str() );
-    RooWorkspace *ws = (RooWorkspace*)f->Get("combWS");
+    std::unique_ptr<TFile> f(TFile::Open((fOutDir+"/ws_combined"+fSaveSuf+".root").c_str()));
+    if (!f) {
+        WriteErrorStatus("MultiFit::FitCombinedWS", "Cannot open file!");
+        exit(EXIT_FAILURE);
+    }
+    RooWorkspace *ws = dynamic_cast<RooWorkspace*>(f->Get("combWS"));
 
     std::map < std::string, double > result;
 
@@ -1590,19 +1606,23 @@ void MultiFit::ProduceNPRanking( string NPnames/*="all"*/ ) const{
     //
     // Get the combined model
     //
-    TFile *f = TFile::Open((fOutDir+"/ws_combined"+fSaveSuf+".root").c_str() );
-    RooWorkspace *ws = (RooWorkspace*)f->Get("combWS");
+    std::unique_ptr<TFile> f(TFile::Open((fOutDir+"/ws_combined"+fSaveSuf+".root").c_str()));
+    if (!f) {
+        WriteErrorStatus("MultiFit::ProduceNPRanking", "Cannot open file!");
+        exit(EXIT_FAILURE);
+    }
+    RooWorkspace *ws = dynamic_cast<RooWorkspace*>(f->Get("combWS"));
 
     //
     // Gets needed objects for the fit
     //
-    RooStats::ModelConfig* mc = (RooStats::ModelConfig*)ws->obj("ModelConfig");
-    RooSimultaneous *simPdf = (RooSimultaneous*)(mc->GetPdf());
+    RooStats::ModelConfig* mc = dynamic_cast<RooStats::ModelConfig*>(ws->obj("ModelConfig"));
+    RooSimultaneous *simPdf = static_cast<RooSimultaneous*>(mc->GetPdf());
 
     //
     // Creates the data object
     //
-    RooDataSet* data = 0;
+    RooDataSet* data = nullptr;
     if(inputData=="asimovData"){
         RooArgSet empty;// = RooArgSet();
         data = (RooDataSet*)RooStats::AsymptoticCalculator::MakeAsimovData( (*mc), RooArgSet(ws->allVars()), (RooArgSet&)empty);
@@ -1756,7 +1776,6 @@ void MultiFit::ProduceNPRanking( string NPnames/*="all"*/ ) const{
     ws->loadSnapshot("tmp_snapshot");
 
     f->Close();
-    delete f;
 }
 
 //____________________________________________________________________________________
@@ -2251,8 +2270,8 @@ void MultiFit::GetLikelihoodScan( RooWorkspace *ws, const std::string& varName, 
 
     }
     else{
-        TFile *f = TFile::Open(fName+"/"+LHDir+"NLLscan_"+varName+"_curve.root", "READ");
-        graph = std::unique_ptr<TGraph>(static_cast<TGraph*>(f->Get("LHscan")));
+        TFile* f = TFile::Open(fName+"/"+LHDir+"NLLscan_"+varName+"_curve.root", "READ");
+        graph.reset(dynamic_cast<TGraph*>(f->Get("LHscan")));
         graph->SetLineColor(kRed);
         graph->SetLineWidth(3);
     }
@@ -2275,7 +2294,7 @@ void MultiFit::GetLikelihoodScan( RooWorkspace *ws, const std::string& varName, 
     leg.SetTextFont(gStyle->GetTextFont());
     if(fCompare){
         for(auto fit : fFitList){
-            TFile *f = nullptr;
+            TFile* f = nullptr;
             if(fit->fFitResultsFile!=""){
                 std::vector<std::string> v = Vectorize(fit->fFitResultsFile,'/');
                 f = TFile::Open(v[0]+"/"+LHDir+"NLLscan_"+varName+"_curve.root");
@@ -2284,7 +2303,7 @@ void MultiFit::GetLikelihoodScan( RooWorkspace *ws, const std::string& varName, 
                 f = TFile::Open(fit->fName+"/"+LHDir+"NLLscan_"+varName+"_curve.root");
             }
             if(f!=nullptr) {
-                curve_fit.push_back(static_cast<TGraph*>(f->Get("LHscan")));
+                curve_fit.push_back(dynamic_cast<TGraph*>(f->Get("LHscan")));
             }
             else {
                 curve_fit.push_back(nullptr);
@@ -2366,11 +2385,10 @@ void MultiFit::GetLikelihoodScan( RooWorkspace *ws, const std::string& varName, 
 
     if(recreate){
         // write it to a ROOT file as well
-        TFile *f = TFile::Open(fName+"/"+LHDir+"NLLscan_"+varName+"_curve.root","UPDATE");
+        std::unique_ptr<TFile> f(TFile::Open(fName+"/"+LHDir+"NLLscan_"+varName+"_curve.root","UPDATE"));
         f->cd();
         graph->Write("LHscan",TObject::kOverwrite);
         f->Close();
-        delete f;
     }
 }
 
@@ -2672,8 +2690,8 @@ void MultiFit::PlotSummarySoverB() const {
 
     unsigned int Nsyst = systList.size();
 
-    std::vector<TFile*> file;
-    std::vector<TFile*> fileBonly;
+    std::vector<std::unique_ptr<TFile> > file;
+    std::vector<std::unique_ptr<TFile> > fileBonly;
     std::vector<TH1D* > h_sig;
     std::vector<TH1D* > h_bkg;
     std::vector<TH1D* > h_bkgBonly;
@@ -2687,10 +2705,10 @@ void MultiFit::PlotSummarySoverB() const {
         TH1D* h_tmp = nullptr;
         TH1D* h_tmpBonly = nullptr;
         WriteDebugStatus("MultiFit::PlotSummarySoverB",  "Opening file " + fileNames[i_hist]);
-        file.push_back(TFile::Open(fileNames[i_hist].c_str()));
+        file.emplace_back(std::move(TFile::Open(fileNames[i_hist].c_str())));
         if(includeBonly){
             WriteDebugStatus("MultiFit::PlotSummarySoverB", "Opening file " + fileNamesBonly[i_hist]);
-            fileBonly.push_back(TFile::Open(fileNamesBonly[i_hist].c_str()));
+            fileBonly.emplace_back(std::move(TFile::Open(fileNamesBonly[i_hist].c_str())));
         }
         //
         // initialize null histogram pointers
@@ -2706,7 +2724,7 @@ void MultiFit::PlotSummarySoverB() const {
         //
         for(unsigned int i_sig=0;i_sig<sigList.size();i_sig++){
             WriteDebugStatus("MultiFit::PlotSummarySoverB", "  Getting histogram h_"+sigList[i_sig]+"_postFit");
-            h_tmp = (TH1D*)file[i_hist]->Get( ("h_"+sigList[i_sig]+"_postFit").c_str() );
+            h_tmp = dynamic_cast<TH1D*>(file[i_hist]->Get( ("h_"+sigList[i_sig]+"_postFit").c_str()));
             if(h_tmp!=nullptr){
                 WriteDebugStatus("MultiFit::PlotSummarySoverB", " ... FOUND");
                 if(h_sig[i_hist]==nullptr) h_sig[i_hist] = h_tmp;
@@ -2715,8 +2733,8 @@ void MultiFit::PlotSummarySoverB() const {
         }
         for(unsigned int i_bkg=0;i_bkg<bkgList.size();i_bkg++){
             WriteDebugStatus("MultiFit::PlotSummarySoverB", "  Getting histogram h_"+bkgList[i_bkg]+"_postFit");
-            h_tmp = (TH1D*)file[i_hist]->Get( ("h_"+bkgList[i_bkg]+"_postFit").c_str() );
-            if(includeBonly) h_tmpBonly = (TH1D*)fileBonly[i_hist]->Get( ("h_"+bkgList[i_bkg]+"_postFit").c_str() );
+            h_tmp = dynamic_cast<TH1D*>(file[i_hist]->Get( ("h_"+bkgList[i_bkg]+"_postFit").c_str()));
+            if(includeBonly) h_tmpBonly = dynamic_cast<TH1D*>(fileBonly[i_hist]->Get( ("h_"+bkgList[i_bkg]+"_postFit").c_str()));
             if(h_tmp!=nullptr){
                 WriteDebugStatus("MultiFit::PlotSummarySoverB", " ... FOUND");
                 if(h_bkg[i_hist]==nullptr) h_bkg[i_hist] = h_tmp;
@@ -2730,29 +2748,30 @@ void MultiFit::PlotSummarySoverB() const {
             // syst variations
             for(unsigned int i_syst=0;i_syst<systList.size();i_syst++){
                 // up
-                h_tmp = (TH1D*)file[i_hist]->Get( ("h_"+bkgList[i_bkg]+"_"+systList[i_syst]+"_Up_postFit").c_str() );
+                h_tmp = dynamic_cast<TH1D*>(file[i_hist]->Get( ("h_"+bkgList[i_bkg]+"_"+systList[i_syst]+"_Up_postFit").c_str()));
                 if(h_tmp!=nullptr){
                     if(h_syst_up[i_syst][i_hist]==nullptr)   h_syst_up[i_syst][i_hist] = h_tmp;
                     else                                 h_syst_up[i_syst][i_hist]->Add(h_tmp);
                 }
                 // down
                 if(h_tmp!=nullptr){
-                    h_tmp = (TH1D*)file[i_hist]->Get( ("h_"+bkgList[i_bkg]+"_"+systList[i_syst]+"_Down_postFit").c_str() );
+                    h_tmp = dynamic_cast<TH1D*>(file[i_hist]->Get( ("h_"+bkgList[i_bkg]+"_"+systList[i_syst]+"_Down_postFit").c_str()));
                     if(h_syst_down[i_syst][i_hist]==nullptr) h_syst_down[i_syst][i_hist] = h_tmp;
                     else                                 h_syst_down[i_syst][i_hist]->Add(h_tmp);
                 }
             }
         }
         for(unsigned int i_data=0;i_data<dataList.size();i_data++){
-            h_tmp = (TH1D*)file[i_hist]->Get( ("h_"+dataList[i_data]).c_str() );
+            h_tmp = dynamic_cast<TH1D*>(file[i_hist]->Get( ("h_"+dataList[i_data]).c_str()));
             if(h_tmp!=nullptr){
                 if(h_data[i_hist]==nullptr) h_data[i_hist] = h_tmp;
                 else                    h_data[i_hist]->Add(h_tmp);
             }
         }
 
-        if(TRExFitter::PREFITONPOSTFIT)
-          h_tot_bkg_prefit[i_hist] = (TH1D*)file[i_hist]->Get("h_tot_bkg_prefit");
+        if(TRExFitter::PREFITONPOSTFIT) {
+            h_tot_bkg_prefit[i_hist] = dynamic_cast<TH1D*>(file[i_hist]->Get("h_tot_bkg_prefit"));
+        }
 
         //
         // Fix eventually empty histograms
@@ -2782,6 +2801,13 @@ void MultiFit::PlotSummarySoverB() const {
                 h_syst_down[i_syst][i_hist]->Add(h_bkg[i_hist],-1);
             }
         }
+    }
+
+    for (auto& ifile : file) {
+        ifile->Close();
+    }
+    for (auto& ifile : fileBonly) {
+        ifile->Close();
     }
 
     // create combined histogram

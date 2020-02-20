@@ -565,9 +565,9 @@ void TRExFit::CreateRootFiles(){
         }
         WriteInfoStatus("TRExFit::CreateRootFiles","-------------------------------------------");
         WriteInfoStatus("TRExFit::CreateRootFiles","Creating/updating file " + fileName + " ...");
-        if(recreate) fFiles.push_back(TFile::Open(fileName.c_str(),"RECREATE"));
-        else         fFiles.push_back(TFile::Open(fileName.c_str(),"UPDATE"));
-        TRExFitter::TFILEMAP.insert(std::make_pair(fileName,fFiles[fFiles.size()-1]));
+        if(recreate) fFiles.emplace_back(std::move(TFile::Open(fileName.c_str(),"RECREATE")));
+        else         fFiles.emplace_back(std::move(TFile::Open(fileName.c_str(),"UPDATE")));
+        TRExFitter::TFILEMAP.insert(std::make_pair(fileName,fFiles[fFiles.size()-1].get()));
     }
     else{
         for(int i_ch=0;i_ch<fNRegions;i_ch++){
@@ -579,9 +579,9 @@ void TRExFit::CreateRootFiles(){
             }
             WriteInfoStatus("TRExFit::CreateRootFiles","-------------------------------------------");
             WriteInfoStatus("TRExFit::CreateRootFiles","Creating/updating file " + fileName + " ...");
-            if(recreate) fFiles.push_back(TFile::Open(fileName.c_str(),"RECREATE"));
-            else         fFiles.push_back(TFile::Open(fileName.c_str(),"UPDATE"));
-            TRExFitter::TFILEMAP.insert(std::make_pair(fileName,fFiles[fFiles.size()-1]));
+            if(recreate) fFiles.emplace_back(std::move(TFile::Open(fileName.c_str(),"RECREATE")));
+            else         fFiles.emplace_back(std::move(TFile::Open(fileName.c_str(),"UPDATE")));
+            TRExFitter::TFILEMAP.insert(std::make_pair(fileName,fFiles[fFiles.size()-1].get()));
         }
     }
 }
@@ -623,8 +623,8 @@ void TRExFit::WriteHistos(bool reWriteOrig) const{
                     sh->fSyst[i_syst]->fHistoNameShapeDown = sh->fSyst[i_syst]->fHistShapeDown->GetName();
                 }
             }
-            if(singleOutputFile) sh->WriteToFile(fFiles[0]   ,reWriteOrig);
-            else                 sh->WriteToFile(fFiles[i_ch],reWriteOrig);
+            if(singleOutputFile) sh->WriteToFile(fFiles[0].get()   ,reWriteOrig);
+            else                 sh->WriteToFile(fFiles[i_ch].get(),reWriteOrig);
         }
     }
     WriteInfoStatus("TRExFit::WriteHistos","-------------------------------------------");
@@ -1248,13 +1248,12 @@ void TRExFit::CorrectHistograms(){
 void TRExFit::CloseInputFiles(){
     //
     // Close all input files
-    for(auto it : TRExFitter::TFILEMAP){
+    for(auto& it : TRExFitter::TFILEMAP){
         TDirectory *dir = gDirectory;
-        TFile *f = it.second;
+        TFile *f = it.second.get();
         if(f!=nullptr)
         dir->cd();
         f->Close();
-        delete f;
     }
     TRExFitter::TFILEMAP.clear();
 }
@@ -3775,10 +3774,10 @@ void TRExFit::DrawPruningPlot() const{
     // if yes
     if(!gSystem->AccessPathName( (fName+"/Pruning.root").c_str() )){
         // ...
-        filePrun = std::unique_ptr<TFile>(TFile::Open( (fName+"/Pruning.root").c_str() ));
+        filePrun.reset(TFile::Open( (fName+"/Pruning.root").c_str() ));
     }
     else{
-        filePrun = std::unique_ptr<TFile> (TFile::Open( (fName+"/Pruning.root").c_str(),"RECREATE" ));
+        filePrun.reset(TFile::Open( (fName+"/Pruning.root").c_str(),"RECREATE" ));
         for(std::size_t i_reg=0;i_reg<histPrun.size();i_reg++){
             histPrun_toSave[i_reg]->Write("",TObject::kOverwrite);
         }
@@ -5006,7 +5005,7 @@ void TRExFit::GetLimit(){
         // Gets the measurement object in the original combined workspace (created with the "w" command)
         //
         const std::string originalCombinedFile = fName+"/RooStats/"+fInputName+"_combined_"+fInputName+fSuffix+"_model.root";
-        TFile *f_origin = TFile::Open(originalCombinedFile.c_str(), "read");
+        std::unique_ptr<TFile> f_origin(TFile::Open(originalCombinedFile.c_str(), "read"));
         RooStats::HistFactory::Measurement *originalMeasurement = (RooStats::HistFactory::Measurement*)f_origin -> Get((fInputName+fSuffix).c_str());
         TString outputName = f_origin->GetName();
         f_origin -> Close();
@@ -5015,7 +5014,7 @@ void TRExFit::GetLimit(){
         // Creating the rootfile used as input for the limit setting :-)
         //
         outputName = outputName.ReplaceAll(".root","_forLimits.root");
-        TFile *f_clone = TFile::Open( outputName, "recreate" );
+        std::unique_ptr<TFile> f_clone(TFile::Open( outputName, "recreate"));
         ws_forLimit -> import(*data,Rename("ttHFitterData"));
         originalMeasurement -> Write();
         ws_forLimit -> Write();
@@ -5119,7 +5118,7 @@ void TRExFit::GetSignificance(){
         // Gets the measurement object in the original combined workspace (created with the "w" command)
         //
         const std::string originalCombinedFile = fName+"/RooStats/"+fInputName+"_combined_"+fInputName+fSuffix+"_model.root";
-        TFile *f_origin = TFile::Open(originalCombinedFile.c_str(), "read");
+        std::unique_ptr<TFile> f_origin(TFile::Open(originalCombinedFile.c_str(), "read"));
         RooStats::HistFactory::Measurement *originalMeasurement = (RooStats::HistFactory::Measurement*)f_origin -> Get((fInputName + fSuffix).c_str());
         TString outputName = f_origin->GetName();
         f_origin -> Close();
@@ -5128,7 +5127,7 @@ void TRExFit::GetSignificance(){
         // Creating the rootfile used as input for the limit setting :-)
         //
         outputName = outputName.ReplaceAll(".root","_forSignificance.root");
-        TFile *f_clone = TFile::Open( outputName, "recreate" );
+        std::unique_ptr<TFile> f_clone(TFile::Open(outputName, "recreate" ));
         ws_forSignificance -> import(*data,Rename("ttHFitterData"));
         originalMeasurement -> Write();
         ws_forSignificance -> Write();
