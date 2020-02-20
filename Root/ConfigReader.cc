@@ -3731,6 +3731,12 @@ int ConfigReader::ReadNormFactorOptions(){
             }
         }
 
+        // Set tau
+        param = confSet->Get("Tau");
+        if (param != "") {
+            nfactor->fTau = std::stof(param);
+        }
+
         // save list of
         if (regions.size() == 0 || exclude.size() == 0){
                 WriteErrorStatus("ConfigReader::ReadNormFactorOptions", "Region or exclude region size is equal to zero. Please check this");

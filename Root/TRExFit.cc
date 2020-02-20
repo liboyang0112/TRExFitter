@@ -4575,21 +4575,22 @@ std::map < std::string, double > TRExFit::PerformFit( RooWorkspace *ws, RooDataS
 
     // Tikhonov regularization (for unfolding)
     RooArgList l;
+    std::vector<double> nomVec;
     std::vector<double> tauVec;
     for(auto nf : fNormFactors){
         if(nf->fTau!=0){
             l.add(*ws->var(nf->fName.c_str()));
+            nomVec.push_back( nf->fNominal );
             tauVec.push_back( nf->fTau );
         }
     }
     if(tauVec.size()>0){
+        TVectorD nominal(nomVec.size());
         TMatrixDSym cov(tauVec.size());
         for(unsigned int i_tau=0;i_tau<tauVec.size();i_tau++){
+            nominal(i_tau) = nomVec[i_tau];
             cov(i_tau,i_tau) = (1./tauVec[i_tau]) * (1./tauVec[i_tau]);
         }
-        RooConstVar nominalValue("1","1",1);
-        RooArgList nominal;
-        for(unsigned int i_tau=0;i_tau<tauVec.size();i_tau++) nominal.add(nominalValue);
         RooMultiVarGaussian r("regularization","regularization",l,nominal,cov);
         ws->import(r);
         ws->defineSet("myConstraints","regularization");
