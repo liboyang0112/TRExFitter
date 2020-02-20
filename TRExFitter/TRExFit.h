@@ -470,7 +470,7 @@ public:
     std::string fInputName;
     std::string fFitResultsFile;
 
-    std::vector < TFile* > fFiles;
+    std::vector < std::unique_ptr<TFile> > fFiles;
 
     std::vector < Region* > fRegions;
     std::vector < Sample* > fSamples;
