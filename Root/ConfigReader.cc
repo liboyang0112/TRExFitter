@@ -6865,6 +6865,18 @@ int ConfigReader::ProcessUnfoldingSamples() {
             fFitter->fSamples.insert(fFitter->fSamples.end(), samples.begin(), samples.end());
             fFitter->fNSamples += fFitter->fNumberUnfoldingTruthBins;
         }
+
+        // add custom asimov sample
+        if (fFitter->fAlternativeAsimovTruthSample != "") {
+            Sample* sample = new Sample("AlternativeSignal", Sample::SampleType::GHOST);
+            sample->fRegions = Common::ToVec(ireg->fName);
+            sample->fHistoPaths = Common::ToVec(fFitter->fName+"/UnfoldingHistograms");
+            sample->fHistoFiles = Common::ToVec("FoldedHistograms");
+            const std::string histoName = ireg->fName + "_AlternativeAsimov";
+            sample->fHistoNames = Common::ToVec(histoName);
+            fFitter->fSamples.emplace_back(std::move(sample));
+            ++fFitter->fNSamples;
+        }
     }
 
     return 0;

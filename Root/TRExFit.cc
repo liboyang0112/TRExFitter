@@ -8155,7 +8155,7 @@ void TRExFit::PrepareUnfolding() {
         manager.WriteTruthToHisto(outputFile.get(), "", "truth_distribution");
        
         // read the alternative truth sample 
-        if (fNominalTruthSample != "") {
+        if (fAlternativeAsimovTruthSample != "") {
             for (const auto& itruth : fTruthSamples) {
                 if (itruth->GetName() == fAlternativeAsimovTruthSample) {
                     alternativeTruth = itruth->GetHisto(this);
@@ -8278,10 +8278,10 @@ void TRExFit::PrepareUnfolding() {
             manager.WriteFoldedToHisto(outputFile.get(), "nominal", histoName);
             
             // fold and store the altenative truth sample
-            if (fNominalTruthSample != "") {
+            if (fAlternativeAsimovTruthSample != "") {
                 std::unique_ptr<TH1> tmp = manager.TotalFold(alternativeTruth.get());
-                outputFile->cd("nominal");
-                tmp->Write("AlternativeAsimov");
+                outputFile->cd();
+                tmp->Write((ireg->fName + "_AlternativeAsimov").c_str());
             }
 
             // Process systematics
