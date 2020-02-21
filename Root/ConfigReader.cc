@@ -5497,6 +5497,7 @@ int ConfigReader::ReadUnfoldingOptions() {
     param = confSet->Get("AlternativeAsimovTruthSample");
     if (param != "") {
         fFitter->fAlternativeAsimovTruthSample = RemoveQuotes(param);
+        fFitter->fFitIsBlind = false;
     }
     
     return 0;
@@ -6868,7 +6869,7 @@ int ConfigReader::ProcessUnfoldingSamples() {
 
         // add custom asimov sample
         if (fFitter->fAlternativeAsimovTruthSample != "") {
-            Sample* sample = new Sample("AlternativeSignal", Sample::SampleType::GHOST);
+            Sample* sample = new Sample("AlternativeSignal_"+ireg->fName, Sample::SampleType::GHOST);
             sample->fRegions = Common::ToVec(ireg->fName);
             sample->fHistoPaths = Common::ToVec(fFitter->fName+"/UnfoldingHistograms");
             sample->fHistoFiles = Common::ToVec("FoldedHistograms");

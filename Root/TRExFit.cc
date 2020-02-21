@@ -3209,11 +3209,56 @@ void TRExFit::UnfoldingAlternativeAsimov() {
     if (fFitType != TRExFit::FitType::UNFOLDING) return;
     if (fAlternativeAsimovTruthSample == "")     return;
 
-    // do not do this when fitting real data
-    if (fFitIsBlind == false)                    return;
-
     WriteInfoStatus("TRExFit::UnfoldingAlternativeAsimov", "Replacing data with alternative asimov");
 
+    // loop over regions
+    for (auto& ireg : fRegions) {
+        SampleHist* sh = ireg->fData;
+
+        // Try getting signal
+        if (!sh) {
+            for (const auto& isig : ireg->fSig) {
+                if (!isig) {
+                    sh = isig;
+                    break;
+                }
+            }
+        }
+
+        if (!sh) {
+            WriteErrorStatus("TRExFit::UnfoldingAlternativeAsimov", "No data or signal found, this should not happen!");
+            exit(EXIT_FAILURE);
+        }
+
+        // now replace fData
+        TH1* hist = static_cast<TH1*>(sh->fHist->Clone());
+        hist->Reset();
+
+        // Add new signal
+        const Sample* newAsimov = GetSample("AlternativeSignal_"+ireg->fName);
+        if (!newAsimov) {
+            WriteErrorStatus("TRExFit::UnfoldingAlternativeAsimov", "Cannot read the new asimov sample");
+            exit(EXIT_FAILURE);
+        }
+        const SampleHist* newsh = ireg->GetSampleHist(newAsimov->fName);
+        if (!newsh) {
+            WriteErrorStatus("TRExFit::UnfoldingAlternativeAsimov", "Cannot read the new asimov SampleHist");
+            exit(EXIT_FAILURE);
+        }
+        hist->Add(newsh->fHist.get());
+
+        // add bkgs bkg
+        for (const auto& isample : fSamples) {
+            const SampleHist* sampleHist = ireg->GetSampleHist(isample->fName);
+            if (!sampleHist) continue;
+            if (sampleHist->fSample->fType != Sample::BACKGROUND) continue;
+            if(Common::FindInStringVector(isample->fRegions,ireg->fName) <0) continue;
+            hist->Add(sampleHist->fHist.get());
+        }
+
+        hist->Sumw2(false);
+        ireg->fData->fHist.reset(static_cast<TH1*>(hist->Clone()));
+    }
 }
 
 //__________________________________________________________________________________
