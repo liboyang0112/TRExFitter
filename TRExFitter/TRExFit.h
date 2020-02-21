@@ -287,7 +287,7 @@ public:
      * Helper function to compute the weight string to be used when reading ntuples, for a given region, sample and systematic combination
      * @param pointer to the Region
      * @param pointer to the Sample
-     * @param pointer to the Systematic (default = NULL)
+     * @param pointer to the Systematic (default = nullptr)
      * @param bool to specify up (true) or down (false) syst variation
      */
     std::string FullWeight(Region *reg,Sample *smp,Systematic *syst=nullptr,bool isUp=true);
@@ -296,7 +296,7 @@ public:
      * Helper function to compute the full paths to be used when reading ntuples, for a given region, sample and systematic combination
      * @param pointer to the Region
      * @param pointer to the Sample
-     * @param pointer to the Systematic (default = NULL)
+     * @param pointer to the Systematic (default = nullptr)
      * @param bool to specify up (true) or down (false) syst variation
      */
     std::vector<std::string> FullNtuplePaths(Region *reg,Sample *smp,Systematic *syst=nullptr,bool isUp=true);
@@ -305,7 +305,7 @@ public:
      * Helper function to compute the full paths to be used when reading histograms, for a given region, sample and systematic combination
      * @param pointer to the Region
      * @param pointer to the Sample
-     * @param pointer to the Systematic (default = NULL)
+     * @param pointer to the Systematic (default = nullptr)
      * @param bool to specify up (true) or down (false) syst variation
      */
     std::vector<std::string> FullHistogramPaths(Region *reg,Sample *smp,Systematic *syst=nullptr,bool isUp=true);
@@ -314,7 +314,7 @@ public:
      * A helper function to compute the fgull paths for a response matrix
      * @param pointer to the Region
      * @param pointer to the UnfoldingSample
-     * @param pointer to the Systematic (default = NULL)
+     * @param pointer to the Systematic (default = nullptr)
      * @param bool to specify up (true) or down (false) syst variation
      * @return the full path
      */
@@ -327,7 +327,7 @@ public:
      * A helper function to compute the fgull paths for a migration matrix
      * @param pointer to the Region
      * @param pointer to the UnfoldingSample
-     * @param pointer to the Systematic (default = NULL)
+     * @param pointer to the Systematic (default = nullptr)
      * @param bool to specify up (true) or down (false) syst variation
      * @return the full path
      */
@@ -340,7 +340,7 @@ public:
      * A helper function to compute the fgull paths for acceptance
      * @param pointer to the Region
      * @param pointer to the UnfoldingSample
-     * @param pointer to the Systematic (default = NULL)
+     * @param pointer to the Systematic (default = nullptr)
      * @param bool to specify up (true) or down (false) syst variation
      * @return the full path
      */
@@ -353,7 +353,7 @@ public:
      * A helper function to compute the fgull paths for selection efficiency
      * @param pointer to the Region
      * @param pointer to the UnfoldingSample
-     * @param pointer to the Systematic (default = NULL)
+     * @param pointer to the Systematic (default = nullptr)
      * @param bool to specify up (true) or down (false) syst variation
      * @return the full path
      */

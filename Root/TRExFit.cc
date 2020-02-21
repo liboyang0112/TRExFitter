@@ -4338,7 +4338,7 @@ RooDataSet* TRExFit::DumpData( RooWorkspace *ws,  std::map < std::string, int > 
     RooArgSet obsAndWeight;
     obsAndWeight.add(*mc->GetObservables());
 
-    RooRealVar* weightVar = NULL;
+    RooRealVar* weightVar = nullptr;
     if ( !(weightVar = ws->var(weightName)) ){
         ws->import(*(new RooRealVar(weightName, weightName, 1,0,10000000)));
         weightVar = ws->var(weightName);
@@ -4381,7 +4381,7 @@ RooDataSet* TRExFit::DumpData( RooWorkspace *ws,  std::map < std::string, int > 
     RooSimultaneous* simPdf = dynamic_cast<RooSimultaneous*>(mc->GetPdf());
     RooCategory* channelCat = (RooCategory*)&simPdf->indexCat();
     TIterator* iter = channelCat->typeIterator() ;
-    RooCatType* tt = NULL;
+    RooCatType* tt = nullptr;
     int iFrame = 0;
     int i = 0;
     while( (tt = (RooCatType*) iter -> Next()) ) {
@@ -5485,7 +5485,7 @@ void TRExFit::ProduceNPRanking( std::string NPnames/*="all"*/ ){
 
     // Loop on NPs to find gammas and add to the list to be ranked
     if(NPnames=="all" || NPnames.find("gamma")!=std::string::npos || (atoi(NPnames.c_str())>0 || strcmp(NPnames.c_str(),"0")==0)){
-        RooRealVar* var = NULL;
+        RooRealVar* var = nullptr;
         RooArgSet* nuis = (RooArgSet*) mc->GetNuisanceParameters();
         if(nuis){
             TIterator* it2 = nuis->createIterator();
@@ -6520,7 +6520,7 @@ void TRExFit::GetLikelihoodScan( RooWorkspace *ws, std::string varName, RooDataS
     TString firstPOIname = (TString)firstPOI->GetName();
     if (firstPOIname.Contains(varName.c_str())) isPoI = true;
 
-    RooRealVar* var = NULL;
+    RooRealVar* var = nullptr;
     TString vname = "";
     std::string vname_s = "";
     bool foundSyst = false;

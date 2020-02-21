@@ -1640,8 +1640,8 @@ void MultiFit::ProduceNPRanking( string NPnames/*="all"*/ ) const{
 
     // Loop on NPs to find gammas and add to the list to be ranked
     if(NPnames=="all" || NPnames.find("gamma")!=string::npos || (atoi(NPnames.c_str())>0 || strcmp(NPnames.c_str(),"0")==0)){
-        RooRealVar* var = NULL;
-        RooArgSet* nuis = (RooArgSet*) mc->GetNuisanceParameters();
+        RooRealVar* var = nullptr;
+        const RooArgSet* nuis = static_cast<const RooArgSet*>(mc->GetNuisanceParameters());
         if(nuis){
             TIterator* it2 = nuis->createIterator();
             int i_gamma = 0;

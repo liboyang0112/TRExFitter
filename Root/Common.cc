@@ -396,7 +396,8 @@ bool Common::StringsMatch(const std::string& s1, const std::string& s2){
 // taking into account wildcards on first argument
 int Common::wildcmp(const char *wild, const char *string) {
     // Written by Jack Handy - <A href="mailto:jakkhandy@hotmail.com">jakkhandy@hotmail.com</A>
-    const char *cp = NULL, *mp = NULL;
+    const char *cp = nullptr;
+    const char *mp = nullptr;
     while ((*string) && (*wild != '*')) {
         if ((*wild != *string) && (*wild != '?')) {
             return 0;
