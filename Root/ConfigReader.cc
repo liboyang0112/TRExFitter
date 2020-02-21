@@ -5494,6 +5494,11 @@ int ConfigReader::ReadUnfoldingOptions() {
         fFitter->fNominalTruthSample = RemoveQuotes(param);
     }
     
+    param = confSet->Get("AlternativeAsimovTruthSample");
+    if (param != "") {
+        fFitter->fAlternativeAsimovTruthSample = RemoveQuotes(param);
+    }
+    
     return 0;
 }
 
@@ -5504,6 +5509,7 @@ int ConfigReader::ReadTruthSamples() {
     int isample(0);
 
     bool found(false);
+    bool foundAlternative(false);
 
     std::vector<std::string> names;
 
@@ -5515,6 +5521,9 @@ int ConfigReader::ReadTruthSamples() {
         auto sample = std::make_unique<TruthSample>(RemoveQuotes(confSet->GetValue()));
         if (sample->GetName() == fFitter->fNominalTruthSample) {
             found = true;
+        }
+        if (sample->GetName() == fFitter->fAlternativeAsimovTruthSample) {
+            foundAlternative = true;
         }
 
         if (std::find(names.begin(), names.end(), RemoveQuotes(confSet->GetValue())) == names.end()) {
@@ -5559,6 +5568,11 @@ int ConfigReader::ReadTruthSamples() {
 
     if (isample != 0 && !found) {
         WriteErrorStatus("ConfigReader::ReadTruthSamples", "The NominalTruthSample not found in any of the TruthSample");
+        return 1;
+    }
+
+    if (fFitter->fAlternativeAsimovTruthSample != "" && !foundAlternative) {
+        WriteErrorStatus("ConfigReader::ReadTruthSamples", "The AlternativeAsimovTruthSample is set but doesnt match any of the TruthSamples");
         return 1;
     }
 

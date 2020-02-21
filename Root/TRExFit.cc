@@ -251,6 +251,7 @@ TRExFit::TRExFit(std::string name) :
     fUnfoldingTitleOffsetX(3.5),
     fUnfoldingTitleOffsetY(1.6),
     fNominalTruthSample("SetMe"),
+    fAlternativeAsimovTruthSample(""),
     fMigrationTitleX("X"),
     fMigrationTitleY("Y"),
     fMigrationLogX(false),
@@ -8133,6 +8134,8 @@ void TRExFit::PrepareUnfolding() {
 
     const bool horizontal = (fMatrixOrientation == FoldingManager::MATRIXORIENTATION::TRUTHONHORIZONTALAXIS);
    
+    std::unique_ptr<TH1> alternativeTruth(nullptr);
+
     {
         std::unique_ptr<TH1> truth(nullptr);
         for (const auto& itruth : fTruthSamples) {
@@ -8150,6 +8153,16 @@ void TRExFit::PrepareUnfolding() {
         }
         manager.SetTruthDistribution(truth.get());
         manager.WriteTruthToHisto(outputFile.get(), "", "truth_distribution");
+       
+        // read the alternative truth sample 
+        if (fNominalTruthSample != "") {
+            for (const auto& itruth : fTruthSamples) {
+                if (itruth->GetName() == fAlternativeAsimovTruthSample) {
+                    alternativeTruth = itruth->GetHisto(this);
+                    break;
+                } 
+            }
+        }
     }
 
     // loop over regions
@@ -8171,6 +8184,7 @@ void TRExFit::PrepareUnfolding() {
 
                 std::unique_ptr<TH2> matrix = Common::CombineHistos2DFromFullPaths(fullResponsePaths);
                 if (!matrix) {
+                    WriteErrorStatus("TRExFit::PrepareUnfolding", "Cannot read the response matrix!");
                     exit(EXIT_FAILURE);
                 }
                 const int nRecoBins  = horizontal ? matrix->GetNbinsY() : matrix->GetNbinsX();
@@ -8252,6 +8266,7 @@ void TRExFit::PrepareUnfolding() {
 
             manager.FoldTruth();
 
+
             // create the folder structure
             TDirectory* dir = dynamic_cast<TDirectory*>(outputFile->Get("nominal"));
             if (!dir) {
@@ -8261,6 +8276,13 @@ void TRExFit::PrepareUnfolding() {
 
             const std::string histoName = ireg->fName + "_" + isample->GetName();
             manager.WriteFoldedToHisto(outputFile.get(), "nominal", histoName);
+            
+            // fold and store the altenative truth sample
+            if (fNominalTruthSample != "") {
+                std::unique_ptr<TH1> tmp = manager.TotalFold(alternativeTruth.get());
+                outputFile->cd("nominal");
+                tmp->Write("AlternativeAsimov");
+            }
 
             // Process systematics
             for (const auto& isyst : fUnfoldingSystematics) {

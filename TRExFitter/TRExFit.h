@@ -755,6 +755,7 @@ public:
     double fUnfoldingTitleOffsetY;
     std::vector<std::unique_ptr<TruthSample> > fTruthSamples;
     std::string fNominalTruthSample;
+    std::string fAlternativeAsimovTruthSample;
     std::string fMigrationTitleX;
     std::string fMigrationTitleY;
     bool fMigrationLogX;
