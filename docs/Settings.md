@@ -352,6 +352,7 @@ additional options, accepting only float as arguments - useful for adding your f
 | Category                     | major category to which the NormFactor belongs (instrumental, theory, ttbar, ...) |
 | SubCategory                  | minor category for the NormFactor, used to evaluate impact on POI per SubCategory in "i" step, defaults to "NormFactors", do not use "Gammas", "FullSyst", or "combine" as SubCategory names (reserved for special functionality) |
 | Expression                   | a way to correlate this norm factor with other norm factors (using AddPreprocessFunction); two arguments, in the form `<expression>:<dependencies>`, where `<dependencies>` should contain the names of the norm factors the expression depends on, their nominal values and existence ranges [example: `(1.+Pmag*cos(theta))/2.:Pmag[0.9,0,1],theta[0,0,3.14]`] |
+| Tau                          | If set, a constraint term will be added to the likelihood for this NF, in the same way as for the Tikhonov regularization (used in unfolding); the constraint will be of the form exp((1/2) * tau^2 * (NF-µ)^2), where µ is the Nominal value for the NF, so the larger is tau, the stronger the constraint |
 
 
 ### `ShapeFactor` block settings
