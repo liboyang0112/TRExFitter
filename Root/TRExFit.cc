@@ -3202,6 +3202,19 @@ void TRExFit::CreateCustomAsimov() const {
         }
     }
 }
+    
+//__________________________________________________________________________________
+//
+void TRExFit::UnfoldingAlternativeAsimov() {
+    if (fFitType != TRExFit::FitType::UNFOLDING) return;
+    if (fAlternativeAsimovTruthSample == "")     return;
+
+    // do not do this when fitting real data
+    if (fFitIsBlind == false)                    return;
+
+    WriteInfoStatus("TRExFit::UnfoldingAlternativeAsimov", "Replacing data with alternative asimov");
+
+}
 
 //__________________________________________________________________________________
 // turn to RooStat::HistFactory

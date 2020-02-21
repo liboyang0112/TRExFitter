@@ -150,6 +150,11 @@ public:
 
     void CreateCustomAsimov() const;
 
+    /**
+      * Runs code that replaces asimov data with custom asimov for unfolding
+      */ 
+    void UnfoldingAlternativeAsimov();
+
     // turn to RooStat::HistFactory
     void ToRooStat(bool createWorkspace=true, bool exportOnly=true) const;
 
