@@ -149,6 +149,47 @@ void FoldingManager::FoldTruth() {
 
 //__________________________________________________________________________________
 //
+std::unique_ptr<TH1> FoldingManager::TotalFold(const TH1* const truth) const {
+
+    if (!truth) {
+        throw std::runtime_error{"FoldingManager::TotalFold: Passed nullptr"};
+    }
+    if (!fResponseMatrix) {
+        throw std::runtime_error{"FoldingManager::TotalFold: Response matrix is nullptr"};
+    }
+
+    std::unique_ptr<TH1> result(nullptr);
+    
+    const bool horizontal = (fMatrixOrientation == FoldingManager::MATRIXORIENTATION::TRUTHONHORIZONTALAXIS);
+    const int nRecoBins   = horizontal ? fResponseMatrix->GetNbinsY() : fResponseMatrix->GetNbinsX();
+    const int nTruthBins  = horizontal ? fResponseMatrix->GetNbinsX() : fResponseMatrix->GetNbinsY();
+
+    horizontal ? result.reset(fResponseMatrix->ProjectionY()) :
+                 result.reset(fResponseMatrix->ProjectionX());
+    result->Reset();
+
+    for (int ireco = 1; ireco <= nRecoBins; ++ireco) {
+        double content(0);
+        double error(0);
+        for (int itruth = 1; itruth <= nTruthBins; ++itruth) {
+            content += horizontal ?
+                       (truth->GetBinContent(itruth) * fResponseMatrix->GetBinContent(itruth, ireco)) :
+                       (truth->GetBinContent(itruth) * fResponseMatrix->GetBinContent(ireco, itruth));
+
+            error = horizontal ?
+                    std::hypot(error, (truth->GetBinContent(itruth) * fResponseMatrix->GetBinError(itruth, ireco))):
+                    std::hypot(error, (truth->GetBinContent(itruth) * fResponseMatrix->GetBinError(ireco, itruth)));
+        }
+
+        result->SetBinContent(ireco, content);
+        result->SetBinError(  ireco, error);
+    }
+
+    return result;
+}
+
+//__________________________________________________________________________________
+//
 bool FoldingManager::CheckConsistencyForResponse() const {
 
     if (fResponseMatrix) return true;
