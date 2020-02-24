@@ -8805,10 +8805,18 @@ void TRExFit::PlotUnfold(TH1D* data,
                          TGraphAsymmErrors* total) const {
 
     std::vector<std::unique_ptr<TH1> > mc;
+    std::vector<std::string> legendNames;
     for (const auto& isample : fTruthSamples) {
+        if (!isample->GetUseForPlotting()) continue;
         mc.emplace_back(std::move(isample->GetHisto(this)));
         mc.back()->SetLineColor(isample->GetLineColor());
         mc.back()->SetLineStyle(isample->GetLineStyle());
+        legendNames.emplace_back(isample->GetTitle());
+    }
+
+    if (mc.empty()) {
+        WriteWarningStatus("TRExFit::PlotUnfold", "No MC samples set for plotting. Will not create the final plots");
+        return;
     }
 
     TCanvas c("","",600,600);
@@ -8868,7 +8876,7 @@ void TRExFit::PlotUnfold(TH1D* data,
     TLegend leg(0.55, 0.9-legH, 0.9, 0.9);
     leg.AddEntry(total, "Unfolded data", "p");
     for (std::size_t imc = 0; imc < mc.size(); ++imc) {
-        leg.AddEntry(mc.at(imc).get(), fTruthSamples.at(imc)->GetTitle().c_str(), "l");
+        leg.AddEntry(mc.at(imc).get(), legendNames.at(imc).c_str(), "l");
     }
     leg.AddEntry(error.get(), "Total uncertainty","f");
 
@@ -8892,7 +8900,6 @@ void TRExFit::PlotUnfold(TH1D* data,
     h_dummy->GetYaxis()->SetTitle("#frac{Prediction}{Data}");
     h_dummy->GetYaxis()->SetNdivisions(505);
     h_dummy->GetXaxis()->SetTitle(fUnfoldingTitleX.c_str());
-//     h_dummy->GetXaxis()->SetMoreLogLabels();
     h_dummy->Draw("HIST");
 
     // Plot the error band
