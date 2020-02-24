@@ -54,6 +54,8 @@ public:
 
     void FoldTruth();
 
+    std::unique_ptr<TH1> TotalFold(const TH1* const truth) const;
+
     const std::vector<TH1D>& GetFoldedDistributions() const;
 
     void WriteFoldedToHisto(TFile* file, const std::string& dir, const std::string& path) const;

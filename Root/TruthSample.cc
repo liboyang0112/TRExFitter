@@ -10,6 +10,7 @@ TruthSample::TruthSample(const std::string& name) :
     fTitle(""),
     fLineStyle(0),
     fLineColor(1),
+    fUseForPlotting(true),
     fTruthDistributionPath(""),
     fTruthDistributionFile(""),
     fTruthDistributionName("")

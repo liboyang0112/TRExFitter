@@ -26,6 +26,8 @@ public:
     inline int GetLineStyle() const {return fLineStyle;}
     inline void SetLineColor(const int c) {fLineColor = c;}
     inline int GetLineColor() const {return fLineColor;}
+    inline void SetUseForPlotting(const bool b) {fUseForPlotting = b;}
+    inline int GetUseForPlotting() const {return fUseForPlotting;}
     inline void SetTruthDistributionPath(const std::string& s) {fTruthDistributionPath = s;}
     inline void SetTruthDistributionFile(const std::string& s) {fTruthDistributionFile = s;}
     inline void SetTruthDistributionName(const std::string& s) {fTruthDistributionName = s;}
@@ -38,6 +40,7 @@ private:
     std::string fTitle;
     int fLineStyle;
     int fLineColor;
+    bool fUseForPlotting;
     std::string fTruthDistributionPath;
     std::string fTruthDistributionFile;
     std::string fTruthDistributionName;

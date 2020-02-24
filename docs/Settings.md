@@ -660,3 +660,4 @@ These options are for multi-fits, performed with action `m`.
 | TruthDistributionPath         | folder path for truth distributions |
 | TruthDistributionFile         | file path for truth distributions |
 | TruthDistributionName         | name of the histogram in the file for truth distributions |
+| UseForPlotting                | Can be set to `TRUE` (default) of `FALSE`, tells the code if the given truth distribution will appear on the final plot with unfolded data |

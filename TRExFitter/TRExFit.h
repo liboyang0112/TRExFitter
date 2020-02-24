@@ -150,6 +150,11 @@ public:
 
     void CreateCustomAsimov() const;
 
+    /**
+      * Runs code that replaces asimov data with custom asimov for unfolding
+      */
+    void UnfoldingAlternativeAsimov();
+
     // turn to RooStat::HistFactory
     void ToRooStat(bool createWorkspace=true, bool exportOnly=true) const;
 
@@ -165,7 +170,7 @@ public:
 
     /**
       * A helper function to draw the plots with normalisation for each systematic
-      */ 
+      */
     void DrawSystematicNormalisationSummary() const;
 
     // fit etc...
@@ -287,7 +292,7 @@ public:
      * Helper function to compute the weight string to be used when reading ntuples, for a given region, sample and systematic combination
      * @param pointer to the Region
      * @param pointer to the Sample
-     * @param pointer to the Systematic (default = NULL)
+     * @param pointer to the Systematic (default = nullptr)
      * @param bool to specify up (true) or down (false) syst variation
      */
     std::string FullWeight(Region *reg,Sample *smp,Systematic *syst=nullptr,bool isUp=true);
@@ -296,7 +301,7 @@ public:
      * Helper function to compute the full paths to be used when reading ntuples, for a given region, sample and systematic combination
      * @param pointer to the Region
      * @param pointer to the Sample
-     * @param pointer to the Systematic (default = NULL)
+     * @param pointer to the Systematic (default = nullptr)
      * @param bool to specify up (true) or down (false) syst variation
      */
     std::vector<std::string> FullNtuplePaths(Region *reg,Sample *smp,Systematic *syst=nullptr,bool isUp=true);
@@ -305,7 +310,7 @@ public:
      * Helper function to compute the full paths to be used when reading histograms, for a given region, sample and systematic combination
      * @param pointer to the Region
      * @param pointer to the Sample
-     * @param pointer to the Systematic (default = NULL)
+     * @param pointer to the Systematic (default = nullptr)
      * @param bool to specify up (true) or down (false) syst variation
      */
     std::vector<std::string> FullHistogramPaths(Region *reg,Sample *smp,Systematic *syst=nullptr,bool isUp=true);
@@ -314,11 +319,11 @@ public:
      * A helper function to compute the fgull paths for a response matrix
      * @param pointer to the Region
      * @param pointer to the UnfoldingSample
-     * @param pointer to the Systematic (default = NULL)
+     * @param pointer to the Systematic (default = nullptr)
      * @param bool to specify up (true) or down (false) syst variation
      * @return the full path
      */
-    std::vector<std::string> FullResponseMatrixPaths(const Region* reg, 
+    std::vector<std::string> FullResponseMatrixPaths(const Region* reg,
                                                      const UnfoldingSample* smp,
                                                      const UnfoldingSystematic* syst = nullptr,
                                                      const bool isUp = true) const;
@@ -327,11 +332,11 @@ public:
      * A helper function to compute the fgull paths for a migration matrix
      * @param pointer to the Region
      * @param pointer to the UnfoldingSample
-     * @param pointer to the Systematic (default = NULL)
+     * @param pointer to the Systematic (default = nullptr)
      * @param bool to specify up (true) or down (false) syst variation
      * @return the full path
      */
-    std::vector<std::string> FullMigrationMatrixPaths(const Region* reg, 
+    std::vector<std::string> FullMigrationMatrixPaths(const Region* reg,
                                                       const UnfoldingSample* smp,
                                                       const UnfoldingSystematic* syst = nullptr,
                                                       const bool isUp = true) const;
@@ -340,11 +345,11 @@ public:
      * A helper function to compute the fgull paths for acceptance
      * @param pointer to the Region
      * @param pointer to the UnfoldingSample
-     * @param pointer to the Systematic (default = NULL)
+     * @param pointer to the Systematic (default = nullptr)
      * @param bool to specify up (true) or down (false) syst variation
      * @return the full path
      */
-    std::vector<std::string> FullAcceptancePaths(const Region* reg, 
+    std::vector<std::string> FullAcceptancePaths(const Region* reg,
                                                  const UnfoldingSample* smp,
                                                  const UnfoldingSystematic* syst = nullptr,
                                                  const bool isUp = true) const;
@@ -353,11 +358,11 @@ public:
      * A helper function to compute the fgull paths for selection efficiency
      * @param pointer to the Region
      * @param pointer to the UnfoldingSample
-     * @param pointer to the Systematic (default = NULL)
+     * @param pointer to the Systematic (default = nullptr)
      * @param bool to specify up (true) or down (false) syst variation
      * @return the full path
      */
-    std::vector<std::string> FullSelectionEffPaths(const Region* reg, 
+    std::vector<std::string> FullSelectionEffPaths(const Region* reg,
                                                    const UnfoldingSample* smp,
                                                    const UnfoldingSystematic* syst = nullptr,
                                                    const bool isUp = true) const;
@@ -365,7 +370,7 @@ public:
     /**
       * A helper function to combine paths for the truth distributions
       * @return a vector of the paths
-      */ 
+      */
     std::vector<std::string> FullTruthPaths() const;
 
     /**
@@ -400,19 +405,19 @@ public:
     /**
       *  A helper function to get the list of unique names of non-gamma systematics
       *  @return the list of unique non-gamma systematics
-      */ 
+      */
     std::vector<std::string> GetUniqueSystNamesWithoutGamma() const;
 
     /**
       * A helper function to get the vector of non-validation regions
       * @return the vector on non-validation regions
-      */ 
+      */
     std::vector<Region*> GetNonValidationRegions() const;
 
     /**
       * A helper function to get the vector of non-data, non-ghost samples
       * @return the vector of non-data, non-ghost samples
-      */ 
+      */
     std::vector<Sample*> GetNonDataNonGhostSamples() const;
 
     /**
@@ -423,7 +428,7 @@ public:
     /**
       * A function that prepares signal inputs for unfolding.
       * Folded distributions are created
-      */ 
+      */
     void PrepareUnfolding();
 
     /**
@@ -433,7 +438,7 @@ public:
       * @param Region
       * @param UnfoldingSample
       * @param Current UnfoldingSystystematics
-      */ 
+      */
     void ProcessUnfoldingSystematics(FoldingManager* manager,
                                      TFile* file,
                                      const Region* reg,
@@ -443,7 +448,7 @@ public:
     /** A helper function that does the actual plotting of unfolded data
       * @param unfoded data
       * @param error band
-      */ 
+      */
     void PlotUnfold(TH1D* data,
                     TGraphAsymmErrors* band) const;
 
@@ -453,7 +458,7 @@ public:
       * @param flag if sample is migration
       * @param name of the region
       * @param name of the systematic
-      */ 
+      */
     void PlotMigrationResponse(const TH2* matrix,
                                const bool isMigration,
                                const std::string& regionName,
@@ -522,7 +527,7 @@ public:
     std::vector<std::string> fMigrationFiles;
     std::vector<std::string> fMigrationPaths;
     std::vector<std::string> fMigrationNamesNominal;
-    
+
     std::vector<std::string> fHistoPaths;
     std::vector<std::string> fHistoFiles;
     std::vector<std::string> fHistoNames;
@@ -755,6 +760,7 @@ public:
     double fUnfoldingTitleOffsetY;
     std::vector<std::unique_ptr<TruthSample> > fTruthSamples;
     std::string fNominalTruthSample;
+    std::string fAlternativeAsimovTruthSample;
     std::string fMigrationTitleX;
     std::string fMigrationTitleY;
     bool fMigrationLogX;

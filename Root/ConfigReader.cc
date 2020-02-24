@@ -29,7 +29,7 @@
 
 //__________________________________________________________________________________
 //
-ConfigReader::ConfigReader(TRExFit *fitter) : 
+ConfigReader::ConfigReader(TRExFit *fitter) :
     fFitter(fitter),
     fParser(new ConfigParser()),
     fAllowWrongRegionSample(false),
@@ -82,15 +82,15 @@ int ConfigReader::ReadFullConfig(const std::string& fileName, const std::string&
     sc+= ReadShapeFactorOptions();
 
     sc+= ReadSystOptions();
-    
+
     sc+= ReadUnfoldingOptions();
-    
+
     sc+= ReadTruthSamples();
-    
+
     sc+= ReadUnfoldingSampleOptions();
-    
+
     sc+= ReadUnfoldingSystematicOptions();
-    
+
     sc+= UnfoldingCorrections();
 
     sc+= PostConfig(opt);
@@ -318,7 +318,7 @@ int ConfigReader::ReadJobOptions(){
         fFitter->fResponseMatrixNames.clear();
         fFitter->fResponseMatrixNames.emplace_back(CheckName(param));
     }
-    
+
     param = confSet->Get("ResponseMatrixNames");
     if (param != "") {
         fFitter->fResponseMatrixNames = Vectorize(param, ',');
@@ -329,7 +329,7 @@ int ConfigReader::ReadJobOptions(){
         fFitter->fResponseMatrixFiles.clear();
         fFitter->fResponseMatrixFiles.emplace_back(CheckName(param));
     }
-    
+
     param = confSet->Get("ResponseMatrixFiles");
     if (param != "") {
         fFitter->fResponseMatrixFiles = Vectorize(param, ',');
@@ -340,7 +340,7 @@ int ConfigReader::ReadJobOptions(){
         fFitter->fResponseMatrixPaths.clear();
         fFitter->fResponseMatrixPaths.emplace_back(CheckName(param));
     }
-    
+
     param = confSet->Get("ResponseMatrixPaths");
     if (param != "") {
         fFitter->fResponseMatrixPaths = Vectorize(param, ',');
@@ -351,14 +351,14 @@ int ConfigReader::ReadJobOptions(){
       fFitter->fResponseMatrixNamesNominal.clear();
       fFitter->fResponseMatrixNamesNominal.emplace_back(CheckName(param));
     }
-    
+
     param = confSet->Get("AcceptanceName");
     if (param != "") {
         fFitter->fAcceptanceNames.clear();
         fFitter->fAcceptanceNames.emplace_back(CheckName(param));
         fFitter->fHasAcceptance = true;
     }
-    
+
     param = confSet->Get("AcceptanceNames");
     if (param != "") {
         fFitter->fAcceptanceNames = Vectorize(param, ',');
@@ -371,7 +371,7 @@ int ConfigReader::ReadJobOptions(){
         fFitter->fAcceptanceFiles.emplace_back(CheckName(param));
         fFitter->fHasAcceptance = true;
     }
-    
+
     param = confSet->Get("AcceptanceFiles");
     if (param != "") {
         fFitter->fAcceptanceFiles = Vectorize(param, ',');
@@ -384,7 +384,7 @@ int ConfigReader::ReadJobOptions(){
         fFitter->fAcceptancePaths.emplace_back(CheckName(param));
         fFitter->fHasAcceptance = true;
     }
-    
+
     param = confSet->Get("AcceptancePaths");
     if (param != "") {
         fFitter->fAcceptancePaths = Vectorize(param, ',');
@@ -397,13 +397,13 @@ int ConfigReader::ReadJobOptions(){
         fFitter->fAcceptanceNamesNominal.emplace_back(CheckName(param));
         fFitter->fHasAcceptance = true;
     }
-    
+
     param = confSet->Get("SelectionEffName");
     if (param != "") {
         fFitter->fSelectionEffNames.clear();
         fFitter->fSelectionEffNames.emplace_back(CheckName(param));
     }
-    
+
     param = confSet->Get("SelectionEffNames");
     if (param != "") {
         fFitter->fSelectionEffNames = Vectorize(param, ',');
@@ -414,7 +414,7 @@ int ConfigReader::ReadJobOptions(){
         fFitter->fSelectionEffFiles.clear();
         fFitter->fSelectionEffFiles.emplace_back(CheckName(param));
     }
-    
+
     param = confSet->Get("SelectionEffFiles");
     if (param != "") {
         fFitter->fSelectionEffFiles = Vectorize(param, ',');
@@ -425,7 +425,7 @@ int ConfigReader::ReadJobOptions(){
         fFitter->fSelectionEffPaths.clear();
         fFitter->fSelectionEffPaths.emplace_back(CheckName(param));
     }
-    
+
     param = confSet->Get("SelectionEffPaths");
     if (param != "") {
         fFitter->fSelectionEffPaths = Vectorize(param, ',');
@@ -436,13 +436,13 @@ int ConfigReader::ReadJobOptions(){
       fFitter->fSelectionEffNamesNominal.clear();
       fFitter->fSelectionEffNamesNominal.emplace_back(CheckName(param));
     }
-    
+
     param = confSet->Get("MigrationName");
     if (param != "") {
         fFitter->fMigrationNames.clear();
         fFitter->fMigrationNames.emplace_back(CheckName(param));
     }
-    
+
     param = confSet->Get("MigrationNames");
     if (param != "") {
         fFitter->fMigrationNames = Vectorize(param, ',');
@@ -453,7 +453,7 @@ int ConfigReader::ReadJobOptions(){
         fFitter->fMigrationFiles.clear();
         fFitter->fMigrationFiles.emplace_back(CheckName(param));
     }
-    
+
     param = confSet->Get("MigrationFiles");
     if (param != "") {
         fFitter->fMigrationFiles = Vectorize(param, ',');
@@ -464,7 +464,7 @@ int ConfigReader::ReadJobOptions(){
         fFitter->fMigrationPaths.clear();
         fFitter->fMigrationPaths.emplace_back(CheckName(param));
     }
-    
+
     param = confSet->Get("MigrationPaths");
     if (param != "") {
         fFitter->fMigrationPaths = Vectorize(param, ',');
@@ -475,7 +475,7 @@ int ConfigReader::ReadJobOptions(){
       fFitter->fMigrationNamesNominal.clear();
       fFitter->fMigrationNamesNominal.emplace_back(CheckName(param));
     }
-    
+
     // Set paths
     // HIST option only
     if(fFitter->fInputType==0){
@@ -1475,7 +1475,7 @@ int ConfigReader::SetJobPlot(ConfigSet *confSet){
 
     param = confSet->Get("MaxNtupleEvents");
     if(param != "") fFitter->fDebugNev = atoi(param.c_str());
-    
+
     param = confSet->Get("PruningShapeOption");
     if(param != "") {
         std::transform(param.begin(), param.end(), param.begin(), ::toupper);
@@ -2391,7 +2391,7 @@ int ConfigReader::ReadRegionOptions(const std::string& opt){
         if (param != "") {
             reg->fMigrationPathSuffs = Vectorize(param, ',');
         }
-        
+
         param = confSet->Get("NumberOfRecoBins");
         if (param != "") {
             const int bins = std::stoi(param);
@@ -2419,7 +2419,7 @@ int ConfigReader::ReadRegionOptions(const std::string& opt){
                 reg->fNormalizeMigrationMatrix = true;
             }
         }
-        
+
 
         // Paths for the unfolding code
         // Paths for the unfolding code
@@ -2588,7 +2588,7 @@ int ConfigReader::ReadRegionOptions(const std::string& opt){
                 }
             }
         }
-        
+
         // Set DropBins
         param = confSet->Get("DropBins");
         if( param != "" ){
@@ -2629,7 +2629,7 @@ int ConfigReader::ReadRegionOptions(const std::string& opt){
             }
             reg->fXaxisRange = range;
         }
-        
+
         // Inter-region smoothing
         param = confSet->Get("IsBinOfRegion");
         if( param != "" ){
@@ -4662,7 +4662,7 @@ int ConfigReader::ReadSystOptions(){
                 sys->fNoPruning = false;
             }
         }
-        
+
         // Set DropNorm
         param = confSet->Get("DropNorm");
         if(param!=""){
@@ -4871,7 +4871,7 @@ int ConfigReader::SetSystRegionDecorelate(ConfigSet *confSet,
         WriteInfoStatus("ConfigReader::SetSystRegionDecorelate", "--> KEEPING IT!!! " + ireg);
 
         Region* reg = fFitter->GetRegion(ireg);
-        
+
         if (type == Systematic::STAT) {
             unsigned int nbins = reg->fHistoNBinsRebin>0 ? reg->fHistoNBinsRebin : reg->fNbins;
             WriteInfoStatus("ConfigReader::SetSystRegionDecorelate", ireg + " " + std::to_string(nbins));
@@ -5031,7 +5031,7 @@ int ConfigReader::SetSystSampleDecorelate(ConfigSet *confSet, Systematic *sys, c
         // Add sample/syst cross-reference
         sam->AddSystematic(mySys);
         mySys->fSamples = { sam->fName };
-            
+
         FixReferenceSamples(mySys);
     }
 
@@ -5097,7 +5097,7 @@ int ConfigReader::SetSystShapeDecorelate(ConfigSet *confSet, Systematic *sys, co
         mySys2->fName=(mySys2->fName)+"_Shape";
         mySys2->fIsNormOnly=false;
         mySys2->fIsShapeOnly=true;
-        
+
         fFitter->fSystematics.push_back( mySys2 );
 
         //Set NuisanceParameter
@@ -5268,12 +5268,12 @@ int ConfigReader::ReadUnfoldingOptions() {
     if (fFitter->fFitType == TRExFit::UNFOLDING && !confSet) {
         WriteErrorStatus("ConfigReader::ReadUnfoldingOptions", "You set FitType == UNFOLDING, but didnt provide Unfolding block!");
         return 1;
-    } 
+    }
 
     if (!confSet) {
         return 0;
-    }   
- 
+    }
+
     std::string param = confSet->Get("MatrixOrientation");
     if (param != "") {
         std::transform(param.begin(), param.end(), param.begin(), ::toupper);
@@ -5345,12 +5345,12 @@ int ConfigReader::ReadUnfoldingOptions() {
             }
         }
     }
-    
+
     param = confSet->Get("UnfoldingResultMin");
     if (param != "") {
         fFitter->fUnfoldingResultMin = std::stod(param);
     }
-    
+
     param = confSet->Get("UnfoldingResultMax");
     if (param != "") {
         fFitter->fUnfoldingResultMax = std::stod(param);
@@ -5380,12 +5380,12 @@ int ConfigReader::ReadUnfoldingOptions() {
     if (param != "") {
         fFitter->fUnfoldingRatioYmax = std::stod(param);
     }
-    
+
     param = confSet->Get("RatioYmin");
     if (param != "") {
         fFitter->fUnfoldingRatioYmin = std::stod(param);
     }
-    
+
     param = confSet->Get("LogX");
     if (param != "") {
         std::transform(param.begin(), param.end(), param.begin(), ::toupper);
@@ -5395,7 +5395,7 @@ int ConfigReader::ReadUnfoldingOptions() {
             fFitter->fUnfoldingLogX = false;
         }
     }
-    
+
     param = confSet->Get("LogY");
     if (param != "") {
         std::transform(param.begin(), param.end(), param.begin(), ::toupper);
@@ -5405,17 +5405,17 @@ int ConfigReader::ReadUnfoldingOptions() {
             fFitter->fUnfoldingLogY = false;
         }
     }
-    
+
     param = confSet->Get("MigrationTitleX");
     if (param != "") {
         fFitter->fMigrationTitleX = RemoveQuotes(param);
     }
-    
+
     param = confSet->Get("MigrationTitleY");
     if (param != "") {
         fFitter->fMigrationTitleY = RemoveQuotes(param);
     }
-    
+
     param = confSet->Get("MigrationLogX");
     if (param != "") {
         std::transform(param.begin(), param.end(), param.begin(), ::toupper);
@@ -5425,7 +5425,7 @@ int ConfigReader::ReadUnfoldingOptions() {
             fFitter->fMigrationLogX = false;
         }
     }
-    
+
     param = confSet->Get("MigrationLogY");
     if (param != "") {
         std::transform(param.begin(), param.end(), param.begin(), ::toupper);
@@ -5435,37 +5435,37 @@ int ConfigReader::ReadUnfoldingOptions() {
             fFitter->fMigrationLogY = false;
         }
     }
-    
+
     param = confSet->Get("MigrationTitleOffsetX");
     if (param != "") {
         fFitter->fMigrationTitleOffsetX = std::stod(param);
     }
-    
+
     param = confSet->Get("MigrationTitleOffsetY");
     if (param != "") {
         fFitter->fMigrationTitleOffsetY = std::stod(param);
     }
-    
+
     param = confSet->Get("MigrationZmin");
     if (param != "") {
         fFitter->fMigrationZmin = std::stod(param);
     }
-    
+
     param = confSet->Get("MigrationZmax");
     if (param != "") {
         fFitter->fMigrationZmax = std::stod(param);
     }
-    
+
     param = confSet->Get("ResponseZmin");
     if (param != "") {
         fFitter->fResponseZmin = std::stod(param);
     }
-    
+
     param = confSet->Get("ResponseZmax");
     if (param != "") {
         fFitter->fResponseZmax = std::stod(param);
     }
-    
+
     param = confSet->Get("PlotSystematicMigrations");
     if (param != "") {
         std::transform(param.begin(), param.end(), param.begin(), ::toupper);
@@ -5475,7 +5475,7 @@ int ConfigReader::ReadUnfoldingOptions() {
             fFitter->fPlotSystematicMigrations = false;
         }
     }
-    
+
     param = confSet->Get("MigrationText");
     if (param != "") {
         std::transform(param.begin(), param.end(), param.begin(), ::toupper);
@@ -5485,7 +5485,7 @@ int ConfigReader::ReadUnfoldingOptions() {
             fFitter->fMigrationText = false;
         }
     }
-    
+
     param = confSet->Get("NominalTruthSample");
     if (param == "") {
         WriteErrorStatus("ConfigReader::ReadUnfoldingOptions", "You need to set NominalTruthSample option!");
@@ -5493,7 +5493,13 @@ int ConfigReader::ReadUnfoldingOptions() {
     } else {
         fFitter->fNominalTruthSample = RemoveQuotes(param);
     }
-    
+
+    param = confSet->Get("AlternativeAsimovTruthSample");
+    if (param != "") {
+        fFitter->fAlternativeAsimovTruthSample = RemoveQuotes(param);
+        fFitter->fFitIsBlind = false;
+    }
+
     return 0;
 }
 
@@ -5504,6 +5510,7 @@ int ConfigReader::ReadTruthSamples() {
     int isample(0);
 
     bool found(false);
+    bool foundAlternative(false);
 
     std::vector<std::string> names;
 
@@ -5516,9 +5523,12 @@ int ConfigReader::ReadTruthSamples() {
         if (sample->GetName() == fFitter->fNominalTruthSample) {
             found = true;
         }
+        if (sample->GetName() == fFitter->fAlternativeAsimovTruthSample) {
+            foundAlternative = true;
+        }
 
         if (std::find(names.begin(), names.end(), RemoveQuotes(confSet->GetValue())) == names.end()) {
-            names.emplace_back(RemoveQuotes(confSet->GetValue())); 
+            names.emplace_back(RemoveQuotes(confSet->GetValue()));
         } else {
             WriteErrorStatus("ConfigReader::ReadTruthSamples", "Multiply defined TruthSample: " + RemoveQuotes(confSet->GetValue()));
             return 1;
@@ -5538,7 +5548,17 @@ int ConfigReader::ReadTruthSamples() {
         if (param != "") {
             sample->SetLineColor(std::stoi(param));
         }
-        
+
+        param = confSet->Get("UseForPlotting");
+        if (param != "") {
+            std::transform(param.begin(), param.end(), param.begin(), ::toupper);
+            if (param == "TRUE") {
+                sample->SetUseForPlotting(true);
+            } else if (param == "FALSE") {
+                sample->SetUseForPlotting(false);
+            }
+        }
+
         param = confSet->Get("TruthDistributionPath");
         if (param != "") {
             sample->SetTruthDistributionPath(RemoveQuotes(param));
@@ -5562,6 +5582,11 @@ int ConfigReader::ReadTruthSamples() {
         return 1;
     }
 
+    if (fFitter->fAlternativeAsimovTruthSample != "" && !foundAlternative) {
+        WriteErrorStatus("ConfigReader::ReadTruthSamples", "The AlternativeAsimovTruthSample is set but doesnt match any of the TruthSamples");
+        return 1;
+    }
+
     return 0;
 }
 
@@ -5575,15 +5600,15 @@ int ConfigReader::ReadUnfoldingSampleOptions() {
         if (confSet == nullptr) break;
         fHasAtLeastOneValidSample = true;
         ++isample;
-    
+
         auto sample = std::make_unique<UnfoldingSample>();
         sample->SetName(RemoveQuotes(confSet->GetValue()));
-        
+
         std::string param = confSet->Get("Title");
         if (param != "") {
             sample->SetTitle(RemoveQuotes(param));
         }
-        
+
         param = confSet->Get("ResponseMatrixFile");
         if (param != "") {
             sample->fResponseMatrixFiles.clear();
@@ -5661,7 +5686,7 @@ int ConfigReader::ReadUnfoldingSampleOptions() {
             sample->fResponseMatrixPathSuffs = Vectorize(param, ',');
             sample->SetHasResponse(true);
         }
-        
+
         param = confSet->Get("AcceptanceFile");
         if (param != "") {
             sample->fAcceptanceFiles.clear();
@@ -5938,21 +5963,21 @@ int ConfigReader::ReadUnfoldingSystematicOptions() {
         } else {
             syst->fSamples = Vectorize(param, ',');
         }
-        
+
         param = confSet->Get("Regions");
         if (param == "") {
             syst->fRegions.emplace_back("all");
         } else {
             syst->fRegions = Vectorize(param, ',');
         }
-    
+
         param = confSet->Get("Title");
         if (param == "") {
             syst->SetTitle(RemoveQuotes(confSet->GetValue()));
         } else {
             syst->SetTitle(RemoveQuotes(param));
         }
-        
+
         // SetCategory
         param = confSet->Get("Category");
         if(param != ""){
@@ -5976,7 +6001,7 @@ int ConfigReader::ReadUnfoldingSystematicOptions() {
             syst->SetHasResponse(true);
             hasUp = true;
         }
-        
+
         param = confSet->Get("ResponseMatrixPathsUp");
         if (param != "") {
             syst->fResponseMatrixPathsUp = Vectorize(param,',');
@@ -5991,7 +6016,7 @@ int ConfigReader::ReadUnfoldingSystematicOptions() {
             syst->SetHasResponse(true);
             hasDown = true;
         }
-        
+
         param = confSet->Get("ResponseMatrixPathsDown");
         if (param != "") {
             syst->fResponseMatrixPathsDown = Vectorize(param,',');
@@ -6006,7 +6031,7 @@ int ConfigReader::ReadUnfoldingSystematicOptions() {
             syst->SetHasResponse(true);
             hasUp = true;
         }
-        
+
         param = confSet->Get("ResponseMatrixPathSuffsUp");
         if (param != "") {
             syst->fResponseMatrixPathSuffsUp = Vectorize(param,',');
@@ -6021,14 +6046,14 @@ int ConfigReader::ReadUnfoldingSystematicOptions() {
             syst->SetHasResponse(true);
             hasDown = true;
         }
-        
+
         param = confSet->Get("ResponseMatrixPathSuffsDown");
         if (param != "") {
             syst->fResponseMatrixPathSuffsDown = Vectorize(param,',');
             syst->SetHasResponse(true);
             hasDown = true;
         }
-        
+
         param = confSet->Get("ResponseMatrixNameUp");
         if (param != "") {
             syst->fResponseMatrixNamesUp.clear();
@@ -6036,7 +6061,7 @@ int ConfigReader::ReadUnfoldingSystematicOptions() {
             syst->SetHasResponse(true);
             hasUp = true;
         }
-        
+
         param = confSet->Get("ResponseMatrixNamesUp");
         if (param != "") {
             syst->fResponseMatrixNamesUp = Vectorize(param,',');
@@ -6051,7 +6076,7 @@ int ConfigReader::ReadUnfoldingSystematicOptions() {
             syst->SetHasResponse(true);
             hasDown = true;
         }
-        
+
         param = confSet->Get("ResponseMatrixNamesDown");
         if (param != "") {
             syst->fResponseMatrixNamesDown = Vectorize(param,',');
@@ -6066,7 +6091,7 @@ int ConfigReader::ReadUnfoldingSystematicOptions() {
             syst->SetHasResponse(true);
             hasUp = true;
         }
-        
+
         param = confSet->Get("ResponseMatrixNameSuffsUp");
         if (param != "") {
             syst->fResponseMatrixNameSuffsUp = Vectorize(param,',');
@@ -6081,7 +6106,7 @@ int ConfigReader::ReadUnfoldingSystematicOptions() {
             syst->SetHasResponse(true);
             hasDown = true;
         }
-        
+
         param = confSet->Get("ResponseMatrixNameSuffsDown");
         if (param != "") {
             syst->fResponseMatrixNameSuffsDown = Vectorize(param,',');
@@ -6096,7 +6121,7 @@ int ConfigReader::ReadUnfoldingSystematicOptions() {
             syst->SetHasResponse(true);
             hasUp = true;
         }
-        
+
         param = confSet->Get("ResponseMatrixFilesUp");
         if (param != "") {
             syst->fResponseMatrixFilesUp = Vectorize(param,',');
@@ -6111,7 +6136,7 @@ int ConfigReader::ReadUnfoldingSystematicOptions() {
             syst->SetHasResponse(true);
             hasDown = true;
         }
-        
+
         param = confSet->Get("ResponseMatrixFilesDown");
         if (param != "") {
             syst->fResponseMatrixFilesDown = Vectorize(param,',');
@@ -6126,7 +6151,7 @@ int ConfigReader::ReadUnfoldingSystematicOptions() {
             syst->SetHasResponse(true);
             hasUp = true;
         }
-        
+
         param = confSet->Get("ResponseMatrixFileSuffsUp");
         if (param != "") {
             syst->fResponseMatrixFileSuffsUp = Vectorize(param,',');
@@ -6141,7 +6166,7 @@ int ConfigReader::ReadUnfoldingSystematicOptions() {
             syst->SetHasResponse(true);
             hasDown = true;
         }
-        
+
         param = confSet->Get("ResponseMatrixFileSuffsDown");
         if (param != "") {
             syst->fResponseMatrixFileSuffsDown = Vectorize(param,',');
@@ -6156,7 +6181,7 @@ int ConfigReader::ReadUnfoldingSystematicOptions() {
             hasUp = true;
             syst->SetHasAcceptance(true);
         }
-        
+
         param = confSet->Get("AcceptancePathsUp");
         if (param != "") {
             syst->fAcceptancePathsUp = Vectorize(param,',');
@@ -6171,7 +6196,7 @@ int ConfigReader::ReadUnfoldingSystematicOptions() {
             hasDown = true;
             syst->SetHasAcceptance(true);
         }
-        
+
         param = confSet->Get("AcceptancePathsDown");
         if (param != "") {
             syst->fAcceptancePathsDown = Vectorize(param,',');
@@ -6186,7 +6211,7 @@ int ConfigReader::ReadUnfoldingSystematicOptions() {
             hasUp = true;
             syst->SetHasAcceptance(true);
         }
-        
+
         param = confSet->Get("AcceptancePathSuffsUp");
         if (param != "") {
             syst->fAcceptancePathSuffsUp = Vectorize(param,',');
@@ -6201,14 +6226,14 @@ int ConfigReader::ReadUnfoldingSystematicOptions() {
             hasDown = true;
             syst->SetHasAcceptance(true);
         }
-        
+
         param = confSet->Get("AcceptancePathSuffsDown");
         if (param != "") {
             syst->fAcceptancePathSuffsDown = Vectorize(param,',');
             hasDown = true;
             syst->SetHasAcceptance(true);
         }
-        
+
         param = confSet->Get("AcceptanceNameUp");
         if (param != "") {
             syst->fAcceptanceNamesUp.clear();
@@ -6216,7 +6241,7 @@ int ConfigReader::ReadUnfoldingSystematicOptions() {
             hasUp = true;
             syst->SetHasAcceptance(true);
         }
-        
+
         param = confSet->Get("AcceptanceNamesUp");
         if (param != "") {
             syst->fAcceptanceNamesUp = Vectorize(param,',');
@@ -6231,7 +6256,7 @@ int ConfigReader::ReadUnfoldingSystematicOptions() {
             hasDown = true;
             syst->SetHasAcceptance(true);
         }
-        
+
         param = confSet->Get("AcceptanceNamesDown");
         if (param != "") {
             syst->fAcceptanceNamesDown = Vectorize(param,',');
@@ -6246,7 +6271,7 @@ int ConfigReader::ReadUnfoldingSystematicOptions() {
             hasUp = true;
             syst->SetHasAcceptance(true);
         }
-        
+
         param = confSet->Get("AcceptanceNameSuffsUp");
         if (param != "") {
             syst->fAcceptanceNameSuffsUp = Vectorize(param,',');
@@ -6261,7 +6286,7 @@ int ConfigReader::ReadUnfoldingSystematicOptions() {
             hasDown = true;
             syst->SetHasAcceptance(true);
         }
-        
+
         param = confSet->Get("AcceptanceNameSuffsDown");
         if (param != "") {
             syst->fAcceptanceNameSuffsDown = Vectorize(param,',');
@@ -6276,7 +6301,7 @@ int ConfigReader::ReadUnfoldingSystematicOptions() {
             hasUp = true;
             syst->SetHasAcceptance(true);
         }
-        
+
         param = confSet->Get("AcceptanceFilesUp");
         if (param != "") {
             syst->fAcceptanceFilesUp = Vectorize(param,',');
@@ -6291,7 +6316,7 @@ int ConfigReader::ReadUnfoldingSystematicOptions() {
             hasDown = true;
             syst->SetHasAcceptance(true);
         }
-        
+
         param = confSet->Get("AcceptanceFilesDown");
         if (param != "") {
             syst->fAcceptanceFilesDown = Vectorize(param,',');
@@ -6306,7 +6331,7 @@ int ConfigReader::ReadUnfoldingSystematicOptions() {
             hasUp = true;
             syst->SetHasAcceptance(true);
         }
-        
+
         param = confSet->Get("AcceptanceFileSuffsUp");
         if (param != "") {
             syst->fAcceptanceFileSuffsUp = Vectorize(param,',');
@@ -6321,7 +6346,7 @@ int ConfigReader::ReadUnfoldingSystematicOptions() {
             hasDown = true;
             syst->SetHasAcceptance(true);
         }
-        
+
         param = confSet->Get("AcceptanceFileSuffsDown");
         if (param != "") {
             syst->fAcceptanceFileSuffsDown = Vectorize(param,',');
@@ -6335,7 +6360,7 @@ int ConfigReader::ReadUnfoldingSystematicOptions() {
             hasUp = true;
             syst->SetHasAcceptance(true);
         }
-        
+
         param = confSet->Get("SelectionEffPathsUp");
         if (param != "") {
             syst->fSelectionEffPathsUp = Vectorize(param,',');
@@ -6349,7 +6374,7 @@ int ConfigReader::ReadUnfoldingSystematicOptions() {
             syst->fSelectionEffPathsDown.emplace_back(RemoveQuotes(param));
             hasDown = true;
         }
-        
+
         param = confSet->Get("SelectionEffPathsDown");
         if (param != "") {
             syst->fSelectionEffPathsDown = Vectorize(param,',');
@@ -6362,7 +6387,7 @@ int ConfigReader::ReadUnfoldingSystematicOptions() {
             syst->fSelectionEffPathSuffsUp.emplace_back(RemoveQuotes(param));
             hasUp = true;
         }
-        
+
         param = confSet->Get("SelectionEffPathSuffsUp");
         if (param != "") {
             syst->fSelectionEffPathSuffsUp = Vectorize(param,',');
@@ -6375,20 +6400,20 @@ int ConfigReader::ReadUnfoldingSystematicOptions() {
             syst->fSelectionEffPathSuffsDown.emplace_back(RemoveQuotes(param));
             hasDown = true;
         }
-        
+
         param = confSet->Get("SelectionEffPathSuffsDown");
         if (param != "") {
             syst->fSelectionEffPathSuffsDown = Vectorize(param,',');
             hasDown = true;
         }
-        
+
         param = confSet->Get("SelectionEffNameUp");
         if (param != "") {
             syst->fSelectionEffNamesUp.clear();
             syst->fSelectionEffNamesUp.emplace_back(RemoveQuotes(param));
             hasUp = true;
         }
-        
+
         param = confSet->Get("SelectionEffNamesUp");
         if (param != "") {
             syst->fSelectionEffNamesUp = Vectorize(param,',');
@@ -6401,7 +6426,7 @@ int ConfigReader::ReadUnfoldingSystematicOptions() {
             syst->fSelectionEffNamesDown.emplace_back(RemoveQuotes(param));
             hasDown = true;
         }
-        
+
         param = confSet->Get("SelectionEffNamesDown");
         if (param != "") {
             syst->fSelectionEffNamesDown = Vectorize(param,',');
@@ -6414,7 +6439,7 @@ int ConfigReader::ReadUnfoldingSystematicOptions() {
             syst->fSelectionEffNameSuffsUp.emplace_back(RemoveQuotes(param));
             hasUp = true;
         }
-        
+
         param = confSet->Get("SelectionEffNameSuffsUp");
         if (param != "") {
             syst->fSelectionEffNameSuffsUp = Vectorize(param,',');
@@ -6427,7 +6452,7 @@ int ConfigReader::ReadUnfoldingSystematicOptions() {
             syst->fSelectionEffNameSuffsDown.emplace_back(RemoveQuotes(param));
             hasDown = true;
         }
-        
+
         param = confSet->Get("SelectionEffNameSuffsDown");
         if (param != "") {
             syst->fSelectionEffNameSuffsDown = Vectorize(param,',');
@@ -6440,7 +6465,7 @@ int ConfigReader::ReadUnfoldingSystematicOptions() {
             syst->fSelectionEffFilesUp.emplace_back(RemoveQuotes(param));
             hasUp = true;
         }
-        
+
         param = confSet->Get("SelectionEffFilesUp");
         if (param != "") {
             syst->fSelectionEffFilesUp = Vectorize(param,',');
@@ -6453,7 +6478,7 @@ int ConfigReader::ReadUnfoldingSystematicOptions() {
             syst->fSelectionEffFilesDown.emplace_back(RemoveQuotes(param));
             hasDown = true;
         }
-        
+
         param = confSet->Get("SelectionEffFilesDown");
         if (param != "") {
             syst->fSelectionEffFilesDown = Vectorize(param,',');
@@ -6466,7 +6491,7 @@ int ConfigReader::ReadUnfoldingSystematicOptions() {
             syst->fSelectionEffFileSuffsUp.emplace_back(RemoveQuotes(param));
             hasUp = true;
         }
-        
+
         param = confSet->Get("SelectionEffFileSuffsUp");
         if (param != "") {
             syst->fSelectionEffFileSuffsUp = Vectorize(param,',');
@@ -6479,7 +6504,7 @@ int ConfigReader::ReadUnfoldingSystematicOptions() {
             syst->fSelectionEffFileSuffsDown.emplace_back(RemoveQuotes(param));
             hasDown = true;
         }
-        
+
         param = confSet->Get("SelectionEffFileSuffsDown");
         if (param != "") {
             syst->fSelectionEffFileSuffsDown = Vectorize(param,',');
@@ -6492,7 +6517,7 @@ int ConfigReader::ReadUnfoldingSystematicOptions() {
             syst->fMigrationPathsUp.emplace_back(RemoveQuotes(param));
             hasUp = true;
         }
-        
+
         param = confSet->Get("MigrationPathsUp");
         if (param != "") {
             syst->fMigrationPathsUp = Vectorize(param,',');
@@ -6505,7 +6530,7 @@ int ConfigReader::ReadUnfoldingSystematicOptions() {
             syst->fMigrationPathsDown.emplace_back(RemoveQuotes(param));
             hasDown = true;
         }
-        
+
         param = confSet->Get("MigrationPathsDown");
         if (param != "") {
             syst->fMigrationPathsDown = Vectorize(param,',');
@@ -6518,7 +6543,7 @@ int ConfigReader::ReadUnfoldingSystematicOptions() {
             syst->fMigrationPathSuffsUp.emplace_back(RemoveQuotes(param));
             hasUp = true;
         }
-        
+
         param = confSet->Get("MigrationPathSuffsUp");
         if (param != "") {
             syst->fMigrationPathSuffsUp = Vectorize(param,',');
@@ -6531,20 +6556,20 @@ int ConfigReader::ReadUnfoldingSystematicOptions() {
             syst->fMigrationPathSuffsDown.emplace_back(RemoveQuotes(param));
             hasDown = true;
         }
-        
+
         param = confSet->Get("MigrationPathSuffsDown");
         if (param != "") {
             syst->fMigrationPathSuffsDown = Vectorize(param,',');
             hasDown = true;
         }
-        
+
         param = confSet->Get("MigrationNameUp");
         if (param != "") {
             syst->fMigrationNamesUp.clear();
             syst->fMigrationNamesUp.emplace_back(RemoveQuotes(param));
             hasUp = true;
         }
-        
+
         param = confSet->Get("MigrationNamesUp");
         if (param != "") {
             syst->fMigrationNamesUp = Vectorize(param,',');
@@ -6557,7 +6582,7 @@ int ConfigReader::ReadUnfoldingSystematicOptions() {
             syst->fMigrationNamesDown.emplace_back(RemoveQuotes(param));
             hasDown = true;
         }
-        
+
         param = confSet->Get("MigrationNamesDown");
         if (param != "") {
             syst->fMigrationNamesDown = Vectorize(param,',');
@@ -6570,7 +6595,7 @@ int ConfigReader::ReadUnfoldingSystematicOptions() {
             syst->fMigrationNameSuffsUp.emplace_back(RemoveQuotes(param));
             hasUp = true;
         }
-        
+
         param = confSet->Get("MigrationNameSuffsUp");
         if (param != "") {
             syst->fMigrationNameSuffsUp = Vectorize(param,',');
@@ -6583,7 +6608,7 @@ int ConfigReader::ReadUnfoldingSystematicOptions() {
             syst->fMigrationNameSuffsDown.emplace_back(RemoveQuotes(param));
             hasDown = true;
         }
-        
+
         param = confSet->Get("MigrationNameSuffsDown");
         if (param != "") {
             syst->fMigrationNameSuffsDown = Vectorize(param,',');
@@ -6596,7 +6621,7 @@ int ConfigReader::ReadUnfoldingSystematicOptions() {
             syst->fMigrationFilesUp.emplace_back(RemoveQuotes(param));
             hasUp = true;
         }
-        
+
         param = confSet->Get("MigrationFilesUp");
         if (param != "") {
             syst->fMigrationFilesUp = Vectorize(param,',');
@@ -6609,7 +6634,7 @@ int ConfigReader::ReadUnfoldingSystematicOptions() {
             syst->fMigrationFilesDown.emplace_back(RemoveQuotes(param));
             hasDown = true;
         }
-        
+
         param = confSet->Get("MigrationFilesDown");
         if (param != "") {
             syst->fMigrationFilesDown = Vectorize(param,',');
@@ -6622,7 +6647,7 @@ int ConfigReader::ReadUnfoldingSystematicOptions() {
             syst->fMigrationFileSuffsUp.emplace_back(RemoveQuotes(param));
             hasUp = true;
         }
-        
+
         param = confSet->Get("MigrationFileSuffsUp");
         if (param != "") {
             syst->fMigrationFileSuffsUp = Vectorize(param,',');
@@ -6635,7 +6660,7 @@ int ConfigReader::ReadUnfoldingSystematicOptions() {
             syst->fMigrationFileSuffsDown.emplace_back(RemoveQuotes(param));
             hasDown = true;
         }
-        
+
         param = confSet->Get("MigrationFileSuffsDown");
         if (param != "") {
             syst->fMigrationFileSuffsDown = Vectorize(param,',');
@@ -6644,7 +6669,7 @@ int ConfigReader::ReadUnfoldingSystematicOptions() {
 
         syst->fHasUpVariation = hasUp;
         syst->fHasDownVariation = hasDown;
- 
+
         // Set Symmetrisation
         param = confSet->Get("Symmetrisation");
         if(param != ""){
@@ -6702,7 +6727,7 @@ int ConfigReader::UnfoldingCorrections() {
 
     // Then process Systematics
     sc += ProcessUnfoldingSystematics();
-   
+
     // Add norm factors
     sc += AddUnfoldingNormFactors();
 
@@ -6843,13 +6868,25 @@ int ConfigReader::ProcessUnfoldingSamples() {
         if (ireg->fRegionType != Region::RegionType::SIGNAL) continue;
 
         for (const auto& isample : fFitter->fUnfoldingSamples) {
-            if(isample->fRegions[0] != "all" && 
+            if(isample->fRegions[0] != "all" &&
                 Common::FindInStringVector(isample->fRegions, ireg->fName) < 0) continue;
 
             // Convert the UnfoldingSample to sample and adjust the paths
             const std::vector<Sample*> samples = isample->ConvertToSample(ireg, fFitter->fNumberUnfoldingTruthBins, fFitter->fName);
             fFitter->fSamples.insert(fFitter->fSamples.end(), samples.begin(), samples.end());
             fFitter->fNSamples += fFitter->fNumberUnfoldingTruthBins;
+        }
+
+        // add custom asimov sample
+        if (fFitter->fAlternativeAsimovTruthSample != "") {
+            Sample* sample = new Sample("AlternativeSignal_"+ireg->fName, Sample::SampleType::GHOST);
+            sample->fRegions = Common::ToVec(ireg->fName);
+            sample->fHistoPaths = Common::ToVec(fFitter->fName+"/UnfoldingHistograms");
+            sample->fHistoFiles = Common::ToVec("FoldedHistograms");
+            const std::string histoName = ireg->fName + "_AlternativeAsimov";
+            sample->fHistoNames = Common::ToVec(histoName);
+            fFitter->fSamples.emplace_back(std::move(sample));
+            ++fFitter->fNSamples;
         }
     }
 
@@ -6861,18 +6898,18 @@ int ConfigReader::ProcessUnfoldingSamples() {
 int ConfigReader::ProcessUnfoldingSystematics() {
     for (const auto& ireg : fFitter->fRegions) {
         if (ireg->fRegionType != Region::RegionType::SIGNAL) continue;
-    
+
         for (const auto& isyst : fFitter->fUnfoldingSystematics) {
-            if(isyst->fRegions[0] != "all" && 
+            if(isyst->fRegions[0] != "all" &&
                 Common::FindInStringVector(isyst->fRegions, ireg->fName) < 0) continue;
-       
+
             if (fFitter->fUnfoldingSamples.size() == 0) {
                 WriteErrorStatus("ConfigReader::ProcessUnfoldingSystematics", "No UnfoldingSamples set!");
                 return 1;
             }
             std::string unfoldingSampleName("");
             for (const auto& isample : fFitter->fUnfoldingSamples) {
-                if(isample->fRegions[0] != "all" && 
+                if(isample->fRegions[0] != "all" &&
                     Common::FindInStringVector(isample->fRegions, ireg->fName) < 0) continue;
 
                 unfoldingSampleName = isample->GetName();
@@ -6887,7 +6924,7 @@ int ConfigReader::ProcessUnfoldingSystematics() {
                                                                               fFitter->fNumberUnfoldingTruthBins,
                                                                               fFitter->fName,
                                                                               unfoldingSampleName,
-                                                                              fFitter->fSamples); 
+                                                                              fFitter->fSamples);
             fFitter->fSystematics.insert(fFitter->fSystematics.end(), systs.begin(), systs.end());
             fFitter->fNSyst += fFitter->fNumberUnfoldingTruthBins;
         }
@@ -6902,8 +6939,8 @@ int ConfigReader::AddUnfoldingNormFactors() {
 
     for (int i = 0; i < fFitter->fNumberUnfoldingTruthBins; ++i) {
         const std::string name = "Bin_" + std::to_string(i+1);
-        NormFactor* nf = new NormFactor(name); 
-        
+        NormFactor* nf = new NormFactor(name);
+
         TRExFitter::SYSTMAP[nf->fName] = nf->fName;
 
         if(Common::FindInStringVector(fFitter->fNormFactorNames, nf->fName) < 0) {
@@ -6911,7 +6948,7 @@ int ConfigReader::AddUnfoldingNormFactors() {
            fFitter->fNormFactorNames.emplace_back(nf->fName);
            fFitter->fNNorm++;
         }
-        
+
         nf->fNuisanceParameter = nf->fName;
         TRExFitter::NPMAP[nf->fName] = nf->fName;
         nf->fCategory = "TruthBins";
@@ -6951,7 +6988,7 @@ int ConfigReader::AddUnfoldingNormFactors() {
         }
         if (hasTau) {
             WriteInfoStatus("ConfigReader::AddUnfoldingNormFactors", "Setting truth bin: " + std::to_string(i+1) + " to use tau = " + std::to_string(tauValue));
-            nf->fTau = tauValue; 
+            nf->fTau = tauValue;
         }
     }
 
@@ -6974,7 +7011,7 @@ void ConfigReader::FixReferenceSamples(Systematic* sys) const {
     if (sys->fHistoNamesDownRefSample.size()   == 0) sys->fHistoNamesDownRefSample   = sys->fHistoNamesDown;
     if (sys->fHistoNameSufUpRefSample.size()   == 0) sys->fHistoNameSufUpRefSample   = sys->fHistoNameSufUp;
     if (sys->fHistoNameSufDownRefSample.size() == 0) sys->fHistoNameSufDownRefSample = sys->fHistoNameSufDown;
-    
+
     if (sys->fNtuplePathsUpRefSample.size()    == 0) sys->fNtuplePathsUpRefSample     = sys->fNtuplePathsUp;
     if (sys->fNtuplePathsDownRefSample.size()  == 0) sys->fNtuplePathsDownRefSample   = sys->fNtuplePathsDown;
     if (sys->fNtuplePathSufUpRefSample.size()  == 0) sys->fNtuplePathSufUpRefSample   = sys->fNtuplePathSufUp;

@@ -251,6 +251,7 @@ TRExFit::TRExFit(std::string name) :
     fUnfoldingTitleOffsetX(3.5),
     fUnfoldingTitleOffsetY(1.6),
     fNominalTruthSample("SetMe"),
+    fAlternativeAsimovTruthSample(""),
     fMigrationTitleX("X"),
     fMigrationTitleY("Y"),
     fMigrationLogX(false),
@@ -460,7 +461,7 @@ void TRExFit::SmoothSystematics(std::string syst){
                 continue;
             }
         }
-        
+
         // collect information which systematics contain reference smoothing samples
         std::vector<std::string> referenceSmoothSysts{};
         for (const auto isyst : fSystematics){
@@ -1764,7 +1765,7 @@ TRExPlot* TRExFit::DrawSummary(std::string opt, TRExPlot* prefit_plot) {
                 h_down[i_np]->SetBinContent( i_ch,h_tmp_Down->Integral() );
             }
         }
-        
+
         // loop on regions
         for(int i_ch=1;i_ch<=Nbin;i_ch++){
             Region *region = fRegions[regionVec[i_ch-1]];
@@ -3203,6 +3204,64 @@ void TRExFit::CreateCustomAsimov() const {
 }
 
 //__________________________________________________________________________________
+//
+void TRExFit::UnfoldingAlternativeAsimov() {
+    if (fFitType != TRExFit::FitType::UNFOLDING) return;
+    if (fAlternativeAsimovTruthSample == "")     return;
+
+    WriteInfoStatus("TRExFit::UnfoldingAlternativeAsimov", "Replacing data with alternative asimov");
+
+    // loop over regions
+    for (auto& ireg : fRegions) {
+        SampleHist* sh = ireg->fData;
+
+        // Try getting signal
+        if (!sh) {
+            for (const auto& isig : ireg->fSig) {
+                if (!isig) {
+                    sh = isig;
+                    break;
+                }
+            }
+        }
+
+        if (!sh) {
+            WriteErrorStatus("TRExFit::UnfoldingAlternativeAsimov", "No data or signal found, this should not happen!");
+            exit(EXIT_FAILURE);
+        }
+
+        // now replace fData
+        TH1* hist = static_cast<TH1*>(sh->fHist->Clone());
+        hist->Reset();
+
+        // Add new signal
+        const Sample* newAsimov = GetSample("AlternativeSignal_"+ireg->fName);
+        if (!newAsimov) {
+            WriteErrorStatus("TRExFit::UnfoldingAlternativeAsimov", "Cannot read the new asimov sample");
+            exit(EXIT_FAILURE);
+        }
+        const SampleHist* newsh = ireg->GetSampleHist(newAsimov->fName);
+        if (!newsh) {
+            WriteErrorStatus("TRExFit::UnfoldingAlternativeAsimov", "Cannot read the new asimov SampleHist");
+            exit(EXIT_FAILURE);
+        }
+        hist->Add(newsh->fHist.get());
+
+        // add bkgs bkg
+        for (const auto& isample : fSamples) {
+            const SampleHist* sampleHist = ireg->GetSampleHist(isample->fName);
+            if (!sampleHist) continue;
+            if (sampleHist->fSample->fType != Sample::BACKGROUND) continue;
+            if(Common::FindInStringVector(isample->fRegions,ireg->fName) <0) continue;
+            hist->Add(sampleHist->fHist.get());
+        }
+
+        hist->Sumw2(false);
+        ireg->fData->fHist.reset(static_cast<TH1*>(hist->Clone()));
+    }
+}
+
+//__________________________________________________________________________________
 // turn to RooStat::HistFactory
 void TRExFit::ToRooStat(bool makeWorkspace, bool exportOnly) const {
 
@@ -3451,7 +3510,7 @@ void TRExFit::SystPruning() const {
     // it also writes the txt file actually
     DrawPruningPlot();
 }
-    
+
 //__________________________________________________________________________________
 //
 void TRExFit::DrawSystematicNormalisationSummary() const {
@@ -3515,7 +3574,7 @@ void TRExFit::DrawSystematicNormalisationSummary() const {
                                         0);
                     continue;
                 }
-                
+
                 const TH1* up   = syh->fHistUp.get();
                 const TH1* down = syh->fHistDown.get();
 
@@ -3598,7 +3657,7 @@ void TRExFit::DrawPruningPlot() const{
     const std::vector<std::string>& uniqueSyst = GetUniqueSystNamesWithoutGamma();
     for(int i_syst=0;i_syst<fNSyst;i_syst++){
         if(fSystematics[i_syst]->fType == Systematic::SHAPE) continue;
-        
+
         nonGammaSystematics.push_back(fSystematics[i_syst]);
     }
     const size_t NnonGammaSyst = nonGammaSystematics.size();
@@ -4337,7 +4396,7 @@ RooDataSet* TRExFit::DumpData( RooWorkspace *ws,  std::map < std::string, int > 
     RooArgSet obsAndWeight;
     obsAndWeight.add(*mc->GetObservables());
 
-    RooRealVar* weightVar = NULL;
+    RooRealVar* weightVar = nullptr;
     if ( !(weightVar = ws->var(weightName)) ){
         ws->import(*(new RooRealVar(weightName, weightName, 1,0,10000000)));
         weightVar = ws->var(weightName);
@@ -4380,7 +4439,7 @@ RooDataSet* TRExFit::DumpData( RooWorkspace *ws,  std::map < std::string, int > 
     RooSimultaneous* simPdf = dynamic_cast<RooSimultaneous*>(mc->GetPdf());
     RooCategory* channelCat = (RooCategory*)&simPdf->indexCat();
     TIterator* iter = channelCat->typeIterator() ;
-    RooCatType* tt = NULL;
+    RooCatType* tt = nullptr;
     int iFrame = 0;
     int i = 0;
     while( (tt = (RooCatType*) iter -> Next()) ) {
@@ -4786,7 +4845,7 @@ RooWorkspace* TRExFit::PerformWorkspaceCombination( std::vector < std::string > 
     for (auto& ifile : file_vec) {
         ifile->Close();
     }
-    
+
     rootFileCombined->Close();
 
     return ws;
@@ -4882,11 +4941,11 @@ void TRExFit::PlotUnfoldedData() const {
 
     UnfoldingResult unfolded;
     unfolded.SetTruthDistribution(truth.get());
-    
+
     // pass the fit results to the tool
     for (int i = 0; i < fNumberUnfoldingTruthBins; ++i) {
         const std::string name = "Bin_" + std::to_string(i+1);
-        const double mean = fFitResults->GetNuisParValue(name); 
+        const double mean = fFitResults->GetNuisParValue(name);
         const double up   = mean + fFitResults->GetNuisParErrUp(name);
         const double down = mean + fFitResults->GetNuisParErrDown(name);
         unfolded.AddFitValue(mean, up, down);
@@ -5484,7 +5543,7 @@ void TRExFit::ProduceNPRanking( std::string NPnames/*="all"*/ ){
 
     // Loop on NPs to find gammas and add to the list to be ranked
     if(NPnames=="all" || NPnames.find("gamma")!=std::string::npos || (atoi(NPnames.c_str())>0 || strcmp(NPnames.c_str(),"0")==0)){
-        RooRealVar* var = NULL;
+        RooRealVar* var = nullptr;
         RooArgSet* nuis = (RooArgSet*) mc->GetNuisanceParameters();
         if(nuis){
             TIterator* it2 = nuis->createIterator();
@@ -6519,7 +6578,7 @@ void TRExFit::GetLikelihoodScan( RooWorkspace *ws, std::string varName, RooDataS
     TString firstPOIname = (TString)firstPOI->GetName();
     if (firstPOIname.Contains(varName.c_str())) isPoI = true;
 
-    RooRealVar* var = NULL;
+    RooRealVar* var = nullptr;
     TString vname = "";
     std::string vname_s = "";
     bool foundSyst = false;
@@ -7474,7 +7533,7 @@ void TRExFit::RunToys(){
             delete r;
             delete toyData;
         }
-        
+
         std::unique_ptr<TFile> out (TFile::Open((fName+"/Toys/Toys"+fSuffix+".root").c_str(), "RECREATE"));
         for (std::size_t inf = 0; inf < nfs.size(); ++inf) {
             out->cd();
@@ -8088,7 +8147,7 @@ std::vector<Sample*> TRExFit::GetNonDataNonGhostSamples() const {
 void TRExFit::DropBins() {
 
     for(const auto& reg : fRegions){
-    
+
         const std::vector<int>& blindedBins = reg->GetAutomaticDropBins() ?
                 Common::GetBlindedBins(reg,fBlindingType,fBlindingThreshold) : reg->fDropBins;
         if (blindedBins.size() == 0) continue;
@@ -8132,14 +8191,16 @@ void TRExFit::PrepareUnfolding() {
     manager.SetMatrixOrientation(fMatrixOrientation);
 
     const bool horizontal = (fMatrixOrientation == FoldingManager::MATRIXORIENTATION::TRUTHONHORIZONTALAXIS);
-   
+
+    std::unique_ptr<TH1> alternativeTruth(nullptr);
+
     {
         std::unique_ptr<TH1> truth(nullptr);
         for (const auto& itruth : fTruthSamples) {
             if (itruth->GetName() == fNominalTruthSample) {
                 truth = itruth->GetHisto(this);
                 break;
-            } 
+            }
         }
         if (!truth) {
             exit(EXIT_FAILURE);
@@ -8150,19 +8211,29 @@ void TRExFit::PrepareUnfolding() {
         }
         manager.SetTruthDistribution(truth.get());
         manager.WriteTruthToHisto(outputFile.get(), "", "truth_distribution");
+
+        // read the alternative truth sample
+        if (fAlternativeAsimovTruthSample != "") {
+            for (const auto& itruth : fTruthSamples) {
+                if (itruth->GetName() == fAlternativeAsimovTruthSample) {
+                    alternativeTruth = itruth->GetHisto(this);
+                    break;
+                }
+            }
+        }
     }
 
     // loop over regions
     for (const auto& ireg : fRegions) {
-        
+
         // only signal regions are processed at this step
         if (ireg->fRegionType != Region::RegionType::SIGNAL) continue;
-    
+
         // loop over all samples
         for (const auto& isample : fUnfoldingSamples) {
-       
+
             // skip samples not associated to the region
-            if(isample->fRegions[0] != "all" && 
+            if(isample->fRegions[0] != "all" &&
                 Common::FindInStringVector(isample->fRegions, ireg->fName) < 0) continue;
 
             // first process nominal
@@ -8171,6 +8242,7 @@ void TRExFit::PrepareUnfolding() {
 
                 std::unique_ptr<TH2> matrix = Common::CombineHistos2DFromFullPaths(fullResponsePaths);
                 if (!matrix) {
+                    WriteErrorStatus("TRExFit::PrepareUnfolding", "Cannot read the response matrix!");
                     exit(EXIT_FAILURE);
                 }
                 const int nRecoBins  = horizontal ? matrix->GetNbinsY() : matrix->GetNbinsX();
@@ -8206,10 +8278,10 @@ void TRExFit::PrepareUnfolding() {
                         exit(EXIT_FAILURE);
                     }
 
-                    UnfoldingTools::NormalizeMatrix(matrix.get(), !horizontal);       
-                    
+                    UnfoldingTools::NormalizeMatrix(matrix.get(), !horizontal);
+
                     PlotMigrationResponse(matrix.get(), true, ireg->fName, "");
-    
+
                     // pass the migration to the tool
                     manager.SetMigrationMatrix(matrix.get(), false);
                 }
@@ -8252,6 +8324,7 @@ void TRExFit::PrepareUnfolding() {
 
             manager.FoldTruth();
 
+
             // create the folder structure
             TDirectory* dir = dynamic_cast<TDirectory*>(outputFile->Get("nominal"));
             if (!dir) {
@@ -8262,11 +8335,18 @@ void TRExFit::PrepareUnfolding() {
             const std::string histoName = ireg->fName + "_" + isample->GetName();
             manager.WriteFoldedToHisto(outputFile.get(), "nominal", histoName);
 
+            // fold and store the altenative truth sample
+            if (fAlternativeAsimovTruthSample != "") {
+                std::unique_ptr<TH1> tmp = manager.TotalFold(alternativeTruth.get());
+                outputFile->cd();
+                tmp->Write((ireg->fName + "_AlternativeAsimov").c_str());
+            }
+
             // Process systematics
             for (const auto& isyst : fUnfoldingSystematics) {
                 if (!isyst) continue;
                 if (isyst->GetName() == "Dummy") continue; // wtf?
-                
+
                 if(isyst->fRegions.at(0) != "all" &&
                      Common::FindInStringVector(isyst->fRegions, ireg->fName) < 0) continue;
                 if(isyst->fSamples.at(0) != "all" &&
@@ -8297,7 +8377,7 @@ void TRExFit::ProcessUnfoldingSystematics(FoldingManager* manager,
     auto ProcessOneVariation = [&](const bool isUp) {
         if (syst->GetHasResponse()) {
             const std::vector<std::string>& paths = FullResponseMatrixPaths(reg, sample, syst, true);
-            std::unique_ptr<TH2> matrix = Common::CombineHistos2DFromFullPaths(paths); 
+            std::unique_ptr<TH2> matrix = Common::CombineHistos2DFromFullPaths(paths);
             if (!matrix) {
                 exit(EXIT_FAILURE);
             }
@@ -8320,7 +8400,7 @@ void TRExFit::ProcessUnfoldingSystematics(FoldingManager* manager,
             {
                 /// migration first
                 const std::vector<std::string>& paths = FullMigrationMatrixPaths(reg, sample, syst, true);
-                std::unique_ptr<TH2> matrix = Common::CombineHistos2DFromFullPaths(paths); 
+                std::unique_ptr<TH2> matrix = Common::CombineHistos2DFromFullPaths(paths);
                 if (!matrix) {
                     exit(EXIT_FAILURE);
                 }
@@ -8335,8 +8415,8 @@ void TRExFit::ProcessUnfoldingSystematics(FoldingManager* manager,
                     WriteErrorStatus("TRExFit::ProcessUnfoldingSystematics", "Number of truth bins do not match the number of truth bins for the migration matrix: " + reg->fName);
                     exit(EXIT_FAILURE);
                 }
-                UnfoldingTools::NormalizeMatrix(matrix.get(), !horizontal);       
-                
+                UnfoldingTools::NormalizeMatrix(matrix.get(), !horizontal);
+
                 if (fPlotSystematicMigrations) {
                     PlotMigrationResponse(matrix.get(), true, reg->fName, syst->GetName());
                 }
@@ -8347,11 +8427,11 @@ void TRExFit::ProcessUnfoldingSystematics(FoldingManager* manager,
             // selectio eff now
             {
                 const std::vector<std::string>& paths = FullSelectionEffPaths(reg, sample, syst, true);
-                std::unique_ptr<TH1> eff = Common::CombineHistosFromFullPaths(paths); 
+                std::unique_ptr<TH1> eff = Common::CombineHistosFromFullPaths(paths);
                 if (!eff) {
                     exit(EXIT_FAILURE);
                 }
-                
+
                 const int nbins = eff->GetNbinsX();
                 if (nbins != fNumberUnfoldingTruthBins) {
                     WriteErrorStatus("TRExFit::ProcessUnfoldingSystematics", "Number of efficiency selection bins doesnt match the number of truth bins");
@@ -8363,11 +8443,11 @@ void TRExFit::ProcessUnfoldingSystematics(FoldingManager* manager,
 
             if (fHasAcceptance || syst->GetHasAcceptance() || reg->fHasAcceptance) {
                 const std::vector<std::string>& paths = FullAcceptancePaths(reg, sample, syst, true);
-                std::unique_ptr<TH1> acc = Common::CombineHistosFromFullPaths(paths); 
+                std::unique_ptr<TH1> acc = Common::CombineHistosFromFullPaths(paths);
                 if (!acc) {
                     exit(EXIT_FAILURE);
                 }
-                
+
                 const int nbins = acc->GetNbinsX();
                 if (nbins != reg->fNumberUnfoldingRecoBins) {
                     WriteErrorStatus("TRExFit::ProcessUnfoldingSystematics", "Number of acceptance bins doesnt match the number of reco bins in region " + reg->fName);
@@ -8378,11 +8458,11 @@ void TRExFit::ProcessUnfoldingSystematics(FoldingManager* manager,
             }
             manager->CalculateResponseMatrix(true);
             if (fPlotSystematicMigrations) {
-                PlotMigrationResponse(manager->GetResponseMatrix(), false, reg->fName, syst->GetName()); 
+                PlotMigrationResponse(manager->GetResponseMatrix(), false, reg->fName, syst->GetName());
             }
         }
         manager->FoldTruth();
-        
+
         // create the folder structure
         const std::string folderName = isUp ? syst->GetName() + "_Up" : syst->GetName() + "_Down";
         TDirectory* dir = dynamic_cast<TDirectory*>(file->Get(folderName.c_str()));
@@ -8401,11 +8481,11 @@ void TRExFit::ProcessUnfoldingSystematics(FoldingManager* manager,
     if (syst->fHasDownVariation) {
         ProcessOneVariation(false);
     }
-} 
+}
 
 //__________________________________________________________________________________
 //
-std::vector<std::string> TRExFit::FullResponseMatrixPaths(const Region* reg, 
+std::vector<std::string> TRExFit::FullResponseMatrixPaths(const Region* reg,
                                                           const UnfoldingSample* smp,
                                                           const UnfoldingSystematic* syst,
                                                           const bool isUp) const {
@@ -8484,7 +8564,7 @@ std::vector<std::string> TRExFit::FullResponseMatrixPaths(const Region* reg,
 
 //__________________________________________________________________________________
 //
-std::vector<std::string> TRExFit::FullMigrationMatrixPaths(const Region* reg, 
+std::vector<std::string> TRExFit::FullMigrationMatrixPaths(const Region* reg,
                                                            const UnfoldingSample* smp,
                                                            const UnfoldingSystematic* syst,
                                                            const bool isUp) const {
@@ -8563,7 +8643,7 @@ std::vector<std::string> TRExFit::FullMigrationMatrixPaths(const Region* reg,
 
 //__________________________________________________________________________________
 //
-std::vector<std::string> TRExFit::FullAcceptancePaths(const Region* reg, 
+std::vector<std::string> TRExFit::FullAcceptancePaths(const Region* reg,
                                                       const UnfoldingSample* smp,
                                                       const UnfoldingSystematic* syst,
                                                       const bool isUp) const {
@@ -8642,7 +8722,7 @@ std::vector<std::string> TRExFit::FullAcceptancePaths(const Region* reg,
 
 //__________________________________________________________________________________
 //
-std::vector<std::string> TRExFit::FullSelectionEffPaths(const Region* reg, 
+std::vector<std::string> TRExFit::FullSelectionEffPaths(const Region* reg,
                                                         const UnfoldingSample* smp,
                                                         const UnfoldingSystematic* syst,
                                                         const bool isUp) const {
@@ -8725,10 +8805,18 @@ void TRExFit::PlotUnfold(TH1D* data,
                          TGraphAsymmErrors* total) const {
 
     std::vector<std::unique_ptr<TH1> > mc;
+    std::vector<std::string> legendNames;
     for (const auto& isample : fTruthSamples) {
+        if (!isample->GetUseForPlotting()) continue;
         mc.emplace_back(std::move(isample->GetHisto(this)));
         mc.back()->SetLineColor(isample->GetLineColor());
         mc.back()->SetLineStyle(isample->GetLineStyle());
+        legendNames.emplace_back(isample->GetTitle());
+    }
+
+    if (mc.empty()) {
+        WriteWarningStatus("TRExFit::PlotUnfold", "No MC samples set for plotting. Will not create the final plots");
+        return;
     }
 
     TCanvas c("","",600,600);
@@ -8741,7 +8829,7 @@ void TRExFit::PlotUnfold(TH1D* data,
     pad2.SetTicks(1,1);
     pad1.Draw();
     pad2.Draw();
-    
+
     if (fUnfoldingLogX) {
         pad1.SetLogx();
         pad2.SetLogx();
@@ -8770,7 +8858,7 @@ void TRExFit::PlotUnfold(TH1D* data,
     h_dummy->SetLineWidth(0);
     h_dummy->SetLineColor(kWhite);
     h_dummy->DrawClone("HIST");
-    
+
     std::unique_ptr<TGraphAsymmErrors> error(static_cast<TGraphAsymmErrors*>(total->Clone()));
     error->SetFillStyle(1001);
     error->SetFillColor(kGray);
@@ -8781,14 +8869,18 @@ void TRExFit::PlotUnfold(TH1D* data,
         itruth->SetLineWidth(2);
         itruth->Draw("HIST same");
     }
-    
+
     total->Draw("pX SAME");
-    
+
     float legH = (mc.size()+2)*0.07;
     TLegend leg(0.55, 0.9-legH, 0.9, 0.9);
-    leg.AddEntry(total, "Unfolded data", "p");
+    if (fAlternativeAsimovTruthSample == "") {
+        leg.AddEntry(total, "Unfolded data", "p");
+    } else {
+        leg.AddEntry(total, "Unfolded pseudo-data", "p");
+    }
     for (std::size_t imc = 0; imc < mc.size(); ++imc) {
-        leg.AddEntry(mc.at(imc).get(), fTruthSamples.at(imc)->GetTitle().c_str(), "l");
+        leg.AddEntry(mc.at(imc).get(), legendNames.at(imc).c_str(), "l");
     }
     leg.AddEntry(error.get(), "Total uncertainty","f");
 
@@ -8798,12 +8890,12 @@ void TRExFit::PlotUnfold(TH1D* data,
     leg.SetTextFont(gStyle->GetTextFont());
     leg.SetTextSize(gStyle->GetTextSize());
     leg.Draw("SAME");
-        
+
     if (fAtlasLabel != "none") ATLASLabel(0.2,0.87,fAtlasLabel.c_str());
     myText(0.2,0.8,1,Form("#sqrt{s} = %s, %s",fCmeLabel.c_str(),fLumiLabel.c_str()));
 
     pad1.RedrawAxis();
-    
+
     // Plot ratio
     pad2.cd();
     h_dummy->GetXaxis()->SetTitleOffset(fUnfoldingTitleOffsetX*h_dummy->GetXaxis()->GetTitleOffset());
@@ -8812,7 +8904,6 @@ void TRExFit::PlotUnfold(TH1D* data,
     h_dummy->GetYaxis()->SetTitle("#frac{Prediction}{Data}");
     h_dummy->GetYaxis()->SetNdivisions(505);
     h_dummy->GetXaxis()->SetTitle(fUnfoldingTitleX.c_str());
-//     h_dummy->GetXaxis()->SetMoreLogLabels();
     h_dummy->Draw("HIST");
 
     // Plot the error band
@@ -8823,7 +8914,7 @@ void TRExFit::PlotUnfold(TH1D* data,
     band->SetMarkerStyle(0);
     band->SetLineWidth(2);
     band->Draw("E2 SAME");
-    
+
     // Plot the theory predictions
     std::vector<std::unique_ptr<TH1D> > ratios;
     for (const auto& itruth : mc) {
@@ -8838,7 +8929,7 @@ void TRExFit::PlotUnfold(TH1D* data,
         c.SaveAs((fName+"/UnfoldedData."+ format).c_str());
     }
 }
-    
+
 //__________________________________________________________________________________
 //
 void TRExFit::PlotMigrationResponse(const TH2* matrix,
@@ -8847,7 +8938,7 @@ void TRExFit::PlotMigrationResponse(const TH2* matrix,
                                     const std::string& systematicName) const {
 
     std::unique_ptr<TH2D> m(static_cast<TH2D*>(matrix->Clone()));
-    
+
     gStyle->SetPalette(87);
     if (isMigration) gStyle->SetPaintTextFormat("1.2f");
     else gStyle->SetPaintTextFormat("2.1f");
@@ -8888,10 +8979,10 @@ void TRExFit::PlotMigrationResponse(const TH2* matrix,
     c.SetGrid();
     if(fMigrationText) m->Draw("COLZ TEXT");
     else m->Draw("COLZ");
-    
+
     if (fAtlasLabel != "none") ATLASLabel(0.03,0.92,fAtlasLabel.c_str());
     myText(0.68,0.92,1,Form("#sqrt{s} = %s, %s",fCmeLabel.c_str(),fLumiLabel.c_str()));
-    
+
     c.RedrawAxis("g");
 
     if (systematicName != "") {
@@ -8905,7 +8996,7 @@ void TRExFit::PlotMigrationResponse(const TH2* matrix,
         c.SaveAs((fName+"/" + name+ "."+ format).c_str());
     }
 }
-    
+
 //__________________________________________________________________________________
 //
 void TRExFit::RunForceShape() {

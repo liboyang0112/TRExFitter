@@ -222,6 +222,7 @@ void FitExample(std::string opt="h",std::string configFile="config/myFit.config"
         myFit->CorrectHistograms();
         myFit->MergeSystematics();
         myFit->CreateCustomAsimov();
+        myFit->UnfoldingAlternativeAsimov();
         myFit->WriteHistos();
         if(TRExFitter::SYSTCONTROLPLOTS) myFit->DrawSystPlots();
         if(TRExFitter::SYSTDATAPLOT)     myFit->DrawSystPlotsSumSamples();
@@ -238,6 +239,7 @@ void FitExample(std::string opt="h",std::string configFile="config/myFit.config"
         myFit->CorrectHistograms();
         myFit->MergeSystematics();
         myFit->CreateCustomAsimov();
+        myFit->UnfoldingAlternativeAsimov();
         myFit->WriteHistos();
         if(TRExFitter::SYSTCONTROLPLOTS) myFit->DrawSystPlots();
         if(TRExFitter::SYSTDATAPLOT)     myFit->DrawSystPlotsSumSamples();
@@ -259,6 +261,7 @@ void FitExample(std::string opt="h",std::string configFile="config/myFit.config"
         myFit->MergeSystematics();
         myFit->CombineSpecialSystematics();
         myFit->CreateCustomAsimov();
+        myFit->UnfoldingAlternativeAsimov();
         myFit->WriteHistos(false);
         if(TRExFitter::SYSTCONTROLPLOTS) myFit->DrawSystPlots();
         if(TRExFitter::SYSTDATAPLOT)     myFit->DrawSystPlotsSumSamples();
