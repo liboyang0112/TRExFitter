@@ -1643,16 +1643,16 @@ void MultiFit::ProduceNPRanking( string NPnames/*="all"*/ ) const{
         RooRealVar* var = nullptr;
         const RooArgSet* nuis = static_cast<const RooArgSet*>(mc->GetNuisanceParameters());
         if(nuis){
-            TIterator* it2 = nuis->createIterator();
+            std::unique_ptr<TIterator> it2(nuis->createIterator());
             int i_gamma = 0;
-            while( (var = (RooRealVar*) it2->Next()) ){
-                string np = var->GetName();
+            while( (var = static_cast<RooRealVar*>(it2->Next()))) {
+                const std::string& np = var->GetName();
                 if(np.find("gamma")!=string::npos){
                     // add the nuisance parameter to the list nuisPars if it's there in the ws
                     // remove "gamma"...
                     if(np==NPnames || (((atoi(NPnames.c_str())-(int)Nsyst-(int)Nnorm)==i_gamma) && (atoi(NPnames.c_str())>0 || strcmp(NPnames.c_str(),"0")==0)) || NPnames=="all"){
-                        nuisPars.push_back(Common::ReplaceString(np,"gamma_",""));
-                        isNF.push_back( true );
+                        nuisPars.emplace_back(Common::ReplaceString(np,"gamma_",""));
+                        isNF.emplace_back( true );
                         if(NPnames!="all") break;
                     }
                     i_gamma++;
@@ -2202,8 +2202,8 @@ void MultiFit::GetLikelihoodScan( RooWorkspace *ws, const std::string& varName, 
     }
 
     if (isPoI){
-        TIterator* it = mc->GetParametersOfInterest()->createIterator();
-        while( (var = (RooRealVar*) it->Next()) ){
+        std::unique_ptr<TIterator> it(mc->GetParametersOfInterest()->createIterator());
+        while( (var = static_cast<RooRealVar*>(it->Next()))) {
             vname=var->GetName();
             vname_s=var->GetName();
             if (vname == varName || vname == "alpha_"+varName) {
@@ -2214,8 +2214,8 @@ void MultiFit::GetLikelihoodScan( RooWorkspace *ws, const std::string& varName, 
         }
     }
     else {
-        TIterator* it = mc->GetNuisanceParameters()->createIterator();
-        while( (var = (RooRealVar*) it->Next()) ){
+        std::unique_ptr<TIterator> it(mc->GetNuisanceParameters()->createIterator());
+        while( (var = static_cast<RooRealVar*>(it->Next()))){
             vname=var->GetName();
             vname_s=var->GetName();
             if (vname == varName || vname == "alpha_"+varName) {
@@ -2429,7 +2429,7 @@ void MultiFit::Get2DLikelihoodScan( RooWorkspace *ws, const std::vector<std::str
     RooRealVar* varX = nullptr;
     RooRealVar* varY = nullptr;
     //Get the parameters from the model
-    TIterator* it = mc->GetNuisanceParameters()->createIterator();
+    std::unique_ptr<TIterator> it(mc->GetNuisanceParameters()->createIterator());
     RooRealVar* var_tmp = nullptr;
     TString vname = "";
     int count = 0;
@@ -2450,7 +2450,7 @@ void MultiFit::Get2DLikelihoodScan( RooWorkspace *ws, const std::vector<std::str
 
     // iterate over POIs
     if (count < 2){
-        TIterator* it_POI = mc->GetParametersOfInterest()->createIterator();
+        std::unique_ptr<TIterator> it_POI(mc->GetParametersOfInterest()->createIterator());
         while ( (var_tmp = static_cast<RooRealVar*>(it_POI->Next())) ){
             vname=var_tmp->GetName();
             if (vname == varNames.at(0) || vname == "alpha_"+varNames.at(0)){
