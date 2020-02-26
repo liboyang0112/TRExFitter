@@ -4426,8 +4426,8 @@ RooDataSet* TRExFit::DumpData( RooWorkspace *ws,  std::map < std::string, int > 
 
     //-- Nuisance parameters
     RooRealVar* var(nullptr);
-    TIterator *npIterator = mc -> GetNuisanceParameters() -> createIterator();
-    while( (var = (RooRealVar*) npIterator->Next()) ){
+    std::unique_ptr<TIterator> npIterator(mc->GetNuisanceParameters()->createIterator());
+    while( (var = static_cast<RooRealVar*>(npIterator->Next()))) {
         std::map < std::string, double >::const_iterator it_npValue = npValues.find( var -> GetName() );
         if( it_npValue != npValues.end() ){
             var -> setVal(it_npValue -> second);
@@ -4438,7 +4438,7 @@ RooDataSet* TRExFit::DumpData( RooWorkspace *ws,  std::map < std::string, int > 
     std::map<std::string, RooDataSet*> asimovDataMap;
     RooSimultaneous* simPdf = dynamic_cast<RooSimultaneous*>(mc->GetPdf());
     RooCategory* channelCat = (RooCategory*)&simPdf->indexCat();
-    TIterator* iter = channelCat->typeIterator() ;
+    std::unique_ptr<TIterator> iter(channelCat->typeIterator());
     RooCatType* tt = nullptr;
     int iFrame = 0;
     int i = 0;
@@ -4566,11 +4566,11 @@ std::map < std::string, double > TRExFit::PerformFit( RooWorkspace *ws, RooDataS
         ReadFitResults(fFitResultsFile);
         std::vector<std::string> npNames;
         std::vector<double> npValues;
-        for(unsigned int i_np=0;i_np<fFitResults->fNuisPar.size();i_np++){
-            npNames.push_back(  fFitResults->fNuisPar[i_np]->fName );
-            npValues.push_back( fFitResults->fNuisPar[i_np]->fFitValue );
+        for(const auto& inp : fFitResults->fNuisPar) {
+            npNames.push_back( inp->fName);
+            npValues.push_back(inp->fFitValue);
         }
-        fitTool.SetNPs( npNames,npValues );
+        fitTool.SetNPs(npNames,npValues);
     }
 
     //
@@ -4583,8 +4583,8 @@ std::map < std::string, double > TRExFit::PerformFit( RooWorkspace *ws, RooDataS
     //
     // Gets needed objects for the fit
     //
-    RooStats::ModelConfig* mc = (RooStats::ModelConfig*)ws->obj("ModelConfig");
-    RooSimultaneous *simPdf = (RooSimultaneous*)(mc->GetPdf());
+    RooStats::ModelConfig* mc = static_cast<RooStats::ModelConfig*>(ws->obj("ModelConfig"));
+    RooSimultaneous *simPdf = static_cast<RooSimultaneous*>(mc->GetPdf());
 
     //
     // Creates the data object
@@ -4594,10 +4594,10 @@ std::map < std::string, double > TRExFit::PerformFit( RooWorkspace *ws, RooDataS
         data = inputData;
     } else {
         WriteWarningStatus("TRExFit::PerformFit", "You didn't provide inputData => will use the observed data !");
-        data = (RooDataSet*)ws->data("obsData");
+        data = static_cast<RooDataSet*>(ws->data("obsData"));
         if(data==nullptr){
             WriteWarningStatus("TRExFit::PerformFit", "No observedData found => will use the Asimov data !");
-            data = (RooDataSet*)ws->data("asimovData");
+            data = static_cast<RooDataSet*>(ws->data("asimovData"));
         }
         inputData = data;
     }
@@ -4612,11 +4612,11 @@ std::map < std::string, double > TRExFit::PerformFit( RooWorkspace *ws, RooDataS
         ReadFitResults(fName+"/Fits/"+fInputName+fSuffix+".txt");
         std::vector<std::string> npNames;
         std::vector<double> npValues;
-        for(unsigned int i_np=0;i_np<fFitResults->fNuisPar.size();i_np++){
-            if(!fFixNPforStatOnlyFit && Common::FindInStringVector(fNormFactorNames,fFitResults->fNuisPar[i_np]->fName)>=0) continue;
-            if(!fFixNPforStatOnlyFit && Common::FindInStringVector(fShapeFactorNames,fFitResults->fNuisPar[i_np]->fName)>=0) continue;
-            npNames.push_back(  fFitResults->fNuisPar[i_np]->fName );
-            npValues.push_back( fFitResults->fNuisPar[i_np]->fFitValue );
+        for(const auto& inp: fFitResults->fNuisPar) {
+            if(!fFixNPforStatOnlyFit && Common::FindInStringVector(fNormFactorNames,inp->fName)>=0) continue;
+            if(!fFixNPforStatOnlyFit && Common::FindInStringVector(fShapeFactorNames,inp->fName)>=0) continue;
+            npNames.push_back( inp->fName);
+            npValues.push_back(inp->fFitValue);
         }
         fitTool.FixNPs(npNames,npValues);
     }
@@ -4636,7 +4636,7 @@ std::map < std::string, double > TRExFit::PerformFit( RooWorkspace *ws, RooDataS
     RooArgList l;
     std::vector<double> nomVec;
     std::vector<double> tauVec;
-    for(auto nf : fNormFactors){
+    for(const auto& nf : fNormFactors){
         if(nf->fTau!=0){
             l.add(*ws->var(nf->fName.c_str()));
             nomVec.push_back( nf->fNominal );
@@ -4671,7 +4671,7 @@ std::map < std::string, double > TRExFit::PerformFit( RooWorkspace *ws, RooDataS
     // Get initial ikelihood value from Asimov
     double nll0 = 0.;
     if (fBlindedParameters.size() > 0) std::cout.setstate(std::ios_base::failbit);
-    if(fGetGoodnessOfFit) nll0 = fitTool.FitPDF( mc, simPdf, (RooDataSet*)ws->data("asimovData"), false, true );
+    if(fGetGoodnessOfFit) nll0 = fitTool.FitPDF( mc, simPdf, static_cast<RooDataSet*>(ws->data("asimovData")), false, true );
 
     // save snapshot before fit
     ws->saveSnapshot("snapshot_AfterFit_POI", *(mc->GetParametersOfInterest()) );
@@ -4684,15 +4684,15 @@ std::map < std::string, double > TRExFit::PerformFit( RooWorkspace *ws, RooDataS
     int ndof = inputData->numEntries();
     // - minus number of free & non-constant parameters
     int nNF = 0;
-    for(int i_nf=0;i_nf<fNNorm;i_nf++){
-        if(fNormFactors[i_nf]->fConst) continue;
-        if(fFitType==BONLY && fPOI==fNormFactors[i_nf]->fName) continue;
+    for(const auto& inf : fNormFactors) {
+        if(inf->fConst) continue;
+        if(fFitType==BONLY && fPOI==inf->fName) continue;
         // skip if it's a morphing parameter
-        if(fNormFactors[i_nf]->fName.find("morph_")!=std::string::npos) continue;
+        if(inf->fName.find("morph_")!=std::string::npos) continue;
         // skip if it has an "Expression"
-        if(fNormFactors[i_nf]->fExpression.first!="") continue;
+        if(inf->fExpression.first!="") continue;
         // skip if not in the ws (e.g. because assigned to a sample or region not present in the fit)
-        if(!ws->obj(fNormFactors[i_nf]->fName.c_str())) continue;
+        if(!ws->obj(inf->fName.c_str())) continue;
         nNF++;
     }
     ndof -= nNF;
@@ -5052,9 +5052,9 @@ void TRExFit::GetLimit(){
         // Set all saturated model factors to constant
         RooRealVar* var = nullptr;
         RooArgSet vars = ws_forLimit->allVars();
-        TIterator* it = vars.createIterator();
-        while( (var = (RooRealVar*) it->Next()) ){
-            std::string name = var->GetName();
+        std::unique_ptr<TIterator> it(vars.createIterator());
+        while( (var = static_cast<RooRealVar*>(it->Next()))) {
+            const std::string& name = var->GetName();
             if(name.find("saturated_model_sf_")!=std::string::npos){
                 WriteInfoStatus("TRExFit::GetLimit","Fixing parameter " + name );
                 var->setConstant( 1 );
@@ -5165,9 +5165,9 @@ void TRExFit::GetSignificance(){
         // Set all saturated model factors to constant
         RooRealVar* var = nullptr;
         RooArgSet vars = ws_forSignificance->allVars();
-        TIterator* it = vars.createIterator();
-        while( (var = (RooRealVar*) it->Next()) ){
-            std::string name = var->GetName();
+        std::unique_ptr<TIterator> it(vars.createIterator());
+        while( (var = static_cast<RooRealVar*>(it->Next()))) {
+            const std::string& name = var->GetName();
             if(name.find("saturated_model_sf_")!=std::string::npos){
                 WriteInfoStatus("TRExFit::GetSignificance","Fixing parameter " + name );
                 var->setConstant( 1 );
@@ -5454,7 +5454,6 @@ void TRExFit::ProduceNPRanking( std::string NPnames/*="all"*/ ){
     outName += ".txt";
     std::ofstream outName_file(outName.c_str());
     //
-    double muhat;
     std::map< std::string,double > muVarUp;
     std::map< std::string,double > muVarDown;
     std::map< std::string,double > muVarNomUp;
@@ -5543,19 +5542,19 @@ void TRExFit::ProduceNPRanking( std::string NPnames/*="all"*/ ){
 
     // Loop on NPs to find gammas and add to the list to be ranked
     if(NPnames=="all" || NPnames.find("gamma")!=std::string::npos || (atoi(NPnames.c_str())>0 || strcmp(NPnames.c_str(),"0")==0)){
-        RooRealVar* var = nullptr;
-        RooArgSet* nuis = (RooArgSet*) mc->GetNuisanceParameters();
+        RooRealVar* var(nullptr);
+        const RooArgSet* nuis = static_cast<const RooArgSet*>(mc->GetNuisanceParameters());
         if(nuis){
-            TIterator* it2 = nuis->createIterator();
+            std::unique_ptr<TIterator> it2(nuis->createIterator());
             int i_gamma = 0;
-            while( (var = (RooRealVar*) it2->Next()) ){
-                std::string np = var->GetName();
+            while( (var = static_cast<RooRealVar*>(it2->Next())) ){
+                const std::string& np = var->GetName();
                 if(np.find("gamma")!=std::string::npos){
                     // add the nuisance parameter to the list nuisPars if it's there in the ws
                     // remove "gamma"...
                     if(np==NPnames || (atoi(NPnames.c_str())-fNSyst-fNNorm==i_gamma && (atoi(NPnames.c_str())>0 || strcmp(NPnames.c_str(),"0")==0)) || NPnames=="all"){
-                        nuisPars.push_back(Common::ReplaceString(np,"gamma_",""));
-                        isNF.push_back( true );
+                        nuisPars.emplace_back(Common::ReplaceString(np,"gamma_",""));
+                        isNF.emplace_back(true);
                         if(NPnames!="all") break;
                     }
                     i_gamma++;
@@ -5595,15 +5594,15 @@ void TRExFit::ProduceNPRanking( std::string NPnames/*="all"*/ ){
     {
         std::vector<std::string> npNames;
         std::vector<double> npValues;
-        for(int i_norm=0;i_norm<fNNorm;i_norm++){
-            if (fNormFactors[i_norm]->fName == fPOI) continue;
-            npNames. emplace_back( fNormFactors[i_norm]->fName);
-            npValues.emplace_back( fNormFactors[i_norm]->fNominal);
+        for(const auto& inf : fNormFactors) {
+            if (inf->fName == fPOI) continue;
+            npNames. emplace_back(inf->fName);
+            npValues.emplace_back(inf->fNominal);
         }
         fitTool.SetNPs( npNames,npValues );
     }
 
-    muhat = fFitResults -> GetNuisParValue( fPOI );
+    const double muhat = fFitResults -> GetNuisParValue( fPOI );
 
     for(unsigned int i=0;i<nuisPars.size();i++){
         //
@@ -5640,7 +5639,7 @@ void TRExFit::ProduceNPRanking( std::string NPnames/*="all"*/ ){
         fitTool.FixNP( nuisPars[i], central + std::abs(up));
         fitTool.FitPDF( mc, simPdf, data.get() );
         muVarUp[ nuisPars[i] ]   = (fitTool.ExportFitResultInMap())[ fPOI ];
-        //
+
         // Set the NP to its post-fit *down* variation and refit to get the fitted POI
         ws->loadSnapshot("tmp_snapshot");
         fitTool.ResetFixedNP();
@@ -5652,16 +5651,16 @@ void TRExFit::ProduceNPRanking( std::string NPnames/*="all"*/ ){
         }
         fitTool.FitPDF( mc, simPdf, data.get() );
         muVarDown[ nuisPars[i] ] = (fitTool.ExportFitResultInMap())[ fPOI ];
-        //
+
         double dMuUp   = muVarUp[nuisPars[i]]-muhat;
         double dMuDown = muVarDown[nuisPars[i]]-muhat;
-        //
+
         // Experimental: reduce the range of ranking
         if(TRExFitter::OPTION["ReduceRanking"]!=0){
             dMuUp   /= TRExFitter::OPTION["ReduceRanking"];
             dMuDown /= TRExFitter::OPTION["ReduceRanking"];
         }
-        //
+
         outName_file << dMuUp << "   " << dMuDown << "  ";
 
         if(isNF[i]){
@@ -5671,13 +5670,13 @@ void TRExFit::ProduceNPRanking( std::string NPnames/*="all"*/ ){
         else{
             up   = 1.;
             down = 1.;
-            //
+
             // Experimental: reduce the range of ranking
             if(TRExFitter::OPTION["ReduceRanking"]!=0){
                 up   *= TRExFitter::OPTION["ReduceRanking"];
                 down *= TRExFitter::OPTION["ReduceRanking"];
             }
-            //
+
             // Set the NP to its pre-fit *up* variation and refit to get the fitted POI (pre-fit impact on POI)
             ws->loadSnapshot("tmp_snapshot");
             fitTool.ResetFixedNP();
@@ -6600,8 +6599,8 @@ void TRExFit::GetLikelihoodScan( RooWorkspace *ws, std::string varName, RooDataS
     }
 
     if (isPoI){
-        TIterator* it = mc->GetParametersOfInterest()->createIterator();
-        while( (var = (RooRealVar*) it->Next()) ){
+        std::unique_ptr<TIterator> it(mc->GetParametersOfInterest()->createIterator());
+        while( (var = static_cast<RooRealVar*>(it->Next())) ){
             vname=var->GetName();
             vname_s=var->GetName();
             if (vname == varName || vname == "alpha_"+varName) {
@@ -6612,8 +6611,8 @@ void TRExFit::GetLikelihoodScan( RooWorkspace *ws, std::string varName, RooDataS
         }
     }
     else {
-        TIterator* it = mc->GetNuisanceParameters()->createIterator();
-        while( (var = (RooRealVar*) it->Next()) ){
+        std::unique_ptr<TIterator> it(mc->GetNuisanceParameters()->createIterator());
+        while( (var = static_cast<RooRealVar*>(it->Next()))){
         vname=var->GetName();
             vname_s=var->GetName();
             if (vname == varName || vname == "alpha_"+varName) {
@@ -6773,7 +6772,7 @@ void TRExFit::Get2DLikelihoodScan( RooWorkspace *ws, const std::vector<std::stri
     RooRealVar* varX = nullptr;
     RooRealVar* varY = nullptr;
     //Get the parameters from the model
-    TIterator* it = mc->GetNuisanceParameters()->createIterator();
+    std::unique_ptr<TIterator> it(mc->GetNuisanceParameters()->createIterator());
     RooRealVar* var_tmp = nullptr;
     TString vname = "";
     int count = 0;
@@ -6794,7 +6793,7 @@ void TRExFit::Get2DLikelihoodScan( RooWorkspace *ws, const std::vector<std::stri
 
     // iterate over POIs
     if (count < 2){
-        TIterator* it_POI = mc->GetParametersOfInterest()->createIterator();
+        std::unique_ptr<TIterator> it_POI(mc->GetParametersOfInterest()->createIterator());
         while ( (var_tmp = static_cast<RooRealVar*>(it_POI->Next())) ){
             vname=var_tmp->GetName();
             if (vname == varNames.at(0) || vname == "alpha_"+varNames.at(0)){
@@ -7446,7 +7445,7 @@ void TRExFit::RunToys(){
         for(int i_toy = 0; i_toy < fFitToys; ++i_toy) {
 
             if (fToysPseudodataNP != "") {
-                TIterator* it = mc.GetNuisanceParameters()->createIterator();
+                std::unique_ptr<TIterator> it(mc.GetNuisanceParameters()->createIterator());
                 RooRealVar* var = nullptr;
                 while( (var = static_cast<RooRealVar*>(it->Next()))){
                     varname = var->GetName();
@@ -7458,7 +7457,6 @@ void TRExFit::RunToys(){
                         var->setVal(1);
                     }
                 }
-                delete it;
                 delete var;
             }
 
@@ -7484,7 +7482,7 @@ void TRExFit::RunToys(){
                 const RooArgSet* nuis = static_cast<const RooArgSet*>(mc.GetNuisanceParameters());
                 if (nuis){
                     RooRealVar* vartmp = nullptr;
-                    TIterator* it2 = nuis->createIterator();
+                    std::unique_ptr<TIterator> it2(nuis->createIterator());
                     while( (vartmp = static_cast<RooRealVar*>(it2->Next()))){
                         const std::string& np = vartmp->GetName();
                         if (np.find("alpha_")!=std::string::npos) {
@@ -7499,7 +7497,6 @@ void TRExFit::RunToys(){
                             vartmp->setVal( 1 );
                         }
                     }
-                    delete it2;
                     delete vartmp;
                 }
             }
