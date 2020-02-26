@@ -5574,6 +5574,8 @@ void TRExFit::ProduceNPRanking( std::string NPnames/*="all"*/ ){
         fitTool.SetNPs( npNames,npValues );
     }
 
+    ApplyExternalConstraints(ws.get(), &fitTool, simPdf);
+
     const double muhat = fFitResults -> GetNuisParValue( fPOI );
 
     for(unsigned int i=0;i<nuisPars.size();i++){
