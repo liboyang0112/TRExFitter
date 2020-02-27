@@ -397,6 +397,8 @@ std::map < std::string, double > MultiFit::FitCombinedWS(int fitType, const std:
         exit(EXIT_FAILURE);
     }
 
+    ApplyExternalConstraints(ws, &fitTool, simPdf);
+
     // Performs the fit
     gSystem -> mkdir((fOutDir+"/Fits/").c_str(),true);
 
@@ -1525,38 +1527,36 @@ void MultiFit::ProduceNPRanking( string NPnames/*="all"*/ ) const{
         abort();
     }
 
-    string inputData = fDataName;
-    unsigned int N = fFitList.size();
+    const std::string& inputData = fDataName;
 
     // create a list of Systematics
-    std::vector< Systematic* > vSystematics;  vSystematics.clear();
-    std::vector< std::string > Names;  Names.clear();
-    string systName;
-    for(unsigned int i_fit=0;i_fit<fFitList.size();i_fit++){
-        for(int i_syst=0;i_syst<fFitList[i_fit]->fNSyst;i_syst++){
-            systName = fFitList[i_fit]->fSystematics[i_syst]->fNuisanceParameter;
-            if(Common::FindInStringVector(Names,systName)<0){
+    std::vector< Systematic* > vSystematics;
+    std::vector< std::string > Names;
+    for(const auto& ifit : fFitList) {
+        for(const auto& isyst : ifit->fSystematics) {
+            const std::string systName = isyst->fNuisanceParameter;
+            if(Common::FindInStringVector(Names,systName) < 0) {
                 Names.push_back(systName);
-                vSystematics.push_back(fFitList[i_fit]->fSystematics[i_syst]);
+                vSystematics.push_back(isyst);
             }
         }
     }
-    unsigned int Nsyst = Names.size();
 
     // create a list of norm factors
-    std::vector< NormFactor* > vNormFactors;  vNormFactors.clear();
-    std::vector< std::string > nfNames;  nfNames.clear();
-    string normName;
-    for(unsigned int i_fit=0;i_fit<N;i_fit++){
-        for(int i_norm=0;i_norm<fFitList[i_fit]->fNNorm;i_norm++){
-            normName = fFitList[i_fit]->fNormFactors[i_norm]->fName;
-            if(Common::FindInStringVector(nfNames,systName)<0){
+    std::vector< NormFactor* > vNormFactors;
+    std::vector< std::string > nfNames;
+    for(const auto& ifit : fFitList) {
+        for(const auto& inorm : ifit->fNormFactors) {
+            const std::string normName = inorm->fName;
+            if(Common::FindInStringVector(nfNames,normName) < 0) {
                 nfNames.push_back(normName);
-                vNormFactors.push_back(fFitList[i_fit]->fNormFactors[i_norm]);
+                vNormFactors.push_back(inorm);
             }
         }
     }
-    unsigned int Nnorm = nfNames.size();
+    
+    const std::size_t Nsyst = Names.size();
+    const std::size_t Nnorm = nfNames.size();
 
     //
     // List of systematics to check
@@ -1564,9 +1564,9 @@ void MultiFit::ProduceNPRanking( string NPnames/*="all"*/ ) const{
     std::vector< string > nuisPars;
     std::vector< bool > isNF;
     std::vector<string> systNames_unique;
-    for(int i_syst=0;i_syst< (int) Nsyst;i_syst++){
+    for(std::size_t i_syst = 0; i_syst < Nsyst; ++i_syst) {
         if(NPnames=="all" || NPnames==vSystematics[i_syst]->fNuisanceParameter ||
-            ( atoi(NPnames.c_str())==i_syst && (atoi(NPnames.c_str())>0 || strcmp( NPnames.c_str(), "0") ==0 ) )
+            ( std::stoul(NPnames.c_str())==i_syst && (std::stoi(NPnames.c_str())>0 || strcmp( NPnames.c_str(), "0") ==0 ) )
             ){
             if(vSystematics[i_syst]->fType == Systematic::SHAPE) continue;
             if (std::find(systNames_unique.begin(), systNames_unique.end(),
@@ -1580,10 +1580,10 @@ void MultiFit::ProduceNPRanking( string NPnames/*="all"*/ ) const{
             isNF.push_back( false );
         }
     }
-    for(int i_norm=0;i_norm<(int)Nnorm;i_norm++){
+    for(std::size_t i_norm = 0; i_norm<Nnorm; ++i_norm) {
         if(fPOI==vNormFactors[i_norm]->fName) continue;
         if(NPnames=="all" || NPnames==vNormFactors[i_norm]->fName ||
-            ( ((atoi(NPnames.c_str())-(int)Nnorm) == i_norm) && (atoi(NPnames.c_str())>0 || strcmp( NPnames.c_str(), "0")==0) )
+            ( ((atoi(NPnames.c_str())-Nnorm) == i_norm) && (atoi(NPnames.c_str())>0 || strcmp( NPnames.c_str(), "0")==0) )
             ){
             nuisPars.push_back( vNormFactors[i_norm]->fName );
             isNF.push_back( true );
@@ -1593,7 +1593,7 @@ void MultiFit::ProduceNPRanking( string NPnames/*="all"*/ ) const{
     //
     // Text files containing information necessary for drawing of ranking plot
     //
-    string outName = fOutDir+"/Fits/NPRanking";
+    std::string outName = fOutDir+"/Fits/NPRanking";
     if(NPnames!="all") outName += "_"+NPnames;
     outName += ".txt";
     ofstream outName_file(outName.c_str());
@@ -1611,13 +1611,13 @@ void MultiFit::ProduceNPRanking( string NPnames/*="all"*/ ) const{
         WriteErrorStatus("MultiFit::ProduceNPRanking", "Cannot open file!");
         exit(EXIT_FAILURE);
     }
-    RooWorkspace *ws = dynamic_cast<RooWorkspace*>(f->Get("combWS"));
+    RooWorkspace* ws = dynamic_cast<RooWorkspace*>(f->Get("combWS"));
 
     //
     // Gets needed objects for the fit
     //
     RooStats::ModelConfig* mc = dynamic_cast<RooStats::ModelConfig*>(ws->obj("ModelConfig"));
-    RooSimultaneous *simPdf = static_cast<RooSimultaneous*>(mc->GetPdf());
+    RooSimultaneous* simPdf = static_cast<RooSimultaneous*>(mc->GetPdf());
 
     //
     // Creates the data object
@@ -1625,16 +1625,16 @@ void MultiFit::ProduceNPRanking( string NPnames/*="all"*/ ) const{
     RooDataSet* data = nullptr;
     if(inputData=="asimovData"){
         RooArgSet empty;// = RooArgSet();
-        data = (RooDataSet*)RooStats::AsymptoticCalculator::MakeAsimovData( (*mc), RooArgSet(ws->allVars()), (RooArgSet&)empty);
+        data = static_cast<RooDataSet*>(RooStats::AsymptoticCalculator::MakeAsimovData( (*mc), RooArgSet(ws->allVars()), (RooArgSet&)empty));
     }
     else if(inputData!=""){
-        data = (RooDataSet*)ws->data( inputData.c_str() );
+        data = static_cast<RooDataSet*>(ws->data(inputData.c_str()));
     } else {
         WriteWarningStatus("MultiFit::ProduceNPRanking", "You didn't specify inputData => will try with observed data !");
-        data = (RooDataSet*)ws->data("obsData");
+        data = static_cast<RooDataSet*>(ws->data("obsData"));
         if(!data){
             WriteWarningStatus("MultiFit::ProduceNPRanking", "Observed data not present => will use with asimov data !");
-            data = (RooDataSet*)ws->data("asimovData");
+            data = static_cast<RooDataSet*>(ws->data("asimovData"));
         }
     }
 
@@ -1679,14 +1679,16 @@ void MultiFit::ProduceNPRanking( string NPnames/*="all"*/ ) const{
     {
         std::vector<std::string> npNames;
         std::vector<double> npValues;
-        for(int i_norm=0;i_norm<fit->fNNorm;i_norm++){
-            if (fit->fNormFactors[i_norm]->fName == fPOI) continue;
-            npNames. emplace_back( fit->fNormFactors[i_norm]->fName);
-            npValues.emplace_back( fit->fNormFactors[i_norm]->fNominal);
+        for(const auto& inorm : fit->fNormFactors) {
+            if (inorm->fName == fPOI) continue;
+            npNames. emplace_back(inorm->fName);
+            npValues.emplace_back(inorm->fNominal);
         }
         fitTool.SetNPs( npNames,npValues );
     }
     const double muhat = fit->fFitResults -> GetNuisParValue( fPOI );
+    
+    ApplyExternalConstraints(ws, &fitTool, simPdf);
 
     for(unsigned int i=0;i<nuisPars.size();i++){
 
@@ -3140,5 +3142,50 @@ void MultiFit::BuildGroupedImpactTable() const{
         cmd            += " cat "+fOutDir+"/Fits/GroupedImpact"+fSaveSuf+"_* > "+targetName+" ; ";
         cmd            += " fi ;";
         gSystem->Exec(cmd.c_str());
+    }
+}
+
+//__________________________________________________________________________________
+//
+void MultiFit::ApplyExternalConstraints(RooWorkspace* ws,
+                                        FittingTool* fitTool,
+                                        RooSimultaneous* simPdf) const {
+
+    // Tikhonov regularization (for unfolding)
+    RooArgList l;
+    std::vector<double> nomVec;
+    std::vector<double> tauVec;
+    std::vector<std::string> names; 
+    for (const auto& ifit : fFitList) {
+        for(const auto& nf : ifit->fNormFactors) {
+            if(nf->fTau == 0) continue;
+
+            // only add the unique NFs
+            if (std::find(names.begin(), names.end(), nf->fName) != names.end()) continue;
+            names.emplace_back(nf->fName);
+
+            l.add(*ws->var(nf->fName.c_str()));
+            nomVec.emplace_back(nf->fNominal);
+            tauVec.emplace_back(nf->fTau);
+        }
+    }
+
+    if(tauVec.empty()) return;
+
+    TVectorD nominal(nomVec.size());
+    TMatrixDSym cov(tauVec.size());
+    for(unsigned int i_tau = 0; i_tau < tauVec.size(); ++i_tau) {
+        nominal(i_tau) = nomVec[i_tau];
+        cov(i_tau,i_tau) = (1./tauVec[i_tau]) * (1./tauVec[i_tau]);
+    }
+    RooMultiVarGaussian r("regularization","regularization",l,nominal,cov);
+    ws->import(r);
+    ws->defineSet("myConstraints","regularization");
+    simPdf->setStringAttribute("externalConstraints","myConstraints");
+
+    if(simPdf->getStringAttribute("externalConstraints")) {
+        WriteInfoStatus("MultiFit::ApplyExternalConstraints",Form("Building NLL with external constraints %s",simPdf->getStringAttribute("externalConstraints")));
+        const RooArgSet* externalConstraints = ws->set(simPdf->getStringAttribute("externalConstraints"));
+        fitTool->SetExternalConstraints( externalConstraints );
     }
 }

@@ -10,7 +10,9 @@
 
 /// Forwards declaration
 class ConfigParser;
+class FittingTool;
 class RooDataSet;
+class RooSimultaneous;
 class RooWorkspace;
 class TH1D;
 class TRExFit;
@@ -46,6 +48,17 @@ public:
     void GetLikelihoodScan( RooWorkspace *ws, const std::string& varName, RooDataSet* data,bool recreate=true) const;
     void Get2DLikelihoodScan( RooWorkspace *ws, const std::vector<std::string>& varName, RooDataSet* data) const;
     void BuildGroupedImpactTable() const;
+
+    /**
+      * A helper function to propagate external constraints
+      * from the individual configs
+      * @param The woskspace that will be modified
+      * @param fitTool
+      * @param the PDF
+      */ 
+    void ApplyExternalConstraints(RooWorkspace* ws,
+                                  FittingTool* fitTool,
+                                  RooSimultaneous* simPdf) const;
 
     TH1D* Combine(std::vector<TH1D*> hists) const;
     TH1D* OrderBins(TH1D* h, std::vector<double> vec) const;
