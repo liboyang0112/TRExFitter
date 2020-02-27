@@ -4632,35 +4632,7 @@ std::map < std::string, double > TRExFit::PerformFit( RooWorkspace *ws, RooDataS
         fitTool.FixNPs(npNames,npValues);
     }
 
-    // Tikhonov regularization (for unfolding)
-    RooArgList l;
-    std::vector<double> nomVec;
-    std::vector<double> tauVec;
-    for(const auto& nf : fNormFactors){
-        if(nf->fTau!=0){
-            l.add(*ws->var(nf->fName.c_str()));
-            nomVec.push_back( nf->fNominal );
-            tauVec.push_back( nf->fTau );
-        }
-    }
-    if(tauVec.size()>0){
-        TVectorD nominal(nomVec.size());
-        TMatrixDSym cov(tauVec.size());
-        for(unsigned int i_tau=0;i_tau<tauVec.size();i_tau++){
-            nominal(i_tau) = nomVec[i_tau];
-            cov(i_tau,i_tau) = (1./tauVec[i_tau]) * (1./tauVec[i_tau]);
-        }
-        RooMultiVarGaussian r("regularization","regularization",l,nominal,cov);
-        ws->import(r);
-        ws->defineSet("myConstraints","regularization");
-        simPdf->setStringAttribute("externalConstraints","myConstraints");
-        //
-        if(simPdf->getStringAttribute("externalConstraints")){
-            WriteInfoStatus("TRExFit::PerformFit",Form("Building NLL with external constraints %s",simPdf->getStringAttribute("externalConstraints")));
-            const RooArgSet* externalConstraints = ws->set(simPdf->getStringAttribute("externalConstraints"));
-            fitTool.SetExternalConstraints( externalConstraints );
-        }
-    }
+    ApplyExternalConstraints(ws, &fitTool, simPdf);
 
     // save snapshot before fit
     ws->saveSnapshot("snapshot_BeforeFit_POI", *(mc->GetParametersOfInterest()) );
@@ -5601,6 +5573,8 @@ void TRExFit::ProduceNPRanking( std::string NPnames/*="all"*/ ){
         }
         fitTool.SetNPs( npNames,npValues );
     }
+
+    ApplyExternalConstraints(ws.get(), &fitTool, simPdf);
 
     const double muhat = fFitResults -> GetNuisParValue( fPOI );
 
@@ -7432,11 +7406,48 @@ void TRExFit::RunToys(){
 
         //Create NLL only once
         RooDataSet* dummy = pdf->generate(obsSet, RooFit::Extended());
+
+        // apply external constraints
+        RooArgList l;
+        std::vector<double> nomVec;
+        std::vector<double> tauVec;
+        for(const auto& nf : fNormFactors){
+            if(nf->fTau!=0){
+                l.add(*ws->var(nf->fName.c_str()));
+                nomVec.push_back( nf->fNominal );
+                tauVec.push_back( nf->fTau );
+            }
+        }
+
+        const RooArgSet* externalConstraints(nullptr);
+
+        if(!tauVec.empty()) {
+            TVectorD nominal(nomVec.size());
+            TMatrixDSym cov(tauVec.size());
+            for(unsigned int i_tau=0;i_tau<tauVec.size();i_tau++){
+                nominal(i_tau) = nomVec[i_tau];
+                cov(i_tau,i_tau) = (1./tauVec[i_tau]) * (1./tauVec[i_tau]);
+            }
+            RooMultiVarGaussian r("regularization","regularization",l,nominal,cov);
+            ws->import(r);
+            ws->defineSet("myConstraints","regularization");
+            simPdf.setStringAttribute("externalConstraints","myConstraints");
+
+            if(simPdf.getStringAttribute("externalConstraints")){
+                WriteInfoStatus("TRExFit::RunToys",Form("Building NLL with external constraints %s",simPdf.getStringAttribute("externalConstraints")));
+                externalConstraints = ws->set(simPdf.getStringAttribute("externalConstraints"));
+            }
+        }
+
+
+        const RooArgSet* glbObs = mc.GetGlobalObservables();
         RooAbsReal* nll = simPdf.createNLL(*dummy,
-                                           Constrain(*mc.GetNuisanceParameters()),
-                                           Offset(1),
-                                           NumCPU(1, RooFit::Hybrid),
-                                           RooFit::Optimize(kTRUE));
+                                           RooFit::Constrain(*mc.GetNuisanceParameters()),
+                                           RooFit::GlobalObservables(*glbObs),
+                                           RooFit::Offset(1),
+                                           RooFit::NumCPU(1, RooFit::Hybrid),
+                                           RooFit::Optimize(kTRUE),
+                                           RooFit::ExternalConstraints(*externalConstraints));
 
         std::vector<TH1D> h_toys;
         for (std::size_t inf = 0; inf < nfs.size(); ++inf) {
@@ -9018,5 +9029,42 @@ void TRExFit::RunForceShape() {
                 }
             }
         }
+    }
+}
+
+//__________________________________________________________________________________
+//
+void TRExFit::ApplyExternalConstraints(RooWorkspace* ws,
+                                       FittingTool* fitTool,
+                                       RooSimultaneous* simPdf) const {
+    // Tikhonov regularization (for unfolding)
+    RooArgList l;
+    std::vector<double> nomVec;
+    std::vector<double> tauVec;
+    for(const auto& nf : fNormFactors){
+        if(nf->fTau!=0){
+            l.add(*ws->var(nf->fName.c_str()));
+            nomVec.push_back( nf->fNominal );
+            tauVec.push_back( nf->fTau );
+        }
+    }
+
+    if(tauVec.empty()) return;
+
+    TVectorD nominal(nomVec.size());
+    TMatrixDSym cov(tauVec.size());
+    for(unsigned int i_tau=0;i_tau<tauVec.size();i_tau++){
+        nominal(i_tau) = nomVec[i_tau];
+        cov(i_tau,i_tau) = (1./tauVec[i_tau]) * (1./tauVec[i_tau]);
+    }
+    RooMultiVarGaussian r("regularization","regularization",l,nominal,cov);
+    ws->import(r);
+    ws->defineSet("myConstraints","regularization");
+    simPdf->setStringAttribute("externalConstraints","myConstraints");
+
+    if(simPdf->getStringAttribute("externalConstraints")){
+        WriteInfoStatus("TRExFit::ApplyExternalConstraints",Form("Building NLL with external constraints %s",simPdf->getStringAttribute("externalConstraints")));
+        const RooArgSet* externalConstraints = ws->set(simPdf->getStringAttribute("externalConstraints"));
+        fitTool->SetExternalConstraints( externalConstraints );
     }
 }
