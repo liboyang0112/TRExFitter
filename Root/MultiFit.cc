@@ -326,11 +326,11 @@ std::map < std::string, double > MultiFit::FitCombinedWS(int fitType, const std:
         fFitList[0]->ReadFitResults(fFitResultsFile);
         std::vector<std::string> npNames;
         std::vector<double> npValues;
-        for(unsigned int i_np=0;i_np<fFitList[0]->fFitResults->fNuisPar.size();i_np++){
-            npNames.push_back(  fFitList[0]->fFitResults->fNuisPar[i_np]->fName );
-            npValues.push_back( fFitList[0]->fFitResults->fNuisPar[i_np]->fFitValue );
+        for(const auto& inp : fFitList[0]->fFitResults->fNuisPar) {
+            npNames.push_back( inp->fName);
+            npValues.push_back(inp->fFitValue);
         }
-        fitTool.SetNPs( npNames,npValues );
+        fitTool.SetNPs(npNames,npValues);
     }
     // Fix NPs that are specified in the individual configs
     for (const auto& ifit : fFitList){
@@ -345,11 +345,11 @@ std::map < std::string, double > MultiFit::FitCombinedWS(int fitType, const std:
         }
     }
 
-    std::vector<std::string> vVarNameMinos; vVarNameMinos.clear();
-    for(unsigned int i_fit=0;i_fit<fFitList.size();i_fit++){
-        for(unsigned int i_minos=0;i_minos<fFitList[i_fit]->fVarNameMinos.size();i_minos++){
-            if(Common::FindInStringVector(vVarNameMinos,fFitList[i_fit]->fVarNameMinos[i_minos])<0){
-                vVarNameMinos.push_back( fFitList[i_fit]->fVarNameMinos[i_minos] );
+    std::vector<std::string> vVarNameMinos;
+    for(const auto& ifit : fFitList) {
+        for(const auto& iminos : ifit->fVarNameMinos) {
+            if(Common::FindInStringVector(vVarNameMinos,iminos) < 0){
+                vVarNameMinos.push_back(iminos);
             }
         }
     }
@@ -357,8 +357,8 @@ std::map < std::string, double > MultiFit::FitCombinedWS(int fitType, const std:
     if (TRExFitter::DEBUGLEVEL < 2) std::cout.clear();
     if(vVarNameMinos.size()>0){
         WriteDebugStatus("MultiFit::FitCombinedWS", "Setting the variables to use MINOS with:");
-        for(unsigned int i_minos=0;i_minos<vVarNameMinos.size();i_minos++){
-            WriteDebugStatus("MultiFit::FitCombinedWS",  "  " + vVarNameMinos[i_minos]);
+        for(const auto& iminos : vVarNameMinos) {
+            WriteDebugStatus("MultiFit::FitCombinedWS",  "  " + iminos);
         }
         fitTool.UseMinos(vVarNameMinos);
     }
@@ -367,14 +367,14 @@ std::map < std::string, double > MultiFit::FitCombinedWS(int fitType, const std:
     // Gets needed objects for the fit
     //
     if (TRExFitter::DEBUGLEVEL < 2) std::cout.setstate(std::ios_base::failbit);
-    RooStats::ModelConfig* mc = (RooStats::ModelConfig*)ws->obj("ModelConfig");
-    RooSimultaneous *simPdf = (RooSimultaneous*)(mc->GetPdf());
+    RooStats::ModelConfig* mc = static_cast<RooStats::ModelConfig*>(ws->obj("ModelConfig"));
+    RooSimultaneous* simPdf = static_cast<RooSimultaneous*>((mc->GetPdf()));
     if (TRExFitter::DEBUGLEVEL < 2) std::cout.clear();
 
     //
     // Creates the data object
     //
-    RooDataSet* data = 0;
+    RooDataSet* data = nullptr;
     if(inputData=="asimovData"){
         RooArgSet empty;// = RooArgSet();
         if (TRExFitter::DEBUGLEVEL < 2) std::cout.setstate(std::ios_base::failbit);
@@ -382,13 +382,13 @@ std::map < std::string, double > MultiFit::FitCombinedWS(int fitType, const std:
         if (TRExFitter::DEBUGLEVEL < 2) std::cout.clear();
     }
     else if(inputData!=""){
-        data = (RooDataSet*)ws->data( inputData.c_str() );
+        data = static_cast<RooDataSet*>(ws->data(inputData.c_str()));
     } else {
         WriteWarningStatus("MultiFit::FitCombinedWS", "You didn't specify inputData => will try with observed data !");
-        data = (RooDataSet*)ws->data("obsData");
+        data = static_cast<RooDataSet*>(ws->data("obsData"));
         if(!data){
             WriteWarningStatus("MultiFit::FitCombinedWS", "Observed data not present => will use with asimov data !");
-            data = (RooDataSet*)ws->data("asimovData");
+            data = static_cast<RooDataSet*>(ws->data("asimovData"));
         }
     }
 
@@ -403,7 +403,7 @@ std::map < std::string, double > MultiFit::FitCombinedWS(int fitType, const std:
     // Get initial ikelihood value from Asimov
     if (TRExFitter::DEBUGLEVEL < 2) std::cout.setstate(std::ios_base::failbit);
     double nll0 = 0.;
-    if(fGetGoodnessOfFit) nll0 = fitTool.FitPDF( mc, simPdf, (RooDataSet*)ws->data("asimovData"), false, true );
+    if(fGetGoodnessOfFit) nll0 = fitTool.FitPDF( mc, simPdf, static_cast<RooDataSet*>(ws->data("asimovData")), false, true );
 
     //
     // Get number of degrees of freedom
@@ -411,8 +411,8 @@ std::map < std::string, double > MultiFit::FitCombinedWS(int fitType, const std:
     int ndof = data->numEntries();
     // - minus number of free & non-constant parameters
     std::vector<std::string> nfList;
-    for(auto fit : fFitList){
-        for(auto nf : fit->fNormFactors){
+    for(const auto& fit : fFitList){
+        for(const auto& nf : fit->fNormFactors){
             if(nf->fConst) continue;
             if(Common::FindInStringVector(nfList,nf->fName)>=0) continue;
             if(fFitType==2 && fPOI==nf->fName) continue;
@@ -436,8 +436,8 @@ std::map < std::string, double > MultiFit::FitCombinedWS(int fitType, const std:
     //
     // Goodness of fit
     if(fGetGoodnessOfFit && !doLHscanOnly){
-        double deltaNLL = nll-nll0;
-        double prob = ROOT::Math::chisquared_cdf_c( 2* deltaNLL, ndof);
+        const double deltaNLL = nll-nll0;
+        const double prob = ROOT::Math::chisquared_cdf_c( 2* deltaNLL, ndof);
         WriteInfoStatus("MultiFit::FitCombinedWS", "----------------------- -------------------------- -----------------------");
         WriteInfoStatus("MultiFit::FitCombinedWS", "----------------------- GOODNESS OF FIT EVALUATION -----------------------");
         WriteInfoStatus("MultiFit::FitCombinedWS", "  NLL0        = " + std::to_string(nll0));
@@ -458,12 +458,12 @@ std::map < std::string, double > MultiFit::FitCombinedWS(int fitType, const std:
         outNameGroupedImpact += ".txt";
         // need to create a merged list of fSubCategoryImpactMap from the include Fits
         std::map<std::string, std::string> mergedMap;
-        mergedMap.clear();
         for(auto fit : fFitList){
             fit->ProduceSystSubCategoryMap();
-            for(auto m : fit->fSubCategoryImpactMap){
-                if(mergedMap[m.first]=="") mergedMap[m.first] = m.second;
-                else if(mergedMap[m.first]!=m.second){
+            for(auto m : fit->fSubCategoryImpactMap) {
+                if(mergedMap[m.first] == "") {
+                    mergedMap[m.first] = m.second;
+                } else if(mergedMap[m.first] != m.second){
                     WriteWarningStatus("MultiFit::FitCombinedWS","Systematics assigned to different SubCategory in the different included Fits. Keeping first Fit convention.");
                 }
             }
@@ -516,18 +516,18 @@ std::map < std::string, double > MultiFit::FitCombinedWS(int fitType, const std:
         fFitList[0]->ReadFitResults(fOutDir+"/Fits/"+fName+fSaveSuf+".txt");
         std::vector<std::string> npNames;
         std::vector<double> npValues;
-        for(unsigned int i_np=0;i_np<fFitList[0]->fFitResults->fNuisPar.size();i_np++){
+        for(const auto& inp : fFitList[0]->fFitResults->fNuisPar) {
             bool isNF = false;
-            for(unsigned int i_fit=0;i_fit<fFitList.size();i_fit++){
-                if(!fFitList[i_fit]->fFixNPforStatOnlyFit &&
-                    Common::FindInStringVector(fFitList[i_fit]->fNormFactorNames,fFitList[0]->fFitResults->fNuisPar[i_np]->fName)>=0){
+            for(const auto& ifit : fFitList) {
+                if(!ifit->fFixNPforStatOnlyFit &&
+                    Common::FindInStringVector(ifit->fNormFactorNames,inp->fName)>=0){
                     isNF = true;
                     break;
                 }
             }
             if(isNF) continue;
-            npNames.push_back(  fFitList[0]->fFitResults->fNuisPar[i_np]->fName );
-            npValues.push_back( fFitList[0]->fFitResults->fNuisPar[i_np]->fFitValue );
+            npNames.push_back( inp->fName);
+            npValues.push_back(inp->fFitValue);
         }
         fitTool.ResetFixedNP();
         fitTool.FixNPs(npNames,npValues);
