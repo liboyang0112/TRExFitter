@@ -265,7 +265,8 @@ TRExFit::TRExFit(std::string name) :
     fResponseZmax(1),
     fMigrationText(false),
     fPruningShapeOption(PruningUtil::SHAPEOPTION::MAXBIN),
-    fSummaryLogY(true)
+    fSummaryLogY(true),
+    fReorderNPs(false)
 {
     TRExFitter::IMAGEFORMAT.emplace_back("png");
     // Increase the limit for formula evaluations
@@ -5221,6 +5222,24 @@ void TRExFit::ReadFitResults(const std::string& fileName){
                 fFitResults->fNuisPar[i_np]->fCategory = fShapeFactors[j]->fCategory;
             }
         }
+    }
+    
+    // create an ordered list of NPs
+    if(fReorderNPs){
+        fFitResults->fNuisParList.clear();
+        for(auto norm : fNormFactors){
+            if(norm->fExpression.first==""){
+                if(Common::FindInStringVector(fFitResults->fNuisParList,norm->fNuisanceParameter)<0) fFitResults->fNuisParList.emplace_back(norm->fNuisanceParameter);
+            }
+        }
+        for(auto syst : fSystematics){
+            // if non-SHAPE
+            if(syst->fType!=Systematic::SHAPE){
+                if(Common::FindInStringVector(fFitResults->fNuisParList,syst->fNuisanceParameter)<0) fFitResults->fNuisParList.emplace_back(syst->fNuisanceParameter);
+            }
+            // FIXME: something to add for actual SHAPE systematics (not "separate gammas")
+        }
+        // FIXME: something to add for shape factors
     }
 }
 

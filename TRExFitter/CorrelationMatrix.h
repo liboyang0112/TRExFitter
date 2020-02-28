@@ -39,6 +39,7 @@ public:
     std::map<std::string,int> fNuisParIdx;
     std::map<std::string,bool> fNuisParIsThere;
     std::vector<std::string> fNuisParToHide;
+    std::vector<std::string> fNuisParList;
     std::vector<std::vector<double> > fMatrix;
 };
 

@@ -790,6 +790,7 @@ public:
     bool fMigrationText;
     PruningUtil::SHAPEOPTION fPruningShapeOption;
     bool fSummaryLogY;
+    bool fReorderNPs;
 };
 
 #endif

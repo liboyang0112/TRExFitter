@@ -1152,6 +1152,18 @@ int ConfigReader::ReadJobOptions(){
         fFitter->fNPRankingCanvasSize.emplace_back(y);
     }
 
+    // Set ReorderNPs
+    param = confSet->Get("ReorderNPs");
+    if( param != "" ){
+        std::transform(param.begin(), param.end(), param.begin(), ::toupper);
+        if(      param == "TRUE" )  fFitter->fReorderNPs = true;
+        else if( param == "FALSE" ) fFitter->fReorderNPs = false;
+        else {
+            WriteWarningStatus("ConfigReader::ReadJobOptions", "You specified 'ReorderNPs' option but you did not provide valid setting. Using default (false)");
+            fFitter->fReorderNPs = false;
+        }
+    }
+
     // success
     return 0;
 }

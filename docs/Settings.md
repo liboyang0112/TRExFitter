@@ -166,6 +166,7 @@ The following settings are for normal fits, performed without the action `m`.
 | MigrationFile(s)        | File path(s) of the histogram for migration matrix |
 | MigrationPaths(s)       | Folder path(s) of the histogram for migration matrix |
 | MigrationNameNominal    | Nominal histogram name |
+| ReorderNPs              | If set to TRUE, fit results will show NPs and norm factors ordered according to how they appear in the config file. |
 
 
 ### `Fit` block settings
