@@ -176,7 +176,7 @@ RooWorkspace* MultiFit::CombineWS() const{
 
     if (TRExFitter::DEBUGLEVEL < 2) std::cout.setstate(std::ios_base::failbit);
 
-    gSystem->mkdir((fName+"/RooStats").c_str());
+    gSystem->mkdir((fOutDir+"/RooStats").c_str());
 
     std::vector < RooWorkspace* > vec_ws;
     std::vector < std::string > vec_chName;
@@ -255,7 +255,7 @@ RooWorkspace* MultiFit::CombineWS() const{
     // Configure the workspace
     RooStats::HistFactory::HistoToWorkspaceFactoryFast::ConfigureWorkspaceForMeasurement( "simPdf", ws, *measurement );
 
-    measurement->PrintXML((fName + "/RooStats/").c_str());
+    measurement->PrintXML((fOutDir + "/RooStats/").c_str());
 
     if (TRExFitter::DEBUGLEVEL < 2) std::cout.clear();
 
