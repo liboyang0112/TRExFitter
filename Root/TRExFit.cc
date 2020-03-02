@@ -265,7 +265,8 @@ TRExFit::TRExFit(std::string name) :
     fResponseZmax(1),
     fMigrationText(false),
     fPruningShapeOption(PruningUtil::SHAPEOPTION::MAXBIN),
-    fSummaryLogY(true)
+    fSummaryLogY(true),
+    fUseInFit(true)
 {
     TRExFitter::IMAGEFORMAT.emplace_back("png");
     // Increase the limit for formula evaluations

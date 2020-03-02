@@ -138,8 +138,13 @@ MultiFit::MultiFit(const string& name) :
 
 //__________________________________________________________________________________
 //
-void MultiFit::AddFitFromConfig(const std::string& configFile, const std::string& opt, const std::string& options,
-                                const std::string& label, std::string loadSuf, std::string wsFile){
+void MultiFit::AddFitFromConfig(const std::string& configFile,
+                                const std::string& opt,
+                                const std::string& options,
+                                const std::string& label,
+                                const std::string& loadSuf,
+                                const std::string& wsFile,
+                                const bool useInFit) {
 
     // check if the config is not already processed (but it might be intended, if comparing different fits from same config)
     if (std::find(fConfigPaths.begin(), fConfigPaths.end(), configFile) != fConfigPaths.end()){
@@ -149,12 +154,14 @@ void MultiFit::AddFitFromConfig(const std::string& configFile, const std::string
     fConfigPaths.emplace_back(configFile);
 
     // keep debug level
-    int debug = TRExFitter::DEBUGLEVEL;
+    const int debug = TRExFitter::DEBUGLEVEL;
 
-    fFitList.push_back(new TRExFit());
+    fFitList.emplace_back(new TRExFit());
+
+    fFitList.back()->fUseInFit = useInFit;
 
     // initialize config reader
-    ConfigReader reader(fFitList[fFitList.size()-1]);
+    ConfigReader reader(fFitList.back());
 
     if (reader.ReadFullConfig(configFile,opt,options) != 0){
         WriteErrorStatus("MultiFit::AddFitFromConfig", "Failed to read the config file.");
