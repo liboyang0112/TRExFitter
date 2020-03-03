@@ -28,8 +28,13 @@ public:
     MultiFit& operator=(const MultiFit& m) = delete;
     MultiFit& operator=(MultiFit&& m) = delete;
 
-    void AddFitFromConfig(const std::string& configFile, const std::string& opt, const std::string& options,
-                          const std::string& label, std::string loadSuf="",std::string wsFile="");
+    void AddFitFromConfig(const std::string& configFile,
+                          const std::string& opt,
+                          const std::string& options,
+                          const std::string& label,
+                          const std::string& loadSuf,
+                          const std::string& wsFile,
+                          const bool useInFit);
     RooWorkspace* CombineWS() const;
     void SaveCombinedWS() const;
     std::map < std::string, double > FitCombinedWS( int fitType, const std::string& inputData, bool doLHscanOnly ) const;

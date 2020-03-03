@@ -784,7 +784,16 @@ int ConfigReaderMulti::ReadFitOptions(const std::string& opt, const std::string&
             }
         }
 
-        fMultiFitter->AddFitFromConfig(confFile,opt,fullOptions,label,loadSuf,wsFile);
+        bool useInFit(true);
+        param = confSet->Get("UseInFit");
+        if (param != "") {
+            std::transform(param.begin(), param.end(), param.begin(), ::toupper);
+            if(param=="FALSE") {
+                useInFit = false;
+            }
+        }
+
+        fMultiFitter->AddFitFromConfig(confFile, opt, fullOptions, label, loadSuf, wsFile, useInFit);
 
         // Set FitResultsFile
         param = confSet->Get("FitResultsFile");

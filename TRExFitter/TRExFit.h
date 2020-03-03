@@ -790,6 +790,8 @@ public:
     bool fMigrationText;
     PruningUtil::SHAPEOPTION fPruningShapeOption;
     bool fSummaryLogY;
+    /// This variable is needed only for multifit
+    bool fUseInFit;
 };
 
 #endif
