@@ -120,6 +120,10 @@ public:
       */
     std::unique_ptr<TH1> GetTotHist(bool includeSignal);
 
+    void SetAutomaticDropBins(const bool flag) {fAutomaticDropBins = flag;}
+    
+    bool GetAutomaticDropBins() const {return fAutomaticDropBins;}
+
     // -------
     // Members
     // -------
@@ -197,6 +201,30 @@ public:
     int fHistoNBinsRebin;
     std::vector<double> fHistoBinsPost;
     int fHistoNBinsRebinPost;
+    std::vector<std::string> fResponseMatrixPaths;
+    std::vector<std::string> fResponseMatrixPathSuffs;
+    std::vector<std::string> fResponseMatrixFiles;
+    std::vector<std::string> fResponseMatrixFileSuffs;
+    std::vector<std::string> fResponseMatrixNames;
+    std::vector<std::string> fResponseMatrixNameSuffs;
+    std::vector<std::string> fAcceptancePaths;
+    std::vector<std::string> fAcceptancePathSuffs;
+    std::vector<std::string> fAcceptanceFiles;
+    std::vector<std::string> fAcceptanceFileSuffs;
+    std::vector<std::string> fAcceptanceNames;
+    std::vector<std::string> fAcceptanceNameSuffs;
+    std::vector<std::string> fSelectionEffPaths;
+    std::vector<std::string> fSelectionEffPathSuffs;
+    std::vector<std::string> fSelectionEffFiles;
+    std::vector<std::string> fSelectionEffFileSuffs;
+    std::vector<std::string> fSelectionEffNames;
+    std::vector<std::string> fSelectionEffNameSuffs;
+    std::vector<std::string> fMigrationPaths;
+    std::vector<std::string> fMigrationPathSuffs;
+    std::vector<std::string> fMigrationFiles;
+    std::vector<std::string> fMigrationFileSuffs;
+    std::vector<std::string> fMigrationNames;
+    std::vector<std::string> fMigrationNameSuffs;
     std::vector<std::string> fHistoPaths;
     std::vector<std::string> fHistoPathSuffs;
     std::vector<std::string> fHistoFiles;
@@ -264,6 +292,16 @@ public:
     int fLegendNColumns;
 
     std::vector<std::string> fScaleSamplesToData;
+    
+    std::map<std::string,int> fIsBinOfRegion;
+
+    int fNumberUnfoldingRecoBins;
+    bool fNormalizeMigrationMatrix;
+    bool fHasAcceptance;
+
+private:
+
+    bool fAutomaticDropBins;
 };
 
 

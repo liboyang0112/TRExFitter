@@ -12,6 +12,7 @@
 //
 PruningUtil::PruningUtil() :
     fStrategy(0),
+    fShapeOption(PruningUtil::SHAPEOPTION::MAXBIN),
     fThresholdNorm(-1),
     fThresholdShape(-1),
     fThresholdIsLarge(-1) {
@@ -19,31 +20,41 @@ PruningUtil::PruningUtil() :
 
 //__________________________________________________________________________________
 //
-void PruningUtil::SetStrategy(int strat){
+void PruningUtil::SetStrategy(const int strat) {
     fStrategy = strat;
 }
 
 //__________________________________________________________________________________
 //
-void PruningUtil::SetThresholdNorm(double thres){
+void PruningUtil::SetShapeOption(const PruningUtil::SHAPEOPTION opt) {
+    fShapeOption = opt;
+}
+
+//__________________________________________________________________________________
+//
+void PruningUtil::SetThresholdNorm(const double thres) {
     fThresholdNorm = thres;
 }
 
 //__________________________________________________________________________________
 //
-void PruningUtil::SetThresholdShape(double thres){
+void PruningUtil::SetThresholdShape(const double thres) {
     fThresholdShape = thres;
 }
 
 //__________________________________________________________________________________
 //
-void PruningUtil::SetThresholdIsLarge(double thres){
+void PruningUtil::SetThresholdIsLarge(const double thres) {
     fThresholdIsLarge = thres;
 }
 
 //__________________________________________________________________________________
 //
-int PruningUtil::CheckSystPruning(const TH1* const hUp,const TH1* const hDown,const TH1* const hNom,const TH1* hTot){
+int PruningUtil::CheckSystPruning(const TH1* const hUp,
+                                  const TH1* const hDown,
+                                  const TH1* const hNom,
+                                  const TH1* hTot) {
+
     if(fStrategy!=0 && hTot==nullptr){
         std::cout << "PruningUtil::ERROR: hTot set to 0 while asking for relative pruning... Reverting to sample-by-sample pruning." << std::endl;
         fStrategy = 0;
@@ -51,9 +62,9 @@ int PruningUtil::CheckSystPruning(const TH1* const hUp,const TH1* const hDown,co
     std::unique_ptr<TH1> hRef = nullptr;
     if(fStrategy==0) hRef = std::unique_ptr<TH1>(static_cast<TH1*>(hNom->Clone()));
     else hRef = std::unique_ptr<TH1>(static_cast<TH1*>(hTot->Clone()));
-    //
+
     int res = 0;
-    //
+
     // create shape-only syst variations
     std::unique_ptr<TH1> hShapeUp        = nullptr;
     if(hUp) hShapeUp     = std::unique_ptr<TH1>(static_cast<TH1*>(hUp  ->Clone(Form("%s_shape",hUp  ->GetName()))));
@@ -61,38 +72,56 @@ int PruningUtil::CheckSystPruning(const TH1* const hUp,const TH1* const hDown,co
     std::unique_ptr<TH1> hShapeDown      = nullptr;
     if(hDown) hShapeDown = std::unique_ptr<TH1>(static_cast<TH1*>(hDown->Clone(Form("%s_shape",hDown->GetName()))));
     if(hShapeDown) hShapeDown->Scale( Common::EffIntegral(hNom)/Common::EffIntegral(hShapeDown.get()) );
-    //
+
     // get norm effects
-    double normUp   = std::fabs((Common::EffIntegral(hUp  )-Common::EffIntegral(hNom))/Common::EffIntegral(hRef.get()));
-    double normDown = std::fabs((Common::EffIntegral(hDown)-Common::EffIntegral(hNom))/Common::EffIntegral(hRef.get()));
-    //
+    const double normUp   = std::fabs((Common::EffIntegral(hUp  )-Common::EffIntegral(hNom))/Common::EffIntegral(hRef.get()));
+    const double normDown = std::fabs((Common::EffIntegral(hDown)-Common::EffIntegral(hNom))/Common::EffIntegral(hRef.get()));
+
     // check if systematic has no shape --> 1
-    bool hasShape = true;
-    if(fThresholdShape>=0) hasShape = HasShapeRelative(hNom,hShapeUp.get(),hShapeDown.get(),hRef.get(),fThresholdShape);
-    //
+    bool hasShape(true);
+    if(fThresholdShape>=0) {
+        if (fShapeOption == PruningUtil::SHAPEOPTION::MAXBIN) {
+            hasShape = HasShapeRelative(hNom,hShapeUp.get(),hShapeDown.get(),hRef.get(),fThresholdShape);
+        }
+        if (fShapeOption == PruningUtil::SHAPEOPTION::KSTEST) {
+            hasShape = HasShapeKS(hNom,hShapeUp.get(),hShapeDown.get(),fThresholdShape);
+        }
+    }
+
     // check if systematic norm effect is under threshold
     bool hasNorm = true;
     if(fThresholdNorm>=0) hasNorm = ((normUp >= fThresholdNorm) || (normDown >= fThresholdNorm));
-    //
+
     // now check for crazy systematics
     bool hasGoodShape = true;
-    if(fThresholdIsLarge>=0) hasGoodShape = !HasShapeRelative(hNom,hShapeUp.get(),hShapeDown.get(),hRef.get(),fThresholdIsLarge);
+    if(fThresholdIsLarge>=0) {
+        if (fShapeOption == PruningUtil::SHAPEOPTION::MAXBIN) {
+            hasGoodShape = !HasShapeRelative(hNom,hShapeUp.get(),hShapeDown.get(),hRef.get(),fThresholdIsLarge);
+        }
+        if (fShapeOption == PruningUtil::SHAPEOPTION::KSTEST) {
+            hasGoodShape = !HasShapeKS(hNom,hShapeUp.get(),hShapeDown.get(),fThresholdIsLarge);
+        }
+    }
     bool hasGoodNorm = true;
     if(fThresholdIsLarge>=0) hasGoodNorm = ((normUp <= fThresholdIsLarge) && (normDown <= fThresholdIsLarge));
-    //
+
     if(!hasGoodShape && !hasGoodNorm) res = -4;
     else if(!hasGoodShape) res = -3;
     else if(!hasGoodNorm) res = -2;
     else if(!hasShape && !hasNorm) res = 3;
     else if(!hasShape) res = 1;
     else if(!hasNorm) res = 2;
-    //
+
     return res;
 }
 
 //_________________________________________________________________________
 //
-bool PruningUtil::HasShapeRelative(const TH1* const hNom, const TH1* const hUp, const TH1* const hDown, const TH1* const combined, double threshold) const {
+bool PruningUtil::HasShapeRelative(const TH1* const hNom,
+                                   const TH1* const hUp,
+                                   const TH1* const hDown,
+                                   const TH1* const combined,
+                                   const double threshold) const {
     if (!hNom || !hUp || !hDown || !combined) return false;
 
     if (hUp->GetNbinsX() == 1) return false;
@@ -122,4 +151,32 @@ bool PruningUtil::HasShapeRelative(const TH1* const hNom, const TH1* const hUp, 
     }
 
     return hasShape;
+}
+
+//_________________________________________________________________________
+//
+bool PruningUtil::HasShapeKS(const TH1* const hNom,
+                             const TH1* const hUp,
+                             const TH1* const hDown,
+                             const double threshold) const {
+    if (!hNom || !hUp || !hDown) return false;
+
+    if (hUp->GetNbinsX() == 1) return false;
+
+    const double probThreshold = 1 - threshold;
+
+    // first try up histogram
+    const double& upProb   = hUp->KolmogorovTest(hNom, "X");
+    if (upProb <= probThreshold) {
+        return true;
+    }
+
+    // up is not significant, try down
+    const double& downProb = hDown->KolmogorovTest(hNom, "X");
+
+    if (downProb <= probThreshold) {
+        return true;
+    }
+
+    return false;
 }

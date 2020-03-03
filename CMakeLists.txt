@@ -60,6 +60,12 @@ target_include_directories( CommonSystSmoothingTool
    $<BUILD_INTERFACE:${CMAKE_SOURCE_DIR}> $<INSTALL_INTERFACE:> )
 target_link_libraries( CommonSystSmoothingTool ${ROOT_LIBRARIES} )
 
+# Add Unfolding code
+include_directories( UnfoldingCode )
+if(NOT DEFINED ENV{AtlasProject})
+  add_subdirectory( UnfoldingCode )
+endif()
+
 # Handle the build of the three auxiliary classes for ATLAS-type
 # labels etc. We don't want to throw this into the TRExFitter
 # library object.
@@ -100,7 +106,10 @@ set( lib_headers
   TRExFitter/Systematic.h
   TRExFitter/SystematicHist.h
   TRExFitter/TRExFit.h
-  TRExFitter/TRExPlot.h )
+  TRExFitter/TRExPlot.h
+  TRExFitter/TruthSample.h
+  TRExFitter/UnfoldingSample.h
+  TRExFitter/UnfoldingSystematic.h)
 
 # Source files for the shared/static library.
 set( lib_sources
@@ -126,14 +135,17 @@ set( lib_sources
   Root/Systematic.cc
   Root/SystematicHist.cc
   Root/TRExFit.cc
-  Root/TRExPlot.cc )
+  Root/TRExPlot.cc
+  Root/TruthSample.cc
+  Root/UnfoldingSample.cc
+  Root/UnfoldingSystematic.cc )
 
 # Build the shared library.
 add_library( TRExFitter SHARED ${lib_headers} ${lib_sources} )
 target_include_directories( TRExFitter
    PUBLIC ${ROOT_INCLUDE_DIRS}
    $<BUILD_INTERFACE:${CMAKE_SOURCE_DIR}> $<INSTALL_INTERFACE:> )
-target_link_libraries( TRExFitter CommonSystSmoothingTool ExoStats AtlasUtils ${ROOT_LIBRARIES} )
+target_link_libraries( TRExFitter CommonSystSmoothingTool ExoStats AtlasUtils UnfoldingCode ${ROOT_LIBRARIES} )
 set_property( TARGET TRExFitter
    PROPERTY PUBLIC_HEADER ${lib_headers} )
 target_include_directories(TRExFitter PUBLIC ${CMAKE_CURRENT_LIST_DIR} )
@@ -158,7 +170,7 @@ install( TARGETS TRExFitter CommonSystSmoothingTool AtlasUtils
 macro( TRExFitter_add_executable name )
   add_executable( ${name} ${ARGN} )
   target_include_directories( ${name} PUBLIC ${ROOT_INCLUDE_DIRS} )
-  target_link_libraries( ${name} TRExFitter CommonSystSmoothingTool ExoStats AtlasUtils ${ROOT_LIBRARIES} )
+  target_link_libraries( ${name} TRExFitter CommonSystSmoothingTool ExoStats AtlasUtils UnfoldingCode ${ROOT_LIBRARIES} )
   install( TARGETS ${name}
     EXPORT TRExFitterTargets
     RUNTIME DESTINATION bin )

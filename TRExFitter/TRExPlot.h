@@ -5,6 +5,7 @@
 #include "TRExFitter/TRExFit.h"
 
 /// c++ includes
+#include <memory>
 #include <string>
 #include <vector>
 
@@ -60,8 +61,6 @@ class TRExPlot {
 
     TCanvas* GetCanvas() const;
 
-    void SetBinBlinding(bool on,double threshold=0.02,Common::BlindingType=Common::SOVERB);
-    void SetBinBlinding(bool on,TH1D*h_blind,Common::BlindingType=Common::SOVERB);
 
     std::string fName;
     TH1* h_data;
@@ -73,7 +72,6 @@ class TRExPlot {
     THStack* h_stack;
     TH1* h_tot;
     TGraphAsymmErrors* g_tot;
-    TH1D* h_blinding;
     TH1* h_tot_bkg_prefit;
     TH1* h_dummy;
 
@@ -109,8 +107,6 @@ class TRExPlot {
     bool fShowYields;
     std::string fBinLabel[MAXbins];
     double fLumiScale;
-    double fBlindingThreshold;
-    Common::BlindingType fBlindingType;
     int fLegendNColumns;
     std::vector<double> fXaxisRange;
     std::string fRatioYtitle;
@@ -123,8 +119,21 @@ class TRExPlot {
     double fLegendX2;
     double fLegendY;
 
+    std::vector<int> fBlindedBins;
+
 public:
     TH1* GetTotBkg() const;
+
+    void SetBinBlinding(const std::vector<int>& bins);
+    
+    const std::vector<int>& GetBlindedBins() const;
+
+    const TH1D* GetBlindingHisto() const;
+    
+    void SetBlindingHisto(const TH1* h);
+
+private:
+    std::unique_ptr<TH1D> fBlinding;
 
 };
 

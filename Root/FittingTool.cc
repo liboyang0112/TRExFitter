@@ -7,7 +7,6 @@
 
 //ROOR includes
 #include "TCanvas.h"
-#include "TFile.h"
 #include "TH2.h"
 #include "TRandom3.h"
 
@@ -54,6 +53,11 @@ FittingTool::FittingTool():
     m_randomNP(0.1),
     m_randSeed(-999),
     m_externalConstraints(nullptr) {
+}
+
+//________________________________________________________________________
+//
+FittingTool::~FittingTool() {
 }
 
 //________________________________________________________________________

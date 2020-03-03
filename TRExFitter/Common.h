@@ -1,13 +1,6 @@
 #ifndef COMMON_H
 #define COMMON_H
 
-/// c++ stuff
-#include <string>
-#include <vector>
-#include <map>
-#include <memory>
-#include <set>
-
 /// TRExFitter stuff
 #include "TRExFitter/Sample.h"
 #include "TRExFitter/SampleHist.h"
@@ -16,10 +9,19 @@
 // ROOT stuff
 #include "TF1.h"
 
+/// c++ stuff
+#include <map>
+#include <memory>
+#include <set>
+#include <string>
+#include <vector>
+
 /// Forward class declaration
 class Region;
 class TFile;
+class TGraphAsymmErrors;
 class TH1;
+class TH2;
 class TH1D;
 
 namespace TRExFitter{
@@ -55,7 +57,7 @@ namespace TRExFitter{
     extern int NCPU;
     //
     extern std::map< std::string, double > OPTION;
-    extern std::map<std::string,TFile*> TFILEMAP;
+    extern std::map<std::string, std::unique_ptr<TFile> > TFILEMAP;
     extern bool GUESSMCSTATERROR;
     extern bool CORRECTNORMFORNEGATIVEINTEGRAL;
 }
@@ -79,6 +81,8 @@ TH1D* HistFromNtuple(const std::string& ntuple, const std::string& variable, int
 TH1D* HistFromNtupleBinArr(const std::string& ntuple, const std::string& variable, int nbin, double *bins, const std::string& selection, const std::string& weight, int Nev=-1);
 std::unique_ptr<TH1> HistFromFile(const std::string& fullName);
 std::unique_ptr<TH1> HistFromFile(const std::string& fileName, const std::string& histoName);
+std::unique_ptr<TH2> Hist2DFromFile(const std::string& fullName);
+std::unique_ptr<TH2> Hist2DFromFile(const std::string& fileName, const std::string& histoName);
 void WriteHistToFile(TH1* h, const std::string& fileName, const std::string& option="UPDATE");
 void WriteHistToFile(TH1* h, TFile *f);
 void MergeUnderOverFlow(TH1* h);
@@ -98,8 +102,21 @@ int FindInStringVector(const std::vector<std::string>& v, const std::string& s);
 int FindInStringVectorOfVectors(const std::vector<std::vector<std::string> >& v, const std::string& s, const std::string& ss);
 double GetSeparation( TH1D* S1, TH1D* B1 );
 
-TH1D* BlindDataHisto( TH1* h_data, TH1* h_bkg, TH1* h_sig, double threshold=0.02, bool takeSqrt=false );
-void BlindDataHisto( TH1* h_data, TH1* h_blind );
+/**
+  * Function to blind data and retrieve the blinding histogram
+  * @param data histogram
+  * @param indices ob blinded bins
+  * @return Histogram with non-zero bins on postions to be blinded
+  */ 
+std::unique_ptr<TH1D> BlindDataHisto(TH1* h_data, const std::vector<int>& blindedBins);
+
+/**
+  * Function to blind data histogram based on a blinding histogram
+  * @param data histogram
+  * @param blinding histogram
+  */ 
+void BlindDataHisto(TH1* h_data, TH1* h_blind);
+
 double convertStoD(std::string toConvert);
 
 bool SmoothHistogram( TH1* h, double nsigma=2. ); // forceFlat: 0 force no flat, 1 force flat, -1 keep it free
@@ -209,16 +226,36 @@ std::vector<int> GetBlindedBins(const Region* reg,
   * A helper function to retrive the blinded bins from histograms
   * @param signal histogram
   * @param background histogram
-  * @param combined signal + background histogram 
   * @oaram blinding type
   * @param blinding threshold
   * @return blidned bins
   */
-std::vector<int> BlindedBins(const TH1* signal,
-                             const TH1* bkg,
-                             const TH1* combined,
-                             const BlindingType type,
-                             const double threshold);
+std::vector<int> ComputeBlindedBins(const TH1* signal,
+                                    const TH1* bkg,
+                                    const BlindingType type,
+                                    const double threshold);
+
+/**
+  * A helper function to combine histograms from a vector of full paths
+  * @param A vector where each element represents the full path
+  * @return a combined histogram
+  */ 
+std::unique_ptr<TH1> CombineHistosFromFullPaths(const std::vector<std::string>& paths);
+
+/**
+  * A helper function to combine 2D histograms from a vector of full paths
+  * @param A vector where each element represents the full path
+  * @return a combined 2D histogram
+  */ 
+std::unique_ptr<TH2> CombineHistos2DFromFullPaths(const std::vector<std::string>& paths);
+
+/**
+  * A helper function to calculate error band on ratio
+  * @param Graph with total uncertainties
+  * @param data
+  * @return ratio graph
+  */  
+std::unique_ptr<TGraphAsymmErrors> GetRatioBand(const TGraphAsymmErrors* total, const TH1D* data);
 }
 
 #endif

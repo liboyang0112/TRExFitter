@@ -16,7 +16,9 @@
 #include "TChain.h"
 #include "TDirectory.h"
 #include "TFile.h"
+#include "TGraphAsymmErrors.h"
 #include "TH1.h"
+#include "TH2.h"
 #include "TH1D.h"
 #include "TH2F.h"
 #include "TObject.h"
@@ -66,7 +68,7 @@ std::vector <std::string> TRExFitter::IMAGEFORMAT;
 int TRExFitter::NCPU = 1;
 //
 std::map<std::string,double> TRExFitter::OPTION;
-std::map<std::string,TFile*> TRExFitter::TFILEMAP;
+std::map<std::string,std::unique_ptr<TFile> > TRExFitter::TFILEMAP;
 
 //----------------------------------------------------------------------------------
 //----------------------------------------------------------------------------------
@@ -164,11 +166,12 @@ TH1D* Common::HistFromNtupleBinArr(const std::string& ntuple,
 //
 TFile* Common::GetFile(const std::string& fileName) {
     auto it = TRExFitter::TFILEMAP.find(fileName);
-    if(it != TRExFitter::TFILEMAP.end()) return it->second;
+    if(it != TRExFitter::TFILEMAP.end()) return it->second.get();
     else {
-       TFile *f = new TFile(fileName.c_str());
-       TRExFitter::TFILEMAP.insert(std::pair<std::string,TFile*>(fileName,f));
-       return f;
+       std::unique_ptr<TFile> f(TFile::Open(fileName.c_str()));
+       TFile* result = f.get();
+       TRExFitter::TFILEMAP.insert(std::pair<std::string,std::unique_ptr<TFile> >(fileName,std::move(f)));
+       return result;
     }
 }
 
@@ -208,11 +211,41 @@ std::unique_ptr<TH1> Common::HistFromFile(const std::string& fileName,
 
 //__________________________________________________________________________________
 //
+std::unique_ptr<TH2> Common::Hist2DFromFile(const std::string& fullName) {
+    const std::string fileName  = fullName.substr(0,fullName.find_last_of(".")+5);
+    const std::string histoName = fullName.substr(fullName.find_last_of(".")+6,std::string::npos);
+    return Hist2DFromFile(fileName,histoName);
+}
+
+//__________________________________________________________________________________
+//
+std::unique_ptr<TH2> Common::Hist2DFromFile(const std::string& fileName,
+                                            const std::string& histoName) {
+    if(fileName=="") return nullptr;
+    if(histoName=="") return nullptr;
+    WriteVerboseStatus("Common::Hist2DFromFile", "  Extracting histogram    " + histoName + "  from file    " + fileName + "    ...");
+    std::unique_ptr<TH2> h = nullptr;
+    TFile *f = Common::GetFile(fileName);
+    if(!f){
+            WriteErrorStatus("Common::Hist2DFromFile", "cannot find input file '" + fileName + "'");
+            return nullptr;
+    }
+    h = std::unique_ptr<TH2>(dynamic_cast<TH2*>(f->Get(histoName.c_str())));
+    if(!h){
+            WriteErrorStatus("Common::Hist2DFromFile", "cannot find histogram '" + histoName + "' from input file '" + fileName + "'");
+            return nullptr;
+    }
+    h->SetDirectory(0);
+    return h;
+}
+
+//__________________________________________________________________________________
+//
 void Common::WriteHistToFile(TH1* h,
                              const std::string& fileName,
                              const std::string& option) {
     TDirectory *dir = gDirectory;
-    TFile *f = new TFile(fileName.c_str(),option.c_str());
+    TFile *f = TFile::Open(fileName.c_str(),option.c_str());
     h->Write("",TObject::kOverwrite);
     h->SetDirectory(0);
     delete f;
@@ -363,7 +396,8 @@ bool Common::StringsMatch(const std::string& s1, const std::string& s2){
 // taking into account wildcards on first argument
 int Common::wildcmp(const char *wild, const char *string) {
     // Written by Jack Handy - <A href="mailto:jakkhandy@hotmail.com">jakkhandy@hotmail.com</A>
-    const char *cp = NULL, *mp = NULL;
+    const char *cp = nullptr;
+    const char *mp = nullptr;
     while ((*string) && (*wild != '*')) {
         if ((*wild != *string) && (*wild != '?')) {
             return 0;
@@ -464,21 +498,13 @@ double Common::GetSeparation(TH1D* S1, TH1D* B1) {
 }
 
 //__________________________________________________________________________________
-// Code to blind bins with (h_data yield) / (h_bkg yield) > threshold
-// - the code kills this kind of bins in data
-// - also set uncertainties in blinded bins to zero
-// - in addition a histogram is returned, with bin content 0 or 1 depending on the bin beeing blinded or not
-// when takeSqrt is true, take the sqrt of the denominator when evaluating the blinding
-TH1D* Common::BlindDataHisto(TH1* h_data,
-                             TH1* h_bkg,
-                             TH1* h_sig,
-                             double threshold,
-                             bool takeSqrt) {
-    TH1D* h_blind = static_cast<TH1D*>(h_data->Clone("h_blind"));
-    for(int i_bin=1;i_bin<h_data->GetNbinsX()+1;i_bin++){
-        double tmpDenominator = h_bkg->GetBinContent(i_bin);
-        if(takeSqrt) tmpDenominator = std::sqrt(tmpDenominator); // for calculating S/sqrt(B) and S/sqrt(S+B)
-        if( h_sig->GetBinContent(i_bin) / tmpDenominator > threshold ){
+//
+std::unique_ptr<TH1D> Common::BlindDataHisto(TH1* h_data,
+                                             const std::vector<int>& blindedBins) {
+
+    std::unique_ptr<TH1D> h_blind(static_cast<TH1D*>(h_data->Clone("h_blind")));
+    for(int i_bin = 1; i_bin <= h_data->GetNbinsX(); ++i_bin) {
+        if(std::find(blindedBins.begin(), blindedBins.end(), i_bin) != blindedBins.end()) {
             WriteDebugStatus("Common::BlindDataHisto", "Blinding bin n." + std::to_string(i_bin));
             h_data->SetBinContent(i_bin,0.);
             h_data->SetBinError(i_bin,0.);
@@ -1113,7 +1139,7 @@ std::vector<int> Common::GetBlindedBins(const Region* reg,
             const double scale = Common::GetNominalMorphScale(reg->fSampleHists[i_smp].get());
             if(empty_signal){
                 hist_signal.CloneSampleHist(reg->fSampleHists[i_smp].get(),systNames, scale);
-                empty_signal=false;
+                if (hist_signal.fHist != nullptr) empty_signal = false;
             } else {
                 hist_signal.SampleHistAddNominal(reg->fSampleHists[i_smp].get(), scale);
             }
@@ -1121,7 +1147,7 @@ std::vector<int> Common::GetBlindedBins(const Region* reg,
             const double scale = Common::GetNominalMorphScale(reg->fSampleHists[i_smp].get());
             if(empty_bkg){
                 hist_bkg.CloneSampleHist(reg->fSampleHists[i_smp].get(),systNames, scale);
-                empty_bkg=false;
+                if (hist_bkg.fHist != nullptr) empty_bkg = false;
             } else {
                 hist_bkg.SampleHistAddNominal(reg->fSampleHists[i_smp].get(), scale);
             }
@@ -1131,40 +1157,29 @@ std::vector<int> Common::GetBlindedBins(const Region* reg,
         }
     }
 
-    /// Get stacked histogram (signal + bkg)
-    std::unique_ptr<TH1> combined(nullptr);
-    if (hist_signal.fHist) {
-        combined.reset(static_cast<TH1*>(hist_signal.fHist->Clone()));
-        if (hist_bkg.fHist) {
-            combined->Add(hist_bkg.fHist.get());
-        }
-    } else if (hist_bkg.fHist) {
-        combined.reset(static_cast<TH1*>(hist_bkg.fHist->Clone()));
-    } else {
-        return result;
-    }
-
     // find the bind that should be blinded
-
-    result = Common::BlindedBins(hist_signal.fHist.get(),
-                                 hist_bkg.fHist.get(),
-                                 combined.get(),
-                                 type,
-                                 threshold);
+    result = Common::ComputeBlindedBins(hist_signal.fHist.get(),
+                                        hist_bkg.fHist.get(),
+                                        type,
+                                        threshold);
 
     return result;
 }
 
 //__________________________________________________________________________________
 //
-std::vector<int> Common::BlindedBins(const TH1* signal,
-                                     const TH1* bkg,
-                                     const TH1* combined,
-                                     const Common::BlindingType type,
-                                     const double threshold) {
+std::vector<int> Common::ComputeBlindedBins(const TH1* signal,
+                                            const TH1* bkg,
+                                            const Common::BlindingType type,
+                                            const double threshold) {
 
     std::vector<int> result;
     if (threshold < 0) return result;
+    if (!signal) return result;
+    std::unique_ptr<TH1> combined(static_cast<TH1*>(signal->Clone()));
+    if (bkg) {
+        combined->Add(bkg);
+    }
     for (int ibin = 1; ibin <= signal->GetNbinsX(); ++ibin) {
         double soverb(-1);
         double soversplusb(-1);
@@ -1210,6 +1225,82 @@ std::vector<int> Common::BlindedBins(const TH1* signal,
                 WriteErrorStatus("Common::BlindedBins","Unknown blinding type");
                 exit(EXIT_FAILURE);
         }
+    }
+
+    return result;
+}
+
+//__________________________________________________________________________________
+//
+std::unique_ptr<TH1> Common::CombineHistosFromFullPaths(const std::vector<std::string>& paths) {
+    std::unique_ptr<TH1> result(nullptr);
+
+    for (const auto& ipath : paths) {
+        if (!result) {
+            result = Common::HistFromFile(ipath);
+        } else {
+            std::unique_ptr<TH1> tmp = Common::HistFromFile(ipath);
+            if (!tmp) {
+                WriteWarningStatus("Common::CombineHistosFromFullPaths", "Cannot add histogram from: " + ipath + ", skipping");
+                continue;
+            }
+            result->Add(tmp.get());
+        }
+    }
+
+    return result;
+}
+
+//__________________________________________________________________________________
+//
+std::unique_ptr<TH2> Common::CombineHistos2DFromFullPaths(const std::vector<std::string>& paths) {
+    std::unique_ptr<TH2> result(nullptr);
+
+    for (const auto& ipath : paths) {
+        if (!result) {
+            result = Common::Hist2DFromFile(ipath);
+        } else {
+            std::unique_ptr<TH2> tmp = Common::Hist2DFromFile(ipath);
+            if (!tmp) {
+                WriteWarningStatus("Common::CombineHistos2DFromFullPaths", "Cannot add histogram from: " + ipath + ", skipping");
+                continue;
+            }
+            result->Add(tmp.get());
+        }
+    }
+
+    return result;
+}
+
+//__________________________________________________________________________________
+//
+std::unique_ptr<TGraphAsymmErrors> Common::GetRatioBand(const TGraphAsymmErrors* total,
+                                                        const TH1D* data) {
+
+    std::unique_ptr<TGraphAsymmErrors> result(static_cast<TGraphAsymmErrors*>(total->Clone()));
+
+    std::unique_ptr<TH1D> up(static_cast<TH1D*>(data->Clone()));
+    std::unique_ptr<TH1D> down(static_cast<TH1D*>(data->Clone()));
+
+    for (int ibin = 0; ibin < result->GetN(); ++ibin) {
+        up->SetBinContent(ibin+1, result->GetErrorYhigh(ibin));
+        up->SetBinError(ibin+1, 0);
+        down->SetBinContent(ibin+1, result->GetErrorYlow(ibin));
+        down->SetBinError(ibin+1, 0);
+    }
+
+    std::unique_ptr<TH1D> ratio_up(static_cast<TH1D*>(up->Clone()));
+    std::unique_ptr<TH1D> ratio_down(static_cast<TH1D*>(down->Clone()));
+    ratio_up->Divide(data);
+    ratio_down->Divide(data);
+
+    for (int ibin = 0; ibin < result->GetN(); ++ibin) {
+        double x,y;
+        result->GetPoint(ibin, x, y);
+        result->SetPoint(ibin, x, 1.);
+
+        result->SetPointEYhigh(ibin, ratio_up->GetBinContent(ibin+1));
+        result->SetPointEYlow (ibin, ratio_down->GetBinContent(ibin+1));
     }
 
     return result;

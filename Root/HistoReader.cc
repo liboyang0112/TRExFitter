@@ -208,7 +208,7 @@ void HistoReader::ReadTRExProducedHistograms() {
     std::vector< std::unique_ptr<TH2> > histPrun;
     std::unique_ptr<TFile> filePrun(nullptr);
     if( fFitter->fKeepPruning ){
-        filePrun = std::unique_ptr<TFile>(TFile::Open( (fFitter->fName+"/Pruning.root").c_str() ));
+        filePrun.reset(TFile::Open((fFitter->fName+"/Pruning.root").c_str()));
         if(!filePrun) fFitter->fKeepPruning = false;
     }
     //
@@ -605,8 +605,9 @@ void HistoReader::ReadOneRegion(const int i_ch, const bool is_data) {
         if (!is_data) {
             ReadNormShape(sh, i_ch, ismp);
         }
-    
+   
         for(const auto& isyst : ismp->fSystematics) {
+            
             Systematic *syst = isyst.get();
             // only relevant for systs that have this sample as reference
             if (is_data && 

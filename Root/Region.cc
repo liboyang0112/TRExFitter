@@ -124,7 +124,11 @@ Region::Region(const string& name) :
     fLegendX1(-1),
     fLegendX2(-1),
     fLegendY(-1),
-    fLegendNColumns(2) {
+    fLegendNColumns(2),
+    fNumberUnfoldingRecoBins(0),
+    fNormalizeMigrationMatrix(true),
+    fHasAcceptance(false),
+    fAutomaticDropBins(false) {
 
 
     int canvasWidth = 600;
@@ -491,6 +495,10 @@ void Region::BuildPreFitErrorHist(){
             if(TRExFitter::NPMAP[fSystNames[i_syst]]==TRExFitter::NPMAP[fSystNames[j_syst]]){
                 found = true;
                 const int whichsyst = Common::FindInStringVector(fNpNames,TRExFitter::NPMAP[fSystNames[i_syst]]);
+                if (whichsyst < 0) {
+                    WriteErrorStatus("Region::BuildPreFitErrorHist", "Systematic not found in the list of systematics. This should not happen...");
+                    exit(EXIT_FAILURE);
+                }
                 auto h_diff_up   = std::unique_ptr<TH1> (static_cast<TH1*> (h_up[whichsyst]  ->Clone(Form("%s_%s","clone_",h_up[whichsyst]  ->GetName()))));
                 auto h_diff_down = std::unique_ptr<TH1> (static_cast<TH1*> (h_down[whichsyst]->Clone(Form("%s_%s","clone_",h_down[whichsyst]->GetName()))));
                 h_diff_up  ->Add(fTotUp[  i_syst].get(),fTot.get(),1,-1);
@@ -524,10 +532,10 @@ void Region::BuildPreFitErrorHist(){
             return;
         }
         std::unique_ptr<TH1> h_data(static_cast<TH1*>(fData->fHist->Clone()));
-        if(fBlindedBins!=nullptr){
-            for(int i_bin=1;i_bin<=h_data->GetNbinsX();i_bin++){
-                if(fBlindedBins->GetBinContent(i_bin)>0) h_data->SetBinContent(i_bin,-1);
-                if(find(fDropBins.begin(),fDropBins.end(),i_bin-1)!=fDropBins.end()) h_data->SetBinContent(i_bin,-1);
+        if(fBlindedBins) {
+            for(int i_bin = 1; i_bin <= h_data->GetNbinsX(); ++i_bin) {
+                if(fBlindedBins->GetBinContent(i_bin) > 0) h_data->SetBinContent(i_bin, -1);
+                if(std::find(fDropBins.begin(), fDropBins.end(), i_bin) != fDropBins.end()) h_data->SetBinContent(i_bin,-1);
             }
         }
         if(fGetChi2==1) fNpNames.clear();
@@ -590,7 +598,12 @@ std::unique_ptr<TRExPlot> Region::DrawPreFit(const std::vector<int>& canvasSize,
     p->SetCME(fCmeLabel);
     p->SetLumiScale(fLumiScale);
     p->fLegendNColumns = fLegendNColumns;
-    if(fBlindingThreshold>=0) p->SetBinBlinding(true,fBlindingThreshold,fBlindingType);
+    if(fBlindingThreshold>=0) {
+        const std::vector<int>& blindedBins = Common::GetBlindedBins(this,
+                                                                     fBlindingType,
+                                                                     fBlindingThreshold);
+        p->SetBinBlinding(blindedBins);
+    }
 
     if(fBinLabels.size() && ((int)fBinLabels.size()==fNbins)) {
       for(int i_bin=0; i_bin<fNbins; i_bin++) {
@@ -742,7 +755,7 @@ std::unique_ptr<TRExPlot> Region::DrawPreFit(const std::vector<int>& canvasSize,
     p->SetTotBkg(fTot.get());
     p->BlindData();
     if(fBinWidth>0) p->SetBinWidth(fBinWidth);
-    if(p->h_blinding) fBlindedBins =  static_cast<TH1D*>(p->h_blinding->Clone("blinding_region") );
+    if(p->GetBlindingHisto()) fBlindedBins =  static_cast<TH1D*>(p->GetBlindingHisto()->Clone("blinding_region"));
 
     //
     // Computes the uncertainty bands arround the h_tot histogram
@@ -1295,10 +1308,10 @@ void Region::BuildPostFitErrorHist(FitResults *fitRes, const std::vector<std::st
         }
         // remove blinded bins
         std::unique_ptr<TH1> h_data(static_cast<TH1*>(fData->fHist->Clone()));
-        if(fBlindedBins!=nullptr){
-            for(int i_bin=1;i_bin<=h_data->GetNbinsX();++i_bin){
-                if(fBlindedBins->GetBinContent(i_bin)>0) h_data->SetBinContent(i_bin,-1);
-                if(find(fDropBins.begin(),fDropBins.end(),i_bin-1)!=fDropBins.end()) h_data->SetBinContent(i_bin,-1);
+        if(fBlindedBins){
+            for(int i_bin=1; i_bin <= h_data->GetNbinsX(); ++i_bin) {
+                if(fBlindedBins->GetBinContent(i_bin) > 0) h_data->SetBinContent(i_bin,-1);
+                if(find(fDropBins.begin(), fDropBins.end(), i_bin) != fDropBins.end()) h_data->SetBinContent(i_bin,-1);
             }
         }
         if(fGetChi2==1) fSystNames.clear();
@@ -1638,8 +1651,11 @@ std::unique_ptr<TRExPlot> Region::DrawPostFit(FitResults* fitRes,
     // blinding bins
     //
     if(fBlindingThreshold>=0){
-        p->SetBinBlinding(true,fBlindingThreshold,fBlindingType);
-        if(fKeepPrefitBlindedBins && fBlindedBins!=nullptr) p->SetBinBlinding(true,fBlindedBins,fBlindingType);
+        const std::vector<int>& blindedBins = Common::GetBlindedBins(this,
+                                                                     fBlindingType,
+                                                                     fBlindingThreshold);
+        p->SetBinBlinding(blindedBins);
+        if(fKeepPrefitBlindedBins && fBlindedBins!=nullptr) p->SetBinBlinding(blindedBins);
     }
     p->BlindData();
 
@@ -1688,7 +1704,7 @@ std::unique_ptr<TRExPlot> Region::DrawPostFit(FitResults* fitRes,
     //
     gSystem->mkdir((fFitName+"/Histograms").c_str());
     WriteInfoStatus("Region::DrawPostFit", "Writing file " + fFitName+"/Histograms/"+fName+fSuffix+"_postFit.root");
-    std::unique_ptr<TFile> f = std::make_unique<TFile>((fFitName+"/Histograms/"+fName+fSuffix+"_postFit.root").c_str(),"RECREATE");
+    std::unique_ptr<TFile> f(TFile::Open((fFitName+"/Histograms/"+fName+fSuffix+"_postFit.root").c_str(),"RECREATE"));
     f->cd();
     fErr_postFit->Write("",TObject::kOverwrite);
     fTot_postFit->Write("",TObject::kOverwrite);
@@ -2482,10 +2498,10 @@ void Region::PrepareMorphScales(FitResults *fitRes, std::vector<double> *morph_s
 //
 void Region::SystPruning(PruningUtil *pu){
     std::unique_ptr<TH1> hTot(nullptr);
-    if(pu->fStrategy==1){
+    if(pu->GetStrategy() == 1){
         hTot = GetTotHist(false); // don't include signal
     }
-    else if(pu->fStrategy==2){
+    else if(pu->GetStrategy() == 2){
         hTot = GetTotHist(true); // include signal
     }
     for(auto& sh : fSampleHists){

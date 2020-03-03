@@ -138,8 +138,13 @@ MultiFit::MultiFit(const string& name) :
 
 //__________________________________________________________________________________
 //
-void MultiFit::AddFitFromConfig(const std::string& configFile, const std::string& opt, const std::string& options,
-                                const std::string& label, std::string loadSuf, std::string wsFile){
+void MultiFit::AddFitFromConfig(const std::string& configFile,
+                                const std::string& opt,
+                                const std::string& options,
+                                const std::string& label,
+                                const std::string& loadSuf,
+                                const std::string& wsFile,
+                                const bool useInFit) {
 
     // check if the config is not already processed (but it might be intended, if comparing different fits from same config)
     if (std::find(fConfigPaths.begin(), fConfigPaths.end(), configFile) != fConfigPaths.end()){
@@ -149,12 +154,14 @@ void MultiFit::AddFitFromConfig(const std::string& configFile, const std::string
     fConfigPaths.emplace_back(configFile);
 
     // keep debug level
-    int debug = TRExFitter::DEBUGLEVEL;
+    const int debug = TRExFitter::DEBUGLEVEL;
 
-    fFitList.push_back(new TRExFit());
+    fFitList.emplace_back(new TRExFit());
+
+    fFitList.back()->fUseInFit = useInFit;
 
     // initialize config reader
-    ConfigReader reader(fFitList[fFitList.size()-1]);
+    ConfigReader reader(fFitList.back());
 
     if (reader.ReadFullConfig(configFile,opt,options) != 0){
         WriteErrorStatus("MultiFit::AddFitFromConfig", "Failed to read the config file.");
@@ -176,23 +183,29 @@ RooWorkspace* MultiFit::CombineWS() const{
 
     if (TRExFitter::DEBUGLEVEL < 2) std::cout.setstate(std::ios_base::failbit);
 
+    gSystem->mkdir((fOutDir+"/RooStats").c_str());
+
     std::vector < RooWorkspace* > vec_ws;
     std::vector < std::string > vec_chName;
     RooStats::HistFactory::Measurement *measurement = nullptr;
 
     for(unsigned int i_fit=0;i_fit<fFitList.size();i_fit++){
-        std::string fitName = fFitList[i_fit]->fInputName;
-        std::string fitDir = fFitList[i_fit]->fName;
+        if (!fFitList.at(i_fit)->fUseInFit) continue;
+        const std::string& fitName = fFitList[i_fit]->fInputName;
+        const std::string& fitDir = fFitList[i_fit]->fName;
         WriteDebugStatus("MultiFit::CombineWS", "Adding Fit: " + fitName + ", " + fFitLabels[i_fit] + ", " + fFitSuffs[i_fit] + fitDir);
 
-        RooStats::HistFactory::Measurement *meas;
         std::string fileName = fitDir + "/RooStats/" + fitName + "_combined_" + fitName + fFitSuffs[i_fit] + "_model.root";
         if(fWsFiles[i_fit]!="") fileName = fWsFiles[i_fit];
         WriteDebugStatus("MultiFit::CombineWS", "Opening file " + fileName );
-        TFile *rootFile = new TFile(fileName.c_str(),"read");
-        RooWorkspace* m_ws = (RooWorkspace*) rootFile->Get("combined");
+        TFile* rootFile = TFile::Open(fileName.c_str(),"read");
+        if (!rootFile) {
+            WriteErrorStatus("MultiFit::CombineWS", "Cannot open file: " + fileName);
+            exit(EXIT_FAILURE);
+        }
+        RooWorkspace* m_ws = dynamic_cast<RooWorkspace*>(rootFile->Get("combined"));
         WriteDebugStatus("MultiFit::CombineWS", "Getting " + fitName+fFitSuffs[i_fit] );
-        meas = (RooStats::HistFactory::Measurement*) rootFile -> Get( (fitName+fFitSuffs[i_fit]).c_str());
+        RooStats::HistFactory::Measurement* meas = dynamic_cast<RooStats::HistFactory::Measurement*>(rootFile -> Get( (fitName+fFitSuffs[i_fit]).c_str()));
         //
         // import measurement if not there yet
         if(!measurement){
@@ -216,16 +229,20 @@ RooWorkspace* MultiFit::CombineWS() const{
             for(unsigned int i_reg=0;i_reg<fFitList[i_fit]->fRegions.size();i_reg++){
                 Region *reg = fFitList[i_fit]->fRegions[i_reg];
                 if(reg->fRegionType==Region::VALIDATION) continue;
-                std::string fileName_tmp = fitDir + "/RooStats/" + fitName + "_" + reg->fName + "_" + fitName + fFitSuffs[i_fit] + "_model.root";
+                const std::string fileName_tmp = fitDir + "/RooStats/" + fitName + "_" + reg->fName + "_" + fitName + fFitSuffs[i_fit] + "_model.root";
                 WriteDebugStatus("MultiFit::CombineWS", "  Opening file " + fileName_tmp );
-                TFile *rootFile_tmp = new TFile(fileName_tmp.c_str(),"read");
-                RooWorkspace* m_ws_tmp = (RooWorkspace*) rootFile_tmp->Get(reg->fName.c_str());
+                TFile* rootFile_tmp = TFile::Open(fileName_tmp.c_str(),"read");
+                if (!rootFile_tmp) {
+                    WriteErrorStatus("MultiFit::CombineWS", "Cannot open file: " + fileName_tmp);
+                    exit(EXIT_FAILURE);
+                }
+
+                RooWorkspace* m_ws_tmp = dynamic_cast<RooWorkspace*>(rootFile_tmp->Get(reg->fName.c_str()));
                 WriteDebugStatus("MultiFit::CombineWS", "  Getting " + reg->fName );
                 vec_ws.push_back(m_ws_tmp);
                 vec_chName.push_back(reg->fName);
             }
         }
-        //
     }
 
     //
@@ -245,6 +262,8 @@ RooWorkspace* MultiFit::CombineWS() const{
     // Configure the workspace
     RooStats::HistFactory::HistoToWorkspaceFactoryFast::ConfigureWorkspaceForMeasurement( "simPdf", ws, *measurement );
 
+    measurement->PrintXML((fOutDir + "/RooStats/").c_str());
+
     if (TRExFitter::DEBUGLEVEL < 2) std::cout.clear();
 
     return ws;
@@ -257,7 +276,11 @@ void MultiFit::SaveCombinedWS() const{
     //
     // Creating the rootfile
     //
-    TFile *f = new TFile( (fOutDir+"/ws_combined"+fSaveSuf+".root").c_str() , "recreate" );
+    std::unique_ptr<TFile> f(TFile::Open( (fOutDir+"/ws_combined"+fSaveSuf+".root").c_str(), "recreate"));
+    if (!f) {
+        WriteErrorStatus("MultiFit::SaveCombinedWS", "Cannot open file!");
+        exit(EXIT_FAILURE);
+    }
     //
     // Creating the workspace
     //
@@ -275,8 +298,12 @@ void MultiFit::SaveCombinedWS() const{
 //
 std::map < std::string, double > MultiFit::FitCombinedWS(int fitType, const std::string& inputData, bool doLHscanOnly) const {
     if (TRExFitter::DEBUGLEVEL < 2) std::cout.setstate(std::ios_base::failbit);
-    TFile *f = new TFile((fOutDir+"/ws_combined"+fSaveSuf+".root").c_str() );
-    RooWorkspace *ws = (RooWorkspace*)f->Get("combWS");
+    std::unique_ptr<TFile> f(TFile::Open((fOutDir+"/ws_combined"+fSaveSuf+".root").c_str()));
+    if (!f) {
+        WriteErrorStatus("MultiFit::FitCombinedWS", "Cannot open file!");
+        exit(EXIT_FAILURE);
+    }
+    RooWorkspace *ws = dynamic_cast<RooWorkspace*>(f->Get("combWS"));
 
     std::map < std::string, double > result;
 
@@ -306,14 +333,15 @@ std::map < std::string, double > MultiFit::FitCombinedWS(int fitType, const std:
         fFitList[0]->ReadFitResults(fFitResultsFile);
         std::vector<std::string> npNames;
         std::vector<double> npValues;
-        for(unsigned int i_np=0;i_np<fFitList[0]->fFitResults->fNuisPar.size();i_np++){
-            npNames.push_back(  fFitList[0]->fFitResults->fNuisPar[i_np]->fName );
-            npValues.push_back( fFitList[0]->fFitResults->fNuisPar[i_np]->fFitValue );
+        for(const auto& inp : fFitList[0]->fFitResults->fNuisPar) {
+            npNames.push_back( inp->fName);
+            npValues.push_back(inp->fFitValue);
         }
-        fitTool.SetNPs( npNames,npValues );
+        fitTool.SetNPs(npNames,npValues);
     }
     // Fix NPs that are specified in the individual configs
     for (const auto& ifit : fFitList){
+        if (!ifit->fUseInFit) continue;
         if(ifit->fFitFixedNPs.size()>0){
             std::vector<std::string> npNames;
             std::vector<double> npValues;
@@ -325,11 +353,12 @@ std::map < std::string, double > MultiFit::FitCombinedWS(int fitType, const std:
         }
     }
 
-    std::vector<std::string> vVarNameMinos; vVarNameMinos.clear();
-    for(unsigned int i_fit=0;i_fit<fFitList.size();i_fit++){
-        for(unsigned int i_minos=0;i_minos<fFitList[i_fit]->fVarNameMinos.size();i_minos++){
-            if(Common::FindInStringVector(vVarNameMinos,fFitList[i_fit]->fVarNameMinos[i_minos])<0){
-                vVarNameMinos.push_back( fFitList[i_fit]->fVarNameMinos[i_minos] );
+    std::vector<std::string> vVarNameMinos;
+    for(const auto& ifit : fFitList) {
+        if (!ifit->fUseInFit) continue;
+        for(const auto& iminos : ifit->fVarNameMinos) {
+            if(Common::FindInStringVector(vVarNameMinos,iminos) < 0){
+                vVarNameMinos.push_back(iminos);
             }
         }
     }
@@ -337,8 +366,8 @@ std::map < std::string, double > MultiFit::FitCombinedWS(int fitType, const std:
     if (TRExFitter::DEBUGLEVEL < 2) std::cout.clear();
     if(vVarNameMinos.size()>0){
         WriteDebugStatus("MultiFit::FitCombinedWS", "Setting the variables to use MINOS with:");
-        for(unsigned int i_minos=0;i_minos<vVarNameMinos.size();i_minos++){
-            WriteDebugStatus("MultiFit::FitCombinedWS",  "  " + vVarNameMinos[i_minos]);
+        for(const auto& iminos : vVarNameMinos) {
+            WriteDebugStatus("MultiFit::FitCombinedWS",  "  " + iminos);
         }
         fitTool.UseMinos(vVarNameMinos);
     }
@@ -347,14 +376,14 @@ std::map < std::string, double > MultiFit::FitCombinedWS(int fitType, const std:
     // Gets needed objects for the fit
     //
     if (TRExFitter::DEBUGLEVEL < 2) std::cout.setstate(std::ios_base::failbit);
-    RooStats::ModelConfig* mc = (RooStats::ModelConfig*)ws->obj("ModelConfig");
-    RooSimultaneous *simPdf = (RooSimultaneous*)(mc->GetPdf());
+    RooStats::ModelConfig* mc = static_cast<RooStats::ModelConfig*>(ws->obj("ModelConfig"));
+    RooSimultaneous* simPdf = static_cast<RooSimultaneous*>((mc->GetPdf()));
     if (TRExFitter::DEBUGLEVEL < 2) std::cout.clear();
 
     //
     // Creates the data object
     //
-    RooDataSet* data = 0;
+    RooDataSet* data = nullptr;
     if(inputData=="asimovData"){
         RooArgSet empty;// = RooArgSet();
         if (TRExFitter::DEBUGLEVEL < 2) std::cout.setstate(std::ios_base::failbit);
@@ -362,13 +391,13 @@ std::map < std::string, double > MultiFit::FitCombinedWS(int fitType, const std:
         if (TRExFitter::DEBUGLEVEL < 2) std::cout.clear();
     }
     else if(inputData!=""){
-        data = (RooDataSet*)ws->data( inputData.c_str() );
+        data = static_cast<RooDataSet*>(ws->data(inputData.c_str()));
     } else {
         WriteWarningStatus("MultiFit::FitCombinedWS", "You didn't specify inputData => will try with observed data !");
-        data = (RooDataSet*)ws->data("obsData");
+        data = static_cast<RooDataSet*>(ws->data("obsData"));
         if(!data){
             WriteWarningStatus("MultiFit::FitCombinedWS", "Observed data not present => will use with asimov data !");
-            data = (RooDataSet*)ws->data("asimovData");
+            data = static_cast<RooDataSet*>(ws->data("asimovData"));
         }
     }
 
@@ -377,13 +406,15 @@ std::map < std::string, double > MultiFit::FitCombinedWS(int fitType, const std:
         exit(EXIT_FAILURE);
     }
 
+    ApplyExternalConstraints(ws, &fitTool, simPdf);
+
     // Performs the fit
     gSystem -> mkdir((fOutDir+"/Fits/").c_str(),true);
 
     // Get initial ikelihood value from Asimov
     if (TRExFitter::DEBUGLEVEL < 2) std::cout.setstate(std::ios_base::failbit);
     double nll0 = 0.;
-    if(fGetGoodnessOfFit) nll0 = fitTool.FitPDF( mc, simPdf, (RooDataSet*)ws->data("asimovData"), false, true );
+    if(fGetGoodnessOfFit) nll0 = fitTool.FitPDF( mc, simPdf, static_cast<RooDataSet*>(ws->data("asimovData")), false, true );
 
     //
     // Get number of degrees of freedom
@@ -391,8 +422,9 @@ std::map < std::string, double > MultiFit::FitCombinedWS(int fitType, const std:
     int ndof = data->numEntries();
     // - minus number of free & non-constant parameters
     std::vector<std::string> nfList;
-    for(auto fit : fFitList){
-        for(auto nf : fit->fNormFactors){
+    for(const auto& fit : fFitList){
+        if (!fit->fUseInFit) continue;
+        for(const auto& nf : fit->fNormFactors){
             if(nf->fConst) continue;
             if(Common::FindInStringVector(nfList,nf->fName)>=0) continue;
             if(fFitType==2 && fPOI==nf->fName) continue;
@@ -416,8 +448,8 @@ std::map < std::string, double > MultiFit::FitCombinedWS(int fitType, const std:
     //
     // Goodness of fit
     if(fGetGoodnessOfFit && !doLHscanOnly){
-        double deltaNLL = nll-nll0;
-        double prob = ROOT::Math::chisquared_cdf_c( 2* deltaNLL, ndof);
+        const double deltaNLL = nll-nll0;
+        const double prob = ROOT::Math::chisquared_cdf_c( 2* deltaNLL, ndof);
         WriteInfoStatus("MultiFit::FitCombinedWS", "----------------------- -------------------------- -----------------------");
         WriteInfoStatus("MultiFit::FitCombinedWS", "----------------------- GOODNESS OF FIT EVALUATION -----------------------");
         WriteInfoStatus("MultiFit::FitCombinedWS", "  NLL0        = " + std::to_string(nll0));
@@ -438,12 +470,13 @@ std::map < std::string, double > MultiFit::FitCombinedWS(int fitType, const std:
         outNameGroupedImpact += ".txt";
         // need to create a merged list of fSubCategoryImpactMap from the include Fits
         std::map<std::string, std::string> mergedMap;
-        mergedMap.clear();
         for(auto fit : fFitList){
+            if (!fit->fUseInFit) continue;
             fit->ProduceSystSubCategoryMap();
-            for(auto m : fit->fSubCategoryImpactMap){
-                if(mergedMap[m.first]=="") mergedMap[m.first] = m.second;
-                else if(mergedMap[m.first]!=m.second){
+            for(auto m : fit->fSubCategoryImpactMap) {
+                if(mergedMap[m.first] == "") {
+                    mergedMap[m.first] = m.second;
+                } else if(mergedMap[m.first] != m.second){
                     WriteWarningStatus("MultiFit::FitCombinedWS","Systematics assigned to different SubCategory in the different included Fits. Keeping first Fit convention.");
                 }
             }
@@ -496,18 +529,19 @@ std::map < std::string, double > MultiFit::FitCombinedWS(int fitType, const std:
         fFitList[0]->ReadFitResults(fOutDir+"/Fits/"+fName+fSaveSuf+".txt");
         std::vector<std::string> npNames;
         std::vector<double> npValues;
-        for(unsigned int i_np=0;i_np<fFitList[0]->fFitResults->fNuisPar.size();i_np++){
+        for(const auto& inp : fFitList[0]->fFitResults->fNuisPar) {
             bool isNF = false;
-            for(unsigned int i_fit=0;i_fit<fFitList.size();i_fit++){
-                if(!fFitList[i_fit]->fFixNPforStatOnlyFit &&
-                    Common::FindInStringVector(fFitList[i_fit]->fNormFactorNames,fFitList[0]->fFitResults->fNuisPar[i_np]->fName)>=0){
+            for(const auto& ifit : fFitList) {
+                if (!ifit->fUseInFit) continue;
+                if(!ifit->fFixNPforStatOnlyFit &&
+                    Common::FindInStringVector(ifit->fNormFactorNames,inp->fName)>=0){
                     isNF = true;
                     break;
                 }
             }
             if(isNF) continue;
-            npNames.push_back(  fFitList[0]->fFitResults->fNuisPar[i_np]->fName );
-            npValues.push_back( fFitList[0]->fFitResults->fNuisPar[i_np]->fFitValue );
+            npNames.push_back( inp->fName);
+            npValues.push_back(inp->fFitValue);
         }
         fitTool.ResetFixedNP();
         fitTool.FixNPs(npNames,npValues);
@@ -809,8 +843,8 @@ void MultiFit::ComparePOI(const string& POI) const {
         }
     }
 
-    for(int i_format=0;i_format<(int)TRExFitter::IMAGEFORMAT.size();i_format++){
-        c.SaveAs( (fOutDir+"/POI"+fSaveSuf+"."+TRExFitter::IMAGEFORMAT[i_format]).c_str() );
+    for(const auto& format : TRExFitter::IMAGEFORMAT) {
+        c.SaveAs((fOutDir+"/POI"+fSaveSuf+"."+format).c_str() );
     }
 }
 
@@ -875,16 +909,16 @@ void MultiFit::CompareLimit(){
         }
         if(fLimitsFiles[i]==""){
             if(fSignalInjection){
-                f = std::make_unique<TFile>(Form("%s/Limits/%s_injection.root",dirs[i].c_str(),(names[i]+suffs[i]).c_str()));
+                f.reset(TFile::Open(Form("%s/Limits/%s_injection.root",dirs[i].c_str(),(names[i]+suffs[i]).c_str())));
                 WriteInfoStatus("MultiFit::CompareLimit", "Reading file " + dirs[i] + "/Limits/" + (names[i]+suffs[i]) + "_injection.root");
             }
             else{
-                f = std::make_unique<TFile> (Form("%s/Limits/%s.root",dirs[i].c_str(),(names[i]+suffs[i]).c_str()));
+                f.reset(TFile::Open(Form("%s/Limits/%s.root",dirs[i].c_str(),(names[i]+suffs[i]).c_str())));
                 WriteInfoStatus("MultiFit::CompareLimit", "Reading file " + dirs[i] + "/Limits/" + (names[i]+suffs[i]) + ".root");
             }
         }
         else{
-            f = std::make_unique<TFile>(fLimitsFiles[i].c_str());
+            f.reset(TFile::Open(fLimitsFiles[i].c_str()));
             WriteInfoStatus("MultiFit::CompareLimit", "Reading file " + fLimitsFiles[i]);
         }
         h = std::unique_ptr<TH1>(static_cast<TH1*>(f->Get("limit")));
@@ -978,8 +1012,8 @@ void MultiFit::CompareLimit(){
     if(fSignalInjection) leg->AddEntry(&g_inj,("Expected ("+fPOIName+"=1)").c_str(),"l");
     leg->Draw();
 
-    for(int i_format=0;i_format<(int)TRExFitter::IMAGEFORMAT.size();i_format++){
-        c.SaveAs( (fOutDir+"/Limits" + fSaveSuf +  + "."+TRExFitter::IMAGEFORMAT[i_format]).c_str() );
+    for(const auto& format : TRExFitter::IMAGEFORMAT) {
+        c.SaveAs( (fOutDir+"/Limits" + fSaveSuf +  + "."+format).c_str() );
     }
 }
 
@@ -994,9 +1028,9 @@ void MultiFit::ComparePulls(string category) const{
     vector<string> suffs;
     vector<string> titles;
     vector<double>  yshift;
-    int color[] = {kBlack,kRed,kBlue,kViolet};
+    static const std::vector<int> color = {kBlack,kRed,kBlue,kViolet};
 
-    int style[] = {kFullCircle,kOpenCircle,kFullTriangleUp,kOpenTriangleDown};
+    static const std::vector<int> style = {kFullCircle,kOpenCircle,kFullTriangleUp,kOpenTriangleDown};
 
     unsigned int N = fFitList.size();
     if(fCombine) N++;
@@ -1227,9 +1261,9 @@ void MultiFit::ComparePulls(string category) const{
 
     gPad->RedrawAxis();
 
-    for(int i_format=0;i_format<(int)TRExFitter::IMAGEFORMAT.size();i_format++){
-        if(category=="") c.SaveAs((fOutDir+"/NuisPar_comp"+fSaveSuf+"."+TRExFitter::IMAGEFORMAT[i_format]).c_str());
-        else             c.SaveAs((fOutDir+"/NuisPar_comp"+fSaveSuf+"_"+category+"."+TRExFitter::IMAGEFORMAT[i_format]).c_str());
+    for(const auto& format : TRExFitter::IMAGEFORMAT) {
+        if(category=="") c.SaveAs((fOutDir+"/NuisPar_comp"+fSaveSuf+"."+format).c_str());
+        else             c.SaveAs((fOutDir+"/NuisPar_comp"+fSaveSuf+"_"+category+"."+format).c_str());
     }
 }
 
@@ -1245,8 +1279,8 @@ void MultiFit::CompareNormFactors(string category) const{
     vector<string> titles;
     vector<double>  yshift;
 
-    int color[] = {kBlack,kRed,kBlue,kViolet};
-    int style[] = {kFullCircle,kOpenCircle,kFullTriangleUp,kOpenTriangleDown};
+    static const std::vector<int> color = {kBlack,kRed,kBlue,kViolet};
+    static const std::vector<int> style = {kFullCircle,kOpenCircle,kFullTriangleUp,kOpenTriangleDown};
 
     unsigned int N = fFitList.size();
     if(fCombine) N++;
@@ -1273,14 +1307,13 @@ void MultiFit::CompareNormFactors(string category) const{
     double max = 0.;
 
     // create a list of Norm Factors
-    std::vector< string > Names;  Names.clear();
-    std::vector< string > Titles; Titles.clear();
-    std::vector< string > Categories; Categories.clear();
-    string normName;
+    std::vector< string > Names;
+    std::vector< string > Titles;
+    std::vector< string > Categories;
     for(unsigned int i_fit=0;i_fit<N;i_fit++){
         if(fCombine && i_fit==N-1) break;
         for(int i_norm=0;i_norm<fFitList[i_fit]->fNNorm;i_norm++){
-            normName = fFitList[i_fit]->fNormFactors[i_norm]->fName;
+            const std::string normName = fFitList[i_fit]->fNormFactors[i_norm]->fName;
             if(normName==fPOI) continue;
             if(Common::FindInStringVector(Names,normName)<0){
                 Names.push_back(normName);
@@ -1292,25 +1325,23 @@ void MultiFit::CompareNormFactors(string category) const{
     unsigned int Nnorm = Names.size();
 
     // read fit resutls
-    NuisParameter *par;
     for(unsigned int i_fit=0;i_fit<N;i_fit++){
         if(fCombine && i_fit==N-1) break;
         fFitList[i_fit]->ReadFitResults(dirs[i_fit]+"/Fits/"+names[i_fit]+suffs[i_fit]+".txt");
     }
 
     // exclude norm factors
-    std::vector<string> NamesNew; NamesNew.clear();
-    std::vector<string> TitlesNew; TitlesNew.clear();
-    std::vector<string> CategoriesNew; CategoriesNew.clear();
+    std::vector<string> NamesNew;
+    std::vector<string> TitlesNew;
+    std::vector<string> CategoriesNew;
     for(unsigned int i_norm=0;i_norm<Nnorm;i_norm++){
-        FitResults *fitRes;
         bool found = false;
         for(unsigned int i_fit=0;i_fit<N;i_fit++){
             if(fCombine && i_fit==N-1) break;
-            fitRes = fFitList[i_fit]->fFitResults;
+            const FitResults* fitRes = fFitList[i_fit]->fFitResults;
             for(unsigned int j = 0; j<fitRes->fNuisPar.size(); ++j){
-                par = fitRes->fNuisPar[j].get();
-                normName = par->fName;
+                const NuisParameter* par = fitRes->fNuisPar[j].get();
+                const std::string& normName = par->fName;
                 if(normName==Names[i_norm]){
                     found = true;
                     break;
@@ -1344,6 +1375,7 @@ void MultiFit::CompareNormFactors(string category) const{
         Categories.clear();
         ifstream in;
         in.open(fNuisParListFile.c_str());
+        std::string normName;
         while(true){
             in >> normName;
             if(!in.good()) break;
@@ -1383,8 +1415,8 @@ void MultiFit::CompareNormFactors(string category) const{
             fitRes = fFitList[i_fit]->fFitResults;
         }
         for(unsigned int j = 0; j<fitRes->fNuisPar.size(); ++j){
-            par = fitRes->fNuisPar[j].get();
-            normName = par->fName;
+            NuisParameter* par = fitRes->fNuisPar[j].get();
+            const std::string& normName = par->fName;
             centralMap[normName] = par->fFitValue;
             errUpMap[normName]   = par->fPostFitUp;
             errDownMap[normName] = par->fPostFitDown;
@@ -1393,7 +1425,7 @@ void MultiFit::CompareNormFactors(string category) const{
         // create the graphs
         g.emplace_back(Nnorm);
         for(unsigned int i_norm=0;i_norm<Nnorm;i_norm++){
-            normName = Names[i_norm];
+            const std::string& normName = Names[i_norm];
             if(centralMap[normName]!=0 || (errUpMap[normName]!=0 || errDownMap[normName]!=0)){
                 g[i_fit].SetPoint(i_norm,centralMap[normName],(Nnorm-i_norm-1)+0.5+yshift[i_fit]);
                 g[i_fit].SetPointEXhigh(i_norm,  errUpMap[normName]);
@@ -1471,9 +1503,9 @@ void MultiFit::CompareNormFactors(string category) const{
 
     gPad->RedrawAxis();
 
-    for(int i_format=0;i_format<(int)TRExFitter::IMAGEFORMAT.size();i_format++){
-        if(category=="") c.SaveAs((fOutDir+"/NormFactors_comp"+fSaveSuf+"."+TRExFitter::IMAGEFORMAT[i_format]).c_str());
-        else             c.SaveAs((fOutDir+"/NormFactors_comp"+fSaveSuf+"_"+category+"."+TRExFitter::IMAGEFORMAT[i_format]).c_str());
+    for(const auto& format : TRExFitter::IMAGEFORMAT) {
+        if(category=="") c.SaveAs((fOutDir+"/NormFactors_comp"+fSaveSuf+"."+format).c_str());
+        else             c.SaveAs((fOutDir+"/NormFactors_comp"+fSaveSuf+"_"+category+"."+format).c_str());
     }
 }
 
@@ -1488,8 +1520,9 @@ void MultiFit::PlotCombinedCorrelationMatrix() const{
     //plot the correlation matrix (considering only correlations larger than TRExFitter::CORRELATIONTHRESHOLD)
     fit->ReadFitResults(fOutDir+"/Fits/"+fName+fSaveSuf+".txt");
     if(fit->fFitResults){
-        for(int i_format=0;i_format<(int)TRExFitter::IMAGEFORMAT.size();i_format++)
-            fit->fFitResults->DrawCorrelationMatrix(fOutDir+"/CorrMatrix_comb"+fSaveSuf+"."+TRExFitter::IMAGEFORMAT[i_format],fuseGammasForCorr,TRExFitter::CORRELATIONTHRESHOLD);
+        for(const auto& format : TRExFitter::IMAGEFORMAT) {
+            fit->fFitResults->DrawCorrelationMatrix(fOutDir+"/CorrMatrix_comb"+fSaveSuf+"."+format,fuseGammasForCorr,TRExFitter::CORRELATIONTHRESHOLD);
+        }
     }
 }
 
@@ -1504,38 +1537,38 @@ void MultiFit::ProduceNPRanking( string NPnames/*="all"*/ ) const{
         abort();
     }
 
-    string inputData = fDataName;
-    unsigned int N = fFitList.size();
+    const std::string& inputData = fDataName;
 
     // create a list of Systematics
-    std::vector< Systematic* > vSystematics;  vSystematics.clear();
-    std::vector< std::string > Names;  Names.clear();
-    string systName;
-    for(unsigned int i_fit=0;i_fit<fFitList.size();i_fit++){
-        for(int i_syst=0;i_syst<fFitList[i_fit]->fNSyst;i_syst++){
-            systName = fFitList[i_fit]->fSystematics[i_syst]->fNuisanceParameter;
-            if(Common::FindInStringVector(Names,systName)<0){
+    std::vector< Systematic* > vSystematics;
+    std::vector< std::string > Names;
+    for(const auto& ifit : fFitList) {
+        if (!ifit->fUseInFit) continue;
+        for(const auto& isyst : ifit->fSystematics) {
+            const std::string systName = isyst->fNuisanceParameter;
+            if(Common::FindInStringVector(Names,systName) < 0) {
                 Names.push_back(systName);
-                vSystematics.push_back(fFitList[i_fit]->fSystematics[i_syst]);
+                vSystematics.push_back(isyst);
             }
         }
     }
-    unsigned int Nsyst = Names.size();
 
     // create a list of norm factors
-    std::vector< NormFactor* > vNormFactors;  vNormFactors.clear();
-    std::vector< std::string > nfNames;  nfNames.clear();
-    string normName;
-    for(unsigned int i_fit=0;i_fit<N;i_fit++){
-        for(int i_norm=0;i_norm<fFitList[i_fit]->fNNorm;i_norm++){
-            normName = fFitList[i_fit]->fNormFactors[i_norm]->fName;
-            if(Common::FindInStringVector(nfNames,systName)<0){
+    std::vector< NormFactor* > vNormFactors;
+    std::vector< std::string > nfNames;
+    for(const auto& ifit : fFitList) {
+        if (!ifit->fUseInFit) continue;
+        for(const auto& inorm : ifit->fNormFactors) {
+            const std::string normName = inorm->fName;
+            if(Common::FindInStringVector(nfNames,normName) < 0) {
                 nfNames.push_back(normName);
-                vNormFactors.push_back(fFitList[i_fit]->fNormFactors[i_norm]);
+                vNormFactors.push_back(inorm);
             }
         }
     }
-    unsigned int Nnorm = nfNames.size();
+    
+    const std::size_t Nsyst = Names.size();
+    const std::size_t Nnorm = nfNames.size();
 
     //
     // List of systematics to check
@@ -1543,9 +1576,9 @@ void MultiFit::ProduceNPRanking( string NPnames/*="all"*/ ) const{
     std::vector< string > nuisPars;
     std::vector< bool > isNF;
     std::vector<string> systNames_unique;
-    for(int i_syst=0;i_syst< (int) Nsyst;i_syst++){
+    for(std::size_t i_syst = 0; i_syst < Nsyst; ++i_syst) {
         if(NPnames=="all" || NPnames==vSystematics[i_syst]->fNuisanceParameter ||
-            ( atoi(NPnames.c_str())==i_syst && (atoi(NPnames.c_str())>0 || strcmp( NPnames.c_str(), "0") ==0 ) )
+            ( std::stoul(NPnames.c_str())==i_syst && (std::stoi(NPnames.c_str())>0 || strcmp( NPnames.c_str(), "0") ==0 ) )
             ){
             if(vSystematics[i_syst]->fType == Systematic::SHAPE) continue;
             if (std::find(systNames_unique.begin(), systNames_unique.end(),
@@ -1559,10 +1592,10 @@ void MultiFit::ProduceNPRanking( string NPnames/*="all"*/ ) const{
             isNF.push_back( false );
         }
     }
-    for(int i_norm=0;i_norm<(int)Nnorm;i_norm++){
+    for(std::size_t i_norm = 0; i_norm<Nnorm; ++i_norm) {
         if(fPOI==vNormFactors[i_norm]->fName) continue;
         if(NPnames=="all" || NPnames==vNormFactors[i_norm]->fName ||
-            ( ((atoi(NPnames.c_str())-(int)Nnorm) == i_norm) && (atoi(NPnames.c_str())>0 || strcmp( NPnames.c_str(), "0")==0) )
+            ( ((atoi(NPnames.c_str())-Nnorm) == i_norm) && (atoi(NPnames.c_str())>0 || strcmp( NPnames.c_str(), "0")==0) )
             ){
             nuisPars.push_back( vNormFactors[i_norm]->fName );
             isNF.push_back( true );
@@ -1572,7 +1605,7 @@ void MultiFit::ProduceNPRanking( string NPnames/*="all"*/ ) const{
     //
     // Text files containing information necessary for drawing of ranking plot
     //
-    string outName = fOutDir+"/Fits/NPRanking";
+    std::string outName = fOutDir+"/Fits/NPRanking";
     if(NPnames!="all") outName += "_"+NPnames;
     outName += ".txt";
     ofstream outName_file(outName.c_str());
@@ -1585,49 +1618,53 @@ void MultiFit::ProduceNPRanking( string NPnames/*="all"*/ ) const{
     //
     // Get the combined model
     //
-    TFile *f = new TFile((fOutDir+"/ws_combined"+fSaveSuf+".root").c_str() );
-    RooWorkspace *ws = (RooWorkspace*)f->Get("combWS");
+    std::unique_ptr<TFile> f(TFile::Open((fOutDir+"/ws_combined"+fSaveSuf+".root").c_str()));
+    if (!f) {
+        WriteErrorStatus("MultiFit::ProduceNPRanking", "Cannot open file!");
+        exit(EXIT_FAILURE);
+    }
+    RooWorkspace* ws = dynamic_cast<RooWorkspace*>(f->Get("combWS"));
 
     //
     // Gets needed objects for the fit
     //
-    RooStats::ModelConfig* mc = (RooStats::ModelConfig*)ws->obj("ModelConfig");
-    RooSimultaneous *simPdf = (RooSimultaneous*)(mc->GetPdf());
+    RooStats::ModelConfig* mc = dynamic_cast<RooStats::ModelConfig*>(ws->obj("ModelConfig"));
+    RooSimultaneous* simPdf = static_cast<RooSimultaneous*>(mc->GetPdf());
 
     //
     // Creates the data object
     //
-    RooDataSet* data = 0;
+    RooDataSet* data = nullptr;
     if(inputData=="asimovData"){
         RooArgSet empty;// = RooArgSet();
-        data = (RooDataSet*)RooStats::AsymptoticCalculator::MakeAsimovData( (*mc), RooArgSet(ws->allVars()), (RooArgSet&)empty);
+        data = static_cast<RooDataSet*>(RooStats::AsymptoticCalculator::MakeAsimovData( (*mc), RooArgSet(ws->allVars()), (RooArgSet&)empty));
     }
     else if(inputData!=""){
-        data = (RooDataSet*)ws->data( inputData.c_str() );
+        data = static_cast<RooDataSet*>(ws->data(inputData.c_str()));
     } else {
         WriteWarningStatus("MultiFit::ProduceNPRanking", "You didn't specify inputData => will try with observed data !");
-        data = (RooDataSet*)ws->data("obsData");
+        data = static_cast<RooDataSet*>(ws->data("obsData"));
         if(!data){
             WriteWarningStatus("MultiFit::ProduceNPRanking", "Observed data not present => will use with asimov data !");
-            data = (RooDataSet*)ws->data("asimovData");
+            data = static_cast<RooDataSet*>(ws->data("asimovData"));
         }
     }
 
     // Loop on NPs to find gammas and add to the list to be ranked
     if(NPnames=="all" || NPnames.find("gamma")!=string::npos || (atoi(NPnames.c_str())>0 || strcmp(NPnames.c_str(),"0")==0)){
-        RooRealVar* var = NULL;
-        RooArgSet* nuis = (RooArgSet*) mc->GetNuisanceParameters();
+        RooRealVar* var = nullptr;
+        const RooArgSet* nuis = static_cast<const RooArgSet*>(mc->GetNuisanceParameters());
         if(nuis){
-            TIterator* it2 = nuis->createIterator();
+            std::unique_ptr<TIterator> it2(nuis->createIterator());
             int i_gamma = 0;
-            while( (var = (RooRealVar*) it2->Next()) ){
-                string np = var->GetName();
+            while( (var = static_cast<RooRealVar*>(it2->Next()))) {
+                const std::string& np = var->GetName();
                 if(np.find("gamma")!=string::npos){
                     // add the nuisance parameter to the list nuisPars if it's there in the ws
                     // remove "gamma"...
                     if(np==NPnames || (((atoi(NPnames.c_str())-(int)Nsyst-(int)Nnorm)==i_gamma) && (atoi(NPnames.c_str())>0 || strcmp(NPnames.c_str(),"0")==0)) || NPnames=="all"){
-                        nuisPars.push_back(Common::ReplaceString(np,"gamma_",""));
-                        isNF.push_back( true );
+                        nuisPars.emplace_back(Common::ReplaceString(np,"gamma_",""));
+                        isNF.emplace_back( true );
                         if(NPnames!="all") break;
                     }
                     i_gamma++;
@@ -1649,19 +1686,35 @@ void MultiFit::ProduceNPRanking( string NPnames/*="all"*/ ) const{
     fitTool.ValPOI(fPOIInitial);
     fitTool.ConstPOI(false);
 
-    TRExFit *fit = fFitList[fFitList.size()-1];
+    // find the last config that is used in a fit
+    int validConfig(999999);
+    for (int i = fFitList.size() - 1; i >= 0; --i) {
+        if (fFitList.at(i)->fUseInFit) {
+            validConfig = i;
+            break;
+        }
+    }
+
+    if (validConfig == 999999) {
+        WriteErrorStatus("ProduceNPRanking", "Did not find a single config that should be used for a fit");
+        exit(EXIT_FAILURE);
+    }
+
+    TRExFit *fit = fFitList[validConfig];
     fit->ReadFitResults(fOutDir+"/Fits/"+fName+fSaveSuf+".txt");
     {
         std::vector<std::string> npNames;
         std::vector<double> npValues;
-        for(int i_norm=0;i_norm<fit->fNNorm;i_norm++){
-            if (fit->fNormFactors[i_norm]->fName == fPOI) continue;
-            npNames. emplace_back( fit->fNormFactors[i_norm]->fName);
-            npValues.emplace_back( fit->fNormFactors[i_norm]->fNominal);
+        for(const auto& inorm : fit->fNormFactors) {
+            if (inorm->fName == fPOI) continue;
+            npNames. emplace_back(inorm->fName);
+            npValues.emplace_back(inorm->fNominal);
         }
         fitTool.SetNPs( npNames,npValues );
     }
     const double muhat = fit->fFitResults -> GetNuisParValue( fPOI );
+    
+    ApplyExternalConstraints(ws, &fitTool, simPdf);
 
     for(unsigned int i=0;i<nuisPars.size();i++){
 
@@ -1680,6 +1733,7 @@ void MultiFit::ProduceNPRanking( string NPnames/*="all"*/ ) const{
         fitTool.ResetFixedNP();
         // Fix NPs that are specified in the individual configs
         for (const auto& ifit : fFitList){
+            if (!ifit->fUseInFit) continue;
             if(ifit->fFitFixedNPs.size()>0){
                 for(const auto& nuisParToFix : ifit->fFitFixedNPs){
                     fitTool.FixNP(nuisParToFix.first,nuisParToFix.second);
@@ -1695,6 +1749,7 @@ void MultiFit::ProduceNPRanking( string NPnames/*="all"*/ ) const{
         fitTool.ResetFixedNP();
         // Fix NPs that are specified in the individual configs
         for (const auto& ifit : fFitList){
+            if (!ifit->fUseInFit) continue;
             if(ifit->fFitFixedNPs.size()>0){
                 for(const auto& nuisParToFix : ifit->fFitFixedNPs){
                     fitTool.FixNP(nuisParToFix.first,nuisParToFix.second);
@@ -1718,6 +1773,7 @@ void MultiFit::ProduceNPRanking( string NPnames/*="all"*/ ) const{
             fitTool.ResetFixedNP();
             // Fix NPs that are specified in the individual configs
             for (const auto& ifit : fFitList){
+                if (!ifit->fUseInFit) continue;
                 if(ifit->fFitFixedNPs.size()>0){
                     for(const auto& nuisParToFix : ifit->fFitFixedNPs){
                         fitTool.FixNP(nuisParToFix.first,nuisParToFix.second);
@@ -1733,6 +1789,7 @@ void MultiFit::ProduceNPRanking( string NPnames/*="all"*/ ) const{
             fitTool.ResetFixedNP();
             // Fix NPs that are specified in the individual configs
             for (const auto& ifit : fFitList){
+                if (!ifit->fUseInFit) continue;
                 if(ifit->fFitFixedNPs.size()>0){
                     for(const auto& nuisParToFix : ifit->fFitFixedNPs){
                         fitTool.FixNP(nuisParToFix.first,nuisParToFix.second);
@@ -1751,7 +1808,6 @@ void MultiFit::ProduceNPRanking( string NPnames/*="all"*/ ) const{
     ws->loadSnapshot("tmp_snapshot");
 
     f->Close();
-    delete f;
 }
 
 //____________________________________________________________________________________
@@ -1956,10 +2012,11 @@ void MultiFit::PlotNPRanking(bool flagSysts, bool flagGammas) const {
             }
             // find the short label of this region
             std::string regTitle = regName;
-            for(unsigned int i_fit=0;i_fit<fFitList.size();i_fit++){
-                for( int i_ch = 0; i_ch < fFitList[i_fit]->fNRegions; i_ch++ ){
-                    if(fFitList[i_fit]->fRegions[i_ch]->fName==regName){
-                        regTitle = fFitList[i_fit]->fRegions[i_ch]->fShortLabel;
+            for(auto& ifit : fFitList) {
+                if (!ifit->fUseInFit) continue;
+                for( int i_ch = 0; i_ch < ifit->fNRegions; i_ch++ ){
+                    if(ifit->fRegions[i_ch]->fName==regName){
+                        regTitle = ifit->fRegions[i_ch]->fShortLabel;
                         break;
                     }
                 }
@@ -2096,27 +2153,28 @@ void MultiFit::PlotNPRanking(bool flagSysts, bool flagGammas) const {
     l2.Draw("same");
 
     if (fFitList[0]->fAtlasLabel != "none") ATLASLabelNew(0.42,(1.*(offsetDown+offsetDown1+SIZE*lineHeight+0.6*offsetUp1)/newHeight),
-                                                          (char*)fFitList[0]->fAtlasLabel.c_str(), kBlack, gStyle->GetTextSize());
+                                                          fFitList[0]->fAtlasLabel.c_str(), kBlack, gStyle->GetTextSize());
     myText(       0.42,(1.*(offsetDown+offsetDown1+SIZE*lineHeight+0.3*offsetUp1)/newHeight), 1,Form("#sqrt{s} = %s, %s",fCmeLabel.c_str(),fLumiLabel.c_str()));
 
     gPad->RedrawAxis();
 
     if(flagGammas && flagSysts){
-      for(int i_format=0;i_format<(int)TRExFitter::IMAGEFORMAT.size();i_format++)
-        c.SaveAs( (fOutDir+"/Ranking."+TRExFitter::IMAGEFORMAT[i_format]).c_str() );
-    }
-    else if(flagGammas){
-      for(int i_format=0;i_format<(int)TRExFitter::IMAGEFORMAT.size();i_format++)
-        c.SaveAs( (fOutDir+"/RankingGammas."+TRExFitter::IMAGEFORMAT[i_format]).c_str() );
-    }
-    else if(flagSysts){
-      for(int i_format=0;i_format<(int)TRExFitter::IMAGEFORMAT.size();i_format++)
-        c.SaveAs( (fOutDir+"/RankingSysts."+TRExFitter::IMAGEFORMAT[i_format]).c_str() );
-    }
-    else{
-      WriteWarningStatus("MultiFit::PlotNPRanking", "Your ranking plot felt in unknown category :s");
-      for(int i_format=0;i_format<(int)TRExFitter::IMAGEFORMAT.size();i_format++)
-        c.SaveAs( (fOutDir+"/RankingUnknown."+TRExFitter::IMAGEFORMAT[i_format]).c_str() );
+        for(const auto& format : TRExFitter::IMAGEFORMAT) {
+            c.SaveAs((fOutDir+"/Ranking."+format).c_str());
+        }
+    } else if(flagGammas){
+        for(const auto& format : TRExFitter::IMAGEFORMAT) {
+            c.SaveAs((fOutDir+"/RankingGammas."+format).c_str());
+        }
+    } else if(flagSysts){
+        for(const auto& format : TRExFitter::IMAGEFORMAT) {
+            c.SaveAs((fOutDir+"/RankingSysts."+format).c_str());
+        }
+    } else{
+        WriteWarningStatus("MultiFit::PlotNPRanking", "Your ranking plot felt in unknown category :s");
+        for(const auto& format : TRExFitter::IMAGEFORMAT) {
+            c.SaveAs((fOutDir+"/RankingUnknown."+format).c_str());
+        }
     }
 }
 
@@ -2160,6 +2218,7 @@ void MultiFit::GetLikelihoodScan( RooWorkspace *ws, const std::string& varName, 
     Double_t minVal = -3;
     Double_t maxVal =  3;
     for(auto fit : fFitList){
+        if (!fit->fUseInFit) continue;
         for(auto nf : fit->fNormFactors){
             if(nf->fName == varName){
                 minVal = nf->fMin;
@@ -2177,8 +2236,8 @@ void MultiFit::GetLikelihoodScan( RooWorkspace *ws, const std::string& varName, 
     }
 
     if (isPoI){
-        TIterator* it = mc->GetParametersOfInterest()->createIterator();
-        while( (var = (RooRealVar*) it->Next()) ){
+        std::unique_ptr<TIterator> it(mc->GetParametersOfInterest()->createIterator());
+        while( (var = static_cast<RooRealVar*>(it->Next()))) {
             vname=var->GetName();
             vname_s=var->GetName();
             if (vname == varName || vname == "alpha_"+varName) {
@@ -2189,8 +2248,8 @@ void MultiFit::GetLikelihoodScan( RooWorkspace *ws, const std::string& varName, 
         }
     }
     else {
-        TIterator* it = mc->GetNuisanceParameters()->createIterator();
-        while( (var = (RooRealVar*) it->Next()) ){
+        std::unique_ptr<TIterator> it(mc->GetNuisanceParameters()->createIterator());
+        while( (var = static_cast<RooRealVar*>(it->Next()))){
             vname=var->GetName();
             vname_s=var->GetName();
             if (vname == varName || vname == "alpha_"+varName) {
@@ -2245,8 +2304,8 @@ void MultiFit::GetLikelihoodScan( RooWorkspace *ws, const std::string& varName, 
 
     }
     else{
-        TFile *f = new TFile(fName+"/"+LHDir+"NLLscan_"+varName+"_curve.root", "READ");
-        graph = std::unique_ptr<TGraph>(static_cast<TGraph*>(f->Get("LHscan")));
+        TFile* f = TFile::Open(fName+"/"+LHDir+"NLLscan_"+varName+"_curve.root", "READ");
+        graph.reset(dynamic_cast<TGraph*>(f->Get("LHscan")));
         graph->SetLineColor(kRed);
         graph->SetLineWidth(3);
     }
@@ -2260,25 +2319,31 @@ void MultiFit::GetLikelihoodScan( RooWorkspace *ws, const std::string& varName, 
     can.cd();
     graph->Draw("ALP");
 
+    std::size_t nValid(0);
+    for (const auto& ifit : fFitList) {
+        if (ifit->fUseInFit) ++nValid;
+    }
+
     // take the LH curves also for other fits
     std::vector<TGraph*> curve_fit;
-    TLegend leg(0.5,0.85-0.06*(fFitList.size()+1),0.75,0.85);
+    TLegend leg(0.5,0.85-0.06*(nValid+1),0.75,0.85);
     leg.SetFillColor(kWhite);
     leg.SetBorderSize(0);
     leg.SetTextSize(gStyle->GetTextSize());
     leg.SetTextFont(gStyle->GetTextFont());
     if(fCompare){
         for(auto fit : fFitList){
-            TFile *f = nullptr;
+            if (!fit->fUseInFit) continue;
+            TFile* f = nullptr;
             if(fit->fFitResultsFile!=""){
                 std::vector<std::string> v = Vectorize(fit->fFitResultsFile,'/');
-                f = new TFile(v[0]+"/"+LHDir+"NLLscan_"+varName+"_curve.root");
+                f = TFile::Open(v[0]+"/"+LHDir+"NLLscan_"+varName+"_curve.root");
             }
             else{
-                f = new TFile(fit->fName+"/"+LHDir+"NLLscan_"+varName+"_curve.root");
+                f = TFile::Open(fit->fName+"/"+LHDir+"NLLscan_"+varName+"_curve.root");
             }
             if(f!=nullptr) {
-                curve_fit.push_back(static_cast<TGraph*>(f->Get("LHscan")));
+                curve_fit.push_back(dynamic_cast<TGraph*>(f->Get("LHscan")));
             }
             else {
                 curve_fit.push_back(nullptr);
@@ -2354,16 +2419,16 @@ void MultiFit::GetLikelihoodScan( RooWorkspace *ws, const std::string& varName, 
 
     can.RedrawAxis();
 
-    for(int i_format=0;i_format<(int)TRExFitter::IMAGEFORMAT.size();i_format++)
-        can.SaveAs( fName+"/"+LHDir+"NLLscan_"+varName+"."+TRExFitter::IMAGEFORMAT[i_format] );
+    for(const auto& format : TRExFitter::IMAGEFORMAT) {
+        can.SaveAs( fName+"/"+LHDir+"NLLscan_"+varName+"."+format);
+    }
 
     if(recreate){
         // write it to a ROOT file as well
-        TFile *f = new TFile(fName+"/"+LHDir+"NLLscan_"+varName+"_curve.root","UPDATE");
+        std::unique_ptr<TFile> f(TFile::Open(fName+"/"+LHDir+"NLLscan_"+varName+"_curve.root","UPDATE"));
         f->cd();
         graph->Write("LHscan",TObject::kOverwrite);
         f->Close();
-        delete f;
     }
 }
 
@@ -2404,7 +2469,7 @@ void MultiFit::Get2DLikelihoodScan( RooWorkspace *ws, const std::vector<std::str
     RooRealVar* varX = nullptr;
     RooRealVar* varY = nullptr;
     //Get the parameters from the model
-    TIterator* it = mc->GetNuisanceParameters()->createIterator();
+    std::unique_ptr<TIterator> it(mc->GetNuisanceParameters()->createIterator());
     RooRealVar* var_tmp = nullptr;
     TString vname = "";
     int count = 0;
@@ -2425,7 +2490,7 @@ void MultiFit::Get2DLikelihoodScan( RooWorkspace *ws, const std::vector<std::str
 
     // iterate over POIs
     if (count < 2){
-        TIterator* it_POI = mc->GetParametersOfInterest()->createIterator();
+        std::unique_ptr<TIterator> it_POI(mc->GetParametersOfInterest()->createIterator());
         while ( (var_tmp = static_cast<RooRealVar*>(it_POI->Next())) ){
             vname=var_tmp->GetName();
             if (vname == varNames.at(0) || vname == "alpha_"+varNames.at(0)){
@@ -2577,12 +2642,12 @@ void MultiFit::Get2DLikelihoodScan( RooWorkspace *ws, const std::vector<std::str
         graph.GetYaxis()->SetTitle(varNames.at(1).c_str());
 
         // Print the canvas
-        for(int i_format=0;i_format<(int)TRExFitter::IMAGEFORMAT.size();i_format++){
-            can.SaveAs( fName+"/"+LHDir+"NLLscan_"+varNames.at(0)+"_"+varNames.at(1)+"."+TRExFitter::IMAGEFORMAT[i_format] );
+        for(const auto& format : TRExFitter::IMAGEFORMAT) {
+            can.SaveAs(fName+"/"+LHDir+"NLLscan_"+varNames.at(0)+"_"+varNames.at(1)+"."+format);
         }
 
         // write it to a ROOT file as well
-        std::unique_ptr<TFile> f = std::make_unique<TFile>(fName+"/"+LHDir+"NLLscan_"+varNames.at(0)+"_"+varNames.at(1)+"_curve.root","UPDATE");
+        std::unique_ptr<TFile> f(TFile::Open(fName+"/"+LHDir+"NLLscan_"+varNames.at(0)+"_"+varNames.at(1)+"_curve.root","UPDATE"));
         f->cd();
         graph.Write(("LHscan_2D_"+varNames.at(0)+"_"+varNames.at(1)).c_str(),TObject::kOverwrite);
         f->Close();
@@ -2593,11 +2658,11 @@ void MultiFit::Get2DLikelihoodScan( RooWorkspace *ws, const std::vector<std::str
         std::ostringstream step_os;
         step_os << fParal2Dstep;
         std::string paral2Dstep_str=step_os.str();
-        std::unique_ptr<TFile> f2 = std::make_unique<TFile>(fName+"/"+LHDir+"NLLscan_"+varNames.at(0)+"_"+varNames.at(1)+"_step"+paral2Dstep_str+"_histo.root","UPDATE");
+        std::unique_ptr<TFile> f2(TFile::Open(fName+"/"+LHDir+"NLLscan_"+varNames.at(0)+"_"+varNames.at(1)+"_step"+paral2Dstep_str+"_histo.root","UPDATE"));
         h_nll.Write("NLL",TObject::kOverwrite);
         f2->Close();
     } else {
-        std::unique_ptr<TFile> f2 = std::make_unique<TFile>(fName+"/"+LHDir+"NLLscan_"+varNames.at(0)+"_"+varNames.at(1)+"_histo.root","UPDATE");
+        std::unique_ptr<TFile> f2(TFile::Open(fName+"/"+LHDir+"NLLscan_"+varNames.at(0)+"_"+varNames.at(1)+"_histo.root","UPDATE"));
         h_nll.Write("NLL",TObject::kOverwrite);
         f2->Close();
     }
@@ -2620,14 +2685,15 @@ void MultiFit::PlotSummarySoverB() const {
     }
     double muLimit = Common::HistFromFile( fOutDir+"/Limits/"+fName+fSaveSuf+".root/limit" )->GetBinContent(1);
 
-    std::vector<string> fileNames; fileNames.clear();
-    std::vector<string> fileNamesBonly; fileNamesBonly.clear();
-    for(unsigned int i_fit=0;i_fit<fFitList.size();i_fit++){
-        for(unsigned int i_reg=0;i_reg<fFitList[i_fit]->fRegions.size();i_reg++){
-            if(fFitList[i_fit]->fRegions[i_reg]->fRegionType==Region::VALIDATION) continue;
-            fileNames.push_back(fFitList[i_fit]->fName+"/Histograms/"+fFitList[i_fit]->fRegions[i_reg]->fName+"_postFit.root");
+    std::vector<string> fileNames;
+    std::vector<string> fileNamesBonly;
+    for(const auto& ifit : fFitList) {
+        if (!ifit->fUseInFit) continue;
+        for(unsigned int i_reg=0;i_reg<ifit->fRegions.size();i_reg++){
+            if(ifit->fRegions[i_reg]->fRegionType==Region::VALIDATION) continue;
+            fileNames.push_back(ifit->fName+"/Histograms/"+ifit->fRegions[i_reg]->fName+"_postFit.root");
             if(includeBonly)
-                fileNamesBonly.push_back(fFitList[i_fit]->fName+"/Histograms/"+fFitList[i_fit]->fRegions[i_reg]->fName+fBonlySuffix+"_postFit.root");
+                fileNamesBonly.push_back(ifit->fName+"/Histograms/"+ifit->fRegions[i_reg]->fName+fBonlySuffix+"_postFit.root");
         }
     }
     int Nhist = (int)fileNames.size();
@@ -2637,36 +2703,38 @@ void MultiFit::PlotSummarySoverB() const {
     std::vector<string> sigList;
     std::vector<string> bkgList;
     std::vector<string> dataList;
-    for(unsigned int i_fit=0;i_fit<fFitList.size();i_fit++){
-        for(unsigned int i_smp=0;i_smp<fFitList[i_fit]->fSamples.size();i_smp++){
-            if(fFitList[i_fit]->fSamples[i_smp]->fType==Sample::SIGNAL && Common::FindInStringVector(sigList,fFitList[i_fit]->fSamples[i_smp]->fName)<0)
-                sigList.push_back(fFitList[i_fit]->fSamples[i_smp]->fName);
-            if(fFitList[i_fit]->fSamples[i_smp]->fType==Sample::BACKGROUND && Common::FindInStringVector(bkgList,fFitList[i_fit]->fSamples[i_smp]->fName)<0)
-                bkgList.push_back(fFitList[i_fit]->fSamples[i_smp]->fName);
-            if(fFitList[i_fit]->fSamples[i_smp]->fType==Sample::DATA && Common::FindInStringVector(dataList,fFitList[i_fit]->fSamples[i_smp]->fName)<0)
-                dataList.push_back(fFitList[i_fit]->fSamples[i_smp]->fName);
+    for(const auto& ifit : fFitList) {
+        if (!ifit->fUseInFit) continue;
+        for(unsigned int i_smp=0;i_smp<ifit->fSamples.size();i_smp++){
+            if(ifit->fSamples[i_smp]->fType==Sample::SIGNAL && Common::FindInStringVector(sigList,ifit->fSamples[i_smp]->fName)<0)
+                sigList.push_back(ifit->fSamples[i_smp]->fName);
+            if(ifit->fSamples[i_smp]->fType==Sample::BACKGROUND && Common::FindInStringVector(bkgList,ifit->fSamples[i_smp]->fName)<0)
+                bkgList.push_back(ifit->fSamples[i_smp]->fName);
+            if(ifit->fSamples[i_smp]->fType==Sample::DATA && Common::FindInStringVector(dataList,ifit->fSamples[i_smp]->fName)<0)
+                dataList.push_back(ifit->fSamples[i_smp]->fName);
         }
     }
     //
     // create a list of all the systematics
     std::vector<string> systList; systList.clear();
-    for(unsigned int i_fit=0;i_fit<fFitList.size();i_fit++){
+    for(const auto& ifit : fFitList) {
+        if (!ifit->fUseInFit) continue;
         // actual systematics
-        for(unsigned int i_syst=0;i_syst<fFitList[i_fit]->fSystematics.size();i_syst++){
-            if(Common::FindInStringVector(systList,fFitList[i_fit]->fSystematics[i_syst]->fName)<0)
-                systList.push_back(fFitList[i_fit]->fSystematics[i_syst]->fName);
+        for(unsigned int i_syst=0;i_syst<ifit->fSystematics.size();i_syst++){
+            if(Common::FindInStringVector(systList,ifit->fSystematics[i_syst]->fName)<0)
+                systList.push_back(ifit->fSystematics[i_syst]->fName);
         }
         // norm factors
-        for(unsigned int i_norm=0;i_norm<fFitList[i_fit]->fNormFactors.size();i_norm++){
-            if(Common::FindInStringVector(systList,fFitList[i_fit]->fNormFactors[i_norm]->fName)<0)
-                systList.push_back(fFitList[i_fit]->fNormFactors[i_norm]->fName);
+        for(unsigned int i_norm=0;i_norm<ifit->fNormFactors.size();i_norm++){
+            if(Common::FindInStringVector(systList,ifit->fNormFactors[i_norm]->fName)<0)
+                systList.push_back(ifit->fNormFactors[i_norm]->fName);
         }
     }
 
     unsigned int Nsyst = systList.size();
 
-    std::vector<TFile*> file;
-    std::vector<TFile*> fileBonly;
+    std::vector<std::unique_ptr<TFile> > file;
+    std::vector<std::unique_ptr<TFile> > fileBonly;
     std::vector<TH1D* > h_sig;
     std::vector<TH1D* > h_bkg;
     std::vector<TH1D* > h_bkgBonly;
@@ -2680,10 +2748,10 @@ void MultiFit::PlotSummarySoverB() const {
         TH1D* h_tmp = nullptr;
         TH1D* h_tmpBonly = nullptr;
         WriteDebugStatus("MultiFit::PlotSummarySoverB",  "Opening file " + fileNames[i_hist]);
-        file.push_back(new TFile(fileNames[i_hist].c_str()));
+        file.emplace_back(std::move(TFile::Open(fileNames[i_hist].c_str())));
         if(includeBonly){
             WriteDebugStatus("MultiFit::PlotSummarySoverB", "Opening file " + fileNamesBonly[i_hist]);
-            fileBonly.push_back(new TFile(fileNamesBonly[i_hist].c_str()));
+            fileBonly.emplace_back(std::move(TFile::Open(fileNamesBonly[i_hist].c_str())));
         }
         //
         // initialize null histogram pointers
@@ -2699,7 +2767,7 @@ void MultiFit::PlotSummarySoverB() const {
         //
         for(unsigned int i_sig=0;i_sig<sigList.size();i_sig++){
             WriteDebugStatus("MultiFit::PlotSummarySoverB", "  Getting histogram h_"+sigList[i_sig]+"_postFit");
-            h_tmp = (TH1D*)file[i_hist]->Get( ("h_"+sigList[i_sig]+"_postFit").c_str() );
+            h_tmp = dynamic_cast<TH1D*>(file[i_hist]->Get( ("h_"+sigList[i_sig]+"_postFit").c_str()));
             if(h_tmp!=nullptr){
                 WriteDebugStatus("MultiFit::PlotSummarySoverB", " ... FOUND");
                 if(h_sig[i_hist]==nullptr) h_sig[i_hist] = h_tmp;
@@ -2708,8 +2776,8 @@ void MultiFit::PlotSummarySoverB() const {
         }
         for(unsigned int i_bkg=0;i_bkg<bkgList.size();i_bkg++){
             WriteDebugStatus("MultiFit::PlotSummarySoverB", "  Getting histogram h_"+bkgList[i_bkg]+"_postFit");
-            h_tmp = (TH1D*)file[i_hist]->Get( ("h_"+bkgList[i_bkg]+"_postFit").c_str() );
-            if(includeBonly) h_tmpBonly = (TH1D*)fileBonly[i_hist]->Get( ("h_"+bkgList[i_bkg]+"_postFit").c_str() );
+            h_tmp = dynamic_cast<TH1D*>(file[i_hist]->Get( ("h_"+bkgList[i_bkg]+"_postFit").c_str()));
+            if(includeBonly) h_tmpBonly = dynamic_cast<TH1D*>(fileBonly[i_hist]->Get( ("h_"+bkgList[i_bkg]+"_postFit").c_str()));
             if(h_tmp!=nullptr){
                 WriteDebugStatus("MultiFit::PlotSummarySoverB", " ... FOUND");
                 if(h_bkg[i_hist]==nullptr) h_bkg[i_hist] = h_tmp;
@@ -2723,29 +2791,30 @@ void MultiFit::PlotSummarySoverB() const {
             // syst variations
             for(unsigned int i_syst=0;i_syst<systList.size();i_syst++){
                 // up
-                h_tmp = (TH1D*)file[i_hist]->Get( ("h_"+bkgList[i_bkg]+"_"+systList[i_syst]+"_Up_postFit").c_str() );
+                h_tmp = dynamic_cast<TH1D*>(file[i_hist]->Get( ("h_"+bkgList[i_bkg]+"_"+systList[i_syst]+"_Up_postFit").c_str()));
                 if(h_tmp!=nullptr){
                     if(h_syst_up[i_syst][i_hist]==nullptr)   h_syst_up[i_syst][i_hist] = h_tmp;
                     else                                 h_syst_up[i_syst][i_hist]->Add(h_tmp);
                 }
                 // down
                 if(h_tmp!=nullptr){
-                    h_tmp = (TH1D*)file[i_hist]->Get( ("h_"+bkgList[i_bkg]+"_"+systList[i_syst]+"_Down_postFit").c_str() );
+                    h_tmp = dynamic_cast<TH1D*>(file[i_hist]->Get( ("h_"+bkgList[i_bkg]+"_"+systList[i_syst]+"_Down_postFit").c_str()));
                     if(h_syst_down[i_syst][i_hist]==nullptr) h_syst_down[i_syst][i_hist] = h_tmp;
                     else                                 h_syst_down[i_syst][i_hist]->Add(h_tmp);
                 }
             }
         }
         for(unsigned int i_data=0;i_data<dataList.size();i_data++){
-            h_tmp = (TH1D*)file[i_hist]->Get( ("h_"+dataList[i_data]).c_str() );
+            h_tmp = dynamic_cast<TH1D*>(file[i_hist]->Get( ("h_"+dataList[i_data]).c_str()));
             if(h_tmp!=nullptr){
                 if(h_data[i_hist]==nullptr) h_data[i_hist] = h_tmp;
                 else                    h_data[i_hist]->Add(h_tmp);
             }
         }
 
-        if(TRExFitter::PREFITONPOSTFIT)
-          h_tot_bkg_prefit[i_hist] = (TH1D*)file[i_hist]->Get("h_tot_bkg_prefit");
+        if(TRExFitter::PREFITONPOSTFIT) {
+            h_tot_bkg_prefit[i_hist] = dynamic_cast<TH1D*>(file[i_hist]->Get("h_tot_bkg_prefit"));
+        }
 
         //
         // Fix eventually empty histograms
@@ -2775,6 +2844,13 @@ void MultiFit::PlotSummarySoverB() const {
                 h_syst_down[i_syst][i_hist]->Add(h_bkg[i_hist],-1);
             }
         }
+    }
+
+    for (auto& ifile : file) {
+        ifile->Close();
+    }
+    for (auto& ifile : fileBonly) {
+        ifile->Close();
     }
 
     // create combined histogram
@@ -2925,6 +3001,7 @@ void MultiFit::PlotSummarySoverB() const {
     else           myText(0.17,0.18,kBlack,"Combined");
     std::string channels = "";
     for(unsigned int i_fit=0;i_fit<fFitList.size();i_fit++){
+        if (!fFitList.at(i_fit)->fUseInFit) continue;
         if(i_fit!=0){
             if(i_fit==fFitList.size()-1) channels += " and ";
             else                         channels += ", ";
@@ -3022,8 +3099,8 @@ void MultiFit::PlotSummarySoverB() const {
     pad0.RedrawAxis();
     pad1.RedrawAxis();
 
-    for(int i_format=0;i_format<(int)TRExFitter::IMAGEFORMAT.size();i_format++) {
-        c.SaveAs( (fOutDir+"/SoverB_postFit."+TRExFitter::IMAGEFORMAT[i_format]).c_str() );
+    for(const auto& format : TRExFitter::IMAGEFORMAT) {
+        c.SaveAs( (fOutDir+"/SoverB_postFit."+format).c_str() );
     }
 }
 
@@ -3107,5 +3184,51 @@ void MultiFit::BuildGroupedImpactTable() const{
         cmd            += " cat "+fOutDir+"/Fits/GroupedImpact"+fSaveSuf+"_* > "+targetName+" ; ";
         cmd            += " fi ;";
         gSystem->Exec(cmd.c_str());
+    }
+}
+
+//__________________________________________________________________________________
+//
+void MultiFit::ApplyExternalConstraints(RooWorkspace* ws,
+                                        FittingTool* fitTool,
+                                        RooSimultaneous* simPdf) const {
+
+    // Tikhonov regularization (for unfolding)
+    RooArgList l;
+    std::vector<double> nomVec;
+    std::vector<double> tauVec;
+    std::vector<std::string> names; 
+    for (const auto& ifit : fFitList) {
+        if (!ifit->fUseInFit) continue;
+        for(const auto& nf : ifit->fNormFactors) {
+            if(nf->fTau == 0) continue;
+
+            // only add the unique NFs
+            if (std::find(names.begin(), names.end(), nf->fName) != names.end()) continue;
+            names.emplace_back(nf->fName);
+
+            l.add(*ws->var(nf->fName.c_str()));
+            nomVec.emplace_back(nf->fNominal);
+            tauVec.emplace_back(nf->fTau);
+        }
+    }
+
+    if(tauVec.empty()) return;
+
+    TVectorD nominal(nomVec.size());
+    TMatrixDSym cov(tauVec.size());
+    for(unsigned int i_tau = 0; i_tau < tauVec.size(); ++i_tau) {
+        nominal(i_tau) = nomVec[i_tau];
+        cov(i_tau,i_tau) = (1./tauVec[i_tau]) * (1./tauVec[i_tau]);
+    }
+    RooMultiVarGaussian r("regularization","regularization",l,nominal,cov);
+    ws->import(r);
+    ws->defineSet("myConstraints","regularization");
+    simPdf->setStringAttribute("externalConstraints","myConstraints");
+
+    if(simPdf->getStringAttribute("externalConstraints")) {
+        WriteInfoStatus("MultiFit::ApplyExternalConstraints",Form("Building NLL with external constraints %s",simPdf->getStringAttribute("externalConstraints")));
+        const RooArgSet* externalConstraints = ws->set(simPdf->getStringAttribute("externalConstraints"));
+        fitTool->SetExternalConstraints( externalConstraints );
     }
 }

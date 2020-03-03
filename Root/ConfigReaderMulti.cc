@@ -335,6 +335,7 @@ int ConfigReaderMulti::ReadJobOptions(){
         std::transform(param.begin(), param.end(), param.begin(), ::toupper);
         if(param=="SPLUSB")      fMultiFitter->fFitType = 1;
         else if(param=="BONLY")  fMultiFitter->fFitType = 2;
+        else if(param=="UNFOLDING")  fMultiFitter->fFitType = 3;
         else {
             WriteWarningStatus("ConfigReaderMulti::ReadJobOptions", "You specified 'FitType' option but you didn't provide valid setting. Using default (SPLUSB)");
             fMultiFitter->fFitType = 1;
@@ -783,7 +784,16 @@ int ConfigReaderMulti::ReadFitOptions(const std::string& opt, const std::string&
             }
         }
 
-        fMultiFitter->AddFitFromConfig(confFile,opt,fullOptions,label,loadSuf,wsFile);
+        bool useInFit(true);
+        param = confSet->Get("UseInFit");
+        if (param != "") {
+            std::transform(param.begin(), param.end(), param.begin(), ::toupper);
+            if(param=="FALSE") {
+                useInFit = false;
+            }
+        }
+
+        fMultiFitter->AddFitFromConfig(confFile, opt, fullOptions, label, loadSuf, wsFile, useInFit);
 
         // Set FitResultsFile
         param = confSet->Get("FitResultsFile");

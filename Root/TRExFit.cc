@@ -17,6 +17,13 @@
 #include "TRExFitter/TRExPlot.h"
 #include "TRExFitter/Region.h"
 #include "TRExFitter/PruningUtil.h"
+#include "TRExFitter/TruthSample.h"
+#include "TRExFitter/UnfoldingSample.h"
+#include "TRExFitter/UnfoldingSystematic.h"
+
+// UnfoldingCode includes
+#include "UnfoldingCode/UnfoldingCode/UnfoldingTools.h"
+#include "UnfoldingCode/UnfoldingCode/UnfoldingResult.h"
 
 // CommonStatTiils includes
 #include "CommonStatTools/runSig.h"
@@ -52,6 +59,7 @@
 #include "TFormula.h"
 #include "TGaxis.h"
 #include "TGraph2D.h"
+#include "TGraphAsymmErrors.h"
 #include "TGraphErrors.h"
 #include "TH2F.h"
 #include "TLatex.h"
@@ -125,7 +133,6 @@ TRExFit::TRExFit(std::string name) :
     fKeepPruning(false),
     fBlindingThreshold(-1),
     fBlindingType(Common::SOVERB),
-    fAutomaticDropBins(true),
     fRankingMaxNP(10),
     fRankingOnly("all"),
     fRankingPlot("Merge"),
@@ -226,8 +233,42 @@ TRExFit::TRExFit(std::string name) :
     fExcludeFromMorphing(""),
     fSaturatedModel(false),
     fDoSystNormalizationPlots(true),
-    fDebugNev(-1) {
-
+    fDebugNev(-1),
+    fMatrixOrientation(FoldingManager::MATRIXORIENTATION::TRUTHONHORIZONTALAXIS),
+    fTruthDistributionPath(""),
+    fTruthDistributionFile(""),
+    fTruthDistributionName(""),
+    fNumberUnfoldingTruthBins(0),
+    fNumberUnfoldingRecoBins(0),
+    fUnfoldingResultMin(0),
+    fUnfoldingResultMax(2),
+    fHasAcceptance(false),
+    fUnfoldingTitleX("X axis"),
+    fUnfoldingTitleY("Y axis"),
+    fUnfoldingRatioYmax(1.5),
+    fUnfoldingRatioYmin(0.5),
+    fUnfoldingLogX(false),
+    fUnfoldingLogY(false),
+    fUnfoldingTitleOffsetX(3.5),
+    fUnfoldingTitleOffsetY(1.6),
+    fNominalTruthSample("SetMe"),
+    fAlternativeAsimovTruthSample(""),
+    fMigrationTitleX("X"),
+    fMigrationTitleY("Y"),
+    fMigrationLogX(false),
+    fMigrationLogY(false),
+    fMigrationTitleOffsetX(1),
+    fMigrationTitleOffsetY(1.5),
+    fPlotSystematicMigrations(false),
+    fMigrationZmin(0),
+    fMigrationZmax(1),
+    fResponseZmin(0),
+    fResponseZmax(1),
+    fMigrationText(false),
+    fPruningShapeOption(PruningUtil::SHAPEOPTION::MAXBIN),
+    fSummaryLogY(true),
+    fUseInFit(true)
+{
     TRExFitter::IMAGEFORMAT.emplace_back("png");
     // Increase the limit for formula evaluations
     ROOT::v5::TFormula::SetMaxima(100000,1000,1000000);
@@ -386,6 +427,43 @@ void TRExFit::SmoothSystematics(std::string syst){
     WriteInfoStatus("TRExFit::SmoothSystematics", "Smoothing and/or Symmetrising Systematic Variations ...");
 
     for(int i_ch=0; i_ch<fNRegions; ++i_ch){
+        //
+        // Scale systematics according to smoothing of another region (inter-region smoothing)
+        // Loop on previous regions
+        for(int j_ch=0; j_ch<i_ch; ++j_ch){
+            if(fRegions[i_ch]->fIsBinOfRegion[fRegions[j_ch]->fName]>0){ // NB: these bins have to start with 1, not 0 !! 0 means not filled (due to map implementation)
+                int binIdx = fRegions[i_ch]->fIsBinOfRegion[fRegions[j_ch]->fName];
+                for(auto& sh : fRegions[i_ch]->fSampleHists){
+                    for(auto& syh : sh->fSyst){
+                        float scaleUp = 1.;
+                        float scaleDown = 1.;
+                        // get scale factors to apply according to reference bin of reference region
+                        if(fRegions[j_ch]->GetSampleHist(sh->fSample->fName)!=nullptr){
+                            SampleHist *sh_ref = fRegions[j_ch]->GetSampleHist(sh->fSample->fName);
+                            SystematicHist *syh_ref = sh_ref->GetSystematic(syh->fSystematic->fName);
+                            if(syh_ref!=nullptr){
+                                float systVarUp_orig = syh_ref->fHistUp_orig->GetBinContent(binIdx);
+                                float systVarDown_orig = syh_ref->fHistDown_orig->GetBinContent(binIdx);
+                                float systVarUp = syh_ref->fHistUp->GetBinContent(binIdx);
+                                float systVarDown = syh_ref->fHistDown->GetBinContent(binIdx);
+                                if(systVarUp_orig!=0) scaleUp = systVarUp/systVarUp_orig;
+                                else WriteWarningStatus("TRExFit::SmoothSystematics","In inter-region smoothing attempting to divide by zero. Skipping scaling.");
+                                if(syh->fSystematic->fSymmetrisationType==HistoTools::SYMMETRIZEONESIDED) scaleDown = scaleUp;
+                                else scaleDown = systVarDown/systVarDown_orig;
+                            }
+                        }
+                        else{
+                            WriteWarningStatus("TRExFit::SmoothSystematics","Sample not found in region indicated as reference for inter-region smoothing.");
+                        }
+                        // scale
+                        syh->fHistUp->Scale(scaleUp);
+                        syh->fHistDown->Scale(scaleDown);
+                    }
+                }
+                continue;
+            }
+        }
+
         // collect information which systematics contain reference smoothing samples
         std::vector<std::string> referenceSmoothSysts{};
         for (const auto isyst : fSystematics){
@@ -490,9 +568,9 @@ void TRExFit::CreateRootFiles(){
         }
         WriteInfoStatus("TRExFit::CreateRootFiles","-------------------------------------------");
         WriteInfoStatus("TRExFit::CreateRootFiles","Creating/updating file " + fileName + " ...");
-        if(recreate) fFiles.push_back(new TFile(fileName.c_str(),"RECREATE"));
-        else         fFiles.push_back(new TFile(fileName.c_str(),"UPDATE"));
-        TRExFitter::TFILEMAP.insert(std::make_pair(fileName,fFiles[fFiles.size()-1]));
+        if(recreate) fFiles.emplace_back(std::move(TFile::Open(fileName.c_str(),"RECREATE")));
+        else         fFiles.emplace_back(std::move(TFile::Open(fileName.c_str(),"UPDATE")));
+        TRExFitter::TFILEMAP.insert(std::make_pair(fileName,fFiles[fFiles.size()-1].get()));
     }
     else{
         for(int i_ch=0;i_ch<fNRegions;i_ch++){
@@ -504,9 +582,9 @@ void TRExFit::CreateRootFiles(){
             }
             WriteInfoStatus("TRExFit::CreateRootFiles","-------------------------------------------");
             WriteInfoStatus("TRExFit::CreateRootFiles","Creating/updating file " + fileName + " ...");
-            if(recreate) fFiles.push_back(new TFile(fileName.c_str(),"RECREATE"));
-            else         fFiles.push_back(new TFile(fileName.c_str(),"UPDATE"));
-            TRExFitter::TFILEMAP.insert(std::make_pair(fileName,fFiles[fFiles.size()-1]));
+            if(recreate) fFiles.emplace_back(std::move(TFile::Open(fileName.c_str(),"RECREATE")));
+            else         fFiles.emplace_back(std::move(TFile::Open(fileName.c_str(),"UPDATE")));
+            TRExFitter::TFILEMAP.insert(std::make_pair(fileName,fFiles[fFiles.size()-1].get()));
         }
     }
 }
@@ -548,8 +626,8 @@ void TRExFit::WriteHistos(bool reWriteOrig) const{
                     sh->fSyst[i_syst]->fHistoNameShapeDown = sh->fSyst[i_syst]->fHistShapeDown->GetName();
                 }
             }
-            if(singleOutputFile) sh->WriteToFile(fFiles[0]   ,reWriteOrig);
-            else                 sh->WriteToFile(fFiles[i_ch],reWriteOrig);
+            if(singleOutputFile) sh->WriteToFile(fFiles[0].get()   ,reWriteOrig);
+            else                 sh->WriteToFile(fFiles[i_ch].get(),reWriteOrig);
         }
     }
     WriteInfoStatus("TRExFit::WriteHistos","-------------------------------------------");
@@ -1138,7 +1216,7 @@ void TRExFit::CorrectHistograms(){
     //
     // set the hasData flag
     bool hasData = false;
-    for(auto smp : fSamples){
+    for(const auto& smp : fSamples){
         if(smp->fType==Sample::DATA){
             hasData = true;
             break;
@@ -1162,6 +1240,9 @@ void TRExFit::CorrectHistograms(){
         }
     }
 
+    // Manually change the shape of systematics
+    RunForceShape();
+
     DropBins();
 }
 
@@ -1170,13 +1251,12 @@ void TRExFit::CorrectHistograms(){
 void TRExFit::CloseInputFiles(){
     //
     // Close all input files
-    for(auto it : TRExFitter::TFILEMAP){
+    for(auto& it : TRExFitter::TFILEMAP){
         TDirectory *dir = gDirectory;
-        TFile *f = it.second;
+        TFile *f = it.second.get();
         if(f!=nullptr)
         dir->cd();
         f->Close();
-        delete f;
     }
     TRExFitter::TFILEMAP.clear();
 }
@@ -1270,8 +1350,9 @@ void TRExFit::DrawAndSaveAll(std::string opt){
             gSystem->mkdir( (fName + "/Histograms/").c_str() );
             if(fRegions[i_ch]->fRegionDataType==Region::ASIMOVDATA) p = fRegions[i_ch]->DrawPostFit(fFitResults,pullTex,fMorphParams,fPrePostFitCanvasSize,opt+" blind");
             else                                                    p = fRegions[i_ch]->DrawPostFit(fFitResults,pullTex,fMorphParams,fPrePostFitCanvasSize,opt);
-            for(int i_format=0;i_format<(int)TRExFitter::IMAGEFORMAT.size();i_format++)
-                p->SaveAs(     (fName+"/Plots/"+fRegions[i_ch]->fName+"_postFit"+fSuffix+"."+TRExFitter::IMAGEFORMAT[i_format] ).c_str());
+            for(const auto& format : TRExFitter::IMAGEFORMAT) {
+                p->SaveAs((fName+"/Plots/"+fRegions[i_ch]->fName+"_postFit"+fSuffix+"."+format).c_str());
+            }
 
             if(fWithPullTables){
                 pullTex << "\\hline\\hline\n" << std::endl;
@@ -1288,8 +1369,8 @@ void TRExFit::DrawAndSaveAll(std::string opt){
                 if(!fRegions[i_ch]->fLogScale) p->h_dummy->GetYaxis()->SetRangeUser(p->h_dummy->GetYaxis()->GetXmin(),p->h_dummy->GetMaximum());
                 else                           p->h_dummy->GetYaxis()->SetRangeUser(1                                ,p->h_dummy->GetMaximum());
             }
-            for(int i_format=0;i_format<(int)TRExFitter::IMAGEFORMAT.size();i_format++){
-                p->SaveAs(     (fName+"/Plots/"+fRegions[i_ch]->fName+fSuffix+"."+TRExFitter::IMAGEFORMAT[i_format] ).c_str());
+            for(const auto& format : TRExFitter::IMAGEFORMAT) {
+                p->SaveAs((fName+"/Plots/"+fRegions[i_ch]->fName+fSuffix+"."+format).c_str());
             }
         }
     }
@@ -1525,9 +1606,23 @@ TRExPlot* TRExFit::DrawSummary(std::string opt, TRExPlot* prefit_plot) {
     p->fLegendX2 = fLegendX2Summary;
     p->fLegendY = fLegendYSummary;
     p->fLegendNColumns = fLegendNColumnsSummary;
-    if(fBlindingThreshold>=0){
-        p->SetBinBlinding(true,fBlindingThreshold,fBlindingType);
-        if(isPostFit && fKeepPrefitBlindedBins && fBlindedBins) p->SetBinBlinding(true,fBlindedBins,fBlindingType);
+    if(fBlindingThreshold >= 0) {
+        std::unique_ptr<TH1> signal(nullptr);
+        if (Nsig > 0) {
+            signal.reset(static_cast<TH1*>(h_sig[0]->Clone()));
+        }
+        std::unique_ptr<TH1> bkg(nullptr);
+        for (int i = 0; i < Nbkg; ++i) {
+            if (!h_bkg[i]) continue;
+            if (!bkg) bkg.reset(static_cast<TH1*>(h_bkg[i]->Clone()));
+            else      bkg->Add(h_bkg[i]);
+        }
+        const std::vector<int>& blindedBins = Common::ComputeBlindedBins(signal.get(),
+                                                                         bkg.get(),
+                                                                         fBlindingType,
+                                                                         fBlindingThreshold);
+        p->SetBinBlinding(blindedBins);
+        if(isPostFit && fKeepPrefitBlindedBins && fBlindedBins) p->SetBlindingHisto(fBlindedBins);
     }
     //
     if(h_data) p->SetData(h_data, h_data->GetTitle());
@@ -1672,7 +1767,7 @@ TRExPlot* TRExFit::DrawSummary(std::string opt, TRExPlot* prefit_plot) {
                 h_down[i_np]->SetBinContent( i_ch,h_tmp_Down->Integral() );
             }
         }
-        
+
         // loop on regions
         for(int i_ch=1;i_ch<=Nbin;i_ch++){
             Region *region = fRegions[regionVec[i_ch-1]];
@@ -1770,7 +1865,7 @@ TRExPlot* TRExFit::DrawSummary(std::string opt, TRExPlot* prefit_plot) {
         p->SetBinLabel(i_bin,fRegions[regionVec[i_bin-1]]->fShortLabel.c_str());
     }
     p->Draw(opt);
-    if(!isPostFit && p->h_blinding) fBlindedBins = static_cast<TH1D*>(p->h_blinding->Clone("blinding_trexfit") );
+    if(!isPostFit && p->GetBlindingHisto()) fBlindedBins = static_cast<TH1D*>(p->GetBlindingHisto()->Clone("blinding_trexfit"));
     //
     if(divisionVec.size()>0){
         p->pad0->cd();
@@ -1831,18 +1926,18 @@ TRExPlot* TRExFit::DrawSummary(std::string opt, TRExPlot* prefit_plot) {
     //
     gSystem->mkdir(fName.c_str());
     gSystem->mkdir((fName+"/Plots").c_str());
-    for(int i_format=0;i_format<(int)TRExFitter::IMAGEFORMAT.size();i_format++){
+    for(const auto& format : TRExFitter::IMAGEFORMAT) {
         if(fSummaryPrefix!=""){
-            if(isPostFit)  p->SaveAs((fName+"/Plots/"+fSummaryPrefix+"_Summary_postFit"+(checkVR?"_VR":"")+fSuffix+"."+TRExFitter::IMAGEFORMAT[i_format]).c_str());
-            else           p->SaveAs((fName+"/Plots/"+fSummaryPrefix+"_Summary"        +(checkVR?"_VR":"")+fSuffix+"."+TRExFitter::IMAGEFORMAT[i_format]).c_str());
+            if(isPostFit)  p->SaveAs((fName+"/Plots/"+fSummaryPrefix+"_Summary_postFit"+(checkVR?"_VR":"")+fSuffix+"."+format).c_str());
+            else           p->SaveAs((fName+"/Plots/"+fSummaryPrefix+"_Summary"        +(checkVR?"_VR":"")+fSuffix+"."+format).c_str());
         }
         else{
-            if(isPostFit)  p->SaveAs((fName+"/Plots/Summary_postFit"+(checkVR?"_VR":"")+fSuffix+"."+TRExFitter::IMAGEFORMAT[i_format]).c_str());
-            else           p->SaveAs((fName+"/Plots/Summary"        +(checkVR?"_VR":"")+fSuffix+"."+TRExFitter::IMAGEFORMAT[i_format]).c_str());
+            if(isPostFit)  p->SaveAs((fName+"/Plots/Summary_postFit"+(checkVR?"_VR":"")+fSuffix+"."+format).c_str());
+            else           p->SaveAs((fName+"/Plots/Summary"        +(checkVR?"_VR":"")+fSuffix+"."+format).c_str());
         }
     }
     //
-    for(int i_syst=0;i_syst<(int)h_up.size();i_syst++){
+    for(std::size_t i_syst=0; i_syst < h_up.size(); ++i_syst) {
         delete h_up[i_syst];
         delete h_down[i_syst];
     }
@@ -2003,9 +2098,22 @@ void TRExFit::DrawMergedPlot(std::string opt,std::string group) const{
     if(!(TRExFitter::SHOWSTACKSIG && TRExFitter::ADDSTACKSIG) && fRatioType=="DATA/MC"){
         p->fRatioType = "DATA/BKG";
     }
-    if(fBlindingThreshold>=0){
-        p->SetBinBlinding(true,fBlindingThreshold,fBlindingType);
-//         if(isPostFit && fKeepPrefitBlindedBins && fBlindedBins) p->SetBinBlinding(true,fBlindedBins,fBlindingType); // FIXME
+    if(fBlindingThreshold >= 0) {
+        std::unique_ptr<TH1> signal(nullptr);
+        if (hSignalVec.size() > 0) {
+            signal.reset(static_cast<TH1*>(Common::MergeHistograms(hSignalVec[0])->Clone()));
+        }
+        std::unique_ptr<TH1> bkg(nullptr);
+        for (std::size_t i = 0; i < hBackgroundVec.size(); ++i) {
+            if (Common::MergeHistograms(hBackgroundVec[i])) continue;
+            if (!bkg) bkg.reset(static_cast<TH1*>(Common::MergeHistograms(hBackgroundVec[i])->Clone()));
+            else      bkg->Add(Common::MergeHistograms(hBackgroundVec[i]));
+        }
+        const std::vector<int>& blindedBins = Common::ComputeBlindedBins(signal.get(),
+                                                                         bkg.get(),
+                                                                         fBlindingType,
+                                                                         fBlindingThreshold);
+        p->SetBinBlinding(blindedBins);
     }
 
     if(TRExFitter::OPTION["MergeYmaxScale"]==0) TRExFitter::OPTION["MergeYmaxScale"] = 1.25;
@@ -2118,8 +2226,8 @@ void TRExFit::DrawMergedPlot(std::string opt,std::string group) const{
     if(group!="") saveName += "_"+group;
     if(isPostFit) saveName += "_postFit";
     saveName += fSuffix;
-    for(int i_format=0;i_format<(int)TRExFitter::IMAGEFORMAT.size();i_format++){
-        p->SaveAs((saveName+"."+TRExFitter::IMAGEFORMAT[i_format]).c_str());
+    for(const auto& format : TRExFitter::IMAGEFORMAT){
+        p->SaveAs((saveName+"."+format).c_str());
     }
 }
 
@@ -2812,8 +2920,8 @@ void TRExFit::DrawSignalRegionsPlot(int nCols,int nRows, std::vector < Region* >
         }
     }
     //
-    for(std::size_t i_format=0;i_format<TRExFitter::IMAGEFORMAT.size();i_format++) {
-        c.SaveAs((fName+"/SignalRegions"+fSuffix+"."+TRExFitter::IMAGEFORMAT[i_format]).c_str());
+    for(const auto& format : TRExFitter::IMAGEFORMAT) {
+        c.SaveAs((fName+"/SignalRegions"+fSuffix+"."+format).c_str());
     }
 
 }
@@ -3016,8 +3124,8 @@ void TRExFit::DrawPieChartPlot(const std::string &opt, int nCols,int nRows, std:
     //
     // Stores the pie chart in the desired format
     //
-    for(std::size_t i_format=0;i_format<TRExFitter::IMAGEFORMAT.size(); ++i_format){
-        c.SaveAs((fName+"/PieChart" + fSuffix + ( isPostFit ? "_postFit" : "" ) + "."+TRExFitter::IMAGEFORMAT[i_format]).c_str());
+    for(const auto& format : TRExFitter::IMAGEFORMAT) {
+        c.SaveAs((fName+"/PieChart" + fSuffix + (isPostFit ? "_postFit" : "") + "."+format).c_str());
     }
 }
 
@@ -3094,6 +3202,64 @@ void TRExFit::CreateCustomAsimov() const {
             }
             cash->fHist->Sumw2(false);
         }
+    }
+}
+
+//__________________________________________________________________________________
+//
+void TRExFit::UnfoldingAlternativeAsimov() {
+    if (fFitType != TRExFit::FitType::UNFOLDING) return;
+    if (fAlternativeAsimovTruthSample == "")     return;
+
+    WriteInfoStatus("TRExFit::UnfoldingAlternativeAsimov", "Replacing data with alternative asimov");
+
+    // loop over regions
+    for (auto& ireg : fRegions) {
+        SampleHist* sh = ireg->fData;
+
+        // Try getting signal
+        if (!sh) {
+            for (const auto& isig : ireg->fSig) {
+                if (!isig) {
+                    sh = isig;
+                    break;
+                }
+            }
+        }
+
+        if (!sh) {
+            WriteErrorStatus("TRExFit::UnfoldingAlternativeAsimov", "No data or signal found, this should not happen!");
+            exit(EXIT_FAILURE);
+        }
+
+        // now replace fData
+        TH1* hist = static_cast<TH1*>(sh->fHist->Clone());
+        hist->Reset();
+
+        // Add new signal
+        const Sample* newAsimov = GetSample("AlternativeSignal_"+ireg->fName);
+        if (!newAsimov) {
+            WriteErrorStatus("TRExFit::UnfoldingAlternativeAsimov", "Cannot read the new asimov sample");
+            exit(EXIT_FAILURE);
+        }
+        const SampleHist* newsh = ireg->GetSampleHist(newAsimov->fName);
+        if (!newsh) {
+            WriteErrorStatus("TRExFit::UnfoldingAlternativeAsimov", "Cannot read the new asimov SampleHist");
+            exit(EXIT_FAILURE);
+        }
+        hist->Add(newsh->fHist.get());
+
+        // add bkgs bkg
+        for (const auto& isample : fSamples) {
+            const SampleHist* sampleHist = ireg->GetSampleHist(isample->fName);
+            if (!sampleHist) continue;
+            if (sampleHist->fSample->fType != Sample::BACKGROUND) continue;
+            if(Common::FindInStringVector(isample->fRegions,ireg->fName) <0) continue;
+            hist->Add(sampleHist->fHist.get());
+        }
+
+        hist->Sumw2(false);
+        ireg->fData->fHist.reset(static_cast<TH1*>(hist->Clone()));
     }
 }
 
@@ -3318,13 +3484,17 @@ RooStats::HistFactory::Sample TRExFit::OneSampleToRooStats(RooStats::HistFactory
 void TRExFit::SystPruning() const {
     WriteInfoStatus("TRExFit::SystPruning", "------------------------------------------------------");
     WriteInfoStatus("TRExFit::SystPruning", "Apply Systematics Pruning ...");
+    if (fPruningShapeOption == PruningUtil::SHAPEOPTION::KSTEST) {
+        WriteInfoStatus("TRExFit::SystPruning", "Will run KS test to determine the shape pruning. This is slow compared to the default option (MAXBIN). Patience young padawan.");
+    }
     if(fSystematics.size()==0 || fStatOnly){
         WriteInfoStatus("TRExFit::SystPruning", "No systematics => No Pruning applied.");
         return;
     }
 
     PruningUtil pu{};
-    pu.SetStrategy((int)fPruningType);
+    pu.SetShapeOption(fPruningShapeOption);
+    pu.SetStrategy(static_cast<int>(fPruningType));
     pu.SetThresholdNorm(fThresholdSystPruning_Normalisation);
     pu.SetThresholdShape(fThresholdSystPruning_Shape);
     pu.SetThresholdIsLarge(fThresholdSystLarge);
@@ -3342,7 +3512,7 @@ void TRExFit::SystPruning() const {
     // it also writes the txt file actually
     DrawPruningPlot();
 }
-    
+
 //__________________________________________________________________________________
 //
 void TRExFit::DrawSystematicNormalisationSummary() const {
@@ -3406,7 +3576,7 @@ void TRExFit::DrawSystematicNormalisationSummary() const {
                                         0);
                     continue;
                 }
-                
+
                 const TH1* up   = syh->fHistUp.get();
                 const TH1* down = syh->fHistDown.get();
 
@@ -3489,7 +3659,7 @@ void TRExFit::DrawPruningPlot() const{
     const std::vector<std::string>& uniqueSyst = GetUniqueSystNamesWithoutGamma();
     for(int i_syst=0;i_syst<fNSyst;i_syst++){
         if(fSystematics[i_syst]->fType == Systematic::SHAPE) continue;
-        
+
         nonGammaSystematics.push_back(fSystematics[i_syst]);
     }
     const size_t NnonGammaSyst = nonGammaSystematics.size();
@@ -3559,7 +3729,7 @@ void TRExFit::DrawPruningPlot() const{
     int loSize = 150;
     int mainHeight = uniqueSyst.size()*20;
     int leftSize = 250;
-    int regionSize = 20*fNSamples;
+    int regionSize = 20*nSmp;
     int separation = 10;
     int mainWidth = iReg*(regionSize+separation);
     //
@@ -3665,10 +3835,10 @@ void TRExFit::DrawPruningPlot() const{
     // if yes
     if(!gSystem->AccessPathName( (fName+"/Pruning.root").c_str() )){
         // ...
-        filePrun = std::unique_ptr<TFile>( new TFile( (fName+"/Pruning.root").c_str() ));
+        filePrun.reset(TFile::Open( (fName+"/Pruning.root").c_str() ));
     }
     else{
-        filePrun = std::unique_ptr<TFile> (new TFile( (fName+"/Pruning.root").c_str(),"RECREATE" ));
+        filePrun.reset(TFile::Open( (fName+"/Pruning.root").c_str(),"RECREATE" ));
         for(std::size_t i_reg=0;i_reg<histPrun.size();i_reg++){
             histPrun_toSave[i_reg]->Write("",TObject::kOverwrite);
         }
@@ -3711,7 +3881,7 @@ void TRExFit::Fit(bool isLHscanOnly){
         WriteInfoStatus("TRExFit::Fit","");
         WriteInfoStatus("TRExFit::Fit","-------------------------------------------");
         WriteInfoStatus("TRExFit::Fit","Performing nominal fit on pre-specified workspace...");
-        TFile *rootFile = new TFile(fWorkspaceFileName.c_str(),"read");
+        TFile *rootFile = TFile::Open(fWorkspaceFileName.c_str(),"read");
         ws = std::unique_ptr<RooWorkspace>(static_cast<RooWorkspace*>(rootFile->Get("combined")));
         if(!ws){
             WriteErrorStatus("TRExFit::Fit", "The workspace (\"combined\") cannot be found in file " + fWorkspaceFileName + ". Please check !");
@@ -4228,7 +4398,7 @@ RooDataSet* TRExFit::DumpData( RooWorkspace *ws,  std::map < std::string, int > 
     RooArgSet obsAndWeight;
     obsAndWeight.add(*mc->GetObservables());
 
-    RooRealVar* weightVar = NULL;
+    RooRealVar* weightVar = nullptr;
     if ( !(weightVar = ws->var(weightName)) ){
         ws->import(*(new RooRealVar(weightName, weightName, 1,0,10000000)));
         weightVar = ws->var(weightName);
@@ -4258,8 +4428,8 @@ RooDataSet* TRExFit::DumpData( RooWorkspace *ws,  std::map < std::string, int > 
 
     //-- Nuisance parameters
     RooRealVar* var(nullptr);
-    TIterator *npIterator = mc -> GetNuisanceParameters() -> createIterator();
-    while( (var = (RooRealVar*) npIterator->Next()) ){
+    std::unique_ptr<TIterator> npIterator(mc->GetNuisanceParameters()->createIterator());
+    while( (var = static_cast<RooRealVar*>(npIterator->Next()))) {
         std::map < std::string, double >::const_iterator it_npValue = npValues.find( var -> GetName() );
         if( it_npValue != npValues.end() ){
             var -> setVal(it_npValue -> second);
@@ -4270,8 +4440,8 @@ RooDataSet* TRExFit::DumpData( RooWorkspace *ws,  std::map < std::string, int > 
     std::map<std::string, RooDataSet*> asimovDataMap;
     RooSimultaneous* simPdf = dynamic_cast<RooSimultaneous*>(mc->GetPdf());
     RooCategory* channelCat = (RooCategory*)&simPdf->indexCat();
-    TIterator* iter = channelCat->typeIterator() ;
-    RooCatType* tt = NULL;
+    std::unique_ptr<TIterator> iter(channelCat->typeIterator());
+    RooCatType* tt = nullptr;
     int iFrame = 0;
     int i = 0;
     while( (tt = (RooCatType*) iter -> Next()) ) {
@@ -4364,10 +4534,14 @@ std::map < std::string, double > TRExFit::PerformFit( RooWorkspace *ws, RooDataS
     // prepare vectors for starting point of normfactors
     std::vector<std::string> NPnames;
     std::vector<double> NPvalues;
-    for(int i_norm=0;i_norm<fNNorm;i_norm++){
-        if (fNormFactors[i_norm]->fName == fPOI) continue;
-        NPnames. emplace_back( fNormFactors[i_norm]->fName);
-        NPvalues.emplace_back( fNormFactors[i_norm]->fNominal);
+    double poiInitial(0.);
+    for(const auto& inf : fNormFactors) {
+        if (inf->fName == fPOI) {
+            poiInitial = inf->fNominal;
+            continue;
+        }
+        NPnames. emplace_back(inf->fName);
+        NPvalues.emplace_back(inf->fNominal);
     }
     //
     // Fit configuration (SPLUSB or BONLY)
@@ -4378,7 +4552,7 @@ std::map < std::string, double > TRExFit::PerformFit( RooWorkspace *ws, RooDataS
         fitTool.ValPOI(0.);
         fitTool.ConstPOI(true);
     } else if(fitType==SPLUSB){
-        fitTool.ValPOI(fFitPOIAsimov);
+        fitTool.ValPOI(poiInitial);
         fitTool.ConstPOI(false);
     }
     fitTool.SetNPs( NPnames,NPvalues );
@@ -4394,11 +4568,11 @@ std::map < std::string, double > TRExFit::PerformFit( RooWorkspace *ws, RooDataS
         ReadFitResults(fFitResultsFile);
         std::vector<std::string> npNames;
         std::vector<double> npValues;
-        for(unsigned int i_np=0;i_np<fFitResults->fNuisPar.size();i_np++){
-            npNames.push_back(  fFitResults->fNuisPar[i_np]->fName );
-            npValues.push_back( fFitResults->fNuisPar[i_np]->fFitValue );
+        for(const auto& inp : fFitResults->fNuisPar) {
+            npNames.push_back( inp->fName);
+            npValues.push_back(inp->fFitValue);
         }
-        fitTool.SetNPs( npNames,npValues );
+        fitTool.SetNPs(npNames,npValues);
     }
 
     //
@@ -4411,8 +4585,8 @@ std::map < std::string, double > TRExFit::PerformFit( RooWorkspace *ws, RooDataS
     //
     // Gets needed objects for the fit
     //
-    RooStats::ModelConfig* mc = (RooStats::ModelConfig*)ws->obj("ModelConfig");
-    RooSimultaneous *simPdf = (RooSimultaneous*)(mc->GetPdf());
+    RooStats::ModelConfig* mc = static_cast<RooStats::ModelConfig*>(ws->obj("ModelConfig"));
+    RooSimultaneous *simPdf = static_cast<RooSimultaneous*>(mc->GetPdf());
 
     //
     // Creates the data object
@@ -4422,10 +4596,10 @@ std::map < std::string, double > TRExFit::PerformFit( RooWorkspace *ws, RooDataS
         data = inputData;
     } else {
         WriteWarningStatus("TRExFit::PerformFit", "You didn't provide inputData => will use the observed data !");
-        data = (RooDataSet*)ws->data("obsData");
+        data = static_cast<RooDataSet*>(ws->data("obsData"));
         if(data==nullptr){
             WriteWarningStatus("TRExFit::PerformFit", "No observedData found => will use the Asimov data !");
-            data = (RooDataSet*)ws->data("asimovData");
+            data = static_cast<RooDataSet*>(ws->data("asimovData"));
         }
         inputData = data;
     }
@@ -4440,11 +4614,11 @@ std::map < std::string, double > TRExFit::PerformFit( RooWorkspace *ws, RooDataS
         ReadFitResults(fName+"/Fits/"+fInputName+fSuffix+".txt");
         std::vector<std::string> npNames;
         std::vector<double> npValues;
-        for(unsigned int i_np=0;i_np<fFitResults->fNuisPar.size();i_np++){
-            if(!fFixNPforStatOnlyFit && Common::FindInStringVector(fNormFactorNames,fFitResults->fNuisPar[i_np]->fName)>=0) continue;
-            if(!fFixNPforStatOnlyFit && Common::FindInStringVector(fShapeFactorNames,fFitResults->fNuisPar[i_np]->fName)>=0) continue;
-            npNames.push_back(  fFitResults->fNuisPar[i_np]->fName );
-            npValues.push_back( fFitResults->fNuisPar[i_np]->fFitValue );
+        for(const auto& inp: fFitResults->fNuisPar) {
+            if(!fFixNPforStatOnlyFit && Common::FindInStringVector(fNormFactorNames,inp->fName)>=0) continue;
+            if(!fFixNPforStatOnlyFit && Common::FindInStringVector(fShapeFactorNames,inp->fName)>=0) continue;
+            npNames.push_back( inp->fName);
+            npValues.push_back(inp->fFitValue);
         }
         fitTool.FixNPs(npNames,npValues);
     }
@@ -4460,34 +4634,7 @@ std::map < std::string, double > TRExFit::PerformFit( RooWorkspace *ws, RooDataS
         fitTool.FixNPs(npNames,npValues);
     }
 
-    // Tikhonov regularization (for unfolding)
-    RooArgList l;
-    std::vector<double> tauVec;
-    for(auto nf : fNormFactors){
-        if(nf->fTau!=0){
-            l.add(*ws->var(nf->fName.c_str()));
-            tauVec.push_back( nf->fTau );
-        }
-    }
-    if(tauVec.size()>0){
-        TMatrixDSym cov(tauVec.size());
-        for(unsigned int i_tau=0;i_tau<tauVec.size();i_tau++){
-            cov(i_tau,i_tau) = (1./tauVec[i_tau]) * (1./tauVec[i_tau]);
-        }
-        RooConstVar nominalValue("1","1",1);
-        RooArgList nominal;
-        for(unsigned int i_tau=0;i_tau<tauVec.size();i_tau++) nominal.add(nominalValue);
-        RooMultiVarGaussian r("regularization","regularization",l,nominal,cov);
-        ws->import(r);
-        ws->defineSet("myConstraints","regularization");
-        simPdf->setStringAttribute("externalConstraints","myConstraints");
-        //
-        if(simPdf->getStringAttribute("externalConstraints")){
-            WriteInfoStatus("TRExFit::PerformFit",Form("Building NLL with external constraints %s",simPdf->getStringAttribute("externalConstraints")));
-            const RooArgSet* externalConstraints = ws->set(simPdf->getStringAttribute("externalConstraints"));
-            fitTool.SetExternalConstraints( externalConstraints );
-        }
-    }
+    ApplyExternalConstraints(ws, &fitTool, simPdf);
 
     // save snapshot before fit
     ws->saveSnapshot("snapshot_BeforeFit_POI", *(mc->GetParametersOfInterest()) );
@@ -4498,7 +4645,7 @@ std::map < std::string, double > TRExFit::PerformFit( RooWorkspace *ws, RooDataS
     // Get initial ikelihood value from Asimov
     double nll0 = 0.;
     if (fBlindedParameters.size() > 0) std::cout.setstate(std::ios_base::failbit);
-    if(fGetGoodnessOfFit) nll0 = fitTool.FitPDF( mc, simPdf, (RooDataSet*)ws->data("asimovData"), false, true );
+    if(fGetGoodnessOfFit) nll0 = fitTool.FitPDF( mc, simPdf, static_cast<RooDataSet*>(ws->data("asimovData")), false, true );
 
     // save snapshot before fit
     ws->saveSnapshot("snapshot_AfterFit_POI", *(mc->GetParametersOfInterest()) );
@@ -4511,15 +4658,15 @@ std::map < std::string, double > TRExFit::PerformFit( RooWorkspace *ws, RooDataS
     int ndof = inputData->numEntries();
     // - minus number of free & non-constant parameters
     int nNF = 0;
-    for(int i_nf=0;i_nf<fNNorm;i_nf++){
-        if(fNormFactors[i_nf]->fConst) continue;
-        if(fFitType==BONLY && fPOI==fNormFactors[i_nf]->fName) continue;
+    for(const auto& inf : fNormFactors) {
+        if(inf->fConst) continue;
+        if(fFitType==BONLY && fPOI==inf->fName) continue;
         // skip if it's a morphing parameter
-        if(fNormFactors[i_nf]->fName.find("morph_")!=std::string::npos) continue;
+        if(inf->fName.find("morph_")!=std::string::npos) continue;
         // skip if it has an "Expression"
-        if(fNormFactors[i_nf]->fExpression.first!="") continue;
+        if(inf->fExpression.first!="") continue;
         // skip if not in the ws (e.g. because assigned to a sample or region not present in the fit)
-        if(!ws->obj(fNormFactors[i_nf]->fName.c_str())) continue;
+        if(!ws->obj(inf->fName.c_str())) continue;
         nNF++;
     }
     ndof -= nNF;
@@ -4619,9 +4766,9 @@ RooWorkspace* TRExFit::PerformWorkspaceCombination( std::vector < std::string > 
     // Take the measurement from the combined workspace, to be sure to have all the systematics (even the ones which are not there in the first region)
     std::unique_ptr<TFile> rootFileCombined(nullptr);
     if(fBootstrap!="" && fBootstrapIdx>=0) {
-        rootFileCombined = std::make_unique<TFile>( (fName+"/RooStats/"+fBootstrapSyst+fBootstrapSample+"_BSId"+Form("%d",fBootstrapIdx)+"/"+fInputName+"_combined_"+fInputName+fSuffix+"_model.root").c_str(),"read");
+        rootFileCombined.reset(TFile::Open( (fName+"/RooStats/"+fBootstrapSyst+fBootstrapSample+"_BSId"+Form("%d",fBootstrapIdx)+"/"+fInputName+"_combined_"+fInputName+fSuffix+"_model.root").c_str(),"read"));
     } else {
-        rootFileCombined = std::make_unique<TFile>( (fName+"/RooStats/"+fInputName+"_combined_"+fInputName+fSuffix+"_model.root").c_str(),"read");
+        rootFileCombined.reset(TFile::Open( (fName+"/RooStats/"+fInputName+"_combined_"+fInputName+fSuffix+"_model.root").c_str(),"read"));
     }
     if(!rootFileCombined) measurement = std::unique_ptr<RooStats::HistFactory::Measurement>(static_cast<RooStats::HistFactory::Measurement*>(rootFileCombined -> Get( (fInputName+fSuffix).c_str())));
     //
@@ -4637,7 +4784,7 @@ RooWorkspace* TRExFit::PerformWorkspaceCombination( std::vector < std::string > 
         if (!isToFit) continue;
         std::string fileName = fName+"/RooStats/"+fInputName+"_"+fRegions[i_ch]->fName+"_"+fInputName+fSuffix+"_model.root";
         if(fBootstrap!="" && fBootstrapIdx>=0) fileName = fName+"/RooStats/"+fBootstrapSyst+fBootstrapSample+"_BSId"+Form("%d",fBootstrapIdx)+"/"+fInputName+"_"+fRegions[i_ch]->fName+"_"+fInputName+fSuffix+"_model.root";
-        file_vec.emplace_back(TFile::Open(fileName.c_str()));
+        file_vec.emplace_back(std::move(TFile::Open(fileName.c_str())));
         RooWorkspace *tmp_ws = static_cast<RooWorkspace*>(file_vec.back()->Get((fRegions[i_ch]->fName).c_str()));
         if(!tmp_ws){
             WriteErrorStatus("TRExFit::PerformWorkspaceCombination", "The workspace (\"" + fRegions[i_ch] -> fName + "\") cannot be found in file " + fileName + ". Please check !");
@@ -4672,7 +4819,7 @@ RooWorkspace* TRExFit::PerformWorkspaceCombination( std::vector < std::string > 
     for (auto& ifile : file_vec) {
         ifile->Close();
     }
-    
+
     rootFileCombined->Close();
 
     return ws;
@@ -4696,31 +4843,31 @@ void TRExFit::PlotFittedNP(){
     if(fFitResults){
         fFitResults->fNuisParToHide = fVarNameHide;
         std::set < std::string > npCategories;
-        for(unsigned int i=0;i<fSystematics.size();i++){
-            npCategories.insert(fSystematics[i]->fCategory);
+        for(const auto& syst : fSystematics) {
+            npCategories.insert(syst->fCategory);
         }
-        for(int i_format=0;i_format<(int)TRExFitter::IMAGEFORMAT.size();i_format++){
+        for(const auto& format: TRExFitter::IMAGEFORMAT) {
             if(!fStatOnly && !fStatOnlyFit){
-                fFitResults->DrawNPPulls(fName+"/NuisPar"+fSuffix+"."+TRExFitter::IMAGEFORMAT[i_format],"all",fNormFactors, fBlindedParameters);
-                fFitResults->DrawGammaPulls(fName+"/Gammas"+fSuffix+"."+TRExFitter::IMAGEFORMAT[i_format], fBlindedParameters);
+                fFitResults->DrawNPPulls(fName+"/NuisPar"+fSuffix+"."+format,"all",fNormFactors, fBlindedParameters);
+                fFitResults->DrawGammaPulls(fName+"/Gammas"+fSuffix+"."+format, fBlindedParameters);
             }
             if(fStatOnlyFit){
-                fFitResults->DrawNormFactors(fName+"/NormFactors"+fSuffix+"_statOnly."+TRExFitter::IMAGEFORMAT[i_format],fNormFactors, fBlindedParameters);
+                fFitResults->DrawNormFactors(fName+"/NormFactors"+fSuffix+"_statOnly."+format,fNormFactors, fBlindedParameters);
             }
             else{
-                fFitResults->DrawNormFactors(fName+"/NormFactors"+fSuffix+"."+TRExFitter::IMAGEFORMAT[i_format],fNormFactors, fBlindedParameters);
+                fFitResults->DrawNormFactors(fName+"/NormFactors"+fSuffix+"."+format,fNormFactors, fBlindedParameters);
             }
 
         }
         if(npCategories.size()>1 && !fStatOnly && !fStatOnlyFit){
-            for( const std::string cat : npCategories ){
+            for(const std::string& cat : npCategories){
                 std::string cat_for_name = cat;
-                std::replace( cat_for_name.begin(), cat_for_name.end(), ' ', '_');
-                std::replace( cat_for_name.begin(), cat_for_name.end(), '#', '_');
-                std::replace( cat_for_name.begin(), cat_for_name.end(), '{', '_');
-                std::replace( cat_for_name.begin(), cat_for_name.end(), '}', '_');
-                for(int i_format=0;i_format<(int)TRExFitter::IMAGEFORMAT.size();i_format++){
-                  fFitResults->DrawNPPulls(fName+"/NuisPar_"+cat_for_name+fSuffix+"."+TRExFitter::IMAGEFORMAT[i_format],cat,fNormFactors, fBlindedParameters);
+                std::replace(cat_for_name.begin(), cat_for_name.end(), ' ', '_');
+                std::replace(cat_for_name.begin(), cat_for_name.end(), '#', '_');
+                std::replace(cat_for_name.begin(), cat_for_name.end(), '{', '_');
+                std::replace(cat_for_name.begin(), cat_for_name.end(), '}', '_');
+                for(const auto& format : TRExFitter::IMAGEFORMAT) {
+                  fFitResults->DrawNPPulls(fName+"/NuisPar_"+cat_for_name+fSuffix+"."+format,cat,fNormFactors, fBlindedParameters);
                 }
             }
         }
@@ -4738,10 +4885,63 @@ void TRExFit::PlotCorrelationMatrix(){
     ReadFitResults(fName+"/Fits/"+fInputName+fSuffix+".txt");
     if(fFitResults){
         fFitResults->fNuisParToHide = fVarNameHide;
-        for(int i_format=0;i_format<(int)TRExFitter::IMAGEFORMAT.size();i_format++)
-            fFitResults->DrawCorrelationMatrix(fName+"/CorrMatrix"+fSuffix+"."+TRExFitter::IMAGEFORMAT[i_format],
-                                               fuseGammasForCorr, TRExFitter::CORRELATIONTHRESHOLD);
+        for(const auto& format : TRExFitter::IMAGEFORMAT) {
+            fFitResults->DrawCorrelationMatrix(fName+"/CorrMatrix"+fSuffix+"."+format,
+                                               fuseGammasForCorr,
+                                               TRExFitter::CORRELATIONTHRESHOLD);
+        }
     }
+}
+
+//__________________________________________________________________________________
+//
+void TRExFit::PlotUnfoldedData() const {
+    if (fFitType != TRExFit::FitType::UNFOLDING) return;
+
+    WriteInfoStatus("TRExFit::PlotUnfoldedData", "Producing unfolded plots...");
+
+    std::unique_ptr<TFile> input(TFile::Open((fName + "/UnfoldingHistograms/FoldedHistograms.root").c_str(), "READ"));
+    if (!input) {
+        WriteErrorStatus("TRExFit::PlotUnfoldedData", "Cannot read file from " + fName + "/UnfoldingHistograms/FoldedHistograms.root");
+        exit(EXIT_FAILURE);
+    }
+
+    std::unique_ptr<TH1D> truth(dynamic_cast<TH1D*>(input->Get("truth_distribution")));
+    if (!truth) {
+        WriteErrorStatus("TRExFit::PlotUnfoldedData", "Cannot read the truth distribution");
+        exit(EXIT_FAILURE);
+    }
+    truth->SetDirectory(nullptr);
+
+    UnfoldingResult unfolded;
+    unfolded.SetTruthDistribution(truth.get());
+
+    // pass the fit results to the tool
+    for (int i = 0; i < fNumberUnfoldingTruthBins; ++i) {
+        const std::string name = "Bin_" + std::to_string(i+1);
+        const double mean = fFitResults->GetNuisParValue(name);
+        const double up   = mean + fFitResults->GetNuisParErrUp(name);
+        const double down = mean + fFitResults->GetNuisParErrDown(name);
+        unfolded.AddFitValue(mean, up, down);
+    }
+
+    std::unique_ptr<TH1D> data               = unfolded.GetUnfoldedResult();
+    std::unique_ptr<TGraphAsymmErrors> error = unfolded.GetUnfoldedResultErrorBand();
+
+    PlotUnfold(data.get(), error.get());
+
+    // Dump results into a text file
+    auto text = std::make_unique<std::ofstream>();
+    text->open(fName + "/Fits/UnfoldedResults.txt");
+    if (!text->is_open() || !text->good()) {
+        WriteErrorStatus("TRExFit::PlotUnfoldedData", "Cannot open text file in: " + fName + "/Fits/UnfoldedResults.txt");
+        exit(EXIT_FAILURE);
+    }
+
+    unfolded.DumpResults(text.get());
+    text->close();
+
+    input->Close();
 }
 
 //__________________________________________________________________________________
@@ -4826,9 +5026,9 @@ void TRExFit::GetLimit(){
         // Set all saturated model factors to constant
         RooRealVar* var = nullptr;
         RooArgSet vars = ws_forLimit->allVars();
-        TIterator* it = vars.createIterator();
-        while( (var = (RooRealVar*) it->Next()) ){
-            std::string name = var->GetName();
+        std::unique_ptr<TIterator> it(vars.createIterator());
+        while( (var = static_cast<RooRealVar*>(it->Next()))) {
+            const std::string& name = var->GetName();
             if(name.find("saturated_model_sf_")!=std::string::npos){
                 WriteInfoStatus("TRExFit::GetLimit","Fixing parameter " + name );
                 var->setConstant( 1 );
@@ -4839,7 +5039,7 @@ void TRExFit::GetLimit(){
         // Gets the measurement object in the original combined workspace (created with the "w" command)
         //
         const std::string originalCombinedFile = fName+"/RooStats/"+fInputName+"_combined_"+fInputName+fSuffix+"_model.root";
-        TFile *f_origin = new TFile(originalCombinedFile.c_str(), "read");
+        std::unique_ptr<TFile> f_origin(TFile::Open(originalCombinedFile.c_str(), "read"));
         RooStats::HistFactory::Measurement *originalMeasurement = (RooStats::HistFactory::Measurement*)f_origin -> Get((fInputName+fSuffix).c_str());
         TString outputName = f_origin->GetName();
         f_origin -> Close();
@@ -4848,7 +5048,7 @@ void TRExFit::GetLimit(){
         // Creating the rootfile used as input for the limit setting :-)
         //
         outputName = outputName.ReplaceAll(".root","_forLimits.root");
-        TFile *f_clone = new TFile( outputName, "recreate" );
+        std::unique_ptr<TFile> f_clone(TFile::Open( outputName, "recreate"));
         ws_forLimit -> import(*data,Rename("ttHFitterData"));
         originalMeasurement -> Write();
         ws_forLimit -> Write();
@@ -4939,9 +5139,9 @@ void TRExFit::GetSignificance(){
         // Set all saturated model factors to constant
         RooRealVar* var = nullptr;
         RooArgSet vars = ws_forSignificance->allVars();
-        TIterator* it = vars.createIterator();
-        while( (var = (RooRealVar*) it->Next()) ){
-            std::string name = var->GetName();
+        std::unique_ptr<TIterator> it(vars.createIterator());
+        while( (var = static_cast<RooRealVar*>(it->Next()))) {
+            const std::string& name = var->GetName();
             if(name.find("saturated_model_sf_")!=std::string::npos){
                 WriteInfoStatus("TRExFit::GetSignificance","Fixing parameter " + name );
                 var->setConstant( 1 );
@@ -4952,7 +5152,7 @@ void TRExFit::GetSignificance(){
         // Gets the measurement object in the original combined workspace (created with the "w" command)
         //
         const std::string originalCombinedFile = fName+"/RooStats/"+fInputName+"_combined_"+fInputName+fSuffix+"_model.root";
-        TFile *f_origin = new TFile(originalCombinedFile.c_str(), "read");
+        std::unique_ptr<TFile> f_origin(TFile::Open(originalCombinedFile.c_str(), "read"));
         RooStats::HistFactory::Measurement *originalMeasurement = (RooStats::HistFactory::Measurement*)f_origin -> Get((fInputName + fSuffix).c_str());
         TString outputName = f_origin->GetName();
         f_origin -> Close();
@@ -4961,7 +5161,7 @@ void TRExFit::GetSignificance(){
         // Creating the rootfile used as input for the limit setting :-)
         //
         outputName = outputName.ReplaceAll(".root","_forSignificance.root");
-        TFile *f_clone = new TFile( outputName, "recreate" );
+        std::unique_ptr<TFile> f_clone(TFile::Open(outputName, "recreate" ));
         ws_forSignificance -> import(*data,Rename("ttHFitterData"));
         originalMeasurement -> Write();
         ws_forSignificance -> Write();
@@ -5170,8 +5370,9 @@ void TRExFit::DrawAndSaveSeparationPlots() const{
         SEP << "Separation: " << Common::GetSeparation(sig.get(),bkg.get())*100 << "%";
         myText(0.55,0.73,1,SEP.str().c_str());
 
-        for(int i_format=0;i_format<(int)TRExFitter::IMAGEFORMAT.size();i_format++)
-            dummy3.SaveAs((fName+"/Plots/Separation/"+fRegions[i_ch]->fName+fSuffix+"."+TRExFitter::IMAGEFORMAT[i_format] ).c_str());
+        for(const auto& format : TRExFitter::IMAGEFORMAT) {
+            dummy3.SaveAs((fName+"/Plots/Separation/"+fRegions[i_ch]->fName+fSuffix+"."+format).c_str());
+        }
 
     }// regions
 
@@ -5227,7 +5428,6 @@ void TRExFit::ProduceNPRanking( std::string NPnames/*="all"*/ ){
     outName += ".txt";
     std::ofstream outName_file(outName.c_str());
     //
-    double muhat;
     std::map< std::string,double > muVarUp;
     std::map< std::string,double > muVarDown;
     std::map< std::string,double > muVarNomUp;
@@ -5277,7 +5477,7 @@ void TRExFit::ProduceNPRanking( std::string NPnames/*="all"*/ ){
     std::unique_ptr<TFile> customWSfile(nullptr);
     std::unique_ptr<RooWorkspace> ws(nullptr);
     if (fWorkspaceFileName!="") { // has custom worspace
-        customWSfile = std::make_unique<TFile>(fWorkspaceFileName.c_str(),"read");
+        customWSfile.reset(TFile::Open(fWorkspaceFileName.c_str(),"read"));
         ws = std::unique_ptr<RooWorkspace>(static_cast<RooWorkspace*>(customWSfile->Get("combined")));
     } else {
         ws = std::unique_ptr<RooWorkspace>(PerformWorkspaceCombination( regionsToFit ));
@@ -5316,19 +5516,19 @@ void TRExFit::ProduceNPRanking( std::string NPnames/*="all"*/ ){
 
     // Loop on NPs to find gammas and add to the list to be ranked
     if(NPnames=="all" || NPnames.find("gamma")!=std::string::npos || (atoi(NPnames.c_str())>0 || strcmp(NPnames.c_str(),"0")==0)){
-        RooRealVar* var = NULL;
-        RooArgSet* nuis = (RooArgSet*) mc->GetNuisanceParameters();
+        RooRealVar* var(nullptr);
+        const RooArgSet* nuis = static_cast<const RooArgSet*>(mc->GetNuisanceParameters());
         if(nuis){
-            TIterator* it2 = nuis->createIterator();
+            std::unique_ptr<TIterator> it2(nuis->createIterator());
             int i_gamma = 0;
-            while( (var = (RooRealVar*) it2->Next()) ){
-                std::string np = var->GetName();
+            while( (var = static_cast<RooRealVar*>(it2->Next())) ){
+                const std::string& np = var->GetName();
                 if(np.find("gamma")!=std::string::npos){
                     // add the nuisance parameter to the list nuisPars if it's there in the ws
                     // remove "gamma"...
                     if(np==NPnames || (atoi(NPnames.c_str())-fNSyst-fNNorm==i_gamma && (atoi(NPnames.c_str())>0 || strcmp(NPnames.c_str(),"0")==0)) || NPnames=="all"){
-                        nuisPars.push_back(Common::ReplaceString(np,"gamma_",""));
-                        isNF.push_back( true );
+                        nuisPars.emplace_back(Common::ReplaceString(np,"gamma_",""));
+                        isNF.emplace_back(true);
                         if(NPnames!="all") break;
                     }
                     i_gamma++;
@@ -5345,9 +5545,16 @@ void TRExFit::ProduceNPRanking( std::string NPnames/*="all"*/ ){
     //
     // Initialize the FittingTool object
     //
+    double poiInitial(0.);
+    for(const auto& inf : fNormFactors) {
+        if (inf->fName == fPOI) {
+            poiInitial = inf->fNominal;
+            break;
+        }
+    }
     FittingTool fitTool{};
     fitTool.SetDebug(TRExFitter::DEBUGLEVEL);
-    fitTool.ValPOI(fFitPOIAsimov);
+    fitTool.ValPOI(poiInitial);
     fitTool.ConstPOI(false);
     if(fStatOnly){
         fitTool.NoGammas();
@@ -5361,15 +5568,17 @@ void TRExFit::ProduceNPRanking( std::string NPnames/*="all"*/ ){
     {
         std::vector<std::string> npNames;
         std::vector<double> npValues;
-        for(int i_norm=0;i_norm<fNNorm;i_norm++){
-            if (fNormFactors[i_norm]->fName == fPOI) continue;
-            npNames. emplace_back( fNormFactors[i_norm]->fName);
-            npValues.emplace_back( fNormFactors[i_norm]->fNominal);
+        for(const auto& inf : fNormFactors) {
+            if (inf->fName == fPOI) continue;
+            npNames. emplace_back(inf->fName);
+            npValues.emplace_back(inf->fNominal);
         }
         fitTool.SetNPs( npNames,npValues );
     }
 
-    muhat = fFitResults -> GetNuisParValue( fPOI );
+    ApplyExternalConstraints(ws.get(), &fitTool, simPdf);
+
+    const double muhat = fFitResults -> GetNuisParValue( fPOI );
 
     for(unsigned int i=0;i<nuisPars.size();i++){
         //
@@ -5406,7 +5615,7 @@ void TRExFit::ProduceNPRanking( std::string NPnames/*="all"*/ ){
         fitTool.FixNP( nuisPars[i], central + std::abs(up));
         fitTool.FitPDF( mc, simPdf, data.get() );
         muVarUp[ nuisPars[i] ]   = (fitTool.ExportFitResultInMap())[ fPOI ];
-        //
+
         // Set the NP to its post-fit *down* variation and refit to get the fitted POI
         ws->loadSnapshot("tmp_snapshot");
         fitTool.ResetFixedNP();
@@ -5418,16 +5627,16 @@ void TRExFit::ProduceNPRanking( std::string NPnames/*="all"*/ ){
         }
         fitTool.FitPDF( mc, simPdf, data.get() );
         muVarDown[ nuisPars[i] ] = (fitTool.ExportFitResultInMap())[ fPOI ];
-        //
+
         double dMuUp   = muVarUp[nuisPars[i]]-muhat;
         double dMuDown = muVarDown[nuisPars[i]]-muhat;
-        //
+
         // Experimental: reduce the range of ranking
         if(TRExFitter::OPTION["ReduceRanking"]!=0){
             dMuUp   /= TRExFitter::OPTION["ReduceRanking"];
             dMuDown /= TRExFitter::OPTION["ReduceRanking"];
         }
-        //
+
         outName_file << dMuUp << "   " << dMuDown << "  ";
 
         if(isNF[i]){
@@ -5437,13 +5646,13 @@ void TRExFit::ProduceNPRanking( std::string NPnames/*="all"*/ ){
         else{
             up   = 1.;
             down = 1.;
-            //
+
             // Experimental: reduce the range of ranking
             if(TRExFitter::OPTION["ReduceRanking"]!=0){
                 up   *= TRExFitter::OPTION["ReduceRanking"];
                 down *= TRExFitter::OPTION["ReduceRanking"];
             }
-            //
+
             // Set the NP to its pre-fit *up* variation and refit to get the fitted POI (pre-fit impact on POI)
             ws->loadSnapshot("tmp_snapshot");
             fitTool.ResetFixedNP();
@@ -5832,21 +6041,22 @@ void TRExFit::PlotNPRanking(bool flagSysts, bool flagGammas) const{
     gPad->RedrawAxis();
 
     if(flagGammas && flagSysts){
-      for(int i_format=0;i_format<(int)TRExFitter::IMAGEFORMAT.size();i_format++)
-        c.SaveAs( (fName+"/Ranking"+fSuffix+"."+TRExFitter::IMAGEFORMAT[i_format]).c_str() );
-    }
-    else if(flagGammas){
-      for(int i_format=0;i_format<(int)TRExFitter::IMAGEFORMAT.size();i_format++)
-        c.SaveAs( (fName+"/RankingGammas"+fSuffix+"."+TRExFitter::IMAGEFORMAT[i_format]).c_str() );
-    }
-    else if(flagSysts){
-      for(int i_format=0;i_format<(int)TRExFitter::IMAGEFORMAT.size();i_format++)
-        c.SaveAs( (fName+"/RankingSysts"+fSuffix+"."+TRExFitter::IMAGEFORMAT[i_format]).c_str() );
-    }
-    else{
+        for(const auto& format : TRExFitter::IMAGEFORMAT) {
+            c.SaveAs((fName+"/Ranking"+fSuffix+"."+format).c_str());
+        }
+    } else if(flagGammas){
+        for(const auto& format : TRExFitter::IMAGEFORMAT) {
+            c.SaveAs((fName+"/RankingGammas"+fSuffix+"."+format).c_str());
+        }
+    } else if(flagSysts){
+        for(const auto& format: TRExFitter::IMAGEFORMAT) {
+            c.SaveAs((fName+"/RankingSysts"+fSuffix+"."+format).c_str() );
+        }
+    } else{
         WriteWarningStatus("TRExFit::PlotNPRanking", "Your ranking plot felt in unknown category :s");
-      for(int i_format=0;i_format<(int)TRExFitter::IMAGEFORMAT.size();i_format++)
-        c.SaveAs( (fName+"/RankingUnknown"+fSuffix+"."+TRExFitter::IMAGEFORMAT[i_format]).c_str() );
+        for(const auto& format : TRExFitter::IMAGEFORMAT) {
+            c.SaveAs((fName+"/RankingUnknown"+fSuffix+"."+format).c_str() );
+        }
     }
 }
 
@@ -6343,7 +6553,7 @@ void TRExFit::GetLikelihoodScan( RooWorkspace *ws, std::string varName, RooDataS
     TString firstPOIname = (TString)firstPOI->GetName();
     if (firstPOIname.Contains(varName.c_str())) isPoI = true;
 
-    RooRealVar* var = NULL;
+    RooRealVar* var = nullptr;
     TString vname = "";
     std::string vname_s = "";
     bool foundSyst = false;
@@ -6365,8 +6575,8 @@ void TRExFit::GetLikelihoodScan( RooWorkspace *ws, std::string varName, RooDataS
     }
 
     if (isPoI){
-        TIterator* it = mc->GetParametersOfInterest()->createIterator();
-        while( (var = (RooRealVar*) it->Next()) ){
+        std::unique_ptr<TIterator> it(mc->GetParametersOfInterest()->createIterator());
+        while( (var = static_cast<RooRealVar*>(it->Next())) ){
             vname=var->GetName();
             vname_s=var->GetName();
             if (vname == varName || vname == "alpha_"+varName) {
@@ -6377,8 +6587,8 @@ void TRExFit::GetLikelihoodScan( RooWorkspace *ws, std::string varName, RooDataS
         }
     }
     else {
-        TIterator* it = mc->GetNuisanceParameters()->createIterator();
-        while( (var = (RooRealVar*) it->Next()) ){
+        std::unique_ptr<TIterator> it(mc->GetNuisanceParameters()->createIterator());
+        while( (var = static_cast<RooRealVar*>(it->Next()))){
         vname=var->GetName();
             vname_s=var->GetName();
             if (vname == varName || vname == "alpha_"+varName) {
@@ -6486,15 +6696,19 @@ void TRExFit::GetLikelihoodScan( RooWorkspace *ws, std::string varName, RooDataS
 
     can.RedrawAxis();
 
-    for(int i_format=0;i_format<(int)TRExFitter::IMAGEFORMAT.size();i_format++)
-        can.SaveAs( fName+"/"+LHDir+"NLLscan_"+varName+fSuffix+"."+TRExFitter::IMAGEFORMAT[i_format] );
+    for(const auto& format : TRExFitter::IMAGEFORMAT) {
+        can.SaveAs(fName+"/"+LHDir+"NLLscan_"+varName+fSuffix+"."+format);
+    }
 
     // write it to a ROOT file as well
-    TFile *f = new TFile(fName+"/"+LHDir+"NLLscan_"+varName+fSuffix+"_curve.root","UPDATE");
+    std::unique_ptr<TFile> f(TFile::Open(fName+"/"+LHDir+"NLLscan_"+varName+fSuffix+"_curve.root","UPDATE"));
+    if (!f) {
+        WriteWarningStatus("TRExFit::GetLikelihoodScan", "Cannot open ROOT file for likelihood scan!");
+        return;
+    }
     f->cd();
     graph.Write("LHscan",TObject::kOverwrite);
     f->Close();
-    delete f;
 }
 
 //____________________________________________________________________________________
@@ -6534,7 +6748,7 @@ void TRExFit::Get2DLikelihoodScan( RooWorkspace *ws, const std::vector<std::stri
     RooRealVar* varX = nullptr;
     RooRealVar* varY = nullptr;
     //Get the parameters from the model
-    TIterator* it = mc->GetNuisanceParameters()->createIterator();
+    std::unique_ptr<TIterator> it(mc->GetNuisanceParameters()->createIterator());
     RooRealVar* var_tmp = nullptr;
     TString vname = "";
     int count = 0;
@@ -6555,7 +6769,7 @@ void TRExFit::Get2DLikelihoodScan( RooWorkspace *ws, const std::vector<std::stri
 
     // iterate over POIs
     if (count < 2){
-        TIterator* it_POI = mc->GetParametersOfInterest()->createIterator();
+        std::unique_ptr<TIterator> it_POI(mc->GetParametersOfInterest()->createIterator());
         while ( (var_tmp = static_cast<RooRealVar*>(it_POI->Next())) ){
             vname=var_tmp->GetName();
             if (vname == varNames.at(0) || vname == "alpha_"+varNames.at(0)){
@@ -6712,12 +6926,12 @@ void TRExFit::Get2DLikelihoodScan( RooWorkspace *ws, const std::vector<std::stri
         graph.GetYaxis()->SetTitle(varNames.at(1).c_str());
 
         // Print the canvas
-        for(int i_format=0;i_format<(int)TRExFitter::IMAGEFORMAT.size();i_format++){
-            can.SaveAs( fName+"/"+LHDir+"NLLscan_"+varNames.at(0)+"_"+varNames.at(1)+fSuffix+"."+TRExFitter::IMAGEFORMAT[i_format] );
+        for(const auto& format : TRExFitter::IMAGEFORMAT) {
+            can.SaveAs(fName+"/"+LHDir+"NLLscan_"+varNames.at(0)+"_"+varNames.at(1)+fSuffix+"."+format);
         }
 
         // write it to a ROOT file as well
-        std::unique_ptr<TFile> f = std::make_unique<TFile>(fName+"/"+LHDir+"NLLscan_"+varNames.at(0)+"_"+varNames.at(1)+fSuffix+"_curve.root","UPDATE");
+        std::unique_ptr<TFile> f(TFile::Open(fName+"/"+LHDir+"NLLscan_"+varNames.at(0)+"_"+varNames.at(1)+fSuffix+"_curve.root","UPDATE"));
         f->cd();
         graph.Write(("LHscan_2D_"+varNames.at(0)+"_"+varNames.at(1)).c_str(),TObject::kOverwrite);
         f->Close();
@@ -6728,11 +6942,11 @@ void TRExFit::Get2DLikelihoodScan( RooWorkspace *ws, const std::vector<std::stri
         std::ostringstream step_os;
         step_os << fParal2Dstep;
         std::string paral2Dstep_str=step_os.str();
-        std::unique_ptr<TFile> f2 = std::make_unique<TFile>(fName+"/"+LHDir+"NLLscan_"+varNames.at(0)+"_"+varNames.at(1)+"_step"+paral2Dstep_str+fSuffix+"_histo.root","UPDATE");
+        std::unique_ptr<TFile> f2(TFile::Open(fName+"/"+LHDir+"NLLscan_"+varNames.at(0)+"_"+varNames.at(1)+"_step"+paral2Dstep_str+fSuffix+"_histo.root","UPDATE"));
         h_nll.Write("NLL",TObject::kOverwrite);
         f2->Close();
     } else {
-        std::unique_ptr<TFile> f2 = std::make_unique<TFile>(fName+"/"+LHDir+"NLLscan_"+varNames.at(0)+"_"+varNames.at(1)+fSuffix+"_histo.root","UPDATE");
+        std::unique_ptr<TFile> f2(TFile::Open(fName+"/"+LHDir+"NLLscan_"+varNames.at(0)+"_"+varNames.at(1)+fSuffix+"_histo.root","UPDATE"));
         h_nll.Write("NLL",TObject::kOverwrite);
         f2->Close();
     }
@@ -7035,7 +7249,9 @@ void TRExFit::SmoothMorphTemplates(const std::string& name,const std::string& fo
             l.SetLineColor(kRed);
             l.Draw("same");
             gSystem->mkdir((fName+"/Morphing/").c_str());
-            for(auto format : TRExFitter::IMAGEFORMAT) c.SaveAs((fName+"/Morphing/g_"+name+"_"+reg->fName+"_bin"+std::to_string(i_bin)+"."+format).c_str());
+            for(const auto& format : TRExFitter::IMAGEFORMAT) {
+                c.SaveAs((fName+"/Morphing/g_"+name+"_"+reg->fName+"_bin"+std::to_string(i_bin)+"."+format).c_str());
+            }
             for(auto vh : hMap){
                 vh.second->SetBinContent(i_bin,l.Eval(vh.first));
             }
@@ -7137,14 +7353,17 @@ void TRExFit::RunToys(){
         // set all regions as ASIMOVDATA and create combined ws
         std::vector < std:: string > regionsToFit;
         std::map < std::string, int > regionDataType;
-        for(auto reg : fRegions) regionDataType[reg->fName] = Region::ASIMOVDATA;
-        for( int i_ch = 0; i_ch < fNRegions; i_ch++ ){
-            if ( fFitRegion == CRONLY && fRegions[i_ch] -> fRegionType == Region::CONTROL )
-                regionsToFit.push_back( fRegions[i_ch] -> fName );
-            else if ( fFitRegion == CRSR && (fRegions[i_ch] -> fRegionType == Region::CONTROL || fRegions[i_ch] -> fRegionType == Region::SIGNAL) )
-                regionsToFit.push_back( fRegions[i_ch] -> fName );
+        for(const auto& reg : fRegions) {
+            regionDataType[reg->fName] = Region::ASIMOVDATA;
         }
-        std::unique_ptr<RooWorkspace> ws (PerformWorkspaceCombination( regionsToFit ));
+        for(const auto& ireg : fRegions) {
+            if (fFitRegion == CRONLY && ireg->fRegionType == Region::CONTROL) {
+                regionsToFit.emplace_back(ireg->fName);
+            } else if (fFitRegion == CRSR && (ireg->fRegionType == Region::CONTROL || ireg->fRegionType == Region::SIGNAL)) {
+                regionsToFit.emplace_back(ireg->fName);
+            }
+        }
+        std::unique_ptr<RooWorkspace> ws (PerformWorkspaceCombination(regionsToFit));
         if (!ws){
             WriteErrorStatus("TRExFit::RunToys","Cannot retrieve the workspace, exiting!");
             exit(EXIT_FAILURE);
@@ -7155,7 +7374,7 @@ void TRExFit::RunToys(){
         while ((arg = rfiter.next())) {
             if (arg->IsA() == RooRealSumPdf::Class()) {
                 arg->setAttribute("BinnedLikelihood");
-                std::string temp_string = arg->GetName();
+                const std::string& temp_string = arg->GetName();
                 WriteDebugStatus("TRExFit::DumpData", "Activating binned likelihood attribute for " + temp_string);
             }
         }
@@ -7168,38 +7387,80 @@ void TRExFit::RunToys(){
             min = fToysHistoMin;
             max = fToysHistoMax;
         }
-        TH1D h_toys ("h_toys","h_toys",fToysHistoNbins,min,max);
         // get RooStats stuff
-        RooStats::ModelConfig mc = *((RooStats::ModelConfig*)ws -> obj("ModelConfig"));
-        RooSimultaneous simPdf = *((RooSimultaneous*)(mc.GetPdf()));
+        RooStats::ModelConfig mc = *(static_cast<RooStats::ModelConfig*>(ws -> obj("ModelConfig")));
+        RooSimultaneous simPdf = *(static_cast<RooSimultaneous*>((mc.GetPdf())));
         RooAbsPdf *pdf = mc.GetPdf();
-        const RooArgSet obsSet = *(mc.GetObservables());
-        RooRealVar* poiVar = (RooRealVar*) (& ws->allVars()[fPOI.c_str()]);
+        RooArgSet obsSet = *(mc.GetObservables());
+        std::vector<RooRealVar*> nfs;
+        for (const auto& iname : fNormFactorNames) {
+            nfs.emplace_back(static_cast<RooRealVar*>((& ws->allVars()[iname.c_str()])));
+        }
 
         //Get the desired NP
         RooRealVar* NPtoShift = nullptr;
         if (fToysPseudodataNP != "") {
-            NPtoShift = (RooRealVar*) (& ws->allVars()[fToysPseudodataNP.c_str()]);
+            NPtoShift = static_cast<RooRealVar*>((& ws->allVars()[fToysPseudodataNP.c_str()]));
         }
 
         //For the loop over NPs
         std::string varname{};
 
         //Create NLL only once
-        RooDataSet *dummy = pdf->generate( obsSet, RooFit::Extended() );
+        RooDataSet* dummy = pdf->generate(obsSet, RooFit::Extended());
+
+        // apply external constraints
+        RooArgList l;
+        std::vector<double> nomVec;
+        std::vector<double> tauVec;
+        for(const auto& nf : fNormFactors){
+            if(nf->fTau!=0){
+                l.add(*ws->var(nf->fName.c_str()));
+                nomVec.push_back( nf->fNominal );
+                tauVec.push_back( nf->fTau );
+            }
+        }
+
+        const RooArgSet* externalConstraints(nullptr);
+
+        if(!tauVec.empty()) {
+            TVectorD nominal(nomVec.size());
+            TMatrixDSym cov(tauVec.size());
+            for(unsigned int i_tau=0;i_tau<tauVec.size();i_tau++){
+                nominal(i_tau) = nomVec[i_tau];
+                cov(i_tau,i_tau) = (1./tauVec[i_tau]) * (1./tauVec[i_tau]);
+            }
+            RooMultiVarGaussian r("regularization","regularization",l,nominal,cov);
+            ws->import(r);
+            ws->defineSet("myConstraints","regularization");
+            simPdf.setStringAttribute("externalConstraints","myConstraints");
+
+            if(simPdf.getStringAttribute("externalConstraints")){
+                WriteInfoStatus("TRExFit::RunToys",Form("Building NLL with external constraints %s",simPdf.getStringAttribute("externalConstraints")));
+                externalConstraints = ws->set(simPdf.getStringAttribute("externalConstraints"));
+            }
+        }
+
+
+        const RooArgSet* glbObs = mc.GetGlobalObservables();
         RooAbsReal* nll = simPdf.createNLL(*dummy,
-                                           Constrain(*mc.GetNuisanceParameters()),
-                                           Offset(1),
-                                           NumCPU(1, RooFit::Hybrid),
-                                           RooFit::Optimize(kTRUE));
+                                           RooFit::Constrain(*mc.GetNuisanceParameters()),
+                                           RooFit::GlobalObservables(*glbObs),
+                                           RooFit::Offset(1),
+                                           RooFit::NumCPU(1, RooFit::Hybrid),
+                                           RooFit::Optimize(kTRUE),
+                                           RooFit::ExternalConstraints(*externalConstraints));
 
-
-        for(int i_toy=0;i_toy<fFitToys;i_toy++){
+        std::vector<TH1D> h_toys;
+        for (std::size_t inf = 0; inf < nfs.size(); ++inf) {
+            h_toys.emplace_back(("h_toys_nf_"+std::to_string(inf)).c_str(),("h_toys_nf_"+std::to_string(inf)).c_str(),fToysHistoNbins,min,max);
+        }
+        for(int i_toy = 0; i_toy < fFitToys; ++i_toy) {
 
             if (fToysPseudodataNP != "") {
-                TIterator* it = mc.GetNuisanceParameters()->createIterator();
+                std::unique_ptr<TIterator> it(mc.GetNuisanceParameters()->createIterator());
                 RooRealVar* var = nullptr;
-                while( (var = (RooRealVar*) it->Next()) ){
+                while( (var = static_cast<RooRealVar*>(it->Next()))){
                     varname = var->GetName();
                     if (varname.find("alpha_")!=std::string::npos) {
                         var->setConstant(1);
@@ -7209,33 +7470,39 @@ void TRExFit::RunToys(){
                         var->setVal(1);
                     }
                 }
-                delete it;
                 delete var;
             }
 
             // setting POI to constant, not to allow it to fluctuate in toy creation
-            poiVar->setConstant(1);
-            poiVar->setVal(fFitPOIAsimov);
+            for (std::size_t inf = 0; inf < nfs.size(); ++inf) {
+                nfs.at(inf)->setConstant(1);
+                if (fNormFactorNames.at(inf) == fPOI) {
+                    nfs.at(inf)->setVal(fFitPOIAsimov);
+                } else {
+                    auto&& nf = fNormFactors[inf];
+                    nfs.at(inf)->setVal(nf->fNominal);
+                }
+            }
             if (fToysPseudodataNP != "") {
                 NPtoShift->setConstant(1);
                 NPtoShift->setVal(fToysPseudodataNPShift);
             }
 
             WriteInfoStatus("TRExFit::RunToys","Generating toy n. " + std::to_string(i_toy+1) + " out of " + std::to_string(fFitToys) + " toys");
-            RooDataSet *toyData = pdf->generate( obsSet, RooFit::Extended() );
+            RooDataSet* toyData = pdf->generate(obsSet, RooFit::Extended());
             // re-set POI to free-floating, and to nominal value
             if (fToysPseudodataNP != "") {
-                RooArgSet* nuis = (RooArgSet*) mc.GetNuisanceParameters();
+                const RooArgSet* nuis = static_cast<const RooArgSet*>(mc.GetNuisanceParameters());
                 if (nuis){
                     RooRealVar* vartmp = nullptr;
-                    TIterator* it2 = nuis->createIterator();
-                    while( (vartmp = (RooRealVar*) it2->Next()) ){
-                        std::string np = vartmp->GetName();
+                    std::unique_ptr<TIterator> it2(nuis->createIterator());
+                    while( (vartmp = static_cast<RooRealVar*>(it2->Next()))){
+                        const std::string& np = vartmp->GetName();
                         if (np.find("alpha_")!=std::string::npos) {
                             vartmp->setConstant(0);
                             vartmp->setVal(0);
                         }
-                        else if( np.find("gamma_")!=std::string::npos ){
+                        else if(np.find("gamma_")!=std::string::npos){
                             vartmp->setVal(1);
                             vartmp->setConstant(0);
                         }
@@ -7243,12 +7510,14 @@ void TRExFit::RunToys(){
                             vartmp->setVal( 1 );
                         }
                     }
-                    delete it2;
                     delete vartmp;
                 }
             }
-            poiVar->setConstant(0);
-            poiVar->setVal(POInf->fNominal);
+            for (std::size_t inf = 0; inf < nfs.size(); ++inf) {
+                auto&& nf = fNormFactors[inf];
+                nfs.at(inf)->setConstant(0);
+                nfs.at(inf)->setVal(nf->fNominal);
+            }
 
             // NP is fixed constant for each fit, and to nominal value
             if (fToysPseudodataNP != "") {
@@ -7266,31 +7535,37 @@ void TRExFit::RunToys(){
             m.migrad();
             RooFitResult* r = m.save(); // save fit result
 
-            h_toys.Fill(poiVar->getVal());
-            WriteInfoStatus("TRExFit::RunToys","Toy n. " + std::to_string(i_toy+1) + ", fitted value: " + std::to_string(poiVar->getVal()));
+            for (std::size_t inf = 0; inf < nfs.size(); ++inf) {
+                h_toys.at(inf).Fill(nfs.at(inf)->getVal());
+                WriteInfoStatus("TRExFit::RunToys","Toy n. " + std::to_string(i_toy+1) + ", fitted value of NF: " + fNormFactorNames.at(inf) + ": " + std::to_string(nfs.at(inf)->getVal()));
+            }
 
             delete r;
             delete toyData;
         }
-        // plot, fit and save toy histogram
-        TCanvas c("c","c",600,600);
-        h_toys.Draw("E");
-        TF1 g("g","gaus",POInf->fMin,POInf->fMax);
-        g.SetLineColor(kRed);
-        h_toys.Fit("g","RQ");
-        g.Draw("same");
-        h_toys.GetXaxis()->SetTitle(TRExFitter::SYSTMAP[fPOI].c_str());
-        h_toys.GetYaxis()->SetTitle("Pseudo-experiements");
-        myText(0.60,0.90,1,Form("Mean  = %.2f #pm %.2f",g.GetParameter(1), g.GetParError(1)));
-        myText(0.60,0.85,1,Form("Sigma = %.2f #pm %.2f",g.GetParameter(2),g.GetParError(2)));
-        myText(0.60,0.80,1,Form("#chi^{2}/ndf = %.2f / %d",g.GetChisquare(),g.GetNDF()));
-        for(auto format : TRExFitter::IMAGEFORMAT) c.SaveAs((fName+"/Toys/ToysPlot."+format).c_str());
-        fVarNameMinos = varMinosTmp; // retore Minos settings
 
-        // Also create a ROOT file
-        std::unique_ptr<TFile> out (new TFile ((fName+"/Toys/Toys"+fSuffix+".root").c_str(), "RECREATE"));
-        out->cd();
-        h_toys.Write();
+        std::unique_ptr<TFile> out (TFile::Open((fName+"/Toys/Toys"+fSuffix+".root").c_str(), "RECREATE"));
+        for (std::size_t inf = 0; inf < nfs.size(); ++inf) {
+            out->cd();
+            TCanvas c("c","c",600,600);
+            h_toys.at(inf).Draw("E");
+            TF1 g("g","gaus",POInf->fMin,POInf->fMax);
+            g.SetLineColor(kRed);
+            h_toys.at(inf).Fit("g","RQ");
+            g.Draw("same");
+            h_toys.at(inf).GetXaxis()->SetTitle(fNormFactorNames.at(inf).c_str());
+            h_toys.at(inf).GetYaxis()->SetTitle("Pseudo-experiements");
+            myText(0.60,0.90,1,Form("Mean  = %.2f #pm %.2f",g.GetParameter(1), g.GetParError(1)));
+            myText(0.60,0.85,1,Form("Sigma = %.2f #pm %.2f",g.GetParameter(2),g.GetParError(2)));
+            myText(0.60,0.80,1,Form("#chi^{2}/ndf = %.2f / %d",g.GetChisquare(),g.GetNDF()));
+            for(const auto& format : TRExFitter::IMAGEFORMAT) {
+                c.SaveAs((fName+"/Toys/ToysPlot_"+fNormFactorNames.at(inf)+"."+format).c_str());
+            }
+            fVarNameMinos = varMinosTmp; // retore Minos settings
+
+            // Also create a ROOT file
+            h_toys.at(inf).Write();
+        }
         out->Close();
 }
 
@@ -7886,8 +8161,8 @@ std::vector<Sample*> TRExFit::GetNonDataNonGhostSamples() const {
 void TRExFit::DropBins() {
 
     for(const auto& reg : fRegions){
-    
-        const std::vector<int>& blindedBins = fAutomaticDropBins ?
+
+        const std::vector<int>& blindedBins = reg->GetAutomaticDropBins() ?
                 Common::GetBlindedBins(reg,fBlindingType,fBlindingThreshold) : reg->fDropBins;
         if (blindedBins.size() == 0) continue;
         for(const auto& smp : fSamples){
@@ -7912,3 +8187,890 @@ void TRExFit::DropBins() {
     }
 }
 
+//__________________________________________________________________________________
+//
+void TRExFit::PrepareUnfolding() {
+    // Prepare the folder structure
+    gSystem->mkdir(fName.c_str());
+    gSystem->mkdir((fName+"/UnfoldingHistograms").c_str());
+
+    // Open the otuput ROOT file
+    std::unique_ptr<TFile> outputFile(TFile::Open((fName+"/UnfoldingHistograms/FoldedHistograms.root").c_str(), "RECREATE"));
+    if (!outputFile) {
+        WriteErrorStatus("TRExFit::PrepareUnfolding", "Cannot open the output file at: " + fName + "/UnfoldingHistograms/FoldedHistograms.root");
+        exit(EXIT_FAILURE);
+    }
+
+    FoldingManager manager{};
+    manager.SetMatrixOrientation(fMatrixOrientation);
+
+    const bool horizontal = (fMatrixOrientation == FoldingManager::MATRIXORIENTATION::TRUTHONHORIZONTALAXIS);
+
+    std::unique_ptr<TH1> alternativeTruth(nullptr);
+
+    {
+        std::unique_ptr<TH1> truth(nullptr);
+        for (const auto& itruth : fTruthSamples) {
+            if (itruth->GetName() == fNominalTruthSample) {
+                truth = itruth->GetHisto(this);
+                break;
+            }
+        }
+        if (!truth) {
+            exit(EXIT_FAILURE);
+        }
+        if (truth->GetNbinsX() != fNumberUnfoldingTruthBins) {
+            WriteErrorStatus("TRExFit::PrepareUnfolding", "The number of truth bins doesnt match the value from the config");
+            exit(EXIT_FAILURE);
+        }
+        manager.SetTruthDistribution(truth.get());
+        manager.WriteTruthToHisto(outputFile.get(), "", "truth_distribution");
+
+        // read the alternative truth sample
+        if (fAlternativeAsimovTruthSample != "") {
+            for (const auto& itruth : fTruthSamples) {
+                if (itruth->GetName() == fAlternativeAsimovTruthSample) {
+                    alternativeTruth = itruth->GetHisto(this);
+                    break;
+                }
+            }
+        }
+    }
+
+    // loop over regions
+    for (const auto& ireg : fRegions) {
+
+        // only signal regions are processed at this step
+        if (ireg->fRegionType != Region::RegionType::SIGNAL) continue;
+
+        // loop over all samples
+        for (const auto& isample : fUnfoldingSamples) {
+
+            // skip samples not associated to the region
+            if(isample->fRegions[0] != "all" &&
+                Common::FindInStringVector(isample->fRegions, ireg->fName) < 0) continue;
+
+            // first process nominal
+            if (isample->GetHasResponse()) {
+                const std::vector<std::string>& fullResponsePaths = FullResponseMatrixPaths(ireg, isample.get());
+
+                std::unique_ptr<TH2> matrix = Common::CombineHistos2DFromFullPaths(fullResponsePaths);
+                if (!matrix) {
+                    WriteErrorStatus("TRExFit::PrepareUnfolding", "Cannot read the response matrix!");
+                    exit(EXIT_FAILURE);
+                }
+                const int nRecoBins  = horizontal ? matrix->GetNbinsY() : matrix->GetNbinsX();
+                const int nTruthBins = horizontal ? matrix->GetNbinsX() : matrix->GetNbinsY();
+                if (nRecoBins != ireg->fNumberUnfoldingRecoBins) {
+                    WriteErrorStatus("TRExFit::PrepareUnfolding", "Number of reco bins do not match the number of reco bins for the response matrix in region: " + ireg->fName);
+                    exit(EXIT_FAILURE);
+                }
+                if (nTruthBins != fNumberUnfoldingTruthBins) {
+                    WriteErrorStatus("TRExFit::PrepareUnfolding", "Number of truth bins do not match the number of truth bins for the response matrix in regoin: " + ireg->fName);
+                    exit(EXIT_FAILURE);
+                }
+
+                PlotMigrationResponse(matrix.get(), false, ireg->fName, "");
+
+                manager.SetResponseMatrix(matrix.get());
+            } else {
+                // need to add acceptance, selection and migration
+                {
+                    const std::vector<std::string>& fullMigrationMatrixPaths = FullMigrationMatrixPaths(ireg, isample.get());
+                    std::unique_ptr<TH2> matrix = Common::CombineHistos2DFromFullPaths(fullMigrationMatrixPaths);
+                    if (!matrix) {
+                        exit(EXIT_FAILURE);
+                    }
+                    const int nRecoBins  = horizontal ? matrix->GetNbinsY() : matrix->GetNbinsX();
+                    const int nTruthBins = horizontal ? matrix->GetNbinsX() : matrix->GetNbinsY();
+                    if (nRecoBins != ireg->fNumberUnfoldingRecoBins) {
+                        WriteErrorStatus("TRExFit::PrepareUnfolding", "Number of reco bins do not match the number of reco bins for the migration matrix in region: " + ireg->fName);
+                        exit(EXIT_FAILURE);
+                    }
+                    if (nTruthBins != fNumberUnfoldingTruthBins) {
+                        WriteErrorStatus("TRExFit::PrepareUnfolding", "Number of truth bins do not match the number of truth bins for the migration matrix in region: " + ireg->fName);
+                        exit(EXIT_FAILURE);
+                    }
+
+                    UnfoldingTools::NormalizeMatrix(matrix.get(), !horizontal);
+
+                    PlotMigrationResponse(matrix.get(), true, ireg->fName, "");
+
+                    // pass the migration to the tool
+                    manager.SetMigrationMatrix(matrix.get(), false);
+                }
+
+                // add selection eff
+                {
+                    const std::vector<std::string>& fullSelectionEffPaths = FullSelectionEffPaths(ireg, isample.get());
+                    std::unique_ptr<TH1> eff = Common::CombineHistosFromFullPaths(fullSelectionEffPaths);
+                    if (!eff) {
+                        exit(EXIT_FAILURE);
+                    }
+                    const int nbins = eff->GetNbinsX();
+                    if (nbins != fNumberUnfoldingTruthBins) {
+                        WriteErrorStatus("TRExFit::PrepareUnfolding", "Number of efficiency selection bins doesnt match the number of truth bins");
+                        exit(EXIT_FAILURE);
+                    }
+
+                    manager.SetSelectionEfficiency(eff.get());
+                }
+
+                // add acceptance
+                if (fHasAcceptance || isample->GetHasAcceptance() || ireg->fHasAcceptance) {
+                    const std::vector<std::string>& fullAcceptancePaths = FullAcceptancePaths(ireg, isample.get());
+                    std::unique_ptr<TH1> acc = Common::CombineHistosFromFullPaths(fullAcceptancePaths);
+                    if (!acc) {
+                        exit(EXIT_FAILURE);
+                    }
+                    const int nbins = acc->GetNbinsX();
+                    if (nbins != ireg->fNumberUnfoldingRecoBins) {
+                        WriteErrorStatus("TRExFit::PrepareUnfolding", "Number of acceptance bins doesnt match the number of reco bins in region " + ireg->fName);
+                        exit(EXIT_FAILURE);
+                    }
+
+                    manager.SetAcceptance(acc.get());
+                }
+
+                manager.CalculateResponseMatrix(true);
+                PlotMigrationResponse(manager.GetResponseMatrix(), false, ireg->fName, "");
+            }
+
+            manager.FoldTruth();
+
+
+            // create the folder structure
+            TDirectory* dir = dynamic_cast<TDirectory*>(outputFile->Get("nominal"));
+            if (!dir) {
+                outputFile->cd();
+                outputFile->mkdir("nominal");
+            }
+
+            const std::string histoName = ireg->fName + "_" + isample->GetName();
+            manager.WriteFoldedToHisto(outputFile.get(), "nominal", histoName);
+
+            // fold and store the altenative truth sample
+            if (fAlternativeAsimovTruthSample != "") {
+                std::unique_ptr<TH1> tmp = manager.TotalFold(alternativeTruth.get());
+                outputFile->cd();
+                tmp->Write((ireg->fName + "_AlternativeAsimov").c_str());
+            }
+
+            // Process systematics
+            for (const auto& isyst : fUnfoldingSystematics) {
+                if (!isyst) continue;
+                if (isyst->GetName() == "Dummy") continue; // wtf?
+
+                if(isyst->fRegions.at(0) != "all" &&
+                     Common::FindInStringVector(isyst->fRegions, ireg->fName) < 0) continue;
+                if(isyst->fSamples.at(0) != "all" &&
+                     Common::FindInStringVector(isyst->fSamples, isample->GetName()) < 0) continue;
+
+                ProcessUnfoldingSystematics(&manager,
+                                            outputFile.get(),
+                                            ireg,
+                                            isample.get(),
+                                            isyst.get());
+            }
+        }
+    }
+
+    outputFile->Close();
+}
+
+//__________________________________________________________________________________
+//
+void TRExFit::ProcessUnfoldingSystematics(FoldingManager* manager,
+                                          TFile* file,
+                                          const Region* reg,
+                                          const UnfoldingSample* sample,
+                                          const UnfoldingSystematic* syst) const {
+
+    const bool horizontal = (fMatrixOrientation == FoldingManager::MATRIXORIENTATION::TRUTHONHORIZONTALAXIS);
+    // lambda for processing one (up or down) variation
+    auto ProcessOneVariation = [&](const bool isUp) {
+        if (syst->GetHasResponse()) {
+            const std::vector<std::string>& paths = FullResponseMatrixPaths(reg, sample, syst, true);
+            std::unique_ptr<TH2> matrix = Common::CombineHistos2DFromFullPaths(paths);
+            if (!matrix) {
+                exit(EXIT_FAILURE);
+            }
+            const int nRecoBins  = horizontal ? matrix->GetNbinsY() : matrix->GetNbinsX();
+            const int nTruthBins = horizontal ? matrix->GetNbinsX() : matrix->GetNbinsY();
+            if (nRecoBins != reg->fNumberUnfoldingRecoBins) {
+                WriteErrorStatus("TRExFit::ProcessUnfoldingSystematics", "Number of reco bins do not match the number of reco bins for the response matrix in region: " + reg->fName);
+                exit(EXIT_FAILURE);
+            }
+            if (nTruthBins != fNumberUnfoldingTruthBins) {
+                WriteErrorStatus("TRExFit::ProcessUnfoldingSystematics", "Number of truth bins do not match the number of truth bins for the response matrix: " + reg->fName);
+                exit(EXIT_FAILURE);
+            }
+            if (fPlotSystematicMigrations) {
+                PlotMigrationResponse(matrix.get(), false, reg->fName, syst->GetName());
+            }
+
+            manager->SetResponseMatrix(matrix.get());
+        } else {
+            {
+                /// migration first
+                const std::vector<std::string>& paths = FullMigrationMatrixPaths(reg, sample, syst, true);
+                std::unique_ptr<TH2> matrix = Common::CombineHistos2DFromFullPaths(paths);
+                if (!matrix) {
+                    exit(EXIT_FAILURE);
+                }
+
+                const int nRecoBins  = horizontal ? matrix->GetNbinsY() : matrix->GetNbinsX();
+                const int nTruthBins = horizontal ? matrix->GetNbinsX() : matrix->GetNbinsY();
+                if (nRecoBins != reg->fNumberUnfoldingRecoBins) {
+                    WriteErrorStatus("TRExFit::ProcessUnfoldingSystematics", "Number of reco bins do not match the number of reco bins for the migration matrix in region: " + reg->fName);
+                    exit(EXIT_FAILURE);
+                }
+                if (nTruthBins != fNumberUnfoldingTruthBins) {
+                    WriteErrorStatus("TRExFit::ProcessUnfoldingSystematics", "Number of truth bins do not match the number of truth bins for the migration matrix: " + reg->fName);
+                    exit(EXIT_FAILURE);
+                }
+                UnfoldingTools::NormalizeMatrix(matrix.get(), !horizontal);
+
+                if (fPlotSystematicMigrations) {
+                    PlotMigrationResponse(matrix.get(), true, reg->fName, syst->GetName());
+                }
+
+                manager->SetMigrationMatrix(matrix.get(), false);
+            }
+
+            // selectio eff now
+            {
+                const std::vector<std::string>& paths = FullSelectionEffPaths(reg, sample, syst, true);
+                std::unique_ptr<TH1> eff = Common::CombineHistosFromFullPaths(paths);
+                if (!eff) {
+                    exit(EXIT_FAILURE);
+                }
+
+                const int nbins = eff->GetNbinsX();
+                if (nbins != fNumberUnfoldingTruthBins) {
+                    WriteErrorStatus("TRExFit::ProcessUnfoldingSystematics", "Number of efficiency selection bins doesnt match the number of truth bins");
+                    exit(EXIT_FAILURE);
+                }
+
+                manager->SetSelectionEfficiency(eff.get());
+            }
+
+            if (fHasAcceptance || syst->GetHasAcceptance() || reg->fHasAcceptance) {
+                const std::vector<std::string>& paths = FullAcceptancePaths(reg, sample, syst, true);
+                std::unique_ptr<TH1> acc = Common::CombineHistosFromFullPaths(paths);
+                if (!acc) {
+                    exit(EXIT_FAILURE);
+                }
+
+                const int nbins = acc->GetNbinsX();
+                if (nbins != reg->fNumberUnfoldingRecoBins) {
+                    WriteErrorStatus("TRExFit::ProcessUnfoldingSystematics", "Number of acceptance bins doesnt match the number of reco bins in region " + reg->fName);
+                    exit(EXIT_FAILURE);
+                }
+
+                manager->SetAcceptance(acc.get());
+            }
+            manager->CalculateResponseMatrix(true);
+            if (fPlotSystematicMigrations) {
+                PlotMigrationResponse(manager->GetResponseMatrix(), false, reg->fName, syst->GetName());
+            }
+        }
+        manager->FoldTruth();
+
+        // create the folder structure
+        const std::string folderName = isUp ? syst->GetName() + "_Up" : syst->GetName() + "_Down";
+        TDirectory* dir = dynamic_cast<TDirectory*>(file->Get(folderName.c_str()));
+        if (!dir) {
+            file->cd();
+            file->mkdir(folderName.c_str());
+        }
+
+        const std::string histoName = reg->fName + "_" + sample->GetName();
+        manager->WriteFoldedToHisto(file, folderName, histoName);
+    };
+
+    if (syst->fHasUpVariation) {
+        ProcessOneVariation(true);
+    }
+    if (syst->fHasDownVariation) {
+        ProcessOneVariation(false);
+    }
+}
+
+//__________________________________________________________________________________
+//
+std::vector<std::string> TRExFit::FullResponseMatrixPaths(const Region* reg,
+                                                          const UnfoldingSample* smp,
+                                                          const UnfoldingSystematic* syst,
+                                                          const bool isUp) const {
+    // protection against nullptr
+    if(!reg) {
+        WriteErrorStatus("TRExFit::FullResponseMatrixPaths","Null pointer for Region.");
+        exit(EXIT_FAILURE);
+    }
+    if(!smp) {
+        WriteErrorStatus("TRExFit::FullResponseMatrixPaths","Null pointer for Sample.");
+        exit(EXIT_FAILURE);
+    }
+    std::vector<std::string> fullPaths;
+    std::vector<std::string> paths;
+    std::vector<std::string> pathSuffs;
+    std::vector<std::string> files;
+    std::vector<std::string> fileSuffs;
+    std::vector<std::string> names;
+    std::vector<std::string> nameSuffs;
+    // precendence:
+    // 1. Systematic
+    // 2. Sample
+    // 3. Region
+    // 4. Job
+    if(syst){
+        if(isUp) {
+            if(syst->fResponseMatrixPathsUp.size()  >0) paths = syst->fResponseMatrixPathsUp;
+            if(syst->fResponseMatrixFilesUp.size()  >0) files = syst->fResponseMatrixFilesUp;
+            if(syst->fResponseMatrixNamesUp.size()  >0) names = syst->fResponseMatrixNamesUp;
+        } else {
+            if(syst->fResponseMatrixPathsDown.size()>0) paths = syst->fResponseMatrixPathsDown;
+            if(syst->fResponseMatrixFilesDown.size()>0) files = syst->fResponseMatrixFilesDown;
+            if(syst->fResponseMatrixNamesDown.size()>0) names = syst->fResponseMatrixNamesDown;
+        }
+    }
+    if(paths.size()==0 && smp->fResponseMatrixPaths.size()>0) paths = smp->fResponseMatrixPaths;
+    if(files.size()==0 && smp->fResponseMatrixFiles.size()>0) files = smp->fResponseMatrixFiles;
+    if(names.size()==0 && smp->fResponseMatrixNames.size()>0) names = smp->fResponseMatrixNames;
+
+    if(paths.size()==0 && reg->fResponseMatrixPaths.size()>0) paths = reg->fResponseMatrixPaths;
+    if(files.size()==0 && reg->fResponseMatrixFiles.size()>0) files = reg->fResponseMatrixFiles;
+    if(names.size()==0 && reg->fResponseMatrixNames.size()>0) names = reg->fResponseMatrixNames;
+
+    if(paths.size()==0 && fResponseMatrixPaths.size()>0) paths = fResponseMatrixPaths;
+    if(files.size()==0 && fResponseMatrixFiles.size()>0) files = fResponseMatrixFiles;
+    if(names.size()==0 && fResponseMatrixNames.size()>0) names = fResponseMatrixNames;
+
+    if(syst) {
+        if(isUp) pathSuffs = Common::CombinePathSufs(Common::CombinePathSufs(reg->fResponseMatrixPathSuffs,smp->fResponseMatrixPathSuffs), syst->fResponseMatrixPathSuffsUp);
+        else     pathSuffs = Common::CombinePathSufs(Common::CombinePathSufs(reg->fResponseMatrixPathSuffs,smp->fResponseMatrixPathSuffs), syst->fResponseMatrixPathSuffsDown);
+    }
+    else{
+        pathSuffs = Common::CombinePathSufs(reg->fResponseMatrixPathSuffs, smp->fResponseMatrixPathSuffs);
+    }
+
+    if(syst) {
+        if(isUp) fileSuffs = Common::CombinePathSufs(Common::CombinePathSufs(reg->fResponseMatrixFileSuffs, smp->fResponseMatrixFileSuffs), syst->fResponseMatrixFileSuffsUp);
+        else     fileSuffs = Common::CombinePathSufs(Common::CombinePathSufs(reg->fResponseMatrixFileSuffs, smp->fResponseMatrixFileSuffs), syst->fResponseMatrixFileSuffsDown);
+    }
+    else{
+        fileSuffs = Common::CombinePathSufs(reg->fResponseMatrixFileSuffs, smp->fResponseMatrixFileSuffs);
+    }
+
+    if(syst) {
+        if(isUp) nameSuffs = Common::CombinePathSufs(Common::CombinePathSufs(reg->fResponseMatrixNameSuffs, smp->fResponseMatrixNameSuffs), syst->fResponseMatrixNameSuffsUp);
+        else     nameSuffs = Common::CombinePathSufs(Common::CombinePathSufs(reg->fResponseMatrixNameSuffs, smp->fResponseMatrixNameSuffs), syst->fResponseMatrixNameSuffsDown);
+    }
+    else{
+      nameSuffs = Common::CombinePathSufs(Common::CombinePathSufs(reg->fResponseMatrixNameSuffs, smp->fResponseMatrixNameSuffs), fResponseMatrixNamesNominal);
+    }
+
+    // And finally put everything together
+    fullPaths = Common::CreatePathsList(paths, pathSuffs, files, fileSuffs, names, nameSuffs);
+    return fullPaths;
+}
+
+//__________________________________________________________________________________
+//
+std::vector<std::string> TRExFit::FullMigrationMatrixPaths(const Region* reg,
+                                                           const UnfoldingSample* smp,
+                                                           const UnfoldingSystematic* syst,
+                                                           const bool isUp) const {
+    // protection against nullptr
+    if(!reg) {
+        WriteErrorStatus("TRExFit::FullMigrationMatrixPaths","Null pointer for Region.");
+        exit(EXIT_FAILURE);
+    }
+    if(!smp) {
+        WriteErrorStatus("TRExFit::FullMigrationMatrixPaths","Null pointer for Sample.");
+        exit(EXIT_FAILURE);
+    }
+    std::vector<std::string> fullPaths;
+    std::vector<std::string> paths;
+    std::vector<std::string> pathSuffs;
+    std::vector<std::string> files;
+    std::vector<std::string> fileSuffs;
+    std::vector<std::string> names;
+    std::vector<std::string> nameSuffs;
+    // precendence:
+    // 1. Systematic
+    // 2. Sample
+    // 3. Region
+    // 4. Job
+    if(syst){
+        if(isUp) {
+            if(syst->fMigrationPathsUp.size()  >0) paths = syst->fMigrationPathsUp;
+            if(syst->fMigrationFilesUp.size()  >0) files = syst->fMigrationFilesUp;
+            if(syst->fMigrationNamesUp.size()  >0) names = syst->fMigrationNamesUp;
+        } else {
+            if(syst->fMigrationPathsDown.size()>0) paths = syst->fMigrationPathsDown;
+            if(syst->fMigrationFilesDown.size()>0) files = syst->fMigrationFilesDown;
+            if(syst->fMigrationNamesDown.size()>0) names = syst->fMigrationNamesDown;
+        }
+    }
+    if(paths.size()==0 && smp->fMigrationPaths.size()>0) paths = smp->fMigrationPaths;
+    if(files.size()==0 && smp->fMigrationFiles.size()>0) files = smp->fMigrationFiles;
+    if(names.size()==0 && smp->fMigrationNames.size()>0) names = smp->fMigrationNames;
+
+    if(paths.size()==0 && reg->fMigrationPaths.size()>0) paths = reg->fMigrationPaths;
+    if(files.size()==0 && reg->fMigrationFiles.size()>0) files = reg->fMigrationFiles;
+    if(names.size()==0 && reg->fMigrationNames.size()>0) names = reg->fMigrationNames;
+
+    if(paths.size()==0 && fMigrationPaths.size()>0) paths = fMigrationPaths;
+    if(files.size()==0 && fMigrationFiles.size()>0) files = fMigrationFiles;
+    if(names.size()==0 && fMigrationNames.size()>0) names = fMigrationNames;
+
+    if(syst) {
+        if(isUp) pathSuffs = Common::CombinePathSufs(Common::CombinePathSufs(reg->fMigrationPathSuffs,smp->fMigrationPathSuffs), syst->fMigrationPathSuffsUp);
+        else     pathSuffs = Common::CombinePathSufs(Common::CombinePathSufs(reg->fMigrationPathSuffs,smp->fMigrationPathSuffs), syst->fMigrationPathSuffsDown);
+    }
+    else{
+        pathSuffs = Common::CombinePathSufs(reg->fMigrationPathSuffs, smp->fMigrationPathSuffs);
+    }
+
+    if(syst) {
+        if(isUp) fileSuffs = Common::CombinePathSufs(Common::CombinePathSufs(reg->fMigrationFileSuffs, smp->fMigrationFileSuffs), syst->fMigrationFileSuffsUp);
+        else     fileSuffs = Common::CombinePathSufs(Common::CombinePathSufs(reg->fMigrationFileSuffs, smp->fMigrationFileSuffs), syst->fMigrationFileSuffsDown);
+    }
+    else{
+        fileSuffs = Common::CombinePathSufs(reg->fMigrationFileSuffs, smp->fMigrationFileSuffs);
+    }
+
+    if(syst) {
+        if(isUp) nameSuffs = Common::CombinePathSufs(Common::CombinePathSufs(reg->fMigrationNameSuffs, smp->fMigrationNameSuffs), syst->fMigrationNameSuffsUp);
+        else     nameSuffs = Common::CombinePathSufs(Common::CombinePathSufs(reg->fMigrationNameSuffs, smp->fMigrationNameSuffs), syst->fMigrationNameSuffsDown);
+    }
+    else{
+      nameSuffs = Common::CombinePathSufs(Common::CombinePathSufs(reg->fMigrationNameSuffs, smp->fMigrationNameSuffs), fMigrationNamesNominal);
+    }
+
+    // And finally put everything together
+    fullPaths = Common::CreatePathsList(paths, pathSuffs, files, fileSuffs, names, nameSuffs);
+    return fullPaths;
+}
+
+//__________________________________________________________________________________
+//
+std::vector<std::string> TRExFit::FullAcceptancePaths(const Region* reg,
+                                                      const UnfoldingSample* smp,
+                                                      const UnfoldingSystematic* syst,
+                                                      const bool isUp) const {
+    // protection against nullptr
+    if(!reg) {
+        WriteErrorStatus("TRExFit::FullAcceptancePaths","Null pointer for Region.");
+        exit(EXIT_FAILURE);
+    }
+    if(!smp) {
+        WriteErrorStatus("TRExFit::FullAcceptancePaths","Null pointer for Sample.");
+        exit(EXIT_FAILURE);
+    }
+    std::vector<std::string> fullPaths;
+    std::vector<std::string> paths;
+    std::vector<std::string> pathSuffs;
+    std::vector<std::string> files;
+    std::vector<std::string> fileSuffs;
+    std::vector<std::string> names;
+    std::vector<std::string> nameSuffs;
+    // precendence:
+    // 1. Systematic
+    // 2. Sample
+    // 3. Region
+    // 4. Job
+    if(syst){
+        if(isUp) {
+            if(syst->fAcceptancePathsUp.size()  >0) paths = syst->fAcceptancePathsUp;
+            if(syst->fAcceptanceFilesUp.size()  >0) files = syst->fAcceptanceFilesUp;
+            if(syst->fAcceptanceNamesUp.size()  >0) names = syst->fAcceptanceNamesUp;
+        } else {
+            if(syst->fAcceptancePathsDown.size()>0) paths = syst->fAcceptancePathsDown;
+            if(syst->fAcceptanceFilesDown.size()>0) files = syst->fAcceptanceFilesDown;
+            if(syst->fAcceptanceNamesDown.size()>0) names = syst->fAcceptanceNamesDown;
+        }
+    }
+    if(paths.size()==0 && smp->fAcceptancePaths.size()>0) paths = smp->fAcceptancePaths;
+    if(files.size()==0 && smp->fAcceptanceFiles.size()>0) files = smp->fAcceptanceFiles;
+    if(names.size()==0 && smp->fAcceptanceNames.size()>0) names = smp->fAcceptanceNames;
+
+    if(paths.size()==0 && reg->fAcceptancePaths.size()>0) paths = reg->fAcceptancePaths;
+    if(files.size()==0 && reg->fAcceptanceFiles.size()>0) files = reg->fAcceptanceFiles;
+    if(names.size()==0 && reg->fAcceptanceNames.size()>0) names = reg->fAcceptanceNames;
+
+    if(paths.size()==0 && fAcceptancePaths.size()>0) paths = fAcceptancePaths;
+    if(files.size()==0 && fAcceptanceFiles.size()>0) files = fAcceptanceFiles;
+    if(names.size()==0 && fAcceptanceNames.size()>0) names = fAcceptanceNames;
+
+    if(syst) {
+        if(isUp) pathSuffs = Common::CombinePathSufs(Common::CombinePathSufs(reg->fAcceptancePathSuffs,smp->fAcceptancePathSuffs), syst->fAcceptancePathSuffsUp);
+        else     pathSuffs = Common::CombinePathSufs(Common::CombinePathSufs(reg->fAcceptancePathSuffs,smp->fAcceptancePathSuffs), syst->fAcceptancePathSuffsDown);
+    }
+    else{
+        pathSuffs = Common::CombinePathSufs(reg->fAcceptancePathSuffs, smp->fAcceptancePathSuffs);
+    }
+
+    if(syst) {
+        if(isUp) fileSuffs = Common::CombinePathSufs(Common::CombinePathSufs(reg->fAcceptanceFileSuffs, smp->fAcceptanceFileSuffs), syst->fAcceptanceFileSuffsUp);
+        else     fileSuffs = Common::CombinePathSufs(Common::CombinePathSufs(reg->fAcceptanceFileSuffs, smp->fAcceptanceFileSuffs), syst->fAcceptanceFileSuffsDown);
+    }
+    else{
+        fileSuffs = Common::CombinePathSufs(reg->fAcceptanceFileSuffs, smp->fAcceptanceFileSuffs);
+    }
+
+    if(syst) {
+        if(isUp) nameSuffs = Common::CombinePathSufs(Common::CombinePathSufs(reg->fAcceptanceNameSuffs, smp->fAcceptanceNameSuffs), syst->fAcceptanceNameSuffsUp);
+        else     nameSuffs = Common::CombinePathSufs(Common::CombinePathSufs(reg->fAcceptanceNameSuffs, smp->fAcceptanceNameSuffs), syst->fAcceptanceNameSuffsDown);
+    }
+    else{
+      nameSuffs = Common::CombinePathSufs(Common::CombinePathSufs(reg->fAcceptanceNameSuffs, smp->fAcceptanceNameSuffs), fAcceptanceNamesNominal);
+    }
+
+    // And finally put everything together
+    fullPaths = Common::CreatePathsList(paths, pathSuffs, files, fileSuffs, names, nameSuffs);
+    return fullPaths;
+}
+
+//__________________________________________________________________________________
+//
+std::vector<std::string> TRExFit::FullSelectionEffPaths(const Region* reg,
+                                                        const UnfoldingSample* smp,
+                                                        const UnfoldingSystematic* syst,
+                                                        const bool isUp) const {
+    // protection against nullptr
+    if(!reg) {
+        WriteErrorStatus("TRExFit::FullSelectionEffPaths","Null pointer for Region.");
+        exit(EXIT_FAILURE);
+    }
+    if(!smp) {
+        WriteErrorStatus("TRExFit::FullSelectionEffPaths","Null pointer for Sample.");
+        exit(EXIT_FAILURE);
+    }
+    std::vector<std::string> fullPaths;
+    std::vector<std::string> paths;
+    std::vector<std::string> pathSuffs;
+    std::vector<std::string> files;
+    std::vector<std::string> fileSuffs;
+    std::vector<std::string> names;
+    std::vector<std::string> nameSuffs;
+    // precendence:
+    // 1. Systematic
+    // 2. Sample
+    // 3. Region
+    // 4. Job
+    if(syst){
+        if(isUp) {
+            if(syst->fSelectionEffPathsUp.size()  >0) paths = syst->fSelectionEffPathsUp;
+            if(syst->fSelectionEffFilesUp.size()  >0) files = syst->fSelectionEffFilesUp;
+            if(syst->fSelectionEffNamesUp.size()  >0) names = syst->fSelectionEffNamesUp;
+        } else {
+            if(syst->fSelectionEffPathsDown.size()>0) paths = syst->fSelectionEffPathsDown;
+            if(syst->fSelectionEffFilesDown.size()>0) files = syst->fSelectionEffFilesDown;
+            if(syst->fSelectionEffNamesDown.size()>0) names = syst->fSelectionEffNamesDown;
+        }
+    }
+    if(paths.size()==0 && smp->fSelectionEffPaths.size()>0) paths = smp->fSelectionEffPaths;
+    if(files.size()==0 && smp->fSelectionEffFiles.size()>0) files = smp->fSelectionEffFiles;
+    if(names.size()==0 && smp->fSelectionEffNames.size()>0) names = smp->fSelectionEffNames;
+
+    if(paths.size()==0 && reg->fSelectionEffPaths.size()>0) paths = reg->fSelectionEffPaths;
+    if(files.size()==0 && reg->fSelectionEffFiles.size()>0) files = reg->fSelectionEffFiles;
+    if(names.size()==0 && reg->fSelectionEffNames.size()>0) names = reg->fSelectionEffNames;
+
+    if(paths.size()==0 && fSelectionEffPaths.size()>0) paths = fSelectionEffPaths;
+    if(files.size()==0 && fSelectionEffFiles.size()>0) files = fSelectionEffFiles;
+    if(names.size()==0 && fSelectionEffNames.size()>0) names = fSelectionEffNames;
+
+    if(syst) {
+        if(isUp) pathSuffs = Common::CombinePathSufs(Common::CombinePathSufs(reg->fSelectionEffPathSuffs,smp->fSelectionEffPathSuffs), syst->fSelectionEffPathSuffsUp);
+        else     pathSuffs = Common::CombinePathSufs(Common::CombinePathSufs(reg->fSelectionEffPathSuffs,smp->fSelectionEffPathSuffs), syst->fSelectionEffPathSuffsDown);
+    }
+    else{
+        pathSuffs = Common::CombinePathSufs(reg->fSelectionEffPathSuffs, smp->fSelectionEffPathSuffs);
+    }
+
+    if(syst) {
+        if(isUp) fileSuffs = Common::CombinePathSufs(Common::CombinePathSufs(reg->fSelectionEffFileSuffs, smp->fSelectionEffFileSuffs), syst->fSelectionEffFileSuffsUp);
+        else     fileSuffs = Common::CombinePathSufs(Common::CombinePathSufs(reg->fSelectionEffFileSuffs, smp->fSelectionEffFileSuffs), syst->fSelectionEffFileSuffsDown);
+    }
+    else{
+        fileSuffs = Common::CombinePathSufs(reg->fSelectionEffFileSuffs, smp->fSelectionEffFileSuffs);
+    }
+
+    if(syst) {
+        if(isUp) nameSuffs = Common::CombinePathSufs(Common::CombinePathSufs(reg->fSelectionEffNameSuffs, smp->fSelectionEffNameSuffs), syst->fSelectionEffNameSuffsUp);
+        else     nameSuffs = Common::CombinePathSufs(Common::CombinePathSufs(reg->fSelectionEffNameSuffs, smp->fSelectionEffNameSuffs), syst->fSelectionEffNameSuffsDown);
+    }
+    else{
+      nameSuffs = Common::CombinePathSufs(Common::CombinePathSufs(reg->fSelectionEffNameSuffs, smp->fSelectionEffNameSuffs), fSelectionEffNamesNominal);
+    }
+
+    // And finally put everything together
+    fullPaths = Common::CreatePathsList(paths, pathSuffs, files, fileSuffs, names, nameSuffs);
+    return fullPaths;
+}
+
+//__________________________________________________________________________________
+//
+void TRExFit::PlotUnfold(TH1D* data,
+                         TGraphAsymmErrors* total) const {
+
+    std::vector<std::unique_ptr<TH1> > mc;
+    std::vector<std::string> legendNames;
+    for (const auto& isample : fTruthSamples) {
+        if (!isample->GetUseForPlotting()) continue;
+        mc.emplace_back(std::move(isample->GetHisto(this)));
+        mc.back()->SetLineColor(isample->GetLineColor());
+        mc.back()->SetLineStyle(isample->GetLineStyle());
+        legendNames.emplace_back(isample->GetTitle());
+    }
+
+    if (mc.empty()) {
+        WriteWarningStatus("TRExFit::PlotUnfold", "No MC samples set for plotting. Will not create the final plots");
+        return;
+    }
+
+    TCanvas c("","",600,600);
+    TPad pad1("pad1","pad1",0.0, 0.3, 1.0, 1.00);
+    TPad pad2("pad2","pad2", 0.0, 0.010, 1.0, 0.3);
+    pad1.SetBottomMargin(0.001);
+    pad1.SetBorderMode(0);
+    pad2.SetBottomMargin(0.5);
+    pad1.SetTicks(1,1);
+    pad2.SetTicks(1,1);
+    pad1.Draw();
+    pad2.Draw();
+
+    if (fUnfoldingLogX) {
+        pad1.SetLogx();
+        pad2.SetLogx();
+    }
+    if (fUnfoldingLogY) {
+        pad1.SetLogy();
+    }
+
+    pad1.cd();
+    total->SetMarkerStyle(20);
+    total->SetMarkerSize(1.2);
+    total->SetLineColor(kBlack);
+    total->SetLineStyle(1);
+
+    total->GetYaxis()->SetLabelSize(0.05);
+    total->GetYaxis()->SetLabelFont(42);
+    total->GetYaxis()->SetTitleFont(42);
+    total->GetYaxis()->SetTitleSize(0.07);
+    total->GetYaxis()->SetTitleOffset(1.1);
+
+    std::unique_ptr<TH1> h_dummy(static_cast<TH1*>(mc[0]->Clone()));
+    const double corr = fUnfoldingLogY ? 1e6 : 1.5;
+    h_dummy->GetYaxis()->SetRangeUser(0.0001, corr*h_dummy->GetMaximum());
+    h_dummy->GetYaxis()->SetTitle(fUnfoldingTitleY.c_str());
+    h_dummy->GetYaxis()->SetTitleOffset(fUnfoldingTitleOffsetY*h_dummy->GetYaxis()->GetTitleOffset());
+    h_dummy->SetLineWidth(0);
+    h_dummy->SetLineColor(kWhite);
+    h_dummy->DrawClone("HIST");
+
+    std::unique_ptr<TGraphAsymmErrors> error(static_cast<TGraphAsymmErrors*>(total->Clone()));
+    error->SetFillStyle(1001);
+    error->SetFillColor(kGray);
+    error->SetLineColor(kGray);
+    error->Draw("E2 same");
+
+    for (auto& itruth : mc) {
+        itruth->SetLineWidth(2);
+        itruth->Draw("HIST same");
+    }
+
+    total->Draw("pX SAME");
+
+    float legH = (mc.size()+2)*0.07;
+    TLegend leg(0.55, 0.9-legH, 0.9, 0.9);
+    if (fAlternativeAsimovTruthSample == "") {
+        leg.AddEntry(total, "Unfolded data", "p");
+    } else {
+        leg.AddEntry(total, "Unfolded pseudo-data", "p");
+    }
+    for (std::size_t imc = 0; imc < mc.size(); ++imc) {
+        leg.AddEntry(mc.at(imc).get(), legendNames.at(imc).c_str(), "l");
+    }
+    leg.AddEntry(error.get(), "Total uncertainty","f");
+
+    leg.SetFillColor(0);
+    leg.SetLineColor(0);
+    leg.SetBorderSize(0);
+    leg.SetTextFont(gStyle->GetTextFont());
+    leg.SetTextSize(gStyle->GetTextSize());
+    leg.Draw("SAME");
+
+    if (fAtlasLabel != "none") ATLASLabel(0.2,0.87,fAtlasLabel.c_str());
+    myText(0.2,0.8,1,Form("#sqrt{s} = %s, %s",fCmeLabel.c_str(),fLumiLabel.c_str()));
+
+    pad1.RedrawAxis();
+
+    // Plot ratio
+    pad2.cd();
+    h_dummy->GetXaxis()->SetTitleOffset(fUnfoldingTitleOffsetX*h_dummy->GetXaxis()->GetTitleOffset());
+    h_dummy->GetYaxis()->SetTitleOffset(fUnfoldingTitleOffsetY*0.55*h_dummy->GetYaxis()->GetTitleOffset());
+    h_dummy->GetYaxis()->SetRangeUser(fUnfoldingRatioYmin,fUnfoldingRatioYmax);
+    h_dummy->GetYaxis()->SetTitle("#frac{Prediction}{Data}");
+    h_dummy->GetYaxis()->SetNdivisions(505);
+    h_dummy->GetXaxis()->SetTitle(fUnfoldingTitleX.c_str());
+    h_dummy->Draw("HIST");
+
+    // Plot the error band
+    std::unique_ptr<TGraphAsymmErrors> band = Common::GetRatioBand(total, data);
+    band->SetFillStyle(1001);
+    band->SetFillColor(kGray);
+    band->SetLineColor(kGray);
+    band->SetMarkerStyle(0);
+    band->SetLineWidth(2);
+    band->Draw("E2 SAME");
+
+    // Plot the theory predictions
+    std::vector<std::unique_ptr<TH1D> > ratios;
+    for (const auto& itruth : mc) {
+        ratios.emplace_back(static_cast<TH1D*>(itruth->Clone()));
+        ratios.back()->Divide(data);
+        ratios.back()->Draw("HIST same");
+    }
+
+    pad2.RedrawAxis();
+
+    for(const auto& format : TRExFitter::IMAGEFORMAT) {
+        c.SaveAs((fName+"/UnfoldedData."+ format).c_str());
+    }
+}
+
+//__________________________________________________________________________________
+//
+void TRExFit::PlotMigrationResponse(const TH2* matrix,
+                                    const bool isMigration,
+                                    const std::string& regionName,
+                                    const std::string& systematicName) const {
+
+    std::unique_ptr<TH2D> m(static_cast<TH2D*>(matrix->Clone()));
+
+    gStyle->SetPalette(87);
+    if (isMigration) gStyle->SetPaintTextFormat("1.2f");
+    else gStyle->SetPaintTextFormat("2.1f");
+    TCanvas c("","",600,600);
+    c.cd();
+
+    TPad pad("","",0,0.0,1,1);
+    pad.SetRightMargin(0.15);
+    pad.SetLeftMargin(0.15);
+    pad.SetTopMargin(0.15);
+    pad.SetBottomMargin(0.15);
+    pad.Draw();
+    pad.cd();
+
+    if (fMigrationLogX) {
+        pad.SetLogx();
+    }
+    if (fMigrationLogY) {
+        pad.SetLogy();
+    }
+
+    m->SetMarkerSize(850);
+    m->SetMarkerColor(kBlack);
+    m->GetXaxis()->SetTitle(fMigrationTitleX.c_str());
+    m->GetXaxis()->SetTitleOffset(fMigrationTitleOffsetX * m->GetXaxis()->GetTitleOffset());
+    m->GetYaxis()->SetTitleOffset(fMigrationTitleOffsetY * m->GetYaxis()->GetTitleOffset());
+    m->GetYaxis()->SetTitle(fMigrationTitleY.c_str());
+    m->GetXaxis()->SetNdivisions(505);
+    m->GetZaxis()->SetTitleOffset(1.3);
+    if (isMigration) {
+        m->GetZaxis()->SetTitle("Migration");
+        m->GetZaxis()->SetRangeUser(fMigrationZmin,fMigrationZmax);
+    } else {
+        m->GetZaxis()->SetTitle("Response");
+        m->GetZaxis()->SetRangeUser(fResponseZmin,fResponseZmax);
+    }
+
+    c.SetGrid();
+    if(fMigrationText) m->Draw("COLZ TEXT");
+    else m->Draw("COLZ");
+
+    if (fAtlasLabel != "none") ATLASLabel(0.03,0.92,fAtlasLabel.c_str());
+    myText(0.68,0.92,1,Form("#sqrt{s} = %s, %s",fCmeLabel.c_str(),fLumiLabel.c_str()));
+
+    c.RedrawAxis("g");
+
+    if (systematicName != "") {
+        gSystem->mkdir("Systematics");
+        gSystem->mkdir(("Systematics/"+systematicName).c_str());
+    }
+    const std::string tmp = isMigration ? "migration" : "response";
+    const std::string name = systematicName == "" ? tmp + "_" + regionName : "Systematics/" + systematicName+"/"+tmp + "_" + regionName;
+
+    for(const auto& format : TRExFitter::IMAGEFORMAT) {
+        c.SaveAs((fName+"/" + name+ "."+ format).c_str());
+    }
+}
+
+//__________________________________________________________________________________
+//
+void TRExFit::RunForceShape() {
+    for (const auto& ireg : fRegions) {
+        for (const auto& ismp : fSamples) {
+            if(Common::FindInStringVector(ismp->fRegions, ireg->fName) < 0) continue;
+            SampleHist *sh = ireg->GetSampleHist(ismp->fName);
+            if(!sh) continue;
+            for (const auto& isyst : ismp->fSystematics) {
+                if (isyst->fForceShape == HistoTools::FORCESHAPETYPE::NOSHAPE) continue;
+                if(isyst->fRegions.size()>0 && Common::FindInStringVector(isyst->fRegions,ireg->fName)<0  ) continue;
+                if(isyst->fExclude.size()>0 && Common::FindInStringVector(isyst->fExclude,ireg->fName)>=0 ) continue;
+                if(isyst->fExcludeRegionSample.size()>0 && Common::FindInStringVectorOfVectors(isyst->fExcludeRegionSample, ireg->fName, ismp->fName)>=0 ) continue;
+                SystematicHist *syh = sh->GetSystematic(isyst->fName);
+                if(!syh) continue;
+
+                HistoTools::ForceShape(syh->fHistUp.get(), sh->fHist.get(), isyst->fForceShape);
+                // Symmetrise
+                for (int ibin = 1; ibin <= sh->fHist->GetNbinsX(); ++ibin) {
+                    const double diff = syh->fHistUp->GetBinContent(ibin) - sh->fHist->GetBinContent(ibin);
+                    syh->fHistDown->SetBinContent(ibin, sh->fHist->GetBinContent(ibin) - diff);
+                }
+            }
+        }
+    }
+}
+
+//__________________________________________________________________________________
+//
+void TRExFit::ApplyExternalConstraints(RooWorkspace* ws,
+                                       FittingTool* fitTool,
+                                       RooSimultaneous* simPdf) const {
+    // Tikhonov regularization (for unfolding)
+    RooArgList l;
+    std::vector<double> nomVec;
+    std::vector<double> tauVec;
+    for(const auto& nf : fNormFactors){
+        if(nf->fTau!=0){
+            l.add(*ws->var(nf->fName.c_str()));
+            nomVec.push_back( nf->fNominal );
+            tauVec.push_back( nf->fTau );
+        }
+    }
+
+    if(tauVec.empty()) return;
+
+    TVectorD nominal(nomVec.size());
+    TMatrixDSym cov(tauVec.size());
+    for(unsigned int i_tau=0;i_tau<tauVec.size();i_tau++){
+        nominal(i_tau) = nomVec[i_tau];
+        cov(i_tau,i_tau) = (1./tauVec[i_tau]) * (1./tauVec[i_tau]);
+    }
+    RooMultiVarGaussian r("regularization","regularization",l,nominal,cov);
+    ws->import(r);
+    ws->defineSet("myConstraints","regularization");
+    simPdf->setStringAttribute("externalConstraints","myConstraints");
+
+    if(simPdf->getStringAttribute("externalConstraints")){
+        WriteInfoStatus("TRExFit::ApplyExternalConstraints",Form("Building NLL with external constraints %s",simPdf->getStringAttribute("externalConstraints")));
+        const RooArgSet* externalConstraints = ws->set(simPdf->getStringAttribute("externalConstraints"));
+        fitTool->SetExternalConstraints( externalConstraints );
+    }
+}

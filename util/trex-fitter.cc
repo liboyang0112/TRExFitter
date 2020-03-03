@@ -8,6 +8,9 @@
 #include "TRExFitter/StatusLogbook.h"
 #include "TRExFitter/NtupleReader.h"
 #include "TRExFitter/TRExFit.h"
+#include "TRExFitter/TRExPlot.h"
+#include "TRExFitter/UnfoldingSample.h"
+#include "TRExFitter/UnfoldingSystematic.h"
 
 // RooStatsIncludes
 #include "RooStats/RooStatsUtils.h"
@@ -72,28 +75,29 @@ void FitExample(std::string opt="h",std::string configFile="config/myFit.config"
     RooStats::UseNLLOffset(true);
 
     // interpret opt
-    bool readHistograms  = opt.find("h")!=std::string::npos;
-    bool readNtuples     = opt.find("n")!=std::string::npos;
-    bool rebinAndSmooth  = opt.find("b")!=std::string::npos;
-    bool createWorkspace = opt.find("w")!=std::string::npos;
-    bool doFit           = opt.find("f")!=std::string::npos;
-    bool doRanking       = opt.find("r")!=std::string::npos;
-    bool doLimit         = opt.find("l")!=std::string::npos;
-    bool doSignificance  = opt.find("s")!=std::string::npos;
-    bool drawPreFit      = opt.find("d")!=std::string::npos;
-    bool drawPostFit     = opt.find("p")!=std::string::npos;
-    bool drawSeparation  = opt.find("a")!=std::string::npos;
-    bool groupedImpact   = opt.find("i")!=std::string::npos;
-    bool doLHscan        = opt.find("x")!=std::string::npos;
+    const bool readHistograms     = opt.find("h") != std::string::npos;
+    const bool readNtuples        = opt.find("n") != std::string::npos;
+    const bool rebinAndSmooth     = opt.find("b") != std::string::npos;
+    const bool createWorkspace    = opt.find("w") != std::string::npos;
+    const bool doFit              = opt.find("f") != std::string::npos;
+    const bool doRanking          = opt.find("r") != std::string::npos;
+    const bool doLimit            = opt.find("l") != std::string::npos;
+    const bool doSignificance     = opt.find("s") != std::string::npos;
+    bool drawPreFit         = opt.find("d") != std::string::npos;
+    const bool drawPostFit        = opt.find("p") != std::string::npos;
+    const bool drawSeparation     = opt.find("a") != std::string::npos;
+    const bool groupedImpact      = opt.find("i") != std::string::npos;
+    const bool doLHscan           = opt.find("x") != std::string::npos;
+    const bool prepareUnfolding   = opt.find("u") != std::string::npos;
 
-    bool pruning = (createWorkspace || drawPreFit || drawPostFit); // ...
+    const bool pruning = (createWorkspace || drawPreFit || drawPostFit); // ...
 
     if(!readNtuples && !rebinAndSmooth){
         TH1::AddDirectory(kFALSE); // FIXME: it would be nice to have a solution which works always
     }
 
     // multi-fit
-    bool isMultiFit      = opt.find("m")!=std::string::npos;
+    const bool isMultiFit      = opt.find("m")!=std::string::npos;
     if(isMultiFit){
         std::unique_ptr<MultiFit> myMultiFit = std::make_unique<MultiFit>("MyMultiFit");
         ConfigReaderMulti confReaderMulti(myMultiFit.get());
@@ -195,6 +199,19 @@ void FitExample(std::string opt="h",std::string configFile="config/myFit.config"
     // -------------------------------------------------------
     myFit->PrintConfigSummary();
 
+    if (prepareUnfolding) {
+        std::cout << "Running preparation step for unfolding..." << std::endl;
+        if (myFit->fFitType != TRExFit::UNFOLDING) {
+            WriteErrorStatus("trex-fitter::FitExample", "You want to run unfolding step but the fit type is not set to \"UNFOLDING\". Fix this please.");
+            return;
+        }
+        myFit->PrepareUnfolding();
+    }
+
+    // Free the memeory
+    myFit->fUnfoldingSamples.clear();
+    myFit->fUnfoldingSystematics.clear();
+
     if(readHistograms){
         std::cout << "Reading histograms..." << std::endl;
         myFit->CreateRootFiles();
@@ -205,6 +222,7 @@ void FitExample(std::string opt="h",std::string configFile="config/myFit.config"
         myFit->CorrectHistograms();
         myFit->MergeSystematics();
         myFit->CreateCustomAsimov();
+        myFit->UnfoldingAlternativeAsimov();
         myFit->WriteHistos();
         if(TRExFitter::SYSTCONTROLPLOTS) myFit->DrawSystPlots();
         if(TRExFitter::SYSTDATAPLOT)     myFit->DrawSystPlotsSumSamples();
@@ -221,6 +239,7 @@ void FitExample(std::string opt="h",std::string configFile="config/myFit.config"
         myFit->CorrectHistograms();
         myFit->MergeSystematics();
         myFit->CreateCustomAsimov();
+        myFit->UnfoldingAlternativeAsimov();
         myFit->WriteHistos();
         if(TRExFitter::SYSTCONTROLPLOTS) myFit->DrawSystPlots();
         if(TRExFitter::SYSTDATAPLOT)     myFit->DrawSystPlotsSumSamples();
@@ -234,14 +253,15 @@ void FitExample(std::string opt="h",std::string configFile="config/myFit.config"
 
     if(rebinAndSmooth){
         std::cout << "Rebinning and smoothing..." << std::endl;
-        bool udpate = myFit->fUpdate;
+        const bool update = myFit->fUpdate;
         myFit->fUpdate = true;
         myFit->CreateRootFiles();
-        myFit->fUpdate = udpate;
+        myFit->fUpdate = update;
         myFit->CorrectHistograms();
         myFit->MergeSystematics();
         myFit->CombineSpecialSystematics();
         myFit->CreateCustomAsimov();
+        myFit->UnfoldingAlternativeAsimov();
         myFit->WriteHistos(false);
         if(TRExFitter::SYSTCONTROLPLOTS) myFit->DrawSystPlots();
         if(TRExFitter::SYSTDATAPLOT)     myFit->DrawSystPlotsSumSamples();
@@ -264,6 +284,7 @@ void FitExample(std::string opt="h",std::string configFile="config/myFit.config"
         myFit->Fit(false);
         myFit->PlotFittedNP();
         myFit->PlotCorrelationMatrix();
+        myFit->PlotUnfoldedData();
     }
     if (doLHscan){
         std::cout << "Running LH scan only..." << std::endl;
@@ -292,11 +313,13 @@ void FitExample(std::string opt="h",std::string configFile="config/myFit.config"
         else                                         myFit->BuildGroupedImpactTable();
     }
 
-    TRExPlot* prefit_plot = 0;
-    TRExPlot* prefit_plot_valid = 0;
+    TRExPlot* prefit_plot = nullptr;
+    TRExPlot* prefit_plot_valid = nullptr;
     if( drawPostFit && TRExFitter::PREFITONPOSTFIT ) {
         drawPreFit = true;
     }
+
+    const std::string log = myFit->fSummaryLogY ?  "log " : "";
 
     if(drawPreFit){
         std::cout << "Drawing pre-fit plots..." << std::endl;
@@ -310,8 +333,8 @@ void FitExample(std::string opt="h",std::string configFile="config/myFit.config"
                 }
             }
             if(myFit->fDoSummaryPlot){
-                prefit_plot       = myFit->DrawSummary("log prefit");
-                prefit_plot_valid = myFit->DrawSummary("log valid prefit");
+                prefit_plot       = myFit->DrawSummary(log + "prefit");
+                prefit_plot_valid = myFit->DrawSummary(log + "valid prefit");
             }
         }
         else{
@@ -324,8 +347,8 @@ void FitExample(std::string opt="h",std::string configFile="config/myFit.config"
                 }
             }
             if(myFit->fDoSummaryPlot){
-                prefit_plot       = myFit->DrawSummary("log");
-                prefit_plot_valid = myFit->DrawSummary("log valid");
+                prefit_plot       = myFit->DrawSummary(log);
+                prefit_plot_valid = myFit->DrawSummary(log + "valid");
             }
         }
         if(myFit->fDoTables){
@@ -358,8 +381,8 @@ void FitExample(std::string opt="h",std::string configFile="config/myFit.config"
             }
         }
         if(myFit->fDoSummaryPlot){
-            myFit->DrawSummary("log post",      prefit_plot);
-            myFit->DrawSummary("log post valid",prefit_plot_valid);
+            myFit->DrawSummary(log + "post",      prefit_plot);
+            myFit->DrawSummary(log + "post valid",prefit_plot_valid);
         }
         if(myFit->fDoTables){
             myFit->BuildYieldTable("post");

@@ -39,6 +39,12 @@ namespace HistoTools {
         KERNELRATIOGAUSS = 6
     };
 
+    enum class FORCESHAPETYPE {
+        NOSHAPE = 0,
+        LINEAR = 1,
+        TRIANGULAR
+    };
+
     /**
     * In RooStats, input histogram variable binning is not supported => convert to a constant binning
     * by creating an histogram with the same number of bins but with constant binning between 0 and 1
@@ -171,6 +177,28 @@ namespace HistoTools {
      * @return Histo is OK
      */
     bool CheckHistograms(TH1* nom, SystematicHist* sh, bool checkNull = true, bool causeCrash = false);
+
+    /**
+      * A helper function to manually modify the shape of the systematic variation
+      * @param Systematic variation
+      * @param Nominal
+      * @param type of the shape
+      */ 
+    void ForceShape(TH1* syst, const TH1* nominal, const FORCESHAPETYPE type); 
+
+    /**
+      * A helper function to force linear shape
+      * @param Systematic variation
+      * @param Nominal
+      */ 
+    void ForceShapeLinear(TH1* syst, const TH1* nominal);
+
+    /**
+      * A helper function to force triangular shape
+      * @param Systematic variation
+      * @param Nominal
+      */ 
+    void ForceShapeTriangular(TH1* syst, const TH1* nominal);
 
 }
 #endif

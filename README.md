@@ -1,4 +1,4 @@
-# TRExFitter   [![build status](https://gitlab.cern.ch/TRExStats/TRExFitter/badges/master/build.svg "build status")](https://gitlab.cern.ch/TRExStats/TRExFitter/commits/master)
+# TRExFitter   [![build status](https://gitlab.cern.ch/TRExStats/TRExFitter/badges/master/pipeline.svg "build status")](https://gitlab.cern.ch/TRExStats/TRExFitter/commits/master)
 
 This package provides a framework to perform profile likelihood fits. In addition to that, many convenient features are available. TRExFitter was previously also known as TtHFitter. Here are a few important references to make use of:
 
@@ -28,12 +28,13 @@ Please have a look at [CONTRIBUTING.md](CONTRIBUTING.md) to get started.
 7.  [Grouped Impact](#grouped-impact)
 8.  [Multi-Fit](#multi-fit)
     * [Available multi-fit settings](#available-multi-fit-settings)
-9.  [Input File Merging with hupdate](#input-file-merging-with-hupdate)
-10. [Output Directories Structure](#output-directories-structure)
-11. [ShapeFactor example](#shapefactor-example)
-12. [Replacement file](#replacement-file)
-13. [FAQ](#faq)
-14. [TRExFitter package authors](#trexfitter-package-authors)
+9.  [Running Unfolding](#running-unfolding)
+10. [Input File Merging with hupdate](#input-file-merging-with-hupdate)
+11. [Output Directories Structure](#output-directories-structure)
+12. [ShapeFactor example](#shapefactor-example)
+13. [Replacement file](#replacement-file)
+14. [FAQ](#faq)
+15. [TRExFitter package authors](#trexfitter-package-authors)
 
 
 
@@ -73,7 +74,7 @@ To compile:
 3. Compile the code with `cmake --build ./`
 4. The binary file will appear in `bin/` directory
 
-(this will take as main code the file `util/trex-fitter.C`)
+(this will take as main code the file `util/trex-fitter.cc`)
 
 The setup script also adds a path to the binary into your PATH and you can execute the code with `trex-fitter`
 
@@ -122,7 +123,7 @@ Replace `latest` by another tag to get the corresponding version of the code. In
 You might want to add the flag ```--silent``` to suppress the warnings occuring for AnalysisBase images based on CentOS7.
 
 #### Setup using Docker image with Docker
-These steps describe how to use the image with the Docker software, for example on your own local machine. Get started by creating an account and downloading docker here: [https://hub.docker.com/](https://hub.docker.com/).
+These steps describe how to use the image with the Docker software, for example on your own local machine. Get started by downloading docker [here](https://www.docker.com/products/docker-desktop).
 
 To get access to the images, start with an authentication by running the following command:
 ```
@@ -154,6 +155,7 @@ For instance, if you use the default file `util/trex-fitter.C`, the available ac
 
 | **Option** | **Action** |
 | ---------- | ---------- |
+| `u` | read efficiencies, migration/response matrices an acceptances for unfolding and then fold them |
 | `h` | read input histograms (valid only if the proper option is specified in the config file) |
 | `n` | read input ntuples (valid only if the proper option is specified in the config file) |
 | `w` | create the RooStats xmls and workspace |
@@ -179,7 +181,6 @@ See the section [Command line options](#command-line-options) below.
 
 
 ## Config File
-
 The structure of the file should be the following:
 ```
 <ObjectType>: <ObjectName>
@@ -205,6 +206,12 @@ The file should contain:
   * any number of objects of type `Systematic` (even 0 is ok)
   * any number of objects of type `NormFactor` (even 0 is ok)
 
+In case of unfolding you need:
+  * exactly one object of type `Job`
+  * exactly one object of type `Unfolding`
+  * at least one object of type `TruthSample`
+  * at least one object of type `UnfoldingSample`
+
 Note that each object should have unique `<ObjectName>`.
 
 At the beginning of TRExFitter execution, the config file used will be checked against a reference file.
@@ -221,6 +228,10 @@ The available blocks are:
 - `NormFactor`
 - `ShapeFactor`
 - `Systematic`
+- `TruthSample`
+- `Unfolding`
+- `UnfoldingSample`
+- `UnfoldingSystematic`
 
 ### Available settings
 For each object type (or "block"), you can find the available settings in [our documentation (docs/Settings.md)](docs/Settings.md#standard-fit).
@@ -232,6 +243,7 @@ Currently the supported options are:
 
 | **Option** | **Effect** |
 | ---------- | ---------- |
+| **Job**               | to to provide a new name for the output folder |
 | **Regions**           | to limit the regions to use to the list specified |
 | **Samples**           | to limit the samples to use to the list specified |
 | **Systematics**       | to limit the systematics to use to the list specified |
@@ -249,13 +261,13 @@ Currently the supported options are:
 | **BootstrapIdx**      | see description of Bootstrap option in config (under Job) |
 | **BootstrapSYst**     | see description of BootstrapSyst option in config (under Job) |
 | **GroupedImpact**     | see [Grouped Impact](#grouped-impact) section |
-| **OutputDir**         | see [Job options](#job-block-options) section |
-| **LimitParamValue**   | see [Limit options](#limit-block-options) section (ParamValue) |
+| **OutputDir**         | see [Job settings](docs/Settings.md#job-block-settings) section |
+| **LimitParamValue**   | see [Limit settings](docs/Settings.md#limit-block-settings) section (ParamValue) |
 | **LHscan**            | set a NP/POI for the likelihood scan can be used for parallelization of the code |
 | **Parallel2Dscan**    | run only slice of LH2D scan in x-direction can be used for parallelization of the code |
 | **Parallel2Dscan**    | define which step of the parallelized 2D scan should be performed (has to be an integer between 0 and LHscanSteps-1) |
-| **FitBlind**          | see[Fit options](#fit-block-options) section |
-| **BlindedParameters** | see[Fit options](#fit-block-options) section |
+| **FitBlind**          | see [Fit settings](docs/Settings.md#fit-block-settings) section |
+| **BlindedParameters** | see [Fit settings](docs/Settings.md#fit-block-settings) section |
 
 Note: the wild-card `*` is supported, but only as last character.
 Example:
@@ -363,6 +375,17 @@ Find all available multi-fit settings in [our documentation (docs/Settings.md)](
 
 
 
+## Running Unfolding
+To run the unfolding, you need to run steps: `u`, followed by `h`, then the other steps will work as usual
+Example:
+```
+trex-fitter u test/configs/FitExampleUnfolding.config
+trex-fitter h test/configs/FitExampleUnfolding.config
+trex-fitter w test/configs/FitExampleUnfolding.config
+trex-fitter f test/configs/FitExampleUnfolding.config
+```
+
+
 ## Input File Merging with hupdate
 A macro `hupdate` is included, which mimics hadd functionality, but without adding histograms if they have the same name.
 This is useful for running different systematics in different steps (like different batch jobs) and then merging results afterwards.
@@ -399,6 +422,7 @@ Inside this directory, at every step, some outputs are created, following the st
 | `Toys/`               | plots and ROOT files with pseudoexperiments output |
 | `Histograms/`         | root file(s) with all the inputs |
 | `LHoodPlots/`         | likelihood scan with respect to the specified parameter |
+| `UnfoldingHistograms/`| folded histograms produced during `u` step |
 
 
 
@@ -462,6 +486,8 @@ Have a look at the relevant [part of the FitProblemsTutorial twiki](https://twik
 __Can I just use more bins to gain sensitivity?__\
 While more bings generally increase sensitivity, it is important to keep two things in mind. Limit the size of the MC statistical uncertainties ("gammas") to at most 20% per bin. Larger values can bias the signal extraction, see [these slides](https://indico.cern.ch/event/615262/contributions/2484815/) for a study and the corresponding recommendation. Furthermore, one aspect that is not considered in the fit is the statistical uncertainty in the templates that describe the ±1σ variations of a nuisance parameter. This uncertainty increases when adding more bins, and can lead to fluctuations in the templates. The nuisance parameter then does not describe physical effects, but rather fluctuations. It is very important to closely study all templates found in the `Systematics/` folder and verify that the input distributions to the fit (solid lines) look reasonable. These plots are obtained by enabling the settings `SystControlPlots` and `SystErrorBars` (both enabled by default).
 
+__How do the automatic binning algorithms work?__\
+The algorithms for `TransfoD` and `TransfoF` can be found in [these slides](https://indico.cern.ch/event/455289/contributions/1953694), `TransfoJ` is found in [slides here](https://indico.cern.ch/event/472696/contributions/1992693/). See also [this thesis](https://cds.cern.ch/record/2296985/), section 5.3.1. In practice, the `TransfoD` algorithm was found to work well, and a popular setting for the two parameters is to have both equal to the same integer. The amount of bins in the distribution is then equal to the sum, i.e. `"AutoBin","TransfoD",4,4` will create a distribution with 8 bins.
 
 
 ## TRExFitter package authors

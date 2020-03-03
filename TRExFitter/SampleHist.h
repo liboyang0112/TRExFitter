@@ -56,7 +56,7 @@ public:
     bool HasNorm(const std::string& name) const;
     bool HasShapeFactor(const std::string& name) const;
 
-    void WriteToFile(TFile *f=0x0,bool reWriteOrig=true);
+    void WriteToFile(TFile *f=nullptr,bool reWriteOrig=true);
     void ReadFromFile();
 
     void FixEmptyBins(const bool suppress);
