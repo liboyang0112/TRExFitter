@@ -4062,6 +4062,18 @@ int ConfigReader::ReadSystOptions(){
             }
         }
 
+        // Set IsCorrelated
+        param = confSet->Get("IsCorrelated");
+        if(param != ""){
+            std::transform(param.begin(), param.end(), param.begin(), ::toupper);
+            if (param == "TRUE") sys->fIsCorrelated = true;
+            else if (param == "FALSE") sys->fIsCorrelated = false;
+            else {
+                WriteWarningStatus("ConfigReader::ReadSystOptions", "You specified 'IsFreeParameter' option but did not provide valid parameter. Using default (false)");
+                sys->fIsCorrelated = true;
+            }
+        }
+
         // Set StoredName
         // New: name to use when writing / reading the Histograms file
         param = confSet->Get("StoredName");

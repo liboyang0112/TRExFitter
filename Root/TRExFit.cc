@@ -7719,7 +7719,7 @@ std::string TRExFit::FullWeight(Region *reg,Sample *smp,Systematic *syst,bool is
     // WiP fBootstrapSample means bootstrap on sample and all the correlated systs (so no fntupleFiles -> not sure it captures everything)
     if(fBootstrap!="" && fBootstrapIdx>=0 
       && !(fBootstrapSyst!="" && syst==nullptr)
-      && (fBootstrapSample=="" || ( smp->fName==fBootstrapSample && ( !syst || (syst->fNtupleFilesUp.size()==0 && syst->fNtupleFilesDown.size()==0) ) ) ) ){
+      && (fBootstrapSample=="" || ( smp->fName==fBootstrapSample && ( !syst || syst->fIsCorrelated ) ) ) ){
         if(weight!="") weight += " * ";
         weight += "("+Common::ReplaceString(fBootstrap,"BootstrapIdx",Form("%d",fBootstrapIdx))+")";
         gRandom->SetSeed(fBootstrapIdx);

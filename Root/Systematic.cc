@@ -30,6 +30,7 @@ Systematic::Systematic(const std::string& name,int type,double up,double down) :
     fHasUpVariation(true),
     fHasDownVariation(true),
     fIsFreeParameter(false),
+    fIsCorrelated(true),
     fIsShapeOnly(false),
     fIsNormOnly(false),
     fNoPruning(false),
