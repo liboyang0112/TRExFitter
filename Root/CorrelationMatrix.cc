@@ -106,6 +106,19 @@ void CorrelationMatrix::Draw(const std::string& path, const bool& useGammas, con
         vec_NP.push_back(iSystName);
     }
     N = vec_NP.size();
+    
+    //
+    // 0.75) Reorder NPs
+    if(fNuisParList.size()>0){
+        vec_NP_old = vec_NP;
+        vec_NP.clear();
+        for(auto& npName : fNuisParList){
+            for(unsigned int iNP = 0; iNP < vec_NP_old.size(); ++iNP){
+                if(vec_NP_old[iNP]==npName) vec_NP.emplace_back(vec_NP_old[iNP]);
+            }
+        }
+        N = vec_NP.size();
+    }
 
     //
     // 1) Performs the plot
