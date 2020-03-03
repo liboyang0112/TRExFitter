@@ -57,7 +57,7 @@ namespace TRExFitter{
     extern int NCPU;
     //
     extern std::map< std::string, double > OPTION;
-    extern std::map<std::string, std::unique_ptr<TFile> > TFILEMAP;
+    extern std::map<std::string, TFile* > TFILEMAP;
     extern bool GUESSMCSTATERROR;
     extern bool CORRECTNORMFORNEGATIVEINTEGRAL;
 }

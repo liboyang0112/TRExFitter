@@ -70,6 +70,7 @@ public:
     bool fHasDownVariation;
 
     bool fIsFreeParameter;
+    bool fIsCorrelated;
     bool fIsShapeOnly;
     bool fIsNormOnly;
     bool fNoPruning;

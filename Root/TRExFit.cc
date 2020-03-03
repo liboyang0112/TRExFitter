@@ -189,6 +189,7 @@ TRExFit::TRExFit(std::string name) :
     fTemplateInterpolationOption(TRExFit::LINEAR),
     fBootstrap(""),
     fBootstrapSyst(""),
+    fBootstrapSample(""),
     fBootstrapIdx(-1),
     fDecorrSuff("_decor"),
     fDoNonProfileFit(false),
@@ -563,7 +564,7 @@ void TRExFit::CreateRootFiles(){
         else                 fileName = fName + "/Histograms/" + fInputName + "_histos" + fSaveSuffix + ".root";
         // Bootstrap
         if(fBootstrap!="" && fBootstrapIdx>=0){
-            fileName = Common::ReplaceString(fileName,"_histos.root",Form("_histos__%d.root",fBootstrapIdx));
+            fileName = Common::ReplaceString(fileName,"_histos.root",Form("_histos__%s%d.root",fBootstrapSample.c_str(),fBootstrapIdx));
         }
         WriteInfoStatus("TRExFit::CreateRootFiles","-------------------------------------------");
         WriteInfoStatus("TRExFit::CreateRootFiles","Creating/updating file " + fileName + " ...");
@@ -577,7 +578,7 @@ void TRExFit::CreateRootFiles(){
             else                 fileName = fName + "/Histograms/" + fInputName + "_" + fRegions[i_ch]->fName + "_histos" + fSaveSuffix + ".root";
             // Bootstrap
             if(fBootstrap!="" && fBootstrapIdx>=0){
-                fileName = Common::ReplaceString(fileName,"_histos.root",Form("_histos__%d.root",fBootstrapIdx));
+                fileName = Common::ReplaceString(fileName,"_histos.root",Form("_histos__%s%d.root",fBootstrapSample.c_str(),fBootstrapIdx));
             }
             WriteInfoStatus("TRExFit::CreateRootFiles","-------------------------------------------");
             WriteInfoStatus("TRExFit::CreateRootFiles","Creating/updating file " + fileName + " ...");
@@ -1252,10 +1253,12 @@ void TRExFit::CloseInputFiles(){
     // Close all input files
     for(auto& it : TRExFitter::TFILEMAP){
         TDirectory *dir = gDirectory;
-        TFile *f = it.second.get();
-        if(f!=nullptr)
-        dir->cd();
-        f->Close();
+        TFile *f = it.second;
+        if(f) {
+            dir->cd();
+            f->Close();
+            delete f;
+        }
     }
     TRExFitter::TFILEMAP.clear();
 }
@@ -3273,7 +3276,7 @@ void TRExFit::ToRooStat(bool makeWorkspace, bool exportOnly) const {
 
     RooStats::HistFactory::Measurement meas((fInputName+fSuffix).c_str(), (fInputName+fSuffix).c_str());
     if(fBootstrap!="" && fBootstrapIdx>=0) {
-        meas.SetOutputFilePrefix((fName+"/RooStats/"+fBootstrapSyst+"_BSId"+Form("%d",fBootstrapIdx)+"/"+fInputName).c_str());
+        meas.SetOutputFilePrefix((fName+"/RooStats/"+fBootstrapSyst+fBootstrapSample+"_BSId"+Form("%d",fBootstrapIdx)+"/"+fInputName).c_str());
     } else {
         meas.SetOutputFilePrefix((fName+"/RooStats/"+fInputName).c_str());
     }
@@ -3314,7 +3317,7 @@ void TRExFit::ToRooStat(bool makeWorkspace, bool exportOnly) const {
     }
     //
     if(fBootstrap!="" && fBootstrapIdx>=0) {
-        meas.PrintXML((fName+"/RooStats/"+fBootstrapSyst+"_BSId"+Form("%d",fBootstrapIdx)+"/").c_str());
+        meas.PrintXML((fName+"/RooStats/"+fBootstrapSyst+fBootstrapSample+"_BSId"+Form("%d",fBootstrapIdx)+"/").c_str());
     } else {
         meas.PrintXML((fName+"/RooStats/").c_str());
     }
@@ -3981,9 +3984,9 @@ void TRExFit::Fit(bool isLHscanOnly){
         std::ofstream tex2;
         std::vector < std:: string > regionsToFit;
         if(fBootstrap!="" && fBootstrapIdx>=0){
-            out.open((fName+"/Fits/"+fBootstrapSyst+Form("_BSId%d/",fBootstrapIdx)+fName+fSuffix+"_nonProfiledSysts.txt").c_str());
-            tex.open((fName+"/Fits/"+fBootstrapSyst+Form("_BSId%d/",fBootstrapIdx)+fName+fSuffix+"_nonProfiledSysts.tex").c_str());
-            tex2.open((fName+"/Fits/"+fBootstrapSyst+Form("_BSId%d/",fBootstrapIdx)+fName+fSuffix+"_nonProfiledSysts_grouped.tex").c_str());
+            out.open((fName+"/Fits/"+fBootstrapSyst+fBootstrapSample+Form("_BSId%d/",fBootstrapIdx)+fName+fSuffix+"_nonProfiledSysts.txt").c_str());
+            tex.open((fName+"/Fits/"+fBootstrapSyst+fBootstrapSample+Form("_BSId%d/",fBootstrapIdx)+fName+fSuffix+"_nonProfiledSysts.tex").c_str());
+            tex2.open((fName+"/Fits/"+fBootstrapSyst+fBootstrapSample+Form("_BSId%d/",fBootstrapIdx)+fName+fSuffix+"_nonProfiledSysts_grouped.tex").c_str());
         }
         else{
             out.open((fName+"/Fits/"+fName+fSuffix+"_nonProfiledSysts.txt").c_str());
@@ -4676,9 +4679,9 @@ std::map < std::string, double > TRExFit::PerformFit( RooWorkspace *ws, RooDataS
     if (debugLevel < 1 && fBlindedParameters.size() == 0) std::cout.clear();
     if(save){
         if(fBootstrap!="" && fBootstrapIdx>=0){
-            gSystem -> mkdir((fName+"/Fits/"+fBootstrapSyst+Form("_BSId%d/",fBootstrapIdx)).c_str(),true);
-            if(fStatOnlyFit) fitTool.ExportFitResultInTextFile(fName+"/Fits/"+fBootstrapSyst+Form("_BSId%d/",fBootstrapIdx)+fInputName+fSuffix+"_statOnly.txt", fBlindedParameters);
-            else             fitTool.ExportFitResultInTextFile(fName+"/Fits/"+fBootstrapSyst+Form("_BSId%d/",fBootstrapIdx)+fInputName+fSuffix+".txt", fBlindedParameters);
+            gSystem -> mkdir((fName+"/Fits/"+fBootstrapSyst+fBootstrapSample+Form("_BSId%d/",fBootstrapIdx)).c_str(),true);
+            if(fStatOnlyFit) fitTool.ExportFitResultInTextFile(fName+"/Fits/"+fBootstrapSyst+fBootstrapSample+Form("_BSId%d/",fBootstrapIdx)+fInputName+fSuffix+"_statOnly.txt", fBlindedParameters);
+            else             fitTool.ExportFitResultInTextFile(fName+"/Fits/"+fBootstrapSyst+fBootstrapSample+Form("_BSId%d/",fBootstrapIdx)+fInputName+fSuffix+".txt", fBlindedParameters);
         }
         else{
             gSystem -> mkdir((fName+"/Fits/").c_str(),true);
@@ -4735,8 +4738,8 @@ std::map < std::string, double > TRExFit::PerformFit( RooWorkspace *ws, RooDataS
         // name of file to write results to
         std::string outNameGroupedImpact = fName+"/Fits/GroupedImpact"+fSuffix;
         if(fBootstrap!="" && fBootstrapIdx>=0){
-            gSystem -> mkdir((fName+"/Fits/"+fBootstrapSyst+Form("_BSId%d/",fBootstrapIdx)).c_str(),true);
-            outNameGroupedImpact = fName+"/Fits/"+fBootstrapSyst+Form("_BSId%d/",fBootstrapIdx)+"GroupedImpact"+fSuffix;
+            gSystem -> mkdir((fName+"/Fits/"+fBootstrapSyst+fBootstrapSample+Form("_BSId%d/",fBootstrapIdx)).c_str(),true);
+            outNameGroupedImpact = fName+"/Fits/"+fBootstrapSyst+fBootstrapSample+Form("_BSId%d/",fBootstrapIdx)+"GroupedImpact"+fSuffix;
         }
         if(fGroupedImpactCategory!="all") outNameGroupedImpact += "_"+fGroupedImpactCategory;
         outNameGroupedImpact += ".txt";
@@ -4765,7 +4768,7 @@ RooWorkspace* TRExFit::PerformWorkspaceCombination( std::vector < std::string > 
     // Take the measurement from the combined workspace, to be sure to have all the systematics (even the ones which are not there in the first region)
     std::unique_ptr<TFile> rootFileCombined(nullptr);
     if(fBootstrap!="" && fBootstrapIdx>=0) {
-        rootFileCombined.reset(TFile::Open( (fName+"/RooStats/"+fBootstrapSyst+"_BSId"+Form("%d",fBootstrapIdx)+"/"+fInputName+"_combined_"+fInputName+fSuffix+"_model.root").c_str(),"read"));
+        rootFileCombined.reset(TFile::Open( (fName+"/RooStats/"+fBootstrapSyst+fBootstrapSample+"_BSId"+Form("%d",fBootstrapIdx)+"/"+fInputName+"_combined_"+fInputName+fSuffix+"_model.root").c_str(),"read"));
     } else {
         rootFileCombined.reset(TFile::Open( (fName+"/RooStats/"+fInputName+"_combined_"+fInputName+fSuffix+"_model.root").c_str(),"read"));
     }
@@ -4782,7 +4785,7 @@ RooWorkspace* TRExFit::PerformWorkspaceCombination( std::vector < std::string > 
         }
         if (!isToFit) continue;
         std::string fileName = fName+"/RooStats/"+fInputName+"_"+fRegions[i_ch]->fName+"_"+fInputName+fSuffix+"_model.root";
-        if(fBootstrap!="" && fBootstrapIdx>=0) fileName = fName+"/RooStats/"+fBootstrapSyst+"_BSId"+Form("%d",fBootstrapIdx)+"/"+fInputName+"_"+fRegions[i_ch]->fName+"_"+fInputName+fSuffix+"_model.root";
+        if(fBootstrap!="" && fBootstrapIdx>=0) fileName = fName+"/RooStats/"+fBootstrapSyst+fBootstrapSample+"_BSId"+Form("%d",fBootstrapIdx)+"/"+fInputName+"_"+fRegions[i_ch]->fName+"_"+fInputName+fSuffix+"_model.root";
         file_vec.emplace_back(std::move(TFile::Open(fileName.c_str())));
         RooWorkspace *tmp_ws = static_cast<RooWorkspace*>(file_vec.back()->Get((fRegions[i_ch]->fName).c_str()));
         if(!tmp_ws){
@@ -5420,8 +5423,8 @@ void TRExFit::ProduceNPRanking( std::string NPnames/*="all"*/ ){
     //
     std::string outName = fName+"/Fits/NPRanking"+fSuffix;
     if(fBootstrap!="" && fBootstrapIdx>=0){
-        gSystem -> mkdir((fName+"/Fits/"+fBootstrapSyst+Form("_BSId%d/",fBootstrapIdx)).c_str(),true);
-        outName = fName+"/Fits/"+fBootstrapSyst+Form("_BSId%d/",fBootstrapIdx)+"NPRanking"+fSuffix;
+        gSystem -> mkdir((fName+"/Fits/"+fBootstrapSyst+fBootstrapSample+Form("_BSId%d/",fBootstrapIdx)).c_str(),true);
+        outName = fName+"/Fits/"+fBootstrapSyst+fBootstrapSample+Form("_BSId%d/",fBootstrapIdx)+"NPRanking"+fSuffix;
     }
     if(NPnames!="all") outName += "_"+NPnames;
     outName += ".txt";
@@ -7714,7 +7717,11 @@ std::string TRExFit::FullWeight(Region *reg,Sample *smp,Systematic *syst,bool is
         weight += "("+sampleWeight+")";
     }
     // add Bootstrap weights
-    if(fBootstrap!="" && fBootstrapIdx>=0){
+    // fBootstrapSyst means only systematic variation is bootstrapped, not nominal
+    // WiP fBootstrapSample means bootstrap on sample and all the correlated systs (so no fntupleFiles -> not sure it captures everything)
+    if(fBootstrap!="" && fBootstrapIdx>=0 
+      && !(fBootstrapSyst!="" && syst==nullptr)
+      && (fBootstrapSample=="" || ( smp->fName==fBootstrapSample && ( !syst || syst->fIsCorrelated ) ) ) ){
         if(weight!="") weight += " * ";
         weight += "("+Common::ReplaceString(fBootstrap,"BootstrapIdx",Form("%d",fBootstrapIdx))+")";
         gRandom->SetSeed(fBootstrapIdx);
