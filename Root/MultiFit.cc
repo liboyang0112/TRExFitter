@@ -1696,7 +1696,7 @@ void MultiFit::ProduceNPRanking( string NPnames/*="all"*/ ) const{
     }
 
     if (validConfig == 999999) {
-        WriteErrorStatus("ProduceNPRanking", "Dint find a single config that should be used for a fit");
+        WriteErrorStatus("ProduceNPRanking", "Did not find a single config that should be used for a fit");
         exit(EXIT_FAILURE);
     }
 
