@@ -409,6 +409,21 @@ void FitResults::DrawNPPulls( const std::string &path, const std::string &catego
     double xmax = 2.9;
     double max = 0.;
     std::vector<std::string> npToExclude = {"gamma_","stat_","shape_"};
+    
+    // reorder the NPs
+    std::vector < std::shared_ptr<NuisParameter> > nuisPar;
+    if(fNuisParList.size()>0){
+        for(auto& npName : fNuisParList){
+            for(auto& np : fNuisPar){
+                if(np->fName==npName) nuisPar.emplace_back(np);
+            }
+        }
+    }
+    else{
+        for(auto& np : fNuisPar){
+            nuisPar.emplace_back(np);
+        }
+    }
 
     TGraphAsymmErrors g{};
 
@@ -416,8 +431,8 @@ void FitResults::DrawNPPulls( const std::string &path, const std::string &catego
     int idx = 0;
     std::vector< std::string > names;
 
-    for(unsigned int i = 0; i<fNuisPar.size(); ++i){
-        par = fNuisPar[i].get();
+    for(unsigned int i = 0; i<nuisPar.size(); ++i){
+        par = nuisPar[i].get();
 
         std::string name = par->fName;
         name = Common::ReplaceString(name,"alpha_","");
@@ -520,6 +535,7 @@ void FitResults::DrawNPPulls( const std::string &path, const std::string &catego
 void FitResults::DrawCorrelationMatrix(const std::string& path, const bool& useGammas, const double corrMin){
     if(fCorrMatrix){
         fCorrMatrix->fNuisParToHide = fNuisParToHide;
+        fCorrMatrix->fNuisParList = fNuisParList;
         fCorrMatrix->Draw(path, useGammas, corrMin);
     }
 }

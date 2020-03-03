@@ -52,8 +52,9 @@ public:
     std::unordered_map<std::string,bool> fNuisParIsThere;
 
     std::vector<std::string> fNuisParToHide; // NPs to hide
+    std::vector<std::string> fNuisParList; // NPs to show, ordered
 
-    std::vector < std::unique_ptr<NuisParameter> > fNuisPar;
+    std::vector < std::shared_ptr<NuisParameter> > fNuisPar;
     std::unique_ptr<CorrelationMatrix> fCorrMatrix;
 
     int fPOIPrecision;
