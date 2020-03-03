@@ -1253,10 +1253,12 @@ void TRExFit::CloseInputFiles(){
     // Close all input files
     for(auto& it : TRExFitter::TFILEMAP){
         TDirectory *dir = gDirectory;
-        TFile *f = it.second.get();
-        if(f!=nullptr)
-        dir->cd();
-        f->Close();
+        TFile *f = it.second;
+        if(f) {
+            dir->cd();
+            f->Close();
+            delete f;
+        }
     }
     TRExFitter::TFILEMAP.clear();
 }
