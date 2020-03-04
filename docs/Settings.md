@@ -1,24 +1,5 @@
 # Settings for TRExFitter blocks
 
-The available options per block type are found by following the links below:
-
-- [Standard Fit](#standard-fit)
-    - [`Job` block](#job-block-settings)
-    - [`Fit` block](#fit-block-settings)
-    - [`Limit` block](#limit-block-settings)
-    - [`Significance` block](#significance-block-settings)
-    - [`Options` block](#options-block-settings)
-    - [`Region` block](#region-block-settings)
-    - [`Sample` block](#sample-block-settings)
-    - [`NormFactor` block](#normfactor-block-settings)
-    - [`ShapeFactor` block](#shapefactor-block-settings)
-    - [`Systematic` block](#systematic-block-settings)
-- [Multi-Fit](#multi-fit)
-    - [Multi-fit `Job` block settings](#multi-fit-job-block-settings)
-    - [Multi-fit `Fit` block settings](#multi-fit-fit-block-settings)
-    - [Multi-fit `Limit` block settings](#multi-fit-limit-block-settings)
-    - [Multi-fit `Significance` block settings](#multi-fit-significance-block-settings)
-
 ## Standard fit
 The following settings are for normal fits, performed without the action `m`.
 

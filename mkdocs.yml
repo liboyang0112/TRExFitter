@@ -1,0 +1,24 @@
+site_name: TRExFitter documentation
+site_description: Documentation for TRExFitter
+site_author: TRExFitter team
+site_url: https://trexfitter-docs.web.cern.ch/
+
+repo_name: GitLab
+repo_url: https://gitlab.cern.ch/TRExStats/trexfitter-docs
+edit_uri: 'tree/master/docs'
+
+theme:
+    name: material
+    palette:
+        primary: 'light green'
+        accent: 'light green'
+    logo:
+        icon: 'insert_chart'
+    favicon: 'img/favicon.png'
+
+nav:
+    - Introduction: index.md
+    - Setup: setup.md
+    - 'Simple example': example.md
+    - 'Tutorial 1': tutorial_1.md
+    - 'Settings': settings.md

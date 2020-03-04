@@ -2,6 +2,7 @@
 
 This package provides a framework to perform profile likelihood fits. In addition to that, many convenient features are available. TRExFitter was previously also known as TtHFitter. Here are a few important references to make use of:
 
+* [TRExFitter website](https://trexfitter-docs.web.cern.ch/) collects information in a convenient format and is currently being expanded
 * [TRExFitter twiki page](https://twiki.cern.ch/twiki/bin/view/AtlasProtected/TtHFitter) for additional documentation and many references to further details
 * [TRExFitter JIRA](https://its.cern.ch/jira/projects/TTHFITTER/summary>) (sign up to the mailing list in case you cannot access the JIRA)
 * TRExFitter mailing list: [atlas-phys-stat-tthfitter](https://e-groups.cern.ch/e-groups/EgroupsSubscription.do?egroupName=atlas-phys-stat-tthfitter)
@@ -33,8 +34,9 @@ Please have a look at [CONTRIBUTING.md](CONTRIBUTING.md) to get started.
 11. [Output Directories Structure](#output-directories-structure)
 12. [ShapeFactor example](#shapefactor-example)
 13. [Replacement file](#replacement-file)
-14. [FAQ](#faq)
-15. [TRExFitter package authors](#trexfitter-package-authors)
+14. [Website](#website)
+15. [FAQ](#faq)
+16. [TRExFitter package authors](#trexfitter-package-authors)
 
 
 
@@ -234,7 +236,7 @@ The available blocks are:
 - `UnfoldingSystematic`
 
 ### Available settings
-For each object type (or "block"), you can find the available settings in [our documentation (docs/Settings.md)](docs/Settings.md#standard-fit).
+For each object type (or "block"), you can find the available settings in [our documentation (docs/settings.md)](docs/settings.md#standard-fit).
 
 
 
@@ -261,13 +263,13 @@ Currently the supported options are:
 | **BootstrapIdx**      | see description of Bootstrap option in config (under Job) |
 | **BootstrapSYst**     | see description of BootstrapSyst option in config (under Job) |
 | **GroupedImpact**     | see [Grouped Impact](#grouped-impact) section |
-| **OutputDir**         | see [Job settings](docs/Settings.md#job-block-settings) section |
-| **LimitParamValue**   | see [Limit settings](docs/Settings.md#limit-block-settings) section (ParamValue) |
+| **OutputDir**         | see [Job settings](docs/settings.md#job-block-settings) section |
+| **LimitParamValue**   | see [Limit settings](docs/settings.md#limit-block-settings) section (ParamValue) |
 | **LHscan**            | set a NP/POI for the likelihood scan can be used for parallelization of the code |
 | **Parallel2Dscan**    | run only slice of LH2D scan in x-direction can be used for parallelization of the code |
 | **Parallel2Dscan**    | define which step of the parallelized 2D scan should be performed (has to be an integer between 0 and LHscanSteps-1) |
-| **FitBlind**          | see [Fit settings](docs/Settings.md#fit-block-settings) section |
-| **BlindedParameters** | see [Fit settings](docs/Settings.md#fit-block-settings) section |
+| **FitBlind**          | see [Fit settings](docs/settings.md#fit-block-settings) section |
+| **BlindedParameters** | see [Fit settings](docs/settings.md#fit-block-settings) section |
 
 Note: the wild-card `*` is supported, but only as last character.
 Example:
@@ -371,7 +373,7 @@ trex-fitter mr config/myTopWS_multifit.config Ranking="XXX"
 ```
 
 ### Available multi-fit settings
-Find all available multi-fit settings in [our documentation (docs/Settings.md)](docs/Settings.md#multi-fit).
+Find all available multi-fit settings in [our documentation (docs/settings.md)](docs/settings.md#multi-fit).
 
 
 
@@ -455,6 +457,13 @@ Sample: "ttbar"
   MCweight: XXX_placeholder
 ```
 If you would like to ensure that the replacement works correctly, set your `DebugLevel` to a minimum value of 1 and check the output of the framework.
+
+
+
+## Website
+The [TRExFitter website](https://trexfitter-docs.web.cern.ch/) is built with [MkDocs](https://www.mkdocs.org/).
+The instructions for setting up this documentation as a CERN-hosted website are given [in this guide](https://how-to.docs.cern.ch/).
+The `docs/` folder contains the content of the website.
 
 
 
