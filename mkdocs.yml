@@ -21,6 +21,7 @@ nav:
     - Setup: setup.md
     - 'Simple example': example.md
     - 'Tutorial 1': tutorial_1.md
+    - 'FAQ': faq.md
     - 'Settings': settings.md
 
 markdown_extensions:
