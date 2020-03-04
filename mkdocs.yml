@@ -10,8 +10,8 @@ edit_uri: 'tree/master/docs'
 theme:
     name: material
     palette:
-        primary: 'light green'
-        accent: 'light green'
+        primary: 'green'
+        accent: 'green'
     logo:
         icon: 'insert_chart'
     favicon: 'img/favicon.png'
@@ -22,3 +22,15 @@ nav:
     - 'Simple example': example.md
     - 'Tutorial 1': tutorial_1.md
     - 'Settings': settings.md
+
+markdown_extensions:
+    - admonition
+    - codehilite
+    - pymdownx.arithmatex
+    - pymdownx.details
+    - pymdownx.inlinehilite
+    - pymdownx.smartsymbols
+    - pymdownx.superfences
+
+extra_javascript:
+    - 'https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.0/MathJax.js?config=TeX-MML-AM_CHTML'
