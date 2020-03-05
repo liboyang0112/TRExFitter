@@ -793,6 +793,7 @@ public:
     bool fSummaryLogY;
     /// This variable is needed only for multifit
     bool fUseInFit;
+    bool fUseInComparison;
     bool fReorderNPs;
 };
 

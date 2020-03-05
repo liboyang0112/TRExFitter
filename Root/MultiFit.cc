@@ -144,7 +144,8 @@ void MultiFit::AddFitFromConfig(const std::string& configFile,
                                 const std::string& label,
                                 const std::string& loadSuf,
                                 const std::string& wsFile,
-                                const bool useInFit) {
+                                const bool useInFit,
+                                const bool useInComparison) {
 
     // check if the config is not already processed (but it might be intended, if comparing different fits from same config)
     if (std::find(fConfigPaths.begin(), fConfigPaths.end(), configFile) != fConfigPaths.end()){
@@ -159,6 +160,8 @@ void MultiFit::AddFitFromConfig(const std::string& configFile,
     fFitList.emplace_back(new TRExFit());
 
     fFitList.back()->fUseInFit = useInFit;
+
+    fFitList.back()->fUseInComparison = useInComparison;
 
     // initialize config reader
     ConfigReader reader(fFitList.back());
@@ -630,6 +633,9 @@ void MultiFit::ComparePOI(const string& POI) const {
     // get values
     TRExFit *fit = nullptr;
     for(int i=0;i<N;i++){
+        if(!(fCombine && i==N-1)){
+            if (!fFitList.at(i)->fUseInComparison) continue;
+        }
         const bool isComb = (fCombine && i==N-1) ? true : false;
         //
         if(!isComb){
@@ -748,6 +754,9 @@ void MultiFit::ComparePOI(const string& POI) const {
     TLatex tex{};
 
     for(int i=0;i<N;i++){
+        if(!(fCombine && i==N-1)){
+            if (!fFitList.at(i)->fUseInComparison) continue;
+        }
         h_dummy.GetYaxis()->SetBinLabel(N-i,titles[i].c_str());
         if(fShowSystForPOI){
             tex.SetTextSize(gStyle->GetTextSize()*1.2);
@@ -1028,9 +1037,9 @@ void MultiFit::ComparePulls(string category) const{
     vector<string> suffs;
     vector<string> titles;
     vector<double>  yshift;
-    static const std::vector<int> color = {kBlack,kRed,kBlue,kViolet};
+    static const std::vector<int> color = {kBlack,kRed,kBlue,kViolet,kOrange};
 
-    static const std::vector<int> style = {kFullCircle,kOpenCircle,kFullTriangleUp,kOpenTriangleDown};
+    static const std::vector<int> style = {kFullCircle,kOpenCircle,kFullTriangleUp,kOpenTriangleDown,kOpenDiamond};
 
     unsigned int N = fFitList.size();
     if(fCombine) N++;
@@ -1231,11 +1240,16 @@ void MultiFit::ComparePulls(string category) const{
     b1.Draw("same");
     l0.Draw("same");
 
+    int i_style = 0;
     for(unsigned int i_fit=0;i_fit<N;i_fit++){
-        g[i_fit].SetLineColor(color[i_fit]);
-        g[i_fit].SetMarkerColor(color[i_fit]);
-        g[i_fit].SetMarkerStyle(style[i_fit]);
+        if (!(fCombine && i_fit==N-1)){
+            if (!fFitList.at(i_fit)->fUseInComparison) continue;
+        }
+        g[i_fit].SetLineColor(color[i_style]);
+        g[i_fit].SetMarkerColor(color[i_style]);
+        g[i_fit].SetMarkerStyle(style[i_style]);
         g[i_fit].Draw("P same");
+        i_style ++;
     }
 
     TLatex systs{};
@@ -1255,6 +1269,9 @@ void MultiFit::ComparePulls(string category) const{
     leg.SetBorderSize(0);
     leg.SetNColumns(N);
     for(unsigned int i_fit=0;i_fit<N;i_fit++){
+        if (!(fCombine && i_fit==N-1)){
+            if (!fFitList.at(i_fit)->fUseInComparison) continue;
+        }
         leg.AddEntry(&g[i_fit],titles[i_fit].c_str(),"lp");
     }
     leg.Draw();
@@ -1279,8 +1296,8 @@ void MultiFit::CompareNormFactors(string category) const{
     vector<string> titles;
     vector<double>  yshift;
 
-    static const std::vector<int> color = {kBlack,kRed,kBlue,kViolet};
-    static const std::vector<int> style = {kFullCircle,kOpenCircle,kFullTriangleUp,kOpenTriangleDown};
+    static const std::vector<int> color = {kBlack,kRed,kBlue,kViolet,kOrange};
+    static const std::vector<int> style = {kFullCircle,kOpenCircle,kFullTriangleUp,kOpenTriangleDown,kOpenDiamond};
 
     unsigned int N = fFitList.size();
     if(fCombine) N++;
@@ -1468,11 +1485,16 @@ void MultiFit::CompareNormFactors(string category) const{
     l1.SetLineColor(kGray);
     l1.Draw("same");
 
+    int i_style = 0;
     for(unsigned int i_fit=0;i_fit<N;i_fit++){
-        g[i_fit].SetLineColor(color[i_fit]);
-        g[i_fit].SetMarkerColor(color[i_fit]);
-        g[i_fit].SetMarkerStyle(style[i_fit]);
+        if(!(fCombine && i_fit==N-1)){
+            if (!fFitList.at(i_fit)->fUseInComparison) continue;
+        }
+        g[i_fit].SetLineColor(color[i_style]);
+        g[i_fit].SetMarkerColor(color[i_style]);
+        g[i_fit].SetMarkerStyle(style[i_style]);
         g[i_fit].Draw("P same");
+        i_style++;
     }
 
     TLatex norms{};
@@ -1484,6 +1506,9 @@ void MultiFit::CompareNormFactors(string category) const{
     values.SetTextSize( values.GetTextSize()*0.8 );
     for(unsigned int i_norm=0;i_norm<Nnorm;i_norm++){
         for(unsigned int i_fit=0;i_fit<N;i_fit++){
+            if(!(fCombine && i_fit==N-1)){
+                if (!fFitList.at(i_fit)->fUseInComparison) continue;
+            }
             values.DrawLatex((xmin+(xmax-xmin)*(0.45+i_fit*0.55/N)),(Nnorm-i_norm-1)+0.25,
                              Form("%.2f^{+%.2f}_{-%.2f}",g[i_fit].GetX()[i_norm],g[i_fit].GetErrorXhigh(i_norm),g[i_fit].GetErrorXlow(i_norm)));
         }
@@ -1497,6 +1522,9 @@ void MultiFit::CompareNormFactors(string category) const{
     leg.SetBorderSize(0);
     leg.SetNColumns(N);
     for(unsigned int i_fit=0;i_fit<N;i_fit++){
+        if(!(fCombine && i_fit==N-1)){
+         if (!fFitList.at(i_fit)->fUseInComparison) continue;
+        }
         leg.AddEntry(&g[i_fit],titles[i_fit].c_str(),"lp");
     }
     leg.Draw();

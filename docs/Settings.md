@@ -540,6 +540,8 @@ These options are for multi-fits, performed with action `m`.
 | Directory        | the path to the directory |
 | InputName        | the name of the input |
 | UseInFit         | Set to `TRUE` by default, if set to `FALSE` will use the config in comparison plots, but will not be used to create the workspace and will not be used in the fit |
+| UseInComparison         | Set to `TRUE` by default, if set to `FALSE` will not use the config in comparison plots. |
+
 
 
 ### Multi-fit `Limit` block settings
