@@ -1,0 +1,37 @@
+site_name: TRExFitter documentation
+site_description: Documentation for TRExFitter
+site_author: TRExFitter team
+site_url: https://trexfitter-docs.web.cern.ch/
+
+repo_name: GitLab
+repo_url: https://gitlab.cern.ch/TRExStats/trexfitter-docs
+edit_uri: 'tree/master/docs'
+
+theme:
+    name: material
+    palette:
+        primary: 'green'
+        accent: 'green'
+    logo:
+        icon: 'insert_chart'
+    favicon: 'img/favicon.png'
+
+nav:
+    - Introduction: index.md
+    - Setup: setup.md
+    - 'Simple example': example.md
+    - 'Tutorial 1': tutorial_1.md
+    - 'FAQ': faq.md
+    - 'Settings': settings.md
+
+markdown_extensions:
+    - admonition
+    - codehilite
+    - pymdownx.arithmatex
+    - pymdownx.details
+    - pymdownx.inlinehilite
+    - pymdownx.smartsymbols
+    - pymdownx.superfences
+
+extra_javascript:
+    - 'https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.0/MathJax.js?config=TeX-MML-AM_CHTML'

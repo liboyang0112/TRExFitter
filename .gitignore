@@ -5,3 +5,4 @@ myFit.exe*
 .DS_Store
 *.o
 build/*
+.vscode/
