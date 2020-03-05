@@ -451,6 +451,7 @@ These options are for multi-fits, performed with action `m`.
 | OutputDir        | the name of the output directory |
 | LumiLabel        | the luminosity label that will be shown on the plots |
 | CmeLabel         | the center of mass energy label that will be shown on the plots |
+| CombiLabel         | the name of the combination that will be shown on the plots, default is "Combined" |
 | SaveSuf          | added to file name of histograms, for usage with hupdate (equivalent to command line option) |
 | ShowObserved     | can be TRUE or FALSE, flag to turn on/off the observed values on the plots |
 | LimitTitle       | the title for limit that will be shown on the plots |

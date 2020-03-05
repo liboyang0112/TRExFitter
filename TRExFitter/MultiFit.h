@@ -113,6 +113,7 @@ public:
 
     std::string fLumiLabel;
     std::string fCmeLabel;
+    std::string fCombiLabel;
 
     std::unique_ptr<ConfigParser> fConfig;
 

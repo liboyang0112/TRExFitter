@@ -140,6 +140,10 @@ int ConfigReaderMulti::ReadJobOptions(){
     param = confSet->Get("CmeLabel");
     if( param != "") fMultiFitter->fCmeLabel = RemoveQuotes(param);
 
+    // Set Label of combination
+    param = confSet->Get("CombiLabel");
+    if( param != "") fMultiFitter->fCombiLabel = RemoveQuotes(param);
+
     // Set SaveSuf
     param = confSet->Get("SaveSuf");
     if( param != "") fMultiFitter->fSaveSuf = RemoveQuotes(param);
