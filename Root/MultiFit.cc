@@ -90,6 +90,7 @@ MultiFit::MultiFit(const string& name) :
     fRndSeed(-999),
     fLumiLabel(""),
     fCmeLabel(""),
+    fCombiLabel("Combined"),
     fConfig(std::unique_ptr<ConfigParser>(new ConfigParser())),
     fSaveSuf(""),
     fDataName("obsData"),
@@ -609,7 +610,7 @@ void MultiFit::ComparePOI(const string& POI) const {
         WriteInfoStatus("MultiFit::ComparePOI", "Adding Combined Fit");
         names.push_back( fName );
         dirs.push_back( fOutDir );
-        titles.push_back( "Combined" );
+        titles.push_back( fCombiLabel );
         suffs.push_back( "" );
         pois.push_back( POI );
     }
@@ -882,7 +883,7 @@ void MultiFit::CompareLimit(){
         WriteInfoStatus("MultiFit::CompareLimit", "Adding combined limit");
         dirs.push_back( fOutDir );
         names.push_back( fName );
-        titles.push_back( "Combined" );
+        titles.push_back( fCombiLabel );
         suffs.push_back( fSaveSuf );
         if(fShowObserved) fFitShowObserved.push_back(true);
     }
@@ -1049,7 +1050,7 @@ void MultiFit::ComparePulls(string category) const{
             WriteInfoStatus("MultiFit::ComparePulls", "Adding Combined Fit");
             dirs.push_back( fOutDir );
             names.push_back( fName );
-            titles.push_back( "Combined" );
+            titles.push_back( fCombiLabel );
             suffs.push_back( "" );
         }
         else{
@@ -1307,7 +1308,7 @@ void MultiFit::CompareNormFactors(string category) const{
             WriteInfoStatus("MultiFit::CompareNormFactors", "Adding Combined Fit");
             dirs.push_back( fOutDir );
             names.push_back( fName );
-            titles.push_back( "Combined" );
+            titles.push_back(fCombiLabel);
             suffs.push_back( "" );
         }
         else{
