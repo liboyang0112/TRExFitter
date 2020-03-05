@@ -268,6 +268,7 @@ TRExFit::TRExFit(std::string name) :
     fPruningShapeOption(PruningUtil::SHAPEOPTION::MAXBIN),
     fSummaryLogY(true),
     fUseInFit(true),
+    fUseInComparison(true),
     fReorderNPs(false)
 {
     TRExFitter::IMAGEFORMAT.emplace_back("png");

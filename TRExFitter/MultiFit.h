@@ -34,6 +34,7 @@ public:
                           const std::string& label,
                           const std::string& loadSuf,
                           const std::string& wsFile,
+                          const bool useInComparison,
                           const bool useInFit);
     RooWorkspace* CombineWS() const;
     void SaveCombinedWS() const;

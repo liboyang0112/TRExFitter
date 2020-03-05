@@ -793,7 +793,16 @@ int ConfigReaderMulti::ReadFitOptions(const std::string& opt, const std::string&
             }
         }
 
-        fMultiFitter->AddFitFromConfig(confFile, opt, fullOptions, label, loadSuf, wsFile, useInFit);
+        bool useInComparison(true);
+        param = confSet->Get("UseInComparison");
+        if (param != "") {
+            std::transform(param.begin(), param.end(), param.begin(), ::toupper);
+            if(param=="FALSE") {
+                useInComparison = false;
+            }
+        }
+
+        fMultiFitter->AddFitFromConfig(confFile, opt, fullOptions, label, loadSuf, wsFile, useInFit, useInComparison);
 
         // Set FitResultsFile
         param = confSet->Get("FitResultsFile");
