@@ -66,12 +66,6 @@ std::unique_ptr<TH1> HistoReader::ReadSingleHistogram(const std::vector<std::str
             htmp->Rebin(fFitter->fRegions[i_ch]->fHistoNBinsRebin);
         }
 
-        if (isMC){
-            if(fFitter->fSamples[i_smp]->fNormalizedByTheory){
-                htmp->Scale(fFitter->fLumi);
-            }
-        }
-
         if(fFitter->fSamples[i_smp]->fLumiScales.size()>i_path){
              htmp->Scale(fFitter->fSamples[i_smp]->fLumiScales[i_path]);
         }
