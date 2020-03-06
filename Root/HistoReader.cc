@@ -66,12 +66,6 @@ std::unique_ptr<TH1> HistoReader::ReadSingleHistogram(const std::vector<std::str
             htmp->Rebin(fFitter->fRegions[i_ch]->fHistoNBinsRebin);
         }
 
-        if (isMC){
-            if(fFitter->fSamples[i_smp]->fNormalizedByTheory){
-                htmp->Scale(fFitter->fLumi);
-            }
-        }
-
         if(fFitter->fSamples[i_smp]->fLumiScales.size()>i_path){
              htmp->Scale(fFitter->fSamples[i_smp]->fLumiScales[i_path]);
         }
@@ -589,7 +583,7 @@ void HistoReader::ReadOneRegion(const int i_ch, const bool is_data) {
                 files_names.insert(ipath);
             }
         }
-        std::unique_ptr<TH1> h = ReadSingleHistogram(fullPaths, nullptr, i_ch, i_smp, true, true); // is MC
+        std::unique_ptr<TH1> h = ReadSingleHistogram(fullPaths, nullptr, i_ch, i_smp, true, !is_data); // is MC
 
         // Save the original histogram
         TH1* h_orig = static_cast<TH1*>(h->Clone( Form("%s_orig",h->GetName())));
