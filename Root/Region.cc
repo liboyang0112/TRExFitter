@@ -1393,7 +1393,7 @@ std::unique_ptr<TRExPlot> Region::DrawPostFit(FitResults* fitRes,
     //
     // 0) Create a new hist for each sample
     //
-    std::vector<TH1* > hSmpNew(MAXsamples);
+    std::vector<TH1* > hSmpNew(fNSamples);
     for(int i=0;i<fNSamples;i++){
         hSmpNew[i] = static_cast<TH1*>(fSampleHists[i]->fHist->Clone());
         // set to 0 uncertainty in each bin if MCstat set to FALSE
@@ -1584,16 +1584,14 @@ std::unique_ptr<TRExPlot> Region::DrawPostFit(FitResults* fitRes,
     // 3) Add the new Sig and Bkg to plot
     //
     {
-        std::vector<TH1*> hBkgNew(MAXsamples);
-        std::vector<TH1*> hSigNew(MAXsamples);
-        for(int i=0, i_bkg=0, i_sig=0;i<fNSamples;i++){
+        std::vector<TH1*> hBkgNew;
+        std::vector<TH1*> hSigNew;
+        for(int i=0; i<fNSamples; i++){
             if(fSampleHists[i]->fSample->fType==Sample::BACKGROUND){
-                hBkgNew[i_bkg] = hSmpNew[i];
-                i_bkg++;
+                hBkgNew.emplace_back(hSmpNew[i]);
             }
             if(fSampleHists[i]->fSample->fType==Sample::SIGNAL){
-                hSigNew[i_sig] = hSmpNew[i];
-                i_sig++;
+                hSigNew.emplace_back(hSmpNew[i]);
             }
         }
         if(fHasData && opt.find("blind")==string::npos) p->SetData(fData->fHist.get(),fData->fSample->fTitle);
