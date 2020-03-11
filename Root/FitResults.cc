@@ -173,6 +173,7 @@ void FitResults::ReadFromTXT(const std::string& fileName, const std::vector<std:
             i++;
         }
         if(readingCM){
+            matrix->Resize(Nsyst_corr);
             for(int i_sys=0;i_sys<Nsyst_corr;i_sys++){
                 iss >> corr;
                 matrix->SetCorrelation(fNuisParNames[Nsyst_corr-i_sys-1],fNuisParNames[j],corr);

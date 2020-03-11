@@ -28,15 +28,18 @@ void CorrelationMatrix::AddNuisPar(const string& p){
 
 //__________________________________________________________________________________
 //
+void CorrelationMatrix::Resize(const int size) {
+    fMatrix.resize(size);
+    for (auto& i : fMatrix) {
+        i.resize(size);
+    }
+}
+
+//__________________________________________________________________________________
+//
 void CorrelationMatrix::SetCorrelation(const string& p0, const string& p1,double corr){
     const std::size_t idx0 = fNuisParIdx[p0];
     const std::size_t idx1 = fNuisParIdx[p1];
-    if (idx0 >= fMatrix.size()) {
-        fMatrix.resize(idx0+1);
-    }
-    if (idx1 >= fMatrix[idx0].size()) {
-        fMatrix[idx0].resize(idx1+1);
-    }
     fMatrix[idx0][idx1] = corr;
 }
 
