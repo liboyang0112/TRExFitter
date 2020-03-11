@@ -6,8 +6,6 @@
 #include <string>
 #include <vector>
 
-const static int MAXconfig = 2000;
-
 // Functions
 std::string RemoveSpaces(const std::string& s);
 std::string RemoveComments(const std::string& s);
@@ -23,10 +21,10 @@ class Config {
 public:
     explicit Config();
     ~Config() = default;
-    Config(const Config& c) = delete;
-    Config(Config&& c) = delete;
-    Config& operator=(const Config& c) = delete;
-    Config& operator=(Config&& c) = delete;
+    Config(const Config& c) = default;
+    Config(Config&& c) = default;
+    Config& operator=(const Config& c) = default;
+    Config& operator=(Config&& c) = default;
 
     std::string fName;
     std::string fValue;
@@ -56,7 +54,7 @@ public:
     int fN;
     std::string fName;
     std::string fValue;
-    Config fConfig[MAXconfig];
+    std::vector<Config> fConfig;
 };
 
 
