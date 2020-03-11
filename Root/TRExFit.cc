@@ -1391,8 +1391,8 @@ TRExPlot* TRExFit::DrawSummary(std::string opt, TRExPlot* prefit_plot) {
     if(TRExFitter::POISSONIZE) opt += " poissonize";
     // build one bin per region
     TH1D* h_data = 0;
-    TH1D* h_sig[MAXsamples];
-    TH1D* h_bkg[MAXsamples];
+    std::vector<TH1D*> h_sig;
+    std::vector<TH1D*> h_bkg;
     TH1D *h_tot;
     std::unique_ptr<TGraphAsymmErrors> g_err(nullptr);
     int Nsig = 0;
@@ -1484,12 +1484,12 @@ TRExPlot* TRExFit::DrawSummary(std::string opt, TRExPlot* prefit_plot) {
         lineWidth = sh->fHist->GetLineWidth();
         //
         if(fSamples[i_smp]->fType==Sample::SIGNAL){
-            h_sig[Nsig] = new TH1D(name.c_str(),title.c_str(), Nbin,0,Nbin);
+            h_sig.emplace_back(new TH1D(name.c_str(),title.c_str(), Nbin,0,Nbin));
             std::string temp_string = h_sig[Nsig]->GetTitle();
             WriteDebugStatus("TRExFit::DrawSummary", "Adding Signal: " + temp_string);
-            h_sig[Nsig]->SetLineColor(lineColor);
-            h_sig[Nsig]->SetFillColor(fillColor);
-            h_sig[Nsig]->SetLineWidth(lineWidth);
+            h_sig.back()->SetLineColor(lineColor);
+            h_sig.back()->SetFillColor(fillColor);
+            h_sig.back()->SetLineWidth(lineWidth);
             for(unsigned int i_bin=1;i_bin<=regionVec.size();i_bin++){
                 sh = fRegions[regionVec[i_bin-1]]->GetSampleHist( name );
                 if(sh!=nullptr){
@@ -1514,18 +1514,18 @@ TRExPlot* TRExFit::DrawSummary(std::string opt, TRExPlot* prefit_plot) {
                     integral = 0.;
                     intErr   = 0.;
                 }
-                h_sig[Nsig]->SetBinContent( i_bin,integral );
-                h_sig[Nsig]->SetBinError( i_bin,intErr );
+                h_sig.back()->SetBinContent( i_bin,integral );
+                h_sig.back()->SetBinError( i_bin,intErr );
             }
             Nsig++;
         }
         else if(fSamples[i_smp]->fType==Sample::BACKGROUND){
-            h_bkg[Nbkg] = new TH1D(name.c_str(),title.c_str(), Nbin,0,Nbin);
+            h_bkg.emplace_back(new TH1D(name.c_str(),title.c_str(), Nbin,0,Nbin));
             std::string temp_string = h_bkg[Nbkg]->GetTitle();
             WriteDebugStatus("TRExFit::DrawSummary", "Adding Bkg:    " + temp_string);
-            h_bkg[Nbkg]->SetLineColor(lineColor);
-            h_bkg[Nbkg]->SetFillColor(fillColor);
-            h_bkg[Nbkg]->SetLineWidth(lineWidth);
+            h_bkg.back()->SetLineColor(lineColor);
+            h_bkg.back()->SetFillColor(fillColor);
+            h_bkg.back()->SetLineWidth(lineWidth);
             for(int i_bin=1;i_bin<=(int)regionVec.size();i_bin++){
                 sh = fRegions[regionVec[i_bin-1]]->GetSampleHist( name );
                 if(sh!=nullptr){
@@ -1553,8 +1553,8 @@ TRExPlot* TRExFit::DrawSummary(std::string opt, TRExPlot* prefit_plot) {
                     integral = 0.;
                     intErr = 0.;
                 }
-                h_bkg[Nbkg]->SetBinContent( i_bin,integral );
-                h_bkg[Nbkg]->SetBinError( i_bin,intErr );
+                h_bkg.back()->SetBinContent( i_bin,integral );
+                h_bkg.back()->SetBinError( i_bin,intErr );
             }
             Nbkg++;
         }
