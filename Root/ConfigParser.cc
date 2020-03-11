@@ -212,8 +212,9 @@ void ConfigSet::SetConfig(const std::string& name,const std::string& value){
         }
     }
     if(!isThere){
-        fConfig[fN].fName = name;
-        fConfig[fN].fValue = value;
+        fConfig.emplace_back();
+        fConfig.back().fName = name;
+        fConfig.back().fValue = value;
         fN++;
     }
     else{
@@ -296,7 +297,6 @@ std::string ConfigSet::GetValue() const{
 //
 ConfigParser::ConfigParser() : 
     fN(0) {
-    fConfSets.reserve(MAXconfig);
 }
 
 //__________________________________________________________________________________
