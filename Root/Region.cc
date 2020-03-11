@@ -54,9 +54,7 @@ Region::Region(const string& name) :
     fData(nullptr),
     fHasSig(false),
     fNSig(0),
-    fSig(std::vector<SampleHist*>(MAXsyst)),
     fNBkg(0),
-    fBkg(std::vector<SampleHist*>(MAXsyst)),
     fNSamples(0),
     fYmaxScale(0),
     fYmin(0),
@@ -69,12 +67,8 @@ Region::Region(const string& name) :
     fRatioType("DATA/MC"),
     fTot(nullptr),
     fErr(nullptr),
-    fTotUp(std::vector<std::unique_ptr<TH1> >(MAXsyst)),
-    fTotDown(std::vector<std::unique_ptr<TH1> >(MAXsyst)),
     fTot_postFit(nullptr),
     fErr_postFit(nullptr),
-    fTotUp_postFit(std::vector<std::unique_ptr<TH1> >(MAXsyst)),
-    fTotDown_postFit(std::vector<std::unique_ptr<TH1> >(MAXsyst)),
     fBinTransfo(""),
     fTransfoDzBkg(0.),
     fTransfoDzSig(0.),
@@ -158,11 +152,11 @@ SampleHist* Region::SetSampleHist(Sample *sample, string histoName, string fileN
     }
     else if(sample->fType==Sample::SIGNAL){
         fHasSig = true;
-        fSig[fNSig] = fSampleHists[fNSamples].get();
+        fSig.emplace_back(fSampleHists[fNSamples].get());
         fNSig++;
     }
     else if(sample->fType==Sample::BACKGROUND){
-        fBkg[fNBkg] = fSampleHists[fNSamples].get();
+        fBkg.emplace_back(fSampleHists[fNSamples].get());
         fNBkg++;
     }
     else if(sample->fType==Sample::GHOST){
@@ -190,11 +184,11 @@ SampleHist* Region::SetSampleHist(Sample *sample, TH1* hist ){
     }
     else if(sample->fType==Sample::SIGNAL){
         fHasSig = true;
-        fSig[fNSig] = fSampleHists[fNSamples].get();
+        fSig.emplace_back(fSampleHists[fNSamples].get());
         fNSig ++;
     }
     else if(sample->fType==Sample::BACKGROUND){
-        fBkg[fNBkg] = fSampleHists[fNSamples].get();
+        fBkg.emplace_back(fSampleHists[fNSamples].get());
         fNBkg ++;
     }
     else if(sample->fType==Sample::GHOST){
@@ -415,6 +409,8 @@ void Region::BuildPreFitErrorHist(){
     //
     // Now build the total prediction variations, for each systematic
     // - loop on systematics
+    fTotUp.resize(fSystNames.size());
+    fTotDown.resize(fSystNames.size());
     for(std::size_t i_syst=0; i_syst<fSystNames.size(); ++i_syst){
         const std::string systName = fSystNames[i_syst];
 
@@ -1246,6 +1242,8 @@ void Region::BuildPostFitErrorHist(FitResults *fitRes, const std::vector<std::st
     //
 
     // - loop on systematics
+    fTotUp_postFit.resize(fSystNames.size());
+    fTotDown_postFit.resize(fSystNames.size());
     for(size_t i_syst=0;i_syst<fSystNames.size();++i_syst){
         const std::string systName = fSystNames[i_syst];
         //
@@ -1393,7 +1391,7 @@ std::unique_ptr<TRExPlot> Region::DrawPostFit(FitResults* fitRes,
     //
     // 0) Create a new hist for each sample
     //
-    std::vector<TH1* > hSmpNew(MAXsamples);
+    std::vector<TH1* > hSmpNew(fNSamples);
     for(int i=0;i<fNSamples;i++){
         hSmpNew[i] = static_cast<TH1*>(fSampleHists[i]->fHist->Clone());
         // set to 0 uncertainty in each bin if MCstat set to FALSE
@@ -1584,16 +1582,14 @@ std::unique_ptr<TRExPlot> Region::DrawPostFit(FitResults* fitRes,
     // 3) Add the new Sig and Bkg to plot
     //
     {
-        std::vector<TH1*> hBkgNew(MAXsamples);
-        std::vector<TH1*> hSigNew(MAXsamples);
-        for(int i=0, i_bkg=0, i_sig=0;i<fNSamples;i++){
+        std::vector<TH1*> hBkgNew;
+        std::vector<TH1*> hSigNew;
+        for(int i=0; i<fNSamples; i++){
             if(fSampleHists[i]->fSample->fType==Sample::BACKGROUND){
-                hBkgNew[i_bkg] = hSmpNew[i];
-                i_bkg++;
+                hBkgNew.emplace_back(hSmpNew[i]);
             }
             if(fSampleHists[i]->fSample->fType==Sample::SIGNAL){
-                hSigNew[i_sig] = hSmpNew[i];
-                i_sig++;
+                hSigNew.emplace_back(hSmpNew[i]);
             }
         }
         if(fHasData && opt.find("blind")==string::npos) p->SetData(fData->fHist.get(),fData->fSample->fTitle);
