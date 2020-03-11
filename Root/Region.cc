@@ -54,9 +54,7 @@ Region::Region(const string& name) :
     fData(nullptr),
     fHasSig(false),
     fNSig(0),
-    fSig(std::vector<SampleHist*>(MAXsyst)),
     fNBkg(0),
-    fBkg(std::vector<SampleHist*>(MAXsyst)),
     fNSamples(0),
     fYmaxScale(0),
     fYmin(0),
@@ -158,11 +156,11 @@ SampleHist* Region::SetSampleHist(Sample *sample, string histoName, string fileN
     }
     else if(sample->fType==Sample::SIGNAL){
         fHasSig = true;
-        fSig[fNSig] = fSampleHists[fNSamples].get();
+        fSig.emplace_back(fSampleHists[fNSamples].get());
         fNSig++;
     }
     else if(sample->fType==Sample::BACKGROUND){
-        fBkg[fNBkg] = fSampleHists[fNSamples].get();
+        fBkg.emplace_back(fSampleHists[fNSamples].get());
         fNBkg++;
     }
     else if(sample->fType==Sample::GHOST){
