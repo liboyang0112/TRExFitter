@@ -62,7 +62,6 @@ namespace TRExFitter{
     extern bool CORRECTNORMFORNEGATIVEINTEGRAL;
 }
 
-const int MAXsamples = 100;
 const int MAXsyst = 500;
 
 namespace Common {

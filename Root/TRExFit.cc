@@ -2258,9 +2258,9 @@ void TRExFit::BuildYieldTable(std::string opt, std::string group) const{
         texout.open((fName+"/Tables/Yields_postFit"+suffix+".tex").c_str());
     }
     // build one bin per region
-    TH1D* h_smp[MAXsamples];
+    std::vector<TH1D*> h_smp(fNSamples);
     TH1D *h_tot;
-    std::vector<std::unique_ptr<TGraphAsymmErrors> > g_err(MAXsamples);
+    std::vector<std::unique_ptr<TGraphAsymmErrors> > g_err(fNSamples);
     std::unique_ptr<TGraphAsymmErrors> g_err_tot(nullptr);
     //
     std::string name;
