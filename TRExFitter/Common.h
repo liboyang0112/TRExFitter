@@ -62,8 +62,6 @@ namespace TRExFitter{
     extern bool CORRECTNORMFORNEGATIVEINTEGRAL;
 }
 
-const int MAXsyst = 500;
-
 namespace Common {
 
 enum BlindingType {

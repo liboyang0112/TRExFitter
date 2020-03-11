@@ -67,12 +67,8 @@ Region::Region(const string& name) :
     fRatioType("DATA/MC"),
     fTot(nullptr),
     fErr(nullptr),
-    fTotUp(std::vector<std::unique_ptr<TH1> >(MAXsyst)),
-    fTotDown(std::vector<std::unique_ptr<TH1> >(MAXsyst)),
     fTot_postFit(nullptr),
     fErr_postFit(nullptr),
-    fTotUp_postFit(std::vector<std::unique_ptr<TH1> >(MAXsyst)),
-    fTotDown_postFit(std::vector<std::unique_ptr<TH1> >(MAXsyst)),
     fBinTransfo(""),
     fTransfoDzBkg(0.),
     fTransfoDzSig(0.),
@@ -188,11 +184,11 @@ SampleHist* Region::SetSampleHist(Sample *sample, TH1* hist ){
     }
     else if(sample->fType==Sample::SIGNAL){
         fHasSig = true;
-        fSig[fNSig] = fSampleHists[fNSamples].get();
+        fSig.emplace_back(fSampleHists[fNSamples].get());
         fNSig ++;
     }
     else if(sample->fType==Sample::BACKGROUND){
-        fBkg[fNBkg] = fSampleHists[fNSamples].get();
+        fBkg.emplace_back(fSampleHists[fNSamples].get());
         fNBkg ++;
     }
     else if(sample->fType==Sample::GHOST){
@@ -413,6 +409,8 @@ void Region::BuildPreFitErrorHist(){
     //
     // Now build the total prediction variations, for each systematic
     // - loop on systematics
+    fTotUp.resize(fSystNames.size());
+    fTotDown.resize(fSystNames.size());
     for(std::size_t i_syst=0; i_syst<fSystNames.size(); ++i_syst){
         const std::string systName = fSystNames[i_syst];
 
@@ -1244,6 +1242,8 @@ void Region::BuildPostFitErrorHist(FitResults *fitRes, const std::vector<std::st
     //
 
     // - loop on systematics
+    fTotUp_postFit.resize(fSystNames.size());
+    fTotDown_postFit.resize(fSystNames.size());
     for(size_t i_syst=0;i_syst<fSystNames.size();++i_syst){
         const std::string systName = fSystNames[i_syst];
         //
