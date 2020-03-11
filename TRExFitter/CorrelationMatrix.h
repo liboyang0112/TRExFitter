@@ -21,6 +21,7 @@ public:
     // Functions
     //
     void AddNuisPar(const std::string& p);
+    void Resize(const int size);
     void SetCorrelation(const std::string& p0, const std::string& p1,double corr);
     double GetCorrelation(const std::string& p0, const std::string& p1);
 
