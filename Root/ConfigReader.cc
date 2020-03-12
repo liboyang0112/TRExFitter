@@ -1622,6 +1622,20 @@ int ConfigReader::ReadFitOptions(){
         }
     }
 
+    // Set InjectGlobalObservables
+    param = confSet->Get("InjectGlobalObservables");
+    if( param != ""){
+        std::transform(param.begin(), param.end(), param.begin(), ::toupper);
+        if( param == "TRUE" ){
+            fFitter->fInjectGlobalObservables = true;
+        } else if (param == "FALSE") {
+            fFitter->fInjectGlobalObservables = false;
+        } else {
+            WriteWarningStatus("ConfigReader::ReadFitOptions", "You specified 'InjectGlobalObservables' option but did not provide valid parameter. Using default (false)");
+            fFitter->fInjectGlobalObservables = false;
+        }
+    }
+
     // Set FixNPs
     param = confSet->Get("FixNPs");
     if( param != "" ){
