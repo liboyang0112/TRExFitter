@@ -18,8 +18,6 @@ class THStack;
 class TLegend;
 class TPad;
 
-static const int MAXbins = 1000;
-
 class TRExPlot {
   public:
     explicit TRExPlot(std::string name="c",int canvasWidth=600,int canvasHeight=700,bool hideRatioPad=false);
@@ -39,6 +37,7 @@ class TRExPlot {
     void SetXaxis(const std::string& name,bool isNjet=false);
     void SetYaxis(const std::string& name);
     void SetYmaxScale(double scale);
+    void ResizeBinLabel(const int n);
     void SetBinLabel(int bin, const std::string& name);
     void SetBinWidth(double width);
 
@@ -105,7 +104,7 @@ class TRExPlot {
     double fBinWidth;
     bool fIsNjet;
     bool fShowYields;
-    std::string fBinLabel[MAXbins];
+    std::vector<std::string> fBinLabel;
     double fLumiScale;
     int fLegendNColumns;
     std::vector<double> fXaxisRange;

@@ -601,10 +601,11 @@ std::unique_ptr<TRExPlot> Region::DrawPreFit(const std::vector<int>& canvasSize,
         p->SetBinBlinding(blindedBins);
     }
 
-    if(fBinLabels.size() && ((int)fBinLabels.size()==fNbins)) {
-      for(int i_bin=0; i_bin<fNbins; i_bin++) {
-        p->SetBinLabel(i_bin+1,fBinLabels.at(i_bin));
-      }
+    if (!fBinLabels.empty()) {
+        p->ResizeBinLabel(fBinLabels.size() + 1);
+        for(std::size_t i_bin=0; i_bin<fBinLabels.size(); i_bin++) {
+            p->SetBinLabel(i_bin+1,fBinLabels.at(i_bin));
+        }
     }
 
     //
@@ -1382,8 +1383,9 @@ std::unique_ptr<TRExPlot> Region::DrawPostFit(FitResults* fitRes,
     p->SetLumiScale(fLumiScale);
     p->fLegendNColumns = fLegendNColumns;
 
-    if(fBinLabels.size() && ((int)fBinLabels.size()==fNbins)) {
-        for(int i_bin=0; i_bin<fNbins; i_bin++) {
+    if (!fBinLabels.empty()) {
+        p->ResizeBinLabel(fBinLabels.size() + 1);
+        for(std::size_t i_bin=0; i_bin<fBinLabels.size(); i_bin++) {
             p->SetBinLabel(i_bin+1,fBinLabels.at(i_bin));
         }
     }

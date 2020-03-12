@@ -112,10 +112,6 @@ TRExPlot::TRExPlot(std::string name,int canvasWidth,int canvasHeight,bool hideRa
     if(pad1!=nullptr) pad1->Draw();
     pad0->Draw();
     pad0->cd();
-
-    for(int i_bin=0;i_bin<MAXbins;i_bin++) {
-        fBinLabel[i_bin] = "";
-    }
 }
 
 //_____________________________________________________________________________
@@ -182,6 +178,12 @@ void TRExPlot::SetYaxis(const std::string& name){
 //
 void TRExPlot::SetYmaxScale(double scale){
     yMaxScale = scale;
+}
+
+//_____________________________________________________________________________
+//
+void TRExPlot::ResizeBinLabel(const int n) {
+    fBinLabel.resize(n);
 }
 
 //_____________________________________________________________________________
@@ -500,12 +502,12 @@ void TRExPlot::Draw(std::string options){
             else                           h_dummy->GetXaxis()->SetBinLabel( i_bin,Form("#geq%d",nj) );
         }
     }
-    else{
+    else if ((int)fBinLabel.size() > h_dummy->GetNbinsX()) {
         for(int i_bin=1;i_bin<h_dummy->GetNbinsX()+1;i_bin++){
             if(fBinLabel[i_bin]!="") h_dummy->GetXaxis()->SetBinLabel( i_bin, fBinLabel[i_bin].c_str());
         }
     }
-    if(fBinLabel[1]!="") h_dummy->GetXaxis()->LabelsOption("d");
+    if(fBinLabel.size() > 1 && fBinLabel[1]!="") h_dummy->GetXaxis()->LabelsOption("d");
     double offset = 2.*pad0->GetWh()/pad0->GetWw();
     h_dummy->GetYaxis()->SetTitleOffset( offset );
     h_dummy->GetXaxis()->SetTitleOffset( 2 );
@@ -818,7 +820,7 @@ void TRExPlot::Draw(std::string options){
             h_blindratio->Draw("HIST same");
         }
 
-        if(fBinLabel[1]!="") h_dummy2->GetXaxis()->LabelsOption("d");
+        if(fBinLabel.size() > 1 && fBinLabel[1]!="") h_dummy2->GetXaxis()->LabelsOption("d");
         h_dummy2->GetXaxis()->SetLabelOffset( h_dummy2->GetXaxis()->GetLabelOffset()+0.02 );
         if(customLabels && h_dummy->GetNbinsX()>10) h_dummy2->GetXaxis()->SetLabelSize(0.66*h_dummy2->GetXaxis()->GetLabelSize() );
         if(customLabels) h_dummy2->GetXaxis()->SetLabelOffset( h_dummy2->GetXaxis()->GetLabelOffset()+0.02 );
