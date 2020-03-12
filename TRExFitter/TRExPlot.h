@@ -39,6 +39,7 @@ class TRExPlot {
     void SetXaxis(const std::string& name,bool isNjet=false);
     void SetYaxis(const std::string& name);
     void SetYmaxScale(double scale);
+    void ResizeBinLabel(const int n);
     void SetBinLabel(int bin, const std::string& name);
     void SetBinWidth(double width);
 
@@ -105,7 +106,7 @@ class TRExPlot {
     double fBinWidth;
     bool fIsNjet;
     bool fShowYields;
-    std::string fBinLabel[MAXbins];
+    std::vector<std::string> fBinLabel;
     double fLumiScale;
     int fLegendNColumns;
     std::vector<double> fXaxisRange;

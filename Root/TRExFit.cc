@@ -1865,6 +1865,7 @@ TRExPlot* TRExFit::DrawSummary(std::string opt, TRExPlot* prefit_plot) {
     p->BlindData();
     p->SetTotBkgAsym(g_err.get());
     //
+    p->ResizeBinLabel(Nbin+1);
     for(int i_bin=1;i_bin<=Nbin;i_bin++){
         p->SetBinLabel(i_bin,fRegions[regionVec[i_bin-1]]->fShortLabel.c_str());
     }
