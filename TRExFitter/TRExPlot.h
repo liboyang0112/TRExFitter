@@ -18,8 +18,6 @@ class THStack;
 class TLegend;
 class TPad;
 
-static const int MAXbins = 1000;
-
 class TRExPlot {
   public:
     explicit TRExPlot(std::string name="c",int canvasWidth=600,int canvasHeight=700,bool hideRatioPad=false);
