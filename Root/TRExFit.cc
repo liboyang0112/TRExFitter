@@ -3859,7 +3859,6 @@ void TRExFit::DrawPruningPlot() const{
 //
 void TRExFit::Fit(bool isLHscanOnly){
 
-    std::map < std::string, double > npValues;
     std::unique_ptr<RooDataSet> data(nullptr);
     std::unique_ptr<RooWorkspace> ws(nullptr);
     
@@ -3904,6 +3903,7 @@ void TRExFit::Fit(bool isLHscanOnly){
         //
         std::vector < std:: string > regionsToFit = ListRegionsToFit();
         std::map < std::string, int > regionDataType = MapRegionDataTypes(regionsToFit,fFitIsBlind);
+        std::map < std::string, double > npValues;
         //
         // flag if mixed Data / Asimov fit required
         // if mixed fit, perform a first fit on the regions with data only
@@ -3984,6 +3984,7 @@ void TRExFit::Fit(bool isLHscanOnly){
         //
         std::map<std::string,double> systGroups;
         std::vector<std::string> systGroupNames;
+        std::map < std::string, double > npValues;
         //
         WriteInfoStatus("TRExFit::Fit","");
         WriteInfoStatus("TRExFit::Fit","-------------------------------------------");
@@ -5491,80 +5492,101 @@ void TRExFit::ProduceNPRanking( std::string NPnames/*="all"*/ ){
     std::map< std::string,double > muVarNomDown;
 
     //
-    // Fills a vector of regions to consider for fit
-    //
-    std::vector < std:: string > regionsToFit;
-    std::map < std::string, int > regionDataType;
-    for( int i_ch = 0; i_ch < fNRegions; i_ch++ ){
-        bool isToFit = false;
-
-        if ( fFitRegion == CRONLY ) {
-            if( fRegions[i_ch] -> fRegionType == Region::CONTROL ){
-                isToFit = true;
-            }
-        } else if ( fFitRegion == CRSR ){
-            if( fRegions[i_ch] -> fRegionType == Region::CONTROL || fRegions[i_ch] -> fRegionType == Region::SIGNAL ){
-                isToFit = true;
-            }
-        }
-        if ( ! isToFit ){
-            for (unsigned int iReg = 0; iReg < fFitRegionsToFit.size(); ++iReg ){
-                if( fFitRegionsToFit[iReg] == fRegions[i_ch] -> fName ){
-                    isToFit = true;
-                    break;
-                }
-            }
-        }
-
-        if(isToFit){
-            regionsToFit.push_back( fRegions[i_ch] -> fName );
-            Region::DataType dataType;
-            if(fFitIsBlind){
-                dataType = Region::ASIMOVDATA;
-            } else {
-                dataType = fRegions[i_ch] -> fRegionDataType;
-            }
-            regionDataType.insert( std::pair < std::string, int >(fRegions[i_ch] -> fName , dataType) );
-        }
-    }
-
-    //
     // Creating the combined model
     //
-    std::unique_ptr<TFile> customWSfile(nullptr);
+    std::unique_ptr<RooDataSet> data(nullptr);
     std::unique_ptr<RooWorkspace> ws(nullptr);
-    if (fWorkspaceFileName!="") { // has custom worspace
+    std::unique_ptr<TFile> customWSfile(nullptr);
+    
+    //
+    // Read NPvalues from fit-result file
+    //
+    if(fFitNPValuesFromFitResults!=""){
+        WriteInfoStatus("TRExFit::Fit","Setting NP values for Asimov data-set creation from fit results stored in file " + fFitNPValuesFromFitResults + "...");
+        fFitNPValues = NPValuesFromFitResults(fFitNPValuesFromFitResults);
+    }
+    
+    //
+    // If there's a workspace specified, go on with simple fit, without looking for separate workspaces per region
+    //
+    if(fWorkspaceFileName!=""){
         customWSfile.reset(TFile::Open(fWorkspaceFileName.c_str(),"read"));
         ws = std::unique_ptr<RooWorkspace>(static_cast<RooWorkspace*>(customWSfile->Get("combined")));
-    } else {
-        ws = std::unique_ptr<RooWorkspace>(PerformWorkspaceCombination( regionsToFit ));
+        if(!fFitIsBlind) data = std::unique_ptr<RooDataSet>(static_cast<RooDataSet*>(ws->data("obsData")));
+        else             data = std::unique_ptr<RooDataSet>(static_cast<RooDataSet*>(ws->data("asimovData")));
     }
-    if (!ws){
-        WriteErrorStatus("TRExFit::ProduceNPRanking","Cannot retrieve the workspace, exiting!");
-        exit(EXIT_FAILURE);
+    else{
+        //
+        // Fills a vector of regions to consider for fit
+        //
+        std::vector < std:: string > regionsToFit = ListRegionsToFit();
+        std::map < std::string, int > regionDataType = MapRegionDataTypes(regionsToFit,fFitIsBlind);
+        std::map < std::string, double > npValues;
+        //
+        // flag if mixed Data / Asimov fit required
+        // if mixed fit, perform a first fit on the regions with data only
+        bool isMixedFit = DoingMixedFitting();
+        if(isMixedFit && !fFitIsBlind){
+            WriteInfoStatus("TRExFit::ProduceNPRanking","");
+            WriteInfoStatus("TRExFit::ProduceNPRanking","-------------------------------------------");
+            WriteInfoStatus("TRExFit::ProduceNPRanking","Performing fit on regions with DataType = DATA to get NPs to inject in Asimov...");
+            std::vector < std:: string > regionsForDataFit = ListRegionsToFit(Region::REALDATA);
+            std::map < std::string, int > regionForDataFitDataType = MapRegionDataTypes(regionsForDataFit);
+            //
+            // Creates a combined workspace with the regions to be used *in the data fit*
+            //
+            WriteInfoStatus("TRExFit::ProduceNPRanking","Creating ws for regions with real data only...");
+            if (TRExFitter::DEBUGLEVEL < 2) std::cout.setstate(std::ios_base::failbit);
+            std::unique_ptr<RooWorkspace> ws_forFit (PerformWorkspaceCombination( regionsForDataFit ));
+            if (TRExFitter::DEBUGLEVEL < 2) std::cout.clear();
+            if (!ws_forFit){
+                WriteErrorStatus("TRExFit::ProduceNPRanking","Cannot retrieve the workspace, exiting!");
+                exit(EXIT_FAILURE);
+            }
+            //
+            // Calls the PerformFit() function to actually do the fit
+            //
+            WriteInfoStatus("TRExFit::ProduceNPRanking","Performing a B-only fit in regions with real data only...");
+            npValues = PerformFit( ws_forFit.get(), data.get(), FitType::BONLY, false, TRExFitter::DEBUGLEVEL);
+            WriteInfoStatus("TRExFit::ProduceNPRanking","Now will use the fit results to create the Asimov in the regions without real data!");
+        }
+        else{
+            npValues = fFitNPValues;
+        }
+        //
+        // Create the final asimov dataset for fit
+        //
+        if (TRExFitter::DEBUGLEVEL < 2) std::cout.setstate(std::ios_base::failbit);
+        ws = std::unique_ptr<RooWorkspace>(PerformWorkspaceCombination( regionsToFit ));
+        if (TRExFitter::DEBUGLEVEL < 2) std::cout.clear();
+        if (!ws){
+            WriteErrorStatus("TRExFit::ProduceNPRanking","Cannot retrieve the workspace, exiting!");
+            exit(EXIT_FAILURE);
+        }
+        if (TRExFitter::DEBUGLEVEL < 2) std::cout.setstate(std::ios_base::failbit);
+        data = std::unique_ptr<RooDataSet>(DumpData( ws.get(), regionDataType, npValues, npValues.find(fPOI)==npValues.end() ? fFitPOIAsimov : npValues[fPOI] ));
+        if (TRExFitter::DEBUGLEVEL < 2) std::cout.clear();
     }
 
     //
     // Gets needed objects for the fit
     //
+    if (!ws){
+        WriteErrorStatus("TRExFit::ProduceNPRanking","Cannot retrieve the workspace, exiting!");
+        exit(EXIT_FAILURE);
+    }
     RooStats::ModelConfig *mc = static_cast<RooStats::ModelConfig*>(ws->obj("ModelConfig"));
     RooSimultaneous *simPdf = static_cast<RooSimultaneous*>(mc->GetPdf());
-    std::unique_ptr<RooDataSet> data(nullptr);
-
-    if (fWorkspaceFileName!=""){
-        if(!fFitIsBlind) data = std::unique_ptr<RooDataSet>(static_cast<RooDataSet*>(ws->data("obsData")));
-        else             data = std::unique_ptr<RooDataSet>(static_cast<RooDataSet*>(ws->data("asimovData")));
-    } else {
-        data = std::unique_ptr<RooDataSet>(DumpData( ws.get(), regionDataType, fFitNPValues, fFitPOIAsimov ));
-
-        if(fInjectGlobalObservables && fFitNPValues.size()) {
-            InjectGlobalObservables( ws.get() );
-        }
-    }
-
     if (!mc || !simPdf || !data){
         WriteErrorStatus("TRExFit::ProduceNPRanking","At least one of the objects that is needed to run ranking is not present");
         exit(EXIT_FAILURE);
+    }
+    
+    //
+    // Set the global observables to the specified NPValues if the corresponding flag is TRUE
+    //
+    if(fInjectGlobalObservables && fFitNPValues.size()) {
+        InjectGlobalObservables( ws.get() );
     }
 
     // Loop on NPs to find gammas and add to the list to be ranked
