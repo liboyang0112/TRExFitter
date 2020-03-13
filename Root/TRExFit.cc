@@ -147,6 +147,7 @@ TRExFit::TRExFit(std::string name) :
     fSummaryPrefix(""),
     fFitType(UNDEFINED),
     fFitRegion(CRSR),
+    fFitNPValuesFromFitResults(""),
     fInjectGlobalObservables(false),
     fFitPOIAsimov(0),
     fFitIsBlind(false),
@@ -3858,19 +3859,17 @@ void TRExFit::DrawPruningPlot() const{
 //
 void TRExFit::Fit(bool isLHscanOnly){
 
-    //
-    //Checks if a data sample exists
-    //
-    bool hasData = false;
-    for(int i_smp=0;i_smp<fNSamples;i_smp++){
-        if(fSamples[i_smp]->fType==Sample::DATA){
-            hasData = true;
-            break;
-        }
-    }
-
+    std::map < std::string, double > npValues;
     std::unique_ptr<RooDataSet> data(nullptr);
     std::unique_ptr<RooWorkspace> ws(nullptr);
+    
+    //
+    // Read NPvalues from fit-result file
+    //
+    if(fFitNPValuesFromFitResults!=""){
+        WriteInfoStatus("TRExFit::Fit","Setting NP values for Asimov data-set creation from fit results stored in file " + fFitNPValuesFromFitResults + "...");
+        fFitNPValues = NPValuesFromFitResults(fFitNPValuesFromFitResults);
+    }
 
     //
     // If fDoNonProfileFit => set stat-only
@@ -3893,78 +3892,80 @@ void TRExFit::Fit(bool isLHscanOnly){
             WriteErrorStatus("TRExFit::Fit", "The workspace (\"combined\") cannot be found in file " + fWorkspaceFileName + ". Please check !");
             exit(EXIT_FAILURE);
         }
-        if(!fFitIsBlind && hasData) data = std::unique_ptr<RooDataSet>(static_cast<RooDataSet*>(ws->data("obsData")));
-        else                        data = std::unique_ptr<RooDataSet>(static_cast<RooDataSet*>(ws->data("asimovData")));
+        if(!fFitIsBlind) data = std::unique_ptr<RooDataSet>(static_cast<RooDataSet*>(ws->data("obsData")));
+        else             data = std::unique_ptr<RooDataSet>(static_cast<RooDataSet*>(ws->data("asimovData")));
     }
     //
     // Otherwise go on with normal fit
     //
     else{
+        //
+        // Fills a vector of regions to consider for fit
+        //
+        std::vector < std:: string > regionsToFit = ListRegionsToFit();
+        std::map < std::string, int > regionDataType = MapRegionDataTypes(regionsToFit,fFitIsBlind);
+        //
+        // flag if mixed Data / Asimov fit required
+        // if mixed fit, perform a first fit on the regions with data only
+        bool isMixedFit = DoingMixedFitting();
+        if(isMixedFit && !fFitIsBlind){
+            if (!isLHscanOnly){
+                WriteInfoStatus("TRExFit::Fit","");
+                WriteInfoStatus("TRExFit::Fit","-------------------------------------------");
+                WriteInfoStatus("TRExFit::Fit","Performing fit on regions with DataType = DATA to get NPs to inject in Asimov...");
+            }
+            std::vector < std:: string > regionsForDataFit = ListRegionsToFit(Region::REALDATA);
+            std::map < std::string, int > regionForDataFitDataType = MapRegionDataTypes(regionsForDataFit);
+            //
+            // Creates a combined workspace with the regions to be used *in the data fit*
+            //
+            WriteInfoStatus("TRExFit::Fit","Creating ws for regions with real data only...");
+            if (TRExFitter::DEBUGLEVEL < 2) std::cout.setstate(std::ios_base::failbit);
+            std::unique_ptr<RooWorkspace> ws_forFit (PerformWorkspaceCombination( regionsForDataFit ));
+            if (TRExFitter::DEBUGLEVEL < 2) std::cout.clear();
+            if (!ws_forFit){
+                WriteErrorStatus("TRExFit::Fit","Cannot retrieve the workspace, exiting!");
+                exit(EXIT_FAILURE);
+            }
+            //
+            // Calls the PerformFit() function to actually do the fit
+            //
+            WriteInfoStatus("TRExFit::Fit","Performing a B-only fit in regions with real data only...");
+            npValues = PerformFit( ws_forFit.get(), data.get(), FitType::BONLY, false, TRExFitter::DEBUGLEVEL);
+            WriteInfoStatus("TRExFit::Fit","Now will use the fit results to create the Asimov in the regions without real data!");
+        }
+        else{
+            npValues = fFitNPValues;
+        }
+        //
+        // Create the final asimov dataset for fit
+        //
+        if (TRExFitter::DEBUGLEVEL < 2) std::cout.setstate(std::ios_base::failbit);
+        ws = std::unique_ptr<RooWorkspace>(PerformWorkspaceCombination( regionsToFit ));
+        if (TRExFitter::DEBUGLEVEL < 2) std::cout.clear();
+        if (!ws){
+            WriteErrorStatus("TRExFit::Fit","Cannot retrieve the workspace, exiting!");
+            exit(EXIT_FAILURE);
+        }
+        if (TRExFitter::DEBUGLEVEL < 2) std::cout.setstate(std::ios_base::failbit);
+        data = std::unique_ptr<RooDataSet>(DumpData( ws.get(), regionDataType, npValues, npValues.find(fPOI)==npValues.end() ? fFitPOIAsimov : npValues[fPOI] ));
+        if (TRExFitter::DEBUGLEVEL < 2) std::cout.clear();
+        //
         if (!isLHscanOnly){
             WriteInfoStatus("TRExFit::Fit","");
             WriteInfoStatus("TRExFit::Fit","-------------------------------------------");
             WriteInfoStatus("TRExFit::Fit","Performing nominal fit...");
         }
-        //
-        // Fills a vector of regions to consider for fit
-        //
-        std::vector < std:: string > regionsToFit;
-        std::map < std::string, int > regionDataType;
-        for( int i_ch = 0; i_ch < fNRegions; i_ch++ ){
-            bool isToFit = false;
-
-            if ( fFitRegion == CRONLY ) {
-                if( fRegions[i_ch] -> fRegionType == Region::CONTROL ){
-                    isToFit = true;
-                }
-            } else if ( fFitRegion == CRSR ){
-                if( fRegions[i_ch] -> fRegionType == Region::CONTROL || fRegions[i_ch] -> fRegionType == Region::SIGNAL ){
-                    isToFit = true;
-                }
-            }
-            if ( ! isToFit ){
-                for (unsigned int iReg = 0; iReg < fFitRegionsToFit.size(); ++iReg ){
-                    if( fFitRegionsToFit[iReg] == fRegions[i_ch] -> fName ){
-                        isToFit = true;
-                        break;
-                    }
-                }
-            }
-            //
-            if(isToFit){
-                regionsToFit.push_back( fRegions[i_ch] -> fName );
-                Region::DataType dataType;
-                if(fFitIsBlind || !hasData){
-                    dataType = Region::ASIMOVDATA;
-                }
-                else{
-                    dataType = fRegions[i_ch] -> fRegionDataType;
-                }
-                regionDataType.insert( std::pair < std::string, int >(fRegions[i_ch] -> fName , dataType) );
-            }
-        }
-        //
-        // Creating the combined model with the regions to fit only
-        //
-        if (TRExFitter::DEBUGLEVEL < 2) std::cout.setstate(std::ios_base::failbit);
-        ws = std::unique_ptr<RooWorkspace>(PerformWorkspaceCombination( regionsToFit ));
-        if (!ws){
-            WriteErrorStatus("TRExFit::Fit","Cannot retrieve the workspace, exiting!");
-            exit(EXIT_FAILURE);
-        }
-        //
-        // If needed (only if needed), create a RooDataSet object
-        //
-        data = std::unique_ptr<RooDataSet>(DumpData( ws.get(), regionDataType, fFitNPValues, fFitPOIAsimov ));
-
-        if(fInjectGlobalObservables && fFitNPValues.size()) {
-            InjectGlobalObservables( ws.get() );
-        }
-
-        //
-        if (TRExFitter::DEBUGLEVEL < 2) std::cout.clear();
     }
-
+    
+    //
+    // Set the global observables to the specified NPValues if the corresponding flag is TRUE
+    //
+    if(fInjectGlobalObservables && fFitNPValues.size()) {
+        InjectGlobalObservables( ws.get() );
+    }
+    
+    //
     // Calls the PerformFit() function to actually do the fit
     //
     if (!isLHscanOnly) PerformFit( ws.get(), data.get(), fFitType, true, TRExFitter::DEBUGLEVEL);
@@ -4015,7 +4016,6 @@ void TRExFit::Fit(bool isLHscanOnly){
             WriteErrorStatus("TRExFit::Fit","Cannot retrieve the workspace, exiting!");
             exit(EXIT_FAILURE);
         }
-        std::map < std::string, double > npValues;
         // nominal fit on Asimov
         RooStats::ModelConfig *mc = (RooStats::ModelConfig*)ws -> obj("ModelConfig");
         ws->saveSnapshot("InitialStateModelGlob",   *mc->GetGlobalObservables());
@@ -4353,6 +4353,8 @@ void TRExFit::Fit(bool isLHscanOnly){
     }
 }
 
+//__________________________________________________________________________________
+//
 void TRExFit::InjectGlobalObservables( RooWorkspace * ws ) {
     RooStats::ModelConfig* mc = static_cast<RooStats::ModelConfig*>(ws->obj("ModelConfig"));
     RooArgSet mc_globs = *mc->GetGlobalObservables();
@@ -4368,11 +4370,13 @@ void TRExFit::InjectGlobalObservables( RooWorkspace * ws ) {
     
         // find the corresponding glob
         const std::string glob_name = "nom_" + this_name;
+        const std::string glob_name_alpha = "nom_alpha_" + this_name;
+        const std::string glob_name_gamma = "nom_gamma_" + this_name;
         TIterator* gIter = mc_globs.createIterator();
         RooRealVar* glob = nullptr;
         RooRealVar* this_glob = nullptr;
         while ((glob = static_cast<RooRealVar*>(gIter->Next()))) {
-            if(glob->GetName() == glob_name) {
+            if(glob->GetName() == glob_name || glob->GetName() == glob_name_alpha || glob->GetName() == glob_name_gamma) {
                 this_glob = glob;
                 break;
             }
@@ -5001,15 +5005,6 @@ void TRExFit::PlotUnfoldedData() const {
 //
 void TRExFit::GetLimit(){
 
-    //Checks if a data sample exists
-    bool hasData = false;
-    for(int i_smp=0;i_smp<fNSamples;i_smp++){
-        if(fSamples[i_smp]->fType==Sample::DATA){
-            hasData = true;
-            break;
-        }
-    }
-
     //
     // If a workspace file name is specified, do simple limit
     //
@@ -5017,7 +5012,7 @@ void TRExFit::GetLimit(){
     if (sigDebug < 0) sigDebug = 0;
     if(fWorkspaceFileName!=""){
         std::string dataName = "obsData";
-        if(!hasData || fLimitIsBlind) dataName = "asimovData";
+        if(fLimitIsBlind) dataName = "asimovData";
         runAsymptoticsCLs(fWorkspaceFileName.c_str(), "combined", "ModelConfig", dataName.c_str(), fLimitParamName.c_str(), fLimitParamValue, (fLimitOutputPrefixName+fSuffix).c_str(), (fName+"/Limits/").c_str(), fLimitIsBlind, fLimitsConfidence, "asimovData_0", fSignalInjection, fSignalInjectionValue, sigDebug);
     }
     else{
@@ -5031,14 +5026,14 @@ void TRExFit::GetLimit(){
         bool onlyUseRealData = true;
         for( int i_ch = 0; i_ch < fNRegions; i_ch++ ){
             if( fRegions[i_ch] -> fRegionType == Region::VALIDATION ) continue;
-            if( hasData && fRegions[i_ch] -> fRegionDataType == Region::REALDATA && !fLimitIsBlind ){
+            if( !fLimitIsBlind && fRegions[i_ch] -> fRegionDataType == Region::REALDATA && !fLimitIsBlind ){
                 Region::DataType dataType = fRegions[i_ch] -> fRegionDataType;
                 regionsForFit.push_back( fRegions[i_ch] -> fName );
                 regionsForFitDataType.insert( std::pair < std::string, int >(fRegions[i_ch] -> fName , dataType) );
             }
             regionsForLimit.push_back(fRegions[i_ch] -> fName);
-            regionsForLimitDataType.insert( std::pair < std::string, int >(fRegions[i_ch] -> fName , (fLimitIsBlind || !hasData) ? Region::ASIMOVDATA : fRegions[i_ch] -> fRegionDataType) );
-            if(fLimitIsBlind || !hasData || fRegions[i_ch] -> fRegionDataType == Region::ASIMOVDATA){
+            regionsForLimitDataType.insert( std::pair < std::string, int >(fRegions[i_ch] -> fName , fLimitIsBlind ? Region::ASIMOVDATA : fRegions[i_ch] -> fRegionDataType) );
+            if(fLimitIsBlind || fRegions[i_ch] -> fRegionDataType == Region::ASIMOVDATA){
                 onlyUseRealData = false;
             }
         }
@@ -5115,15 +5110,6 @@ void TRExFit::GetLimit(){
 //
 void TRExFit::GetSignificance(){
 
-    //Checks if a data sample exists
-    bool hasData = false;
-    for(int i_smp=0;i_smp<fNSamples;i_smp++){
-        if(fSamples[i_smp]->fType==Sample::DATA){
-            hasData = true;
-            break;
-        }
-    }
-
     //
     // If a workspace file name is specified, do simple significance
     //
@@ -5131,7 +5117,7 @@ void TRExFit::GetSignificance(){
     if (sigDebug < 0) sigDebug = 0;
     if(fWorkspaceFileName!=""){
         std::string dataName = "obsData";
-        if(!hasData || fSignificanceIsBlind) dataName = "asimovData";
+        if(fSignificanceIsBlind) dataName = "asimovData";
         runSig(fWorkspaceFileName.c_str(), "combined", "ModelConfig", dataName.c_str(), fSignificanceParamName.c_str(), fSignificanceParamValue, fSignificanceOutputPrefixName.c_str(), (fName+"/Significance").c_str(), fSignificanceIsBlind, "asimovData_1", "conditionalGlobs_1", "nominalGlobs", false, fSignificancePOIAsimov, sigDebug);
     }
     else{
@@ -5145,14 +5131,14 @@ void TRExFit::GetSignificance(){
         bool onlyUseRealData = true;
         for( int i_ch = 0; i_ch < fNRegions; i_ch++ ){
             if( fRegions[i_ch] -> fRegionType == Region::VALIDATION ) continue;
-            if( hasData && fRegions[i_ch] -> fRegionDataType == Region::REALDATA && !fSignificanceIsBlind){
+            if( !fSignificanceIsBlind && fRegions[i_ch] -> fRegionDataType == Region::REALDATA && !fSignificanceIsBlind){
                 Region::DataType dataType = fRegions[i_ch] -> fRegionDataType;
                 regionsForFit.push_back( fRegions[i_ch] -> fName );
                 regionsForFitDataType.insert( std::pair < std::string, int >(fRegions[i_ch] -> fName , dataType) );
             }
             regionsForSign.push_back(fRegions[i_ch] -> fName);
-            regionsForSignDataType.insert( std::pair < std::string, int >(fRegions[i_ch] -> fName , (!hasData || fSignificanceIsBlind) ? Region::ASIMOVDATA : fRegions[i_ch] -> fRegionDataType) );
-            if(fSignificanceIsBlind || !hasData || fRegions[i_ch] -> fRegionDataType == Region::ASIMOVDATA){
+            regionsForSignDataType.insert( std::pair < std::string, int >(fRegions[i_ch] -> fName , fSignificanceIsBlind ? Region::ASIMOVDATA : fRegions[i_ch] -> fRegionDataType) );
+            if(fSignificanceIsBlind || fRegions[i_ch] -> fRegionDataType == Region::ASIMOVDATA){
                 onlyUseRealData = false;
             }
         }
@@ -5566,16 +5552,8 @@ void TRExFit::ProduceNPRanking( std::string NPnames/*="all"*/ ){
     std::unique_ptr<RooDataSet> data(nullptr);
 
     if (fWorkspaceFileName!=""){
-        bool hasData = false;
-        for(int i_smp=0;i_smp<fNSamples;i_smp++){
-            if(fSamples[i_smp]->fType==Sample::DATA){
-                hasData = true;
-                break;
-            }
-        }
-
-        if(!fFitIsBlind && hasData) data = std::unique_ptr<RooDataSet>(static_cast<RooDataSet*>(ws->data("obsData")));
-        else                        data = std::unique_ptr<RooDataSet>(static_cast<RooDataSet*>(ws->data("asimovData")));
+        if(!fFitIsBlind) data = std::unique_ptr<RooDataSet>(static_cast<RooDataSet*>(ws->data("obsData")));
+        else             data = std::unique_ptr<RooDataSet>(static_cast<RooDataSet*>(ws->data("asimovData")));
     } else {
         data = std::unique_ptr<RooDataSet>(DumpData( ws.get(), regionDataType, fFitNPValues, fFitPOIAsimov ));
 
@@ -9148,4 +9126,61 @@ void TRExFit::ApplyExternalConstraints(RooWorkspace* ws,
         const RooArgSet* externalConstraints = ws->set(simPdf->getStringAttribute("externalConstraints"));
         fitTool->SetExternalConstraints( externalConstraints );
     }
+}
+
+//__________________________________________________________________________________
+//
+bool TRExFit::DoingMixedFitting(){
+    int dataType = -1;
+    // loop on regions
+    for (auto reg : fRegions) {
+        if (reg->fRegionType == Region::VALIDATION) continue;
+        if (dataType >= 0 && reg->fRegionDataType != dataType) return true;
+        dataType = reg->fRegionDataType;
+    }
+    return false;
+}
+
+//__________________________________________________________________________________
+//
+std::vector < std:: string > TRExFit::ListRegionsToFit(int dataType){
+    std::vector < std:: string > list;
+    for (auto reg : fRegions) {
+        if (reg->fRegionType == Region::VALIDATION) continue;
+        if (dataType >= 0 && reg->fRegionDataType != dataType) continue;
+        if (fFitRegion == CRONLY && reg->fRegionType != Region::CONTROL) continue;
+        if (fFitRegion == CRONLY && reg->fRegionType != Region::CONTROL) continue;
+        list.emplace_back( reg->fName );
+    }
+    return list;
+}
+
+//__________________________________________________________________________________
+//
+std::map < std::string, int > TRExFit::MapRegionDataTypes(std::vector < std:: string > regionList,bool isBlind){
+    std::map < std::string, int > dataTypes;
+    for (auto name : regionList) {
+        if (isBlind) {
+            dataTypes[name] = Region::ASIMOVDATA;
+            continue;
+        }
+        Region* reg = GetRegion(name);
+        if (!reg) {
+            WriteErrorStatus("TRExFit::MapRegionDataTtpe", "Trying to access a non-exisiting region: " + name + "...");
+            exit(EXIT_FAILURE);
+        }
+        dataTypes[name] = reg->fRegionDataType;
+    }
+    return dataTypes;
+}
+
+//__________________________________________________________________________________
+//
+std::map < std::string, double > TRExFit::NPValuesFromFitResults(std::string fitResultsFile){
+    std::map < std::string, double > npValues;
+    ReadFitResults(fitResultsFile);
+    for(const auto& inp : fFitResults->fNuisPar) {
+        npValues[inp->fName] = inp->fFitValue;
+    }
+    return npValues;
 }

@@ -481,6 +481,30 @@ public:
       * A helper function to force shape on some systematics
       */ 
     void RunForceShape();
+    
+    /**
+     * A helper function to check if the fit/limit/significance is done on a mixture of real-data and Asimov-data
+     */
+    bool DoingMixedFitting();
+    
+    /**
+     * A helper function to create a list of all regions to fit
+     * @param If set, only regions with this DataType are included
+     */
+    std::vector < std:: string > ListRegionsToFit(int dataType=-1);
+    
+    /**
+     * A helper function to create a map with specified regions and corresponding DataType
+     * @param List of regions to consider
+     * @param Set to true to force to use ASIMOV everywhere
+     */
+    std::map < std::string, int > MapRegionDataTypes(std::vector < std:: string > regionList,bool isBlind=false);
+        
+    /**
+     * A helper function to read a fit result txt file and store the NP values into a map
+     * @param Text file containing fit results
+     */
+    std::map < std::string, double > NPValuesFromFitResults(std::string fitResultsFile);
 
     // -------------------------
 
@@ -615,6 +639,7 @@ public:
     std::vector< std::string > fFitRegionsToFit;
     std::map< std::string, double > fFitNPValues;
     std::map< std::string, double > fFitFixedNPs;
+    std::string fFitNPValuesFromFitResults;
     bool fInjectGlobalObservables;
     double fFitPOIAsimov;
     bool fFitIsBlind;
@@ -797,6 +822,7 @@ public:
     bool fUseInFit;
     bool fUseInComparison;
     bool fReorderNPs;
+    bool fBlindSRs;
 };
 
 #endif
