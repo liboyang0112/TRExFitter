@@ -1177,7 +1177,7 @@ int ConfigReader::ReadJobOptions(){
         }
     }
     
-    // Set BlinSRs
+    // Set BlindSRs
     param = confSet->Get("BlindSRs");
     if( param != "" ){
         std::transform(param.begin(), param.end(), param.begin(), ::toupper);

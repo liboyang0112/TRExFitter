@@ -5026,7 +5026,7 @@ void TRExFit::GetLimit(){
         bool onlyUseRealData = true;
         for( int i_ch = 0; i_ch < fNRegions; i_ch++ ){
             if( fRegions[i_ch] -> fRegionType == Region::VALIDATION ) continue;
-            if( !fLimitIsBlind && fRegions[i_ch] -> fRegionDataType == Region::REALDATA && !fLimitIsBlind ){
+            if( fRegions[i_ch] -> fRegionDataType == Region::REALDATA && !fLimitIsBlind ){
                 Region::DataType dataType = fRegions[i_ch] -> fRegionDataType;
                 regionsForFit.push_back( fRegions[i_ch] -> fName );
                 regionsForFitDataType.insert( std::pair < std::string, int >(fRegions[i_ch] -> fName , dataType) );
@@ -5131,7 +5131,7 @@ void TRExFit::GetSignificance(){
         bool onlyUseRealData = true;
         for( int i_ch = 0; i_ch < fNRegions; i_ch++ ){
             if( fRegions[i_ch] -> fRegionType == Region::VALIDATION ) continue;
-            if( !fSignificanceIsBlind && fRegions[i_ch] -> fRegionDataType == Region::REALDATA && !fSignificanceIsBlind){
+            if( fRegions[i_ch] -> fRegionDataType == Region::REALDATA && !fSignificanceIsBlind){
                 Region::DataType dataType = fRegions[i_ch] -> fRegionDataType;
                 regionsForFit.push_back( fRegions[i_ch] -> fName );
                 regionsForFitDataType.insert( std::pair < std::string, int >(fRegions[i_ch] -> fName , dataType) );
@@ -9130,7 +9130,7 @@ void TRExFit::ApplyExternalConstraints(RooWorkspace* ws,
 
 //__________________________________________________________________________________
 //
-bool TRExFit::DoingMixedFitting(){
+bool TRExFit::DoingMixedFitting() const {
     int dataType = -1;
     // loop on regions
     for (auto reg : fRegions) {
@@ -9143,7 +9143,7 @@ bool TRExFit::DoingMixedFitting(){
 
 //__________________________________________________________________________________
 //
-std::vector < std:: string > TRExFit::ListRegionsToFit(int dataType){
+std::vector < std:: string > TRExFit::ListRegionsToFit(int dataType) const {
     std::vector < std:: string > list;
     for (auto reg : fRegions) {
         if (reg->fRegionType == Region::VALIDATION) continue;
@@ -9157,7 +9157,7 @@ std::vector < std:: string > TRExFit::ListRegionsToFit(int dataType){
 
 //__________________________________________________________________________________
 //
-std::map < std::string, int > TRExFit::MapRegionDataTypes(std::vector < std:: string > regionList,bool isBlind){
+std::map < std::string, int > TRExFit::MapRegionDataTypes(const std::vector<std::string>& regionList,bool isBlind) const {
     std::map < std::string, int > dataTypes;
     for (auto name : regionList) {
         if (isBlind) {
@@ -9176,7 +9176,7 @@ std::map < std::string, int > TRExFit::MapRegionDataTypes(std::vector < std:: st
 
 //__________________________________________________________________________________
 //
-std::map < std::string, double > TRExFit::NPValuesFromFitResults(std::string fitResultsFile){
+std::map < std::string, double > TRExFit::NPValuesFromFitResults(const std::string& fitResultsFile) {
     std::map < std::string, double > npValues;
     ReadFitResults(fitResultsFile);
     for(const auto& inp : fFitResults->fNuisPar) {
