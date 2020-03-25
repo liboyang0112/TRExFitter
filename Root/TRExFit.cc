@@ -5008,6 +5008,14 @@ void TRExFit::GetLimit(){
     std::unique_ptr<RooDataSet> data(nullptr);
     
     //
+    // Read NPvalues from fit-result file
+    //
+    if(fFitNPValuesFromFitResults!=""){
+        WriteInfoStatus("TRExFit::Fit","Setting NP values for Asimov data-set creation from fit results stored in file " + fFitNPValuesFromFitResults + "...");
+        fFitNPValues = NPValuesFromFitResults(fFitNPValuesFromFitResults);
+    }
+    
+    //
     // If a workspace file name is specified, do simple limit
     //
     int sigDebug = 3 - TRExFitter::DEBUGLEVEL;
@@ -5118,6 +5126,14 @@ void TRExFit::GetLimit(){
 //
 void TRExFit::GetSignificance(){
     std::unique_ptr<RooDataSet> data(nullptr);
+    
+    //
+    // Read NPvalues from fit-result file
+    //
+    if(fFitNPValuesFromFitResults!=""){
+        WriteInfoStatus("TRExFit::Fit","Setting NP values for Asimov data-set creation from fit results stored in file " + fFitNPValuesFromFitResults + "...");
+        fFitNPValues = NPValuesFromFitResults(fFitNPValuesFromFitResults);
+    }
 
     //
     // If a workspace file name is specified, do simple significance

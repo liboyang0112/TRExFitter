@@ -1184,7 +1184,7 @@ int ConfigReader::ReadJobOptions(){
         if(      param == "TRUE" )  fFitter->fBlindSRs = true;
         else if( param == "FALSE" ) fFitter->fBlindSRs = false;
         else {
-            WriteWarningStatus("ConfigReader::ReadJobOptions", "You specified 'ReorderNPs' option but you did not provide valid setting. Using default (false)");
+            WriteWarningStatus("ConfigReader::ReadJobOptions", "You specified 'BlindSRs' option but you did not provide valid setting. Using default (false)");
             fFitter->fBlindSRs = false;
         }
     }
