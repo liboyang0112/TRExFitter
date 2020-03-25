@@ -5005,7 +5005,8 @@ void TRExFit::PlotUnfoldedData() const {
 //__________________________________________________________________________________
 //
 void TRExFit::GetLimit(){
-
+    std::unique_ptr<RooDataSet> data(nullptr);
+    
     //
     // If a workspace file name is specified, do simple limit
     //
@@ -5020,39 +5021,27 @@ void TRExFit::GetLimit(){
         //
         // Fills a vector of regions to consider for fit
         //
-        std::vector < std:: string > regionsForFit;
-        std::vector < std::string > regionsForLimit;
-        std::map < std::string, int > regionsForFitDataType;
-        std::map < std::string, int > regionsForLimitDataType;
-        bool onlyUseRealData = true;
-        for( int i_ch = 0; i_ch < fNRegions; i_ch++ ){
-            if( fRegions[i_ch] -> fRegionType == Region::VALIDATION ) continue;
-            if( fRegions[i_ch] -> fRegionDataType == Region::REALDATA && !fLimitIsBlind ){
-                Region::DataType dataType = fRegions[i_ch] -> fRegionDataType;
-                regionsForFit.push_back( fRegions[i_ch] -> fName );
-                regionsForFitDataType.insert( std::pair < std::string, int >(fRegions[i_ch] -> fName , dataType) );
-            }
-            regionsForLimit.push_back(fRegions[i_ch] -> fName);
-            regionsForLimitDataType.insert( std::pair < std::string, int >(fRegions[i_ch] -> fName , fLimitIsBlind ? Region::ASIMOVDATA : fRegions[i_ch] -> fRegionDataType) );
-            if(fLimitIsBlind || fRegions[i_ch] -> fRegionDataType == Region::ASIMOVDATA){
-                onlyUseRealData = false;
-            }
-        }
-
+        std::vector < std::string > regionsForLimit = ListRegionsToFit();
+        std::map < std::string, int > regionsForLimitDataType = MapRegionDataTypes(regionsForLimit,fLimitIsBlind);;
         std::map < std::string, double > npValues;
-        std::unique_ptr<RooDataSet> data(nullptr);
-
-        if(regionsForFit.size()>0 && !onlyUseRealData){
+        //
+        // flag if mixed Data / Asimov limit required
+        // if mixed limit, perform a first fit on the regions with data only
+        bool isMixedFit = DoingMixedFitting();
+        if(isMixedFit && !fLimitIsBlind){
+            std::vector < std:: string > regionsForFit = ListRegionsToFit(Region::REALDATA);
+            std::map < std::string, int > regionsForFitDataType = MapRegionDataTypes(regionsForFit);
             //
             // Creates a combined workspace with the regions to be used *in the fit*
             //
             WriteInfoStatus("TRExFit::GetLimit","Creating ws for regions with real data only...");
+            if (TRExFitter::DEBUGLEVEL < 2) std::cout.setstate(std::ios_base::failbit);
             std::unique_ptr<RooWorkspace> ws_forFit (PerformWorkspaceCombination( regionsForFit ));
+            if (TRExFitter::DEBUGLEVEL < 2) std::cout.clear();
             if (!ws_forFit){
                 WriteErrorStatus("TRExFit::GetLimit","Cannot retrieve the workspace, exiting!");
                 exit(EXIT_FAILURE);
             }
-
             //
             // Calls the PerformFit() function to actually do the fit
             //
@@ -5060,16 +5049,30 @@ void TRExFit::GetLimit(){
             npValues = PerformFit( ws_forFit.get(), data.get(), FitType::BONLY, false, TRExFitter::DEBUGLEVEL);
             WriteInfoStatus("TRExFit::GetLimit","Now will use the fit results to create the Asimov in the regions without real data!");
         }
+        else{
+            npValues = fFitNPValues; // FIXME: maybe should add a set of configurable NPs for limit only??
+        }
 
         //
         // Create the final asimov dataset for limit setting
         //
+        if (TRExFitter::DEBUGLEVEL < 2) std::cout.setstate(std::ios_base::failbit);
         std::unique_ptr<RooWorkspace> ws_forLimit(PerformWorkspaceCombination( regionsForLimit ));
+        if (TRExFitter::DEBUGLEVEL < 2) std::cout.clear();
         if (!ws_forLimit){
             WriteErrorStatus("TRExFit::GetLimit","Cannot retrieve the workspace, exiting!");
             exit(EXIT_FAILURE);
         }
+        if (TRExFitter::DEBUGLEVEL < 2) std::cout.setstate(std::ios_base::failbit);
         data = std::unique_ptr<RooDataSet>(DumpData( ws_forLimit.get(), regionsForLimitDataType, npValues, npValues.find(fPOI)==npValues.end() ? fLimitPOIAsimov : npValues[fPOI] ));
+        if (TRExFitter::DEBUGLEVEL < 2) std::cout.clear();
+        
+        //
+        // Set the global observables to the specified NPValues if the corresponding flag is TRUE
+        //
+        if(fInjectGlobalObservables && fFitNPValues.size()) {
+            InjectGlobalObservables( ws_forLimit.get() );
+        }
 
         //
         // Set all saturated model factors to constant
@@ -5102,6 +5105,10 @@ void TRExFit::GetLimit(){
         originalMeasurement -> Write();
         ws_forLimit -> Write();
         f_clone -> Close();
+
+        //
+        // Finally computing the limit
+        //
         std::string outputName_s = static_cast<std::string> (outputName);
         runAsymptoticsCLs(outputName_s.c_str(), "combined", "ModelConfig", "ttHFitterData", fLimitParamName.c_str(), fLimitParamValue, (fLimitOutputPrefixName+fSuffix).c_str(), (fName+"/Limits/").c_str(), fLimitIsBlind, fLimitsConfidence, "asimovData_0", fSignalInjection, fSignalInjectionValue, sigDebug);
     }
@@ -5110,6 +5117,7 @@ void TRExFit::GetLimit(){
 //__________________________________________________________________________________
 //
 void TRExFit::GetSignificance(){
+    std::unique_ptr<RooDataSet> data(nullptr);
 
     //
     // If a workspace file name is specified, do simple significance
@@ -5125,38 +5133,27 @@ void TRExFit::GetSignificance(){
         //
         // Fills a vector of regions to consider for fit
         //
-        std::vector < std:: string > regionsForFit;
         std::vector < std::string > regionsForSign;
-        std::map < std::string, int > regionsForFitDataType;
         std::map < std::string, int > regionsForSignDataType;
-        bool onlyUseRealData = true;
-        for( int i_ch = 0; i_ch < fNRegions; i_ch++ ){
-            if( fRegions[i_ch] -> fRegionType == Region::VALIDATION ) continue;
-            if( fRegions[i_ch] -> fRegionDataType == Region::REALDATA && !fSignificanceIsBlind){
-                Region::DataType dataType = fRegions[i_ch] -> fRegionDataType;
-                regionsForFit.push_back( fRegions[i_ch] -> fName );
-                regionsForFitDataType.insert( std::pair < std::string, int >(fRegions[i_ch] -> fName , dataType) );
-            }
-            regionsForSign.push_back(fRegions[i_ch] -> fName);
-            regionsForSignDataType.insert( std::pair < std::string, int >(fRegions[i_ch] -> fName , fSignificanceIsBlind ? Region::ASIMOVDATA : fRegions[i_ch] -> fRegionDataType) );
-            if(fSignificanceIsBlind || fRegions[i_ch] -> fRegionDataType == Region::ASIMOVDATA){
-                onlyUseRealData = false;
-            }
-        }
-
         std::map < std::string, double > npValues;
-        std::unique_ptr<RooDataSet> data(nullptr);
-        if(regionsForFit.size()>0 && !onlyUseRealData){
+        //
+        // flag if mixed Data / Asimov limit required
+        // if mixed limit, perform a first fit on the regions with data only
+        bool isMixedFit = DoingMixedFitting();
+        if(isMixedFit && !fSignificanceIsBlind){
+            std::vector < std:: string > regionsForFit = ListRegionsToFit(Region::REALDATA);
+            std::map < std::string, int > regionsForFitDataType = MapRegionDataTypes(regionsForFit);
             //
             // Creates a combined workspace with the regions to be used *in the fit*
             //
             WriteInfoStatus("TRExFit::GetSignificance","Creating ws for regions with real data only...");
-            std::unique_ptr<RooWorkspace> ws_forFit(PerformWorkspaceCombination( regionsForFit ));
+            if (TRExFitter::DEBUGLEVEL < 2) std::cout.setstate(std::ios_base::failbit);
+            std::unique_ptr<RooWorkspace> ws_forFit (PerformWorkspaceCombination( regionsForFit ));
+            if (TRExFitter::DEBUGLEVEL < 2) std::cout.clear();
             if (!ws_forFit){
                 WriteErrorStatus("TRExFit::GetSignificance","Cannot retrieve the workspace, exiting!");
                 exit(EXIT_FAILURE);
             }
-
             //
             // Calls the PerformFit() function to actually do the fit
             //
@@ -5164,16 +5161,30 @@ void TRExFit::GetSignificance(){
             npValues = PerformFit( ws_forFit.get(), data.get(), FitType::BONLY, false, TRExFitter::DEBUGLEVEL);
             WriteInfoStatus("TRExFit::GetSignificance","Now will use the fit results to create the Asimov in the regions without real data!");
         }
+        else{
+            npValues = fFitNPValues; // FIXME: maybe should add a set of configurable NPs for significance only??
+        }
 
         //
         // Create the final asimov dataset for limit setting
         //
+        if (TRExFitter::DEBUGLEVEL < 2) std::cout.setstate(std::ios_base::failbit);
         std::unique_ptr<RooWorkspace> ws_forSignificance (PerformWorkspaceCombination( regionsForSign ));
+        if (TRExFitter::DEBUGLEVEL < 2) std::cout.clear();
         if (!ws_forSignificance){
             WriteErrorStatus("TRExFit::GetSignificance","Cannot retrieve the workspace, exiting!");
             exit(EXIT_FAILURE);
         }
+        if (TRExFitter::DEBUGLEVEL < 2) std::cout.setstate(std::ios_base::failbit);
         data = std::unique_ptr<RooDataSet>(DumpData( ws_forSignificance.get(), regionsForSignDataType, npValues, npValues.find(fPOI)==npValues.end() ? fSignificancePOIAsimov : npValues[fPOI] ));
+        if (TRExFitter::DEBUGLEVEL < 2) std::cout.clear();
+        
+        //
+        // Set the global observables to the specified NPValues if the corresponding flag is TRUE
+        //
+        if(fInjectGlobalObservables && fFitNPValues.size()) {
+            InjectGlobalObservables( ws_forSignificance.get() );
+        }
 
         //
         // Set all saturated model factors to constant
@@ -5198,10 +5209,10 @@ void TRExFit::GetSignificance(){
         f_origin -> Close();
 
         //
-        // Creating the rootfile used as input for the limit setting :-)
+        // Creating the rootfile used as input for the significance computation
         //
         outputName = outputName.ReplaceAll(".root","_forSignificance.root");
-        std::unique_ptr<TFile> f_clone(TFile::Open(outputName, "recreate" ));
+        std::unique_ptr<TFile> f_clone(TFile::Open( outputName, "recreate" ));
         ws_forSignificance -> import(*data,Rename("ttHFitterData"));
         originalMeasurement -> Write();
         ws_forSignificance -> Write();
