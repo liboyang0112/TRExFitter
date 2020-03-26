@@ -919,19 +919,27 @@ void MultiFit::CompareLimit(){
         }
         if(fLimitsFiles[i]==""){
             if(fSignalInjection){
-                f.reset(TFile::Open(Form("%s/Limits/%s_injection.root",dirs[i].c_str(),(names[i]+suffs[i]).c_str())));
                 WriteInfoStatus("MultiFit::CompareLimit", "Reading file " + dirs[i] + "/Limits/" + (names[i]+suffs[i]) + "_injection.root");
+                f.reset(TFile::Open(Form("%s/Limits/%s_injection.root",dirs[i].c_str(),(names[i]+suffs[i]).c_str())));
             }
             else{
-                f.reset(TFile::Open(Form("%s/Limits/%s.root",dirs[i].c_str(),(names[i]+suffs[i]).c_str())));
                 WriteInfoStatus("MultiFit::CompareLimit", "Reading file " + dirs[i] + "/Limits/" + (names[i]+suffs[i]) + ".root");
+                f.reset(TFile::Open(Form("%s/Limits/%s.root",dirs[i].c_str(),(names[i]+suffs[i]).c_str())));
             }
         }
         else{
-            f.reset(TFile::Open(fLimitsFiles[i].c_str()));
             WriteInfoStatus("MultiFit::CompareLimit", "Reading file " + fLimitsFiles[i]);
+            f.reset(TFile::Open(fLimitsFiles[i].c_str()));
+        }
+        if (!f) {
+            WriteWarningStatus("MultiFit::CompareLimit", "Cannot open the file!");
+            continue;
         }
         h = std::unique_ptr<TH1>(static_cast<TH1*>(f->Get("limit")));
+        if (!h) {
+            WriteWarningStatus("MultiFit::CompareLimit", "Cannot read histogram from \"limit\"");
+            continue;
+        }
         if(fSignalInjection) h_old = std::unique_ptr<TH1>(static_cast<TH1*>(f->Get("limit_old")));
 
         WriteDebugStatus("MultiFit::CompareLimit", "bin 1 content: " + std::to_string(h->GetBinContent(1)));
