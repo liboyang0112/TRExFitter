@@ -4,7 +4,7 @@ site_author: TRExFitter team
 site_url: https://trexfitter-docs.web.cern.ch/
 
 repo_name: GitLab
-repo_url: https://gitlab.cern.ch/TRExStats/trexfitter-docs
+repo_url: https://gitlab.cern.ch/TRExStats/TRExFitter
 edit_uri: 'tree/master/docs'
 
 theme:
