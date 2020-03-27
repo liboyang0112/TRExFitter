@@ -4,7 +4,7 @@ This package provides a framework to perform profile likelihood fits. In additio
 
 * [TRExFitter website](https://trexfitter-docs.web.cern.ch/) collects information in a convenient format and is currently being expanded
 * [TRExFitter twiki page](https://twiki.cern.ch/twiki/bin/view/AtlasProtected/TtHFitter) for additional documentation and many references to further details
-* [TRExFitter JIRA](https://its.cern.ch/jira/projects/TTHFITTER/summary>) (sign up to the mailing list in case you cannot access the JIRA)
+* [TRExFitter JIRA](https://its.cern.ch/jira/projects/TTHFITTER/summary) (sign up to the mailing list in case you cannot access the JIRA)
 * TRExFitter mailing list: [atlas-phys-stat-tthfitter](https://e-groups.cern.ch/e-groups/EgroupsSubscription.do?egroupName=atlas-phys-stat-tthfitter)
 * Make sure to read the [FAQ](docs/faq.md) section and take a look at the [FitProblems Tutorial twiki](https://twiki.cern.ch/twiki/bin/view/AtlasProtected/FitProblemsTutorial) which describes common issues
 
