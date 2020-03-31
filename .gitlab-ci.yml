@@ -719,6 +719,7 @@ site_build:
 ##
 ## deploy the website to EOS
 ##     see https://gitlab.cern.ch/ci-tools/ci-web-deployer/
+##     not overwriting before_script here since that seems to break things
 ##
 site_deploy:
   stage: deploy_website
@@ -731,8 +732,6 @@ site_deploy:
   image: gitlab-registry.cern.ch/ci-tools/ci-web-deployer
   script:
     - deploy-eos
-  before_script:
-    - "" # overwrite default, do nothing
   only:
     - master
     - websiteCI
