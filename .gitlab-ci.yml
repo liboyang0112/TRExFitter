@@ -736,4 +736,3 @@ site_deploy:
     - "" # overwrite default, do nothing
   only:
     - master
-    - websiteCI
