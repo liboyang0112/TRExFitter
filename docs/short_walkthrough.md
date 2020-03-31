@@ -19,34 +19,34 @@ It includes a very simple fit model for a ttH(bb) search using 2015 data in the 
 Note the different blocks defined:
 
 - `Job`: general options, for example:
-  - `NtuplePaths`: path to the inputs to use (we are using ntuples here)
-  - `MCweight`: weights to apply to MC
-  - `Selection`: pre-selection to apply
+    - `NtuplePaths`: path to the inputs to use (we are using ntuples here)
+    - `MCweight`: weights to apply to MC
+    - `Selection`: pre-selection to apply
 - `Fit`: type of fit to perform
 - `Limit`: settings to obtain a limit
 - `Region`: These blocks specify which regions enter the fit.
   Note that while there is only one instances of all the previous blocks, there can be multiple regions, and each has a unique name (for example `ljets_HThad_4j2b`).
   There are a few important options:
-  - `Type` can be `CONTROL` / `SIGNAL` / `VALIDATION`.
-    `CONTROL` and `SIGNAL` will both enter the fit, as we specified it as `CRSR` (only `CONTROL` regions enter a `CRONLY` fit).
-    `VALIDATION` regions do not enter the fit, but you-an use them to examine the post-fit modelling of variables.
-  - `Variable` specifies which variable to use, you can also put the binning here, but in this case the binning is handled via the `Binning` option.
-  - `NtuplePathSuff` is appended to the `NtuplePaths` option in the `Job` block when the framework looks for the root files to build histograms for this region.
+    - `Type` can be `CONTROL` / `SIGNAL` / `VALIDATION`.
+      `CONTROL` and `SIGNAL` will both enter the fit, as we specified it as `CRSR` (only `CONTROL` regions enter a `CRONLY` fit).
+      `VALIDATION` regions do not enter the fit, but you-an use them to examine the post-fit modelling of variables.
+    - `Variable` specifies which variable to use, you can also put the binning here, but in this case the binning is handled via the `Binning` option.
+    - `NtuplePathSuff` is appended to the `NtuplePaths` option in the `Job` block when the framework looks for the root files to build histograms for this region.
 - `Sample`: Just as for regions, there can be many samples, which will be used to build the fit model.
   A few important options:
-  - `Type`: We have one sample for data with the corresponding type, one `SIGNAL` and a few `BACKGROUND` type samples.
-    All of these will enter in every region, unless we specify otherwise.
-  - `NtupleFile`: This is the name of the `.root` file containing this sample.
-    For this configuration, the framework will build together the full path to a root file by combining the path specified in `NtuplePaths`, the region-specific `NtuplePathSuff` and the sample-specific `NtupleFile` (with a `.root` added at the end).
-    Take a look at `afs` to convince yourself that indeed doing so will lead you to a root file for each combination of region and sample.
+    - `Type`: We have one sample for data with the corresponding type, one `SIGNAL` and a few `BACKGROUND` type samples.
+      All of these will enter in every region, unless we specify otherwise.
+    - `NtupleFile`: This is the name of the `.root` file containing this sample.
+      For this configuration, the framework will build together the full path to a root file by combining the path specified in `NtuplePaths`, the region-specific `NtuplePathSuff` and the sample-specific `NtupleFile` (with a `.root` added at the end).
+      Take a look at `afs` to convince yourself that indeed doing so will lead you to a root file for each combination of region and sample.
 - `Systematic`: The blocks here specify systematic effects to be considered in the fit.
   There can again be many, each with a unique name.
   Take a look at the syntax here, you can define multiple systematics in one block.
   A few important options to highlight:
-  - `Type`: `OVERALL` denotes systematics concerning the overall normalization of samples, `HISTO` are effects like detector systematics built from reading other root files or other trees in ntuples (see e.g. option `NtupleFileSufUp`) or considering additional weights (see e.g. `WeightSufUp`).
-  - `Samples`: specifies the `Sample` a given systematic acts on.
+    - `Type`: `OVERALL` denotes systematics concerning the overall normalization of samples, `HISTO` are effects like detector systematics built from reading other root files or other trees in ntuples (see e.g. option `NtupleFileSufUp`) or considering additional weights (see e.g. `WeightSufUp`).
+    - `Samples`: specifies the `Sample` a given systematic acts on.
     Note how detector systematics like `BTag_B_NP1` act on all (non-data) samples, while the `tt_Shower` systematic only acts on the ttbar sample.
-  - `Smoothing`: applies smoothing to the shapes of the systematic effects via this option
+    - `Smoothing`: applies smoothing to the shapes of the systematic effects via this option
 
 
 ## Input histogram production
@@ -165,10 +165,10 @@ trex-fitter f config/ttH2015_ljets.config
 Various things have been produced:
 
 - new plots in the `ttH2015_ljets/` folder:
-  - a correlation matrix `CorrMatrix.png`, which only contains nuisance parameters if they have a correlation with another nuisance parameter above the `CorrelationThreshold`.
-  - the best-fit results for all gammas, encoding the effects of finite MC statistics, found in the `Gammas.png` plot
-  - the best-fit results for all `NormFactor` in `NormFactors.png`
-  - the best-fit results for all nuisance parameters specified as `Systematic` (and not fully pruned), in `NuisPar.png`.
+    - a correlation matrix `CorrMatrix.png`, which only contains nuisance parameters if they have a correlation with another nuisance parameter above the `CorrelationThreshold`.
+    - the best-fit results for all gammas, encoding the effects of finite MC statistics, found in the `Gammas.png` plot
+    - the best-fit results for all `NormFactor` in `NormFactors.png`
+    - the best-fit results for all nuisance parameters specified as `Systematic` (and not fully pruned), in `NuisPar.png`.
 - the `Fits/` sub-folder contains a text file with the best-fit results and associated uncertainties for all parameters, as well as their correlations
 
 The following plot shows you the result for the fit we performed, including the best-fit value for the parameter we ultimately want to extract, the ttH signal strength $\mu_{t\bar{t}H}$:
