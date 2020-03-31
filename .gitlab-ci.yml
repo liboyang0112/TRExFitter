@@ -720,7 +720,8 @@ site_build:
 ##
 site_deploy:
   stage: deploy_website
-  needs: site_build
+  needs:
+    - site_build
   variables:
     METHOD: xrdcp
     EOS_PATH: "/eos/project/t/trexfitter-docs/www"
