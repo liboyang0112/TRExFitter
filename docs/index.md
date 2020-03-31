@@ -1,6 +1,6 @@
 # Documentation for TRExFitter
 
-![TRExFitter logo](img/TRexFitter_logo.png)
+![TRExFitter logo](img/TRExFitter_logo.png)
 
 TRExFitter is a framework for binned template profile likelihood fits.
 The code can be found on [gitlab](https://gitlab.cern.ch/TRExStats/TRExFitter).
