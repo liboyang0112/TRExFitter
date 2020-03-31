@@ -728,7 +728,6 @@ site_deploy:
     METHOD: xrdcp
     EOS_PATH: "/eos/project/t/trexfitter-docs/www"
     CI_OUTPUT_DIR: "www/"
-    EOS_ACCOUNT_USERNAME: trexdocs
   image: gitlab-registry.cern.ch/ci-tools/ci-web-deployer
   script:
     - deploy-eos
