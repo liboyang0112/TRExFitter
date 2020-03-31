@@ -14,7 +14,6 @@ variables:
 ##
 stages:
   - check_and_build
-  - build
   - ustep
   - hnstep
   - wstep
@@ -24,6 +23,8 @@ stages:
   - rstep
   - draw
   - imagebuild
+  - build_website
+  - deploy_website
 
 ##
 ## static code analysis with cppcheck
@@ -74,8 +75,8 @@ cpd:
     when: always
 
 ##
-## "build" step: first compiles the code
-##    Artifact: keeps the log file of the compilation
+## "compile" step: compiles the code
+##    Artifact: keeps the build
 ##
 compile:
   stage: check_and_build
@@ -89,8 +90,8 @@ compile:
       - build
 
 ##
-## "hnstep" step: produces the input histograms for TRExFitter
-##    Artifact: keeps the FitExample folder
+## "hnstep", "ustep" steps: produce the input histograms for TRExFitter
+##    Artifact: keeps the FitExample folders
 ##
 unfolding_preparation:
     stage: ustep
@@ -698,3 +699,39 @@ build_img_tag:
     - ignore
   only:
     - tags
+
+##
+## build the static website with mkdocs
+##
+site_build:
+  stage: build_website
+  needs: []
+  image: gitlab-registry.cern.ch/authoring/documentation/mkdocs
+  script:
+    - mkdocs build --strict --clean --site-dir www
+  before_script:
+    - "" # overwrite default, do nothing
+  artifacts:
+    paths:
+      - www
+    expire_in: 1 hour
+
+##
+## deploy the website to EOS
+##     see https://gitlab.cern.ch/ci-tools/ci-web-deployer/
+##
+site_deploy:
+  stage: deploy_website
+  needs:
+    - site_build
+  variables:
+    METHOD: xrdcp
+    EOS_PATH: "/eos/project/t/trexfitter-docs/www"
+    CI_OUTPUT_DIR: "www/"
+  image: gitlab-registry.cern.ch/ci-tools/ci-web-deployer
+  script:
+    - deploy-eos
+  before_script:
+    - "" # overwrite default, do nothing
+  only:
+    - master
