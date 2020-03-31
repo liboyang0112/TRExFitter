@@ -19,7 +19,7 @@ theme:
 nav:
     - Introduction: index.md
     - Setup: setup.md
-    - 'Simple example': example.md
+    - 'Short walkthrough': short_walkthrough.md
     - 'Tutorial 1': tutorial_1.md
     - 'FAQ': faq.md
     - 'Settings': settings.md
