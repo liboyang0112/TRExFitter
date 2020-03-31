@@ -91,7 +91,8 @@ As an example, here is the plot of the signal region:
 
 !!! tip "Getting more output"
     There was very little output from TRExFitter while running the actions so far.
-    Time to change this! Locate the `DebugLevel` option in the config and increase it to 1 or 2.
+    Time to change this!
+    Locate the `DebugLevel` option in the config and increase it to 1 or 2.
     Try re-running the steps above and see what happens!
 
 !!! info "Blinding"
