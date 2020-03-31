@@ -709,6 +709,8 @@ site_build:
   image: gitlab-registry.cern.ch/authoring/documentation/mkdocs
   script:
     - mkdocs build --strict --clean --site-dir www
+  before_script:
+    - "" # overwrite default, do nothing
   artifacts:
     paths:
       - www
@@ -729,6 +731,8 @@ site_deploy:
   image: gitlab-registry.cern.ch/ci-tools/ci-web-deployer
   script:
     - deploy-eos
+  before_script:
+    - "" # overwrite default, do nothing
   only:
     - master
-    - website-CI
+    - websiteCI
