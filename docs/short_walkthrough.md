@@ -265,7 +265,8 @@ This dataset is built from the exact prediction of signal and background in ever
 In order to fit the Asimov dataset, add `FitBlind: TRUE` to the `Fit` block.
 Afterwards, re-run the fit with the `f` action.
 Take a look at all the things produced by the step (see the [Running a fit](#running-a-fit) section for details).
-What has changed? The fit results for normalization factors are shown below:
+What has changed?
+The fit results for normalization factors are shown below:
 
 ![norm factors with Asimov dataset](img/short_walkthrough/NormFactors_Asimov.png)
 
