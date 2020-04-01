@@ -20,9 +20,16 @@ nav:
     - Introduction: index.md
     - Setup: setup.md
     - 'Short walkthrough': short_walkthrough.md
-    - 'Tutorial 1': tutorial_1.md
+    - 'Common fit problems':
+      - 'Fit problems': fit_problems/introduction.md
+      - 'Technical aspects': fit_problems/technical_aspects.md
+      - 'Preparation': fit_problems/preparation.md
+      - 'Problems and solutions': fit_problems/problems.md
+      - 'Cross-checks of results': fit_problems/checks.md
+      - 'FAQ': fit_problems/faq.md
     - 'FAQ': faq.md
     - 'Settings': settings.md
+    - 'More tutorials': more_tutorials.md
 
 markdown_extensions:
     - admonition
