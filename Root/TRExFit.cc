@@ -3939,6 +3939,12 @@ void TRExFit::Fit(bool isLHscanOnly){
             npValues = fFitNPValues;
         }
         //
+        if (!isLHscanOnly){
+            WriteInfoStatus("TRExFit::Fit","");
+            WriteInfoStatus("TRExFit::Fit","-------------------------------------------");
+            WriteInfoStatus("TRExFit::Fit","Performing nominal fit...");
+        }
+        //
         // Create the final asimov dataset for fit
         //
         if (TRExFitter::DEBUGLEVEL < 2) std::cout.setstate(std::ios_base::failbit);
@@ -3951,12 +3957,6 @@ void TRExFit::Fit(bool isLHscanOnly){
         if (TRExFitter::DEBUGLEVEL < 2) std::cout.setstate(std::ios_base::failbit);
         data = std::unique_ptr<RooDataSet>(DumpData( ws.get(), regionDataType, npValues, npValues.find(fPOI)==npValues.end() ? fFitPOIAsimov : npValues[fPOI] ));
         if (TRExFitter::DEBUGLEVEL < 2) std::cout.clear();
-        //
-        if (!isLHscanOnly){
-            WriteInfoStatus("TRExFit::Fit","");
-            WriteInfoStatus("TRExFit::Fit","-------------------------------------------");
-            WriteInfoStatus("TRExFit::Fit","Performing nominal fit...");
-        }
     }
     
     //
@@ -5039,7 +5039,6 @@ void TRExFit::GetLimit(){
         bool isMixedFit = DoingMixedFitting();
         if(isMixedFit && !fLimitIsBlind){
             std::vector < std:: string > regionsForFit = ListRegionsToFit(Region::REALDATA);
-//             std::map < std::string, int > regionsForFitDataType = MapRegionDataTypes(regionsForFit);
             //
             // Creates a combined workspace with the regions to be used *in the fit*
             //
@@ -5159,7 +5158,6 @@ void TRExFit::GetSignificance(){
         bool isMixedFit = DoingMixedFitting();
         if(isMixedFit && !fSignificanceIsBlind){
             std::vector < std:: string > regionsForFit = ListRegionsToFit(Region::REALDATA);
-            std::map < std::string, int > regionsForFitDataType = MapRegionDataTypes(regionsForFit);
             //
             // Creates a combined workspace with the regions to be used *in the fit*
             //
