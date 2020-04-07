@@ -5031,7 +5031,7 @@ void TRExFit::GetLimit(){
         // Fills a vector of regions to consider for fit
         //
         std::vector < std::string > regionsForLimit = ListRegionsToFit();
-        std::map < std::string, int > regionsForLimitDataType = MapRegionDataTypes(regionsForLimit,fLimitIsBlind);;
+        std::map < std::string, int > regionsForLimitDataType = MapRegionDataTypes(regionsForLimit,fLimitIsBlind);
         std::map < std::string, double > npValues;
         //
         // flag if mixed Data / Asimov limit required
@@ -5149,8 +5149,8 @@ void TRExFit::GetSignificance(){
         //
         // Fills a vector of regions to consider for fit
         //
-        std::vector < std::string > regionsForSign;
-        std::map < std::string, int > regionsForSignDataType;
+        std::vector < std::string > regionsForSign = ListRegionsToFit();
+        std::map < std::string, int > regionsForSignDataType = MapRegionDataTypes(regionsForSign,fSignificanceIsBlind);
         std::map < std::string, double > npValues;
         //
         // flag if mixed Data / Asimov limit required
