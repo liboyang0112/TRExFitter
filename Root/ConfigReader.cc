@@ -5341,8 +5341,10 @@ int ConfigReader::PostConfig(const std::string& opt){
     }
     
     // if BlindSRs was set, force to use ASIMOV data in all SRs
-    for (auto reg : fFitter->fRegions) {
-        if(reg->fRegionType == Region::SIGNAL) reg->SetRegionDataType(Region::ASIMOVDATA);
+    if (fFitter->fBlindSRs) {
+        for (auto reg : fFitter->fRegions) {
+            if(reg->fRegionType == Region::SIGNAL) reg->SetRegionDataType(Region::ASIMOVDATA);
+        }
     }
 
     return 0;
@@ -6939,7 +6941,8 @@ std::vector<std::string> ConfigReader::GetAvailableSysts(){
 //__________________________________________________________________________________
 //
 bool ConfigReader::SystHasProblematicName(const std::string& name){
-    if ((name.find("gamma") != std::string::npos) || (name.find("alpha") != std::string::npos)){
+//     if ((name.find("gamma") != std::string::npos) || (name.find("alpha") != std::string::npos)){
+    if ((name.find("alpha") != std::string::npos)){
         WriteErrorStatus("ConfigReader::SystHasProblematicName", "NP " + name + " has a problematic name, please change it.");
         WriteErrorStatus("ConfigReader::SystHasProblematicName", "You should not be using names with: \"gamma\", \"alpha\" as these are used internally and can cause problems.");
         return true;

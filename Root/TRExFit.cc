@@ -271,7 +271,8 @@ TRExFit::TRExFit(std::string name) :
     fSummaryLogY(true),
     fUseInFit(true),
     fUseInComparison(true),
-    fReorderNPs(false)
+    fReorderNPs(false),
+    fBlindSRs(false)
 {
     TRExFitter::IMAGEFORMAT.emplace_back("png");
     // Increase the limit for formula evaluations
@@ -5038,7 +5039,7 @@ void TRExFit::GetLimit(){
         bool isMixedFit = DoingMixedFitting();
         if(isMixedFit && !fLimitIsBlind){
             std::vector < std:: string > regionsForFit = ListRegionsToFit(Region::REALDATA);
-            std::map < std::string, int > regionsForFitDataType = MapRegionDataTypes(regionsForFit);
+//             std::map < std::string, int > regionsForFitDataType = MapRegionDataTypes(regionsForFit);
             //
             // Creates a combined workspace with the regions to be used *in the fit*
             //
@@ -9197,7 +9198,6 @@ std::vector < std:: string > TRExFit::ListRegionsToFit(int dataType) const {
     for (auto reg : fRegions) {
         if (reg->fRegionType == Region::VALIDATION) continue;
         if (dataType >= 0 && reg->fRegionDataType != dataType) continue;
-        if (fFitRegion == CRONLY && reg->fRegionType != Region::CONTROL) continue;
         if (fFitRegion == CRONLY && reg->fRegionType != Region::CONTROL) continue;
         list.emplace_back( reg->fName );
     }
