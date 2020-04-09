@@ -305,7 +305,7 @@ void ConfigParser::ReadFile(const std::string& fileName){
     WriteInfoStatus("ConfigParser::ReadFile", "Reading config file: " + fileName);
     std::ifstream file(fileName.c_str());
     if(!file.is_open()){
-        WriteErrorStatus("ConfigParser::ReadFile", "The config file cannot be opened!");
+        WriteErrorStatus("ConfigParser::ReadFile", "The config file cannot be opened: " + fileName);
         exit(-1);
     }
     std::string str, val;
