@@ -103,7 +103,6 @@ public:
     std::string fPOI;
     double fPOIMin;
     double fPOIMax;
-    double fPOIVal;
     std::string fPOIPrecision;
     double fLimitMax;
 
