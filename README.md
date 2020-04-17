@@ -236,7 +236,7 @@ The available blocks are:
 - `UnfoldingSystematic`
 
 ### Available settings
-For each object type (or "block"), you can find the available settings in [our documentation (docs/settings.md)](docs/settings.md#standard-fit).
+For each object type (or "block"), you can find the available settings in [our documentation (docs/settings.md)](docs/settings.md#standard-fit) or [on the website](https://trexfitter-docs.web.cern.ch/trexfitter-docs/settings/).
 
 
 
@@ -462,13 +462,13 @@ If you would like to ensure that the replacement works correctly, set your `Debu
 
 ## Website
 The [TRExFitter website](https://trexfitter-docs.web.cern.ch/) is built with [MkDocs](https://www.mkdocs.org/).
-The instructions for setting up this documentation as a CERN-hosted website are given [in this guide](https://how-to.docs.cern.ch/).
+The instructions for setting up documentation as a CERN-hosted website are given [in this guide](https://how-to.docs.cern.ch/) (via OpenShift) and [here](https://cernbox-manual.web.cern.ch/cernbox-manual/en/web/project_website_content.html) (for EOS), when built via [this CI](https://gitlab.cern.ch/ci-tools/ci-web-deployer/).
 The `docs/` folder contains the content of the website.
 
 
 
 ## FAQ
-See [docs/faq.md](docs/faq.md) or the website: https://trexfitter-docs.web.cern.ch/faq/
+See [docs/faq.md](docs/faq.md) or [the website](https://trexfitter-docs.web.cern.ch/trexfitter-docs/faq/).
 
 
 
