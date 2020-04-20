@@ -149,6 +149,7 @@ The following settings are for normal fits, performed without the action `m`.
 | MigrationPaths(s)       | Folder path(s) of the histogram for migration matrix |
 | MigrationNameNominal    | Nominal histogram name |
 | ReorderNPs              | If set to TRUE, fit results will show NPs and norm factors ordered according to how they appear in the config file. |
+| BlindSRs                | If set, all SRs are forced to have DataType = ASIMOV |
 
 
 ### `Fit` block settings
@@ -185,6 +186,8 @@ The following settings are for normal fits, performed without the action `m`.
 | TemplateInterpolationOption  | Option only for morphing, tells the code which interpolation between the templates is used. Three possible options are available: LINEAR(default)/SMOOTHLINEAR/SQUAREROOT. All of these options basically use linear interpolation but SMOOTHLINEAR approximates it by integral of hyperbolic tangent and SQUAREROOT approximates it by $\sqrt{x^2+\epsilon}$ to achieve smooth transitions (first derivative) between the templates |
 | BlindedParameters            | A comma separated list of POI/NPs that will be written as a hexadecimal number so it is not easy to read to not accidentally unblind. When at least one parameter is set the console output of the minimization is removed.
 | DoNonProfileFitSystThreshold | When performing a NonProfileFit, systematics are not added to total if smaller than this threshold |
+| NPValuesFromFitResults       | If set to a valid path pointing to a fit-result text file, the NPValues for Asimov-data creation will be readed from it |
+| SetGlobalObservables         | If set to TRUE (default is FALASE), and if NPValues or NPValuesFromFitResults are set, also the global observables are shifted in the Likelihood according to the parameter values |
 
 
 ### `Limit block` settings
@@ -253,7 +256,7 @@ additional options, accepting only float as arguments - useful for adding your f
 | BinWidth                     | if specified, two things are done: this number is used to decorate the y axis label and the bin content is scaled for bins with a bin width different from this number |
 | BinLabels                    | if specified, bin labels are set according to provided comma separated list (list length must be equal to number of bins) |
 | Type                         | can be SIGNAL, CONTROL or VALIDATION; used depending on Fit->FitType; if VALIDATION is set, the region is never fitted; default is SIGNAL |
-| DataType                     | ASIMOV or DATA. Is Asimov is set, the limits and significances are computed without taking into account the data in these region, but a projection of the fit performed in the regions with DATA |
+| DataType                     | ASIMOV or DATA. Is Asimov is set, limits, significance and final fit are computed without taking into account the data in this region, but creating a modified Asimov data-set through a projection of the fit performed in the regions with DATA only |
 | Ymax                         | if set, it will force the plot to use this value as max y-maxis value |
 | Ymin                         | if set, it will force the plot to use this value as min y-maxis value |
 | RatioYmax                    | if set, it will specify the max of the range of the ratio plot for this region only |

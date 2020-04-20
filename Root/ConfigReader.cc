@@ -1176,6 +1176,18 @@ int ConfigReader::ReadJobOptions(){
             fFitter->fReorderNPs = false;
         }
     }
+    
+    // Set BlindSRs
+    param = confSet->Get("BlindSRs");
+    if( param != "" ){
+        std::transform(param.begin(), param.end(), param.begin(), ::toupper);
+        if(      param == "TRUE" )  fFitter->fBlindSRs = true;
+        else if( param == "FALSE" ) fFitter->fBlindSRs = false;
+        else {
+            WriteWarningStatus("ConfigReader::ReadJobOptions", "You specified 'BlindSRs' option but you did not provide valid setting. Using default (false)");
+            fFitter->fBlindSRs = false;
+        }
+    }
 
     // success
     return 0;
@@ -1620,6 +1632,12 @@ int ConfigReader::ReadFitOptions(){
                 WriteWarningStatus("ConfigReader::ReadFitOptions", "You specified 'NPValues' option but did not provide 2 parameters for each NP which is expected. Ignoring");
             }
         }
+    }
+    
+    // Get NPValues from fit reults (txt file)
+    param = confSet->Get("NPValuesFromFitResults");
+    if( param != "" ){
+        fFitter->fFitNPValuesFromFitResults = RemoveQuotes(param);
     }
 
     // Set InjectGlobalObservables
@@ -5305,6 +5323,27 @@ int ConfigReader::PostConfig(const std::string& opt){
                 if(sample->fType == Sample::DATA) continue;
                 sample->AddShapeFactor(sfactor);
             }
+        }
+    }
+    
+    // set fFitIsBlind, fSignificanceIsBlind and fLimitIsBlind if no sample is DATA
+    bool hasData = false;
+    for (auto smp : fFitter->fSamples) {
+        if (smp->fType == Sample::DATA) {
+            hasData = true;
+            break;
+        }
+    }
+    if (!hasData) {
+        fFitter->fFitIsBlind = true;
+        fFitter->fLimitIsBlind = true;
+        fFitter->fSignificanceIsBlind = true;
+    }
+    
+    // if BlindSRs was set, force to use ASIMOV data in all SRs
+    if (fFitter->fBlindSRs) {
+        for (auto reg : fFitter->fRegions) {
+            if(reg->fRegionType == Region::SIGNAL) reg->SetRegionDataType(Region::ASIMOVDATA);
         }
     }
 
