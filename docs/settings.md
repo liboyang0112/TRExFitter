@@ -472,7 +472,6 @@ These options are for multi-fits, performed with action `m`.
 | POIName          | the name of the POI in the configs |
 | POIRange         | the range of the chosen POI |
 | LimitMax         | set maximum value for the limit |
-| POIVal           | the value of the POI (for ASIMOV) |
 | POIPrecision     | string, set precision of the POI |
 | DataName         | can be "obsData", "asimovData", or custom string, if nothing is specified the observed data will be used |
 | FitType          | can be SPLUSB or BONLY |

@@ -82,7 +82,6 @@ MultiFit::MultiFit(const string& name) :
     fPOI(""),
     fPOIMin(0),
     fPOIMax(10),
-    fPOIVal(1),
     fPOIPrecision("1"),
     fLimitMax(0),
     fUseRnd(false),
@@ -326,7 +325,7 @@ std::map < std::string, double > MultiFit::FitCombinedWS(int fitType, const std:
         fitTool.ValPOI(0.);
         fitTool.ConstPOI(true);
     } else if(fitType==1){
-        fitTool.ValPOI(fPOIVal);
+        fitTool.ValPOI(fPOIInitial);
         fitTool.ConstPOI(false);
     }
     if(fUseRnd) fitTool.SetRandomNP(fRndRange, fUseRnd, fRndSeed);

@@ -321,10 +321,6 @@ int ConfigReaderMulti::ReadJobOptions(){
         fMultiFitter->fLimitMax = atof( param.c_str() );
     }
 
-    // Set POIVal
-    param = confSet->Get("POIVal");
-    if( param != "" ) fMultiFitter->fPOIVal = atof(param.c_str());
-
     // Set POIPrecision
     param = confSet->Get("POIPrecision");
     if( param != "" ) fMultiFitter->fPOIPrecision = RemoveQuotes(param).c_str();
