@@ -8179,13 +8179,14 @@ SystematicHist* TRExFit::CombineSpecialHistos(SystematicHist* orig, const std::v
                 if (!isyst->fHistDown) continue;
                 const double up = isyst->fHistUp->GetBinContent(ibin) - sh->fHist->GetBinContent(ibin);
                 const double down = isyst->fHistDown->GetBinContent(ibin) - sh->fHist->GetBinContent(ibin);
-                const double max = std::max(std::fabs(up), std::fabs(down));
+                // take the larger (signed) variation
+                const double max = (std::fabs(up) > std::fabs(down) ? up : down);
                 content.emplace_back(max);
             }
 
             if (content.size() < 2) continue;
 
-            // calcualte the standard deviation in each bin
+            // calculate the standard deviation in each bin
             double sum(0);
             double sigma(0);
 
