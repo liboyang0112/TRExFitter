@@ -595,7 +595,7 @@ int ConfigReaderMulti::ReadJobOptions(){
     }
 
     // Set POIInitial
-    param = confSet->Get("POIInitia;");
+    param = confSet->Get("POIInitial");
     if( param != ""){
         fMultiFitter->fPOIInitial = std::stof(param);
     }
