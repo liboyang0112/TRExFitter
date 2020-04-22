@@ -33,7 +33,7 @@ void NtupleReader::ReadNtuples(){
     //
     for(const auto& path : fFitter->fCustomIncludePaths){
         WriteInfoStatus("NtupleReader::ReadNtuples", "  Adding include path " + path + " ...");
-        gROOT->ProcessLineSync((".include "+path+"+").c_str());
+        gROOT->ProcessLineSync((".include "+path).c_str());
     }
     for(const auto& file : fFitter->fCustomFunctions){
         WriteInfoStatus("NtupleReader::ReadNtuples", "  Loading function from " + file + " ...");
