@@ -704,6 +704,7 @@ public:
     bool fSuppressNegativeBinWarnings;
 
     std::vector<std::string> fCustomFunctions;
+    std::vector<std::string> fCustomIncludePaths;
 
     std::vector<std::string> fMorphParams;
     std::vector<std::pair<double,std::string> > fTemplatePair;

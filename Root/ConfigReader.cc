@@ -922,6 +922,12 @@ int ConfigReader::ReadJobOptions(){
         fFitter->fCustomFunctions = Vectorize(param,',');
     }
 
+    // Set CustomIncludePaths
+    param = confSet->Get("CustomIncludePaths");
+    if( param != "" ) {
+        fFitter->fCustomIncludePaths = Vectorize(param,',');
+    }
+
     // Set Bootstrap
     param = confSet->Get("Bootstrap");
     if( param != "" ){
