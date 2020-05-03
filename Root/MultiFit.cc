@@ -1613,19 +1613,19 @@ void MultiFit::ProduceNPRanking( string NPnames/*="all"*/ ) const{
     std::vector< bool > isNF;
     std::vector<string> systNames_unique;
     for(std::size_t i_syst = 0; i_syst < Nsyst; ++i_syst) {
-        if(NPnames=="all" || NPnames==vSystematics[i_syst]->fNuisanceParameter ||
-            ( std::stoul(NPnames.c_str())==i_syst && (std::stoi(NPnames.c_str())>0 || strcmp( NPnames.c_str(), "0") ==0 ) )
-            ){
+        if((NPnames=="all") || (NPnames==vSystematics[i_syst]->fNuisanceParameter) ||
+            (atoi(NPnames.c_str())>0) || (strcmp(NPnames.c_str(), "0") ==0))
+            {
             if(vSystematics[i_syst]->fType == Systematic::SHAPE) continue;
             if (std::find(systNames_unique.begin(), systNames_unique.end(),
                 vSystematics[i_syst]->fNuisanceParameter) == systNames_unique.end()){
-                systNames_unique.push_back(vSystematics[i_syst]->fNuisanceParameter);
+                systNames_unique.emplace_back(vSystematics[i_syst]->fNuisanceParameter);
             }
             else {
                 continue;
             }
-            nuisPars.push_back( vSystematics[i_syst]->fNuisanceParameter );
-            isNF.push_back( false );
+            nuisPars.emplace_back(vSystematics[i_syst]->fNuisanceParameter);
+            isNF.emplace_back( false );
         }
     }
     for(std::size_t i_norm = 0; i_norm<Nnorm; ++i_norm) {
@@ -1633,8 +1633,8 @@ void MultiFit::ProduceNPRanking( string NPnames/*="all"*/ ) const{
         if(NPnames=="all" || NPnames==vNormFactors[i_norm]->fName ||
             ( ((atoi(NPnames.c_str())-Nnorm) == i_norm) && (atoi(NPnames.c_str())>0 || strcmp( NPnames.c_str(), "0")==0) )
             ){
-            nuisPars.push_back( vNormFactors[i_norm]->fName );
-            isNF.push_back( true );
+            nuisPars.emplace_back( vNormFactors[i_norm]->fName );
+            isNF.emplace_back( true );
         }
     }
 
