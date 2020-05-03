@@ -116,6 +116,7 @@ MultiFit::MultiFit(const string& name) :
     fDoGroupedSystImpactTable(false),
     fPOIName("#mu"),
     fPOINominal(1),
+    fPOIAsimov(1),
     fLimitIsBlind(false),
     fLimitPOIAsimov(0),
     fSignalInjection(false),
@@ -390,8 +391,16 @@ std::map < std::string, double > MultiFit::FitCombinedWS(int fitType, const std:
     if(inputData=="asimovData"){
         RooArgSet empty;// = RooArgSet();
         if (TRExFitter::DEBUGLEVEL < 2) std::cout.setstate(std::ios_base::failbit);
-        data = (RooDataSet*)RooStats::AsymptoticCalculator::MakeAsimovData( (*mc), RooArgSet(ws->allVars()), (RooArgSet&)empty);
+        RooRealVar * poi = static_cast<RooRealVar*>(mc->GetParametersOfInterest()->first());
+        if (!poi){
+            if (TRExFitter::DEBUGLEVEL < 2) std::cout.clear();
+            WriteErrorStatus("TRExFit::DumpData", "Cannot find POI in workspace, exiting...");
+            exit(EXIT_FAILURE);
+        }
+        poi->setVal(fPOIAsimov);
+        data = static_cast<RooDataSet*>(RooStats::AsymptoticCalculator::MakeAsimovData( (*mc), RooArgSet(ws->allVars()), static_cast<RooArgSet&>(empty)));
         if (TRExFitter::DEBUGLEVEL < 2) std::cout.clear();
+        
     }
     else if(inputData!=""){
         data = static_cast<RooDataSet*>(ws->data(inputData.c_str()));

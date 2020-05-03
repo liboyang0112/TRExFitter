@@ -4413,12 +4413,12 @@ RooDataSet* TRExFit::DumpData( RooWorkspace *ws,  std::map < std::string, int > 
     //
     WriteDebugStatus("TRExFit::DumpData", "Dumping data with the following parameters");
     WriteDebugStatus("TRExFit::DumpData", "    * Regions data type ");
-    for( const std::pair < std::string, int > dataType : regionDataType ){
+    for( const std::pair < std::string, int >& dataType : regionDataType ){
         WriteDebugStatus("TRExFit::DumpData", "       - Region: " + dataType.first + "       DataType: " + std::to_string(dataType.second));
     }
     if(npValues.size()){
         WriteDebugStatus("TRExFit::DumpData", "    * Injected NP values ");
-        for ( const std::pair < std::string, double > npValue : npValues ){
+        for ( const std::pair < std::string, double >& npValue : npValues ){
             WriteDebugStatus("TRExFit::DumpData", "       - NP: " + npValue.first + "       Value: " + std::to_string(npValue.second));
         }
     }
@@ -4427,7 +4427,7 @@ RooDataSet* TRExFit::DumpData( RooWorkspace *ws,  std::map < std::string, int > 
     }
     WriteDebugStatus("TRExFit::DumpData", "    * POI value: " + std::to_string(poiValue) );
 
-    RooStats::ModelConfig *mc = (RooStats::ModelConfig*)ws -> obj("ModelConfig");
+    RooStats::ModelConfig *mc = static_cast<RooStats::ModelConfig*>(ws->obj("ModelConfig"));
 
     //Save the initial values of the NP
     ws->saveSnapshot("InitialStateModelGlob",   *mc->GetGlobalObservables());
@@ -4468,7 +4468,7 @@ RooDataSet* TRExFit::DumpData( RooWorkspace *ws,  std::map < std::string, int > 
     //
     // Getting observed data (in case some regions are unblinded)
     //
-    RooDataSet* realData = (RooDataSet*)ws -> data("obsData");
+    RooDataSet* realData = static_cast<RooDataSet*>(ws->data("obsData"));
 
     //
     // Set some parameters for the Asimov production
@@ -4477,7 +4477,7 @@ RooDataSet* TRExFit::DumpData( RooWorkspace *ws,  std::map < std::string, int > 
     //
 
     //-- POI
-    RooRealVar * poi = (RooRealVar*) mc->GetParametersOfInterest()->first();
+    RooRealVar * poi = static_cast<RooRealVar*>(mc->GetParametersOfInterest()->first());
     if (!poi){
         if (TRExFitter::DEBUGLEVEL < 2) std::cout.clear();
         WriteErrorStatus("TRExFit::DumpData", "Cannot find POI in workspace, exiting...");
@@ -4498,12 +4498,12 @@ RooDataSet* TRExFit::DumpData( RooWorkspace *ws,  std::map < std::string, int > 
     //Looping over regions
     std::map<std::string, RooDataSet*> asimovDataMap;
     RooSimultaneous* simPdf = dynamic_cast<RooSimultaneous*>(mc->GetPdf());
-    RooCategory* channelCat = (RooCategory*)&simPdf->indexCat();
+    RooCategory* channelCat = (RooCategory*)(&simPdf->indexCat());
     std::unique_ptr<TIterator> iter(channelCat->typeIterator());
     RooCatType* tt = nullptr;
     int iFrame = 0;
     int i = 0;
-    while( (tt = (RooCatType*) iter -> Next()) ) {
+    while( (tt = static_cast<RooCatType*>(iter->Next()))) {
 
         channelCat->setIndex(i);
         iFrame++;
@@ -4513,7 +4513,7 @@ RooDataSet* TRExFit::DumpData( RooWorkspace *ws,  std::map < std::string, int > 
         int dataType = Region::ASIMOVDATA;//default is AsimovData
         std::map < std::string, int >::const_iterator it_dataType = regionDataType.find( channelCat->getLabel() );
         if( it_dataType == regionDataType.end() ){
-            std::string temp_string = channelCat->getLabel();
+            const std::string temp_string = channelCat->getLabel();
             if (TRExFitter::DEBUGLEVEL < 2) std::cout.clear();
             WriteWarningStatus("TRExFit::DumpData", "The following region is not specified in the inputs to the function (" + temp_string + "): use Asimov");
             WriteWarningStatus("TRExFit::DumpData", "   This SHOULD NOT HAPPEN ! Please check if everything is fine !");
@@ -4540,7 +4540,7 @@ RooDataSet* TRExFit::DumpData( RooWorkspace *ws,  std::map < std::string, int > 
             RooArgSet* obstmp = pdftmp->getObservables(*mc->GetObservables()) ;
 
             RooDataSet* obsDataUnbinned = new RooDataSet(Form("combAsimovData%d",iFrame),Form("combAsimovData%d",iFrame),RooArgSet(obsAndWeight,*channelCat),RooFit::WeightVar(*weightVar));
-            RooRealVar* thisObs = ((RooRealVar*)obstmp->first());
+            RooRealVar* thisObs = static_cast<RooRealVar*>(obstmp->first());
             const double expectedEvents = pdftmp->expectedEvents(*obstmp);
 
             for(int jj=0; jj<thisObs->numBins(); ++jj){
@@ -4556,7 +4556,7 @@ RooDataSet* TRExFit::DumpData( RooWorkspace *ws,  std::map < std::string, int > 
 
         } else if(dataType==Region::REALDATA) {
             RooAbsData *datatmp = realData->reduce(Form("%s==%s::%s",channelCat->GetName(),channelCat->GetName(),tt->GetName()));
-            asimovDataMap[std::string(channelCat->getLabel())] = (RooDataSet*)datatmp;
+            asimovDataMap[std::string(channelCat->getLabel())] = static_cast<RooDataSet*>(datatmp);
         }
     }
 

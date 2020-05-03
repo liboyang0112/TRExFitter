@@ -594,6 +594,12 @@ int ConfigReaderMulti::ReadJobOptions(){
         if( std::find(vec.begin(), vec.end(), "PREFITONPOSTFIT")   !=vec.end() )  TRExFitter::PREFITONPOSTFIT= true;
     }
 
+    // Set POIAsimovl
+    param = confSet->Get("POIAsimov");
+    if( param != ""){
+        fMultiFitter->fPOIAsimov = std::stof(param);
+    }
+
     // Set POIInitial
     param = confSet->Get("POIInitial");
     if( param != ""){
