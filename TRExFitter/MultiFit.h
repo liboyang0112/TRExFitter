@@ -152,6 +152,7 @@ public:
 
     std::string fPOIName;
     double fPOINominal;
+    double fPOIAsimov;
 
     //
     // Limit parameters

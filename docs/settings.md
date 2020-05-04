@@ -507,6 +507,7 @@ These options are for multi-fits, performed with action `m`.
 | POILabel         | name of the POI shown on plots, default is `#\mu` |
 | POINominal       | value of the nominal (SM) prediction for POI, default is `1` |
 | ShowTotalOnly    | If set to TRUE will show only total uncertainty on the POI plots. Default is FALSE |
+| POIAsimov        | Sets the the value of the POI for the fit. Needs to be used with `DataName: asimovData`. Default is 1. |
 | POIInitial       | Sets the initial value of the POI for the fit. Default is 1. |
 
 
