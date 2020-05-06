@@ -55,6 +55,7 @@ public:
     SampleHist* GetSampleHist(const std::string &sampleName) const;
 
     void BuildPreFitErrorHist();
+    void SavePreFitUncertaintyAndTotalMCObjects();
     std::unique_ptr<TRExPlot> DrawPreFit(const std::vector<int>& canvasSize, std::string opt="");
     double GetMultFactors( FitResults* fitRes,
                            std::ofstream& pullTex,
@@ -121,7 +122,7 @@ public:
     std::unique_ptr<TH1> GetTotHist(bool includeSignal);
 
     void SetAutomaticDropBins(const bool flag) {fAutomaticDropBins = flag;}
-    
+
     bool GetAutomaticDropBins() const {return fAutomaticDropBins;}
 
     // -------
@@ -292,7 +293,7 @@ public:
     int fLegendNColumns;
 
     std::vector<std::string> fScaleSamplesToData;
-    
+
     std::map<std::string,int> fIsBinOfRegion;
 
     int fNumberUnfoldingRecoBins;

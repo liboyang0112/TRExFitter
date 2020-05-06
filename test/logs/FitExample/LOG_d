@@ -117,6 +117,7 @@ Drawing pre-fit plots...
 === DEBUG::Region::BuildPreFitErrorHist:         Bin 3:   	 +0.000000%	 0.000000%
 === DEBUG::Region::BuildPreFitErrorHist:         Bin 4:   	 +0.000000%	 0.000000%
 === DEBUG::Region::BuildPreFitErrorHist: ----
+=== DEBUG::Region::DrawPreFit: Writing file FitExample/Histograms/SR_1_preFit.root
 Info in <TCanvas::Print>: png file FitExample/Plots/SR_1.png has been created
 === DEBUG::Region::DrawPreFit: SigXsecOverSM => Scaling Signal by 1.000000
 [1;32m=== INFO::Region::BuildPreFitErrorHist: Building pre-fit plot for region SR_2 ...[0m
@@ -155,6 +156,7 @@ Info in <TCanvas::Print>: png file FitExample/Plots/SR_2.png has been created
 === DEBUG::Region::BuildPreFitErrorHist:         Bin 3:   	 +0.000000%	 0.000000%
 === DEBUG::Region::BuildPreFitErrorHist:         Bin 4:   	 +0.000000%	 0.000000%
 === DEBUG::Region::BuildPreFitErrorHist: ----
+=== DEBUG::Region::DrawPreFit: Writing file FitExample/Histograms/SR_2_preFit.root
 === DEBUG::Region::DrawPreFit: SigXsecOverSM => Scaling Signal by 1.000000
 [1;32m=== INFO::Region::BuildPreFitErrorHist: Building pre-fit plot for region VR ...[0m
 Info in <TCanvas::Print>: png file FitExample/Plots/VR.png has been created
@@ -207,6 +209,7 @@ Info in <TCanvas::Print>: png file FitExample/Plots/VR.png has been created
 === DEBUG::Region::BuildPreFitErrorHist:         Bin 3:   	 +0.000000%	 0.000000%
 === DEBUG::Region::BuildPreFitErrorHist:         Bin 4:   	 +0.000000%	 0.000000%
 === DEBUG::Region::BuildPreFitErrorHist: ----
+=== DEBUG::Region::DrawPreFit: Writing file FitExample/Histograms/VR_preFit.root
 [1;32m=== INFO::TRExFit::DrawSummary: -------------------------------------------[0m
 [1;32m=== INFO::TRExFit::DrawSummary: Building Summary Plot...[0m
 Info in <TCanvas::Print>: png file FitExample/Plots/Summary.png has been created

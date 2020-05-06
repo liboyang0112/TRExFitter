@@ -334,7 +334,7 @@ void Region::BuildPreFitErrorHist(){
         if(fSampleHists[i]->fSample->fType==Sample::SIGNAL && (!(TRExFitter::SHOWSTACKSIG && TRExFitter::ADDSTACKSIG) || fRatioType=="DATA/BKG")) continue;
 
         WriteDebugStatus("Region::BuildPreFitErrorHist", "  Sample: " + fSampleHists[i]->fName);
-        
+
         TH1* hNom = fSampleHists[i]->fHist.get();
 
         // - loop on systematics
@@ -354,13 +354,13 @@ void Region::BuildPreFitErrorHist(){
                 sh->fHistUp.reset(static_cast<TH1*>(hNom->Clone(Form("%s_%s_Up",  hNom->GetName(),systName.c_str()))));
                 sh->fHistDown.reset(static_cast<TH1*>(hNom->Clone(Form("%s_%s_Down",hNom->GetName(),systName.c_str()))));
             }
-            
+
             Systematic *syst = sh->fSystematic;
-            
+
             // store hist up and down
             TH1* hUp   = sh->fHistUp.get();
             TH1* hDown = sh->fHistDown.get();
-            
+
             // modify them dropping shape or norm (due to pruning or shape/acc decorrelation)
             if(syst!=nullptr){
                 if(syst->fIsNormOnly){
@@ -370,7 +370,7 @@ void Region::BuildPreFitErrorHist(){
                     Common::DropNorm(hUp,hDown,hNom);
                 }
             }
-            
+
             //
             // - loop on bins
             for(int i_bin=1;i_bin<fTot->GetNbinsX()+1;i_bin++){
@@ -758,6 +758,11 @@ std::unique_ptr<TRExPlot> Region::DrawPreFit(const std::vector<int>& canvasSize,
     // Computes the uncertainty bands arround the h_tot histogram
     //
     BuildPreFitErrorHist();
+
+    //
+    // Save the uncertainty band and h_tot to {region}{suffix}_preFit.root file.
+    //
+    SavePreFitUncertaintyAndTotalMCObjects();
 
     //
     // Print chi2 info
@@ -2585,4 +2590,19 @@ std::unique_ptr<TH1> Region::GetTotHist(bool includeSignal) {
         }
     }
     return hTot;
+}
+
+//___________________________________________________________
+//
+void Region::SavePreFitUncertaintyAndTotalMCObjects() {
+    auto originalDir = gDirectory;
+    TString uncBandFileName = TString::Format("%s/Histograms/%s%s_preFit.root", fFitName.c_str(), fName.c_str(), fSuffix.c_str());
+    gSystem->mkdir((fFitName + "/Histograms").c_str());
+    WriteDebugStatus("Region::DrawPreFit", TString::Format("Writing file %s", uncBandFileName.Data()).Data());
+    std::unique_ptr<TFile> f(TFile::Open(uncBandFileName, "RECREATE"));
+    f->cd();
+    fErr->Write("", TObject::kOverwrite);
+    fTot->Write("", TObject::kOverwrite);
+    originalDir->cd();
+    f->Close();
 }
