@@ -29,7 +29,10 @@ nav:
       - 'FAQ': fit_problems/faq.md
     - 'FAQ': faq.md
     - 'Settings': settings.md
-    - 'More tutorials': more_tutorials.md
+    - 'Basicd Tutorial (2020)':
+        - 'Introduction': BasicTutorial2020/Introduction.md
+    - 'Advanced Tutorial (2020)':
+        - 'Introduction': AdvancedTutorial2020/Introduction.md
 
 markdown_extensions:
     - admonition
