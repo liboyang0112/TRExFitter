@@ -43,6 +43,10 @@ nav:
             - 'Force shape by hand': BasicTutorial2020/Shape.md
     - 'Advanced Tutorial (2020)':
         - 'Introduction': AdvancedTutorial2020/Introduction.md
+        - 'Profile-likelihood with multiple templates': AdvancedTutorial2020/Morphing.md
+        - 'Using Expression': AdvancedTutorial2020/Expression.md
+        - 'Profile-likelihood unfolding': AdvancedTutorial2020/Unfolding.md
+        - 'Mixed data and MC fits': AdvancedTutorial2020/Mixed.md
 
 markdown_extensions:
     - admonition
