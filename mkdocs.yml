@@ -29,7 +29,23 @@ nav:
       - 'FAQ': fit_problems/faq.md
     - 'FAQ': faq.md
     - 'Settings': settings.md
-    - 'More tutorials': more_tutorials.md
+    - 'Basic Tutorial (2020)':
+        - 'Introduction': BasicTutorial2020/Introduction.md
+        - 'Explanations of some key features':
+            - 'Limit explanation': BasicTutorial2020/Limit.md
+            - 'Significance explanation': BasicTutorial2020/Significance.md
+            - 'Ranking explanation': BasicTutorial2020/Ranking.md
+            - 'Grouped Impact explanation': BasicTutorial2020/GroupedImpact.md
+        - 'Newly added features':
+            - 'Goodness-of-fit': BasicTutorial2020/GOF.md
+            - 'Building envelopes': BasicTutorial2020/Envelope.md
+            - 'Force shape by hand': BasicTutorial2020/Shape.md
+    - 'Advanced Tutorial (2020)':
+        - 'Introduction': AdvancedTutorial2020/Introduction.md
+        - 'Profile-likelihood with multiple templates': AdvancedTutorial2020/Morphing.md
+        - 'Using Expression': AdvancedTutorial2020/Expression.md
+        - 'Profile-likelihood unfolding': AdvancedTutorial2020/Unfolding.md
+        - 'Mixed data and MC fits': AdvancedTutorial2020/Mixed.md
 
 markdown_extensions:
     - admonition
