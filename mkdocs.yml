@@ -29,7 +29,7 @@ nav:
       - 'FAQ': fit_problems/faq.md
     - 'FAQ': faq.md
     - 'Settings': settings.md
-    - 'Basicd Tutorial (2020)':
+    - 'Basic Tutorial (2020)':
         - 'Introduction': BasicTutorial2020/Introduction.md
         - 'Explanations of some key features':
             - 'Limit explanation': BasicTutorial2020/Limit.md
