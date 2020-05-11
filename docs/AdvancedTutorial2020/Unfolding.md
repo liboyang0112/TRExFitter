@@ -15,7 +15,7 @@ Note that for each systematic uncertainties the response matrix needs to be prov
 Alternatively, selection efficiency (probability of a given truth even to be selected per bin), migration matrix and acceptance (probability of reco event to be reconstructed for events that do not pass the truth selection) can be provided instead of the response matrix.
 
 !!! tip "Definition of response matrix"
-    The response matrix is defined as selection efficiency times migration matrix divided by acceptance. All bin contents must be < 1.
+    The response matrix is defined as selection efficiency times migration matrix divided by acceptance. All bin contents must be $\leq 1$.
 
 Now, let us look at how this is done in `TRExFitter`. We will use a simple examples that is also used in our CI tests.
 The folding step is the first step that needs to be run for an unfolding job.

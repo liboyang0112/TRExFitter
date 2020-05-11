@@ -14,7 +14,7 @@ This is done by simple _morphing_ that interpolates between templates, where eac
 The simplest interpolation uses piece-wise linear interpolation between the templates. Let $S_i$ be the total number of events in bin $i$, then
 
 $$
-S_i = \sum_t w_i(POI) \cdot T^t_i,
+S_i = \sum_t w^t_i(POI) \cdot T^t_i,
 $$
 
 where $T_i^t$ is the number of events in bin $i$ for template $t$.
