@@ -1,8 +1,8 @@
-# Using multiple templates for profile-likelihood fits
+# Using multiple templates for profile likelihood fits
 
 ## Introduction
 
-One of the limitations of the profile-likelihood machinery as implemented in `RooStats` and `HistFactory` is that only 3 templates are allowed - nominal and $\pm 1 \sigma$.
+One of the limitations of the profile likelihood machinery as implemented in `RooStats` and `HistFactory` is that only 3 templates are allowed - nominal and $\pm 1 \sigma$.
 However, in many measurements multiple templates are compared to data to estimate a value of one or more parameters, e.g. top-quark mass or decay width.
 In the case of these template fits, the meaning of the templates is also different. The templates are not used to define a systematic uncertainty but rather represent distributions for different underlying values of a given parameter.
 
