@@ -14,7 +14,7 @@ The folding step can be done within TRExFitter, currently only with the histogra
 Note that for each systematic uncertainties the response matrix needs to be provided to generate the templates needed fo systematic variation.
 Alternatively, selection efficiency (probability of a given truth even to be selected per bin), migration matrix and acceptance (probability of reco event to be reconstructed for events that do not pass the truth selection) can be provided instead of the response matrix.
 
-!!! "Definition of response"
+!!! tip "Definition of response"
     Response matrix is defined as selection efficiency times migration matrix divided by acceptance. All bin contents must be < 1.
 
 Now, let us look at how this is done in TRExFitter. We will use a simple examples that is also used in our CI tests.
@@ -62,7 +62,7 @@ A new block is provided for the signal samples that will be used in the unfoldin
 ### UnfoldingSystematic
 This new block is used for defining systematic uncertainties that act on the signal and need the folding step. Similarly to standard systematics, `MigrationNameUp` can be defined (same for selection efficeincy and acceptance) which will replace the nominal migration matrix when this uncertainty is being folded.
 
-!!! "Corelating uncertainties"
+!!! tip "Corelating uncertainties"
     You can correlate the standard `Systematic` and `UnfoldingSystematic` using the same `NuisanceParameter` name as is done in the example config with `bTag_SF_B_eigen0`
 
 Now when the basic parts of the config file are explained, have a look at the output produced by the `u` step.
@@ -95,5 +95,5 @@ trex-fitter dp test/configs/FitExampleUnfolding.config
 Why does the postfit distribution agrees almost perfectly with data even with very few uncertainties defined?
 What happens when you repeat the process but remove the `Tau` parameter completely?
 
-!!! "Running toys"
+!!! tip "Running toys"
     It may be very useful to run pseudoexperiments to test the unfolding procedure. You can do this using the standard config option in `Fit` block: `FitToys: XXX` where `XXX` is the number of toys to be used. Note that for toys, the Asimov prediction will be used.
