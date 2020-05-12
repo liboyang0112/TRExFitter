@@ -44,4 +44,5 @@ Other supported option is the `TRIANGULAR` setting, which will set the shape to 
 ![No shape](../img/BasicTutorial2020/ljets_5j3b_HT_ttc_ttc_Gen_TRIANGULAR.png)
 ![No shape](../img/BasicTutorial2020/ljets_6j4b_BDT_ttc_ttc_Gen_TRIANGULAR.png)
 
-
+!!! hint "The impact on the result"
+    Try to run the fit with different shape options and see what happens to your result.
