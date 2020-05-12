@@ -2,11 +2,18 @@
 
 ## Saturated model
 
-Whenever a fit procedure is used, it is important to check the Goodness-of-fit (GoF) status. GoF is a metric that gives probability how likely it is that the fitted model describes the osberved data.
+Whenever a fit procedure is used, it is important to check the Goodness-of-fit (GoF) status. GoF is a metric that gives probability how well the fit model can describe the observed data.
 If the GoF gives very small probability, the model should be checked.
 
 For a long time in TRExFitter, a very ad hoc GoF test was implemented that comapred the likelihood values for the fit to data and a fit to Asimov dataset. This is obviously not a proper test.
-The proper test is provided by [saturated model](http://www.physics.ucla.edu/~cousins/stats/cousins_saturated.pdf). In this test, the likelihoods (likelihood ratios) are compared. One is obtained by the fit to the data and the other one originates from _saturated model_, a model that has enough freedom that will fit the data perfectly. In other words, the saturated model is a modified model that matches the data. The likelihood ratio follows the $\chi^2$ distribution asymptotically (Wilks theorem), and thus can be used as a standard GoF test.
+The proper test is provided by [saturated model](http://www.physics.ucla.edu/~cousins/stats/cousins_saturated.pdf). In this test, the likelihoods (likelihood ratios) are compared.
+One is obtained by fitting the data with the nominal model and the other one by still fitting the real data, but with the _saturated model, a model that has enough freedom that it will fit the data perfectly, without nuisance parameter pulls.
+In other words, the saturated model is a modified model that matches the data. The likelihood ratio follows the $\chi^2$ distribution asymptotically (Wilks theorem), and thus can be used as a standard GoF test.
+To further compare it to the $\chi^2$ test, the saturated model represents $\chi^2 = 0$ (perfect agreement).
+Or it can be viewed as the constant term that is removed from the full likelihood
+$$
+ -2\ln(\mu) = \chi^2(\mu) + const
+$$
 
 ### TRExFitter implemetation
 
