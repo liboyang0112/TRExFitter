@@ -12,7 +12,7 @@ In other words, the saturated model is a modified model that matches the data. T
 To further compare it to the $\chi^2$ test, the saturated model represents $\chi^2 = 0$ (perfect agreement).
 Or it can be viewed as the constant term that is removed from the full likelihood
 $$
- -2\ln(\mu) = \chi^2(\mu) + const
+ -2\ln L(\mu) = \chi^2(\mu) + const
 $$
 
 ### TRExFitter implemetation
