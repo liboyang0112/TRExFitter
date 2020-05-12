@@ -22,6 +22,12 @@ where $T_i^t$ is the number of events in bin $i$ for template $t$.
 As an example, assume we have 3 templates for top-quark mass representing 172, 173 and 174 GeV. Now let us assume that the "real" value of the mass is 172.5 GeV.
 The fit should converge to a result where both templates representing 172 and 173 are fitted to 0.5 the original normalisation and the template representing 174 GeV will not contribute at all (normalisation is zero). This provides clear interpretation of the interpolation which can be summarised as "172.5 GeV is 0.5 times 172 GeV and 0.5 times 173 GeV".
 
+Another example is shown below where tempaltes representing the Higgs mass are displayed. The templates have values of 120, 125 and 130 GeV.
+![Templates](img/AdvancedTutorial2020/morphing_templates_Higgs.png)
+
+Now assume the true mass of the Higgs boson is 126.5 GeV, the plot below shows how this is combined from the available templates
+![Interpolation](img/AdvancedTutorial2020/morphing_example_Higgs.png)
+
 ## Example - Top quark decay width
 
 As an example, let us look at the configuration file that is a simplified version of measurement of the top quark decay width that is used in the `TRExFitter` CI tests.
