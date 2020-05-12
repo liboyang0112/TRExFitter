@@ -6,7 +6,7 @@ Whenever a fit procedure is used, it is important to check the Goodness-of-fit (
 If the GoF gives very small probability, the model should be checked.
 
 For a long time in TRExFitter, a very ad hoc GoF test was implemented that comapred the likelihood values for the fit to data and a fit to Asimov dataset. This is obviously not a proper test.
-The proper test is provided by (saturated model)[http://www.physics.ucla.edu/~cousins/stats/cousins_saturated.pdf]. In this test, the likelihoods (likelihood ratios) are compared. One is obtained by the fit to the data and the other one originates from _saturated model_, a model that has enough freedom that will fit the data perfectly. In other words, the saturated model is a modified model that matches the data. The likelihood ratio follows the $\chi^2$ distribution asymptotically (Wilks theorem), and thus can be used as a standard GoF test.
+The proper test is provided by [saturated model](http://www.physics.ucla.edu/~cousins/stats/cousins_saturated.pdf). In this test, the likelihoods (likelihood ratios) are compared. One is obtained by the fit to the data and the other one originates from _saturated model_, a model that has enough freedom that will fit the data perfectly. In other words, the saturated model is a modified model that matches the data. The likelihood ratio follows the $\chi^2$ distribution asymptotically (Wilks theorem), and thus can be used as a standard GoF test.
 
 ### TRExFitter implemetation
 
