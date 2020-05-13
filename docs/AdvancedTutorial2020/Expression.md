@@ -17,7 +17,7 @@ This measurement fits the fractions of the individual helicity templates (pure l
 The fractions have to satisfy 
 
 $$
-f_{L} + F_{0} + F_{R} = 1
+F_{L} + F_{0} + F_{R} = 1
 $$
 
 for all allowed values of the fractions.
