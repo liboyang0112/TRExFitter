@@ -316,7 +316,7 @@ void TRExPlot::BlindData(){
     //
     // Eventually blind bins
     
-    if(h_data && fSigNames.size() > 0 && h_tot) {
+    if(h_data && ((fSigNames.size() > 0) || (fOverSigNames.size() > 0)) && h_tot) {
         if(fBlinding) {
             Common::BlindDataHisto(h_data,fBlinding.get());
         } else{
@@ -324,6 +324,14 @@ void TRExPlot::BlindData(){
             // if more than one signal:
             if(fSigNames.size() > 1) {
                 for(std::size_t i_sig = 1; i_sig < fSigNames.size(); ++i_sig) {
+                    auto tmp = Common::BlindDataHisto(h_data, fBlindedBins);
+                    fBlinding->Add(tmp.get());
+                    fBlinding->Scale(2.);
+                }
+            }
+            // now blind if oversig is used
+            if(fOverSigNames.size() > 0) {
+                for(std::size_t i_sig = 0; i_sig < fOverSigNames.size(); ++i_sig) {
                     auto tmp = Common::BlindDataHisto(h_data, fBlindedBins);
                     fBlinding->Add(tmp.get());
                     fBlinding->Scale(2.);
