@@ -323,7 +323,7 @@ int ConfigReader::ReadJobOptions(){
     param = confSet->Get("ResponseMatrixName");
     if (param != "") {
         fFitter->fResponseMatrixNames.clear();
-        fFitter->fResponseMatrixNames.emplace_back(CheckName(param));
+        fFitter->fResponseMatrixNames.emplace_back(RemoveQuotes(param));
     }
 
     param = confSet->Get("ResponseMatrixNames");
@@ -334,7 +334,7 @@ int ConfigReader::ReadJobOptions(){
     param = confSet->Get("ResponseMatrixFile");
     if (param != "") {
         fFitter->fResponseMatrixFiles.clear();
-        fFitter->fResponseMatrixFiles.emplace_back(CheckName(param));
+        fFitter->fResponseMatrixFiles.emplace_back(RemoveQuotes(param));
     }
 
     param = confSet->Get("ResponseMatrixFiles");
@@ -345,7 +345,7 @@ int ConfigReader::ReadJobOptions(){
     param = confSet->Get("ResponseMatrixPath");
     if (param != "") {
         fFitter->fResponseMatrixPaths.clear();
-        fFitter->fResponseMatrixPaths.emplace_back(CheckName(param));
+        fFitter->fResponseMatrixPaths.emplace_back(RemoveQuotes(param));
     }
 
     param = confSet->Get("ResponseMatrixPaths");
@@ -356,13 +356,13 @@ int ConfigReader::ReadJobOptions(){
     param = confSet->Get("ResponseMatrixNameNominal");
     if(param!=""){
       fFitter->fResponseMatrixNamesNominal.clear();
-      fFitter->fResponseMatrixNamesNominal.emplace_back(CheckName(param));
+      fFitter->fResponseMatrixNamesNominal.emplace_back(RemoveQuotes(param));
     }
 
     param = confSet->Get("AcceptanceName");
     if (param != "") {
         fFitter->fAcceptanceNames.clear();
-        fFitter->fAcceptanceNames.emplace_back(CheckName(param));
+        fFitter->fAcceptanceNames.emplace_back(RemoveQuotes(param));
         fFitter->fHasAcceptance = true;
     }
 
@@ -375,7 +375,7 @@ int ConfigReader::ReadJobOptions(){
     param = confSet->Get("AcceptanceFile");
     if (param != "") {
         fFitter->fAcceptanceFiles.clear();
-        fFitter->fAcceptanceFiles.emplace_back(CheckName(param));
+        fFitter->fAcceptanceFiles.emplace_back(RemoveQuotes(param));
         fFitter->fHasAcceptance = true;
     }
 
@@ -388,7 +388,7 @@ int ConfigReader::ReadJobOptions(){
     param = confSet->Get("AcceptancePath");
     if (param != "") {
         fFitter->fAcceptancePaths.clear();
-        fFitter->fAcceptancePaths.emplace_back(CheckName(param));
+        fFitter->fAcceptancePaths.emplace_back(RemoveQuotes(param));
         fFitter->fHasAcceptance = true;
     }
 
@@ -401,14 +401,14 @@ int ConfigReader::ReadJobOptions(){
     param = confSet->Get("AcceptanceNameNominal");
     if(param!=""){
         fFitter->fAcceptanceNamesNominal.clear();
-        fFitter->fAcceptanceNamesNominal.emplace_back(CheckName(param));
+        fFitter->fAcceptanceNamesNominal.emplace_back(RemoveQuotes(param));
         fFitter->fHasAcceptance = true;
     }
 
     param = confSet->Get("SelectionEffName");
     if (param != "") {
         fFitter->fSelectionEffNames.clear();
-        fFitter->fSelectionEffNames.emplace_back(CheckName(param));
+        fFitter->fSelectionEffNames.emplace_back(RemoveQuotes(param));
     }
 
     param = confSet->Get("SelectionEffNames");
@@ -419,7 +419,7 @@ int ConfigReader::ReadJobOptions(){
     param = confSet->Get("SelectionEffFile");
     if (param != "") {
         fFitter->fSelectionEffFiles.clear();
-        fFitter->fSelectionEffFiles.emplace_back(CheckName(param));
+        fFitter->fSelectionEffFiles.emplace_back(RemoveQuotes(param));
     }
 
     param = confSet->Get("SelectionEffFiles");
@@ -430,7 +430,7 @@ int ConfigReader::ReadJobOptions(){
     param = confSet->Get("SelectionEffPath");
     if (param != "") {
         fFitter->fSelectionEffPaths.clear();
-        fFitter->fSelectionEffPaths.emplace_back(CheckName(param));
+        fFitter->fSelectionEffPaths.emplace_back(RemoveQuotes(param));
     }
 
     param = confSet->Get("SelectionEffPaths");
@@ -441,13 +441,13 @@ int ConfigReader::ReadJobOptions(){
     param = confSet->Get("SelectionEffNameNominal");
     if(param!=""){
       fFitter->fSelectionEffNamesNominal.clear();
-      fFitter->fSelectionEffNamesNominal.emplace_back(CheckName(param));
+      fFitter->fSelectionEffNamesNominal.emplace_back(RemoveQuotes(param));
     }
 
     param = confSet->Get("MigrationName");
     if (param != "") {
         fFitter->fMigrationNames.clear();
-        fFitter->fMigrationNames.emplace_back(CheckName(param));
+        fFitter->fMigrationNames.emplace_back(RemoveQuotes(param));
     }
 
     param = confSet->Get("MigrationNames");
@@ -458,7 +458,7 @@ int ConfigReader::ReadJobOptions(){
     param = confSet->Get("MigrationFile");
     if (param != "") {
         fFitter->fMigrationFiles.clear();
-        fFitter->fMigrationFiles.emplace_back(CheckName(param));
+        fFitter->fMigrationFiles.emplace_back(RemoveQuotes(param));
     }
 
     param = confSet->Get("MigrationFiles");
@@ -469,7 +469,7 @@ int ConfigReader::ReadJobOptions(){
     param = confSet->Get("MigrationPath");
     if (param != "") {
         fFitter->fMigrationPaths.clear();
-        fFitter->fMigrationPaths.emplace_back(CheckName(param));
+        fFitter->fMigrationPaths.emplace_back(RemoveQuotes(param));
     }
 
     param = confSet->Get("MigrationPaths");
@@ -480,7 +480,7 @@ int ConfigReader::ReadJobOptions(){
     param = confSet->Get("MigrationNameNominal");
     if(param!=""){
       fFitter->fMigrationNamesNominal.clear();
-      fFitter->fMigrationNamesNominal.emplace_back(CheckName(param));
+      fFitter->fMigrationNamesNominal.emplace_back(RemoveQuotes(param));
     }
 
     // Set paths
@@ -508,7 +508,7 @@ int ConfigReader::ReadJobOptions(){
         param = confSet->Get("HistoName");
         if(param!=""){
             fFitter->fHistoNames.clear();
-            fFitter->fHistoNames.push_back( CheckName(param) );
+            fFitter->fHistoNames.push_back( RemoveQuotes(param) );
         }
         param = confSet->Get("HistoNames");
         if(param!=""){
@@ -517,12 +517,12 @@ int ConfigReader::ReadJobOptions(){
         param = confSet->Get("HistoNameNominal");
         if(param!=""){
           fFitter->fHistoNamesNominal.clear();
-          fFitter->fHistoNamesNominal.push_back( CheckName(param) );
+          fFitter->fHistoNamesNominal.push_back( RemoveQuotes(param) );
         }
         param = confSet->Get("HistoFile");
         if(param!=""){
             fFitter->fHistoFiles.clear();
-            fFitter->fHistoFiles.push_back( CheckName(param) );
+            fFitter->fHistoFiles.push_back( RemoveQuotes(param) );
         }
         param = confSet->Get("HistoFiles");
         if(param!=""){
@@ -530,7 +530,7 @@ int ConfigReader::ReadJobOptions(){
         }
         param = confSet->Get("HistoPath");
         if(param!=""){
-            fFitter->AddHistoPath( CheckName(param) );
+            fFitter->AddHistoPath( RemoveQuotes(param) );
         }
         param = confSet->Get("HistoPaths");
         if(param!=""){
@@ -554,7 +554,7 @@ int ConfigReader::ReadJobOptions(){
         //
         param = confSet->Get("NtupleName");
         if(param!=""){
-            fFitter->SetNtupleName( CheckName(param) );
+            fFitter->SetNtupleName( RemoveQuotes(param) );
         }
         param = confSet->Get("NtupleNames");
         if(param!=""){
@@ -562,7 +562,7 @@ int ConfigReader::ReadJobOptions(){
         }
         param = confSet->Get("NtupleFile");
         if( param != "" ){
-            fFitter->SetNtupleFile( CheckName(param) );
+            fFitter->SetNtupleFile( RemoveQuotes(param) );
         }
         param = confSet->Get("NtupleFiles");
         if(param!=""){
@@ -570,7 +570,7 @@ int ConfigReader::ReadJobOptions(){
         }
         param = confSet->Get("NtuplePath");
         if( param != "" ) {
-            fFitter->AddNtuplePath( CheckName(param) );
+            fFitter->AddNtuplePath( RemoveQuotes(param) );
         }
         param = confSet->Get("NtuplePaths");
         if( param != "" ){
@@ -6834,12 +6834,12 @@ int ConfigReader::UnfoldingCorrections() {
 //
 std::string ConfigReader::CheckName( std::string name ){
     name = RemoveQuotes(name);
-    if( std::isdigit( name.at(0) ) ){
+    if((name.size() > 0) && (std::isdigit(name.at(0))) ){
         WriteErrorStatus("ConfigReader::CheckName", "Failed to browse name: " + name + ". A number has been detected at the first position of the name.");
         WriteErrorStatus("ConfigReader::CheckName", "           This can lead to unexpected behaviour in HistFactory. Please change the name. ");
         exit(EXIT_FAILURE);
     } else {
-        return RemoveQuotes(name);
+        return name;
     }
 }
 
