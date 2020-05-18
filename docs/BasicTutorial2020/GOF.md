@@ -2,13 +2,17 @@
 
 ## Saturated model
 
-Whenever a fit procedure is used, it is important to check the Goodness-of-fit (GoF) status. GoF is a metric that gives probability how well the fit model can describe the observed data.
+Whenever a fit procedure is used, it is important to check the Goodness-of-fit (GoF) status.
+GoF is a metric that gives probability how well the fit model can describe the observed data.
 If the GoF gives very small probability, the model should be checked.
 
-For a long time in TRExFitter, a very ad hoc GoF test was implemented that comapred the likelihood values for the fit to data and a fit to Asimov dataset. This is obviously not a proper test.
-The proper test is provided by [saturated model](http://www.physics.ucla.edu/~cousins/stats/cousins_saturated.pdf). In this test, the likelihoods (likelihood ratios) are compared.
-One is obtained by fitting the data with the nominal model and the other one by still fitting the real data, but with the _saturated model, a model that has enough freedom that it will fit the data perfectly, without nuisance parameter pulls.
-In other words, the saturated model is a modified model that matches the data. The likelihood ratio follows the $\chi^2$ distribution asymptotically (Wilks theorem), and thus can be used as a standard GoF test.
+For a long time in `TRExFitter`, a very ad hoc GoF test was implemented that compared the likelihood values for the fit to data and a fit to Asimov dataset.
+This is obviously not a proper test.
+The proper test is provided by [saturated model](http://www.physics.ucla.edu/~cousins/stats/cousins_saturated.pdf).
+In this test, the likelihoods (likelihood ratios) are compared.
+One is obtained by fitting the data with the nominal model and the other one by still fitting the real data, but with the _saturated model_, a model that has enough freedom that it will fit the data perfectly, without nuisance parameter pulls.
+In other words, the saturated model is a modified model that matches the data.
+The likelihood ratio follows the $\chi^2$ distribution asymptotically (Wilks theorem), and thus can be used as a standard GoF test.
 To further compare it to the $\chi^2$ test, the saturated model represents $\chi^2 = 0$ (perfect agreement).
 Or it can be viewed as the constant term that is removed from the full likelihood
 $$
@@ -17,11 +21,14 @@ $$
 
 ### TRExFitter implemetation
 
-The saturated model as GoF test has been implemented in TRExFitter since tag `TtHFitter-00-04-05`. Since tag `TRExFitter-00-04-08` it is the default option when `GetGoodnessOfFit` is set to `TRUE`.
-Technically, it is implemented byt giving _shape factors_, "normalisatio nfactors per bin", to each bin to allow the model to fit the data perfectly without the need to pull any NP. The minimisation procedure is then run to with the value of the likelihood that is then used in the GoF calculation.
+The saturated model as GoF test has been implemented in TRExFitter since tag `TtHFitter-00-04-05`.
+Since tag `TRExFitter-00-04-08` it is the default option when `GetGoodnessOfFit` is set to `TRUE`.
+Technically, it is implemented byt giving _shape factors_, "normalisation factors per bin", to each bin to allow the model to fit the data perfectly without the need to pull any NP.
+The minimisation procedure is then run to calculate the the absolute likelihood value that is then used in the GoF calculation.
 
 Let us try to use this option now.
-We will use a configuration file used in our CI tests. First produce the inputs:
+We will use a configuration file used in our CI tests.
+First produce the inputs
 
 ```bash
 trex-fitter n test/configs/FitExampleNtuple.config
@@ -33,14 +40,18 @@ And now, run the fit (and also create the workspace first)
 trex-fitter wf test/configs/FitExampleNtuple.config
 ```
 
-We get the fitted values and everything looks fine. Now, modify the `Fit` block of the config file and add the following option: `GetGoodnessOfFit: TRUE` . SInce we are using a very recent verion of TRExFitter, this will by default use the saturated model as GoF test.
-Now, run the workspace creation and the fit again
+We get the fitted values and everything looks fine.
+Now, modify the `Fit` block of the config file and add the following option: `GetGoodnessOfFit: TRUE` .
+Since we are using a very recent version of `TRExFitter`, this will by default use the saturated model as the GoF test.
+Now, run the workspace creation and fit again
 
 ```bash
 trex-fitter wf test/configs/FitExampleNtuple.config
 ```
 
-You should not see that the fit is run _twice_. First time the standard fit is run, then the fit with the saturated model is run. You shoud see that in the second step no pulls are present.
+You should not see that the fit is run _twice_.
+First time the standard fit is run, then the fit with the saturated model is run.
+You shoud see that in the second step no pulls are present.
 Check the lines that print the likelihood values, e.g.:
 
 ```bash
