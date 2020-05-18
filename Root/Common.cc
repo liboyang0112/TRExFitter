@@ -898,10 +898,23 @@ void Common::ScaleNominal(const SampleHist* const sig,
         // if this norm factor is a morphing one
         if(nf->fName.find("morph_")!=std::string::npos || nf->fExpression.first!=""){
             std::string formula = TRExFitter::SYSTMAP[nf->fName];
-            std::string name = TRExFitter::NPMAP[nf->fName];
+            const std::string name = TRExFitter::NPMAP[nf->fName];
             formula = ReplaceString(formula,name,"x");
-            auto f_morph = std::unique_ptr<TF1>(new TF1("f_morph",formula.c_str(),nf->fMin,nf->fMax));
-            const double& scale = f_morph->Eval(nf->fNominal);
+            std::vector < std::pair < std::string,std::vector<double> > > nameS;
+            if(nf->fName.find("morph_")!=std::string::npos) {
+                nameS.push_back(std::make_pair(name,std::vector<double>{nf->fNominal,
+                    nf->fMin,nf->fMax}));
+            }
+            else{
+                nameS = Common::processString(name);
+            }
+            std::vector <double> nfValuevec;
+            for (unsigned int j = 0; j<nameS.size(); j++){
+                formula = Common::ReplaceString(formula,nameS[j].first,"x["+std::to_string(j)+"]");
+                nfValuevec.push_back(nameS[j].second.at(0));
+            }
+            TFormula f_morph ("f_morph",formula.c_str());
+            const double scale = f_morph.EvalPar(&nfValuevec[0],nullptr);
             hist->Scale(scale);
             WriteDebugStatus("Common::ScaleNominal", nf->fName + " => Scaling " + sig->fSample->fName + " by " + std::to_string(scale));
         }
