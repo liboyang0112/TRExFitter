@@ -93,6 +93,7 @@ set( lib_headers
   TRExFitter/FittingTool.h
   TRExFitter/HistoReader.h
   TRExFitter/HistoTools.h
+  TRExFitter/LimitEvent.h
   TRExFitter/MultiFit.h
   TRExFitter/NormFactor.h
   TRExFitter/NtupleReader.h
@@ -122,6 +123,7 @@ set( lib_sources
   Root/FittingTool.cc
   Root/HistoReader.cc
   Root/HistoTools.cc
+  Root/LimitEvent.cc
   Root/MultiFit.cc
   Root/NormFactor.cc
   Root/NtupleReader.cc
