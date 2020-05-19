@@ -778,18 +778,6 @@ int ConfigReaderMulti::ReadFitOptions(const std::string& opt, const std::string&
         param = confSet->Get("Workspace");
         if(param!="") wsFile = RemoveQuotes(param);
 
-        // show obs
-        param = confSet->Get("ShowObserved");
-        if (param != ""){
-            std::transform(param.begin(), param.end(), param.begin(), ::toupper);
-            if(param=="FALSE") fMultiFitter->fFitShowObserved.push_back(false);
-            else if (param == "TRUE") fMultiFitter->fFitShowObserved.push_back(true);
-            else {
-                WriteWarningStatus("ConfigReaderMulti::ReadFitOptions", "You specified 'ShowObserved' option but you didn't provide valid setting. Using default (TRUE)");
-                fMultiFitter->fFitShowObserved.push_back(true);
-            }
-        }
-
         bool useInFit(true);
         param = confSet->Get("UseInFit");
         if (param != "") {

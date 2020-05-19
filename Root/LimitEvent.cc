@@ -17,6 +17,17 @@ Int_t LimitEvent::GetEntry(Long64_t entry)
    return fChain->GetEntry(entry);
 }
 
+Long64_t LimitEvent::LoadTree(Long64_t entry) {
+// Set the environment to read one entry
+    if (!fChain) return -5;
+    Long64_t centry = fChain->LoadTree(entry);
+    if (centry < 0) return centry;
+    if (fChain->GetTreeNumber() != fCurrent) {
+       fCurrent = fChain->GetTreeNumber();
+    }
+    return centry;
+}
+
 void LimitEvent::Init(TTree *tree)
 {
    // The Init() function is called when the selector needs to initialize
@@ -30,6 +41,8 @@ void LimitEvent::Init(TTree *tree)
    // Set branch addresses and branch pointers
    if (!tree) return;
    fChain = tree;
+   fCurrent = -1;
+   fChain->SetMakeClass(1);
 
    fChain->SetBranchAddress("parameter", &parameter, &b_parameter);
    fChain->SetBranchAddress("CLb_med", &CLb_med, &b_CLb_med);

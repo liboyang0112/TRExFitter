@@ -117,7 +117,6 @@ public:
     std::unique_ptr<ConfigParser> fConfig;
 
     std::string fSaveSuf;
-    std::vector< bool > fFitShowObserved;
 
     std::string fDataName;
     int fFitType;

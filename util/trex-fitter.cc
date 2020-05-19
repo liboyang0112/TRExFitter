@@ -145,8 +145,8 @@ void FitExample(std::string opt="h",std::string configFile="config/myFit.config"
         if(myMultiFit->fCompare){
             std::cout << "Comparing fits..." << std::endl;
             if(myMultiFit->fComparePulls){
-                for(unsigned int i_cat=0;i_cat<myMultiFit->fNPCategories.size();i_cat++){
-                    myMultiFit->ComparePulls(myMultiFit->fNPCategories[i_cat]);
+                for(const auto& icat : myMultiFit->fNPCategories) {
+                    myMultiFit->ComparePulls(icat);
                 }
                 myMultiFit->CompareNormFactors("");
             }

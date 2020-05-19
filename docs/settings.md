@@ -519,7 +519,6 @@ These options are for multi-fits, performed with action `m`.
 | LoadSuf          |
 | ConfigFile       | the path to the config file that you want to combine/compare |
 | Workspace        | the path to the workspace that you want to combine/compare |
-| ShowObserved     | can be TRUE or FALSE, set to TRUE to show the observed values of POI |
 | FitResultsFile   | the path to the file with fit results |
 | LimitsFile       | the path to the file with limits results |
 | POIName          | the name of the POI |
