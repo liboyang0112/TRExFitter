@@ -634,12 +634,6 @@ int ConfigReaderMulti::ReadLimitOptions(){
         }
     }
 
-    // Set POIAsimov
-    param = confSet->Get("POIAsimov");
-    if( param != "" ){
-        fMultiFitter->fLimitPOIAsimov = atof(param.c_str());
-    }
-
     // Set SignalInjection
     param = confSet->Get("SignalInjection");
     if( param != "" ){

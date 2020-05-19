@@ -157,7 +157,6 @@ public:
     // Limit parameters
     //
     bool fLimitIsBlind;
-    double fLimitPOIAsimov;
     bool fSignalInjection;
     double fSignalInjectionValue;
     std::string fLimitParamName;

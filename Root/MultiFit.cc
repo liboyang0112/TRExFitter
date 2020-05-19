@@ -118,7 +118,6 @@ MultiFit::MultiFit(const string& name) :
     fPOINominal(1),
     fPOIAsimov(1),
     fLimitIsBlind(false),
-    fLimitPOIAsimov(0),
     fSignalInjection(false),
     fSignalInjectionValue(0),
     fLimitParamName("parameter"),
