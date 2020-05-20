@@ -4977,7 +4977,7 @@ int ConfigReader::SetSystRegionDecorelate(ConfigSet *confSet,
                 // Set Title
                 param = confSet->Get("Title");
                 if(param != ""){
-                    mySys->fTitle = (sys->fTitle)+"_"+ireg+"_bin"+std::to_string(i_bin);
+                    mySys->fTitle = RemoveQuotes(param)+" ("+reg->fLabel+", bin "+std::to_string(i_bin)+")";
                     TRExFitter::SYSTMAP[mySys->fName] = mySys->fTitle;
                 }
                 fFitter->fNSyst++;
@@ -5019,7 +5019,7 @@ int ConfigReader::SetSystRegionDecorelate(ConfigSet *confSet,
             // Set Title
             param = confSet->Get("Title");
             if(param != ""){
-                mySys->fTitle = (sys->fTitle)+" ("+reg->fLabel+")";
+                mySys->fTitle = RemoveQuotes(param)+" ("+reg->fLabel+")";
                 TRExFitter::SYSTMAP[mySys->fName] = mySys->fTitle;
             }
             fFitter->fNSyst++;
@@ -5098,7 +5098,7 @@ int ConfigReader::SetSystSampleDecorelate(ConfigSet *confSet, Systematic *sys, c
         // Set Title
         param = confSet->Get("Title");
         if(param != ""){
-            mySys->fTitle = (sys->fTitle)+" "+sam->fTitle;
+            mySys->fTitle = RemoveQuotes(param)+" "+sam->fTitle;
             TRExFitter::SYSTMAP[mySys->fName] = mySys->fTitle;
         }
         fFitter->fNSyst++;
@@ -5144,7 +5144,7 @@ int ConfigReader::SetSystShapeDecorelate(ConfigSet *confSet, Systematic *sys, co
     // Set Title
     param = confSet->Get("Title");
     if(param != ""){
-        mySys1->fTitle = (sys->fTitle)+" Acc";
+        mySys1->fTitle = RemoveQuotes(param)+" Acc.";
         TRExFitter::SYSTMAP[mySys1->fName] = mySys1->fTitle;
     }
     fFitter->fNSyst++;
@@ -5191,7 +5191,7 @@ int ConfigReader::SetSystShapeDecorelate(ConfigSet *confSet, Systematic *sys, co
         // Set Title
         param = confSet->Get("Title");
         if(param != ""){
-            mySys2->fTitle = (sys->fTitle)+" Shape";
+            mySys2->fTitle = RemoveQuotes(param)+" Shape";
             TRExFitter::SYSTMAP[mySys2->fName] = mySys2->fTitle;
         }
         fFitter->fNSyst++;

@@ -926,20 +926,46 @@ void TRExFit::CorrectHistograms(){
                 //
                 // if syst defined with SampleUp / SampleDown
                 if( syst->fSampleUp != "" || syst->fSampleDown != "" ){
+                    WriteDebugStatus("TRExFit::CorrectHistograms", "SampleUp/SampleDown set for systematic " + syst->fName + ".");
                     bool isDummy = ( syst->fDummyForSamples.size()>0 && Common::FindInStringVector(syst->fDummyForSamples,smp->fName)>=0 );
-                    TH1 *h_up   = sh->fHist.get();
+                    std::unique_ptr<TH1> h_up = nullptr;
                     if(syst->fSampleUp   !="" && !isDummy){
                         if(reg->GetSampleHist(syst->fSampleUp  )){
-                            h_up   = reg->GetSampleHist(syst->fSampleUp  )->fHist.get();
+                            h_up.reset(static_cast<TH1*>(reg->GetSampleHist(syst->fSampleUp  )->fHist->Clone("h_tmp_up")));
                         }
                     }
-                    TH1 *h_down = sh->fHist.get();
+                    else{
+                        h_up.reset(static_cast<TH1*>(sh->fHist->Clone("h_tmp_up")));
+                    }
+                    std::unique_ptr<TH1> h_down = nullptr;
                     if(syst->fSampleDown !="" && !isDummy){
                         if(reg->GetSampleHist(syst->fSampleDown)){
-                            h_down = reg->GetSampleHist(syst->fSampleDown)->fHist.get();
+                            h_down.reset(static_cast<TH1*>(reg->GetSampleHist(syst->fSampleDown)->fHist.get()->Clone("h_tmp_down")));
                         }
                     }
-                    syh = sh->AddHistoSyst(syst->fName,syst->fStoredName,h_up,h_down);
+                    else{
+                        h_down.reset(static_cast<TH1*>(sh->fHist.get()->Clone("h_tmp_down")));
+                    }
+                    //
+                    // if systematic also uses ReferenceSample, produce syst variations according to the refefence sample instead of nominal
+                    if(syst->fReferenceSample!=""){
+                        WriteDebugStatus("TRExFit::CorrectHistograms", "ReferenceSample set for a systematic with SampleUp/SampleDown. Building proper systematic variation.");
+                        SampleHist *refSh = reg->GetSampleHist(syst->fReferenceSample);
+                        if(refSh!=nullptr){
+                            if(syst->fSampleUp != ""){
+                                h_up->Divide(refSh->fHist.get());
+                                h_up->Multiply(sh->fHist.get());
+                            }
+                            if(syst->fSampleDown != ""){
+                                h_down->Divide(refSh->fHist.get());
+                                h_down->Multiply(sh->fHist.get());
+                            }
+                        }
+                        else{
+                            WriteWarningStatus("TRExFit::CorrectHistograms","ReferenceSample for systematc " + syst->fName + " set but no corresponding sample found. Ignoring.");
+                        }
+                    }
+                    syh = sh->AddHistoSyst(syst->fName,syst->fStoredName,h_up.get(),h_down.get());
                     syh->fSystematic = syst.get();
                 }
             }
