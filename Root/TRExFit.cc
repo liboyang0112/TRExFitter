@@ -9206,6 +9206,8 @@ void TRExFit::ApplyExternalConstraints(RooWorkspace* ws,
 //__________________________________________________________________________________
 //
 bool TRExFit::DoingMixedFitting() const {
+    if(fFitNPValues.size()>0) return false;
+    if(fFitNPValuesFromFitResults!="") return false;
     int dataType = -1;
     // loop on regions
     for (auto reg : fRegions) {

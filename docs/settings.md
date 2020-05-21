@@ -160,7 +160,7 @@ The following settings are for normal fits, performed without the action `m`.
 | FitRegion                    | can be CRSR (default) or CRONLY to fit considering both signal and control regions in the fit, or only control regions. You can also specify a comma-separated list of regions to use in the fit |
 | FitBlind                     | specify is real data or Asimov data should be used in the fit (TRUE or FALSE). By default, fit are NOT blind. |
 | POIAsimov                    | value of the parameter of interest in the AsimovDataset used in the fit |
-| NPValues                     | values of the nuisance parameters used to build the Asimov. Coma-separated list of NP:value (e.g. alpha_ttbarbb_XS:1,alpha_ttbarbcc_XS:1.5) |
+| NPValues                     | values of the nuisance parameters used to build the Asimov. Coma-separated list of NP:value (e.g. alpha_ttbarbb_XS:1,alpha_ttbarbcc_XS:1.5). NB: if this is set, no mixed fit is performed in case of a mixture of regions with DataType=DATA and =ASIMOV (see Region->DataType option). |
 | FixNPs                       | values of the nuisance parameters used to be fixed in the fit. Coma-separated list of NP:value (e.g. alpha_ttbarbb_XS:1,alpha_ttbarbcc_XS:1.5), currently only implemented for the `f` step |
 | doLHscan                     | comma separated list of names of the POI or NP from which you want to produce the likelihood scan, if first element of the list is "all" then all systematics are profiled |
 | do2DLHscan                   | produces 2D likelihood scan between the chosen parameters. Syntax: "paramX1,paramY1:param X2,paramY2". Warning takes long time. You can reduce the number of steps via `LHscanSteps`. Alternatively you can split up the 2D scan in slices with `Parallel2Dscan` |
@@ -257,7 +257,7 @@ additional options, accepting only float as arguments - useful for adding your f
 | BinWidth                     | if specified, two things are done: this number is used to decorate the y axis label and the bin content is scaled for bins with a bin width different from this number |
 | BinLabels                    | if specified, bin labels are set according to provided comma separated list (list length must be equal to number of bins) |
 | Type                         | can be SIGNAL, CONTROL or VALIDATION; used depending on Fit->FitType; if VALIDATION is set, the region is never fitted; default is SIGNAL |
-| DataType                     | ASIMOV or DATA. Is Asimov is set, limits, significance and final fit are computed without taking into account the data in this region, but creating a modified Asimov data-set through a projection of the fit performed in the regions with DATA only |
+| DataType                     | ASIMOV or DATA. Is ASIMOV is set in some of the regions and DATA in some other ones, limits, significance and final fit are computed without taking into account the data in this region, but creating a modified Asimov data-set through a projection of the fit performed in the regions with DATA only. NB: this "Mixed fit" feature only works if no NPValues option is set (see Fit->NPValues). |
 | Ymax                         | if set, it will force the plot to use this value as max y-maxis value |
 | Ymin                         | if set, it will force the plot to use this value as min y-maxis value |
 | RatioYmax                    | if set, it will specify the max of the range of the ratio plot for this region only |
