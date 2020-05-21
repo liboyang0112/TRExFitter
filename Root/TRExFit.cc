@@ -20,6 +20,7 @@
 #include "TRExFitter/TruthSample.h"
 #include "TRExFitter/UnfoldingSample.h"
 #include "TRExFitter/UnfoldingSystematic.h"
+#include "TRExFitter/YamlConverter.h"
 
 // UnfoldingCode includes
 #include "UnfoldingCode/UnfoldingCode/UnfoldingTools.h"
@@ -5865,6 +5866,8 @@ void TRExFit::PlotNPRanking(bool flagSysts, bool flagGammas) const{
     std::vector<double> poinomdown;
     std::vector<double> number;
 
+    std::vector<YamlConverter::RankingContainer> containerVec;
+
     std::ifstream fin( fileToRead.c_str() );
     fin >> paramname >> nuiphat >> nuiperrhi >> nuiperrlo >> PoiUp >> PoiDown >> PoiNomUp >> PoiNomDown;
     std::string temp_string = "Systematic called \"Luminosity\" found. This creates issues for the ranking plot. Skipping. Suggestion: rename this systematic as \"Lumi\" or \"luminosity\"";
@@ -5897,11 +5900,29 @@ void TRExFit::PlotNPRanking(bool flagSysts, bool flagGammas) const{
         poidown.push_back(PoiDown);
         poinomup.push_back(PoiNomUp);
         poinomdown.push_back(PoiNomDown);
+
+        YamlConverter::RankingContainer container;
+        container.name = paramname;        
+        container.nphat = nuiphat;        
+        container.nperrhi = nuiperrhi;        
+        container.nperrlo = nuiperrlo; 
+        container.poihi = PoiUp;       
+        container.poilo = PoiDown;       
+        container.poiprehi = PoiNomUp;       
+        container.poiprelo = PoiNomDown;       
+
+        containerVec.emplace_back(std::move(container));
+
         fin >> paramname >> nuiphat >> nuiperrhi >> nuiperrlo >> PoiUp >> PoiDown >> PoiNomUp >> PoiNomDown;
         if (paramname=="Luminosity"){
             WriteErrorStatus("TRExFit::PlotNPRanking", temp_string);
             fin >> paramname >> nuiphat >> nuiperrhi >> nuiperrlo >> PoiUp >> PoiDown >> PoiNomUp >> PoiNomDown;
         }
+    }
+
+    {
+        YamlConverter converter{};
+        converter.WriteRanking(containerVec, "");
     }
 
     unsigned int SIZE = parname.size();
