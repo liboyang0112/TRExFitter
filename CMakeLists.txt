@@ -42,6 +42,12 @@ if(NOT DEFINED ENV{AtlasProject})
   add_subdirectory( CommonStatTools )
 endif()
 
+# include yaml-cpp library
+include_directories( yaml-cpp )
+if(NOT DEFINED ENV{AtlasProject})
+  add_subdirectory( yaml-cpp )
+endif()
+
 # Handle the build of the CommonSystSmoothingTool library. That
 # library comes with a cmake configuration, but introduces
 # dependencies on ATLAS cmake syntax – which we are trying to
@@ -145,7 +151,7 @@ add_library( TRExFitter SHARED ${lib_headers} ${lib_sources} )
 target_include_directories( TRExFitter
    PUBLIC ${ROOT_INCLUDE_DIRS}
    $<BUILD_INTERFACE:${CMAKE_SOURCE_DIR}> $<INSTALL_INTERFACE:> )
-target_link_libraries( TRExFitter CommonSystSmoothingTool ExoStats AtlasUtils UnfoldingCode ${ROOT_LIBRARIES} )
+target_link_libraries( TRExFitter CommonSystSmoothingTool ExoStats AtlasUtils UnfoldingCode yaml-cpp ${ROOT_LIBRARIES} )
 set_property( TARGET TRExFitter
    PROPERTY PUBLIC_HEADER ${lib_headers} )
 target_include_directories(TRExFitter PUBLIC ${CMAKE_CURRENT_LIST_DIR} )
@@ -170,7 +176,7 @@ install( TARGETS TRExFitter CommonSystSmoothingTool AtlasUtils
 macro( TRExFitter_add_executable name )
   add_executable( ${name} ${ARGN} )
   target_include_directories( ${name} PUBLIC ${ROOT_INCLUDE_DIRS} )
-  target_link_libraries( ${name} TRExFitter CommonSystSmoothingTool ExoStats AtlasUtils UnfoldingCode ${ROOT_LIBRARIES} )
+  target_link_libraries( ${name} TRExFitter CommonSystSmoothingTool ExoStats AtlasUtils UnfoldingCode yaml-cpp ${ROOT_LIBRARIES} )
   install( TARGETS ${name}
     EXPORT TRExFitterTargets
     RUNTIME DESTINATION bin )
