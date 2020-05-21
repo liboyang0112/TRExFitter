@@ -4,3 +4,6 @@
 [submodule "CommonStatTools"]
 	path = CommonStatTools
 	url = ../../atlas-phys/exot/CommonStatTools.git
+[submodule "yaml-cpp"]
+	path = yaml-cpp
+	url = https://github.com/jbeder/yaml-cpp.git
