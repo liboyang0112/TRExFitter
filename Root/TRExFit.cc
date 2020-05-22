@@ -5922,7 +5922,7 @@ void TRExFit::PlotNPRanking(bool flagSysts, bool flagGammas) const{
 
     {
         YamlConverter converter{};
-        converter.WriteRanking(containerVec, "");
+        converter.WriteRanking(containerVec, fName+"/Ranking"+fSuffix+".yaml");
     }
 
     unsigned int SIZE = parname.size();
