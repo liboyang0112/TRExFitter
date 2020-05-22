@@ -200,10 +200,10 @@ void YamlConverter::AddValueErrors(YAML::Emitter& out,
                                    const double down) const {
     
     double value = mean;
-    if ((std::fabs(up) - std::fabs(down)) < 0.1) {
-        // are symmetric
+    if ((std::fabs(down) > 1e-6) && (std::fabs(up/down) > 0.9) && (std::fabs(up/down) < 1.1)) {
         double error = 0.5*(std::fabs(up) + std::fabs(down)) ;
         const int n = Common::ApplyATLASrounding(value, error);
+        // are symmetric
         out << YAML::Key << "value";
         out << YAML::Value << Form(("%."+std::to_string(n)+"f").c_str(),value);
         out << YAML::Key << "errors";
@@ -218,7 +218,7 @@ void YamlConverter::AddValueErrors(YAML::Emitter& out,
         out << YAML::EndMap;
         out << YAML::EndSeq;
     } else {
-        double error = 0.5*(up-down);
+        double error = std::min(std::fabs(up),std::fabs(down));
         const int n = Common::ApplyATLASrounding(value, error);
         out << YAML::Key << "value";
         out << YAML::Value << Form(("%."+std::to_string(n)+"f").c_str(),value);
@@ -228,9 +228,17 @@ void YamlConverter::AddValueErrors(YAML::Emitter& out,
         out << YAML::Key << "asymerror";
         out << YAML::Value << YAML::BeginMap;
             out << YAML::Key << "plus";
-            out << YAML::Key << Form(("%."+std::to_string(n)+"f").c_str(),up);
+            if (n >= 0) {
+                out << YAML::Key << Form(("%."+std::to_string(n)+"f").c_str(),up);
+            } else {
+                out << YAML::Key << Form("%.f",up);
+            }
             out << YAML::Key << "minus";
-            out << YAML::Key << Form(("%."+std::to_string(n)+"f").c_str(),down);
+            if (n >= 0) {
+                out << YAML::Key << Form(("%."+std::to_string(n)+"f").c_str(),down);
+            } else {
+                out << YAML::Key << Form("%.f",down);
+            }
         out << YAML::EndMap;
         out << YAML::EndMap;
         out << YAML::EndSeq;
