@@ -5924,6 +5924,11 @@ void TRExFit::PlotNPRanking(bool flagSysts, bool flagGammas) const{
     {
         YamlConverter converter{};
         converter.WriteRanking(containerVec, fName+"/Ranking"+fSuffix+".yaml");
+        if (fHEPDataFormat) {
+            converter.SetLumi(Common::ReplaceString(fLumiLabel, " fb^{-1}", ""));
+            converter.SetCME(Common::ReplaceString(fCmeLabel, " TeV", "000"));
+            converter.WriteRankingHEPData(containerVec, fName);
+        }
     }
 
     unsigned int SIZE = parname.size();
