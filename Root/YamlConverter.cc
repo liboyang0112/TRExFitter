@@ -1,5 +1,6 @@
 #include "TRExFitter/YamlConverter.h"
 
+#include "TRExFitter/Common.h"
 #include "TRExFitter/StatusLogbook.h"
 
 #include "yaml-cpp/include/yaml-cpp/yaml.h"
@@ -89,12 +90,7 @@ void YamlConverter::WriteRankingHEPData(const std::vector<RankingContainer>& ran
                 out << YAML::Value << YAML::BeginSeq;
                 for (const auto& irank : ranking) {
                     out << YAML::BeginMap;
-                    out << YAML::Key << "value";
-                    out << YAML::Value << irank.nphat;
-                    out << YAML::Key << "errors";
-                    out << YAML::Value << YAML::BeginSeq;
-                    AddErrors(out, irank.nperrhi, irank.nperrlo);
-                    out << YAML::EndSeq;
+                    AddValueErrors(out, irank.nphat, irank.nperrhi, irank.nperrlo);
                     out << YAML::EndMap;
                 }
                 out << YAML::EndSeq;
@@ -110,7 +106,7 @@ void YamlConverter::WriteRankingHEPData(const std::vector<RankingContainer>& ran
                 for (const auto& irank : ranking) {
                     out << YAML::BeginMap;
                     out << YAML::Key << "value";
-                    out << YAML::Value << irank.poihi;
+                    out << YAML::Value << Common::KeepSignificantDigits(irank.poihi,2);
                     out << YAML::EndMap;
                 }
                 out << YAML::EndSeq;
@@ -125,7 +121,7 @@ void YamlConverter::WriteRankingHEPData(const std::vector<RankingContainer>& ran
                 for (const auto& irank : ranking) {
                     out << YAML::BeginMap;
                     out << YAML::Key << "value";
-                    out << YAML::Value << irank.poilo;
+                    out << YAML::Value << Common::KeepSignificantDigits(irank.poilo,2);
                     out << YAML::EndMap;
                 }
                 out << YAML::EndSeq;
@@ -140,7 +136,7 @@ void YamlConverter::WriteRankingHEPData(const std::vector<RankingContainer>& ran
                 for (const auto& irank : ranking) {
                     out << YAML::BeginMap;
                     out << YAML::Key << "value";
-                    out << YAML::Value << irank.poiprehi;
+                    out << YAML::Value << Common::KeepSignificantDigits(irank.poiprehi, 2);
                     out << YAML::EndMap;
                 }
                 out << YAML::EndSeq;
@@ -155,7 +151,7 @@ void YamlConverter::WriteRankingHEPData(const std::vector<RankingContainer>& ran
                 for (const auto& irank : ranking) {
                     out << YAML::BeginMap;
                     out << YAML::Key << "value";
-                    out << YAML::Value << irank.poiprelo;
+                    out << YAML::Value << Common::KeepSignificantDigits(irank.poiprelo,2);
                     out << YAML::EndMap;
                 }
                 out << YAML::EndSeq;
@@ -198,23 +194,45 @@ void YamlConverter::AddQualifiers(YAML::Emitter& out) const {
     out << YAML::EndSeq;
 }
 
-void YamlConverter::AddErrors(YAML::Emitter& out, const double up, const double down) const {
+void YamlConverter::AddValueErrors(YAML::Emitter& out,
+                                   const double mean,
+                                   const double up,
+                                   const double down) const {
     
+    double value = mean;
     if ((std::fabs(up) - std::fabs(down)) < 0.1) {
         // are symmetric
+        double error = up;
+        const int n = Common::ApplyATLASrounding(value, error);
+        out << YAML::Key << "value";
+        out << YAML::Value << Form(("%."+std::to_string(n)+"f").c_str(),value);
+        out << YAML::Key << "errors";
+        out << YAML::Value << YAML::BeginSeq;
         out << YAML::BeginMap;
         out << YAML::Key << "symerror";
-        out << YAML::Value << up;
+        if (n >= 0) {
+            out << YAML::Value << Form(("%."+std::to_string(n)+"f").c_str(),error);
+        } else {
+            out << YAML::Value << Form("%.f",error);
+        }
         out << YAML::EndMap;
+        out << YAML::EndSeq;
     } else {
+        double error = 0.5*(up-down);
+        const int n = Common::ApplyATLASrounding(value, error);
+        out << YAML::Key << "value";
+        out << YAML::Value << Form(("%."+std::to_string(n)+"f").c_str(),value);
+        out << YAML::Key << "errors";
+        out << YAML::Value << YAML::BeginSeq;
         out << YAML::BeginMap;
         out << YAML::Key << "asymerror";
         out << YAML::Value << YAML::BeginMap;
             out << YAML::Key << "plus";
-            out << YAML::Key << up;
+            out << YAML::Key << Form(("%."+std::to_string(n)+"f").c_str(),up);
             out << YAML::Key << "minus";
-            out << YAML::Key << down;
+            out << YAML::Key << Form(("%."+std::to_string(n)+"f").c_str(),down);
         out << YAML::EndMap;
         out << YAML::EndMap;
+        out << YAML::EndSeq;
     }
 }

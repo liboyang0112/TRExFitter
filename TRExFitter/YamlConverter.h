@@ -47,8 +47,10 @@ private:
 
     void AddQualifiers(YAML::Emitter& out) const;
 
-    void AddErrors(YAML::Emitter& out, const double up, const double down) const;
-
+    void AddValueErrors(YAML::Emitter& out,
+                       const double mean,
+                       const double up,
+                       const double down) const;
 };
 
 #endif
