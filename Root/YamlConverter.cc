@@ -202,7 +202,7 @@ void YamlConverter::AddValueErrors(YAML::Emitter& out,
     double value = mean;
     if ((std::fabs(up) - std::fabs(down)) < 0.1) {
         // are symmetric
-        double error = up;
+        double error = 0.5*(std::fabs(up) + std::fabs(down)) ;
         const int n = Common::ApplyATLASrounding(value, error);
         out << YAML::Key << "value";
         out << YAML::Value << Form(("%."+std::to_string(n)+"f").c_str(),value);
