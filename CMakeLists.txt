@@ -42,6 +42,9 @@ if(NOT DEFINED ENV{AtlasProject})
   add_subdirectory( CommonStatTools )
 endif()
 
+set( YAML_CPP_BUILD_TESTS OFF )
+set( YAML_CPP_BUILD_TOOLS OFF )
+
 # include yaml-cpp library
 include_directories( yaml-cpp )
 if(NOT DEFINED ENV{AtlasProject})
