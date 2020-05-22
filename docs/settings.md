@@ -189,6 +189,7 @@ The following settings are for normal fits, performed without the action `m`.
 | DoNonProfileFitSystThreshold | When performing a NonProfileFit, systematics are not added to total if smaller than this threshold |
 | NPValuesFromFitResults       | If set to a valid path pointing to a fit-result text file, the NPValues for Asimov-data creation will be readed from it |
 | SetGlobalObservables         | If set to TRUE (default is FALASE), and if NPValues or NPValuesFromFitResults are set, also the global observables are shifted in the Likelihood according to the parameter values |
+| HEPDataFormat                | If set to TRUE (default is FALASE), will produce outputs in HEPData format |
 
 
 ### `Limit block` settings

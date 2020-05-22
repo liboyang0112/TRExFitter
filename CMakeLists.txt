@@ -26,7 +26,7 @@ set( CMAKE_LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/lib )
 set( CMAKE_INSTALL_LIBDIR ${CMAKE_BINARY_DIR}/lib )  # Needed by ROOT_GENERATE_DICTIONARY()
 
 # Set the warning flag(s) to use.
-set( CMAKE_CXX_FLAGS "-Wall -Wextra -Wshadow -pedantic -O3 -g" )
+set( CMAKE_CXX_FLAGS "-Wall -Wextra -Wshadow -pedantic -O3 -g -fPIC" )
 
 
 # ------------------------------------------------
@@ -41,6 +41,9 @@ include_directories( CommonStatTools )
 if(NOT DEFINED ENV{AtlasProject})
   add_subdirectory( CommonStatTools )
 endif()
+
+set( YAML_CPP_BUILD_TESTS OFF )
+set( YAML_CPP_BUILD_TOOLS OFF )
 
 # include yaml-cpp library
 include_directories( yaml-cpp )
@@ -115,7 +118,8 @@ set( lib_headers
   TRExFitter/TRExPlot.h
   TRExFitter/TruthSample.h
   TRExFitter/UnfoldingSample.h
-  TRExFitter/UnfoldingSystematic.h)
+  TRExFitter/UnfoldingSystematic.h
+  TRExFitter/YamlConverter.h)
 
 # Source files for the shared/static library.
 set( lib_sources
@@ -144,7 +148,8 @@ set( lib_sources
   Root/TRExPlot.cc
   Root/TruthSample.cc
   Root/UnfoldingSample.cc
-  Root/UnfoldingSystematic.cc )
+  Root/UnfoldingSystematic.cc
+  Root/YamlConverter.cc )
 
 # Build the shared library.
 add_library( TRExFitter SHARED ${lib_headers} ${lib_sources} )

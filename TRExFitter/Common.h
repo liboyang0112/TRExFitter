@@ -146,6 +146,8 @@ int ApplyErrorRounding(double& error, int& sig);
   */
 void RoundToSig(double& value, const int& n);
 
+std::string KeepSignificantDigits(double value, const int n);
+
 std::string DoubleToPseudoHex(const double value);
 
 double HexToDouble(const std::string& s);

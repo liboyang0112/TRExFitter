@@ -799,6 +799,58 @@ void Common::RoundToSig(double& value,
 
 //___________________________________________________________
 //
+std::string Common::KeepSignificantDigits(double value, const int n) {
+    if (n < 1) {
+        WriteWarningStatus("Common::KeepSignificantDigits", "Number of significant digits < 1");
+        return "n/a";
+    }
+    int iterations(0);
+    if (value > 0) {
+        if (value > std::pow(10,n)) {
+            while (value > std::pow(10,n)) {
+                value/=10;
+                ++iterations;
+            }
+            value = std::round(value);
+            value*= std::pow(10,iterations); 
+            return Form("%.f", value);
+        } else {
+            while (value < std::pow(10,n-1)) {
+                value*=10;
+                ++iterations;
+            }
+            value = std::round(value);
+            value/= std::pow(10,iterations); 
+            return Form(("%."+std::to_string(iterations)+"f").c_str(), value);
+        }
+    } else if (value < 0){
+        if (value < -std::pow(10,n)) {
+            while (value < -std::pow(10,n)) {
+                value/=10;
+                ++iterations;
+            }
+            value = std::round(value);
+            value*= std::pow(10,iterations); 
+            return Form("%.f", value);
+        } else {
+            while (value > -std::pow(10,n-1)) {
+                value*=10;
+                ++iterations;
+            }
+            value = std::round(value);
+            value/= std::pow(10,iterations); 
+            return Form(("%."+std::to_string(iterations)+"f").c_str(), value);
+        }
+    } else {
+        return "0";
+    }
+    
+    WriteWarningStatus("Common::KeepSignificantDigits", "This should never be reached");
+    return "n/a";
+}
+
+//___________________________________________________________
+//
 unsigned int Common::NCharactersInString(const std::string& s,
                                          const char c){
     unsigned int N = 0;
