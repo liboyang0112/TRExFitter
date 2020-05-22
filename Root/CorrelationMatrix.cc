@@ -138,12 +138,12 @@ void CorrelationMatrix::Draw(const std::string& path, const bool& useGammas, con
         const string iSystName = vec_NP[iNP];
 
         if(TRExFitter::SYSTMAP[iSystName]!=""){
-            h_corr.GetXaxis()->SetBinLabel(iNP+1,(TString)TRExFitter::SYSTMAP[iSystName]);
-            h_corr.GetYaxis()->SetBinLabel(N-iNP,(TString)TRExFitter::SYSTMAP[iSystName]);
+            h_corr.GetXaxis()->SetBinLabel(iNP+1,TRExFitter::SYSTMAP[iSystName].c_str());
+            h_corr.GetYaxis()->SetBinLabel(N-iNP,TRExFitter::SYSTMAP[iSystName].c_str());
         }
         else{
-            h_corr.GetXaxis()->SetBinLabel(iNP+1,(TString)iSystName);
-            h_corr.GetYaxis()->SetBinLabel(N-iNP,(TString)iSystName);
+            h_corr.GetXaxis()->SetBinLabel(iNP+1,iSystName.c_str());
+            h_corr.GetYaxis()->SetBinLabel(N-iNP,iSystName.c_str());
         }
 
         for(unsigned int jNP = 0; jNP < vec_NP.size(); ++jNP){//column number
