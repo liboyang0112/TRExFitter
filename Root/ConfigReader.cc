@@ -1194,6 +1194,20 @@ int ConfigReader::ReadJobOptions(){
             fFitter->fBlindSRs = false;
         }
     }
+    
+    // Set HEPDataFormat
+    param = confSet->Get("HEPDataFormat");
+    if( param != "" ){
+        std::transform(param.begin(), param.end(), param.begin(), ::toupper);
+        if (param == "TRUE") {
+            fFitter->fHEPDataFormat = true;
+        } else if (param == "FALSE") {
+            fFitter->fHEPDataFormat = false;
+        } else {
+            WriteWarningStatus("ConfigReader::ReadJobOptions", "You specified 'HEPDataFormat' option but you did not provide valid setting. Using default (false)");
+            fFitter->fHEPDataFormat = false;
+        }
+    }
 
     // success
     return 0;

@@ -2778,6 +2778,6 @@ Real time 0:00:00, CP time 0.010
 [1;32m=== INFO::FittingTool::FitPDF:    -> Final value of offset = 468.648461[0m
 [1;32m=== INFO::FittingTool::FitPDF:    -> Final NLL - offset = 30.875310[0m
 ls: cannot access FitExample/Fits/NPRanking_*: No such file or directory
-^[[1;32m=== INFO::YamlConverter::WriteRanking: Writing ranking yaml file to: FitExample/Ranking.yaml^[[0m
+[1;32m=== INFO::YamlConverter::WriteRanking: Writing ranking yaml file to: FitExample/Ranking.yaml[0m
 === DEBUG::TRExFit::PlotNPRanking: NP ordering...
 Info in <TCanvas::Print>: png file FitExample/Ranking.png has been created

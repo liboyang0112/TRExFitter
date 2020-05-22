@@ -824,6 +824,7 @@ public:
     bool fUseInComparison;
     bool fReorderNPs;
     bool fBlindSRs;
+    bool fHEPDataFormat;
 };
 
 #endif

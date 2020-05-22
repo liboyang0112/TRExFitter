@@ -273,7 +273,8 @@ TRExFit::TRExFit(std::string name) :
     fUseInFit(true),
     fUseInComparison(true),
     fReorderNPs(false),
-    fBlindSRs(false)
+    fBlindSRs(false),
+    fHEPDataFormat(false)
 {
     TRExFitter::IMAGEFORMAT.emplace_back("png");
     // Increase the limit for formula evaluations
