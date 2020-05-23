@@ -4972,6 +4972,7 @@ void TRExFit::PlotCorrelationMatrix(){
     ReadFitResults(fName+"/Fits/"+fInputName+fSuffix+".txt");
     if(fFitResults){
         fFitResults->fNuisParToHide = fVarNameHide;
+        fFitResults->fOutFolder = fName;
         for(const auto& format : TRExFitter::IMAGEFORMAT) {
             fFitResults->DrawCorrelationMatrix(fName+"/CorrMatrix"+fSuffix+"."+format,
                                                fuseGammasForCorr,

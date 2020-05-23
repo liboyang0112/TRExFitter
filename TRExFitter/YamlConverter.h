@@ -40,6 +40,13 @@ public:
     void WriteRankingHEPData(const std::vector<RankingContainer>& ranking,
                              const std::string& folder) const;
     
+    void WriteCorrelation(const std::vector<std::string>& np,
+                          const std::vector<std::vector<double> >& corr,
+                          const std::string& path) const;
+    
+    void WriteCorrelationHEPData(const std::vector<std::string>& np,
+                                 const std::vector<std::vector<double> >& corr,
+                                 const std::string& path) const;
 
 private:
     std::string m_lumi;

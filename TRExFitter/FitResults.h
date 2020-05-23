@@ -57,6 +57,7 @@ public:
 
     std::vector < std::shared_ptr<NuisParameter> > fNuisPar;
     std::unique_ptr<CorrelationMatrix> fCorrMatrix;
+    std::string fOutFolder;
 
     int fPOIPrecision;
 

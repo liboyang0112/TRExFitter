@@ -244,3 +244,15 @@ void YamlConverter::AddValueErrors(YAML::Emitter& out,
         out << YAML::EndSeq;
     }
 }
+
+
+void YamlConverter::WriteCorrelation(const std::vector<std::string>& np,
+                                     const std::vector<std::vector<double> >& corr,
+                                     const std::string& path) const {
+}
+    
+void YamlConverter::WriteCorrelationHEPData(const std::vector<std::string>& np,
+                                            const std::vector<std::vector<double> >& corr,
+                                            const std::string& folder) const {
+
+}

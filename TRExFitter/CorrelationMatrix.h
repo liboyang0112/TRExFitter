@@ -43,6 +43,7 @@ public:
     std::vector<std::string> fNuisParToHide;
     std::vector<std::string> fNuisParList;
     std::vector<std::vector<double> > fMatrix;
+    std::string fOutFolder;
 };
 
 #endif
