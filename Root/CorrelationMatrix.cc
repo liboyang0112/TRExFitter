@@ -4,6 +4,7 @@
 // Framework includes
 #include "TRExFitter/Common.h"
 #include "TRExFitter/StatusLogbook.h"
+#include "TRExFitter/YamlConverter.h"
 
 // ROOT includes
 #include "TCanvas.h"
@@ -15,7 +16,8 @@ using std::string;
 
 //__________________________________________________________________________________
 //
-CorrelationMatrix::CorrelationMatrix() {
+CorrelationMatrix::CorrelationMatrix() :
+    fOutFolder("") {
 }
 
 //__________________________________________________________________________________
@@ -69,19 +71,28 @@ double CorrelationMatrix::GetCorrelation(const string& p0, const string& p1){
 
 //__________________________________________________________________________________
 //
-void CorrelationMatrix::Draw(const std::string& path, const bool& useGammas, const double minCorr){
+void CorrelationMatrix::Draw(const std::vector<std::string>& path, const bool& useGammas, const bool useHEPDataFormat, const double minCorr){
     //
     // 0) Determines the number of lines/columns
     //
     std::vector < string > vec_NP = fNuisParNames;
+    std::vector<std::vector<double> > correlations(fNuisParNames.size(), std::vector<double>(fNuisParNames.size()));
+    for(unsigned int iNP = 0; iNP < fNuisParNames.size(); ++iNP){
+        const string iSystName = fNuisParNames[iNP];
+        for(unsigned int jNP = 0; jNP < fNuisParNames.size(); ++jNP){
+            const string jSystName = fNuisParNames[jNP];
+            const double corr = GetCorrelation(iSystName, jSystName);
+            correlations.at(iNP).at(jNP) = corr;
+        }
+    }
     if(minCorr>-1){
         vec_NP.clear();
         for(unsigned int iNP = 0; iNP < fNuisParNames.size(); ++iNP){
             const string iSystName = fNuisParNames[iNP];
             for(unsigned int jNP = 0; jNP < fNuisParNames.size(); ++jNP){
-                if(jNP == iNP) continue;
                 const string jSystName = fNuisParNames[jNP];
-                double corr = GetCorrelation(iSystName, jSystName);
+                if(jNP == iNP) continue;
+                const double corr = GetCorrelation(iSystName, jSystName);
                 if(std::fabs(corr)>=minCorr){
                     WriteVerboseStatus("CorrelationMatrix::Draw", iSystName + " " + std::to_string(minCorr) + "    " + std::to_string(corr) + " (" + jSystName + ")");
                     vec_NP.push_back(iSystName);
@@ -91,6 +102,13 @@ void CorrelationMatrix::Draw(const std::string& path, const bool& useGammas, con
         }
     }
     int N = vec_NP.size();
+
+    // pass everythign to yaml converter
+    YamlConverter converter{};
+    converter.WriteCorrelation(fNuisParNames, correlations, fOutFolder);
+    if (useHEPDataFormat) {
+        converter.WriteCorrelationHEPData(fNuisParNames, correlations, fOutFolder);
+    }
 
     //
     // 0.5) Skip some NPs
@@ -184,5 +202,7 @@ void CorrelationMatrix::Draw(const std::string& path, const bool& useGammas, con
     h_corr.Draw("col TEXT");
     c1.RedrawAxis("g");
 
-    c1.SaveAs(path.c_str());
+    for (const auto& ipath : path) {
+        c1.SaveAs(ipath.c_str());
+    }
 }

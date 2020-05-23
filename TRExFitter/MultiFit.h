@@ -180,6 +180,7 @@ public:
     bool fuseGammasForCorr;
 
     double fPOIInitial;
+    bool fHEPDataFormat;
     std::vector<std::string> fConfigPaths;
 };
 

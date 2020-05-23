@@ -351,20 +351,20 @@ RooAbsTestStatistic::initSimMode: creating slave calculator #0 for state SR1 (11
 [1;32m=== INFO::FittingTool::FitPDF:  ---> Setting Bin_9 to 1.000000[0m
 [#1] INFO:Minization -- RooNLLVar::evaluatePartition(SR1) first = 0 last = 11 Likelihood offset now set to 967.993
 === DEBUG::FittingTool::FitPDF:    -> Initial value of the NLL = 972.749336
-  1) 0x3e5af10 RooRealVar::                  Bin_1 = 0  L(-100 - 100)  "Bin_1"
-  2) 0x3f4c950 RooRealVar::                 Bin_10 = 1  L(-100 - 100)  "Bin_10"
-  3) 0x3f66e10 RooRealVar::                 Bin_11 = 1  L(-100 - 100)  "Bin_11"
-  4) 0x3e755d0 RooRealVar::                  Bin_2 = 1  L(-100 - 100)  "Bin_2"
-  5) 0x3e93ed0 RooRealVar::                  Bin_3 = 1  L(-100 - 100)  "Bin_3"
-  6) 0x3eae570 RooRealVar::                  Bin_4 = 1  L(-100 - 100)  "Bin_4"
-  7) 0x3ec8e10 RooRealVar::                  Bin_5 = 1  L(-100 - 100)  "Bin_5"
-  8) 0x3ee32d0 RooRealVar::                  Bin_6 = 1  L(-100 - 100)  "Bin_6"
-  9) 0x3efd740 RooRealVar::                  Bin_7 = 1  L(-100 - 100)  "Bin_7"
- 10) 0x3f17be0 RooRealVar::                  Bin_8 = 1  L(-100 - 100)  "Bin_8"
- 11) 0x3f32490 RooRealVar::                  Bin_9 = 1  L(-100 - 100)  "Bin_9"
- 12) 0x3e164f0 RooRealVar::         alpha_Bkg_norm = 0  L(-5 - 5)  "alpha_Bkg_norm"
- 13) 0x3e180b0 RooRealVar::               alpha_PS = 0  L(-5 - 5)  "alpha_PS"
- 14) 0x3e145e0 RooRealVar:: alpha_bTag_SF_B_eigen0 = 0  L(-5 - 5)  "alpha_bTag_SF_B_eigen0"
+  1) 0x31b1480 RooRealVar::                  Bin_1 = 0  L(-100 - 100)  "Bin_1"
+  2) 0x32a2ec0 RooRealVar::                 Bin_10 = 1  L(-100 - 100)  "Bin_10"
+  3) 0x32bd380 RooRealVar::                 Bin_11 = 1  L(-100 - 100)  "Bin_11"
+  4) 0x31cbb40 RooRealVar::                  Bin_2 = 1  L(-100 - 100)  "Bin_2"
+  5) 0x31ea440 RooRealVar::                  Bin_3 = 1  L(-100 - 100)  "Bin_3"
+  6) 0x3204ae0 RooRealVar::                  Bin_4 = 1  L(-100 - 100)  "Bin_4"
+  7) 0x321f380 RooRealVar::                  Bin_5 = 1  L(-100 - 100)  "Bin_5"
+  8) 0x3239840 RooRealVar::                  Bin_6 = 1  L(-100 - 100)  "Bin_6"
+  9) 0x3253cb0 RooRealVar::                  Bin_7 = 1  L(-100 - 100)  "Bin_7"
+ 10) 0x326e150 RooRealVar::                  Bin_8 = 1  L(-100 - 100)  "Bin_8"
+ 11) 0x3288a00 RooRealVar::                  Bin_9 = 1  L(-100 - 100)  "Bin_9"
+ 12) 0x316ca60 RooRealVar::         alpha_Bkg_norm = 0  L(-5 - 5)  "alpha_Bkg_norm"
+ 13) 0x316e620 RooRealVar::               alpha_PS = 0  L(-5 - 5)  "alpha_PS"
+ 14) 0x316ab50 RooRealVar:: alpha_bTag_SF_B_eigen0 = 0  L(-5 - 5)  "alpha_bTag_SF_B_eigen0"
 [#1] INFO:Fitting -- RooAddition::defaultErrorLevel(nll_simPdf_newasimovData_with_constr) Summation contains a RooNLLVar, using its error level
 [1;32m=== INFO::FittingTool::FitPDF: [0m
 [1;32m=== INFO::FittingTool::FitPDF: [0m
@@ -425,7 +425,7 @@ Info in Minuit2Minimizer::Hesse : Hesse is valid - matrix is accurate
 [1;32m=== INFO::FittingTool::FitPDF:             - hess status 0[0m
 [1;32m=== INFO::FittingTool::FitPDF:             - Edm = 0.000501[0m
 [1;32m=== INFO::FittingTool::FitPDF: ***********************************************************[0m
-Real time 0:00:00, CP time 0.080
+Real time 0:00:00, CP time 0.110
 [1;32m=== INFO::FittingTool::FitPDF: [0m
 [1;32m=== INFO::FittingTool::FitPDF: [0m
 [1;32m=== INFO::FittingTool::FitPDF: [0m
@@ -453,7 +453,6 @@ Info in <TCanvas::Print>: png file FitExampleUnfolding/Gammas.png has been creat
 Info in <TCanvas::Print>: png file FitExampleUnfolding/NormFactors.png has been created
 [1;32m=== INFO::TRExFit::ReadFitResults: ------------------------------------------------------[0m
 [1;32m=== INFO::TRExFit::ReadFitResults: Reading fit results from file [0m
-Info in <TCanvas::Print>: png file FitExampleUnfolding/CorrMatrix.png has been created
 === DEBUG::FitResults::ReadFromTXT: --------------------
 === DEBUG::FitResults::ReadFromTXT: Reading Nuisance Parameters...
 === DEBUG::FitResults::ReadFromTXT: --------------------
@@ -465,5 +464,7 @@ Info in <TCanvas::Print>: png file FitExampleUnfolding/CorrMatrix.png has been c
 === DEBUG::FitResults::ReadFromTXT: --------------------
 === DEBUG::FitResults::ReadFromTXT: Found 14 systematics.
 === DEBUG::FitResults::ReadFromTXT: Negative Log-Likelihood value NLL = -911.568000
+[1;32m=== INFO::YamlConverter::Write: Writing correlation yaml file to: FitExampleUnfolding/CorrelationMatrix.yaml[0m
+Info in <TCanvas::Print>: png file FitExampleUnfolding/CorrMatrix.png has been created
 [1;32m=== INFO::TRExFit::PlotUnfoldedData: Producing unfolded plots...[0m
 Info in <TCanvas::Print>: png file FitExampleUnfolding/UnfoldedData.png has been created

@@ -42,16 +42,7 @@ void YamlConverter::WriteRanking(const std::vector<YamlConverter::RankingContain
     out << YAML::EndSeq;
 
     // Write to the file
-    WriteInfoStatus("YamlConverter::WriteRanking", "Writing ranking yaml file to: " + path);
-    std::ofstream file;
-    file.open(path.c_str());
-    if (!file.is_open()) {
-        WriteWarningStatus("YamlConverter::WriteRanking", "Cannot open yaml file at: " + path);
-        return;
-    }
-
-    file << out.c_str();
-    file.close();
+    Write(out, "ranking", path);
 }
     
 void YamlConverter::WriteRankingHEPData(const std::vector<RankingContainer>& ranking,
@@ -160,16 +151,7 @@ void YamlConverter::WriteRankingHEPData(const std::vector<RankingContainer>& ran
     out << YAML::EndMap;
     
     // Write to the file
-    WriteInfoStatus("YamlConverter::WriteRankingHEPData", "Writing HEPData ranking yaml file to: " + folder + "/HEPData/Ranking.yaml");
-    std::ofstream file;
-    file.open((folder + "/HEPData/Ranking.yaml").c_str());
-    if (!file.is_open()) {
-        WriteWarningStatus("YamlConverter::WriteRankingHEPData", "Cannot open yaml file at: " + folder + "/HEPData/Ranking.yaml");
-        return;
-    }
-
-    file << out.c_str();
-    file.close();
+    Write(out, "HEPData ranking", folder + "/HEPData/Ranking.yaml");
 }
 
 void YamlConverter::AddQualifiers(YAML::Emitter& out) const {
@@ -200,10 +182,10 @@ void YamlConverter::AddValueErrors(YAML::Emitter& out,
                                    const double down) const {
     
     double value = mean;
-    if ((std::fabs(up) - std::fabs(down)) < 0.1) {
-        // are symmetric
+    if ((std::fabs(down) > 1e-6) && (std::fabs(up/down) > 0.9) && (std::fabs(up/down) < 1.1)) {
         double error = 0.5*(std::fabs(up) + std::fabs(down)) ;
         const int n = Common::ApplyATLASrounding(value, error);
+        // are symmetric
         out << YAML::Key << "value";
         out << YAML::Value << Form(("%."+std::to_string(n)+"f").c_str(),value);
         out << YAML::Key << "errors";
@@ -218,7 +200,7 @@ void YamlConverter::AddValueErrors(YAML::Emitter& out,
         out << YAML::EndMap;
         out << YAML::EndSeq;
     } else {
-        double error = 0.5*(up-down);
+        double error = std::min(std::fabs(up),std::fabs(down));
         const int n = Common::ApplyATLASrounding(value, error);
         out << YAML::Key << "value";
         out << YAML::Value << Form(("%."+std::to_string(n)+"f").c_str(),value);
@@ -228,11 +210,154 @@ void YamlConverter::AddValueErrors(YAML::Emitter& out,
         out << YAML::Key << "asymerror";
         out << YAML::Value << YAML::BeginMap;
             out << YAML::Key << "plus";
-            out << YAML::Key << Form(("%."+std::to_string(n)+"f").c_str(),up);
+            if (n >= 0) {
+                out << YAML::Key << Form(("%."+std::to_string(n)+"f").c_str(),up);
+            } else {
+                out << YAML::Key << Form("%.f",up);
+            }
             out << YAML::Key << "minus";
-            out << YAML::Key << Form(("%."+std::to_string(n)+"f").c_str(),down);
+            if (n >= 0) {
+                out << YAML::Key << Form(("%."+std::to_string(n)+"f").c_str(),down);
+            } else {
+                out << YAML::Key << Form("%.f",down);
+            }
         out << YAML::EndMap;
         out << YAML::EndMap;
         out << YAML::EndSeq;
     }
+}
+
+
+void YamlConverter::Write(const YAML::Emitter& out, const std::string& type, const std::string& path) const {
+    WriteInfoStatus("YamlConverter::Write", "Writing " + type + " yaml file to: " + path);
+    std::ofstream file;
+    file.open(path.c_str());
+    if (!file.is_open()) {
+        WriteWarningStatus("YamlConverter::Write", "Cannot open yaml file at: " + path);
+        return;
+    }
+
+    file << out.c_str();
+    file.close();
+}
+
+void YamlConverter::WriteCorrelation(const std::vector<std::string>& np,
+                                     const std::vector<std::vector<double> >& corr,
+                                     const std::string& path) const {
+
+    const std::size_t n = np.size();
+    if (corr.size() != n) {
+        WriteWarningStatus("YamlConverter::WriteCorrelation", "Inconsistent inputs!");
+        return;
+    }
+
+    YAML::Emitter out;
+    out << YAML::BeginSeq;
+    out << YAML::BeginMap;
+    out << YAML::Key << "parameters";
+    out << YAML::Value << YAML::BeginSeq;
+    for (const auto& iname : np) {
+        out << iname;
+    }
+    out << YAML::EndSeq;
+    out << YAML::EndMap;
+    out << YAML::BeginMap;
+    out << YAML::Key << "correlation_rows";
+    out << YAML::Value << YAML::BeginSeq;
+    for (const auto& icorr : corr) {
+        if (icorr.size() != n) {
+            WriteWarningStatus("YamlConverter::WriteCorrelation", "Inconsistent inputs for correlation!");
+            return;
+        }
+        out << YAML::Flow << YAML::BeginSeq;
+        for (const auto& i : icorr) {
+            out << Form("%.4f",i);
+        }
+        out << YAML::EndSeq;
+    }
+    out << YAML::EndSeq;
+    out << YAML::EndMap;
+    out << YAML::EndSeq;
+
+    Write(out, "correlation", path+"/CorrelationMatrix.yaml");
+}
+    
+void YamlConverter::WriteCorrelationHEPData(const std::vector<std::string>& np,
+                                            const std::vector<std::vector<double> >& corr,
+                                            const std::string& folder) const {
+
+    gSystem->mkdir((folder+"/HEPData").c_str());
+
+    const std::size_t n = np.size();
+    if (corr.size() != n) {
+        WriteWarningStatus("YamlConverter::WriteCorrelationHEPData", "Inconsistent inputs!");
+        return;
+    }
+
+    if (n > 100) {
+        WriteInfoStatus("YamlConverter::WriteCorrelationHEPData", "Processing matrix of more than 100x100 elements, this may take some time...");
+    }
+    
+    YAML::Emitter out;
+    out << YAML::BeginMap;
+    out << YAML::Key << "dependent_variables";
+    out << YAML::Value << YAML::BeginSeq;
+        out << YAML::BeginMap;
+        out << YAML::Key << "header";
+        out << YAML::Value << YAML::BeginMap << YAML::Key << "name" << YAML::Value << "NP correlations" << YAML::EndMap;
+        AddQualifiers(out);
+        out << YAML::Key << "values";
+        out << YAML::Value << YAML::BeginSeq;
+        for (const auto& icorr : corr) {
+            if (icorr.size() != n) {
+                WriteWarningStatus("YamlConverter::WriteCorrelationHEPData", "Inconsistent inputs for correlation!");
+                return;
+            }
+            for (const auto& i : icorr) {
+                out << YAML::BeginMap;
+                out << YAML::Key << "value";
+                out << YAML::Value << Form("%.2f", i);
+                out << YAML::EndMap;
+            }
+        }
+        out << YAML::EndSeq;
+        out << YAML::EndMap;
+    out << YAML::EndSeq;
+    out << YAML::Key << "independent_variables";
+    out << YAML::Value << YAML::BeginSeq;
+        out << YAML::BeginMap;
+        out << YAML::Key << "header";
+        out << YAML::Value << YAML::BeginMap << YAML::Key << "name" << YAML::Value << "NPs" << YAML::EndMap;
+        out << YAML::Key << "values";
+        out << YAML::Value << YAML::BeginSeq;
+        for (std::size_t inp = 0; inp < n; ++inp) {
+            for (std::size_t jnp = 0; jnp < n; ++jnp) {
+                out << YAML::BeginMap;
+                out << YAML::Key << "value";
+                out << np.at(inp);
+                out << YAML::EndMap;
+            }
+        }
+        out << YAML::EndSeq;
+        out << YAML::EndMap;
+        out << YAML::BeginMap;
+        out << YAML::Key << "header";
+        out << YAML::Value << YAML::BeginMap << YAML::Key << "name" << YAML::Value << "NPs" << YAML::EndMap;
+        out << YAML::Key << "values";
+        out << YAML::Value << YAML::BeginSeq;
+        for (std::size_t inp = 0; inp < n; ++inp) {
+            for (std::size_t jnp = 0; jnp < n; ++jnp) {
+                out << YAML::BeginMap;
+                out << YAML::Key << "value";
+                out << np.at(jnp);
+                out << YAML::EndMap;
+            }
+        }
+        out << YAML::EndSeq;
+        out << YAML::EndMap;
+    out << YAML::EndSeq;
+    out << YAML::EndMap;
+
+    Write(out, "HEPData correlation", folder+"/HEPData/Correlation.yaml");
+
 }

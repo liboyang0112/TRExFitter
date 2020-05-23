@@ -40,6 +40,13 @@ public:
     void WriteRankingHEPData(const std::vector<RankingContainer>& ranking,
                              const std::string& folder) const;
     
+    void WriteCorrelation(const std::vector<std::string>& np,
+                          const std::vector<std::vector<double> >& corr,
+                          const std::string& path) const;
+    
+    void WriteCorrelationHEPData(const std::vector<std::string>& np,
+                                 const std::vector<std::vector<double> >& corr,
+                                 const std::string& path) const;
 
 private:
     std::string m_lumi;
@@ -51,6 +58,8 @@ private:
                        const double mean,
                        const double up,
                        const double down) const;
+
+    void Write(const YAML::Emitter& out, const std::string& type, const std::string& path) const;
 };
 
 #endif
