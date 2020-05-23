@@ -132,7 +132,8 @@ MultiFit::MultiFit(const string& name) :
     fSignificanceOutputPrefixName("mySignificance"),
     fShowTotalOnly(false),
     fuseGammasForCorr(false),
-    fPOIInitial(1.) {
+    fPOIInitial(1.),
+    fHEPDataFormat(false) {
 
     fNPCategories.emplace_back("");
 }
@@ -1565,9 +1566,12 @@ void MultiFit::PlotCombinedCorrelationMatrix() const{
     //plot the correlation matrix (considering only correlations larger than TRExFitter::CORRELATIONTHRESHOLD)
     fit->ReadFitResults(fOutDir+"/Fits/"+fName+fSaveSuf+".txt");
     if(fit->fFitResults){
+        fit->fFitResults->fOutFolder = fOutDir;
+        std::vector<std::string> formats;
         for(const auto& format : TRExFitter::IMAGEFORMAT) {
-            fit->fFitResults->DrawCorrelationMatrix(fOutDir+"/CorrMatrix_comb"+fSaveSuf+"."+format,fuseGammasForCorr,TRExFitter::CORRELATIONTHRESHOLD);
+            formats.emplace_back(fOutDir+"/CorrMatrix_comb"+fSaveSuf+"."+format);
         }
+        fit->fFitResults->DrawCorrelationMatrix(formats,fuseGammasForCorr, fHEPDataFormat, TRExFitter::CORRELATIONTHRESHOLD);
     }
 }
 

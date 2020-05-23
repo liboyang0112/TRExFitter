@@ -106,7 +106,7 @@ int ConfigReaderMulti::ReadCommandLineOptions(const std::string &option){
 
 //_______________________________________________________________________________________
 //
-int ConfigReaderMulti::ReadJobOptions(){
+int ConfigReaderMulti::ReadJobOptions() {
     std::string param = "";
     ConfigSet *confSet = fParser.GetConfigSet("MultiFit");
     if (confSet == nullptr){
@@ -506,7 +506,7 @@ int ConfigReaderMulti::ReadJobOptions(){
     param = confSet->Get("LHscanMinY");
     if ( param != "" ) {
         if (fMultiFitter->fVarNameLH.size() == 0 && fMultiFitter->fVarName2DLH.size() == 0){
-            WriteWarningStatus("ConfigReaderMulti::ReadFitOptions", "You specified 'LHscanMinY' option but did not set doLHscan. Ignoring");
+            WriteWarningStatus("ConfigReaderMulti::ReadJobOptions", "You specified 'LHscanMinY' option but did not set doLHscan. Ignoring");
         } else {
             fMultiFitter->fLHscanMinY = std::stof(param);
         }
@@ -516,7 +516,7 @@ int ConfigReaderMulti::ReadJobOptions(){
     param = confSet->Get("LHscanMaxY");
     if ( param != "" ) {
         if (fMultiFitter->fVarNameLH.size() == 0 && fMultiFitter->fVarName2DLH.size() == 0){
-            WriteWarningStatus("ConfigReaderMulti::ReadFitOptions", "You specified 'LHscanMaxY' option but did not set doLHscan. Ignoring");
+            WriteWarningStatus("ConfigReaderMulti::ReadJobOptions", "You specified 'LHscanMaxY' option but did not set doLHscan. Ignoring");
         } else {
             fMultiFitter->fLHscanMaxY = std::stof(param);
         }
@@ -526,11 +526,11 @@ int ConfigReaderMulti::ReadJobOptions(){
     param = confSet->Get("LHscanStepsY");
     if ( param != "" ) {
         if (fMultiFitter->fVarName2DLH.size() == 0){
-            WriteWarningStatus("ConfigReaderMulti::ReadFitOptions", "You specified 'LHscanStepsY' option but did not set doLHscan. Ignoring");
+            WriteWarningStatus("ConfigReaderMulti::ReadJobOptions", "You specified 'LHscanStepsY' option but did not set doLHscan. Ignoring");
         } else {
             fMultiFitter->fLHscanStepsY = std::stoi(param);
             if(fMultiFitter->fLHscanStepsY < 3 || fMultiFitter->fLHscanStepsY > 100){
-                WriteWarningStatus("ConfigReaderMulti::ReadFitOptions", "LHscanSteps is smaller than 3 or larger than 100, setting to defaut (30)");
+                WriteWarningStatus("ConfigReaderMulti::ReadJobOptions", "LHscanSteps is smaller than 3 or larger than 100, setting to defaut (30)");
                 fMultiFitter->fLHscanStepsY = fMultiFitter->fLHscanSteps;
             }
         }
@@ -547,7 +547,7 @@ int ConfigReaderMulti::ReadJobOptions(){
         } else if (param == "FALSE") {
             fMultiFitter->fParal2D = false;
         } else {
-            WriteWarningStatus("ConfigReaderMulti::ReadFitOptions", "You specified 'Parallel2Dscan' option but did not provide valid parameter. Using default (false)");
+            WriteWarningStatus("ConfigReaderMulti::ReadJobOptions", "You specified 'Parallel2Dscan' option but did not provide valid parameter. Using default (false)");
             fMultiFitter->fParal2D = false;
         }
     }
@@ -557,7 +557,7 @@ int ConfigReaderMulti::ReadJobOptions(){
     if ( param != "" ) {
         fMultiFitter->fParal2Dstep = std::atoi( param.c_str());
         if (fMultiFitter->fParal2Dstep < 1 || fMultiFitter->fParal2Dstep>=fMultiFitter->fLHscanSteps ){
-            WriteErrorStatus("ConfigReaderMulti::ReadFitOptions", "You specified a step for 2D LHscan outside the allowed range.");
+            WriteErrorStatus("ConfigReaderMulti::ReadJobOptions", "You specified a step for 2D LHscan outside the allowed range.");
             return 1;
         }
     }
@@ -605,6 +605,21 @@ int ConfigReaderMulti::ReadJobOptions(){
     if( param != ""){
         fMultiFitter->fPOIInitial = std::stof(param);
     }
+    
+    // Set HEPDataFormat
+    param = confSet->Get("HEPDataFormat");
+    if( param != ""){
+        std::transform(param.begin(), param.end(), param.begin(), ::toupper);
+        if (param == "TRUE") {
+            fMultiFitter->fHEPDataFormat = true;
+        } else if (param == "FALSE") {
+            fMultiFitter->fHEPDataFormat = false;
+        } else {
+            WriteWarningStatus("ConfigReaderMulti::ReadJobOptions", "You specified 'HEPDataFormat' option but did not provide a valid option, using default (false)");
+            fMultiFitter->fHEPDataFormat = false;
+        }
+    }
+
 
     return 0;
 }

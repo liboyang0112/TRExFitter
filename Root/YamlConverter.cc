@@ -42,16 +42,7 @@ void YamlConverter::WriteRanking(const std::vector<YamlConverter::RankingContain
     out << YAML::EndSeq;
 
     // Write to the file
-    WriteInfoStatus("YamlConverter::WriteRanking", "Writing ranking yaml file to: " + path);
-    std::ofstream file;
-    file.open(path.c_str());
-    if (!file.is_open()) {
-        WriteWarningStatus("YamlConverter::WriteRanking", "Cannot open yaml file at: " + path);
-        return;
-    }
-
-    file << out.c_str();
-    file.close();
+    Write(out, "ranking", path);
 }
     
 void YamlConverter::WriteRankingHEPData(const std::vector<RankingContainer>& ranking,
@@ -160,16 +151,7 @@ void YamlConverter::WriteRankingHEPData(const std::vector<RankingContainer>& ran
     out << YAML::EndMap;
     
     // Write to the file
-    WriteInfoStatus("YamlConverter::WriteRankingHEPData", "Writing HEPData ranking yaml file to: " + folder + "/HEPData/Ranking.yaml");
-    std::ofstream file;
-    file.open((folder + "/HEPData/Ranking.yaml").c_str());
-    if (!file.is_open()) {
-        WriteWarningStatus("YamlConverter::WriteRankingHEPData", "Cannot open yaml file at: " + folder + "/HEPData/Ranking.yaml");
-        return;
-    }
-
-    file << out.c_str();
-    file.close();
+    Write(out, "HEPData ranking", folder + "/HEPData/Ranking.yaml");
 }
 
 void YamlConverter::AddQualifiers(YAML::Emitter& out) const {
@@ -246,9 +228,58 @@ void YamlConverter::AddValueErrors(YAML::Emitter& out,
 }
 
 
+void YamlConverter::Write(const YAML::Emitter& out, const std::string& type, const std::string& path) const {
+    WriteInfoStatus("YamlConverter::Write", "Writing " + type + " yaml file to: " + path);
+    std::ofstream file;
+    file.open(path.c_str());
+    if (!file.is_open()) {
+        WriteWarningStatus("YamlConverter::Write", "Cannot open yaml file at: " + path);
+        return;
+    }
+
+    file << out.c_str();
+    file.close();
+}
+
 void YamlConverter::WriteCorrelation(const std::vector<std::string>& np,
                                      const std::vector<std::vector<double> >& corr,
                                      const std::string& path) const {
+
+    const std::size_t n = np.size();
+    if (corr.size() != n) {
+        WriteWarningStatus("YamlConverter::WriteCorrelation", "Inconsistent inputs!");
+        return;
+    }
+
+    YAML::Emitter out;
+    out << YAML::BeginSeq;
+    out << YAML::BeginMap;
+    out << YAML::Key << "parameters";
+    out << YAML::Value << YAML::BeginSeq;
+    for (const auto& iname : np) {
+        out << iname;
+    }
+    out << YAML::EndSeq;
+    out << YAML::EndMap;
+    out << YAML::BeginMap;
+    out << YAML::Key << "correlation_rows";
+    out << YAML::Value << YAML::BeginSeq;
+    for (const auto& icorr : corr) {
+        if (icorr.size() != n) {
+            WriteWarningStatus("YamlConverter::WriteCorrelation", "Inconsistent inputs for correlation!");
+            return;
+        }
+        out << YAML::Flow << YAML::BeginSeq;
+        for (const auto& i : icorr) {
+            out << Form("%.4f",i);
+        }
+        out << YAML::EndSeq;
+    }
+    out << YAML::EndSeq;
+    out << YAML::EndMap;
+    out << YAML::EndSeq;
+
+    Write(out, "correlation", path+"/CorrelationMatrix.yaml");
 }
     
 void YamlConverter::WriteCorrelationHEPData(const std::vector<std::string>& np,
