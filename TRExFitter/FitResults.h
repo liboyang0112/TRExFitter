@@ -39,9 +39,10 @@ public:
       * Function to draw correlation matrix
       * @param Path to the output file
       * @param Flag to include gammas on the matrix
+      * @param Flag to set to use HEPData output format
       * @param Minimum correlation considered for plotting
       */
-    void DrawCorrelationMatrix(const std::string& path, const bool& useGammas, const double corrMin = -1. );
+    void DrawCorrelationMatrix(const std::string& path, const bool& useGammas, const bool useHEPDataFormat, const double corrMin = -1. );
     void SetPOIPrecision(const int& precision){fPOIPrecision = precision;}
 
     //

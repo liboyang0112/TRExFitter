@@ -533,10 +533,10 @@ void FitResults::DrawNPPulls( const std::string &path, const std::string &catego
 
 //__________________________________________________________________________________
 //
-void FitResults::DrawCorrelationMatrix(const std::string& path, const bool& useGammas, const double corrMin){
+void FitResults::DrawCorrelationMatrix(const std::string& path, const bool& useGammas, const bool useHEPDataFormat, const double corrMin) {
     if(fCorrMatrix){
         fCorrMatrix->fNuisParToHide = fNuisParToHide;
         fCorrMatrix->fNuisParList = fNuisParList;
-        fCorrMatrix->Draw(path, useGammas, corrMin);
+        fCorrMatrix->Draw(path, useGammas, useHEPDataFormat, corrMin);
     }
 }

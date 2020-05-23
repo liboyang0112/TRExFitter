@@ -69,7 +69,7 @@ double CorrelationMatrix::GetCorrelation(const string& p0, const string& p1){
 
 //__________________________________________________________________________________
 //
-void CorrelationMatrix::Draw(const std::string& path, const bool& useGammas, const double minCorr){
+void CorrelationMatrix::Draw(const std::string& path, const bool& useGammas, const bool HEPDataFormat, const double minCorr){
     //
     // 0) Determines the number of lines/columns
     //

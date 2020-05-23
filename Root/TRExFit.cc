@@ -4975,6 +4975,7 @@ void TRExFit::PlotCorrelationMatrix(){
         for(const auto& format : TRExFitter::IMAGEFORMAT) {
             fFitResults->DrawCorrelationMatrix(fName+"/CorrMatrix"+fSuffix+"."+format,
                                                fuseGammasForCorr,
+                                               fHEPDataFormat,
                                                TRExFitter::CORRELATIONTHRESHOLD);
         }
     }
