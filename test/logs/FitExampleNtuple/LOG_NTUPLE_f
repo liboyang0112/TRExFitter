@@ -163,3 +163,4 @@ Minos: Upper error for parameter mu_XS_ttH  :  0.463039
 [1;32m=== INFO::TRExFit::ReadFitResults: Reading fit results from file [0m
 [1;32m=== INFO::TRExFit::ReadFitResults: ------------------------------------------------------[0m
 [1;32m=== INFO::TRExFit::ReadFitResults: Reading fit results from file [0m
+[1;32m=== INFO::YamlConverter::Write: Writing correlation yaml file to: FitExampleNtuple/CorrelationMatrix.yaml[0m

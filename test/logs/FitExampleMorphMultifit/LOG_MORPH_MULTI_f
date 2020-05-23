@@ -222,6 +222,7 @@ Comparing fits...
 [1;32m=== INFO::TRExFit::ReadFitResults: Reading fit results from file [0m
 [1;32m=== INFO::TRExFit::ReadFitResults: ------------------------------------------------------[0m
 [1;32m=== INFO::TRExFit::ReadFitResults: Reading fit results from file [0m
+[1;32m=== INFO::YamlConverter::Write: Writing correlation yaml file to: ./FitExampleMorphMultifit/CorrelationMatrix.yaml[0m
 [1;32m=== INFO::MultiFit::ComparePOI: Adding Fit: FitExampleMorphing, SingleLep, [0m
 [1;32m=== INFO::MultiFit::ComparePOI: Adding Fit: FitExampleMorphingDilep, Dilep, [0m
 [1;32m=== INFO::MultiFit::ComparePOI: Adding Combined Fit[0m
