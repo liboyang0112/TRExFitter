@@ -286,4 +286,78 @@ void YamlConverter::WriteCorrelationHEPData(const std::vector<std::string>& np,
                                             const std::vector<std::vector<double> >& corr,
                                             const std::string& folder) const {
 
+    gSystem->mkdir((folder+"/HEPData").c_str());
+
+    const std::size_t n = np.size();
+    if (corr.size() != n) {
+        WriteWarningStatus("YamlConverter::WriteCorrelationHEPData", "Inconsistent inputs!");
+        return;
+    }
+
+    if (n > 100) {
+        WriteInfoStatus("YamlConverter::WriteCorrelationHEPData", "Processing matrix of more than 100x100 elements, this may take some time...");
+    }
+    
+    YAML::Emitter out;
+    out << YAML::BeginMap;
+    out << YAML::Key << "dependent_variables";
+    out << YAML::Value << YAML::BeginSeq;
+        out << YAML::BeginMap;
+        out << YAML::Key << "header";
+        out << YAML::Value << YAML::BeginMap << YAML::Key << "name" << YAML::Value << "NP correlations" << YAML::EndMap;
+        AddQualifiers(out);
+        out << YAML::Key << "values";
+        out << YAML::Value << YAML::BeginSeq;
+        for (const auto& icorr : corr) {
+            if (icorr.size() != n) {
+                WriteWarningStatus("YamlConverter::WriteCorrelationHEPData", "Inconsistent inputs for correlation!");
+                return;
+            }
+            for (const auto& i : icorr) {
+                out << YAML::BeginMap;
+                out << YAML::Key << "value";
+                out << YAML::Value << Form("%.2f", i);
+                out << YAML::EndMap;
+            }
+        }
+        out << YAML::EndSeq;
+        out << YAML::EndMap;
+    out << YAML::EndSeq;
+    out << YAML::Key << "independent_variables";
+    out << YAML::Value << YAML::BeginSeq;
+        out << YAML::BeginMap;
+        out << YAML::Key << "header";
+        out << YAML::Value << YAML::BeginMap << YAML::Key << "name" << YAML::Value << "NPs" << YAML::EndMap;
+        out << YAML::Key << "values";
+        out << YAML::Value << YAML::BeginSeq;
+        for (std::size_t inp = 0; inp < n; ++inp) {
+            for (std::size_t jnp = 0; jnp < n; ++jnp) {
+                out << YAML::BeginMap;
+                out << YAML::Key << "value";
+                out << np.at(inp);
+                out << YAML::EndMap;
+            }
+        }
+        out << YAML::EndSeq;
+        out << YAML::EndMap;
+        out << YAML::BeginMap;
+        out << YAML::Key << "header";
+        out << YAML::Value << YAML::BeginMap << YAML::Key << "name" << YAML::Value << "NPs" << YAML::EndMap;
+        out << YAML::Key << "values";
+        out << YAML::Value << YAML::BeginSeq;
+        for (std::size_t inp = 0; inp < n; ++inp) {
+            for (std::size_t jnp = 0; jnp < n; ++jnp) {
+                out << YAML::BeginMap;
+                out << YAML::Key << "value";
+                out << np.at(jnp);
+                out << YAML::EndMap;
+            }
+        }
+        out << YAML::EndSeq;
+        out << YAML::EndMap;
+    out << YAML::EndSeq;
+    out << YAML::EndMap;
+
+    Write(out, "HEPData correlation", folder+"/HEPData/Correlation.yaml");
+
 }
