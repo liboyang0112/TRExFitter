@@ -2300,6 +2300,9 @@ void TRExFit::BuildYieldTable(std::string opt, std::string group) const{
     //
     double intErr; // to store the integral error
     TH1* h0; // to store varius histograms temporary
+
+    YamlConverter::TableContainer container;
+
     //
     // Building region - bin correspondence
     //
@@ -2314,6 +2317,7 @@ void TRExFit::BuildYieldTable(std::string opt, std::string group) const{
     out << " |       | ";
     for(unsigned int i_bin=1;i_bin<=regionVec.size();i_bin++){
         out << fRegions[regionVec[i_bin-1]]->fLabel << " | ";
+        container.regionNames.emplace_back(fRegions[regionVec[i_bin-1]]->fLabel);
     }
     out << std::endl;
     if(fTableOptions.find("STANDALONE")!=std::string::npos){
@@ -2528,6 +2532,9 @@ void TRExFit::BuildYieldTable(std::string opt, std::string group) const{
         //
         // print values
         out << " | " << fSamples[i_smp]->fTitle << " | ";
+        container.sampleNames.emplace_back(fSamples[i_smp]->fTitle);
+        std::vector<double> yamlTmpYields;
+        std::vector<double> yamlTmpErrors;
         if(fSamples[i_smp]->fType==Sample::DATA) texout << "\\hline " << std::endl;
         if(fSamples[i_smp]->fTexTitle!="") texout << "  " << fSamples[i_smp]->fTexTitle << "  ";
         else                               texout << "  " << fSamples[i_smp]->fTitle << "  ";
@@ -2536,6 +2543,8 @@ void TRExFit::BuildYieldTable(std::string opt, std::string group) const{
             double uncertainty = ( g_err[i_smp]->GetErrorYhigh(i_bin-1) + g_err[i_smp]->GetErrorYlow(i_bin-1) )/2.;
             double mean_rounded = mean;
             double uncertainty_rounded = uncertainty;
+            yamlTmpYields.emplace_back(mean);
+            yamlTmpErrors.emplace_back(uncertainty);
             int n = -1; // this will contain the number of decimal places
             if (fUseATLASRoundingTxt || fUseATLASRoundingTex){
                 n = Common::ApplyATLASrounding(mean_rounded, uncertainty_rounded);
@@ -2566,7 +2575,10 @@ void TRExFit::BuildYieldTable(std::string opt, std::string group) const{
         out << std::endl;
         texout << " \\\\ ";
         texout << std::endl;
+        container.mcYields.emplace_back(yamlTmpYields);
+        container.mcErrors.emplace_back(yamlTmpErrors);
     }
+
     //
     // Build tot
     //
@@ -2662,11 +2674,17 @@ void TRExFit::BuildYieldTable(std::string opt, std::string group) const{
     texout << "\\hline " << std::endl;
     if(TRExFitter::SHOWSTACKSIG && TRExFitter::ADDSTACKSIG) texout << "  Total ";
     else                                                    texout << "  Total background ";
+    if (TRExFitter::SHOWSTACKSIG && TRExFitter::ADDSTACKSIG) container.sampleNames.emplace_back("Total");
+    else                                                     container.sampleNames.emplace_back("Total background");
+    std::vector<double> yamlTmpYields;
+    std::vector<double> yamlTmpErrors;
     for(int i_bin=1;i_bin<=Nbin;i_bin++){
         double mean = h_tot->GetBinContent(i_bin);
         double uncertainty = ( g_err_tot->GetErrorYhigh(i_bin-1) + g_err_tot->GetErrorYlow(i_bin-1) )/2.;
         double mean_rounded = mean;
         double uncertainty_rounded = uncertainty;
+        yamlTmpYields.emplace_back(mean);
+        yamlTmpErrors.emplace_back(uncertainty);
         int n = -1; // this will contain the number of decimal places
         if (fUseATLASRoundingTxt || fUseATLASRoundingTex){
             n = Common::ApplyATLASrounding(mean_rounded, uncertainty_rounded);
@@ -2694,6 +2712,8 @@ void TRExFit::BuildYieldTable(std::string opt, std::string group) const{
             texout << " & " << mean << " \\pm " << uncertainty;
         }
     }
+    container.mcYields.emplace_back(yamlTmpYields);
+    container.mcErrors.emplace_back(yamlTmpErrors);
     out << std::endl;
     texout << " \\\\ ";
     texout << std::endl;
@@ -2703,6 +2723,7 @@ void TRExFit::BuildYieldTable(std::string opt, std::string group) const{
     if( !fFitIsBlind ){
         texout << "\\hline " << std::endl;
         for(int i_smp=0;i_smp<fNSamples;i_smp++){
+            std::vector<double> yamlTempDataYields;
             if( fSamples[i_smp]->fType!=Sample::DATA  ) continue;
             if(idxVec[i_smp]!=i_smp) continue;
             //
@@ -2710,7 +2731,9 @@ void TRExFit::BuildYieldTable(std::string opt, std::string group) const{
             out << " | " << fSamples[i_smp]->fTitle << " | ";
             if(fSamples[i_smp]->fTexTitle!="") texout << "  " << fSamples[i_smp]->fTexTitle << "  ";
             else                               texout << "  " << fSamples[i_smp]->fTitle << "  ";
+            container.dataNames.emplace_back(fSamples[i_smp]->fTitle);
             for(int i_bin=1;i_bin<=Nbin;i_bin++){
+                yamlTempDataYields.emplace_back(h_smp[i_smp]->GetBinContent(i_bin));
                 texout << " & ";
                 out << h_smp[i_smp]->GetBinContent(i_bin);
                 texout << Form("%.0f",h_smp[i_smp]->GetBinContent(i_bin));
@@ -2719,6 +2742,7 @@ void TRExFit::BuildYieldTable(std::string opt, std::string group) const{
             out << std::endl;
             texout << " \\\\ ";
             texout << std::endl;
+            container.dataYields.emplace_back(yamlTempDataYields);
         }
     }
     //
@@ -2746,6 +2770,13 @@ void TRExFit::BuildYieldTable(std::string opt, std::string group) const{
         if(isPostFit) shellcommand += "_postFit";
         shellcommand += suffix+"_clean.tex";
         gSystem->Exec(shellcommand.c_str());
+    }
+
+    // Write YAML
+    YamlConverter converter{};
+    converter.WriteTables(container, fName, isPostFit);
+    if (fHEPDataFormat) {
+        converter.WriteTablesHEPData(container, fName, isPostFit);
     }
 }
 

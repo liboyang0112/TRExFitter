@@ -57,4 +57,5 @@ Drawing pre-fit plots...
 [1;32m=== INFO::Region::BuildPreFitErrorHist: ----------------------- ---------------------------- -----------------------[0m
 [1;32m=== INFO::TRExFit::BuildYieldTable: -------------------------------------------[0m
 [1;32m=== INFO::TRExFit::BuildYieldTable: Building Yields Table...[0m
+[1;32m=== INFO::YamlConverter::Write: Writing prefit yield tables yaml file to: FitExampleMorphingDilep/Tables/Table_prefit.yaml[0m
 [1;32m=== INFO::TRExFit::PrintSystTables: Printing syst tables[0m
