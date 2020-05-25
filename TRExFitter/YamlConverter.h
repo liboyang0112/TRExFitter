@@ -23,6 +23,15 @@ public:
         double poiprelo;
     };
 
+    struct TableContainer {
+        std::vector<std::string> regionNames;
+        std::vector<std::string> sampleNames;
+        std::vector<std::vector<double> > mcYields;
+        std::vector<std::vector<double> > mcErrors;
+        std::vector<std::string> dataNames;
+        std::vector<std::vector<double> > dataYields;
+    };
+
     explicit YamlConverter();
     ~YamlConverter() = default;
 
@@ -47,6 +56,10 @@ public:
     void WriteCorrelationHEPData(const std::vector<std::string>& np,
                                  const std::vector<std::vector<double> >& corr,
                                  const std::string& path) const;
+    
+    void WriteTablesHEPData(const TableContainer& container,
+                            const std::string& directory,
+                            const bool isPostFit) const;
 
 private:
     std::string m_lumi;

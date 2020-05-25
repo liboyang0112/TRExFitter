@@ -361,3 +361,10 @@ void YamlConverter::WriteCorrelationHEPData(const std::vector<std::string>& np,
     Write(out, "HEPData correlation", folder+"/HEPData/Correlation.yaml");
 
 }
+    
+void YamlConverter::WriteTablesHEPData(const YamlConverter::TableContainer& container,
+                                       const std::string& directory,
+                                       const bool isPostFit) const {
+
+}
+
