@@ -366,5 +366,31 @@ void YamlConverter::WriteTablesHEPData(const YamlConverter::TableContainer& cont
                                        const std::string& directory,
                                        const bool isPostFit) const {
 
+    if (!YamlConverter::TableContainerIsOK(container)) {
+        WriteWarningStatus("YamlConverter::WriteTablesHEPData", "Inconsistent inputs for tables!");
+        return;
+    } 
 }
 
+bool YamlConverter::TableContainerIsOK(const YamlConverter::TableContainer& container) const {
+
+    const std::size_t nRegions = container.regionNames.size();
+    const std::size_t nSamples = container.sampleNames.size();
+
+    if (nRegions == 0 || nSamples == 0) return false;
+    if (container.mcYields.size() != nRegions) return false;
+    if (container.mcErrors.size() != nRegions) return false;
+    for (const auto& ivec : container.mcYields) {
+        if (ivec.size() != nSamples) return false;
+    }
+    for (const auto& ivec : container.mcErrors) {
+        if (ivec.size() != nSamples) return false;
+    }
+    if (container.dataYields.size() != nRegions) return false;
+
+    for (const auto& ivec : container.dataYields) {
+        if (ivec.size() != nSamples) return false;
+    }
+    
+    return true;
+}
