@@ -2774,6 +2774,7 @@ void TRExFit::BuildYieldTable(std::string opt, std::string group) const{
 
     // Write YAML
     YamlConverter converter{};
+    converter.WriteTables(container, fName, isPostFit);
     if (fHEPDataFormat) {
         converter.WriteTablesHEPData(container, fName, isPostFit);
     }

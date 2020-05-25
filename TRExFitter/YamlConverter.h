@@ -57,6 +57,10 @@ public:
                                  const std::vector<std::vector<double> >& corr,
                                  const std::string& path) const;
     
+    void WriteTables(const TableContainer& container,
+                     const std::string& directory,
+                     const bool isPostFit) const;
+
     void WriteTablesHEPData(const TableContainer& container,
                             const std::string& directory,
                             const bool isPostFit) const;

@@ -362,6 +362,55 @@ void YamlConverter::WriteCorrelationHEPData(const std::vector<std::string>& np,
 
 }
     
+void YamlConverter::WriteTables(const YamlConverter::TableContainer& container,
+                                const std::string& directory,
+                                const bool isPostFit) const {
+
+    if (!YamlConverter::TableContainerIsOK(container)) {
+        WriteWarningStatus("YamlConverter::WriteTables", "Inconsistent inputs for tables!");
+        return;
+    } 
+    gSystem->mkdir((directory+"/HEPData").c_str());
+    
+    YAML::Emitter out;
+    out << YAML::BeginSeq;
+    for (std::size_t ireg = 0; ireg < container.regionNames.size(); ++ireg) {
+        out << YAML::BeginMap;
+        out << YAML::Key << "Region";
+        out << YAML::Value << container.regionNames.at(ireg);
+        out << YAML::Key << "Samples";
+        out << YAML::Value << YAML::BeginSeq;
+        for (std::size_t isample = 0; isample < container.sampleNames.size(); ++isample) {
+            out << YAML::BeginMap;
+                out << YAML::Key << "Sample";
+                out << YAML::Value << container.sampleNames.at(isample);
+                out << YAML::Key << "Yield";
+                out << YAML::Value << container.mcYields.at(isample).at(ireg);
+                out << YAML::Key << "Error";
+                out << YAML::Value << container.mcErrors.at(isample).at(ireg);
+            out << YAML::EndMap;
+        }
+        for (std::size_t idata = 0; idata < container.dataNames.size(); ++idata) {
+            out << YAML::BeginMap;
+                out << YAML::Key << "Data";
+                out << YAML::Value << container.dataNames.at(idata);
+                out << YAML::Key << "Yield";
+                out << YAML::Value << container.dataYields.at(idata).at(ireg);
+            out << YAML::EndMap;
+        }
+        out << YAML::EndSeq;
+        out << YAML::EndMap;
+    }
+    out << YAML::EndSeq;
+    // Write to the file
+    if (isPostFit) {
+        Write(out, "postfit yield tables", directory + "/Tables/Table_postfit.yaml");
+    } else {
+        Write(out, "prefit yield tables", directory + "/Tables/Table_prefit.yaml");
+    }
+}
+
+    
 void YamlConverter::WriteTablesHEPData(const YamlConverter::TableContainer& container,
                                        const std::string& directory,
                                        const bool isPostFit) const {
@@ -372,6 +421,7 @@ void YamlConverter::WriteTablesHEPData(const YamlConverter::TableContainer& cont
     } 
     
     gSystem->mkdir((directory+"/HEPData").c_str());
+
     YAML::Emitter out;
     out << YAML::BeginMap;
         out << YAML::Key << "independent_variables";
