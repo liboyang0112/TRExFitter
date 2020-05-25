@@ -444,7 +444,7 @@ void YamlConverter::WriteTablesHEPData(const YamlConverter::TableContainer& cont
                     out << YAML::Value << idata;
                     out << YAML::EndMap;
                 }
-                out << YAML::Value << YAML::EndSeq;
+                out << YAML::EndSeq;
             out << YAML::EndMap;
         out << YAML::EndSeq;
         
@@ -538,5 +538,67 @@ void YamlConverter::WriteUnfolding(const TGraphAsymmErrors* const graph,
     
 void YamlConverter::WriteUnfoldingHEPData(const TGraphAsymmErrors* const graph,
                                           const std::string& directory) const {
+
+    gSystem->mkdir((directory + "/HEPData").c_str());
+    const int n = graph->GetN();
+
+    YAML::Emitter out;
+    out << YAML::BeginMap;
+        out << YAML::Key << "independent_variables";
+        out << YAML::Value << YAML::BeginSeq;
+            out << YAML::BeginMap;
+                out << YAML::Key << "header";
+                out << YAML::Value << YAML::BeginMap;
+                out << YAML::Key << "name" << YAML::Value <<  "Variable XXXX";
+                out << YAML::Key << "units" << YAML::Value <<  "GeV";
+                out << YAML::EndMap; 
+                out << YAML::Key << "values";
+                out << YAML::Value << YAML::BeginSeq;
+                for (int i = 0; i < n; ++i) {
+                    double x;
+                    double y;
+                    graph->GetPoint(i, x, y);
+
+                    const double x_min = graph->GetErrorXlow(i);
+                    const double x_max = graph->GetErrorXhigh(i);
+                    out << YAML::BeginMap;
+                        out << YAML::Key << "high";
+                        out << YAML::Value << x+x_max;
+                        out << YAML::Key << "low";
+                        out << YAML::Value << x-x_min;
+                        out << YAML::Key << "value";
+                        out << YAML::Value << x;
+                    out << YAML::EndMap;
+                }
+                out << YAML::EndSeq;
+            out << YAML::EndMap;
+        out << YAML::EndSeq;
+        
+        // dependent variables
+        out << YAML::Key << "dependent_variables";
+        out << YAML::Value << YAML::BeginSeq;
+        out << YAML::BeginMap;
+            out << YAML::Key << "header";
+            out << YAML::Value << YAML::BeginMap << YAML::Key << "name" << YAML::Value << "Unfolded Data" << YAML::EndMap;
+            AddQualifiers(out);
+            out << YAML::Key << "values";
+            out << YAML::Value << YAML::BeginSeq;
+            for (int i = 0; i < n; ++i) {
+                double x;
+                double y;
+                graph->GetPoint(i, x, y);
+
+                const double y_min = graph->GetErrorYlow(i);
+                const double y_max = graph->GetErrorYhigh(i);
+                out << YAML::BeginMap;
+                AddValueErrors(out, y, y_max, -y_min);
+                out << YAML::EndMap;
+            }
+            out << YAML::EndSeq;
+        out << YAML::EndMap;
+        out << YAML::EndSeq;
+    out << YAML::EndMap;
+
+    Write(out, "HEPData unfolding result", directory + "/HEPData/Unfolding.yaml");
 }
 
