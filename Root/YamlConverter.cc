@@ -5,6 +5,7 @@
 
 #include "yaml-cpp/include/yaml-cpp/yaml.h"
 
+#include "TGraphAsymmErrors.h"
 #include "TSystem.h"
 
 #include <fstream>
@@ -232,7 +233,7 @@ void YamlConverter::Write(const YAML::Emitter& out, const std::string& type, con
     WriteInfoStatus("YamlConverter::Write", "Writing " + type + " yaml file to: " + path);
     std::ofstream file;
     file.open(path.c_str());
-    if (!file.is_open()) {
+    if (!file.is_open() || !file.good()) {
         WriteWarningStatus("YamlConverter::Write", "Cannot open yaml file at: " + path);
         return;
     }
@@ -503,3 +504,13 @@ bool YamlConverter::TableContainerIsOK(const YamlConverter::TableContainer& cont
     
     return true;
 }
+    
+void YamlConverter::WriteUnfolding(const TGraphAsymmErrors* const graph,
+                                   const std::string& directory) const {
+
+}
+    
+void YamlConverter::WriteUnfoldingHEPData(const TGraphAsymmErrors* const graph,
+                                          const std::string& directory) const {
+}
+

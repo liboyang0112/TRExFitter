@@ -9,6 +9,8 @@ namespace YAML {
     class Emitter;
 }
 
+class TGraphAsymmErrors;
+
 class YamlConverter {
 
 public:
@@ -64,6 +66,12 @@ public:
     void WriteTablesHEPData(const TableContainer& container,
                             const std::string& directory,
                             const bool isPostFit) const;
+
+    void WriteUnfolding(const TGraphAsymmErrors* const graph,
+                        const std::string& directory) const;
+    
+    void WriteUnfoldingHEPData(const TGraphAsymmErrors* const graph,
+                               const std::string& directory) const;
 
 private:
     std::string m_lumi;
