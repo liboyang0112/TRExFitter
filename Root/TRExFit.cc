@@ -2676,11 +2676,15 @@ void TRExFit::BuildYieldTable(std::string opt, std::string group) const{
     else                                                    texout << "  Total background ";
     if (TRExFitter::SHOWSTACKSIG && TRExFitter::ADDSTACKSIG) container.sampleNames.emplace_back("Total");
     else                                                     container.sampleNames.emplace_back("Total background");
+    std::vector<double> yamlTmpYields;
+    std::vector<double> yamlTmpErrors;
     for(int i_bin=1;i_bin<=Nbin;i_bin++){
         double mean = h_tot->GetBinContent(i_bin);
         double uncertainty = ( g_err_tot->GetErrorYhigh(i_bin-1) + g_err_tot->GetErrorYlow(i_bin-1) )/2.;
         double mean_rounded = mean;
         double uncertainty_rounded = uncertainty;
+        yamlTmpYields.emplace_back(mean);
+        yamlTmpErrors.emplace_back(uncertainty);
         int n = -1; // this will contain the number of decimal places
         if (fUseATLASRoundingTxt || fUseATLASRoundingTex){
             n = Common::ApplyATLASrounding(mean_rounded, uncertainty_rounded);
@@ -2708,6 +2712,8 @@ void TRExFit::BuildYieldTable(std::string opt, std::string group) const{
             texout << " & " << mean << " \\pm " << uncertainty;
         }
     }
+    container.mcYields.emplace_back(yamlTmpYields);
+    container.mcErrors.emplace_back(yamlTmpErrors);
     out << std::endl;
     texout << " \\\\ ";
     texout << std::endl;

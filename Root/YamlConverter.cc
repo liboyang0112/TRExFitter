@@ -370,6 +370,67 @@ void YamlConverter::WriteTablesHEPData(const YamlConverter::TableContainer& cont
         WriteWarningStatus("YamlConverter::WriteTablesHEPData", "Inconsistent inputs for tables!");
         return;
     } 
+    
+    gSystem->mkdir((directory+"/HEPData").c_str());
+    YAML::Emitter out;
+    out << YAML::BeginMap;
+        out << YAML::Key << "independent_variables";
+        out << YAML::Value << YAML::BeginSeq;
+            out << YAML::BeginMap;
+                out << YAML::Key << "header";
+                out << YAML::Value << YAML::BeginMap << YAML::Key << "name" << YAML::Value <<  "process" << YAML::EndMap; 
+                out << YAML::Key << "values";
+                out << YAML::Value << YAML::BeginSeq;
+                for (const auto& isample : container.sampleNames) {
+                    out << YAML::BeginMap;
+                    out << YAML::Key << "value";
+                    out << YAML::Value << isample;
+                    out << YAML::EndMap;
+                }
+                for (const auto& idata : container.dataNames) {
+                    out << YAML::BeginMap;
+                    out << YAML::Key << "value";
+                    out << YAML::Value << idata;
+                    out << YAML::EndMap;
+                }
+                out << YAML::Value << YAML::EndSeq;
+            out << YAML::EndMap;
+        out << YAML::EndSeq;
+        
+        // dependent variables
+        out << YAML::Key << "dependent_variables";
+        out << YAML::Value << YAML::BeginSeq;
+        // loop over regions
+        for (std::size_t ireg = 0; ireg < container.regionNames.size(); ++ireg) {
+            out << YAML::BeginMap;
+                out << YAML::Key << "header";
+                out << YAML::Value << YAML::BeginMap << YAML::Key << "name" << YAML::Value << container.regionNames.at(ireg) << YAML::EndMap;
+                AddQualifiers(out);
+                out << YAML::Key << "values";
+                out << YAML::Value << YAML::BeginSeq;
+                for (std::size_t ivalue = 0; ivalue < container.mcYields.size(); ++ivalue) {
+                    out << YAML::BeginMap;
+                    AddValueErrors(out, container.mcYields.at(ivalue).at(ireg), container.mcErrors.at(ivalue).at(ireg), container.mcErrors.at(ivalue).at(ireg));
+                    out << YAML::EndMap;
+                }
+                for (std::size_t ivalue = 0; ivalue < container.dataYields.size(); ++ivalue) {
+                    out << YAML::BeginMap;
+                    out << YAML::Key << "value";
+                    out << YAML::Value << Form("%.f",container.dataYields.at(ivalue).at(ireg));
+                    out << YAML::EndMap;
+                }
+                out << YAML::EndSeq;
+            out << YAML::EndMap;
+        }
+        out << YAML::EndSeq;
+    out << YAML::EndMap;
+    
+    // Write to the file
+    if (isPostFit) {
+        Write(out, "HEPData postfit yield tables", directory + "/HEPData/Table_postfit.yaml");
+    } else {
+        Write(out, "HEPData prefit yield tables", directory + "/HEPData/Table_prefit.yaml");
+    }
 }
 
 bool YamlConverter::TableContainerIsOK(const YamlConverter::TableContainer& container) const {
@@ -378,18 +439,16 @@ bool YamlConverter::TableContainerIsOK(const YamlConverter::TableContainer& cont
     const std::size_t nSamples = container.sampleNames.size();
 
     if (nRegions == 0 || nSamples == 0) return false;
-    if (container.mcYields.size() != nRegions) return false;
-    if (container.mcErrors.size() != nRegions) return false;
+    if (container.mcYields.size() != nSamples) return false;
+    if (container.mcErrors.size() != nSamples) return false;
     for (const auto& ivec : container.mcYields) {
-        if (ivec.size() != nSamples) return false;
+        if (ivec.size() != nRegions) return false;
     }
     for (const auto& ivec : container.mcErrors) {
-        if (ivec.size() != nSamples) return false;
+        if (ivec.size() != nRegions) return false;
     }
-    if (container.dataYields.size() != nRegions) return false;
-
     for (const auto& ivec : container.dataYields) {
-        if (ivec.size() != nSamples) return false;
+        if (ivec.size() != nRegions) return false;
     }
     
     return true;
