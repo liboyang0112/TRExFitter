@@ -508,6 +508,32 @@ bool YamlConverter::TableContainerIsOK(const YamlConverter::TableContainer& cont
 void YamlConverter::WriteUnfolding(const TGraphAsymmErrors* const graph,
                                    const std::string& directory) const {
 
+    const int n = graph->GetN();
+    YAML::Emitter out;
+    out << YAML::BeginSeq;
+    for (int i = 0; i < n; ++i) {
+        double x;
+        double y;
+        graph->GetPoint(i, x, y);
+
+        const double x_min = graph->GetErrorXlow(i);
+        const double x_max = graph->GetErrorXhigh(i);
+        const double y_min = graph->GetErrorYlow(i);
+        const double y_max = graph->GetErrorYhigh(i);
+        out << YAML::BeginMap;
+            out << YAML::Key << "range";
+            out << YAML::Value << YAML::Flow << YAML::BeginSeq << x-x_min << x+x_max << YAML::EndSeq;
+            out << YAML::Key << "mean";
+            out << YAML::Value << y;
+            out << YAML::Key << "uncertaintyUp";
+            out << YAML::Value << y_max;
+            out << YAML::Key << "uncertaintyDown";
+            out << YAML::Value << -y_min;
+        out << YAML::EndMap;
+    }
+    out << YAML::EndSeq;
+
+    Write(out, "unfolding result", directory + "/UnfoldingData.yaml");
 }
     
 void YamlConverter::WriteUnfoldingHEPData(const TGraphAsymmErrors* const graph,
