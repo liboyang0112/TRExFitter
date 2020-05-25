@@ -22,7 +22,7 @@ stages:
   - fstep_multi
   - rstep
   - draw
-  - imagebuild
+#  - imagebuild
   - build_website
   - deploy_website
 
@@ -664,41 +664,41 @@ draw_postfit_ntuple:
 ## image creation step: creates Docker container for master branch
 ##    tagging image as "latest"
 ##
-build_img_latest:
-  needs:
-    - compile
-  stage: imagebuild
-  image: gitlab-registry.cern.ch/ci-tools/docker-image-builder:no_kaniko
-  variables:
-    GIT_SUBMODULE_STRATEGY: recursive
-    FROM: $BUILD_IMAGE
-    TO: $CI_REGISTRY_IMAGE:latest
-  tags:
-    - docker-image-build
-  script:
-    - ignore
-  only:
-    - master
+#build_img_latest:
+#  needs:
+#    - compile
+#  stage: imagebuild
+#  image: gitlab-registry.cern.ch/ci-tools/docker-image-builder:no_kaniko
+#  variables:
+#    GIT_SUBMODULE_STRATEGY: recursive
+#    FROM: $BUILD_IMAGE
+#    TO: $CI_REGISTRY_IMAGE:latest
+#  tags:
+#    - docker-image-build
+#  script:
+#    - ignore
+#  only:
+#    - master
 
 ##
 ## image creation step: creates Docker container for repository tags
 ##    CI_COMMIT_REF_SLUG: either branch name or tag name
 ##
-build_img_tag:
-  needs:
-    - compile
-  stage: imagebuild
-  image: gitlab-registry.cern.ch/ci-tools/docker-image-builder:no_kaniko
-  variables:
-    GIT_SUBMODULE_STRATEGY: recursive
-    FROM: $BUILD_IMAGE
-    TO: $CI_REGISTRY_IMAGE:$CI_COMMIT_REF_SLUG
-  tags:
-    - docker-image-build
-  script:
-    - ignore
-  only:
-    - tags
+#build_img_tag:
+#  needs:
+#    - compile
+#  stage: imagebuild
+#  image: gitlab-registry.cern.ch/ci-tools/docker-image-builder:no_kaniko
+#  variables:
+#    GIT_SUBMODULE_STRATEGY: recursive
+#    FROM: $BUILD_IMAGE
+#    TO: $CI_REGISTRY_IMAGE:$CI_COMMIT_REF_SLUG
+#  tags:
+#    - docker-image-build
+#  script:
+#    - ignore
+#  only:
+#    - tags
 
 ##
 ## build the static website with mkdocs
