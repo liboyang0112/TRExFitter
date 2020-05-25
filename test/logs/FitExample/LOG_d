@@ -64,6 +64,7 @@ Applying ATLAS style settings...
 Applying systematics pruning...
 [1;32m=== INFO::TRExFit::SystPruning: ------------------------------------------------------[0m
 [1;32m=== INFO::TRExFit::SystPruning: Apply Systematics Pruning ...[0m
+Info in <TCanvas::Print>: png file FitExample/NormalisationPlot.png has been created
 Info in <TCanvas::Print>: png file FitExample/Pruning.png has been created
 Drawing pre-fit plots...
 === DEBUG::Region::DrawPreFit: SigXsecOverSM => Scaling Signal by 1.000000
@@ -233,6 +234,7 @@ Info in <TCanvas::Print>: png file FitExample/Plots/Summary_VR.png has been crea
 === DEBUG::TRExFit::DrawSummary: 1:	825.519989	+91.058485	-91.058485
 [1;32m=== INFO::TRExFit::BuildYieldTable: -------------------------------------------[0m
 [1;32m=== INFO::TRExFit::BuildYieldTable: Building Yields Table...[0m
+[1;32m=== INFO::YamlConverter::Write: Writing prefit yield tables yaml file to: FitExample/Tables/Table_prefit.yaml[0m
 [1;32m=== INFO::TRExFit::PrintSystTables: Printing syst tables[0m
 Info in <TCanvas::Print>: png file FitExample/SignalRegions.png has been created
 Info in <TCanvas::Print>: png file FitExample/PieChart.png has been created
