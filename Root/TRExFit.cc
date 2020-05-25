@@ -5050,6 +5050,14 @@ void TRExFit::PlotUnfoldedData() const {
     std::unique_ptr<TH1D> data               = unfolded.GetUnfoldedResult();
     std::unique_ptr<TGraphAsymmErrors> error = unfolded.GetUnfoldedResultErrorBand();
 
+    YamlConverter converter{};
+    converter.SetLumi(Common::ReplaceString(fLumiLabel, " fb^{-1}", ""));
+    converter.SetCME(Common::ReplaceString(fCmeLabel, " TeV", "000"));
+    converter.WriteUnfolding(error.get(), fName);
+    if (fHEPDataFormat) {
+        converter.WriteUnfoldingHEPData(error.get(), fName);
+    }
+
     PlotUnfold(data.get(), error.get());
 
     // Dump results into a text file
