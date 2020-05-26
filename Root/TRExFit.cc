@@ -5059,7 +5059,7 @@ void TRExFit::PlotUnfoldedData() const {
     converter.SetCME(Common::ReplaceString(fCmeLabel, " TeV", "000"));
     converter.WriteUnfolding(error.get(), fName);
     if (fHEPDataFormat) {
-        converter.WriteUnfoldingHEPData(error.get(), fName);
+        converter.WriteUnfoldingHEPData(error.get(), fUnfoldingTitleX, fName);
     }
 
     PlotUnfold(data.get(), error.get());

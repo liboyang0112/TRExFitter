@@ -46,6 +46,13 @@ public:
         std::string region;
     };
 
+    struct SubmissionContainer {
+        bool useTables;
+        bool isUnfolding;
+        std::string folder;
+        std::vector<std::string> regionNames;
+    };
+
     explicit YamlConverter();
     ~YamlConverter() = default;
 
@@ -83,6 +90,7 @@ public:
                         const std::string& directory) const;
     
     void WriteUnfoldingHEPData(const TGraphAsymmErrors* const graph,
+                               const std::string& xAxis,
                                const std::string& directory) const;
 
     void WritePlot(const PlotContainer& container,
@@ -92,6 +100,8 @@ public:
     void WritePlotHEPData(const PlotContainer& container,
                           const std::string& directory,
                           const bool isPostFit) const;
+
+    void WriteHEPDataSubmission(const SubmissionContainer& container) const;
 
 private:
     std::string m_lumi;
@@ -109,6 +119,18 @@ private:
     bool TableContainerIsOK(const TableContainer& container) const;
     
     bool PlotContainerIsOK(const PlotContainer& container) const;
+
+    void AddCorrelation(std::ofstream& file) const;
+    
+    void AddRanking(std::ofstream& file) const;
+    
+    void AddPlots(std::ofstream& file, const SubmissionContainer& container) const;
+    
+    void AddTables(std::ofstream& file) const;
+    
+    void AddUnfolding(std::ofstream& file) const;
+
+    void Add(std::ofstream& o, const std::string& file, const std::string& text) const;
 };
 
 #endif

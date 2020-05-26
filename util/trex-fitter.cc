@@ -5,12 +5,14 @@
 #include "TRExFitter/ConfigReaderMulti.h"
 #include "TRExFitter/HistoReader.h"
 #include "TRExFitter/MultiFit.h"
-#include "TRExFitter/StatusLogbook.h"
 #include "TRExFitter/NtupleReader.h"
+#include "TRExFitter/Region.h"
+#include "TRExFitter/StatusLogbook.h"
 #include "TRExFitter/TRExFit.h"
 #include "TRExFitter/TRExPlot.h"
 #include "TRExFitter/UnfoldingSample.h"
 #include "TRExFitter/UnfoldingSystematic.h"
+#include "TRExFitter/YamlConverter.h"
 
 // RooStatsIncludes
 #include "RooStats/RooStatsUtils.h"
@@ -184,6 +186,19 @@ void FitExample(std::string opt="h",std::string configFile="config/myFit.config"
     if (TRExFitter::DEBUGLEVEL < 2){
         gErrorIgnoreLevel = kError;
         RooMsgService::instance().setGlobalKillBelow(RooFit::WARNING);
+    }
+
+    if (myFit->fHEPDataFormat) {
+        YamlConverter::SubmissionContainer container;
+        container.useTables = myFit->fDoTables;
+        container.isUnfolding = myFit->fFitType == TRExFit::UNFOLDING;
+        container.folder = myFit->fName;
+        for (const auto& ireg : myFit->fRegions) {
+            container.regionNames.emplace_back(ireg->fName);
+        }
+
+        YamlConverter converter{};
+        converter.WriteHEPDataSubmission(container);
     }
 
     // check compatibility between run option and config file
