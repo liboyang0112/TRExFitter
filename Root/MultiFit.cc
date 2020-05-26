@@ -14,6 +14,7 @@
 #include "TRExFitter/StatusLogbook.h"
 #include "TRExFitter/Systematic.h"
 #include "TRExFitter/TRExFit.h"
+#include "TRExFitter/YamlConverter.h"
 
 // CommonStatTools include
 #include "CommonStatTools/runSig.h"
@@ -1902,6 +1903,8 @@ void MultiFit::PlotNPRanking(bool flagSysts, bool flagGammas) const {
     std::vector<double> poinomup;
     std::vector<double> poinomdown;
     std::vector<double> number;
+    
+    std::vector<YamlConverter::RankingContainer> containerVec;
 
     ifstream fin( fileToRead.c_str() );
     fin >> paramname >> nuiphat >> nuiperrhi >> nuiperrlo >> PoiUp >> PoiDown >> PoiNomUp >> PoiNomDown;
@@ -1934,10 +1937,33 @@ void MultiFit::PlotNPRanking(bool flagSysts, bool flagGammas) const {
         poidown.push_back(PoiDown);
         poinomup.push_back(PoiNomUp);
         poinomdown.push_back(PoiNomDown);
+        
+        YamlConverter::RankingContainer container;
+        container.name = paramname;        
+        container.nphat = nuiphat;        
+        container.nperrhi = nuiperrhi;        
+        container.nperrlo = nuiperrlo; 
+        container.poihi = PoiUp;       
+        container.poilo = PoiDown;       
+        container.poiprehi = PoiNomUp;       
+        container.poiprelo = PoiNomDown;       
+
+        containerVec.emplace_back(std::move(container));
+        
         fin >> paramname >> nuiphat >> nuiperrhi >> nuiperrlo >> PoiUp >> PoiDown >> PoiNomUp >> PoiNomDown;
         if (paramname=="Luminosity"){
             WriteErrorStatus("MultiFit::PlotNPRanking", "Systematic called \"Luminosity\" found. This creates issues for the ranking plot. Skipping. Suggestion: rename this systematic as \"Lumi\" or \"luminosity\"");
             fin >> paramname >> nuiphat >> nuiperrhi >> nuiperrlo >> PoiUp >> PoiDown >> PoiNomUp >> PoiNomDown;
+        }
+    }
+    
+    {
+        YamlConverter converter{};
+        converter.WriteRanking(containerVec, fOutDir+"/Ranking.yaml");
+        if (fHEPDataFormat) {
+            converter.SetLumi(Common::ReplaceString(fFitList[0]->fLumiLabel, " fb^{-1}", ""));
+            converter.SetCME(Common::ReplaceString(fFitList[0]->fCmeLabel, " TeV", "000"));
+            converter.WriteRankingHEPData(containerVec, fOutDir);
         }
     }
 
