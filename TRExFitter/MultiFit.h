@@ -117,7 +117,6 @@ public:
     std::unique_ptr<ConfigParser> fConfig;
 
     std::string fSaveSuf;
-    std::vector< bool > fFitShowObserved;
 
     std::string fDataName;
     int fFitType;
@@ -158,7 +157,6 @@ public:
     // Limit parameters
     //
     bool fLimitIsBlind;
-    double fLimitPOIAsimov;
     bool fSignalInjection;
     double fSignalInjectionValue;
     std::string fLimitParamName;

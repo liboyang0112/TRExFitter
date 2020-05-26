@@ -7,6 +7,7 @@
 #include "TRExFitter/CorrelationMatrix.h"
 #include "TRExFitter/FitResults.h"
 #include "TRExFitter/FittingTool.h"
+#include "TRExFitter/LimitEvent.h"
 #include "TRExFitter/NormFactor.h"
 #include "TRExFitter/NuisParameter.h"
 #include "TRExFitter/Region.h"
@@ -49,7 +50,6 @@
 #include "TLatex.h"
 #include "TLegend.h"
 #include "TLine.h"
-#include "TRandom3.h"
 #include "TSystem.h"
 #include "TStyle.h"
 
@@ -119,7 +119,6 @@ MultiFit::MultiFit(const string& name) :
     fPOINominal(1),
     fPOIAsimov(1),
     fLimitIsBlind(false),
-    fLimitPOIAsimov(0),
     fSignalInjection(false),
     fSignalInjectionValue(0),
     fLimitParamName("parameter"),
@@ -593,11 +592,8 @@ void MultiFit::GetCombinedSignificance(string inputData) const{
 //__________________________________________________________________________________
 //
 void MultiFit::ComparePOI(const string& POI) const {
-    double xmin = 0.;
-    double xmax = 2.;
-
-    xmax = fPOIMax + (fPOIMax-fPOIMin);
-    xmin = fPOIMin;
+    double xmax = fPOIMax + (fPOIMax-fPOIMin);
+    double xmin = fPOIMin;
 
     string process = fLabel;
 
@@ -871,41 +867,36 @@ void MultiFit::ComparePOI(const string& POI) const {
 //__________________________________________________________________________________
 //
 void MultiFit::CompareLimit(){
-    double xmax = 2.;
-    string process = fLabel;
+    float xmax = 2.;
+    const std::string process = fLabel;
     gStyle->SetEndErrorSize(0.);
-
-    // ---
 
     // Fit titles
     vector<string> dirs;
     vector<string> names;
     vector<string> suffs;
     vector<string> titles;
-    for(unsigned int i_fit=0;i_fit<fFitList.size();i_fit++){
+    for(unsigned int i_fit= 0; i_fit < fFitList.size(); ++i_fit) {
         WriteInfoStatus("MultiFit::CompareLimit", "Adding Fit: " + fFitList[i_fit]->fInputName + ", " + fFitLabels[i_fit] + ", " + fFitSuffs[i_fit]);
-        dirs.push_back( fFitList[i_fit]->fName );
-        names.push_back( fFitList[i_fit]->fInputName );
-        titles.push_back( fFitLabels[i_fit] );
-        suffs.push_back( fFitSuffs[i_fit] );
+        dirs.emplace_back(fFitList[i_fit]->fName);
+        names.emplace_back(fFitList[i_fit]->fInputName);
+        titles.emplace_back(fFitLabels[i_fit]);
+        suffs.emplace_back(fFitSuffs[i_fit]);
     }
     if(fCombine){
         WriteInfoStatus("MultiFit::CompareLimit", "Adding combined limit");
-        dirs.push_back( fOutDir );
-        names.push_back( fName );
-        titles.push_back( fCombiLabel );
-        suffs.push_back( fSaveSuf );
-        if(fShowObserved) fFitShowObserved.push_back(true);
+        dirs.emplace_back(fOutDir);
+        names.emplace_back(fName);
+        titles.emplace_back(fCombiLabel);
+        suffs.emplace_back(fSaveSuf);
     }
 
     // ---
 
-    bool showObs = fShowObserved;
+    const std::size_t N = names.size();
 
-    unsigned int N = names.size();
-
-    double ymin = -0.5;
-    double ymax = N-0.5;
+    const double ymin = -0.5;
+    const double ymax = N-0.5;
 
     TCanvas c("c","c",700,500);
 
@@ -915,27 +906,20 @@ void MultiFit::CompareLimit(){
     TGraphAsymmErrors g_1s(N);
     TGraphAsymmErrors g_2s(N);
 
-    int Ndiv = N+1;
+    const std::size_t Ndiv = N+1;
 
     std::unique_ptr<TFile> f = nullptr;
-    std::unique_ptr<TH1> h = nullptr;
-    std::unique_ptr<TH1> h_old = nullptr;
 
     // get values
-    for(unsigned int i=0;i<N;i++){
-        if(i>fLimitsFiles.size()-1){
-            if(fLimitsFile!="") fLimitsFiles.push_back(fLimitsFile);
-            else                fLimitsFiles.push_back("");
+    for(unsigned int i = 0; i < N; ++i) {
+        if(i > fLimitsFiles.size()-1){
+            if(fLimitsFile != "") fLimitsFiles.emplace_back(fLimitsFile);
+            else                  fLimitsFiles.emplace_back("");
         }
-        if(fLimitsFiles[i]==""){
-            if(fSignalInjection){
-                WriteInfoStatus("MultiFit::CompareLimit", "Reading file " + dirs[i] + "/Limits/" + (names[i]+suffs[i]) + "_injection.root");
-                f.reset(TFile::Open(Form("%s/Limits/%s_injection.root",dirs[i].c_str(),(names[i]+suffs[i]).c_str())));
-            }
-            else{
-                WriteInfoStatus("MultiFit::CompareLimit", "Reading file " + dirs[i] + "/Limits/" + (names[i]+suffs[i]) + ".root");
-                f.reset(TFile::Open(Form("%s/Limits/%s.root",dirs[i].c_str(),(names[i]+suffs[i]).c_str())));
-            }
+        if(fLimitsFiles[i] == ""){
+            const std::string name = fFitList.at(0)->fLimitOutputPrefixName + "_CL" + std::to_string(static_cast<int>(100*fFitList.at(0)->fLimitsConfidence));
+            WriteInfoStatus("MultiFit::CompareLimit", "Reading file " + dirs[i] + "/Limits/asymptotics/" + name + ".root");
+            f.reset(TFile::Open((dirs[i]+"/Limits/asymptotics/"+name+".root").c_str()));
         }
         else{
             WriteInfoStatus("MultiFit::CompareLimit", "Reading file " + fLimitsFiles[i]);
@@ -945,33 +929,45 @@ void MultiFit::CompareLimit(){
             WriteWarningStatus("MultiFit::CompareLimit", "Cannot open the file!");
             continue;
         }
-        h = std::unique_ptr<TH1>(static_cast<TH1*>(f->Get("limit")));
-        if (!h) {
-            WriteWarningStatus("MultiFit::CompareLimit", "Cannot read histogram from \"limit\"");
+        TTree *tree = static_cast<TTree*>(f->Get("stats"));
+        if (!tree) {
+            WriteWarningStatus("MultiFit::CompareLimit", "Cannot read tree from the limit file");
             continue;
         }
-        if(fSignalInjection) h_old = std::unique_ptr<TH1>(static_cast<TH1*>(f->Get("limit_old")));
 
-        WriteDebugStatus("MultiFit::CompareLimit", "bin 1 content: " + std::to_string(h->GetBinContent(1)));
-        if(fFitShowObserved[i]) g_obs.SetPoint(N-i-1,h->GetBinContent(1),N-i-1);
+        if (tree->GetEntries() == 0) {
+            WriteWarningStatus("MultiFit::CompareLimit", "The tree has 0 entries");
+            continue;
+        }
+        
+        LimitEvent event(tree);
+
+        // read the first event = read all info
+        event.GetEntry(0);
+
+        if(fShowObserved) g_obs.SetPoint(N-i-1,event.obs_upperlimit,N-i-1);
         else g_obs.SetPoint(N-i-1,-1,N-i-1);
-        g_exp.SetPoint(N-i-1,h->GetBinContent(2),N-i-1);
-        if(fSignalInjection) g_inj.SetPoint(N-i-1,h_old->GetBinContent(7),N-i-1);
-        g_1s.SetPoint(N-i-1,h->GetBinContent(2),N-i-1);
-        g_2s.SetPoint(N-i-1,h->GetBinContent(2),N-i-1);
+        g_exp.SetPoint(N-i-1,event.exp_upperlimit,N-i-1);
+        if(fSignalInjection) g_inj.SetPoint(N-i-1,event.inj_upperlimit,N-i-1);
+        g_1s.SetPoint(N-i-1,event.exp_upperlimit,N-i-1);
+        g_2s.SetPoint(N-i-1,event.exp_upperlimit,N-i-1);
         g_obs.SetPointError(N-i-1,0,0.5);
         g_exp.SetPointError(N-i-1,0,0.5);
         g_inj.SetPointError(N-i-1,0,0.5);
-        g_1s.SetPointError(N-i-1,h->GetBinContent(2)-h->GetBinContent(5),h->GetBinContent(4)-h->GetBinContent(2),0.5,0.5);
-        g_2s.SetPointError(N-i-1,h->GetBinContent(2)-h->GetBinContent(6),h->GetBinContent(3)-h->GetBinContent(2),0.5,0.5);
+        g_1s.SetPointError(N-i-1,event.exp_upperlimit-event.exp_upperlimit_minus1,event.exp_upperlimit_plus1-event.exp_upperlimit,0.5,0.5);
+        g_2s.SetPointError(N-i-1,event.exp_upperlimit-event.exp_upperlimit_minus2,event.exp_upperlimit_plus2-event.exp_upperlimit,0.5,0.5);
 
-        if(h->GetBinContent(1)>xmax) xmax = h->GetBinContent(1);
-        if(h->GetBinContent(2)>xmax) xmax = h->GetBinContent(2);
-        if(h->GetBinContent(3)>xmax) xmax = h->GetBinContent(3);
-        if(h->GetBinContent(4)>xmax) xmax = h->GetBinContent(4);
-        if(h->GetBinContent(5)>xmax) xmax = h->GetBinContent(5);
-        if(h->GetBinContent(6)>xmax) xmax = h->GetBinContent(6);
+        const std::vector<float> tmp = {event.obs_upperlimit, event.exp_upperlimit,
+                                        event.exp_upperlimit_plus1, event.exp_upperlimit_minus1,
+                                        event.exp_upperlimit_plus2, event.exp_upperlimit_minus2, xmax};
+
+        xmax = *std::max_element(tmp.begin(), tmp.end());
+
+        delete tree;
+        f->Close();
     }
+
+    xmax*= 1.1;
 
     g_obs.SetLineWidth(3);
     g_exp.SetLineWidth(3);
@@ -1001,14 +997,14 @@ void MultiFit::CompareLimit(){
     h_dummy.SetLineColor(kWhite);
     h_dummy.GetYaxis()->Set(N,ymin,ymax);
     h_dummy.GetYaxis()->SetNdivisions(Ndiv);
-    for(unsigned int i=0;i<N;i++){
+    for(unsigned int i = 0; i < N; ++i){
         h_dummy.GetYaxis()->SetBinLabel(N-i,titles[i].c_str());
     }
 
     g_2s.Draw("E2 same");
     g_1s.Draw("E2 same");
     g_exp.Draw("E same");
-    if(showObs) g_obs.Draw("E same");
+    if(fShowObserved) g_obs.Draw("E same");
     if(fSignalInjection) g_inj.Draw("E same");
 
     TLine l_SM(fPOINominal,-0.5,fPOINominal,N-0.5);
@@ -1018,9 +1014,9 @@ void MultiFit::CompareLimit(){
 
     c.RedrawAxis();
 
-    gPad->SetLeftMargin( 2*gPad->GetLeftMargin() );
-    gPad->SetBottomMargin( 1.15*gPad->GetBottomMargin() );
-    gPad->SetTopMargin( 1.8*gPad->GetTopMargin() );
+    gPad->SetLeftMargin(2*gPad->GetLeftMargin());
+    gPad->SetBottomMargin(1.15*gPad->GetBottomMargin());
+    gPad->SetTopMargin(1.8*gPad->GetTopMargin());
     h_dummy.GetXaxis()->SetTitle(fLimitTitle.c_str());
 
     if (fFitList[0]->fAtlasLabel != "none") ATLASLabel(0.32,0.93,fFitList[0]->fAtlasLabel.c_str(),kBlack);
@@ -1028,15 +1024,15 @@ void MultiFit::CompareLimit(){
     if(process!="") myText(0.94,0.85,kBlack,Form("#kern[-1]{%s}",process.c_str()));
 
     std::unique_ptr<TLegend> leg = nullptr;
-    if(showObs) leg = std::make_unique<TLegend>(0.65,0.2,0.95,0.40);
-    else        leg = std::make_unique<TLegend>(0.65,0.2,0.95,0.35);
+    if(fShowObserved) leg = std::make_unique<TLegend>(0.65,0.2,0.95,0.40);
+    else              leg = std::make_unique<TLegend>(0.65,0.2,0.95,0.35);
     leg->SetTextSize(gStyle->GetTextSize());
     leg->SetTextFont(gStyle->GetTextFont());
     leg->SetFillStyle(0);
     leg->SetBorderSize(0);
     leg->AddEntry(&g_1s,"Expected #pm 1#sigma","lf");
     leg->AddEntry(&g_2s,"Expected #pm 2#sigma","lf");
-    if(showObs) leg->AddEntry(&g_obs,"Observed","l");
+    if(fShowObserved)    leg->AddEntry(&g_obs,"Observed","l");
     if(fSignalInjection) leg->AddEntry(&g_inj,("Expected ("+fPOIName+"=1)").c_str(),"l");
     leg->Draw();
 
@@ -2664,22 +2660,6 @@ void MultiFit::Get2DLikelihoodScan( RooWorkspace *ws, const std::vector<std::str
     varY->setConstant(kTRUE); // make POI not constant after the fit
 
     // end of scaning, now fill some plots
-
-
-    // this is needed for potential blinding
-    // TRandom3 rand{};
-    // rand.SetSeed(1234567);
-    // const double rndNumber = rand.Uniform(5);
-    // for (auto & iY : y) {
-    //     if (fFitIsBlind){
-    //         iY+= rndNumber;
-    //     }
-    // }
-    // for (auto & iX : x) {
-    //     if (fFitIsBlind){
-    //         iX+= rndNumber;
-    //     }
-    // }
 
     // make plots
     TCanvas can("2D_NLLscan");

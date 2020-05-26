@@ -167,7 +167,6 @@ TRExFit::TRExFit(std::string name) :
     fDoGroupedSystImpactTable(false),
     fLimitType(ASYMPTOTIC),
     fLimitIsBlind(false),
-    fLimitPOIAsimov(0),
     fSignalInjection(false),
     fSignalInjectionValue(0),
     fLimitParamName("parameter"),
@@ -5147,7 +5146,7 @@ void TRExFit::GetLimit(){
             exit(EXIT_FAILURE);
         }
         if (TRExFitter::DEBUGLEVEL < 2) std::cout.setstate(std::ios_base::failbit);
-        data = std::unique_ptr<RooDataSet>(DumpData( ws_forLimit.get(), regionsForLimitDataType, npValues, npValues.find(fPOI)==npValues.end() ? fLimitPOIAsimov : npValues[fPOI] ));
+        data = std::unique_ptr<RooDataSet>(DumpData( ws_forLimit.get(), regionsForLimitDataType, npValues, npValues.find(fPOI)==npValues.end() ? 0 : npValues[fPOI] ));
         if (TRExFitter::DEBUGLEVEL < 2) std::cout.clear();
         
         //

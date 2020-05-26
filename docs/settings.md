@@ -197,7 +197,6 @@ The following settings are for normal fits, performed without the action `m`.
 | ---------- | ------------ |
 | LimitType                    | can be ASYMPTOTIC or TOYS (the latter is not yet supported) |
 | LimitBlind                   | can be TRUE or FALSE (TRUE means that ALL regions are blinded) |
-| POIAsimov                    | value of the POI to inject in the Asimov dataset in LimitBlind is set to TRUE |
 | SignalInjection              | if set to TRUE, expected signal with signal injection is evaluated |
 | SignalInjectionValue         | Value for the injected signal |
 | ParamName                    | Name for the parameter in the output ROOT file |
@@ -521,7 +520,6 @@ These options are for multi-fits, performed with action `m`.
 | LoadSuf          |
 | ConfigFile       | the path to the config file that you want to combine/compare |
 | Workspace        | the path to the workspace that you want to combine/compare |
-| ShowObserved     | can be TRUE or FALSE, set to TRUE to show the observed values of POI |
 | FitResultsFile   | the path to the file with fit results |
 | LimitsFile       | the path to the file with limits results |
 | POIName          | the name of the POI |
@@ -537,7 +535,6 @@ These options are for multi-fits, performed with action `m`.
 | ---------- | ------------ |
 | LimitType                    | can be ASYMPTOTIC or TOYS (the latter is not yet supported) |
 | LimitBlind                   | can be TRUE or FALSE (TRUE means that ALL regions are blinded) |
-| POIAsimov                    | value of the POI to inject in the Asimov dataset in LimitBlind is set to TRUE |
 | SignalInjection              | if set to TRUE, expected signal with signal injection is evaluated |
 | SignalInjectionValue         | Value for the injected signal |
 | ParamName                    | Name for the parameter in the output ROOT file |

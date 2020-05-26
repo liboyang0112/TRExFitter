@@ -2013,12 +2013,6 @@ int ConfigReader::ReadLimitOptions(){
         }
     }
 
-    // Set POIAsimov
-    param = confSet->Get("POIAsimov");
-    if( param != "" ){
-        fFitter->fLimitPOIAsimov = atof(param.c_str());
-    }
-
     // Set SignalInjection
     param = confSet->Get("SignalInjection");
     if( param != "" ){

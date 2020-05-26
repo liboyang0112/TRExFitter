@@ -649,12 +649,6 @@ int ConfigReaderMulti::ReadLimitOptions(){
         }
     }
 
-    // Set POIAsimov
-    param = confSet->Get("POIAsimov");
-    if( param != "" ){
-        fMultiFitter->fLimitPOIAsimov = atof(param.c_str());
-    }
-
     // Set SignalInjection
     param = confSet->Get("SignalInjection");
     if( param != "" ){
@@ -792,18 +786,6 @@ int ConfigReaderMulti::ReadFitOptions(const std::string& opt, const std::string&
         std::string wsFile = "";
         param = confSet->Get("Workspace");
         if(param!="") wsFile = RemoveQuotes(param);
-
-        // show obs
-        param = confSet->Get("ShowObserved");
-        if (param != ""){
-            std::transform(param.begin(), param.end(), param.begin(), ::toupper);
-            if(param=="FALSE") fMultiFitter->fFitShowObserved.push_back(false);
-            else if (param == "TRUE") fMultiFitter->fFitShowObserved.push_back(true);
-            else {
-                WriteWarningStatus("ConfigReaderMulti::ReadFitOptions", "You specified 'ShowObserved' option but you didn't provide valid setting. Using default (TRUE)");
-                fMultiFitter->fFitShowObserved.push_back(true);
-            }
-        }
 
         bool useInFit(true);
         param = confSet->Get("UseInFit");
