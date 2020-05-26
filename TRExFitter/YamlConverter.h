@@ -106,6 +106,8 @@ private:
     void Write(const YAML::Emitter& out, const std::string& type, const std::string& path) const;
 
     bool TableContainerIsOK(const TableContainer& container) const;
+    
+    bool PlotContainerIsOK(const PlotContainer& container) const;
 };
 
 #endif
