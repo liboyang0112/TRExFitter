@@ -119,6 +119,18 @@ private:
     bool TableContainerIsOK(const TableContainer& container) const;
     
     bool PlotContainerIsOK(const PlotContainer& container) const;
+
+    void AddCorrelation(std::ofstream& file) const;
+    
+    void AddRanking(std::ofstream& file) const;
+    
+    void AddPlots(std::ofstream& file, const SubmissionContainer& container) const;
+    
+    void AddTables(std::ofstream& file) const;
+    
+    void AddUnfolding(std::ofstream& file) const;
+
+    void Add(std::ofstream& o, const std::string& file, const std::string& text) const;
 };
 
 #endif

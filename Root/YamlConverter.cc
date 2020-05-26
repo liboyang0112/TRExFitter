@@ -878,5 +878,100 @@ bool YamlConverter::PlotContainerIsOK(const YamlConverter::PlotContainer& contai
     
 void YamlConverter::WriteHEPDataSubmission(const YamlConverter::SubmissionContainer& container) const {
 
+    gSystem->mkdir((container.folder + "/HEPData").c_str());
+
+    std::ofstream file;
+    file.open((container.folder + "/HEPData/submission.yaml"));
+    if (!file.is_open() || !file.good()) {
+        WriteWarningStatus("YamlConverter::WriteHEPDataSubmission", "Cannot open submission.yaml file");
+        return;
+    }
     
+    WriteInfoStatus("YamlConverter::WriteHEPDataSubmission", "Creating submission.yaml file in "+container.folder + "/HEPData/");
+
+    AddCorrelation(file);
+    file << "\n---\n";
+    AddRanking(file);
+    file << "\n---\n";
+    AddPlots(file, container);
+
+    if (container.useTables) {
+        AddTables(file);
+        file << "\n---\n";
+    }
+
+    if (container.isUnfolding) {
+        AddUnfolding(file);
+        file << "\n---\n";
+    }
+
+    file.close();
+}
+
+void YamlConverter::AddCorrelation(std::ofstream& file) const {
+
+    Add(file, "Correlation.yaml", "NP correlation matrix");
+}
+    
+void YamlConverter::AddRanking(std::ofstream& file) const {
+    Add(file, "Ranking.yaml", "NP ranking plot");
+}
+
+void YamlConverter::AddPlots(std::ofstream& file,
+                             const YamlConverter::SubmissionContainer& container) const {
+
+    for (const auto& ireg : container.regionNames) {
+        Add(file, ireg + "_prefit.yaml", ireg + " prefit");
+        file << "\n---\n";
+        Add(file, ireg + "_postfit.yaml", ireg + " postfit");
+        file << "\n---\n";
+    }
+}
+
+void YamlConverter::AddTables(std::ofstream& file) const {
+    Add(file, "Table_prefit.yaml", "Prefit yields");
+    file << "\n---\n";
+    Add(file, "Table_postfit.yaml", "Postfit yields");
+}
+
+void YamlConverter::AddUnfolding(std::ofstream& file) const {
+    Add(file, "Unfolding.yaml", "Unfolded data");
+}
+
+void YamlConverter::Add(std::ofstream& o, const std::string& file, const std::string& text) const {
+    
+    YAML::Emitter out;
+    out << YAML::BeginMap;
+    out << YAML::Key << "data_file";
+    out << YAML::Value << file;
+    out << YAML::Key << "description";
+    out << YAML::Value << "XXX";
+    out << YAML::Key << "keywords";
+    out << YAML::Value << YAML::BeginSeq;
+        out << YAML::BeginMap;
+        out << YAML::Key << "name";
+        out << YAML::Value << "reactions";
+        out << YAML::Key << "values";
+        out << YAML::Value << YAML::Flow << YAML::BeginSeq << "XXX" << YAML::EndSeq;
+        out << YAML::EndMap;
+        out << YAML::BeginMap;
+        out << YAML::Key << "name";
+        out << YAML::Value << "phrases";
+        out << YAML::Key << "values";
+        out << YAML::Value << YAML::Flow << YAML::BeginSeq << "XXX" << YAML::EndSeq;
+        out << YAML::EndMap;
+        out << YAML::BeginMap;
+        out << YAML::Key << "name";
+        out << YAML::Value << "cmenergies";
+        out << YAML::Key << "values";
+        out << YAML::Value << YAML::Flow << YAML::BeginSeq << "XXX" << YAML::EndSeq;
+        out << YAML::EndMap;
+    out << YAML::EndSeq;
+    out << YAML::Key << "location";
+    out << YAML::Value << "XXX";
+    out << YAML::Key << "name";
+    out << YAML::Value << text;
+    out << YAML::EndMap;
+
+    o << out.c_str();
 }
