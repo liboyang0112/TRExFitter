@@ -40,6 +40,7 @@ nav:
             - 'Goodness-of-fit': BasicTutorial2020/GOF.md
             - 'Building envelopes': BasicTutorial2020/Envelope.md
             - 'Force shape by hand': BasicTutorial2020/Shape.md
+            - 'HEPData format': BasicTutorial2020/HEPData.md
     - 'Advanced Tutorial (2020)':
         - 'Introduction': AdvancedTutorial2020/Introduction.md
         - 'Profile-likelihood with multiple templates': AdvancedTutorial2020/Morphing.md
