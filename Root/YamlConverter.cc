@@ -602,3 +602,13 @@ void YamlConverter::WriteUnfoldingHEPData(const TGraphAsymmErrors* const graph,
     Write(out, "HEPData unfolding result", directory + "/HEPData/Unfolding.yaml");
 }
 
+void YamlConverter::WritePlot(const YamlConverter::PlotContainer& container,
+                              const std::string& directory,
+                              const bool isPostFit) const {
+}
+
+void YamlConverter::WritePlotHEPData(const YamlConverter::PlotContainer& container,
+                                     const std::string& directory,
+                                     const bool isPostFit) const {
+}
+
