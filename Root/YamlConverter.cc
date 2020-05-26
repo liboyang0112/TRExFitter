@@ -538,6 +538,7 @@ void YamlConverter::WriteUnfolding(const TGraphAsymmErrors* const graph,
 }
     
 void YamlConverter::WriteUnfoldingHEPData(const TGraphAsymmErrors* const graph,
+                                          const std::string& xAxis,
                                           const std::string& directory) const {
 
     gSystem->mkdir((directory + "/HEPData").c_str());
@@ -550,8 +551,7 @@ void YamlConverter::WriteUnfoldingHEPData(const TGraphAsymmErrors* const graph,
             out << YAML::BeginMap;
                 out << YAML::Key << "header";
                 out << YAML::Value << YAML::BeginMap;
-                out << YAML::Key << "name" << YAML::Value <<  "Variable XXXX";
-                out << YAML::Key << "units" << YAML::Value <<  "GeV";
+                out << YAML::Key << "name" << YAML::Value <<  xAxis;
                 out << YAML::EndMap; 
                 out << YAML::Key << "values";
                 out << YAML::Value << YAML::BeginSeq;
@@ -874,4 +874,9 @@ bool YamlConverter::PlotContainerIsOK(const YamlConverter::PlotContainer& contai
     if (container.data.size() != nBins) return false;
 
     return true;
+}
+    
+void YamlConverter::WriteHEPDataSubmission(const YamlConverter::SubmissionContainer& container) const {
+
+    
 }
