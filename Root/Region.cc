@@ -592,6 +592,11 @@ std::unique_ptr<TRExPlot> Region::DrawPreFit(const std::vector<int>& canvasSize,
         if (fLabel != "none") p->AddLabel(fLabel);
         if(TRExFitter::OPTION["NoPrePostFit"]==0) p->AddLabel("Pre-Fit");
     }
+    YamlConverter::PlotContainer container;
+    container.region = fName;
+    container.xAxis = fVariableTitle;
+    container.yAxis = fYTitle;
+
     //
     p->SetLumi(fLumiLabel);
     p->SetCME(fCmeLabel);
@@ -601,6 +606,7 @@ std::unique_ptr<TRExPlot> Region::DrawPreFit(const std::vector<int>& canvasSize,
         const std::vector<int>& blindedBins = Common::GetBlindedBins(this,
                                                                      fBlindingType,
                                                                      fBlindingThreshold);
+        container.blindedBins = blindedBins;
         p->SetBinBlinding(blindedBins);
     }
 
@@ -610,11 +616,6 @@ std::unique_ptr<TRExPlot> Region::DrawPreFit(const std::vector<int>& canvasSize,
             p->SetBinLabel(i_bin+1,fBinLabels.at(i_bin));
         }
     }
-
-    YamlConverter::PlotContainer container;
-    container.region = fName;
-    container.xAxis = fVariableTitle;
-    container.yAxis = fYTitle;
 
     //
     // build h_tot
@@ -1714,6 +1715,7 @@ std::unique_ptr<TRExPlot> Region::DrawPostFit(FitResults* fitRes,
         const std::vector<int>& blindedBins = Common::GetBlindedBins(this,
                                                                      fBlindingType,
                                                                      fBlindingThreshold);
+        container.blindedBins = blindedBins;
         p->SetBinBlinding(blindedBins);
         if(fKeepPrefitBlindedBins && fBlindedBins!=nullptr) p->SetBinBlinding(blindedBins);
     }

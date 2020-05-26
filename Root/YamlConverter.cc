@@ -8,6 +8,7 @@
 #include "TGraphAsymmErrors.h"
 #include "TSystem.h"
 
+#include <algorithm>
 #include <fstream>
 
 YamlConverter::YamlConverter() :
@@ -683,8 +684,12 @@ void YamlConverter::WritePlot(const YamlConverter::PlotContainer& container,
             out << YAML::BeginMap;
             out << YAML::Key << "Yield";
             out << YAML::Value << YAML::Flow << YAML::BeginSeq;
-            for (const auto& i : container.data) {
-                out << i;
+            for (std::size_t i = 0; i < container.data.size(); i++) {
+                if (std::find(container.blindedBins.begin(), container.blindedBins.end(), i+1) == container.blindedBins.end()) {
+                    out << container.data.at(i);
+                } else {
+                    out << "blinded";
+                }
             }
             out << YAML::EndSeq;
             out << YAML::EndMap;
@@ -825,10 +830,14 @@ void YamlConverter::WritePlotHEPData(const YamlConverter::PlotContainer& contain
                 AddQualifiers(out);
                 out << YAML::Key << "values";
                 out << YAML::Value << YAML::BeginSeq;
-                for (const auto& idata : container.data) {
+                for (std::size_t i = 0; i < container.data.size(); i++) {
                     out << YAML::BeginMap;
                     out << YAML::Key << "value";
-                    out << YAML::Value << Form("%.f", idata);
+                    if (std::find(container.blindedBins.begin(), container.blindedBins.end(), i+1) == container.blindedBins.end()) {
+                        out << YAML::Value << Form("%.f", container.data.at(i));
+                    } else {
+                        out << "blinded";
+                    }
                     out << YAML::EndMap;
                 }
                 out << YAML::EndSeq;

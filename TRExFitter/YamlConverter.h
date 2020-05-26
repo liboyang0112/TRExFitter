@@ -40,6 +40,7 @@ public:
         std::vector<std::vector<double> > backgroundYields;
         TGraphAsymmErrors* errors;
         std::vector<double> data;
+        std::vector<int> blindedBins;
         std::string xAxis;
         std::string yAxis;
         std::string region;
