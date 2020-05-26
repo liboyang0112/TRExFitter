@@ -105,6 +105,7 @@ Drawing post-fit plots...
 === DEBUG::Region::DrawPostFit: Looking for gamma stat_SR_1_bin_3
 === DEBUG::Region::DrawPostFit:   -->  pull = 0.941234
 [1;32m=== INFO::Region::BuildPostFitErrorHist: Building post-fit plot for region SR_1 ...[0m
+[1;32m=== INFO::YamlConverter::Write: Writing postfit plot SR_1 yaml file to: FitExample/Plots/SR_1_postfit.yaml[0m
 === DEBUG::Region::DrawPostFit: --------------------
 === DEBUG::Region::DrawPostFit: Final bin contents
 === DEBUG::Region::DrawPostFit: --------------------
@@ -139,6 +140,7 @@ Info in <TCanvas::Print>: png file FitExample/Plots/SR_1_postFit.png has been cr
 === DEBUG::Region::DrawPostFit: Looking for gamma stat_SR_2_bin_3
 === DEBUG::Region::DrawPostFit:   -->  pull = 0.945739
 [1;32m=== INFO::Region::BuildPostFitErrorHist: Building post-fit plot for region SR_2 ...[0m
+[1;32m=== INFO::YamlConverter::Write: Writing postfit plot SR_2 yaml file to: FitExample/Plots/SR_2_postfit.yaml[0m
 === DEBUG::Region::DrawPostFit: --------------------
 === DEBUG::Region::DrawPostFit: Final bin contents
 === DEBUG::Region::DrawPostFit: --------------------
@@ -149,6 +151,7 @@ Info in <TCanvas::Print>: png file FitExample/Plots/SR_1_postFit.png has been cr
 [1;32m=== INFO::Region::DrawPostFit: Writing file FitExample/Histograms/SR_2_postFit.root[0m
 Info in <TCanvas::Print>: png file FitExample/Plots/SR_2_postFit.png has been created
 [1;32m=== INFO::Region::BuildPostFitErrorHist: Building post-fit plot for region VR ...[0m
+[1;32m=== INFO::YamlConverter::Write: Writing postfit plot VR yaml file to: FitExample/Plots/VR_postfit.yaml[0m
 === DEBUG::Region::DrawPostFit: --------------------
 === DEBUG::Region::DrawPostFit: Final bin contents
 === DEBUG::Region::DrawPostFit: --------------------

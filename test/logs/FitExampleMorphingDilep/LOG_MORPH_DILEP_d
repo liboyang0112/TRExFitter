@@ -46,6 +46,7 @@ Drawing pre-fit plots...
 [1;32m=== INFO::Region::BuildPreFitErrorHist:   probability = 1.000000[0m
 [1;32m=== INFO::Region::BuildPreFitErrorHist: ----------------------- ---------------------------- -----------------------[0m
 [1;32m=== INFO::Region::BuildPreFitErrorHist: ----------------------- ---------------------------- -----------------------[0m
+[1;32m=== INFO::YamlConverter::Write: Writing prefit plot SR_emu yaml file to: FitExampleMorphingDilep/Plots/SR_emu_prefit.yaml[0m
 [1;32m=== INFO::Region::BuildPreFitErrorHist: Building pre-fit plot for region CR_ll ...[0m
 [1;32m=== INFO::Region::BuildPreFitErrorHist: ----------------------- ---------------------------- -----------------------[0m
 [1;32m=== INFO::Region::BuildPreFitErrorHist: ----------------------- PRE-FIT AGREEMENT EVALUATION -----------------------[0m
@@ -55,6 +56,7 @@ Drawing pre-fit plots...
 [1;32m=== INFO::Region::BuildPreFitErrorHist:   probability = 1.000000[0m
 [1;32m=== INFO::Region::BuildPreFitErrorHist: ----------------------- ---------------------------- -----------------------[0m
 [1;32m=== INFO::Region::BuildPreFitErrorHist: ----------------------- ---------------------------- -----------------------[0m
+[1;32m=== INFO::YamlConverter::Write: Writing prefit plot CR_ll yaml file to: FitExampleMorphingDilep/Plots/CR_ll_prefit.yaml[0m
 [1;32m=== INFO::TRExFit::BuildYieldTable: -------------------------------------------[0m
 [1;32m=== INFO::TRExFit::BuildYieldTable: Building Yields Table...[0m
 [1;32m=== INFO::YamlConverter::Write: Writing prefit yield tables yaml file to: FitExampleMorphingDilep/Tables/Table_prefit.yaml[0m

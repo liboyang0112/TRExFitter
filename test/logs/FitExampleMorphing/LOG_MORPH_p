@@ -48,6 +48,7 @@ Drawing post-fit plots...
 [1;32m=== INFO::Region::BuildPostFitErrorHist:   probability = 1.000000[0m
 [1;32m=== INFO::Region::BuildPostFitErrorHist: ----------------------- ---------------------------- -----------------------[0m
 [1;32m=== INFO::Region::BuildPostFitErrorHist: ----------------------- ---------------------------- -----------------------[0m
+[1;32m=== INFO::YamlConverter::Write: Writing postfit plot SR_lep yaml file to: FitExampleMorphing/Plots/SR_lep_postfit.yaml[0m
 [1;32m=== INFO::Region::DrawPostFit: Writing file FitExampleMorphing/Histograms/SR_lep_postFit.root[0m
 [1;32m=== INFO::Region::BuildPostFitErrorHist: Building post-fit plot for region CR_Wmass ...[0m
 [1;32m=== INFO::Region::BuildPostFitErrorHist: ----------------------- ---------------------------- -----------------------[0m
@@ -58,6 +59,7 @@ Drawing post-fit plots...
 [1;32m=== INFO::Region::BuildPostFitErrorHist:   probability = 1.000000[0m
 [1;32m=== INFO::Region::BuildPostFitErrorHist: ----------------------- ---------------------------- -----------------------[0m
 [1;32m=== INFO::Region::BuildPostFitErrorHist: ----------------------- ---------------------------- -----------------------[0m
+[1;32m=== INFO::YamlConverter::Write: Writing postfit plot CR_Wmass yaml file to: FitExampleMorphing/Plots/CR_Wmass_postfit.yaml[0m
 [1;32m=== INFO::Region::DrawPostFit: Writing file FitExampleMorphing/Histograms/CR_Wmass_postFit.root[0m
 [1;32m=== INFO::TRExFit::BuildYieldTable: -------------------------------------------[0m
 [1;32m=== INFO::TRExFit::BuildYieldTable: Building Yields Table...[0m

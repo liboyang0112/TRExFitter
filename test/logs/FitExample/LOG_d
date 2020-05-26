@@ -119,10 +119,10 @@ Drawing pre-fit plots...
 === DEBUG::Region::BuildPreFitErrorHist:         Bin 4:   	 +0.000000%	 0.000000%
 === DEBUG::Region::BuildPreFitErrorHist: ----
 === DEBUG::Region::DrawPreFit: Writing file FitExample/Histograms/SR_1_preFit.root
+[1;32m=== INFO::YamlConverter::Write: Writing prefit plot SR_1 yaml file to: FitExample/Plots/SR_1_prefit.yaml[0m
 Info in <TCanvas::Print>: png file FitExample/Plots/SR_1.png has been created
 === DEBUG::Region::DrawPreFit: SigXsecOverSM => Scaling Signal by 1.000000
 [1;32m=== INFO::Region::BuildPreFitErrorHist: Building pre-fit plot for region SR_2 ...[0m
-Info in <TCanvas::Print>: png file FitExample/Plots/SR_2.png has been created
 === DEBUG::Region::BuildPreFitErrorHist:   Sample: Bkg1
 === DEBUG::Region::BuildPreFitErrorHist:     Systematic: JES
 === DEBUG::Region::BuildPreFitErrorHist:         Bin 1:   	 +-16.580231%	 16.580231%
@@ -158,9 +158,10 @@ Info in <TCanvas::Print>: png file FitExample/Plots/SR_2.png has been created
 === DEBUG::Region::BuildPreFitErrorHist:         Bin 4:   	 +0.000000%	 0.000000%
 === DEBUG::Region::BuildPreFitErrorHist: ----
 === DEBUG::Region::DrawPreFit: Writing file FitExample/Histograms/SR_2_preFit.root
+[1;32m=== INFO::YamlConverter::Write: Writing prefit plot SR_2 yaml file to: FitExample/Plots/SR_2_prefit.yaml[0m
+Info in <TCanvas::Print>: png file FitExample/Plots/SR_2.png has been created
 === DEBUG::Region::DrawPreFit: SigXsecOverSM => Scaling Signal by 1.000000
 [1;32m=== INFO::Region::BuildPreFitErrorHist: Building pre-fit plot for region VR ...[0m
-Info in <TCanvas::Print>: png file FitExample/Plots/VR.png has been created
 === DEBUG::Region::BuildPreFitErrorHist:   Sample: Bkg1
 === DEBUG::Region::BuildPreFitErrorHist:     Systematic: JES
 === DEBUG::Region::BuildPreFitErrorHist:         Bin 1:   	 +-16.580226%	 16.580221%
@@ -211,6 +212,8 @@ Info in <TCanvas::Print>: png file FitExample/Plots/VR.png has been created
 === DEBUG::Region::BuildPreFitErrorHist:         Bin 4:   	 +0.000000%	 0.000000%
 === DEBUG::Region::BuildPreFitErrorHist: ----
 === DEBUG::Region::DrawPreFit: Writing file FitExample/Histograms/VR_preFit.root
+[1;32m=== INFO::YamlConverter::Write: Writing prefit plot VR yaml file to: FitExample/Plots/VR_prefit.yaml[0m
+Info in <TCanvas::Print>: png file FitExample/Plots/VR.png has been created
 [1;32m=== INFO::TRExFit::DrawSummary: -------------------------------------------[0m
 [1;32m=== INFO::TRExFit::DrawSummary: Building Summary Plot...[0m
 Info in <TCanvas::Print>: png file FitExample/Plots/Summary.png has been created
