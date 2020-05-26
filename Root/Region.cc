@@ -1633,7 +1633,6 @@ std::unique_ptr<TRExPlot> Region::DrawPostFit(FitResults* fitRes,
         std::vector<TH1*> hSigNew;
         for(int i=0; i<fNSamples; i++){
             if(fSampleHists[i]->fSample->fType==Sample::SIGNAL){
-                container.samples.emplace_back(fSampleHists[i]->fSample->fTitle);
                 std::vector<double> tmp;
                 for (int ibin = 1; ibin <= hSmpNew[i]->GetNbinsX(); ++ibin) {
                     tmp.emplace_back(hSmpNew[i]->GetBinContent(ibin));
@@ -1642,7 +1641,6 @@ std::unique_ptr<TRExPlot> Region::DrawPostFit(FitResults* fitRes,
                 hSigNew.emplace_back(hSmpNew[i]);
             }
             if(fSampleHists[i]->fSample->fType==Sample::BACKGROUND){
-                container.samples.emplace_back(fSampleHists[i]->fSample->fTitle);
                 std::vector<double> tmp;
                 for (int ibin = 1; ibin <= hSmpNew[i]->GetNbinsX(); ++ibin) {
                     tmp.emplace_back(hSmpNew[i]->GetBinContent(ibin));
@@ -1658,6 +1656,7 @@ std::unique_ptr<TRExPlot> Region::DrawPostFit(FitResults* fitRes,
             p->SetData(fData->fHist.get(),fData->fSample->fTitle);
         }
         for(int i=0;i<fNSig;i++){
+            container.samples.emplace_back(fSig[i]->fSample->fTitle);
             std::string title = fSig[i]->fSample->fTitle;
             if(fSig[i]->fSample->fGroup != "") title = fSig[i]->fSample->fGroup;
             if(TRExFitter::SHOWSTACKSIG)    p->AddSignal(    hSigNew[i],title);
@@ -1675,6 +1674,7 @@ std::unique_ptr<TRExPlot> Region::DrawPostFit(FitResults* fitRes,
             }
         }
         for(int i=0;i<fNBkg;i++){
+            container.samples.emplace_back(fBkg[i]->fSample->fTitle);
             std::string title = fBkg[i]->fSample->fTitle;
             if(fBkg[i]->fSample->fGroup != "") title = fBkg[i]->fSample->fGroup;
             p->AddBackground(hBkgNew[i],title);
