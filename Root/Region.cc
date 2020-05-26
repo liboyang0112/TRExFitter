@@ -13,6 +13,7 @@
 #include "TRExFitter/SystematicHist.h"
 #include "TRExFitter/StatusLogbook.h"
 #include "TRExFitter/TRExPlot.h"
+#include "TRExFitter/YamlConverter.h"
 
 // ROOT includes
 #include "Math/DistFunc.h"
@@ -122,6 +123,8 @@ Region::Region(const string& name) :
     fNumberUnfoldingRecoBins(0),
     fNormalizeMigrationMatrix(true),
     fHasAcceptance(false),
+    fFolder(""),
+    fHEPDataFormat(false),
     fAutomaticDropBins(false) {
 
 
@@ -589,6 +592,11 @@ std::unique_ptr<TRExPlot> Region::DrawPreFit(const std::vector<int>& canvasSize,
         if (fLabel != "none") p->AddLabel(fLabel);
         if(TRExFitter::OPTION["NoPrePostFit"]==0) p->AddLabel("Pre-Fit");
     }
+    YamlConverter::PlotContainer container;
+    container.region = fName;
+    container.xAxis = fVariableTitle;
+    container.yAxis = fYTitle;
+
     //
     p->SetLumi(fLumiLabel);
     p->SetCME(fCmeLabel);
@@ -598,6 +606,7 @@ std::unique_ptr<TRExPlot> Region::DrawPreFit(const std::vector<int>& canvasSize,
         const std::vector<int>& blindedBins = Common::GetBlindedBins(this,
                                                                      fBlindingType,
                                                                      fBlindingThreshold);
+        container.blindedBins = blindedBins;
         p->SetBinBlinding(blindedBins);
     }
 
@@ -612,8 +621,14 @@ std::unique_ptr<TRExPlot> Region::DrawPreFit(const std::vector<int>& canvasSize,
     // build h_tot
     //
     fTot.reset(nullptr);
-    if(fHasData && opt.find("blind")==string::npos) p->SetData(fData->fHist.get(),fData->fSample->fTitle);
+    if(fHasData && opt.find("blind")==string::npos) {
+        for (int ibin = 1; ibin <= fData->fHist->GetNbinsX(); ++ibin) {
+            container.data.emplace_back(fData->fHist->GetBinContent(ibin));
+        }
+        p->SetData(fData->fHist.get(),fData->fSample->fTitle);
+    }
     for(int i=0;i<fNSig;i++) {
+        container.samples.emplace_back(fSig[i]->fSample->fTitle);
         std::string title = fSig[i]->fSample->fTitle;
         if(fSig[i]->fSample->fGroup != "") title = fSig[i]->fSample->fGroup;
         std::unique_ptr<TH1> h(static_cast<TH1*>(fSig[i]->fHist->Clone()));
@@ -673,13 +688,20 @@ std::unique_ptr<TRExPlot> Region::DrawPreFit(const std::vector<int>& canvasSize,
         else{
             if(TRExFitter::OPTION["NormSigSRonly"] && fRegionType==SIGNAL) p->AddNormSignal(h.get(),title);
         }
+        std::vector<double> tmp;
+        for (int ibin = 1; ibin <= h->GetNbinsX(); ++ibin) {
+            tmp.emplace_back(h->GetBinContent(ibin));
+        }
+
         if(TRExFitter::SHOWOVERLAYSIG) p->AddOverSignal(h.get(),title);
         if(TRExFitter::SHOWSTACKSIG && TRExFitter::ADDSTACKSIG){
             if(fTot==nullptr) fTot.reset(static_cast<TH1*>(h->Clone("h_tot")));
             else              fTot->Add(h.get());
         }
+        container.signalYields.emplace_back(std::move(tmp));
     }
     for(int i=0;i<fNBkg;i++){
+        container.samples.emplace_back(fBkg[i]->fSample->fTitle);
         std::string title = fBkg[i]->fSample->fTitle;
         if(fBkg[i]->fSample->fGroup != "") title = fBkg[i]->fSample->fGroup;
         std::unique_ptr<TH1> h(static_cast<TH1*>(fBkg[i]->fHist->Clone()));
@@ -730,9 +752,14 @@ std::unique_ptr<TRExPlot> Region::DrawPreFit(const std::vector<int>& canvasSize,
                 }
             }
         }
+        std::vector<double> tmp;
+        for (int ibin = 1; ibin <= h->GetNbinsX(); ++ibin) {
+            tmp.emplace_back(h->GetBinContent(ibin));
+        }
         p->AddBackground(h.get(),title);
         if(fTot==nullptr) fTot.reset(static_cast<TH1*>(h->Clone("h_tot")));
         else          fTot->Add(h.get());
+        container.backgroundYields.emplace_back(std::move(tmp));
     }
 
     //
@@ -772,6 +799,7 @@ std::unique_ptr<TRExPlot> Region::DrawPreFit(const std::vector<int>& canvasSize,
     //
     // Sets the last ingredients in the TRExPlot object
     //
+    container.errors = fErr.get();
     p->SetTotBkgAsym(fErr.get());
     p->fATLASlabel = fATLASlabel;
     p->fRatioYtitle = fRatioYtitle;
@@ -786,6 +814,14 @@ std::unique_ptr<TRExPlot> Region::DrawPreFit(const std::vector<int>& canvasSize,
     p->fLegendY = fLegendY;
     if(fLogScale) opt += " log";
     p->Draw(opt);
+
+    // Yaml
+    YamlConverter converter{};
+    converter.WritePlot(container, fFolder, false);
+    if (fHEPDataFormat) {
+        converter.WritePlotHEPData(container, fFolder, false);
+    }
+
     return p;
 }
 
@@ -1395,6 +1431,11 @@ std::unique_ptr<TRExPlot> Region::DrawPostFit(FitResults* fitRes,
         }
     }
 
+    YamlConverter::PlotContainer container;
+    container.region = fName;
+    container.xAxis = fVariableTitle;
+    container.yAxis = fYTitle;
+
     //
     // 0) Create a new hist for each sample
     //
@@ -1592,15 +1633,31 @@ std::unique_ptr<TRExPlot> Region::DrawPostFit(FitResults* fitRes,
         std::vector<TH1*> hBkgNew;
         std::vector<TH1*> hSigNew;
         for(int i=0; i<fNSamples; i++){
-            if(fSampleHists[i]->fSample->fType==Sample::BACKGROUND){
-                hBkgNew.emplace_back(hSmpNew[i]);
-            }
             if(fSampleHists[i]->fSample->fType==Sample::SIGNAL){
+                std::vector<double> tmp;
+                for (int ibin = 1; ibin <= hSmpNew[i]->GetNbinsX(); ++ibin) {
+                    tmp.emplace_back(hSmpNew[i]->GetBinContent(ibin));
+                }
+                container.signalYields.emplace_back(std::move(tmp));
                 hSigNew.emplace_back(hSmpNew[i]);
             }
+            if(fSampleHists[i]->fSample->fType==Sample::BACKGROUND){
+                std::vector<double> tmp;
+                for (int ibin = 1; ibin <= hSmpNew[i]->GetNbinsX(); ++ibin) {
+                    tmp.emplace_back(hSmpNew[i]->GetBinContent(ibin));
+                }
+                container.backgroundYields.emplace_back(std::move(tmp));
+                hBkgNew.emplace_back(hSmpNew[i]);
+            }
         }
-        if(fHasData && opt.find("blind")==string::npos) p->SetData(fData->fHist.get(),fData->fSample->fTitle);
+        if(fHasData && opt.find("blind")==string::npos) {
+            for (int ibin = 1; ibin <= fData->fHist->GetNbinsX(); ++ibin) {
+                container.data.emplace_back(fData->fHist->GetBinContent(ibin));
+            }
+            p->SetData(fData->fHist.get(),fData->fSample->fTitle);
+        }
         for(int i=0;i<fNSig;i++){
+            container.samples.emplace_back(fSig[i]->fSample->fTitle);
             std::string title = fSig[i]->fSample->fTitle;
             if(fSig[i]->fSample->fGroup != "") title = fSig[i]->fSample->fGroup;
             if(TRExFitter::SHOWSTACKSIG)    p->AddSignal(    hSigNew[i],title);
@@ -1618,6 +1675,7 @@ std::unique_ptr<TRExPlot> Region::DrawPostFit(FitResults* fitRes,
             }
         }
         for(int i=0;i<fNBkg;i++){
+            container.samples.emplace_back(fBkg[i]->fSample->fTitle);
             std::string title = fBkg[i]->fSample->fTitle;
             if(fBkg[i]->fSample->fGroup != "") title = fBkg[i]->fSample->fGroup;
             p->AddBackground(hBkgNew[i],title);
@@ -1657,6 +1715,7 @@ std::unique_ptr<TRExPlot> Region::DrawPostFit(FitResults* fitRes,
         const std::vector<int>& blindedBins = Common::GetBlindedBins(this,
                                                                      fBlindingType,
                                                                      fBlindingThreshold);
+        container.blindedBins = blindedBins;
         p->SetBinBlinding(blindedBins);
         if(fKeepPrefitBlindedBins && fBlindedBins!=nullptr) p->SetBinBlinding(blindedBins);
     }
@@ -1675,6 +1734,7 @@ std::unique_ptr<TRExPlot> Region::DrawPostFit(FitResults* fitRes,
     //
     // 5) Finishes configuration of TRExPlot objects
     //
+    container.errors = fErr_postFit.get();
     p->SetTotBkgAsym(fErr_postFit.get());
     p->fATLASlabel = fATLASlabel;
     p->fRatioYtitle = fRatioYtitle;
@@ -1690,6 +1750,13 @@ std::unique_ptr<TRExPlot> Region::DrawPostFit(FitResults* fitRes,
     if(fLogScale) opt += " log";
 
     p->Draw(opt);
+
+    // Yaml
+    YamlConverter converter{};
+    converter.WritePlot(container, fFolder, true);
+    if (fHEPDataFormat) {
+        converter.WritePlotHEPData(container, fFolder, true);
+    }
 
     //
     // Print bin content and errors

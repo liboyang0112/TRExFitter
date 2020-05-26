@@ -1364,6 +1364,10 @@ void TRExFit::DrawAndSaveAll(std::string opt){
                 fRegions[i_ch]->fData = cash;
             }
         }
+        for (auto& ireg : fRegions) {
+            ireg->fFolder = fName;
+            ireg->fHEPDataFormat = fHEPDataFormat;
+        }
         //
         if(isPostFit){
             std::ofstream pullTex;

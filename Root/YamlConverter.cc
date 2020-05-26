@@ -8,6 +8,7 @@
 #include "TGraphAsymmErrors.h"
 #include "TSystem.h"
 
+#include <algorithm>
 #include <fstream>
 
 YamlConverter::YamlConverter() :
@@ -602,3 +603,275 @@ void YamlConverter::WriteUnfoldingHEPData(const TGraphAsymmErrors* const graph,
     Write(out, "HEPData unfolding result", directory + "/HEPData/Unfolding.yaml");
 }
 
+void YamlConverter::WritePlot(const YamlConverter::PlotContainer& container,
+                              const std::string& directory,
+                              const bool isPostFit) const {
+    
+    if (!YamlConverter::PlotContainerIsOK(container)) {
+        WriteWarningStatus("YamlConverter::WritePlot", "Inconsistent inputs for plots!");
+        return;
+    }
+
+    YAML::Emitter out;
+    out << YAML::BeginMap;
+    out << YAML::Key << "Samples";
+    out << YAML::Value << YAML::BeginSeq;
+    for (std::size_t isample = 0; isample < container.signalYields.size(); ++isample) {
+        out << YAML::BeginMap;
+        out << YAML::Key << "Name";
+        out << YAML::Value << container.samples.at(isample);
+        out << YAML::Key << "Yield";
+        out << YAML::Value << YAML::Flow << YAML::BeginSeq;
+        for (const auto& i : container.signalYields.at(isample)) {
+            out << i;
+        }
+        out << YAML::EndSeq;
+        out << YAML::EndMap;
+    }
+    for (std::size_t isample = 0; isample < container.backgroundYields.size(); ++isample) {
+        out << YAML::BeginMap;
+        out << YAML::Key << "Name";
+        out << YAML::Value << container.samples.at(container.signalYields.size() + isample);
+        out << YAML::Key << "Yield";
+        out << YAML::Value << YAML::Flow << YAML::BeginSeq;
+        for (const auto& i : container.backgroundYields.at(isample)) {
+            out << i;
+        }
+        out << YAML::EndSeq;
+        out << YAML::EndMap;
+    }
+    out << YAML::EndSeq;
+
+    out << YAML::Key << "Total";
+    out << YAML::Value << YAML::BeginSeq;
+        out << YAML::BeginMap;
+        out << YAML::Key << "Yield";
+        out << YAML::Value << YAML::Flow << YAML::BeginSeq;
+        for (int i = 0; i < container.errors->GetN(); ++i) {
+            double x;
+            double y;
+            container.errors->GetPoint(i, x, y);
+            out << y;
+        }
+        out << YAML::EndSeq;
+        out << YAML::Key << "UncertaintyUp";
+        out << YAML::Value << YAML::Flow << YAML::BeginSeq;
+        for (int i = 0; i < container.errors->GetN(); ++i) {
+            double x;
+            double y;
+            container.errors->GetPoint(i, x, y);
+            const double y_max = container.errors->GetErrorYhigh(i);
+            out << y_max;
+        }
+        out << YAML::EndSeq;
+        out << YAML::Key << "UncertaintyDown";
+        out << YAML::Value << YAML::Flow << YAML::BeginSeq;
+        for (int i = 0; i < container.errors->GetN(); ++i) {
+            double x;
+            double y;
+            container.errors->GetPoint(i, x, y);
+            const double y_min = container.errors->GetErrorYlow(i);
+            out << -y_min;
+        }
+        out << YAML::EndSeq;
+        out << YAML::EndMap;
+        
+    out << YAML::EndSeq;
+    
+    if (!container.data.empty()) {
+        out << YAML::Key << "Data";
+        out << YAML::Value << YAML::BeginSeq;
+            out << YAML::BeginMap;
+            out << YAML::Key << "Yield";
+            out << YAML::Value << YAML::Flow << YAML::BeginSeq;
+            for (std::size_t i = 0; i < container.data.size(); i++) {
+                if (std::find(container.blindedBins.begin(), container.blindedBins.end(), i+1) == container.blindedBins.end()) {
+                    out << container.data.at(i);
+                } else {
+                    out << "blinded";
+                }
+            }
+            out << YAML::EndSeq;
+            out << YAML::EndMap;
+        out << YAML::EndSeq;
+    }
+
+    out << YAML::Key << "Figure";
+    out << YAML::Value << YAML::BeginSeq;
+        out << YAML::BeginMap;
+        out << YAML::Key << "BinEdges";
+        out << YAML::Value << YAML::Flow << YAML::BeginSeq;
+        double x;
+        double y;
+        for (int i = 0; i < container.errors->GetN(); ++i) {
+            container.errors->GetPoint(i, x, y);
+            const double x_min = container.errors->GetErrorXlow(i);
+            out << x - x_min;
+        }
+        const double x_max = container.errors->GetErrorXlow(container.errors->GetN() - 1);
+        out << x + x_max;
+        out << YAML::EndSeq;
+        out << YAML::Key << "XaxisLabel";
+        out << YAML::Value << container.xAxis;
+        out << YAML::Key << "YaxisLabel";
+        out << YAML::Value << container.yAxis;
+        out << YAML::EndMap;
+    out << YAML::EndSeq;
+    out << YAML::EndMap;
+
+    if (isPostFit) {
+        const std::string path = directory + "/Plots/" + container.region + "_postfit.yaml"; 
+        Write(out, "postfit plot " + container.region, path);
+    } else {
+        const std::string path = directory + "/Plots/" + container.region + "_prefit.yaml"; 
+        Write(out, "prefit plot " + container.region, path);
+    }
+}
+
+void YamlConverter::WritePlotHEPData(const YamlConverter::PlotContainer& container,
+                                     const std::string& directory,
+                                     const bool isPostFit) const {
+    
+    if (!YamlConverter::PlotContainerIsOK(container)) {
+        WriteWarningStatus("YamlConverter::WritePlotHEPData", "Inconsistent inputs for plots!");
+        return;
+    }
+
+    YAML::Emitter out;
+    out << YAML::BeginMap;
+        out << YAML::Key << "independent_variables";
+        out << YAML::Value << YAML::BeginSeq;
+            out << YAML::BeginMap;
+                out << YAML::Key << "header";
+                out << YAML::Value << YAML::BeginMap;
+                out << YAML::Key << "name" << YAML::Value <<  container.xAxis;
+                out << YAML::EndMap; 
+                out << YAML::Key << "values";
+                out << YAML::Value << YAML::BeginSeq;
+                for (int i = 0; i < container.errors->GetN(); ++i) {
+                    double x;
+                    double y;
+                    container.errors->GetPoint(i, x, y);
+
+                    const double x_min = container.errors->GetErrorXlow(i);
+                    const double x_max = container.errors->GetErrorXhigh(i);
+                    out << YAML::BeginMap;
+                        out << YAML::Key << "high";
+                        out << YAML::Value << x+x_max;
+                        out << YAML::Key << "low";
+                        out << YAML::Value << x-x_min;
+                        out << YAML::Key << "value";
+                        out << YAML::Value << x;
+                    out << YAML::EndMap;
+                }
+                out << YAML::EndSeq;
+            out << YAML::EndMap;
+        out << YAML::EndSeq;
+        
+        // dependent variables
+        out << YAML::Key << "dependent_variables";
+        out << YAML::Value << YAML::BeginSeq;
+        for (std::size_t isample = 0; isample < container.signalYields.size(); ++isample) {
+            out << YAML::BeginMap;
+                out << YAML::Key << "header";
+                out << YAML::Value << YAML::BeginMap << YAML::Key << "name" << YAML::Value << container.samples.at(isample) << YAML::EndMap;
+                AddQualifiers(out);
+                out << YAML::Key << "values";
+                out << YAML::Value << YAML::BeginSeq;
+                for (const auto& i : container.signalYields.at(isample)) {
+                    out << YAML::BeginMap;
+                    out << YAML::Key << "value";
+                    out << YAML::Value << Common::KeepSignificantDigits(i,2);
+                    out << YAML::EndMap;
+                }
+                out << YAML::EndSeq;
+            out << YAML::EndMap;
+        }
+        for (std::size_t isample = 0; isample < container.backgroundYields.size(); ++isample) {
+            out << YAML::BeginMap;
+                out << YAML::Key << "header";
+                out << YAML::Value << YAML::BeginMap << YAML::Key << "name" << YAML::Value << container.samples.at(container.signalYields.size() + isample) << YAML::EndMap;
+                AddQualifiers(out);
+                out << YAML::Key << "values";
+                out << YAML::Value << YAML::BeginSeq;
+                for (const auto& i : container.backgroundYields.at(isample)) {
+                    out << YAML::BeginMap;
+                    out << YAML::Key << "value";
+                    out << YAML::Value << Common::KeepSignificantDigits(i,2); 
+                    out << YAML::EndMap;
+                }
+                out << YAML::EndSeq;
+            out << YAML::EndMap;
+        }
+        out << YAML::BeginMap;
+            out << YAML::Key << "header";
+            out << YAML::Value << YAML::BeginMap << YAML::Key << "name" << "Total" << YAML::EndMap;
+            AddQualifiers(out);
+            out << YAML::Key << "values";
+            out << YAML::Value << YAML::BeginSeq;
+            for (int i = 0; i < container.errors->GetN(); ++i) {
+                double x;
+                double y;
+                container.errors->GetPoint(i, x, y);
+
+                const double y_min = container.errors->GetErrorYlow(i);
+                const double y_max = container.errors->GetErrorYhigh(i);
+                out << YAML::BeginMap;
+                AddValueErrors(out, y, y_max, -y_min);
+                out << YAML::EndMap;
+            }
+            out << YAML::EndSeq;
+        out << YAML::EndMap;
+        
+        if (!container.data.empty()) {
+            out << YAML::BeginMap;
+                out << YAML::Key << "header";
+                out << YAML::Value << YAML::BeginMap << YAML::Key << "name" << "Data" << YAML::EndMap;
+                AddQualifiers(out);
+                out << YAML::Key << "values";
+                out << YAML::Value << YAML::BeginSeq;
+                for (std::size_t i = 0; i < container.data.size(); i++) {
+                    out << YAML::BeginMap;
+                    out << YAML::Key << "value";
+                    if (std::find(container.blindedBins.begin(), container.blindedBins.end(), i+1) == container.blindedBins.end()) {
+                        out << YAML::Value << Form("%.f", container.data.at(i));
+                    } else {
+                        out << "blinded";
+                    }
+                    out << YAML::EndMap;
+                }
+                out << YAML::EndSeq;
+            out << YAML::EndMap;
+        }
+        
+        out << YAML::EndSeq;
+    out << YAML::EndMap;
+
+
+    if (isPostFit) {
+        const std::string path = directory + "/HEPData/" + container.region + "_postfit.yaml"; 
+        Write(out, "HEPData postfit plot " + container.region, path);
+    } else {
+        const std::string path = directory + "/HEPData/" + container.region + "_prefit.yaml"; 
+        Write(out, "HEPData prefit plot " + container.region, path);
+    }
+}
+ 
+bool YamlConverter::PlotContainerIsOK(const YamlConverter::PlotContainer& container) const {
+
+    const std::size_t nSamples = container.samples.size();
+    const std::size_t nBins = static_cast<std::size_t>(container.errors->GetN());
+    if (nBins == 0) return false;
+    if ((container.signalYields.size() + container.backgroundYields.size()) != nSamples) return false;
+    for (const auto& yields : container.signalYields) {
+        if (yields.size() != nBins) return false;
+    }
+    
+    for (const auto& yields : container.backgroundYields) {
+        if (yields.size() != nBins) return false;
+    }
+
+    if (container.data.size() != nBins) return false;
+
+    return true;
+}

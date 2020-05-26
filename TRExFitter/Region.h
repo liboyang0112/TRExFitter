@@ -300,6 +300,9 @@ public:
     bool fNormalizeMigrationMatrix;
     bool fHasAcceptance;
 
+    std::string fFolder;
+    bool fHEPDataFormat;
+
 private:
 
     bool fAutomaticDropBins;

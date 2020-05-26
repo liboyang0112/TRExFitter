@@ -47,6 +47,7 @@ Drawing pre-fit plots...
 [1;32m=== INFO::Region::BuildPreFitErrorHist:   probability = 0.010558[0m
 [1;32m=== INFO::Region::BuildPreFitErrorHist: ----------------------- ---------------------------- -----------------------[0m
 [1;32m=== INFO::Region::BuildPreFitErrorHist: ----------------------- ---------------------------- -----------------------[0m
+[1;32m=== INFO::YamlConverter::Write: Writing prefit plot ljets_5j3b_HT yaml file to: FitExampleNtuple/Plots/ljets_5j3b_HT_prefit.yaml[0m
 [1;32m=== INFO::Region::BuildPreFitErrorHist: Building pre-fit plot for region ljets_6j4b_BDT ...[0m
 [1;32m=== INFO::Region::BuildPreFitErrorHist: ----------------------- ---------------------------- -----------------------[0m
 [1;32m=== INFO::Region::BuildPreFitErrorHist: ----------------------- PRE-FIT AGREEMENT EVALUATION -----------------------[0m
@@ -57,6 +58,7 @@ Drawing pre-fit plots...
 [1;32m=== INFO::Region::BuildPreFitErrorHist:   probability = 0.169943[0m
 [1;32m=== INFO::Region::BuildPreFitErrorHist: ----------------------- ---------------------------- -----------------------[0m
 [1;32m=== INFO::Region::BuildPreFitErrorHist: ----------------------- ---------------------------- -----------------------[0m
+[1;32m=== INFO::YamlConverter::Write: Writing prefit plot ljets_6j4b_BDT yaml file to: FitExampleNtuple/Plots/ljets_6j4b_BDT_prefit.yaml[0m
 [1;32m=== INFO::TRExFit::DrawSummary: -------------------------------------------[0m
 [1;32m=== INFO::TRExFit::DrawSummary: Building Summary Plot...[0m
 [1;32m=== INFO::TRExFit::DrawSummary: -------------------------------------------[0m

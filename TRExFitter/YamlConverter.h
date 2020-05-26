@@ -34,6 +34,18 @@ public:
         std::vector<std::vector<double> > dataYields;
     };
 
+    struct PlotContainer {
+        std::vector<std::string> samples;
+        std::vector<std::vector<double> > signalYields;
+        std::vector<std::vector<double> > backgroundYields;
+        TGraphAsymmErrors* errors;
+        std::vector<double> data;
+        std::vector<int> blindedBins;
+        std::string xAxis;
+        std::string yAxis;
+        std::string region;
+    };
+
     explicit YamlConverter();
     ~YamlConverter() = default;
 
@@ -73,6 +85,14 @@ public:
     void WriteUnfoldingHEPData(const TGraphAsymmErrors* const graph,
                                const std::string& directory) const;
 
+    void WritePlot(const PlotContainer& container,
+                   const std::string& directory,
+                   const bool isPostFit) const;
+
+    void WritePlotHEPData(const PlotContainer& container,
+                          const std::string& directory,
+                          const bool isPostFit) const;
+
 private:
     std::string m_lumi;
     std::string m_cme;
@@ -87,6 +107,8 @@ private:
     void Write(const YAML::Emitter& out, const std::string& type, const std::string& path) const;
 
     bool TableContainerIsOK(const TableContainer& container) const;
+    
+    bool PlotContainerIsOK(const PlotContainer& container) const;
 };
 
 #endif
