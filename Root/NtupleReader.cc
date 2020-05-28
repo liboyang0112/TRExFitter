@@ -8,6 +8,7 @@
 #include "TRExFitter/TRExFit.h"
 
 #include "TChain.h"
+#include "TROOT.h"
 
 NtupleReader::NtupleReader(TRExFit* fitter) :
     fFitter(fitter)
