@@ -17,7 +17,6 @@ Please have a look at [CONTRIBUTING.md](CONTRIBUTING.md) to get started.
 1.  [Getting the code](#getting-the-code)
 2.  [Setup](#setup)
     * [Build it yourself](#build-it-yourself)
-        * [Setup the code inside ATLAS environments](#setup-the-code-inside-atlas-environments)
     * [Using a Docker image](#using-a-docker-image)
         * [Setup using Docker image with Singularity](#setup-using-docker-image-with-singularity)
         * [Setup using Docker image with Docker](#setup-using-docker-image-with-docker)
@@ -92,19 +91,6 @@ or simply using the alias defined in the `setup.sh` script:
     trex-make
 ```
 
-#### Setup the code inside ATLAS environments
-To setup the code inside ATLAS environments such as `AnalysisBase` or `AnalysisTop`, do:
-```
-mkdir source build
-cd source
-asetup AnalysisBase,21.2.70,here
-git clone --recursive ssh://git@gitlab.cern.ch:7999/TRExStats/TRExFitter.git
-cd ../build/
-cmake ../source && make
-source  x86_64-centos7-gcc62-opt/setup.sh
-```
-Then, the setup is ready to execute `trex-fitter`.
-
 ### Using a Docker image
 TRExFitter can be run via the provided Docker images. The image tagged `latest` corresponds to the current code version in the master branch. There are also tagged versions of the images corresponding to the TRExFitter tags, starting after version `TtHFitter-00-04-06`. An overview of the available images can be found in the [container registry](https://gitlab.cern.ch/TRExStats/TRExFitter/container_registry).
 
@@ -121,8 +107,6 @@ Now you can run the following command:
 singularity run --contain -B /tmp --pwd ${PWD} docker://gitlab-registry.cern.ch/trexstats/trexfitter:latest
 ```
 Replace `latest` by another tag to get the corresponding version of the code. In the container you will directly have the `trex-fitter` executable. If you cannot see your local folders, you might need to mount them via the `-B` flag. The TRExFitter code is located in the folder `/TRExFitter/source/TRExFitter` within the container.
-
-You might want to add the flag ```--silent``` to suppress the warnings occuring for AnalysisBase images based on CentOS7.
 
 #### Setup using Docker image with Docker
 These steps describe how to use the image with the Docker software, for example on your own local machine. Get started by downloading docker [here](https://www.docker.com/products/docker-desktop).

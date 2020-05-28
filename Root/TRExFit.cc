@@ -276,8 +276,6 @@ TRExFit::TRExFit(std::string name) :
     fHEPDataFormat(false)
 {
     TRExFitter::IMAGEFORMAT.emplace_back("png");
-    // Increase the limit for formula evaluations
-    ROOT::v5::TFormula::SetMaxima(100000,1000,1000000);
 }
 
 //__________________________________________________________________________________

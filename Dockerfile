@@ -1,21 +1,23 @@
-FROM placeholder-will-be-replaced-with-CI-variable
+FROM atlasamglab/stats-base:root6.23.01
 
-## ensure locale is set during build
-ENV LANG C.UTF-8
+SHELL [ "/bin/bash", "-c" ]
 
-COPY . /TRExFitter/source/TRExFitter/
-WORKDIR /TRExFitter
+COPY . /code/src/TRExFitter
 
-USER root
-
-RUN yum -y install libtiff && yum clean all
-
-RUN cd /TRExFitter && \
-    cp source/TRExFitter/util/asetup-CMakeLists.txt source/CMakeLists.txt && \
-    mkdir /TRExFitter/build && \
+# we need to remove the build directory as it is leftover from the compile step of the CI
+RUN cd /code/src/TRExFitter && \
+    rm -rf build && \
+    mkdir build && \
     cd build && \
-    source /release_setup.sh && \
-    cmake ../source/. && \
-    make
+    cmake .. && \
+    make -j4 && \
+    cd ..
 
-CMD source /release_setup.sh && source  /TRExFitter/build/x86_64-centos7-gcc8-opt/setup.sh && /bin/bash
+# add to path to allow running via "trex-fitter"
+RUN echo "export PATH=/code/src/TRExFitter/build/bin:${PATH}" >> /home/.bashrc
+
+WORKDIR /home/data
+ENV HOME /home
+
+ENTRYPOINT ["/bin/bash", "-l", "-c"]
+CMD ["/bin/bash"]

@@ -281,7 +281,7 @@ double FittingTool::FitPDF( RooStats::ModelConfig* model, RooAbsPdf* fitpdf, Roo
     m_edm = r->edm();
 
     // check if the fit converged
-    bool FitIsNotGood = !(status==0 && m_hessStatus==0 && m_edm<0.001);
+    bool FitIsNotGood = !(status==0 && m_hessStatus<=0 && m_edm<0.001);
 
     // if not, loop maximum 2 times with increased strategy
     int nrItr = 0;
@@ -303,7 +303,7 @@ double FittingTool::FitPDF( RooStats::ModelConfig* model, RooAbsPdf* fitpdf, Roo
         r.reset(minim.save());
         m_edm = r->edm();
 
-        FitIsNotGood = !(status==0 && m_hessStatus==0 && m_edm<0.001);
+        FitIsNotGood = !(status==0 && m_hessStatus<=0 && m_edm<0.001);
         nrItr++;
     }
 
