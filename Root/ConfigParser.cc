@@ -317,8 +317,10 @@ void ConfigParser::ReadFile(const std::string& fileName){
         replace( str.begin(), str.end(), '\n', ' ');
         replace( str.begin(), str.end(), '\r', ' ');
         replace( str.begin(), str.end(), '\t', ' ');
-        if(str[str.find_first_not_of(' ')]=='%') continue;
-        if(str[str.find_first_not_of(' ')]=='#') continue;
+        if (str.find_first_not_of(' ') != std::string::npos) {
+            if (str[str.find_first_not_of(' ')] == '%') continue;
+            if (str[str.find_first_not_of(' ')] == '#') continue;
+        }
         if ( str.find("ReplacementFile")==std::string::npos ) continue;
         replacementFileName=Second(str);
         break;
@@ -352,8 +354,10 @@ void ConfigParser::ReadFile(const std::string& fileName){
         replace( str.begin(), str.end(), '\n', ' ');
         replace( str.begin(), str.end(), '\r', ' ');
         replace( str.begin(), str.end(), '\t', ' ');
-        if(str[str.find_first_not_of(' ')]=='%') continue;
-        if(str[str.find_first_not_of(' ')]=='#') continue;
+        if (str.find_first_not_of(' ') != std::string::npos) {
+            if(str[str.find_first_not_of(' ')]=='%') continue;
+            if(str[str.find_first_not_of(' ')]=='#') continue;
+        }
         //
         if (str.find("XXX")!=std::string::npos) {
             WriteInfoStatus("ConfigParser::ReadFile", "BEFORE replacement: " + str);
