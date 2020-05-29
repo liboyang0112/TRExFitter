@@ -1114,15 +1114,18 @@ void Common::DropNorm(TH1* hUp,
     const double intNom = hNom->Integral();
     if(hUp!=nullptr){
         const double intUp = hUp->Integral();
-        if(std::fabs(intUp > 1e-6)) hUp->Scale(intNom/intUp);
+        if(std::fabs(intUp) > 1e-6) hUp->Scale(intNom/intUp);
         else WriteWarningStatus("Common::DropNorm","Integral of up variation = 0. Cannot drop normalization.");
     }
     if(hDown!=nullptr){
         const double intDown = hDown->Integral();
-        if(std::fabs(intDown > 1e-6)) hDown->Scale(intNom/intDown);
+        if(std::fabs(intDown) > 1e-6) hDown->Scale(intNom/intDown);
         else WriteWarningStatus("Common::DropNorm","Integral of down variation = 0. Cannot drop normalization.");
     }
 }
+
+//___________________________________________________________
+//  
 void Common::DropShape(TH1* hUp,
                        TH1* hDown,
                        TH1* hNom){
