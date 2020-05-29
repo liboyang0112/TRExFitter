@@ -7712,11 +7712,11 @@ void TRExFit::RunToys(){
                 }
             }
             for (std::size_t inf = 0; inf < nfs.size(); ++inf) {
-                auto&& nf = fNormFactors[inf];
                 if (fFitType==FitType::BONLY && fNormFactorNames.at(inf) == fPOI) {
                     nfs.at(inf)->setVal(0);
                     nfs.at(inf)->setConstant(true);
                 } else {
+                    auto&& nf = fNormFactors[inf];
                     nfs.at(inf)->setConstant(false);
                     nfs.at(inf)->setVal(nf->fNominal);
                 }
