@@ -33,7 +33,7 @@ The templates have values of 120, 125 and 130 GeV.
 Now assume the true mass of the Higgs boson is 126.5 GeV, the plot below shows how this is combined from the available templates.
 ![Interpolation](../img/AdvancedTutorial2020/morphing_example_Higgs.png)
 
-For more infomation check these [slides](https://docs.google.com/presentation/d/1JXqoJxhRh6hexLaM_XsWdNF7S0MPhVFEOzBGXU8QLzs/edit#slide=id.g4b04c811c5_0_159).
+For more information check these [slides](https://docs.google.com/presentation/d/1JXqoJxhRh6hexLaM_XsWdNF7S0MPhVFEOzBGXU8QLzs/edit#slide=id.g4b04c811c5_0_159).
 
 ## Example - Top quark decay width
 

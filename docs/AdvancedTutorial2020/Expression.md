@@ -42,7 +42,7 @@ Now produce the histograms and run the fit
 trex-fitter hwf test/configs/FitExampleExpression.config
 ```
 
-You will see that the `norm_left` dissapeared from the results completely, but that is expected since this parameter no longer exists in the likelihood.
+You will see that the `norm_left` disappeared from the results completely, but that is expected since this parameter no longer exists in the likelihood.
 
 !!! hint "Flexibility"
     The `Expression` functionality provides high level of flexibility for different kind of measurements. Do not be afraid to experiment with it.

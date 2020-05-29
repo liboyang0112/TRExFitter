@@ -25,7 +25,7 @@ Focus on the shape of the up and down uncertainty.
 Now modify the config file by adding the following line `ForceShape: LINEAR` to the `Systematic: "ttc_Gen"` block.
 The option changes the original shape by doing linear interpolation from the leftmost-up variation to the rightmost-down variation.
 
-Rerun the production of the histograms, using the `b` step (so you do not have to redo the `n` step) 
+Rerun the production of the histograms, using the `b` step (so you do not have to redo the `n` step)
 
 ```bash
 trex-fitter b test/configs/FitExampleNtuple.config
