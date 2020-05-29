@@ -646,7 +646,7 @@ These options are for multi-fits, performed with action `m`.
 | **Option** | **Function** |
 | ---------- | ------------ |
 | Title         | for plots |
-| FillColor         | for plots |
+| LineColor         | for plots |
 | LineStyle         | for plots |
 | TruthDistributionPath         | folder path for truth distributions |
 | TruthDistributionFile         | file path for truth distributions |
