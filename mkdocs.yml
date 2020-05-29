@@ -32,8 +32,8 @@ nav:
     - 'Basic Tutorial (2020)':
         - 'Introduction': BasicTutorial2020/Introduction.md
         - 'Explanations of some key features':
-            - 'Limit explanation': BasicTutorial2020/Limit.md
             - 'Significance explanation': BasicTutorial2020/Significance.md
+            - 'Limit explanation': BasicTutorial2020/Limit.md
             - 'Ranking explanation': BasicTutorial2020/Ranking.md
             - 'Grouped Impact explanation': BasicTutorial2020/GroupedImpact.md
         - 'Newly added features':
