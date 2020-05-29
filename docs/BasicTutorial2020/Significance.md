@@ -2,7 +2,7 @@
 
 In case of a search, it is important to be able to assess the significance of a possible excess in data compatible with a certain signal hypothesis, 
 as well as the expected signal significance. 
-The significance calculataion in TRExFitter is left to the CommonStatTools package, which provides classes and scripts to perform various operations on RooFit workspaces by means of profile-likelihood based computations.
+The significance calculation in TRExFitter is left to the CommonStatTools package, which provides classes and scripts to perform various operations on RooFit workspaces by means of profile-likelihood based computations.
 
 The significance of an excess is computed by defining the so-called p0-value. 
 In general, the p0 is the probability of getting a worse compatibility between the data and the background-only model than the observed one. 
