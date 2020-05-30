@@ -1,13 +1,15 @@
 #ifndef HISTOTOOLS_H
 #define HISTOTOOLS_H
 
+#include "TH1D.h"
+
 /// c++ includes
-#include <vector>
+#include <memory>
 #include <string>
+#include <vector>
 
 /// Foward class declaration
 class TH1;
-class TH1D;
 class SystematicHist;
 
 namespace HistoTools {
@@ -68,7 +70,7 @@ namespace HistoTools {
      * @param smoothing option
      * @param apply ttbar resonance smoothing
      */
-    void ManageHistograms(int smoothingLevel, const SymmetrizationType& symType, TH1* hNom, TH1* originUp, TH1* originDown,
+    void ManageHistograms(const int smoothingLevel, const SymmetrizationType& symType, const TH1* hNom, const TH1* originUp, const TH1* originDown,
         TH1* &modifiedUp, TH1* &modifiedDown, double scaleUp, double scaleDown, const SmoothOption &smoothOpt);
 
     /**
@@ -82,18 +84,21 @@ namespace HistoTools {
      * @param scale for the up variation
      * @param scale for the down varaition
      */
-    void SymmetrizeHistograms(const SymmetrizationType& symType,  TH1* hNom, TH1* originUp, TH1* originDown,
+    void SymmetrizeHistograms(const SymmetrizationType& symType, const TH1* hNom, const TH1* originUp, const TH1* originDown,
         TH1* &modifiedUp, TH1* &modifiedDown, double scaleUp, double scaleDown);
 
     /**
      * A helper function to smooth histograms
      * @param level of smoothing
+     * @param nominal histogram
+     * @param up variation histogram
+     * @param down variation histogram
      * @param symmetrized/smoothed up variation
      * @param symmetrized/smoothed down variation
      * @param smooth option
      * @param apply ttbar resonance smoothing
      */
-    void SmoothHistograms(int smoothingLevels,  TH1* hNom, TH1* &modifiedUp, TH1* &modifiedDown,
+    void SmoothHistograms(const int smoothingLevels, const TH1* hNom, const TH1* originUp, const TH1* originDown, TH1* &modifiedUp, TH1* &modifiedDown,
         const SmoothOption &smoothOpt);
 
     /**
@@ -103,7 +108,7 @@ namespace HistoTools {
      * @param Flag for up/down variation
      * @return Modified histogram
      */
-    TH1D* SymmetrizeOneSided(const TH1* const h_nominal, const TH1* const h_syst, bool &isUp );
+    std::unique_ptr<TH1D> SymmetrizeOneSided(const TH1* const h_nominal, const TH1* const h_syst, bool &isUp );
 
     /**
      * A helper function to invert one sided shift
@@ -111,7 +116,7 @@ namespace HistoTools {
      * @param Nominal histogram
      * @return Modified histogram
      */
-    TH1D* InvertShift(const TH1* const h_syst, const TH1* const h_nominal);
+    std::unique_ptr<TH1D> InvertShift(const TH1* const h_syst, const TH1* const h_nominal);
 
     /**
      * A helper function to calculate separation between histograms
