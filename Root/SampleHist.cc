@@ -949,8 +949,12 @@ void SampleHist::SmoothSyst(const HistoTools::SmoothOption &smoothOpt, string sy
         }
 
         if(fSyst[i_syst]->fSystematic->fPreSmoothing){
-            TH1* h_tmp_up   = h_syst_up!=nullptr   ? (TH1*)h_syst_up  ->Clone() : nullptr;
-            TH1* h_tmp_down = h_syst_down!=nullptr ? (TH1*)h_syst_down->Clone() : nullptr;
+            std::unique_ptr<TH1> h_tmp_up(nullptr);
+            std::unique_ptr<TH1> h_tmp_down(nullptr);
+            if (h_syst_up) {
+                h_tmp_up.reset(static_cast<TH1*>(h_syst_up->Clone()));
+                h_tmp_down.reset(static_cast<TH1*>(h_syst_down->Clone()));
+            }
             if(h_tmp_up!=nullptr || h_tmp_down!=nullptr){
                 std::unique_ptr<TH1> h_tmp_nominal(static_cast<TH1*>(h_nominal->Clone()));
                 for(int i_bin=1;i_bin<=h_tmp_nominal->GetNbinsX();i_bin++){
@@ -970,6 +974,7 @@ void SampleHist::SmoothSyst(const HistoTools::SmoothOption &smoothOpt, string sy
                     h_tmp_up->Multiply(h_tmp_nominal.get());
                     h_tmp_up->Add(h_tmp_nominal.get(), 1);
                     h_tmp_up->Scale(tmp_nom_up/h_tmp_up->Integral());
+                    delete h_syst_up;
                     h_syst_up = static_cast<TH1*>(h_tmp_up->Clone());
                 }
                 if(h_tmp_down!=nullptr){
@@ -986,11 +991,10 @@ void SampleHist::SmoothSyst(const HistoTools::SmoothOption &smoothOpt, string sy
                     h_tmp_up->Multiply(h_tmp_nominal.get());
                     h_tmp_down->Add(h_tmp_nominal.get(), 1);
                     h_tmp_down->Scale(tmp_nom_down/h_tmp_down->Integral());
+                    delete h_syst_down;
                     h_syst_down = static_cast<TH1*>(h_tmp_down->Clone());
                 }
             }
-            delete h_tmp_up;
-            delete h_tmp_down;
         }
 
         //
