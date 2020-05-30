@@ -887,10 +887,8 @@ void SampleHist::SmoothSyst(const HistoTools::SmoothOption &smoothOpt, string sy
     if(fSystSmoothed && !force) return;
     std::unique_ptr<TH1> h_nominal(static_cast<TH1*>(fHist->Clone("h_nominal")));
     if (!h_nominal->GetSumw2()) h_nominal->Sumw2();
-    TH1* h_syst_up;
-    TH1* h_syst_down;
 
-    for(int i_syst=0;i_syst<fNSyst;i_syst++){
+    for(int i_syst = 0; i_syst < fNSyst; ++i_syst) {
 
         if(syst!="all" && fSyst[i_syst]->fName != syst) continue;
 
@@ -898,10 +896,8 @@ void SampleHist::SmoothSyst(const HistoTools::SmoothOption &smoothOpt, string sy
         if(fSyst[i_syst]->fHistDown==nullptr) continue;
         if(fSyst[i_syst]->fSystematic==nullptr) continue;
 
-        h_syst_up = static_cast<TH1*>(fSyst[i_syst]->fHistUp->Clone());
-        h_syst_down = static_cast<TH1*>(fSyst[i_syst]->fHistDown->Clone());
-        if(!h_syst_up->GetSumw2()) h_syst_up->Sumw2();
-        if(!h_syst_down->GetSumw2()) h_syst_down->Sumw2();
+        TH1* h_syst_up = nullptr;
+        TH1* h_syst_down = nullptr;
 
         if(fSyst[i_syst]->fSmoothType + fSyst[i_syst]->fSymmetrisationType<=0){
             HistoTools::Scale(fSyst[i_syst]->fHistUp.get(),   fHist.get(),fSyst[i_syst]->fScaleUp);
@@ -1093,6 +1089,8 @@ void SampleHist::SmoothSyst(const HistoTools::SmoothOption &smoothOpt, string sy
                 fSyst[i_syst]->fHistShapeDown.reset(static_cast<TH1*>(fHist ->Clone(fSyst[i_syst]->fHistShapeDown->GetName())));
             }
         }
+        delete h_syst_up;
+        delete h_syst_down;
     }
     fSystSmoothed = true;
 }
