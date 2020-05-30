@@ -69,13 +69,37 @@ void HistoTools::ManageHistograms(const int smoothingLevel, const Symmetrization
 
     // if one-sided & symmetrization asked, do smoothing first and symmetrization after
     if( symType == SymmetrizationType::SYMMETRIZEONESIDED ){
-        SmoothHistograms(smoothingLevel, hNom, modifiedUp, modifiedDown, smoothOpt);
-        SymmetrizeHistograms(symType, hNom, modifiedUp, modifiedDown, modifiedUp, modifiedDown, scaleUp, scaleDown);
+        SmoothHistograms(smoothingLevel, hNom, originUp, originDown, modifiedUp, modifiedDown, smoothOpt);
+        // Here it gets tricky. We just allocated new memory to the pointer passes as reference.
+        // This is our new "original" and we also need to delete the memeory
+        std::unique_ptr<TH1> newUp(nullptr);
+        std::unique_ptr<TH1> newDown(nullptr);
+        if (modifiedUp) {
+            newUp.reset(static_cast<TH1*>(modifiedUp->Clone()));
+            delete modifiedUp;
+            modifiedUp = nullptr;
+        } else {
+            newUp.reset(static_cast<TH1*>(hNom->Clone()));
+        }
+        if (modifiedDown) {
+            newDown.reset(static_cast<TH1*>(modifiedDown->Clone()));
+            delete modifiedDown;
+            modifiedDown = nullptr;
+        } else {
+            newDown.reset(static_cast<TH1*>(hNom->Clone()));
+        }
+        SymmetrizeHistograms(symType, hNom, newUp.get(), newDown.get(), modifiedUp, modifiedDown, scaleUp, scaleDown);
     }
     // otherwise, first symmetrization and then smoothing
     else{
         SymmetrizeHistograms(symType, hNom, originUp, originDown, modifiedUp, modifiedDown, scaleUp, scaleDown);
-        SmoothHistograms(smoothingLevel, hNom, modifiedUp, modifiedDown, smoothOpt);
+        std::unique_ptr<TH1> newUp(static_cast<TH1*>(modifiedUp->Clone()));
+        std::unique_ptr<TH1> newDown(static_cast<TH1*>(modifiedDown->Clone()));
+        delete modifiedUp;
+        delete modifiedDown;
+        modifiedUp = nullptr;
+        modifiedDown = nullptr;
+        SmoothHistograms(smoothingLevel, hNom, newUp.get(), newDown.get(), modifiedUp, modifiedDown, smoothOpt);
     }
 }
 
@@ -165,7 +189,7 @@ void HistoTools::SymmetrizeHistograms(const SymmetrizationType& symType, const T
 
 //_________________________________________________________________________
 //
-void HistoTools::SmoothHistograms( int smoothingLevel, const TH1* hNom,
+void HistoTools::SmoothHistograms( int smoothingLevel, const TH1* hNom, const TH1* originUp, const TH1* originDown,
                                     TH1* &modifiedUp, TH1* &modifiedDown, const SmoothOption &smoothOpt){
     //##################################################
     //
@@ -179,6 +203,8 @@ void HistoTools::SmoothHistograms( int smoothingLevel, const TH1* hNom,
     }
 
     std::unique_ptr<TH1D> nom_tmp(static_cast<TH1D*>(hNom->Clone()));
+    std::unique_ptr<TH1D> up_tmp(static_cast<TH1D*>(originUp->Clone()));
+    std::unique_ptr<TH1D> down_tmp(static_cast<TH1D*>(originDown->Clone()));
 
     // Initialize common smoothing tool
     SmoothHist smoothTool;
@@ -190,11 +216,11 @@ void HistoTools::SmoothHistograms( int smoothingLevel, const TH1* hNom,
     }
     if (smoothOpt == TTBARRESONANCE) {
         if( ( smoothingLevel >= SMOOTHDEPENDENT ) && ( smoothingLevel < SMOOTHINDEPENDENT ) ){
-            modifiedUp      = smoothTool.Smooth(nom_tmp.get(), modifiedUp,   "smoothTtresDependent");
-            modifiedDown    = smoothTool.Smooth(nom_tmp.get(), modifiedDown, "smoothTtresDependent");
+            modifiedUp      = smoothTool.Smooth(nom_tmp.get(), up_tmp.get(),   "smoothTtresDependent");
+            modifiedDown    = smoothTool.Smooth(nom_tmp.get(), down_tmp.get(), "smoothTtresDependent");
         } else if( ( smoothingLevel >= SMOOTHINDEPENDENT ) && (smoothingLevel < UNKNOWN) ){
-            modifiedUp      = smoothTool.Smooth(nom_tmp.get(), modifiedUp,   "smoothTtresIndependent");
-            modifiedDown    = smoothTool.Smooth(nom_tmp.get(), modifiedDown, "smoothTtresIndependent");
+            modifiedUp      = smoothTool.Smooth(nom_tmp.get(), up_tmp.get(),   "smoothTtresIndependent");
+            modifiedDown    = smoothTool.Smooth(nom_tmp.get(), down_tmp.get(), "smoothTtresIndependent");
         } else {
             WriteWarningStatus("HistoTools::SmoothHistograms", "Unknown smoothing level!");
             return;
@@ -203,23 +229,23 @@ void HistoTools::SmoothHistograms( int smoothingLevel, const TH1* hNom,
         smoothTool.setTRExTolerance(0.08); // This was also default before
         const int lvl = smoothingLevel / 10;
         smoothTool.setTRExNbins(lvl);
-        modifiedUp   = smoothTool.Smooth(nom_tmp.get(), modifiedUp,   "smoothTRExDefault");
-        modifiedDown = smoothTool.Smooth(nom_tmp.get(), modifiedDown, "smoothTRExDefault");
+        modifiedUp   = static_cast<TH1*>(smoothTool.Smooth(nom_tmp.get(), up_tmp.get(),   "smoothTRExDefault")->Clone());
+        modifiedDown = static_cast<TH1*>(smoothTool.Smooth(nom_tmp.get(), down_tmp.get(), "smoothTRExDefault")->Clone());
     } else if (smoothOpt == COMMONTOOLSMOOTHMONOTONIC){
-        modifiedUp      = smoothTool.Smooth(nom_tmp.get(), modifiedUp,   "smoothRebinMonotonic");
-        modifiedDown    = smoothTool.Smooth(nom_tmp.get(), modifiedDown, "smoothRebinMonotonic");
+        modifiedUp      = static_cast<TH1*>(smoothTool.Smooth(nom_tmp.get(), up_tmp.get(),   "smoothRebinMonotonic")->Clone());
+        modifiedDown    = static_cast<TH1*>(smoothTool.Smooth(nom_tmp.get(), down_tmp.get(), "smoothRebinMonotonic")->Clone());
     } else if (smoothOpt == COMMONTOOLSMOOTHPARABOLIC){
-        modifiedUp      = smoothTool.Smooth(nom_tmp.get(), modifiedUp,   "smoothRebinParabolic");
-        modifiedDown    = smoothTool.Smooth(nom_tmp.get(), modifiedDown, "smoothRebinParabolic");
+        modifiedUp      = static_cast<TH1*>(smoothTool.Smooth(nom_tmp.get(), up_tmp.get(),   "smoothRebinParabolic")->Clone());
+        modifiedDown    = static_cast<TH1*>(smoothTool.Smooth(nom_tmp.get(), down_tmp.get(), "smoothRebinParabolic")->Clone());
     } else if (smoothOpt == KERNELRATIOUNIFORM){
-        modifiedUp      = smoothTool.Smooth(nom_tmp.get(), modifiedUp,   "smoothRatioUniformKernel");
-        modifiedDown    = smoothTool.Smooth(nom_tmp.get(), modifiedDown, "smoothRatioUniformKernel");
+        modifiedUp      = static_cast<TH1*>(smoothTool.Smooth(nom_tmp.get(), up_tmp.get(),   "smoothRatioUniformKernel")->Clone());
+        modifiedDown    = static_cast<TH1*>(smoothTool.Smooth(nom_tmp.get(), down_tmp.get(), "smoothRatioUniformKernel")->Clone());
     } else if (smoothOpt == KERNELDELTAGAUSS){
-        modifiedUp      = smoothTool.Smooth(nom_tmp.get(), modifiedUp,   "smoothDeltaGaussKernel");
-        modifiedDown    = smoothTool.Smooth(nom_tmp.get(), modifiedDown, "smoothDeltaGaussKernel");
+        modifiedUp      = static_cast<TH1*>(smoothTool.Smooth(nom_tmp.get(), up_tmp.get(),   "smoothDeltaGaussKernel")->Clone());
+        modifiedDown    = static_cast<TH1*>(smoothTool.Smooth(nom_tmp.get(), down_tmp.get(), "smoothDeltaGaussKernel")->Clone());
     } else if (smoothOpt == KERNELRATIOGAUSS){
-        modifiedUp      = smoothTool.Smooth(nom_tmp.get(), modifiedUp,   "smoothRatioGaussKernel");
-        modifiedDown    = smoothTool.Smooth(nom_tmp.get(), modifiedDown, "smoothRatioGaussKernel");
+        modifiedUp      = static_cast<TH1*>(smoothTool.Smooth(nom_tmp.get(), up_tmp.get(),   "smoothRatioGaussKernel")->Clone());
+        modifiedDown    = static_cast<TH1*>(smoothTool.Smooth(nom_tmp.get(), down_tmp.get(), "smoothRatioGaussKernel")->Clone());
     } else {
         WriteWarningStatus("HistoTools::SmoothHistograms", "Unknown smoothing option. Please check the config file.");
         WriteWarningStatus("HistoTools::SmoothHistograms", "No smoothing will be applied.");

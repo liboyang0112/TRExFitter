@@ -90,12 +90,15 @@ namespace HistoTools {
     /**
      * A helper function to smooth histograms
      * @param level of smoothing
+     * @param nominal histogram
+     * @param up variation histogram
+     * @param down variation histogram
      * @param symmetrized/smoothed up variation
      * @param symmetrized/smoothed down variation
      * @param smooth option
      * @param apply ttbar resonance smoothing
      */
-    void SmoothHistograms(const int smoothingLevels, const TH1* hNom, TH1* &modifiedUp, TH1* &modifiedDown,
+    void SmoothHistograms(const int smoothingLevels, const TH1* hNom, const TH1* originUp, const TH1* originDown, TH1* &modifiedUp, TH1* &modifiedDown,
         const SmoothOption &smoothOpt);
 
     /**
