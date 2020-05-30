@@ -67,27 +67,35 @@ void HistoTools::ManageHistograms(const int smoothingLevel, const Symmetrization
     // Only function called directly to handle operations on the histograms (symmetrisation and smoothing)
     //
 
+    auto CreateNew = [&](bool isUp) {
+        std::unique_ptr<TH1> result(nullptr);
+        if (isUp) {
+            if (modifiedUp) {
+                result.reset(static_cast<TH1*>(modifiedUp->Clone()));
+                delete modifiedUp;
+                modifiedUp = nullptr;
+            } else {
+                result.reset(static_cast<TH1*>(originUp->Clone()));
+            }
+        } else {
+            if (modifiedDown) {
+                result.reset(static_cast<TH1*>(modifiedDown->Clone()));
+                delete modifiedDown;
+                modifiedDown = nullptr;
+            } else {
+                result.reset(static_cast<TH1*>(originDown->Clone()));
+            }
+        }
+        return result;
+    };
+
     // if one-sided & symmetrization asked, do smoothing first and symmetrization after
     if( symType == SymmetrizationType::SYMMETRIZEONESIDED ){
         SmoothHistograms(smoothingLevel, hNom, originUp, originDown, modifiedUp, modifiedDown, smoothOpt);
         // Here it gets tricky. We just allocated new memory to the pointer passes as reference.
         // This is our new "original" and we also need to delete the memeory
-        std::unique_ptr<TH1> newUp(nullptr);
-        std::unique_ptr<TH1> newDown(nullptr);
-        if (modifiedUp) {
-            newUp.reset(static_cast<TH1*>(modifiedUp->Clone()));
-            delete modifiedUp;
-            modifiedUp = nullptr;
-        } else {
-            newUp.reset(static_cast<TH1*>(originUp->Clone()));
-        }
-        if (modifiedDown) {
-            newDown.reset(static_cast<TH1*>(modifiedDown->Clone()));
-            delete modifiedDown;
-            modifiedDown = nullptr;
-        } else {
-            newDown.reset(static_cast<TH1*>(originDown->Clone()));
-        }
+        std::unique_ptr<TH1> newUp   = CreateNew(true);
+        std::unique_ptr<TH1> newDown = CreateNew(false);
         SymmetrizeHistograms(symType, hNom, newUp.get(), newDown.get(), modifiedUp, modifiedDown, scaleUp, scaleDown);
         if (!modifiedUp || !modifiedDown) {
             WriteErrorStatus("HistoTools::ManageHistograms", "Something went wring with the smoothing!");
@@ -97,22 +105,8 @@ void HistoTools::ManageHistograms(const int smoothingLevel, const Symmetrization
     // otherwise, first symmetrization and then smoothing
     else{
         SymmetrizeHistograms(symType, hNom, originUp, originDown, modifiedUp, modifiedDown, scaleUp, scaleDown);
-        std::unique_ptr<TH1> newUp(nullptr);
-        std::unique_ptr<TH1> newDown(nullptr);
-        if (modifiedUp) {
-            newUp.reset(static_cast<TH1*>(modifiedUp->Clone()));
-            delete modifiedUp;
-            modifiedUp = nullptr;
-        } else {
-            newUp.reset(static_cast<TH1*>(originUp->Clone()));
-        }
-        if (modifiedDown) {
-            newDown.reset(static_cast<TH1*>(modifiedDown->Clone()));
-            delete modifiedDown;
-            modifiedDown = nullptr;
-        } else {
-            newDown.reset(static_cast<TH1*>(originDown->Clone()));
-        }
+        std::unique_ptr<TH1> newUp   = CreateNew(true);
+        std::unique_ptr<TH1> newDown = CreateNew(false);
         SmoothHistograms(smoothingLevel, hNom, newUp.get(), newDown.get(), modifiedUp, modifiedDown, smoothOpt);
         if (!modifiedUp) {
             modifiedUp = static_cast<TH1*>(newUp->Clone());
