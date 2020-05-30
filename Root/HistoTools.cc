@@ -61,7 +61,7 @@ TH1D* HistoTools::TranformHistogramBinning(TH1* originalHist){
 
 //_________________________________________________________________________
 //
-void HistoTools::ManageHistograms( int smoothingLevel, const SymmetrizationType& symType,  TH1* hNom, TH1* originUp, TH1* originDown,
+void HistoTools::ManageHistograms(const int smoothingLevel, const SymmetrizationType& symType, const TH1* hNom, const TH1* originUp, const TH1* originDown,
                                     TH1* &modifiedUp, TH1* &modifiedDown, double scaleUp, double scaleDown, const SmoothOption &smoothOpt) {
     //
     // Only function called directly to handle operations on the histograms (symmetrisation and smoothing)
@@ -81,8 +81,8 @@ void HistoTools::ManageHistograms( int smoothingLevel, const SymmetrizationType&
 
 //_________________________________________________________________________
 //
-void HistoTools::SymmetrizeHistograms( const SymmetrizationType& symType,  TH1* hNom, TH1* originUp, TH1* originDown,
-                                    TH1* &modifiedUp, TH1* &modifiedDown, double scaleUp, double scaleDown){
+void HistoTools::SymmetrizeHistograms(const SymmetrizationType& symType, const TH1* hNom, const TH1* originUp, const TH1* originDown,
+                                    TH1* &modifiedUp, TH1* &modifiedDown, double scaleUp, double scaleDown) {
     //##################################################
     //
     // FIRST STEP: SYMMETRISATION
@@ -90,19 +90,11 @@ void HistoTools::SymmetrizeHistograms( const SymmetrizationType& symType,  TH1* 
     //##################################################
 
     //Just to be sure, set sumw2() on histograms
-    if(hNom != nullptr)
-    {
-        if(!hNom->GetSumw2())hNom->Sumw2();
-    }
-    else
-    {
+    if(hNom == nullptr) {
         WriteWarningStatus("HistoTools::SymmetrizeHistograms", "Nominal Histogram is nullptr.");
         WriteWarningStatus("HistoTools::SymmetrizeHistograms", "Will not symmetrize.");
         return;
     }
-
-    if(originUp != nullptr) { if(!originUp->GetSumw2())originUp->Sumw2(); }
-    if(originDown != nullptr) { if(!originDown->GetSumw2())originDown->Sumw2(); }
 
     // Want to do the scaling before the Symmetrisation
     // to avoid improperly scaling bins that are limited at -100%
@@ -133,8 +125,8 @@ void HistoTools::SymmetrizeHistograms( const SymmetrizationType& symType,  TH1* 
         }
         // if both are non-empty, check the differences with the nominal
         else{
-            double separationUp = Separation(localHNom.get(),localOriginUp.get());
-            double separationDown = Separation(localHNom.get(),localOriginDown.get());
+            const double separationUp = Separation(localHNom.get(),localOriginUp.get());
+            const double separationDown = Separation(localHNom.get(),localOriginDown.get());
             if( separationUp > separationDown ) isUp = true;
             if( separationUp < separationDown ) isUp = false;
         }
@@ -152,13 +144,16 @@ void HistoTools::SymmetrizeHistograms( const SymmetrizationType& symType,  TH1* 
         }
     } else if ( symType == SymmetrizationType::SYMMETRIZETWOSIDED ) {
         modifiedUp = SymmetrizeTwoSided(localOriginUp.get(), localOriginDown.get(), localHNom.get());
-        modifiedDown = InvertShift(modifiedUp,localHNom.get());
+        std::unique_ptr<TH1D> tmp = InvertShift(modifiedUp,localHNom.get());
+        modifiedDown = tmp.release();
     } else if ( symType == SymmetrizationType::SYMMETRIZEABSMEAN ) {
         modifiedUp = SymmetrizeAbsMean(localOriginUp.get(), localOriginDown.get(), localHNom.get());
-        modifiedDown = InvertShift(modifiedUp,localHNom.get());
+        std::unique_ptr<TH1D> tmp = InvertShift(modifiedUp,localHNom.get());
+        modifiedDown = tmp.release();
     } else if ( symType == SymmetrizationType::SYMMETRIZEMAXIMUM ) {
         modifiedUp = SymmetrizeMaximum(localOriginUp.get(), localOriginDown.get(), localHNom.get());
-        modifiedDown = InvertShift(modifiedUp,localHNom.get());
+        std::unique_ptr<TH1D> tmp = InvertShift(modifiedUp,localHNom.get());
+        modifiedDown = tmp.release();
     } else {
         modifiedUp = localOriginUp.release();
         modifiedDown = localOriginDown.release();
@@ -170,7 +165,7 @@ void HistoTools::SymmetrizeHistograms( const SymmetrizationType& symType,  TH1* 
 
 //_________________________________________________________________________
 //
-void HistoTools::SmoothHistograms( int smoothingLevel,  TH1* hNom,
+void HistoTools::SmoothHistograms( int smoothingLevel, const TH1* hNom,
                                     TH1* &modifiedUp, TH1* &modifiedDown, const SmoothOption &smoothOpt){
     //##################################################
     //
@@ -183,6 +178,8 @@ void HistoTools::SmoothHistograms( int smoothingLevel,  TH1* hNom,
         return;
     }
 
+    std::unique_ptr<TH1D> nom_tmp(static_cast<TH1D*>(hNom->Clone()));
+
     // Initialize common smoothing tool
     SmoothHist smoothTool;
 
@@ -193,11 +190,11 @@ void HistoTools::SmoothHistograms( int smoothingLevel,  TH1* hNom,
     }
     if (smoothOpt == TTBARRESONANCE) {
         if( ( smoothingLevel >= SMOOTHDEPENDENT ) && ( smoothingLevel < SMOOTHINDEPENDENT ) ){
-            modifiedUp      = smoothTool.Smooth(hNom, modifiedUp,   "smoothTtresDependent");
-            modifiedDown    = smoothTool.Smooth(hNom, modifiedDown, "smoothTtresDependent");
+            modifiedUp      = smoothTool.Smooth(nom_tmp.get(), modifiedUp,   "smoothTtresDependent");
+            modifiedDown    = smoothTool.Smooth(nom_tmp.get(), modifiedDown, "smoothTtresDependent");
         } else if( ( smoothingLevel >= SMOOTHINDEPENDENT ) && (smoothingLevel < UNKNOWN) ){
-            modifiedUp      = smoothTool.Smooth(hNom, modifiedUp,   "smoothTtresIndependent");
-            modifiedDown    = smoothTool.Smooth(hNom, modifiedDown, "smoothTtresIndependent");
+            modifiedUp      = smoothTool.Smooth(nom_tmp.get(), modifiedUp,   "smoothTtresIndependent");
+            modifiedDown    = smoothTool.Smooth(nom_tmp.get(), modifiedDown, "smoothTtresIndependent");
         } else {
             WriteWarningStatus("HistoTools::SmoothHistograms", "Unknown smoothing level!");
             return;
@@ -206,23 +203,23 @@ void HistoTools::SmoothHistograms( int smoothingLevel,  TH1* hNom,
         smoothTool.setTRExTolerance(0.08); // This was also default before
         const int lvl = smoothingLevel / 10;
         smoothTool.setTRExNbins(lvl);
-        modifiedUp   = smoothTool.Smooth(hNom, modifiedUp,   "smoothTRExDefault");
-        modifiedDown = smoothTool.Smooth(hNom, modifiedDown, "smoothTRExDefault");
+        modifiedUp   = smoothTool.Smooth(nom_tmp.get(), modifiedUp,   "smoothTRExDefault");
+        modifiedDown = smoothTool.Smooth(nom_tmp.get(), modifiedDown, "smoothTRExDefault");
     } else if (smoothOpt == COMMONTOOLSMOOTHMONOTONIC){
-        modifiedUp      = smoothTool.Smooth(hNom, modifiedUp,   "smoothRebinMonotonic");
-        modifiedDown    = smoothTool.Smooth(hNom, modifiedDown, "smoothRebinMonotonic");
+        modifiedUp      = smoothTool.Smooth(nom_tmp.get(), modifiedUp,   "smoothRebinMonotonic");
+        modifiedDown    = smoothTool.Smooth(nom_tmp.get(), modifiedDown, "smoothRebinMonotonic");
     } else if (smoothOpt == COMMONTOOLSMOOTHPARABOLIC){
-        modifiedUp      = smoothTool.Smooth(hNom, modifiedUp,   "smoothRebinParabolic");
-        modifiedDown    = smoothTool.Smooth(hNom, modifiedDown, "smoothRebinParabolic");
+        modifiedUp      = smoothTool.Smooth(nom_tmp.get(), modifiedUp,   "smoothRebinParabolic");
+        modifiedDown    = smoothTool.Smooth(nom_tmp.get(), modifiedDown, "smoothRebinParabolic");
     } else if (smoothOpt == KERNELRATIOUNIFORM){
-        modifiedUp      = smoothTool.Smooth(hNom, modifiedUp,   "smoothRatioUniformKernel");
-        modifiedDown    = smoothTool.Smooth(hNom, modifiedDown, "smoothRatioUniformKernel");
+        modifiedUp      = smoothTool.Smooth(nom_tmp.get(), modifiedUp,   "smoothRatioUniformKernel");
+        modifiedDown    = smoothTool.Smooth(nom_tmp.get(), modifiedDown, "smoothRatioUniformKernel");
     } else if (smoothOpt == KERNELDELTAGAUSS){
-        modifiedUp      = smoothTool.Smooth(hNom, modifiedUp,   "smoothDeltaGaussKernel");
-        modifiedDown    = smoothTool.Smooth(hNom, modifiedDown, "smoothDeltaGaussKernel");
+        modifiedUp      = smoothTool.Smooth(nom_tmp.get(), modifiedUp,   "smoothDeltaGaussKernel");
+        modifiedDown    = smoothTool.Smooth(nom_tmp.get(), modifiedDown, "smoothDeltaGaussKernel");
     } else if (smoothOpt == KERNELRATIOGAUSS){
-        modifiedUp      = smoothTool.Smooth(hNom, modifiedUp,   "smoothRatioGaussKernel");
-        modifiedDown    = smoothTool.Smooth(hNom, modifiedDown, "smoothRatioGaussKernel");
+        modifiedUp      = smoothTool.Smooth(nom_tmp.get(), modifiedUp,   "smoothRatioGaussKernel");
+        modifiedDown    = smoothTool.Smooth(nom_tmp.get(), modifiedDown, "smoothRatioGaussKernel");
     } else {
         WriteWarningStatus("HistoTools::SmoothHistograms", "Unknown smoothing option. Please check the config file.");
         WriteWarningStatus("HistoTools::SmoothHistograms", "No smoothing will be applied.");
@@ -232,7 +229,7 @@ void HistoTools::SmoothHistograms( int smoothingLevel,  TH1* hNom,
 
 //_________________________________________________________________________
 //
-TH1D* HistoTools::SymmetrizeOneSided(const TH1* const h_nominal, const TH1* const h_syst, bool &isUp ){
+std::unique_ptr<TH1D> HistoTools::SymmetrizeOneSided(const TH1* const h_nominal, const TH1* const h_syst, bool &isUp ){
 
     const double& yield_nominal     = h_nominal->Integral();
     const double& yield_syst        = h_syst->Integral();
@@ -254,7 +251,7 @@ TH1D* HistoTools::SymmetrizeOneSided(const TH1* const h_nominal, const TH1* cons
 
 //_________________________________________________________________________
 //
-TH1D* HistoTools::InvertShift(const TH1* const h_syst, const TH1* const h_nominal){
+std::unique_ptr<TH1D> HistoTools::InvertShift(const TH1* const h_syst, const TH1* const h_nominal){
 
     //Sanity check
     if(!h_syst || !h_nominal){
@@ -277,7 +274,7 @@ TH1D* HistoTools::InvertShift(const TH1* const h_syst, const TH1* const h_nomina
             result -> SetBinContent(iBin, 0.);
         }
     }
-    return result.release();
+    return result;
 }
 
 //_________________________________________________________________________

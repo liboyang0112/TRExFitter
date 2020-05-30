@@ -886,6 +886,7 @@ void SampleHist::DrawSystPlot( const string &syst, TH1* const h_data, bool SumAn
 void SampleHist::SmoothSyst(const HistoTools::SmoothOption &smoothOpt, string syst, bool force){
     if(fSystSmoothed && !force) return;
     TH1* h_nominal = (TH1*)fHist->Clone("h_nominal");
+    if (!h_nominal->GetSumw2()) h_nominal->Sumw2();
     TH1* h_syst_up;
     TH1* h_syst_down;
 
@@ -899,6 +900,8 @@ void SampleHist::SmoothSyst(const HistoTools::SmoothOption &smoothOpt, string sy
 
         h_syst_up = static_cast<TH1*>(fSyst[i_syst]->fHistUp->Clone());
         h_syst_down = static_cast<TH1*>(fSyst[i_syst]->fHistDown->Clone());
+        if(!h_syst_up->GetSumw2()) h_syst_up->Sumw2();
+        if(!h_syst_down->GetSumw2()) h_syst_down->Sumw2();
 
         if(fSyst[i_syst]->fSmoothType + fSyst[i_syst]->fSymmetrisationType<=0){
             HistoTools::Scale(fSyst[i_syst]->fHistUp.get(),   fHist.get(),fSyst[i_syst]->fScaleUp);
