@@ -883,7 +883,7 @@ void SampleHist::DrawSystPlot( const string &syst, TH1* const h_data, bool SumAn
 
 //_____________________________________________________________________________
 //
-void SampleHist::SmoothSyst(const HistoTools::SmoothOption &smoothOpt, string syst, bool force){
+void SampleHist::SmoothSyst(const HistoTools::SmoothOption &smoothOpt, const bool useAlternativeShapeHistFactory, string syst, bool force){
     if(fSystSmoothed && !force) return;
     std::unique_ptr<TH1> h_nominal(static_cast<TH1*>(fHist->Clone("h_nominal")));
     if (!h_nominal->GetSumw2()) h_nominal->Sumw2();
