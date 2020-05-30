@@ -89,17 +89,37 @@ void HistoTools::ManageHistograms(const int smoothingLevel, const Symmetrization
             newDown.reset(static_cast<TH1*>(hNom->Clone()));
         }
         SymmetrizeHistograms(symType, hNom, newUp.get(), newDown.get(), modifiedUp, modifiedDown, scaleUp, scaleDown);
+        if (!modifiedUp || !modifiedDown) {
+            WriteErrorStatus("HistoTools::ManageHistograms", "Something went wring with the smoothing!");
+            exit(EXIT_FAILURE);
+        }
     }
     // otherwise, first symmetrization and then smoothing
     else{
         SymmetrizeHistograms(symType, hNom, originUp, originDown, modifiedUp, modifiedDown, scaleUp, scaleDown);
-        std::unique_ptr<TH1> newUp(static_cast<TH1*>(modifiedUp->Clone()));
-        std::unique_ptr<TH1> newDown(static_cast<TH1*>(modifiedDown->Clone()));
-        delete modifiedUp;
-        delete modifiedDown;
-        modifiedUp = nullptr;
-        modifiedDown = nullptr;
+        std::unique_ptr<TH1> newUp(nullptr);
+        std::unique_ptr<TH1> newDown(nullptr);
+        if (modifiedUp) {
+            newUp.reset(static_cast<TH1*>(modifiedUp->Clone()));
+            delete modifiedUp;
+            modifiedUp = nullptr;
+        } else {
+            newUp.reset(static_cast<TH1*>(originUp->Clone()));
+        }
+        if (modifiedDown) {
+            newDown.reset(static_cast<TH1*>(modifiedDown->Clone()));
+            delete modifiedDown;
+            modifiedDown = nullptr;
+        } else {
+            newDown.reset(static_cast<TH1*>(originDown->Clone()));
+        }
         SmoothHistograms(smoothingLevel, hNom, newUp.get(), newDown.get(), modifiedUp, modifiedDown, smoothOpt);
+        if (!modifiedUp) {
+            modifiedUp = static_cast<TH1*>(newUp->Clone());
+        }
+        if (!modifiedDown) {
+            modifiedDown = static_cast<TH1*>(newDown->Clone());
+        }
     }
 }
 
@@ -216,11 +236,11 @@ void HistoTools::SmoothHistograms( int smoothingLevel, const TH1* hNom, const TH
     }
     if (smoothOpt == TTBARRESONANCE) {
         if( ( smoothingLevel >= SMOOTHDEPENDENT ) && ( smoothingLevel < SMOOTHINDEPENDENT ) ){
-            modifiedUp      = smoothTool.Smooth(nom_tmp.get(), up_tmp.get(),   "smoothTtresDependent");
-            modifiedDown    = smoothTool.Smooth(nom_tmp.get(), down_tmp.get(), "smoothTtresDependent");
+            modifiedUp      = static_cast<TH1*>(smoothTool.Smooth(nom_tmp.get(), up_tmp.get(),   "smoothTtresDependent")->Clone());
+            modifiedDown    = static_cast<TH1*>(smoothTool.Smooth(nom_tmp.get(), down_tmp.get(), "smoothTtresDependent")->Clone());
         } else if( ( smoothingLevel >= SMOOTHINDEPENDENT ) && (smoothingLevel < UNKNOWN) ){
-            modifiedUp      = smoothTool.Smooth(nom_tmp.get(), up_tmp.get(),   "smoothTtresIndependent");
-            modifiedDown    = smoothTool.Smooth(nom_tmp.get(), down_tmp.get(), "smoothTtresIndependent");
+            modifiedUp      = static_cast<TH1*>(smoothTool.Smooth(nom_tmp.get(), up_tmp.get(),   "smoothTtresIndependent")->Clone());
+            modifiedDown    = static_cast<TH1*>(smoothTool.Smooth(nom_tmp.get(), down_tmp.get(), "smoothTtresIndependent")->Clone());
         } else {
             WriteWarningStatus("HistoTools::SmoothHistograms", "Unknown smoothing level!");
             return;
