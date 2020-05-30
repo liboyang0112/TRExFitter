@@ -79,14 +79,14 @@ void HistoTools::ManageHistograms(const int smoothingLevel, const Symmetrization
             delete modifiedUp;
             modifiedUp = nullptr;
         } else {
-            newUp.reset(static_cast<TH1*>(hNom->Clone()));
+            newUp.reset(static_cast<TH1*>(originUp->Clone()));
         }
         if (modifiedDown) {
             newDown.reset(static_cast<TH1*>(modifiedDown->Clone()));
             delete modifiedDown;
             modifiedDown = nullptr;
         } else {
-            newDown.reset(static_cast<TH1*>(hNom->Clone()));
+            newDown.reset(static_cast<TH1*>(originDown->Clone()));
         }
         SymmetrizeHistograms(symType, hNom, newUp.get(), newDown.get(), modifiedUp, modifiedDown, scaleUp, scaleDown);
         if (!modifiedUp || !modifiedDown) {
