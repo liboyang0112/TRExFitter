@@ -129,32 +129,30 @@ void NtupleReader::ReadNtuples(){
             //  -----------------------------------
             //
             // read norm factors
-            for(int i_norm=0;i_norm<fFitter->fSamples[i_smp]->fNNorm;i_norm++){
-                NormFactor *nf = fFitter->fSamples[i_smp]->fNormFactors[i_norm].get();
+            for(const auto& inorm : fFitter->fSamples[i_smp]->fNormFactors) {
                 //
                 // eventually skip norm factor / region combination
-                if( nf->fRegions.size()>0 && Common::FindInStringVector(nf->fRegions,fFitter->fRegions[i_ch]->fName)<0  ) continue;
-                if( nf->fExclude.size()>0 && Common::FindInStringVector(nf->fExclude,fFitter->fRegions[i_ch]->fName)>=0 ) continue;
+                if(inorm->fRegions.size()>0 && Common::FindInStringVector(inorm->fRegions,fFitter->fRegions[i_ch]->fName)<0  ) continue;
+                if(inorm->fExclude.size()>0 && Common::FindInStringVector(inorm->fExclude,fFitter->fRegions[i_ch]->fName)>=0 ) continue;
                 //
-                WriteDebugStatus("NtupleReader::ReadNtuples", "Adding norm " + nf->fName);
+                WriteDebugStatus("NtupleReader::ReadNtuples", "Adding norm " + inorm->fName);
                 //
-                sh->AddNormFactor( nf );
+                sh->AddNormFactor(inorm);
             }
 
             //
             //  -----------------------------------
             //
             // read shape factors
-            for(int i_shape=0;i_shape<fFitter->fSamples[i_smp]->fNShape;i_shape++){
-                ShapeFactor *sf = fFitter->fSamples[i_smp]->fShapeFactors[i_shape].get();
+            for(const auto& ishape : fFitter->fSamples[i_smp]->fShapeFactors) {
                 //
                 // eventually skip shape factor / region combination
-                if( sf->fRegions.size()>0 && Common::FindInStringVector(sf->fRegions,fFitter->fRegions[i_ch]->fName)<0  ) continue;
-                if( sf->fExclude.size()>0 && Common::FindInStringVector(sf->fExclude,fFitter->fRegions[i_ch]->fName)>=0 ) continue;
+                if(ishape->fRegions.size()>0 && Common::FindInStringVector(ishape->fRegions,fFitter->fRegions[i_ch]->fName)<0  ) continue;
+                if(ishape->fExclude.size()>0 && Common::FindInStringVector(ishape->fExclude,fFitter->fRegions[i_ch]->fName)>=0 ) continue;
                 //
-                WriteDebugStatus("NtupleReader::ReadNtuples", "Adding shape " + sf->fName);
+                WriteDebugStatus("NtupleReader::ReadNtuples", "Adding shape " + ishape->fName);
                 //
-                sh->AddShapeFactor( sf );
+                sh->AddShapeFactor(ishape);
             }
 
             //

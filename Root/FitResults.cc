@@ -209,7 +209,7 @@ void FitResults::ReadFromTXT(const std::string& fileName, const std::vector<std:
 //__________________________________________________________________________________
 //
 void FitResults::DrawNormFactors( const std::string &path,
-                                  const std::vector < NormFactor* > &normFactors, const std::vector<std::string>& blinded ) const {
+                                  const std::vector < std::shared_ptr<NormFactor> > &normFactors, const std::vector<std::string>& blinded ) const {
     double xmin = 1000.;
     double xmax = -1000.;
     double max = 0.;
@@ -225,7 +225,7 @@ void FitResults::DrawNormFactors( const std::string &path,
         if (std::find(blinded.begin(), blinded.end(), par->fName) != blinded.end()) continue;
 
         bool isNorm = false;
-        for( const auto *norm : normFactors ){
+        for( const auto& norm : normFactors ){
             if(norm->fName==par->fName){
                 isNorm = true;
                 break;
@@ -406,7 +406,7 @@ void FitResults::DrawGammaPulls( const std::string & path, const std::vector<std
 
 //__________________________________________________________________________________
 //
-void FitResults::DrawNPPulls( const std::string &path, const std::string &category, const std::vector < NormFactor* > &normFactors, const std::vector<std::string>& blinded ) const {
+void FitResults::DrawNPPulls( const std::string &path, const std::string &category, const std::vector < std::shared_ptr<NormFactor> > &normFactors, const std::vector<std::string>& blinded ) const {
     double xmin = -2.9;
     double xmax = 2.9;
     double max = 0.;
@@ -451,7 +451,7 @@ void FitResults::DrawNPPulls( const std::string &path, const std::string &catego
                 break;
             }
         }
-        for( const auto *norm : normFactors ){
+        for( const auto& norm : normFactors ){
           if(norm->fName==par->fName){
             skip = true;
             break;

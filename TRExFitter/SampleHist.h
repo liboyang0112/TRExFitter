@@ -45,12 +45,12 @@ public:
                                  const std::string& fileName_down, int pruned=0);
     SystematicHist* GetSystematic(const std::string& systName) const;
     SystematicHist* GetSystFromNP(const std::string& NuisParName) const;
-    NormFactor* AddNormFactor(const std::string& name,double nominal, double min, double max);
-    NormFactor* AddNormFactor(NormFactor *normFactor);
-    NormFactor* GetNormFactor(const std::string& name) const;
-    ShapeFactor* AddShapeFactor(const std::string& name,double nominal, double min, double max);
-    ShapeFactor* AddShapeFactor(ShapeFactor *shapeFactor);
-    ShapeFactor* GetShapeFactor(const std::string& name) const;
+    std::shared_ptr<NormFactor> AddNormFactor(const std::string& name,double nominal, double min, double max);
+    std::shared_ptr<NormFactor> AddNormFactor(std::shared_ptr<NormFactor> normFactor);
+    std::shared_ptr<NormFactor> GetNormFactor(const std::string& name) const;
+    std::shared_ptr<ShapeFactor> AddShapeFactor(const std::string& name,double nominal, double min, double max);
+    std::shared_ptr<ShapeFactor> AddShapeFactor(std::shared_ptr<ShapeFactor> shapeFactor);
+    std::shared_ptr<ShapeFactor> GetShapeFactor(const std::string& name) const;
 
     bool HasSyst(const std::string& name) const;
     bool HasNorm(const std::string& name) const;
@@ -117,10 +117,6 @@ public:
 
     int fNSyst;
     std::vector < std::unique_ptr<SystematicHist> > fSyst;
-    int fNNorm;
-    std::vector < std::unique_ptr<NormFactor> > fNormFactors;
-    int fNShape;
-    std::vector < std::unique_ptr<ShapeFactor> > fShapeFactors;
 
     // other useful info
     std::string fFitName;

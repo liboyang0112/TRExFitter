@@ -520,8 +520,8 @@ public:
     std::vector < Region* > fRegions;
     std::vector < Sample* > fSamples;
     std::vector < Systematic* > fSystematics;
-    std::vector < NormFactor* > fNormFactors;
-    std::vector < ShapeFactor* > fShapeFactors;
+    std::vector < std::shared_ptr<NormFactor> >fNormFactors;
+    std::vector < std::shared_ptr<ShapeFactor> > fShapeFactors;
     std::vector < std::string > fSystematicNames;
     std::vector < std::string > fNormFactorNames;
     std::vector < std::string > fShapeFactorNames;
@@ -529,8 +529,6 @@ public:
     int fNRegions;
     int fNSamples;
     int fNSyst;
-    int fNNorm;
-    int fNShape;
     std::string fPOI;
     std::string fPOIunit;
     bool fUseStatErr;

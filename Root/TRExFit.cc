@@ -93,8 +93,6 @@ TRExFit::TRExFit(std::string name) :
     fNRegions(0),
     fNSamples(0),
     fNSyst(0),
-    fNNorm(0),
-    fNShape(0),
     fPOI(""),
     fPOIunit(""),
     fUseStatErr(false),
@@ -1843,8 +1841,8 @@ TRExPlot* TRExFit::DrawSummary(std::string opt, TRExPlot* prefit_plot) {
         }
     }
     // add the norm factors
-    for(int i_norm=0;i_norm<fNNorm;i_norm++){
-        const std::string normName = fNormFactors[i_norm]->fName;
+    for(const auto& inorm : fNormFactors) {
+        const std::string normName = inorm->fName;
         if(Common::FindInStringVector(npNames,normName)<0){
             npNames.push_back(normName);
             i_np++;
@@ -3467,26 +3465,26 @@ RooStats::HistFactory::Sample TRExFit::OneSampleToRooStats(RooStats::HistFactory
     sample.SetInputFile(h->fFileName);
     sample.SetNormalizeByTheory(fSamples[i_smp]->fNormalizedByTheory);
     // norm factors
-    for(int i_norm=0; i_norm < h->fNNorm; ++i_norm) {
-        WriteDebugStatus("TRExFit::OneSampleToRooStats", "    Adding NormFactor: " + h->fNormFactors[i_norm]->fName + ", " + std::to_string(h->fNormFactors[i_norm]->fNominal));
-        sample.AddNormFactor(h->fNormFactors[i_norm]->fName,
-                             h->fNormFactors[i_norm]->fNominal,
-                             h->fNormFactors[i_norm]->fMin,
-                             h->fNormFactors[i_norm]->fMax);
-        if (h->fNormFactors[i_norm]->fConst) meas->AddConstantParam( h->fNormFactors[i_norm]->fName );
-        if (fStatOnly && fFixNPforStatOnlyFit && h->fNormFactors[i_norm]->fName!=fPOI) {
-            meas->AddConstantParam( h->fNormFactors[i_norm]->fName );
+    for(const auto& inorm : h->fSample->fNormFactors) {
+        WriteDebugStatus("TRExFit::OneSampleToRooStats", "    Adding NormFactor: " + inorm->fName + ", " + std::to_string(inorm->fNominal));
+        sample.AddNormFactor(inorm->fName,
+                             inorm->fNominal,
+                             inorm->fMin,
+                             inorm->fMax);
+        if (inorm->fConst) meas->AddConstantParam(inorm->fName);
+        if (fStatOnly && fFixNPforStatOnlyFit && inorm->fName!=fPOI) {
+            meas->AddConstantParam(inorm->fName);
         }
     }
 
     // shape factors
-    for(int i_shape = 0; i_shape < h->fNShape; ++i_shape) {
-        WriteDebugStatus("TRExFit::OneSampleToRooStats", "    Adding ShapeFactor: " + h->fShapeFactors[i_shape]->fName + ", " + std::to_string(h->fShapeFactors[i_shape]->fNominal));
-        sample.AddShapeFactor( h->fShapeFactors[i_shape]->fName );
-        if (h->fShapeFactors[i_shape]->fConst
-            || (fStatOnly && fFixNPforStatOnlyFit && h->fShapeFactors[i_shape]->fName!=fPOI) ) {
-            for(int i_bin=0; i_bin < h->fShapeFactors[i_shape]->fNbins; ++i_bin) {
-                meas->AddConstantParam( "gamma_" + h->fShapeFactors[i_shape]->fName + "_bin_" + std::to_string(i_bin) );
+    for(const auto& ishape : h->fSample->fShapeFactors) {
+        WriteDebugStatus("TRExFit::OneSampleToRooStats", "    Adding ShapeFactor: " + ishape->fName + ", " + std::to_string(ishape->fNominal));
+        sample.AddShapeFactor(ishape->fName);
+        if (ishape->fConst
+            || (fStatOnly && fFixNPforStatOnlyFit && ishape->fName!=fPOI) ) {
+            for(int i_bin=0; i_bin < ishape->fNbins; ++i_bin) {
+                meas->AddConstantParam( "gamma_" + ishape->fName + "_bin_" + std::to_string(i_bin) );
             }
         }
     }
@@ -5563,12 +5561,12 @@ void TRExFit::ProduceNPRanking( std::string NPnames/*="all"*/ ){
             isNF.push_back( false );
         }
     }
-    for(int i_norm=0;i_norm<fNNorm;i_norm++){
-        if(fPOI==fNormFactors[i_norm]->fName) continue;
-        if(NPnames=="all" || NPnames==fNormFactors[i_norm]->fName ||
+    for(int i_norm = 0; i_norm < static_cast<int>(fNormFactors.size()); ++i_norm) {
+        if(fPOI == fNormFactors.at(i_norm)->fName) continue;
+        if(NPnames=="all" || NPnames==fNormFactors.at(i_norm)->fName ||
             ( atoi(NPnames.c_str())-fNSyst==i_norm && (atoi(NPnames.c_str())>0 || strcmp(NPnames.c_str(),"0")==0) )
             ){
-            nuisPars.push_back( fNormFactors[i_norm]->fName );
+            nuisPars.push_back(fNormFactors.at(i_norm)->fName);
             isNF.push_back( true );
         }
     }
@@ -5700,7 +5698,7 @@ void TRExFit::ProduceNPRanking( std::string NPnames/*="all"*/ ){
                 if(np.find("gamma")!=std::string::npos){
                     // add the nuisance parameter to the list nuisPars if it's there in the ws
                     // remove "gamma"...
-                    if(np==NPnames || (atoi(NPnames.c_str())-fNSyst-fNNorm==i_gamma && (atoi(NPnames.c_str())>0 || strcmp(NPnames.c_str(),"0")==0)) || NPnames=="all"){
+                    if(np==NPnames || (atoi(NPnames.c_str())-fNSyst-static_cast<int>(fNormFactors.size())==i_gamma && (atoi(NPnames.c_str())>0 || strcmp(NPnames.c_str(),"0")==0)) || NPnames=="all"){
                         nuisPars.emplace_back(Common::ReplaceString(np,"gamma_",""));
                         isNF.emplace_back(true);
                         if(NPnames!="all") break;
@@ -7407,8 +7405,8 @@ void TRExFit::GetSquareCorrection(double *a, double *b, double x_i, double x_lef
 void TRExFit::SmoothMorphTemplates(const std::string& name,const std::string& formula,double *p) const{
     TCanvas c("c","c",600,600);
     // find NF associated to this morph param
-    NormFactor *nf = nullptr;
-    for(auto norm : fNormFactors){
+    std::shared_ptr<NormFactor> nf = nullptr;
+    for(const auto& norm : fNormFactors){
         if(norm->fName == name) nf = norm;
     }
     // get one histogram per bin (per region)
@@ -7512,11 +7510,11 @@ void TRExFit::ProduceSystSubCategoryMap(){
     }
 
     // also add norm factors, no "alpha_" needed
-    for(int i_nf=0;i_nf<fNNorm;i_nf++){
-        if(fNormFactors[i_nf]->fSubCategory=="Gammas" || fNormFactors[i_nf]->fSubCategory=="FullSyst" || fNormFactors[i_nf]->fSubCategory=="combine")
+    for(const auto& inorm : fNormFactors) {
+        if(inorm->fSubCategory=="Gammas" || inorm->fSubCategory=="FullSyst" || inorm->fSubCategory=="combine")
              WriteWarningStatus("TRExFit::ProduceSystSubCategoryMap"," use of \"Gammas\", \"FullSyst\" or \"combine\" as SubCategory names is not supported, you will likely run into issues");
-        if (fNormFactors[i_nf]->fName != fPOI) {
-            fSubCategoryImpactMap.insert(std::make_pair(fNormFactors[i_nf]->fNuisanceParameter, fNormFactors[i_nf]->fSubCategory));
+        if (inorm->fName != fPOI) {
+            fSubCategoryImpactMap.insert(std::make_pair(inorm->fNuisanceParameter, inorm->fSubCategory));
         }
     }
 }

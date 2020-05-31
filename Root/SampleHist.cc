@@ -46,8 +46,6 @@ SampleHist::SampleHist() :
     fIsData(false),
     fIsSig(false),
     fNSyst(0),
-    fNNorm(0),
-    fNShape(0),
     fFitName(""),
     fRegionName("Region"),
     fRegionLabel("Region"),
@@ -70,8 +68,6 @@ SampleHist::SampleHist(Sample *sample,TH1 *hist) :
     fIsData(false),
     fIsSig(false),
     fNSyst(0),
-    fNNorm(0),
-    fNShape(0),
     fFitName(""),
     fRegionName("Region"),
     fRegionLabel("Region"),
@@ -103,8 +99,6 @@ SampleHist::SampleHist(Sample *sample, const std::string& histoName, const std::
     fIsData(false),
     fIsSig(false),
     fNSyst(0),
-    fNNorm(0),
-    fNShape(0),
     fFitName(""),
     fRegionName("Region"),
     fRegionLabel("Region"),
@@ -312,12 +306,11 @@ SystematicHist* SampleHist::AddHistoSyst(const std::string& name,
 
 //_____________________________________________________________________________
 //
-NormFactor* SampleHist::AddNormFactor(NormFactor *normFactor){
-    NormFactor *norm = GetNormFactor(normFactor->fName);
+std::shared_ptr<NormFactor> SampleHist::AddNormFactor(std::shared_ptr<NormFactor> normFactor) {
+    std::shared_ptr<NormFactor> norm = GetNormFactor(normFactor->fName);
     if(!norm){
-        fNormFactors.emplace_back(std::move(normFactor));
-        fNNorm ++;
-        norm = fNormFactors.back().get();
+        fSample->fNormFactors.emplace_back(normFactor);
+        norm = fSample->fNormFactors.back();
     }
     else{
         norm = normFactor;
@@ -327,24 +320,22 @@ NormFactor* SampleHist::AddNormFactor(NormFactor *normFactor){
 
 //_____________________________________________________________________________
 //
-NormFactor* SampleHist::AddNormFactor(const std::string& name,double nominal, double min, double max){
-    NormFactor *norm = GetNormFactor(name);
+std::shared_ptr<NormFactor> SampleHist::AddNormFactor(const std::string& name,double nominal, double min, double max){
+    std::shared_ptr<NormFactor> norm = GetNormFactor(name);
     if(!norm){
-        fNormFactors.emplace_back(new NormFactor(name,nominal,min,max));
-        fNNorm ++;
-        norm = fNormFactors.back().get();
+        fSample->fNormFactors.emplace_back(new NormFactor(name,nominal,min,max));
+        norm = fSample->fNormFactors.back();
     }
     return norm;
 }
 
 //_____________________________________________________________________________
 //
-ShapeFactor* SampleHist::AddShapeFactor(ShapeFactor *shapeFactor){
-    ShapeFactor *shape = GetShapeFactor(shapeFactor->fName);
+std::shared_ptr<ShapeFactor> SampleHist::AddShapeFactor(std::shared_ptr<ShapeFactor> shapeFactor){
+    std::shared_ptr<ShapeFactor> shape = GetShapeFactor(shapeFactor->fName);
     if(!shape){
-        fShapeFactors.emplace_back(std::move(shapeFactor));
-        fNShape ++;
-        shape = fShapeFactors.back().get();
+        fSample->fShapeFactors.emplace_back(shapeFactor);
+        shape = fSample->fShapeFactors.back();
     } else {
         shape = shapeFactor;
     }
@@ -353,12 +344,11 @@ ShapeFactor* SampleHist::AddShapeFactor(ShapeFactor *shapeFactor){
 
 //_____________________________________________________________________________
 //
-ShapeFactor* SampleHist::AddShapeFactor(const std::string& name,double nominal, double min, double max){
-    ShapeFactor *shape = GetShapeFactor(name);
+std::shared_ptr<ShapeFactor> SampleHist::AddShapeFactor(const std::string& name,double nominal, double min, double max){
+    std::shared_ptr<ShapeFactor> shape = GetShapeFactor(name);
     if(!shape){
-        fShapeFactors.emplace_back(new ShapeFactor(name,nominal,min,max));
-        fNShape ++;
-        shape = fShapeFactors.back().get();
+        fSample->fShapeFactors.emplace_back(new ShapeFactor(name,nominal,min,max));
+        shape = fSample->fShapeFactors.back();
     }
     return shape;
 }
@@ -383,18 +373,27 @@ SystematicHist* SampleHist::GetSystFromNP(const std::string& NuisParName) const{
 
 //_____________________________________________________________________________
 //
-NormFactor* SampleHist::GetNormFactor(const std::string& name) const{
-    for(int i_syst=0;i_syst<fNNorm;i_syst++){
-        if(name == fNormFactors[i_syst]->fName) return fNormFactors[i_syst].get();
+std::shared_ptr<NormFactor> SampleHist::GetNormFactor(const std::string& name) const{
+    if (!fSample) {
+        WriteErrorStatus("SampleHist::GetNormFactor", "Nullptr for fSample!");
+        exit(EXIT_FAILURE);
+    }
+
+    for(const auto& inorm : fSample->fNormFactors) {
+        if(name == inorm->fName) return inorm;
     }
     return nullptr;
 }
 
 //_____________________________________________________________________________
 //
-ShapeFactor* SampleHist::GetShapeFactor(const std::string& name) const{
-    for(int i_syst=0;i_syst<fNShape;i_syst++){
-        if(name == fShapeFactors[i_syst]->fName) return fShapeFactors[i_syst].get();
+std::shared_ptr<ShapeFactor> SampleHist::GetShapeFactor(const std::string& name) const{
+    if (!fSample) {
+        WriteErrorStatus("SampleHist::GetShapeFactor", "Nullptr for fSample!");
+        exit(EXIT_FAILURE);
+    }
+    for(const auto& ishape : fSample->fShapeFactors) {
+        if(name == ishape->fName) return ishape;
     }
     return nullptr;
 }
@@ -411,8 +410,8 @@ bool SampleHist::HasSyst(const std::string& name) const{
 //_____________________________________________________________________________
 //
 bool SampleHist::HasNorm(const std::string& name) const{
-    for(int i_norm=0;i_norm<fNNorm;i_norm++){
-        if(fNormFactors[i_norm]->fName == name) return true;
+    for(const auto& inorm : fSample->fNormFactors) {
+        if(inorm->fName == name) return true;
     }
     return false;
 }
@@ -420,8 +419,8 @@ bool SampleHist::HasNorm(const std::string& name) const{
 //_____________________________________________________________________________
 //
 bool SampleHist::HasShapeFactor(const std::string& name) const{
-    for(int i_shape=0;i_shape<fNShape;i_shape++){
-        if(fShapeFactors[i_shape]->fName == name) return true;
+    for(const auto& ishape : fSample->fShapeFactors) {
+        if(ishape->fName == name) return true;
     }
     return false;
 }
@@ -637,17 +636,17 @@ void SampleHist::Print() const{
         }
         WriteDebugStatus("SampleHist::Print", temp);
     }
-    if(fNNorm>0){
+    if(fSample->fNormFactors.size() > 0) {
         temp = "        NormFactor(s): ";
-        for(int i_norm=0;i_norm<fNNorm;i_norm++){
-            temp+= " " + fNormFactors[i_norm]->fName;
+        for(const auto& inorm : fSample->fNormFactors) {
+            temp+= " " + inorm->fName;
         }
         WriteDebugStatus("SampleHist::Print", temp);
     }
-    if(fNShape>0){
+    if(fSample->fShapeFactors.size()> 0) {
         temp = "        ShapeFactor(s): ";
-        for(int i_shape=0;i_shape<fNShape;i_shape++){
-            temp+= " " + fShapeFactors[i_shape]->fName;
+        for(const auto& ishape : fSample-> fShapeFactors) {
+            temp+= " " + ishape->fName;
         }
         WriteDebugStatus("SampleHist::Print", temp);
     }

@@ -922,13 +922,12 @@ void Region::BuildPostFitErrorHist(FitResults *fitRes, const std::vector<std::st
         //
         // Norm factors
         //
-        for(int i_norm=0;i_norm<fSampleHists[i_sample]->fNNorm;i_norm++){
-            const NormFactor *nf = fSampleHists[i_sample]->fNormFactors[i_norm].get();
-            const std::string systName = nf->fName;
+        for(const auto& inorm : fSampleHists[i_sample]->fSample->fNormFactors) {
+            const std::string systName = inorm->fName;
             // if this norm factor is a morphing one => save the nuis.par
             // skip POI if B-only fit FIXME
             if(fFitType==TRExFit::BONLY && systName==fPOI) continue;
-            if(nf->fConst) continue;
+            if(inorm->fConst) continue;
             if(!systIsThere[systName]){
                 fSystNames.push_back(systName);
                 systIsThere[systName] = true;
@@ -940,8 +939,8 @@ void Region::BuildPostFitErrorHist(FitResults *fitRes, const std::vector<std::st
         //
         // extract number of bins
         // loop over shape factors
-        for(int i_shape=0;i_shape<fSampleHists[i_sample]->fNShape;i_shape++){
-            const std::string systName = fSampleHists[i_sample]->fShapeFactors[i_shape]->fName;
+        for(const auto& ishape : fSampleHists[i_sample]->fSample->fShapeFactors) {
+            const std::string systName = ishape->fName;
             // add syst name for each bin
             for(int i_bin = 0; i_bin < fSampleHists[i_sample]->fHist->GetNbinsX(); i_bin++){
                 const std::string systNameSF = systName + "_bin_" + std::to_string(i_bin);
@@ -1512,26 +1511,24 @@ std::unique_ptr<TRExPlot> Region::DrawPostFit(FitResults* fitRes,
     //    Done after the propagation of the NP (avoids nans due to "0" value of some NormFactors)
     //    Seems consistent with application in Roostats
     //
-    string nfName;
     double nfValue;
     for(int i=0;i<fNSamples;i++){
         if(fSampleHists[i]->fSample->fType==Sample::DATA) continue;
         if(fSampleHists[i]->fSample->fType==Sample::GHOST) continue;
-        for(int i_norm=0;i_norm<fSampleHists[i]->fNNorm;i_norm++){
-            const NormFactor *nf = fSampleHists[i]->fNormFactors[i_norm].get();
-            nfName = nf->fName;
-            if(nf->fConst) nfValue = nf->fNominal;
-            else           nfValue = fitRes->GetNuisParValue(TRExFitter::NPMAP[nfName]);
+        for(const auto& inorm : fSampleHists[i]->fSample->fNormFactors) {
+            const std::string nfName = inorm->fName;
+            if(inorm->fConst) nfValue = inorm->fNominal;
+            else              nfValue = fitRes->GetNuisParValue(TRExFitter::NPMAP[nfName]);
             //
             // if this norm factor is a morphing one
-            if(nf->fName.find("morph_")!=string::npos || nf->fExpression.first!=""){
+            if(inorm->fName.find("morph_")!=string::npos || inorm->fExpression.first!=""){
                 std::string formula = TRExFitter::SYSTMAP[nfName];
                 std::string name = TRExFitter::NPMAP[nfName];
                 WriteDebugStatus("Region::DrawPostFit", "formula: " +formula);
                 WriteDebugStatus("Region::DrawPostFit", "name: " +name);
                 std::vector < std::pair < std::string,std::vector<double> > > nameS;
-                if(nf->fName.find("morph_")!=std::string::npos){
-                    nameS.push_back(std::make_pair(name,std::vector<double>{double(nf->fNominal),double(nf->fMin),double(nf->fMax)}));
+                if(inorm->fName.find("morph_")!=std::string::npos){
+                    nameS.push_back(std::make_pair(name,std::vector<double>{double(inorm->fNominal),double(inorm->fMin),double(inorm->fMax)}));
                 }
                 else {
                     nameS = Common::processString(name);
@@ -1551,7 +1548,7 @@ std::unique_ptr<TRExPlot> Region::DrawPostFit(FitResults* fitRes,
                 hSmpNew[i]->Scale(scale);
             }
             else{
-                if (std::find(nf->fRegions.begin(), nf->fRegions.end(), fName) != nf->fRegions.end()) {
+                if (std::find(inorm->fRegions.begin(), inorm->fRegions.end(), fName) != inorm->fRegions.end()) {
                     hSmpNew[i]->Scale(nfValue);
                 }
             }
@@ -1563,29 +1560,24 @@ std::unique_ptr<TRExPlot> Region::DrawPostFit(FitResults* fitRes,
     // 2)b) Scale all samples by shape factors factors
     //
 
-    string sfName;
-    string sfNameBin;
-    double sfValue;
-    double binContentSFNew = 0;
-    int iBinSF = 0;
     for(int i=0;i<fNSamples;i++){
         if(fSampleHists[i]->fSample->fType==Sample::DATA) continue;
         if(fSampleHists[i]->fSample->fType==Sample::GHOST) continue;
-        for(int i_shape=0;i_shape<fSampleHists[i]->fNShape;i_shape++){
-            const ShapeFactor *sf = fSampleHists[i]->fShapeFactors[i_shape].get();
-            sfName = sf->fName;
+        for(const auto& ishape : fSampleHists[i]->fSample->fShapeFactors) {
+            const std::string sfName = ishape->fName;
             if(sfName.find("saturated_model_sf")!=std::string::npos) continue;
             // loop over bins
             // there should be a NP per bin in the fit file
             // already checked by GetNuisParValue()
             // the shape factor naming used i_bin - 1 for the first bin
             for(int i_bin = 1; i_bin <= hSmpNew[i]->GetNbinsX(); i_bin++){
-                iBinSF = i_bin - 1;
-                sfNameBin = sfName + "_bin_" + std::to_string(iBinSF);
-                if(sf->fConst) sfValue = sf->fNominal;
-                else           sfValue = fitRes->GetNuisParValue(sfNameBin);
+                const int iBinSF = i_bin - 1;
+                const std::string sfNameBin = sfName + "_bin_" + std::to_string(iBinSF);
+                double sfValue;
+                if(ishape->fConst) sfValue = ishape->fNominal;
+                else               sfValue = fitRes->GetNuisParValue(sfNameBin);
                 // scale bin content by shape factor
-                binContentSFNew = hSmpNew[i]->GetBinContent(i_bin) * sfValue;
+                const double binContentSFNew = hSmpNew[i]->GetBinContent(i_bin) * sfValue;
                 // Setting to new value
                 hSmpNew[i]->SetBinContent(i_bin, binContentSFNew);
             }
