@@ -5341,7 +5341,9 @@ int ConfigReader::PostConfig(const std::string& opt){
             // attach the syst to all non-data samples
             for(auto sample : fFitter->fSamples){
                 if(sample->fType == Sample::DATA) continue;
-                sample->AddShapeFactor(sfactor);
+                if (Common::FindInStringVector(sample->fRegions,reg->fName) >= 0) {
+                    sample->AddShapeFactor(sfactor);
+                }
             }
         }
     }
