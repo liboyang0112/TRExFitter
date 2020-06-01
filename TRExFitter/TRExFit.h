@@ -824,6 +824,7 @@ public:
     bool fReorderNPs;
     bool fBlindSRs;
     bool fHEPDataFormat;
+    bool fAlternativeShapeHistFactory;
 };
 
 #endif

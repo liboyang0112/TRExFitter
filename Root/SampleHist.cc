@@ -883,7 +883,7 @@ void SampleHist::DrawSystPlot( const string &syst, TH1* const h_data, bool SumAn
 
 //_____________________________________________________________________________
 //
-void SampleHist::SmoothSyst(const HistoTools::SmoothOption &smoothOpt, string syst, bool force){
+void SampleHist::SmoothSyst(const HistoTools::SmoothOption &smoothOpt, const bool useAlternativeShapeHistFactory, string syst, bool force){
     if(fSystSmoothed && !force) return;
     std::unique_ptr<TH1> h_nominal(static_cast<TH1*>(fHist->Clone("h_nominal")));
     if (!h_nominal->GetSumw2()) h_nominal->Sumw2();
@@ -905,6 +905,18 @@ void SampleHist::SmoothSyst(const HistoTools::SmoothOption &smoothOpt, string sy
             continue;
         }
 
+        TH1* shape_up   = nullptr;
+        TH1* shape_down = nullptr;
+        std::unique_ptr<TH1> shapeOriginUp  (static_cast<TH1*>(fSyst[i_syst]->fHistUp->Clone()));
+        std::unique_ptr<TH1> shapeOriginDown(static_cast<TH1*>(fSyst[i_syst]->fHistDown->Clone()));
+        const double nominal = h_nominal->Integral();
+        if (std::fabs(shapeOriginUp->Integral()) > 1e-6) {
+            shapeOriginUp  ->Scale(nominal/shapeOriginUp->Integral());
+        }
+        if (std::fabs(shapeOriginDown->Integral()) > 1e-6) {
+            shapeOriginDown->Scale(nominal/shapeOriginDown->Integral());
+        }
+
         //
         // Pre-smoothing
         //
@@ -922,6 +934,19 @@ void SampleHist::SmoothSyst(const HistoTools::SmoothOption &smoothOpt, string sy
                                                     fSyst[i_syst]->fScaleDown, // scale factors
                                                     fSyst[i_syst]->fSystematic->fSampleSmoothOption // overwrite smoothing option
                                                 );
+
+                    if (useAlternativeShapeHistFactory) {
+                        HistoTools::ManageHistograms(   fSyst[i_syst]->fSmoothType,
+                                                        fSyst[i_syst]->fSymmetrisationType,//parameters of the histogram massaging
+                                                        h_nominal.get(),//nominal histogram
+                                                        shapeOriginUp.get(),
+                                                        shapeOriginDown.get(),//original histograms
+                                                        shape_up, shape_down, //modified histograms
+                                                        1.0,
+                                                        1.0, // scale factors
+                                                        fSyst[i_syst]->fSystematic->fSampleSmoothOption // overwrite smoothing option
+                                                    );
+                    }
                 }
                 else{
                     HistoTools::ManageHistograms(   fSyst[i_syst]->fSmoothType,
@@ -934,6 +959,18 @@ void SampleHist::SmoothSyst(const HistoTools::SmoothOption &smoothOpt, string sy
                                                     fSyst[i_syst]->fScaleDown, // scale factors
                                                     smoothOpt
                                                 );
+                    if (useAlternativeShapeHistFactory) {
+                        HistoTools::ManageHistograms(   fSyst[i_syst]->fSmoothType,
+                                                        fSyst[i_syst]->fSymmetrisationType,//parameters of the histogram massaging
+                                                        h_nominal.get(),//nominal histogram
+                                                        shapeOriginUp.get(),
+                                                        shapeOriginDown.get(),//original histograms
+                                                        shape_up, shape_down, //modified histograms
+                                                        1.0,
+                                                        1.0, // scale factors
+                                                        smoothOpt
+                                                    );
+                    }
                 }
             }
             //
@@ -1009,6 +1046,18 @@ void SampleHist::SmoothSyst(const HistoTools::SmoothOption &smoothOpt, string sy
                                                     fSyst[i_syst]->fScaleDown, // scale factors
                                                     fSyst[i_syst]->fSystematic->fSampleSmoothOption // overwrite smoothing option
                                                 );
+                    if (useAlternativeShapeHistFactory) {
+                        HistoTools::ManageHistograms(   fSyst[i_syst]->fSmoothType,
+                                                        fSyst[i_syst]->fSymmetrisationType,//parameters of the histogram massaging
+                                                        h_nominal.get(),//nominal histogram
+                                                        shapeOriginUp.get(),
+                                                        shapeOriginDown.get(),//original histograms
+                                                        shape_up, shape_down, //modified histograms
+                                                        1.0,
+                                                        1.0, // scale factors
+                                                        fSyst[i_syst]->fSystematic->fSampleSmoothOption // overwrite smoothing option
+                                                    );
+                    }
                 }
                 else{
                     HistoTools::ManageHistograms(   fSyst[i_syst]->fSmoothType,
@@ -1021,6 +1070,18 @@ void SampleHist::SmoothSyst(const HistoTools::SmoothOption &smoothOpt, string sy
                                                     fSyst[i_syst]->fScaleDown, // scale factors
                                                     smoothOpt
                                                 );
+                    if (useAlternativeShapeHistFactory) {
+                        HistoTools::ManageHistograms(   fSyst[i_syst]->fSmoothType,
+                                                        fSyst[i_syst]->fSymmetrisationType,//parameters of the histogram massaging
+                                                        h_nominal.get(),//nominal histogram
+                                                        shapeOriginUp.get(),
+                                                        shapeOriginDown.get(),//original histograms
+                                                        shape_up, shape_down, //modified histograms
+                                                        1.0,
+                                                        1.0, // scale factors
+                                                        smoothOpt
+                                                    );
+                    }
                 }
             }
             //
@@ -1073,24 +1134,32 @@ void SampleHist::SmoothSyst(const HistoTools::SmoothOption &smoothOpt, string sy
             WriteErrorStatus("SampleHist::SmoothSyst", "            -> Sample: " + fName);
         }
 
-        if(fSyst[i_syst]->fIsShape){
-            // update shape hists as well
-            fSyst[i_syst]->fHistShapeUp.reset(static_cast<TH1*>(h_syst_up  ->Clone(fSyst[i_syst]->fHistShapeUp->GetName())));
-            fSyst[i_syst]->fHistShapeDown.reset(static_cast<TH1*>(h_syst_down->Clone(fSyst[i_syst]->fHistShapeDown->GetName())));
-            if(fSyst[i_syst]->fHistShapeUp  ->Integral()>0){
-                fSyst[i_syst]->fHistShapeUp  ->Scale(fHist->Integral() / fSyst[i_syst]->fHistShapeUp  ->Integral());
+        if(fSyst[i_syst]->fIsShape) {
+            if (useAlternativeShapeHistFactory) {
+                fSyst[i_syst]->fHistShapeUp.reset(static_cast<TH1*>(shape_up  ->Clone(fSyst[i_syst]->fHistShapeUp->GetName())));
+                fSyst[i_syst]->fHistShapeDown.reset(static_cast<TH1*>(shape_down->Clone(fSyst[i_syst]->fHistShapeDown->GetName())));
             } else {
-                fSyst[i_syst]->fHistShapeUp.reset(static_cast<TH1*>(fHist ->Clone(fSyst[i_syst]->fHistShapeUp->GetName())));
-            }
+                // update shape hists as well
+                fSyst[i_syst]->fHistShapeUp.reset(static_cast<TH1*>(h_syst_up  ->Clone(fSyst[i_syst]->fHistShapeUp->GetName())));
+                fSyst[i_syst]->fHistShapeDown.reset(static_cast<TH1*>(h_syst_down->Clone(fSyst[i_syst]->fHistShapeDown->GetName())));
+                if(fSyst[i_syst]->fHistShapeUp  ->Integral()>0){
+                    fSyst[i_syst]->fHistShapeUp  ->Scale(fHist->Integral() / fSyst[i_syst]->fHistShapeUp  ->Integral());
+                } else {
+                    fSyst[i_syst]->fHistShapeUp.reset(static_cast<TH1*>(fHist ->Clone(fSyst[i_syst]->fHistShapeUp->GetName())));
+                }
 
-            if(fSyst[i_syst]->fHistShapeDown->Integral() > 0.){
-                fSyst[i_syst]->fHistShapeDown->Scale(fHist->Integral() / fSyst[i_syst]->fHistShapeDown->Integral());
-            } else {
-                fSyst[i_syst]->fHistShapeDown.reset(static_cast<TH1*>(fHist ->Clone(fSyst[i_syst]->fHistShapeDown->GetName())));
+                if(fSyst[i_syst]->fHistShapeDown->Integral() > 0.){
+                    fSyst[i_syst]->fHistShapeDown->Scale(fHist->Integral() / fSyst[i_syst]->fHistShapeDown->Integral());
+                } else {
+                    fSyst[i_syst]->fHistShapeDown.reset(static_cast<TH1*>(fHist ->Clone(fSyst[i_syst]->fHistShapeDown->GetName())));
+                }
             }
         }
         delete h_syst_up;
         delete h_syst_down;
+
+        delete shape_up;
+        delete shape_down;
     }
     fSystSmoothed = true;
 }

@@ -273,7 +273,8 @@ TRExFit::TRExFit(std::string name) :
     fUseInComparison(true),
     fReorderNPs(false),
     fBlindSRs(false),
-    fHEPDataFormat(false)
+    fHEPDataFormat(false),
+    fAlternativeShapeHistFactory(false)
 {
     TRExFitter::IMAGEFORMAT.emplace_back("png");
 }
@@ -480,7 +481,7 @@ void TRExFit::SmoothSystematics(std::string syst){
         // if there are no reference smoothing samples, proceed as usual
         if (referenceSmoothSysts.size() == 0){
             for(int i_smp=0;i_smp<fRegions[i_ch]->fNSamples;i_smp++){
-                fRegions[i_ch]->fSampleHists[i_smp]->SmoothSyst(fSmoothOption, syst, false);
+                fRegions[i_ch]->fSampleHists[i_smp]->SmoothSyst(fSmoothOption, fAlternativeShapeHistFactory, syst, false);
             }
         } else {
             std::vector<std::size_t> usedSysts{};
@@ -493,7 +494,7 @@ void TRExFit::SmoothSystematics(std::string syst){
                     if (std::find(fSystematics.at(i_syst)->fRegions.begin(), fSystematics.at(i_syst)->fRegions.end(), fRegions[i_ch]->fName) == fSystematics.at(i_syst)->fRegions.end()) continue;
                     if (fSystematics.at(i_syst)->fReferenceSmoothing == "") {
                         // the systemtic is not using special smoothing
-                        fRegions[i_ch]->fSampleHists[i_smp]->SmoothSyst(fSmoothOption, fSystematics.at(i_syst)->fName, true);
+                        fRegions[i_ch]->fSampleHists[i_smp]->SmoothSyst(fSmoothOption, fAlternativeShapeHistFactory, fSystematics.at(i_syst)->fName, true);
                     } else {
                         // check if the syst has been smoothed already
                         if (std::find(usedSysts.begin(), usedSysts.end(), i_syst) != usedSysts.end()) continue;
@@ -513,7 +514,7 @@ void TRExFit::SmoothSystematics(std::string syst){
                         // smooth on the sample that is specified in ReferenceSmoothing
                         for (int i_sample=0; i_sample<fRegions[i_ch]->fNSamples; ++i_sample){
                             if (fRegions[i_ch]->fSampleHists[i_sample]->GetSample()->fName == fSystematics.at(i_syst)->fReferenceSmoothing){
-                                sh->SmoothSyst(fSmoothOption, fSystematics.at(i_syst)->fName, true);
+                                sh->SmoothSyst(fSmoothOption, fAlternativeShapeHistFactory, fSystematics.at(i_syst)->fName, true);
 
                                 // save the smoothed histograms
                                 nominal_cpy = std::unique_ptr<TH1>(static_cast<TH1*>(fRegions[i_ch]->fSampleHists[i_sample]->fHist->Clone()));

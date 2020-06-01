@@ -1209,6 +1209,20 @@ int ConfigReader::ReadJobOptions(){
         }
     }
 
+    // Set AlternativeShapeHistFactory
+    param = confSet->Get("AlternativeShapeHistFactory");
+    if( param != "" ){
+        std::transform(param.begin(), param.end(), param.begin(), ::toupper);
+        if (param == "TRUE") {
+            fFitter->fAlternativeShapeHistFactory = true;
+        } else if (param == "FALSE") {
+            fFitter->fAlternativeShapeHistFactory = false;
+        } else {
+            WriteWarningStatus("ConfigReader::ReadJobOptions", "You specified 'AlternativeShapeHistFactory' option but you did not provide valid setting. Using default (false)");
+            fFitter->fAlternativeShapeHistFactory = false;
+        }
+    }
+
     // success
     return 0;
 }
