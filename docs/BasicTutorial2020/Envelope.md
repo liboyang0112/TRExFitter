@@ -19,12 +19,7 @@ First, run produce the inputs using the config file used for the CI tests
 trex-fitter n test/configs/FitExampleNtuple.config
 ```
 
-??? hint "Original red-blue plots"
-    ![ttc](../img/BasicTutorial2020/ljets_5j3b_HT_ttc_ttc_Gen.png)
-    ![ttb](../img/BasicTutorial2020/ljets_5j3b_HT_ttb_ttb_Gen.png)
-    ![ttlight](../img/BasicTutorial2020/ljets_5j3b_HT_ttlight_ttlight_Gen.png)
-
-Now, modify the config file and add the following lines for each ttbar generator systematic: `CombineName: Generator` and `CombineType: ENVELOPE` (the type is needed only for the first systematic)
+Now, modify the config file and add the following lines for each systematic that you wan to combine: `CombineName: Combined` and `CombineType: ENVELOPE`
 
 Now run the `b` step
 
@@ -32,16 +27,14 @@ Now run the `b` step
 trex-fitter b test/configs/FitExampleNtuple.config
 ```
 
-??? hint "Envelope"
-    ![envelope](../img/BasicTutorial2020/ljets_5j3b_HT_ttlight_ttlight_Gen_Envelope.png)
-
 followed with the `w` step
 
 ```bash
 trex-fitter w test/configs/FitExampleNtuple.config
 ```
 
+Now check the pruning plot. 
+
 ??? hint "Pruning plot"
     ![pruning](../img/BasicTutorial2020/Pruning.png)
 
-Now check the pruning plot and the relevant systematics (red-blue) plots. 
