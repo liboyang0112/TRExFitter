@@ -1,6 +1,6 @@
 # A short walkthrough of a TRExFitter workflow
 
-The following example shows a common TRExFitter workflow.
+The following example shows a common `TRExFitter` workflow.
 This example closely follows [these slides](https://indico.cern.ch/event/700646/contributions/2936548/attachments/1627872/2595678/TRExFitterTutorial.pdf), starting on page 24.
 Feel free to take a look at them as well.
 
@@ -8,12 +8,12 @@ A lot of information about profile likelihood fits can be found in the [ATLAS St
 
 We need `afs` access for this tutorial, you can run it for example on lxplus.
 Start out by getting the code and compiling it, see the [setup](setup.md) for instructions.
-We will be using the tag `TtHFitter-00-03-23`.
+We will be using the tag `TRExFitter-00-04-09`.
 
 
 ## The config file
 
-The configuration file this example is based on can be found in the TRExFitter repository, at `config/ttH2015_ljets.config`.
+The configuration file this example is based on can be found in the `TRExFitter` repository, at `config/ttH2015_ljets.config`.
 Open this in the text editor of your choice.
 It includes a very simple fit model for a ttH(bb) search using 2015 data in the l+jets channel.
 Note the different blocks defined:
@@ -90,9 +90,9 @@ As an example, here is the plot of the signal region:
 ![signal region plot](img/short_walkthrough/ljets_HThad_ge6jge4b.png)
 
 !!! tip "Getting more output"
-    There was very little output from TRExFitter while running the actions so far.
+    There was very little output from `TRExFitter` while running the actions so far.
     Time to change this!
-    Locate the `DebugLevel` option in the config and increase it to 1 or 2.
+    Locate the `DebugLevel` option in the config and increase it to `1` or `2`.
     Try re-running the steps above and see what happens!
 
 !!! info "Blinding"
@@ -100,7 +100,7 @@ As an example, here is the plot of the signal region:
     Take a look at the `BlindingThreshold` option for that purpose!
 
 !!! info "Binning"
-    TRExFitter includes several algorithms to automatically bin distributions, particularly useful if you want to fit any MVA output distribution.
+    `TRExFitter` includes several algorithms to automatically bin distributions, particularly useful if you want to fit any MVA output distribution.
     Take a look at the `AutoBin` argument for the `Binning` option.
     Some documentation on the algorithms can be found in thse slides: [TransfoD, TransfoF](https://indico.cern.ch/event/455289/contributions/1953694/attachments/1209081/1762963/Calvet_binning_Htop_160108.pdf), [TransfoJ](https://indico.cern.ch/event/472696/contributions/1992693/attachments/1217431/1778326/Keller16-01-26.pdf).
 
@@ -111,7 +111,7 @@ Take a look at the `ttH2015_ljets/` folder again, there is now a sub-folder `Sys
 Try to locate the plot showing you the effect of the ttbar shower systematic in the signal region.
 It should look like this:
 
-![ttbar shower systematic in signal region](img/short_walkthrough/ljets_HThad_ge6jge4b_ttbar.png)
+![ttbar shower systematic in signal region](img/short_walkthrough/ljets_HThad_ge6jge4b_ttbar_tt_Shower.png)
 
 The dashed line shows the actual shape of the events contained in the `ttbar_pyt8.root` sample used.
 The solid red line shows the shape of the systematic after smoothing.
@@ -120,9 +120,10 @@ It is important to look at these plots to see the effect of smoothing.
 Some technical details about smoothing (and also pruning, described in the next section) can be found in these [slides by Spyros Argyropoulos](https://indico.cern.ch/event/691683/contributions/2873279/attachments/1593521/2522846/PruningSmoothing.pdf).
 
 !!! question "A closer look at smoothing"
-    Try adding the `SystErrorBars` option to the config (in the `Job` block) and setting it to `TRUE`.
-    Then reproduce the systematics plots (again, either via the `n` or `b` action).
-    Take a look at the previous plot again - does the smoothing look reasonable within the statistical uncertainties now shown?
+    The `SystErrorBars` (enabled by default) controls whether the above plot shows statistical uncertainties.
+    Take a look at the plot - does the smoothing look reasonable within the statistical uncertainties shown?
+    There is a range of smoothing algorithms available, but no algorithm should be used blindly.
+    It is important to check these plots to verify that they do not look unphysical.
 
 
 ## Creating the workspace
@@ -283,6 +284,7 @@ As expected from the Asimov dataset, the best-fit result for the normalization f
 
 There are many things we have not covered in this tutorial.
 Have a look at the available options in the [TRExFitter readme](https://gitlab.cern.ch/TRExStats/TRExFitter/blob/master/README.md) to learn about additional features.
+See also the rest of the webpage for more.
 If you run into issues, have questions or want to report bugs, please make use of the mailing list [atlas-phys-stat-tthfitter](https://e-groups.cern.ch/e-groups/EgroupsSubscription.do?egroupName=atlas-phys-stat-tthfitter) or use the [TRExFitter JIRA](https://its.cern.ch/jira/browse/TTHFITTER/).
 
 If you would like to try out some of the additional features the framework offers, you can also have a look at [these slides](https://indico.cern.ch/event/700646/contributions/2936548/attachments/1627872/2595678/TRExFitterTutorial.pdf), starting from slide 43.

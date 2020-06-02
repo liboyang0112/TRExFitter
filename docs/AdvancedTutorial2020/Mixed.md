@@ -35,7 +35,7 @@ In order to tell `TRExFitter` to work in a such a "mixed fit" setup,
 the easiest way is to specify which data to user for each region using the `DataType` option.
 For example:
 
-```
+```yaml
 Region: "mySR"
   DataType: DATA
   ...
@@ -60,7 +60,8 @@ Alternatively, to obtain the same result, other options could be used.
 
 1. If the flag `BlindSRs` could be set to `TRUE` under `Job`, there is no need to specify `DataType` for each region, and instead all the regions flagged with `Type: SIGNAL` will be considered as if they had `DataType: ASIMOV`.
     Therefore an equivalent setup as the above will be:
-    ```
+
+    ```yaml
     Job: "myJob"
       BlindSRs: TRUE
       ...
