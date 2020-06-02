@@ -90,7 +90,14 @@ The folded distributions can be found in `FitExampleUnfolding/UnfoldingHistogram
 You can inspect them.
 
 ## Fitting
-Now that all the hard work is done to prepare the inputs needed for unfolding, you can run the usual steps:
+Now that all the hard work is done to prepare the inputs needed for unfolding.
+Additionally, migration (if available) and response matrices will be provded
+
+??? hint "Matrices"
+    ![Migration](../img/AdvancedTutorial2020/migration_SR1.png)
+    ![Response](../img/AdvancedTutorial2020/response_SR1.png)
+
+You can now run the usual steps:
 
 ```bash
 trex-fitter h test/configs/FitExampleUnfolding.config
@@ -107,7 +114,15 @@ trex-fitter wf test/configs/FitExampleUnfolding.config
 
 Apart from the usual plots made by `TRExFitter`, you should also see a new plot called `UnfoldedData` that shows the unfolded distributions as well as all truth distributions defined in the config.
 
+??? hint "Unfolded data"
+    ![Pulls](../img/AdvancedTutorial2020/NuisPar.png)
+    ![Result](../img/AdvancedTutorial2020/UnfoldedData.png)
+
 You can also produce the standard pre/post fit plots running:
+
+??? hint "Prefit and postfit"
+    ![Prefit](../img/AdvancedTutorial2020/SR1.png)
+    ![Postfit](../img/AdvancedTutorial2020/SR1_postFit.png)
 
 ```bash
 trex-fitter dp test/configs/FitExampleUnfolding.config

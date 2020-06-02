@@ -24,3 +24,9 @@ You can see that there are many `XXX` comments, this is something which needs to
 
 Nevertheless, even with the current files, you can try to compress them together and submit to the [HEPData sandbox](https://www.hepdata.net/record/sandbox) (you need to create an account there).
 After few second you should be able to see some nice visualisations of the provided tables.
+
+??? hint "Screenshots from HEPData"
+    ![correlation](../img/BasicTutorial2020/HEPData_corr.png)
+    ![ranking](../img/BasicTutorial2020/HEPData_ranking.png)
+    ![SR2post](../img/BasicTutorial2020/HEPData_SR2_postfit.png)
+    ![Yeildspost](../img/BasicTutorial2020/HEPData_postfit.png)
