@@ -54,7 +54,7 @@ This is needed for the next steps as you will see.
 
 Definition of the width templates is done at the `Sample` level, e.g.
 
-```bash
+```yaml
 Sample: "Signal_0p7"
   Type: SIGNAL
   Title: "t#bar{t}"
@@ -75,7 +75,7 @@ As you can see, the control region part is not special at all since there are no
 
 It is important to add the following lines for the parameter that is used for interpolation, in our case `topWidth`:
 
-```bash
+```yaml
 NormFactor: "topWidth"
   Title: "topWidth"
   Nominal: 1.32
@@ -88,7 +88,7 @@ It is important that `Samples: none` is used in this case.
 
 As you can see from the config file, also the usual NormFactors can be added, in this case:
 
-```bash
+```yaml
 NormFactor: "ttbarXsec"
   Title: "ttbarXsec"
   Nominal: 1
@@ -108,7 +108,7 @@ The systematic uncertainties on the templates are propagated from the nominal te
 
 The uncertainties are defined with:
 
-```bash
+```yaml
 Systematic: "bTagSF_B_0"
   Title: "bTagSF_B_0"
   NuisanceParameter: "bTagSF_B_0"
@@ -130,7 +130,7 @@ Notice that the `GHOST` reference sample, representing the nominal width predict
 
 Now we need to add the same uncertainties to the control region where no width templates are present (this can be done similarly for backgrounds):
 
-```bash
+```yaml
 Systematic: "bTagSF_B_0"
   Title: "bTagSF_B_0"
   NuisanceParameter: "bTagSF_B_0"
