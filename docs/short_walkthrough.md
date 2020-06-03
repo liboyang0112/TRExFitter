@@ -8,7 +8,7 @@ A lot of information about profile likelihood fits can be found in the [ATLAS St
 
 We need `afs` access for this tutorial, you can run it for example on lxplus.
 Start out by getting the code and compiling it, see the [setup](setup.md) for instructions.
-We will be using the tag `TRExFitter-00-04-09`.
+We will be using the tag `TRExFitter-00-04-10`.
 
 
 ## The config file
