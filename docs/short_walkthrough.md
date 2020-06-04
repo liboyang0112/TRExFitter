@@ -215,9 +215,10 @@ Going one step further, we can calculate the expected and observed upper limits 
 trex-fitter l config/ttH2015_ljets.config
 ```
 
-Take a look at the histograms in the `ttH2015_ljets.root` file (which is located in the `Limits/` sub-folder) to see the results.
+Take a look at the file `myLimit_CL95.root` (which is located in the `Limits/asymptotics/` sub-folder) to see the results in the `stats` tree.
 If you would like to inject a signal into your limit calculation, add `SignalInjection: TRUE` to the `Limit` block.
 The limit calculation is using the $CL_S$ method, you can find a brief description of it [here](https://www.pp.rhul.ac.uk/~cowan/stat/cls/CLsInfo.pdf), or more details following the links at the beginning of this tutorial.
+See the [limit feature explanation](../BasicTutorial2020/Limit) page for more information.
 
 To calculate the observed and expected significance, use the `s` action:
 
@@ -225,8 +226,9 @@ To calculate the observed and expected significance, use the `s` action:
 trex-fitter s config/ttH2015_ljets.config
 ```
 
-Again, a new sub-folder has been created, this time named `Significance/`.
-Take a look at the histogram contained in the root file within that folder to see the results.
+Again, a new sub-folder has been created, this time named `Significance/asymptotics`.
+It contains the file `mySignificance_p0.root`, with the results of the calculation stored within the `p0` tree.
+See also the [significance feature explanation](../BasicTutorial2020/Significance) page.
 
 
 ## Ranking plot
