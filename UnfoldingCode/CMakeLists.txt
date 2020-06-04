@@ -48,3 +48,7 @@ target_link_libraries( UnfoldingCode ${ROOT_LIBRARIES} )
 set_property( TARGET UnfoldingCode
    PROPERTY PUBLIC_HEADER ${lib_headers} )
 target_include_directories(UnfoldingCode PUBLIC ${CMAKE_CURRENT_LIST_DIR} )
+
+install(TARGETS UnfoldingCode
+        LIBRARY DESTINATION lib
+        PUBLIC_HEADER DESTINATION include/UnfoldingCode )
