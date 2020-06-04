@@ -54,10 +54,10 @@ public:
     // norm factors and systs
     void AddNormFactor(std::shared_ptr<NormFactor> factor);
     void AddShapeFactor(std::shared_ptr<ShapeFactor> factor);
-    void AddSystematic(Systematic *syst);
+    void AddSystematic(std::shared_ptr<Systematic> syst);
     std::shared_ptr<NormFactor> AddNormFactor(const std::string& name,double nominal=1.,double min=0.,double max=10.,bool isConst=false);
     std::shared_ptr<ShapeFactor> AddShapeFactor(const std::string& name,double nominal=1.,double min=0.,double max=10.,bool isConst=false);
-    Systematic* AddSystematic(const std::string& name,int type=0,double up=0.,double down=0.);
+    std::shared_ptr<Systematic> AddSystematic(const std::string& name,int type=0,double up=0.,double down=0.);
     bool HasNormFactor(const std::string& name) const;
     bool HasSystematic(const std::string& name) const;
     bool HasNuisanceParameter(const std::string& name) const;
@@ -111,8 +111,7 @@ public:
     std::vector<std::string> fHistoNameSuffs;
 
     // systematics & norm.factors
-    int fNSyst;
-    std::vector < std::unique_ptr<Systematic> > fSystematics;
+    std::vector < std::shared_ptr<Systematic> > fSystematics;
     std::vector < std::shared_ptr<NormFactor> > fNormFactors;
     std::vector < std::shared_ptr<ShapeFactor> > fShapeFactors;
 

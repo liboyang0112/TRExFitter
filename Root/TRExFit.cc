@@ -92,7 +92,6 @@ TRExFit::TRExFit(std::string name) :
     fFitResultsFile(""),
     fNRegions(0),
     fNSamples(0),
-    fNSyst(0),
     fPOI(""),
     fPOIunit(""),
     fUseStatErr(false),
@@ -346,10 +345,9 @@ Sample* TRExFit::NewSample(const std::string& name,int type){
 
 //__________________________________________________________________________________
 //
-Systematic* TRExFit::NewSystematic(const std::string& name){
-    fSystematics.push_back(new Systematic(name));
-    fNSyst ++;
-    return fSystematics[fNSyst-1];
+std::shared_ptr<Systematic> TRExFit::NewSystematic(const std::string& name){
+    fSystematics.emplace_back(new Systematic(name));
+    return fSystematics.back();
 }
 
 //__________________________________________________________________________________
@@ -964,7 +962,7 @@ void TRExFit::CorrectHistograms(){
                         }
                     }
                     syh = sh->AddHistoSyst(syst->fName,syst->fStoredName,h_up.get(),h_down.get());
-                    syh->fSystematic = syst.get();
+                    syh->fSystematic = syst;
                 }
             }
 
@@ -1187,7 +1185,7 @@ void TRExFit::CorrectHistograms(){
                     if(!sh->fSample->fIsMorph[par]) continue;
                     if(sh.get() != shNominal){
                         for(auto& syh : shNominal->fSyst){
-                            Systematic * syst = syh->fSystematic;
+                            std::shared_ptr<Systematic> syst = syh->fSystematic;
                             if(syst->fIsNormOnly){
                                 SystematicHist* syhNew = sh->AddOverallSyst(syst->fName,syst->fStoredName,syst->fOverallUp,syst->fOverallDown);
                                 syhNew->fSystematic = syst;
@@ -1222,7 +1220,7 @@ void TRExFit::CorrectHistograms(){
                 //
                 SampleHist *shReference = reg->GetSampleHist(smp->fSystFromSample);
                 for(auto& syh : shReference->fSyst){
-                    Systematic * syst = syh->fSystematic;
+                    std::shared_ptr<Systematic> syst = syh->fSystematic;
                     if(syst->fIsNormOnly){
                         SystematicHist* syhNew = sh->AddOverallSyst(syst->fName,syst->fStoredName,syst->fOverallUp,syst->fOverallDown);
                         syhNew->fSystematic = syst;
@@ -1697,13 +1695,13 @@ TRExPlot* TRExFit::DrawSummary(std::string opt, TRExPlot* prefit_plot) {
     std::vector<std::string> npNames;
     int i_np = -1;
     // actual systematics
-    for(int i_syst=0;i_syst<fNSyst;i_syst++){
-        if(isPostFit && fSystematics[i_syst]->fType == Systematic::SHAPE) continue;
-        std::string systName = fSystematics[i_syst]->fName;
+    for(const auto& isyst : fSystematics) {
+        if(isPostFit && isyst->fType == Systematic::SHAPE) continue;
+        std::string systName = isyst->fName;
         std::string systNuisPar = systName;
         systNames.push_back( systName );
-        if(fSystematics[i_syst]!=nullptr)
-            systNuisPar = fSystematics[i_syst]->fNuisanceParameter;
+        if(isyst!=nullptr)
+            systNuisPar = isyst->fNuisanceParameter;
         if(Common::FindInStringVector(npNames,systNuisPar)<0){
             npNames.push_back(systNuisPar);
             i_np++;
@@ -3365,8 +3363,8 @@ void TRExFit::ToRooStat(bool makeWorkspace, bool exportOnly) const {
         meas.AddChannel(chan);
     }
     // Experimental: turn off constraints for given systematics
-    for(int i_syst=0; i_syst<fNSyst; ++i_syst) {
-        if(fSystematics[i_syst]->fIsFreeParameter) meas.AddUniformSyst(fSystematics[i_syst]->fName.c_str());
+    for(const auto& isyst : fSystematics) {
+        if(isyst->fIsFreeParameter) meas.AddUniformSyst(isyst->fName.c_str());
     }
 
     // morphing
@@ -3722,12 +3720,12 @@ void TRExFit::DrawPruningPlot() const{
         nSmp++;
     }
     // make a list of non-gamma systematics only
-    std::vector<Systematic*> nonGammaSystematics;
+    std::vector<std::shared_ptr<Systematic> > nonGammaSystematics;
     const std::vector<std::string>& uniqueSyst = GetUniqueSystNamesWithoutGamma();
-    for(int i_syst=0;i_syst<fNSyst;i_syst++){
-        if(fSystematics[i_syst]->fType == Systematic::SHAPE) continue;
+    for(const auto& isyst : fSystematics) {
+        if(isyst->fType == Systematic::SHAPE) continue;
 
-        nonGammaSystematics.push_back(fSystematics[i_syst]);
+        nonGammaSystematics.push_back(isyst);
     }
     const size_t NnonGammaSyst = nonGammaSystematics.size();
     if(NnonGammaSyst==0){
@@ -5396,10 +5394,10 @@ void TRExFit::PrintConfigSummary() const{
     }
     WriteInfoStatus("TRExFit::PrintConfigSummary", "Reading the following systematics:");
     std::vector<std::string> tmp{};
-    for(int i_syst=0;i_syst<fNSyst;i_syst++){
-        if (std::find(tmp.begin(), tmp.end(), fSystematics[i_syst]->fName) == tmp.end()){
-            WriteInfoStatus("TRExFit::PrintConfigSummary"," "+fSystematics[i_syst]->fName);
-            tmp.emplace_back(fSystematics[i_syst]->fName);
+    for(const auto& isyst : fSystematics) {
+        if (std::find(tmp.begin(), tmp.end(), isyst->fName) == tmp.end()){
+            WriteInfoStatus("TRExFit::PrintConfigSummary"," "+isyst->fName);
+            tmp.emplace_back(isyst->fName);
         }
     }
     WriteInfoStatus("TRExFit::PrintConfigSummary", "-------------------------------------------");
@@ -5549,9 +5547,9 @@ void TRExFit::ProduceNPRanking( std::string NPnames/*="all"*/ ){
     std::vector< std::string > nuisPars;
     std::vector< bool > isNF;
     std::vector<std::string> systNames_unique;
-    for(int i_syst=0;i_syst<fNSyst;i_syst++){
+    for(std::size_t i_syst = 0; i_syst < fSystematics.size(); ++i_syst){
         if(NPnames=="all" || NPnames==fSystematics[i_syst]->fNuisanceParameter ||
-            ( atoi(NPnames.c_str())==i_syst && (atoi(NPnames.c_str())>0 || strcmp(NPnames.c_str(),"0")==0) )
+            ( atoi(NPnames.c_str())==static_cast<int>(i_syst) && (atoi(NPnames.c_str())>0 || strcmp(NPnames.c_str(),"0")==0) )
             ){
             if(fSystematics[i_syst]->fType == Systematic::SHAPE) continue;
             if (std::find(systNames_unique.begin(), systNames_unique.end(), fSystematics[i_syst]->fNuisanceParameter) == systNames_unique.end())
@@ -5561,10 +5559,10 @@ void TRExFit::ProduceNPRanking( std::string NPnames/*="all"*/ ){
             isNF.push_back( false );
         }
     }
-    for(int i_norm = 0; i_norm < static_cast<int>(fNormFactors.size()); ++i_norm) {
+    for(std::size_t i_norm = 0; i_norm < fNormFactors.size(); ++i_norm) {
         if(fPOI == fNormFactors.at(i_norm)->fName) continue;
         if(NPnames=="all" || NPnames==fNormFactors.at(i_norm)->fName ||
-            ( atoi(NPnames.c_str())-fNSyst==i_norm && (atoi(NPnames.c_str())>0 || strcmp(NPnames.c_str(),"0")==0) )
+            ( atoi(NPnames.c_str())-fSystematics.size()==i_norm && (atoi(NPnames.c_str())>0 || strcmp(NPnames.c_str(),"0")==0) )
             ){
             nuisPars.push_back(fNormFactors.at(i_norm)->fName);
             isNF.push_back( true );
@@ -5698,7 +5696,7 @@ void TRExFit::ProduceNPRanking( std::string NPnames/*="all"*/ ){
                 if(np.find("gamma")!=std::string::npos){
                     // add the nuisance parameter to the list nuisPars if it's there in the ws
                     // remove "gamma"...
-                    if(np==NPnames || (atoi(NPnames.c_str())-fNSyst-static_cast<int>(fNormFactors.size())==i_gamma && (atoi(NPnames.c_str())>0 || strcmp(NPnames.c_str(),"0")==0)) || NPnames=="all"){
+                    if(np==NPnames || (atoi(NPnames.c_str())-static_cast<int>(fSystematics.size())-static_cast<int>(fNormFactors.size())==i_gamma && (atoi(NPnames.c_str())>0 || strcmp(NPnames.c_str(),"0")==0)) || NPnames=="all"){
                         nuisPars.emplace_back(Common::ReplaceString(np,"gamma_",""));
                         isNF.emplace_back(true);
                         if(NPnames!="all") break;
@@ -7479,11 +7477,11 @@ void TRExFit::ProduceSystSubCategoryMap(){
     fSubCategoryImpactMap.insert(std::make_pair("DUMMY_GAMMAS", "Gammas"));
 
     // add all systematics, here an "alpha_" prefix is needed
-    for(int i_syst=0;i_syst<fNSyst;i_syst++){
-        if(fSystematics[i_syst]->fSubCategory=="Gammas" || fSystematics[i_syst]->fSubCategory=="FullSyst" || fSystematics[i_syst]->fSubCategory=="combine")
+    for(const auto& isyst : fSystematics) {
+        if(isyst->fSubCategory=="Gammas" || isyst->fSubCategory=="FullSyst" || isyst->fSubCategory=="combine")
              WriteWarningStatus("TRExFit::ProduceSystSubCategoryMap"," use of \"Gammas\", \"FullSyst\" or \"combine\" as SubCategory names is not supported, you will likely run into issues");
-        if(fSystematics[i_syst]->fType!=Systematic::SHAPE){
-            fSubCategoryImpactMap.insert(std::make_pair(("alpha_" + fSystematics[i_syst]->fNuisanceParameter).c_str(), fSystematics[i_syst]->fSubCategory));
+        if(isyst->fType!=Systematic::SHAPE){
+            fSubCategoryImpactMap.insert(std::make_pair(("alpha_" + isyst->fNuisanceParameter).c_str(), isyst->fSubCategory));
         }
         else{
             // treat SHAPE systematics separately, since they are not prefixed with "alpha_", but "gamma_shape_" instead
@@ -7503,7 +7501,7 @@ void TRExFit::ProduceSystSubCategoryMap(){
                 }
 
                 for(int i_bin=1; i_bin < nRegionBins+1; i_bin++){
-                    fSubCategoryImpactMap.insert(std::make_pair(Form("gamma_shape_%s_%s_bin_%d",(fSystematics[i_syst]->fNuisanceParameter).c_str(),(reg->fName).c_str(),i_bin-1), fSystematics[i_syst]->fSubCategory));
+                    fSubCategoryImpactMap.insert(std::make_pair(Form("gamma_shape_%s_%s_bin_%d",(isyst->fNuisanceParameter).c_str(),(reg->fName).c_str(),i_bin-1), isyst->fSubCategory));
                 }
             }
         }

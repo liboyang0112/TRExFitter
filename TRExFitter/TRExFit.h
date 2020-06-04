@@ -104,7 +104,7 @@ public:
     void SetFitRegion(FitRegion region);
 
     Sample* NewSample(const std::string& name,int type=0);
-    Systematic* NewSystematic(const std::string& name);
+    std::shared_ptr<Systematic> NewSystematic(const std::string& name);
     Region* NewRegion(const std::string& name);
 
     // ntuple stuff
@@ -519,7 +519,7 @@ public:
 
     std::vector < Region* > fRegions;
     std::vector < Sample* > fSamples;
-    std::vector < Systematic* > fSystematics;
+    std::vector < std::shared_ptr<Systematic> > fSystematics;
     std::vector < std::shared_ptr<NormFactor> >fNormFactors;
     std::vector < std::shared_ptr<ShapeFactor> > fShapeFactors;
     std::vector < std::string > fSystematicNames;
@@ -528,7 +528,6 @@ public:
 
     int fNRegions;
     int fNSamples;
-    int fNSyst;
     std::string fPOI;
     std::string fPOIunit;
     bool fUseStatErr;

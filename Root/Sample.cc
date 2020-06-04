@@ -40,7 +40,6 @@ Sample::Sample(const std::string& name,int type) :
     fBuildPullTable(0),
     fSelection("1"),
     fMCweight("1"),
-    fNSyst(0),
     fSeparateGammas(false),
     fMCstatScale(1.),
     fCorrelateGammasWithSample(""),
@@ -138,16 +137,15 @@ void Sample::AddShapeFactor(std::shared_ptr<ShapeFactor> shapeFactor){
 
 //__________________________________________________________________________________
 //
-void Sample::AddSystematic(Systematic* syst){
+void Sample::AddSystematic(std::shared_ptr<Systematic> syst){
     fSystematics.emplace_back(syst);
-    fNSyst++;
 }
 
 //__________________________________________________________________________________
 //
 bool Sample::HasSystematic(const std::string& name) const{
-    for(int i_syst=0;i_syst<fNSyst;i_syst++){
-        if(fSystematics[i_syst]->fName==name) return true;
+    for(const auto& isyst : fSystematics) {
+        if(isyst->fName==name) return true;
     }
     return false;
 }
@@ -155,8 +153,8 @@ bool Sample::HasSystematic(const std::string& name) const{
 //__________________________________________________________________________________
 //
 bool Sample::HasNuisanceParameter(const std::string& name) const{
-    for(int i_syst=0;i_syst<fNSyst;i_syst++){
-        if(fSystematics[i_syst]->fNuisanceParameter==name) return true;
+    for(const auto& isyst : fSystematics) {
+        if(isyst->fNuisanceParameter==name) return true;
     }
     return false;
 }
@@ -186,8 +184,7 @@ std::shared_ptr<ShapeFactor> Sample::AddShapeFactor(const std::string& name,doub
 
 //__________________________________________________________________________________
 //
-Systematic* Sample::AddSystematic(const std::string& name,int type,double up,double down){
+std::shared_ptr<Systematic> Sample::AddSystematic(const std::string& name,int type,double up,double down){
     fSystematics.emplace_back(new Systematic(name,type,up,down));
-    fNSyst++;
-    return fSystematics[fNSyst-1].get();
+    return fSystematics.back();
 }

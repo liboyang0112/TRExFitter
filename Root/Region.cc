@@ -358,7 +358,7 @@ void Region::BuildPreFitErrorHist(){
                 sh->fHistDown.reset(static_cast<TH1*>(hNom->Clone(Form("%s_%s_Down",hNom->GetName(),systName.c_str()))));
             }
 
-            Systematic *syst = sh->fSystematic;
+            std::shared_ptr<Systematic> syst = sh->fSystematic;
 
             // store hist up and down
             TH1* hUp   = sh->fHistUp.get();
@@ -842,7 +842,7 @@ double Region::GetMultFactors( FitResults* fitRes,
         const SystematicHist *syh = sh->fSyst[i_syst].get();
         std::string systName = syh->fName;
         TString systNameNew(systName); // used in pull tables
-        const Systematic *syst = syh->fSystematic;
+        std::shared_ptr<Systematic> syst = syh->fSystematic;
         bool isOverall = syh->fIsOverall;
         bool isShape   = syh->fIsShape;
         if(syst){
@@ -1120,7 +1120,7 @@ void Region::BuildPostFitErrorHist(FitResults *fitRes, const std::vector<std::st
                 // if it's a shape-systematic gamma
                 else if(fSystNames[i_syst].find("shape_")!=std::string::npos && fSystNames[i_syst].find(Form("%s_bin_%d",fName.c_str(),i_bin-1))!=std::string::npos){
                     for(const auto& syh : fSampleHists[i]->fSyst){
-                        const Systematic *syst = syh->fSystematic;
+                        std::shared_ptr<Systematic> syst = syh->fSystematic;
                         if(!syst) continue;
                         if(syst->fType==Systematic::SHAPE){
                             const std::string gammaNameShapeSyst = Form("shape_%s_%s_bin_%d",syst->fName.c_str(),fName.c_str(),i_bin-1);
@@ -1486,7 +1486,7 @@ std::unique_ptr<TRExPlot> Region::DrawPostFit(FitResults* fitRes,
             }
             // gammas from SHAPE systematics
             for(const auto& syh : fSampleHists[i]->fSyst){
-                const Systematic *syst = syh->fSystematic;
+                std::shared_ptr<Systematic> syst = syh->fSystematic;
                 if(!syst) continue;
                 if(syst->fType==Systematic::SHAPE){
                     const std::string gammaName = Form("shape_%s_%s_bin_%d",syst->fName.c_str(),fName.c_str(),i_bin-1);
@@ -2608,7 +2608,7 @@ void Region::SystPruning(PruningUtil *pu){
         for(auto& syh : sh->fSyst){
             if(!syh) continue;
             if(!syh->fSystematic) continue;
-            Systematic *syst = syh->fSystematic;
+            std::shared_ptr<Systematic> syst = syh->fSystematic;
             if(syst->fReferencePruning == "") continue;
             SampleHist *refSmpH = GetSampleHist(syst->fReferencePruning);
             if(refSmpH==nullptr){

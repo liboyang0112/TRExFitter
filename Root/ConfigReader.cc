@@ -3989,14 +3989,13 @@ int ConfigReader::ReadSystOptions(){
     //Addition for StatOnly fit: dummy systematic for the significance computation and limit setting
     if (fFitter->fStatOnly) {
         int typed = Systematic::OVERALL;
-        Systematic *sysd = new Systematic("Dummy",typed);
+        std::shared_ptr<Systematic> sysd = std::make_shared<Systematic>("Dummy",typed);
         sysd->fOverallUp   = 0.;
         sysd->fOverallDown = -0.;
         sysd->fScaleUp   = 1.;
         sysd->fScaleDown   = 1.;
         fFitter->fSystematics.emplace_back( sysd );
         TRExFitter::SYSTMAP[sysd->fName] = "Dummy";
-        fFitter->fNSyst++;
         for(int i_smp=0;i_smp<fFitter->fNSamples;i_smp++){
             sample = fFitter->fSamples[i_smp];
             if(sample->fType == Sample::SIGNAL ) {
@@ -4011,7 +4010,6 @@ int ConfigReader::ReadSystOptions(){
         nSys++;
 
         std::string param = "";
-        Systematic *sys = nullptr;
         if(fOnlySystematics.size()>0 && Common::FindInStringVector(fOnlySystematics,CheckName(confSet->GetValue()))<0) continue;
         if(fToExclude.size()>0 && Common::FindInStringVector(fToExclude,CheckName(confSet->GetValue()))>=0) continue;
         std::string samples_str = confSet->Get("Samples");
@@ -4073,7 +4071,7 @@ int ConfigReader::ReadSystOptions(){
 
         std::string decorrelate = confSet->Get("Decorrelate");
 
-        sys = new Systematic(CheckName(confSet->GetValue()),type);
+        std::shared_ptr<Systematic> sys = std::make_shared<Systematic>(CheckName(confSet->GetValue()),type);
         TRExFitter::SYSTMAP[sys->fName] = sys->fTitle;
         if(param == "OVERALL") sys->fIsNormOnly=true;
 
@@ -4875,11 +4873,10 @@ int ConfigReader::ReadSystOptions(){
 
 //__________________________________________________________________________________
 //
-int ConfigReader::SetSystNoDecorelate(ConfigSet *confSet, Systematic *sys, const std::vector<std::string>& samples, const std::vector<std::string>& exclude){
+int ConfigReader::SetSystNoDecorelate(ConfigSet *confSet, std::shared_ptr<Systematic> sys, const std::vector<std::string>& samples, const std::vector<std::string>& exclude){
     Sample *sam = nullptr;
 
     fFitter->fSystematics.emplace_back( sys );
-    fFitter->fNSyst++;
 
     // Set NuisanceParameter
     std::string param = confSet->Get("NuisanceParameter");
@@ -4934,7 +4931,7 @@ int ConfigReader::SetSystNoDecorelate(ConfigSet *confSet, Systematic *sys, const
 //__________________________________________________________________________________
 //
 int ConfigReader::SetSystRegionDecorelate(ConfigSet *confSet,
-                                          Systematic *sys,
+                                          std::shared_ptr<Systematic> sys,
                                           const std::vector<std::string>& samples,
                                           const std::vector<std::string>& exclude,
                                           const std::vector<std::string>& regions,
@@ -4967,7 +4964,7 @@ int ConfigReader::SetSystRegionDecorelate(ConfigSet *confSet,
             WriteInfoStatus("ConfigReader::SetSystRegionDecorelate", ireg + " " + std::to_string(nbins));
             // decorrelate by bin
             for (unsigned int i_bin = 0; i_bin < nbins; i_bin++) {
-                Systematic* mySys= new Systematic(*sys);
+                std::shared_ptr<Systematic> mySys = std::make_shared<Systematic>(*sys);
                 mySys->fName=(mySys->fName)+"_"+ireg+"_bin"+std::to_string(i_bin);
                 std::vector<std::string> tmpReg;
                 tmpReg.emplace_back( ireg );
@@ -4995,7 +4992,6 @@ int ConfigReader::SetSystRegionDecorelate(ConfigSet *confSet,
                     mySys->fTitle = RemoveQuotes(param)+" ("+reg->fLabel+", bin "+std::to_string(i_bin)+")";
                     TRExFitter::SYSTMAP[mySys->fName] = mySys->fTitle;
                 }
-                fFitter->fNSyst++;
                 for (int i_smp=0;i_smp<fFitter->fNSamples;i_smp++){
                     sam = fFitter->fSamples[i_smp];
                     if(sam->fType == Sample::DATA) continue;
@@ -5011,7 +5007,7 @@ int ConfigReader::SetSystRegionDecorelate(ConfigSet *confSet,
         } else {
             //
             // cloning the sys for each region
-            Systematic* mySys= new Systematic(*sys);
+            std::shared_ptr<Systematic> mySys = std::make_shared<Systematic>(*sys);
             mySys->fName=(mySys->fName)+"_"+ireg;
             std::vector<std::string> tmpReg;
             tmpReg.emplace_back( ireg );
@@ -5037,7 +5033,6 @@ int ConfigReader::SetSystRegionDecorelate(ConfigSet *confSet,
                 mySys->fTitle = RemoveQuotes(param)+" ("+reg->fLabel+")";
                 TRExFitter::SYSTMAP[mySys->fName] = mySys->fTitle;
             }
-            fFitter->fNSyst++;
             //
             for(int i_smp=0;i_smp<fFitter->fNSamples;i_smp++){
                 sam = fFitter->fSamples[i_smp];
@@ -5058,14 +5053,12 @@ int ConfigReader::SetSystRegionDecorelate(ConfigSet *confSet,
         }
     }
 
-    delete sys;
-
     return 0;
 }
 
 //__________________________________________________________________________________
 //
-int ConfigReader::SetSystSampleDecorelate(ConfigSet *confSet, Systematic *sys, const std::vector<std::string> &samples, const std::vector<std::string> &exclude){
+int ConfigReader::SetSystSampleDecorelate(ConfigSet *confSet, std::shared_ptr<Systematic> sys, const std::vector<std::string> &samples, const std::vector<std::string> &exclude){
     Sample *sam = nullptr;
     std::string param = "";
 
@@ -5093,7 +5086,7 @@ int ConfigReader::SetSystSampleDecorelate(ConfigSet *confSet, Systematic *sys, c
         WriteInfoStatus("ConfigReader::SetSystSampleDecorelate", " --> KEEPING SAMPLE: " + sam->fName);
         //
         // cloning the sys for each sample
-        Systematic* mySys= new Systematic(*sys);
+        std::shared_ptr<Systematic> mySys = std::make_shared<Systematic>(*sys);
         mySys->fName=(mySys->fName)+"_"+sam->fName;
         fFitter->fSystematics.emplace_back( mySys );
 
@@ -5116,7 +5109,6 @@ int ConfigReader::SetSystSampleDecorelate(ConfigSet *confSet, Systematic *sys, c
             mySys->fTitle = RemoveQuotes(param)+" "+sam->fTitle;
             TRExFitter::SYSTMAP[mySys->fName] = mySys->fTitle;
         }
-        fFitter->fNSyst++;
 
         // Add sample/syst cross-reference
         sam->AddSystematic(mySys);
@@ -5125,19 +5117,17 @@ int ConfigReader::SetSystSampleDecorelate(ConfigSet *confSet, Systematic *sys, c
         FixReferenceSamples(mySys);
     }
 
-    delete sys;
-
     return 0;
 }
 
 //__________________________________________________________________________________
 //
-int ConfigReader::SetSystShapeDecorelate(ConfigSet *confSet, Systematic *sys, const std::vector<std::string> &samples, const std::vector<std::string> &exclude){
+int ConfigReader::SetSystShapeDecorelate(ConfigSet *confSet, std::shared_ptr<Systematic> sys, const std::vector<std::string> &samples, const std::vector<std::string> &exclude){
     Sample *sam = nullptr;
     std::string param = "";
 
     // cloning the sys
-    Systematic* mySys1= new Systematic(*sys);
+    std::shared_ptr<Systematic> mySys1 = std::make_shared<Systematic>(*sys);
     mySys1->fName=(mySys1->fName)+"_Acc";
     fFitter->fSystematics.emplace_back( mySys1 );
     mySys1->fIsNormOnly = true;
@@ -5162,7 +5152,6 @@ int ConfigReader::SetSystShapeDecorelate(ConfigSet *confSet, Systematic *sys, co
         mySys1->fTitle = RemoveQuotes(param)+" Acc.";
         TRExFitter::SYSTMAP[mySys1->fName] = mySys1->fTitle;
     }
-    fFitter->fNSyst++;
 
     for(int i_smp=0;i_smp<fFitter->fNSamples;i_smp++){
         sam = fFitter->fSamples[i_smp];
@@ -5183,7 +5172,7 @@ int ConfigReader::SetSystShapeDecorelate(ConfigSet *confSet, Systematic *sys, co
 
     if ( sys->fType!=Systematic::OVERALL ) {
         // cloning the sys
-        Systematic* mySys2= new Systematic(*sys);
+        std::shared_ptr<Systematic> mySys2 = std::make_shared<Systematic>(*sys);
         mySys2->fName=(mySys2->fName)+"_Shape";
         mySys2->fIsNormOnly=false;
         mySys2->fIsShapeOnly=true;
@@ -5209,7 +5198,6 @@ int ConfigReader::SetSystShapeDecorelate(ConfigSet *confSet, Systematic *sys, co
             mySys2->fTitle = RemoveQuotes(param)+" Shape";
             TRExFitter::SYSTMAP[mySys2->fName] = mySys2->fTitle;
         }
-        fFitter->fNSyst++;
 
         for(int i_smp=0;i_smp<fFitter->fNSamples;i_smp++){
             sam = fFitter->fSamples[i_smp];
@@ -5222,8 +5210,6 @@ int ConfigReader::SetSystShapeDecorelate(ConfigSet *confSet, Systematic *sys, co
         }
         FixReferenceSamples(mySys2);
     }
-
-    delete sys;
 
     return 0;
 }
@@ -5246,11 +5232,11 @@ int ConfigReader::PostConfig(const std::string& opt){
     }
 
     // add nuisance parameter - systematic title correspondence
-    for(auto syst : fFitter->fSystematics){
+    for(const auto& syst : fFitter->fSystematics){
         if(syst->fNuisanceParameter!=syst->fName) TRExFitter::SYSTMAP[syst->fNuisanceParameter] = syst->fTitle;
     }
     // add nuisance parameter - norm-factor title correspondence & fix nuisance parameter
-    for(auto norm : fFitter->fNormFactors){
+    for(const auto& norm : fFitter->fNormFactors){
         if(TRExFitter::NPMAP[norm->fName]=="") TRExFitter::NPMAP[norm->fName] = norm->fName;
         if(norm->fNuisanceParameter!=norm->fName) TRExFitter::SYSTMAP[norm->fNuisanceParameter] = norm->fTitle;
     }
@@ -7032,13 +7018,13 @@ int ConfigReader::ProcessUnfoldingSystematics() {
                 exit(EXIT_FAILURE);
             }
 
-            const std::vector<Systematic*> systs = isyst->ConvertToSystematic(ireg,
-                                                                              fFitter->fNumberUnfoldingTruthBins,
-                                                                              fFitter->fName,
-                                                                              unfoldingSampleName,
-                                                                              fFitter->fSamples);
+            const std::vector<std::shared_ptr<Systematic> > systs = isyst->ConvertToSystematic(ireg,
+                                                                                               fFitter->fNumberUnfoldingTruthBins,
+                                                                                               fFitter->fName,
+                                                                                               unfoldingSampleName,
+                                                                                               fFitter->fSamples);
+
             fFitter->fSystematics.insert(fFitter->fSystematics.end(), systs.begin(), systs.end());
-            fFitter->fNSyst += fFitter->fNumberUnfoldingTruthBins;
         }
     }
 
@@ -7108,7 +7094,7 @@ int ConfigReader::AddUnfoldingNormFactors() {
 
 //__________________________________________________________________________________
 //
-void ConfigReader::FixReferenceSamples(Systematic* sys) const {
+void ConfigReader::FixReferenceSamples(std::shared_ptr<Systematic> sys) const {
 
     if (sys->fHistoPathsUpRefSample.size()     == 0) sys->fHistoPathsUpRefSample     = sys->fHistoPathsUp;
     if (sys->fHistoPathsDownRefSample.size()   == 0) sys->fHistoPathsDownRefSample   = sys->fHistoPathsDown;

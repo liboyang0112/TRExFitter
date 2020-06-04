@@ -190,7 +190,7 @@ class ConfigReader {
           * @param vector of strings Needed for this setting
           * @return int status code
           */
-        int SetSystNoDecorelate(ConfigSet *confSet, Systematic *sys, const std::vector<std::string>& samples, const std::vector<std::string>& exclude);
+        int SetSystNoDecorelate(ConfigSet *confSet, std::shared_ptr<Systematic> sys, const std::vector<std::string>& samples, const std::vector<std::string>& exclude);
 
         /**
           * Helper function to read Part of Syst config
@@ -203,7 +203,7 @@ class ConfigReader {
           * @return int status code
           */
         int SetSystRegionDecorelate(ConfigSet *confSet,
-                                    Systematic *sys,
+                                    std::shared_ptr<Systematic> sys,
                                     const std::vector<std::string>& samples,
                                     const std::vector<std::string>& exclude,
                                     const std::vector<std::string>& regions,
@@ -215,7 +215,7 @@ class ConfigReader {
           * @param Systematic A pointer to syst that is being set
           * @return int status code
           */
-        int SetSystSampleDecorelate(ConfigSet *confSet, Systematic *sys, const std::vector<std::string>& samples, const std::vector<std::string>& exclude);
+        int SetSystSampleDecorelate(ConfigSet *confSet, std::shared_ptr<Systematic> sys, const std::vector<std::string>& samples, const std::vector<std::string>& exclude);
 
         /**
           * Helper function to read Part of Syst config
@@ -223,7 +223,7 @@ class ConfigReader {
           * @param Systematic A pointer to syst that is being set
           * @return int status code
           */
-        int SetSystShapeDecorelate(ConfigSet *confSet, Systematic *sys, const std::vector<std::string>& samples, const std::vector<std::string>& exclude);
+        int SetSystShapeDecorelate(ConfigSet *confSet, std::shared_ptr<Systematic> sys, const std::vector<std::string>& samples, const std::vector<std::string>& exclude);
 
         /**
           * Helper function that propagates samples and systematics when Unfolding is used
@@ -309,7 +309,7 @@ class ConfigReader {
           * A helper function to fix reference samples at the end of the config
           * @param Given systematic
           */
-        void FixReferenceSamples(Systematic* sys) const;
+        void FixReferenceSamples(std::shared_ptr<Systematic> sys) const;
 
         /**
           * Pointer to TRExFit class, set during initialization

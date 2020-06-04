@@ -159,8 +159,8 @@ void NtupleReader::ReadNtuples(){
             //  -----------------------------------
             //
             // read systematics (Shape and Histo)
-            for(int i_syst=0;i_syst<fFitter->fSamples[i_smp]->fNSyst;i_syst++){
-                Systematic * syst = fFitter->fSamples[i_smp]->fSystematics[i_syst].get();
+            for(const auto& isyst : fFitter->fSamples[i_smp]->fSystematics) {
+                Systematic * syst = isyst.get();
                 //
                 // eventually skip systematic / region combination
                 if( syst->fRegions.size()>0 && Common::FindInStringVector(syst->fRegions,fFitter->fRegions[i_ch]->fName)<0  ) continue;
@@ -177,7 +177,7 @@ void NtupleReader::ReadNtuples(){
                 // if Overall only ...
                 if(syst->fType==Systematic::OVERALL){
                     SystematicHist *syh = reg->GetSampleHist(smp->fName)->AddOverallSyst(syst->fName,syst->fStoredName,syst->fOverallUp,syst->fOverallDown);
-                    syh->fSystematic = syst;
+                    syh->fSystematic = isyst;
                     syh->fScaleUp = syst->fScaleUp;
                     if(syst->fScaleUpRegions.size()!=0)
                         if(syst->fScaleUpRegions[reg->fName]!=0)
@@ -191,7 +191,7 @@ void NtupleReader::ReadNtuples(){
                 // if Stat uncertainty on MC sample
                 if(syst->fType == Systematic::STAT){
                     SystematicHist *syh = reg->GetSampleHist(smp->fName)->AddStatSyst(syst->fName,syst->fStoredName,syst->fBins[0]);
-                    syh->fSystematic = syst;
+                    syh->fSystematic = isyst;
                     continue;
                 }
                 // else ...
@@ -200,7 +200,7 @@ void NtupleReader::ReadNtuples(){
                     hUp   = (TH1D*)sh->fHist->Clone(Form("h_%s_%s_%sUp",  reg->fName.c_str(),smp->fName.c_str(),syst->fStoredName.c_str()));
                     hDown = (TH1D*)sh->fHist->Clone(Form("h_%s_%s_%sDown",reg->fName.c_str(),smp->fName.c_str(),syst->fStoredName.c_str()));
                     SystematicHist *syh = sh->AddHistoSyst(syst->fName,syst->fStoredName,hUp,hDown);
-                    syh->fSystematic = syst;
+                    syh->fSystematic = isyst;
                     syh->fScaleUp = syst->fScaleUp;
                     if(syst->fScaleUpRegions.size()!=0)
                         if(syst->fScaleUpRegions[reg->fName]!=0)
@@ -419,17 +419,17 @@ void NtupleReader::ReadNtuples(){
                 if(hUp==nullptr)   hUp   = static_cast<TH1D*>(reg->GetSampleHist(fFitter->fSamples[i_smp]->fName )->fHist.get());
                 if(hDown==nullptr) hDown = static_cast<TH1D*>(reg->GetSampleHist(fFitter->fSamples[i_smp]->fName )->fHist.get());
                 //
-                SystematicHist *syh = sh->AddHistoSyst(fFitter->fSamples[i_smp]->fSystematics[i_syst]->fName,
-                                                       fFitter->fSamples[i_smp]->fSystematics[i_syst]->fStoredName,hUp,hDown);
-                syh->fSystematic = fFitter->fSamples[i_smp]->fSystematics[i_syst].get();
-                syh->fScaleUp = fFitter->fSamples[i_smp]->fSystematics[i_syst]->fScaleUp;
-                if(fFitter->fSamples[i_smp]->fSystematics[i_syst]->fScaleUpRegions.size()!=0)
-                    if(fFitter->fSamples[i_smp]->fSystematics[i_syst]->fScaleUpRegions[reg->fName]!=0)
-                        syh->fScaleUp *= fFitter->fSamples[i_smp]->fSystematics[i_syst]->fScaleUpRegions[reg->fName];
-                syh->fScaleDown = fFitter->fSamples[i_smp]->fSystematics[i_syst]->fScaleDown;
-                if(fFitter->fSamples[i_smp]->fSystematics[i_syst]->fScaleDownRegions.size()!=0)
-                    if(fFitter->fSamples[i_smp]->fSystematics[i_syst]->fScaleDownRegions[reg->fName]!=0)
-                        syh->fScaleDown *= fFitter->fSamples[i_smp]->fSystematics[i_syst]->fScaleDownRegions[reg->fName];
+                SystematicHist *syh = sh->AddHistoSyst(isyst->fName,
+                                                       isyst->fStoredName,hUp,hDown);
+                syh->fSystematic = isyst;
+                syh->fScaleUp = isyst->fScaleUp;
+                if(isyst->fScaleUpRegions.size()!=0)
+                    if(isyst->fScaleUpRegions[reg->fName]!=0)
+                        syh->fScaleUp *= isyst->fScaleUpRegions[reg->fName];
+                syh->fScaleDown = isyst->fScaleDown;
+                if(isyst->fScaleDownRegions.size()!=0)
+                    if(isyst->fScaleDownRegions[reg->fName]!=0)
+                        syh->fScaleDown *= isyst->fScaleDownRegions[reg->fName];
             }
         }
     }

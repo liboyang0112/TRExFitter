@@ -455,9 +455,9 @@ void SampleHist::WriteToFile(TFile *f,bool reWriteOrig){
             htempDown_orig->AddBinContent(i_bin,-1.*fHist_orig->GetBinError(i_bin));
         }
         std::string systName = "stat_"+fSample->fName;
-        Systematic *gamma = nullptr;
+        std::shared_ptr<Systematic> gamma = nullptr;
         if(GetSystematic(systName)) gamma = GetSystematic(systName)->fSystematic;  //GetSystematic(systName);
-        if(gamma==nullptr) gamma = new Systematic(systName,Systematic::SHAPE);
+        if(gamma==nullptr) gamma = std::make_shared<Systematic>(systName,Systematic::SHAPE);
         WriteDebugStatus("SampleHist::WriteToFile", "adding separate gammas as SHAPE systematic " + systName);
         gamma->fRegions.clear();
         gamma->fRegions.push_back(fRegionName);
@@ -1329,7 +1329,7 @@ void SampleHist::Divide(SampleHist *sh){
             }
             syh->fHistUp_orig.reset(static_cast<TH1*>(fHist_orig->Clone(syh->fHistUp_orig  ->GetName())));
             syh->fHistDown_orig.reset(static_cast<TH1*>(fHist_orig->Clone(syh->fHistDown_orig->GetName())));
-            Systematic* tmpsyst = new Systematic(*(sh->fSyst[i_syst]->fSystematic));
+            std::shared_ptr<Systematic> tmpsyst = std::make_shared<Systematic>(*(sh->fSyst[i_syst]->fSystematic));
             // want to inherit the triggering systematic, to follow one (and -only one-) convention:
             tmpsyst->fName = NuisParName;
             tmpsyst->fStoredName = NuisParName;
@@ -1394,7 +1394,7 @@ void SampleHist::Multiply(SampleHist *sh){
             }
             syh->fHistUp_orig.reset(static_cast<TH1*>(fHist_orig->Clone(syh->fHistUp_orig  ->GetName())));
             syh->fHistDown_orig.reset(static_cast<TH1*>(fHist_orig->Clone(syh->fHistDown_orig->GetName())));
-            Systematic* tmpsyst = new Systematic(*(sh->fSyst[i_syst]->fSystematic));
+            std::shared_ptr<Systematic> tmpsyst = std::make_shared<Systematic>(*(sh->fSyst[i_syst]->fSystematic));
             // want to inherit the triggering systematic, to follow one (and -only one-) convention:
             tmpsyst->fName = NuisParName;
             tmpsyst->fStoredName = NuisParName;
@@ -1475,7 +1475,7 @@ void SampleHist::Add(SampleHist *sh,double scale){
             }
             syh->fHistUp_orig.reset(static_cast<TH1*>(fHist_orig->Clone(syh->fHistUp_orig  ->GetName())));
             syh->fHistDown_orig.reset(static_cast<TH1*>(fHist_orig->Clone(syh->fHistDown_orig->GetName())));
-            Systematic* tmpsyst = new Systematic(*(sh->fSyst[i_syst]->fSystematic));
+            std::shared_ptr<Systematic> tmpsyst = std::make_shared<Systematic>(*(sh->fSyst[i_syst]->fSystematic));
             // want to inherit the triggering systematic, to follow one (and -only one-) convention:
             tmpsyst->fName = NuisParName;
             tmpsyst->fStoredName = NuisParName;

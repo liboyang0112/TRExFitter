@@ -38,7 +38,7 @@ public:
     void Add(SystematicHist *syh,double scale=1.);
 
     std::string fName;
-    Systematic *fSystematic;
+    std::shared_ptr<Systematic> fSystematic;
 
     bool fIsOverall;
     bool fIsShape;
