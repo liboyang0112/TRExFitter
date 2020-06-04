@@ -37,11 +37,11 @@ For example:
 
 ```yaml
 Region: "mySR"
-  DataType: DATA
+  DataType: ASIMOV
   ...
 
 Region: "myCR"
-  DataType: ASIMOV
+  DataType: DATA
   ...
 ```
 
