@@ -32,7 +32,7 @@ See this [reference](http://atlas-stats-doc-dev.web.cern.ch/atlas-stats-doc-dev/
 ## The setup
 
 In order to tell `TRExFitter` to work in a such a "mixed fit" setup,
-the easiest way is to specify which data to user for each region using the `DataType` option.
+the easiest way is to specify which data to use for each region with the `DataType` option.
 For example:
 
 ```yaml
@@ -82,4 +82,4 @@ Alternatively, to obtain the same result, other options could be used.
     To do it, the user should make sure the proper `DataType` is set for each of the CRs and SRs (or that `BlindSRs` is set)
     and then add the option `NPValuesFromFitResults` pointing to the fit-result file just produced.
     Finally, a normal fit can be run (and no preliminary fit will be performed, as `NPValuesFromFitResults` is set).
-    Notice that this is equivalent to (but often more convenient than) specify all the needed nuisance-parameter values with the option `NPValues` under `Fit`.
+    Note that this is equivalent to (but often more convenient than) specifying all the needed nuisance-parameter values with the option `NPValues` under `Fit`.

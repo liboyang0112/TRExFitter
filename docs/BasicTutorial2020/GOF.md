@@ -3,8 +3,8 @@
 ## Saturated model
 
 Whenever a fit procedure is used, it is important to check the Goodness-of-fit (GoF) status.
-GoF is a metric that gives probability how well the fit model can describe the observed data.
-If the GoF gives very small probability, the model should be checked.
+GoF is a metric that quantifies how well the fit model describes the observed data.
+If the GoF assigns a very small probability, the model should be checked.
 
 For a long time in `TRExFitter`, a very ad hoc GoF test was implemented that compared the likelihood values for the fit to data and a fit to Asimov dataset.
 This is obviously not a proper test.
@@ -14,16 +14,16 @@ One is obtained by fitting the data with the nominal model and the other one by 
 In other words, the saturated model is a modified model that matches the data.
 The likelihood ratio follows the $\chi^2$ distribution asymptotically (Wilks theorem), and thus can be used as a standard GoF test.
 To further compare it to the $\chi^2$ test, the saturated model represents $\chi^2 = 0$ (perfect agreement).
-Or it can be viewed as the constant term that is removed from the full likelihood
+Or it can be viewed as the constant term $c$ that is removed from the full likelihood
 $$
- -2\ln L(\mu) = \chi^2(\mu) + const
+ -2\ln L(\mu) = \chi^2(\mu) + c
 $$
 
-### TRExFitter implemetation
+### TRExFitter implementation
 
-The saturated model as GoF test has been implemented in TRExFitter since tag `TtHFitter-00-04-05`.
+The saturated model as GoF test has been implemented in `TRExFitter` since tag `TtHFitter-00-04-05`.
 Since tag `TRExFitter-00-04-08` it is the default option when `GetGoodnessOfFit` is set to `TRUE`.
-Technically, it is implemented byt giving _shape factors_, "normalisation factors per bin", to each bin to allow the model to fit the data perfectly without the need to pull any NP.
+Technically, it is implemented by assigning _shape factors_, "normalisation factors per bin", to each bin to allow the model to fit the data perfectly without the need to pull any nuisance parameter.
 The minimisation procedure is then run to calculate the the absolute likelihood value that is then used in the GoF calculation.
 
 Let us try to use this option now.
@@ -49,9 +49,9 @@ Now, run the workspace creation and fit again
 trex-fitter wf test/configs/FitExampleNtuple.config
 ```
 
-You should not see that the fit is run _twice_.
-First time the standard fit is run, then the fit with the saturated model is run.
-You shoud see that in the second step no pulls are present.
+You should now see that the fit is run _twice_.
+First the standard fit is run, then the fit with the saturated model is run.
+You should see that in the second step no pulls are present.
 Check the lines that print the likelihood values, e.g.:
 
 ```bash
