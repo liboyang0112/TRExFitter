@@ -5470,6 +5470,11 @@ int ConfigReader::ReadUnfoldingOptions() {
         fFitter->fUnfoldingTitleY = RemoveQuotes(param);
     }
 
+    param = confSet->Get("ScaleRangeY");
+    if (param != "") {
+        fFitter->fUnfoldingScaleRangeY = std::stof(param);
+    }
+
     param = confSet->Get("TitleOffsetX");
     if (param != "") {
         fFitter->fUnfoldingTitleOffsetX = std::stod(param);

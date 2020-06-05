@@ -797,6 +797,7 @@ public:
     std::string fUnfoldingTitleY;
     double fUnfoldingRatioYmax;
     double fUnfoldingRatioYmin;
+    double fUnfoldingScaleRangeY;
     bool fUnfoldingLogX;
     bool fUnfoldingLogY;
     double fUnfoldingTitleOffsetX;

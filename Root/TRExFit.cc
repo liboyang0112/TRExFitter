@@ -249,6 +249,7 @@ TRExFit::TRExFit(std::string name) :
     fUnfoldingTitleY("Y axis"),
     fUnfoldingRatioYmax(1.5),
     fUnfoldingRatioYmin(0.5),
+    fUnfoldingScaleRangeY(-1.),
     fUnfoldingLogX(false),
     fUnfoldingLogY(false),
     fUnfoldingTitleOffsetX(3.5),
@@ -9069,7 +9070,7 @@ void TRExFit::PlotUnfold(TH1D* data,
     total->GetYaxis()->SetTitleOffset(1.1);
 
     std::unique_ptr<TH1> h_dummy(static_cast<TH1*>(mc[0]->Clone()));
-    const double corr = fUnfoldingLogY ? 1e6 : 1.5;
+    const double corr = fUnfoldingScaleRangeY > 0 ? fUnfoldingScaleRangeY : (fUnfoldingLogY ? 1e6 : 1.5);
     h_dummy->GetYaxis()->SetRangeUser(0.0001, corr*h_dummy->GetMaximum());
     h_dummy->GetYaxis()->SetTitle(fUnfoldingTitleY.c_str());
     h_dummy->GetYaxis()->SetTitleOffset(fUnfoldingTitleOffsetY*h_dummy->GetYaxis()->GetTitleOffset());

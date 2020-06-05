@@ -626,6 +626,7 @@ These options are for multi-fits, performed with action `m`.
 | LogY         | Set to TRUE to use logarithmic scale for unfolded plots |
 | TitleOffsetX         | scale of the original offset (default is 1) |
 | TitleOffsetY         | scale of the original offset (default is 1) |
+| ScaleRangeY          | scale of the Y axis for the upper panel of the result plot (will use this value times the maximum). If set to negative value, wil use default (`1.5` for linear scale, `1e6` for log scale)  |
 | UnfoldingResultMin   | Minimum for the normalisation factors for bins (Default is 0) |
 | UnfoldingResultMax   | Maximum for the normalisation factors for bins (Default is 2) |
 | NominalTruthSample   | Name of the TruthSample that should be used as nominal for folding. Has to be set! |
