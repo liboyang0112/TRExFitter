@@ -15,7 +15,11 @@ For more details, check this [presentation](https://indico.cern.ch/event/890060/
 The folding step can be done within `TRExFitter`, currently only with the histograms as an input.
 The relevant truth distribution and response matrix need to be provided for the signal sample.
 Note that for each systematic uncertainty, the response matrix has to be provided to generate the templates needed for systematic variations.
-Alternatively, selection efficiency (probability of a given truth even to be selected per bin), migration matrix and acceptance (probability of reco event to be reconstructed for events that do not pass the truth selection) can be provided instead of the response matrix.
+Alternatively, per-bin selection efficiency 
+(probability to pass the reco-level selection for an event in a given bin of the truth-level distribution), 
+migration matrix and per-bin acceptance 
+(probability to pass the truth-level selection for an event in a given bin of the reco-level distribution) 
+can be provided instead of the full response matrix.
 
 !!! tip "Definition of response matrix"
     The response matrix is defined as selection efficiency times migration matrix divided by acceptance. All bin contents must be $\leq 1$.
