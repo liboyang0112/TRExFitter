@@ -1336,7 +1336,7 @@ void TRExFit::DrawAndSaveAll(std::string opt){
         }
     }
     for(int i_ch=0;i_ch<fNRegions;i_ch++){
-        std::unique_ptr<TRExPlot> p(nullptr);
+        std::shared_ptr<TRExPlot> p(nullptr);
         fRegions[i_ch]->fUseStatErr = fUseStatErr;
         fRegions[i_ch]->fATLASlabel = fAtlasLabel;
         //

@@ -167,11 +167,11 @@ void FitExample(std::string opt="h",std::string configFile="config/myFit.config"
 
     // proceed if not multi-fit
 
-    TRExFit *myFit = new TRExFit();
+    std::unique_ptr<TRExFit> myFit = std::make_unique<TRExFit>();
 
     {
         // initialize config reader
-        ConfigReader reader(myFit);
+        ConfigReader reader(myFit.get());
 
         // read the actual config
         int sc = reader.ReadFullConfig(configFile,opt,options);
@@ -238,7 +238,7 @@ void FitExample(std::string opt="h",std::string configFile="config/myFit.config"
         std::cout << "Reading histograms..." << std::endl;
         myFit->CreateRootFiles();
         {
-            HistoReader histoReader(myFit);
+            HistoReader histoReader(myFit.get());
             histoReader.ReadHistograms();
         }
         myFit->CorrectHistograms();
@@ -254,7 +254,7 @@ void FitExample(std::string opt="h",std::string configFile="config/myFit.config"
         myFit->CreateRootFiles();
 
         {
-            NtupleReader reader(myFit);
+            NtupleReader reader(myFit.get());
             reader.ReadNtuples();
         }
 
@@ -268,7 +268,7 @@ void FitExample(std::string opt="h",std::string configFile="config/myFit.config"
     }
     else{
         if(drawPreFit || drawPostFit || createWorkspace || drawSeparation || rebinAndSmooth || groupedImpact) {
-            HistoReader histoReader(myFit);
+            HistoReader histoReader(myFit.get());
             histoReader.ReadTRExProducedHistograms();
         }
     }

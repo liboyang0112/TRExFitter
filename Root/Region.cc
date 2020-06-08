@@ -557,13 +557,13 @@ void Region::BuildPreFitErrorHist(){
 
 //__________________________________________________________________________________
 //
-std::unique_ptr<TRExPlot> Region::DrawPreFit(const std::vector<int>& canvasSize, string opt){
+std::shared_ptr<TRExPlot> Region::DrawPreFit(const std::vector<int>& canvasSize, string opt){
 
-    std::unique_ptr<TRExPlot> p(nullptr);
+    std::shared_ptr<TRExPlot> p(nullptr);
     if (canvasSize.size() == 0){
-        p.reset(fPlotPreFit.get());
+        p = fPlotPreFit;
     } else {
-        p.reset(new TRExPlot(("c_"+fName).c_str(), canvasSize.at(0), canvasSize.at(1),TRExFitter::NORATIO));
+        p = std::make_shared<TRExPlot>(("c_"+fName).c_str(), canvasSize.at(0), canvasSize.at(1),TRExFitter::NORATIO);
         p->fShowYields = TRExFitter::SHOWYIELDS;
     }
     p->SetXaxisRange(fXaxisRange);
@@ -1374,7 +1374,7 @@ void Region::BuildPostFitErrorHist(FitResults *fitRes, const std::vector<std::st
 
 //__________________________________________________________________________________
 //
-std::unique_ptr<TRExPlot> Region::DrawPostFit(FitResults* fitRes,
+std::shared_ptr<TRExPlot> Region::DrawPostFit(FitResults* fitRes,
                                               ofstream& pullTex,
                                               const std::vector<std::string> &morph_names,
                                               const std::vector<int>& canvasSize,
@@ -1384,12 +1384,12 @@ std::unique_ptr<TRExPlot> Region::DrawPostFit(FitResults* fitRes,
         fPlotPostFit->h_tot_bkg_prefit = static_cast<TH1*>(fPlotPreFit->GetTotBkg()->Clone("h_tot_bkg_prefit"));
     }
 
-    std::unique_ptr<TRExPlot> p(nullptr);
+    std::shared_ptr<TRExPlot> p(nullptr);
     if (canvasSize.size() == 0){
-        p.reset(fPlotPostFit.get());
+        p = fPlotPostFit;
         p->fShowYields = TRExFitter::SHOWYIELDS;
     } else {
-        p = std::make_unique<TRExPlot>(("c_"+fName).c_str(), canvasSize.at(0), canvasSize.at(1),TRExFitter::NORATIO);
+        p = std::make_shared<TRExPlot>(("c_"+fName).c_str(), canvasSize.at(0), canvasSize.at(1),TRExFitter::NORATIO);
     }
 
     p->SetXaxisRange(fXaxisRange);
