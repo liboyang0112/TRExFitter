@@ -4426,7 +4426,7 @@ void TRExFit::InjectGlobalObservables( RooWorkspace * ws ) {
         const std::string glob_name = "nom_" + this_name;
         const std::string glob_name_alpha = "nom_alpha_" + this_name;
         const std::string glob_name_gamma = "nom_gamma_" + this_name;
-        TIterator* gIter = mc_globs.createIterator();
+        std::unique_ptr<TIterator> gIter(mc_globs.createIterator());
         RooRealVar* glob = nullptr;
         RooRealVar* this_glob = nullptr;
         while ((glob = static_cast<RooRealVar*>(gIter->Next()))) {
@@ -6797,11 +6797,11 @@ void TRExFit::GetLikelihoodScan( RooWorkspace *ws, std::string varName, RooDataS
 
     TCanvas can("NLLscan");
 
-    RooAbsReal* nll = simPdf->createNLL(*data,
-                                        Constrain(*mc->GetNuisanceParameters()),
-                                        Offset(1),
-                                        NumCPU(TRExFitter::NCPU, RooFit::Hybrid),
-                                        RooFit::Optimize(kTRUE));
+    std::unique_ptr<RooAbsReal> nll(simPdf->createNLL(*data,
+                                                      Constrain(*mc->GetNuisanceParameters()),
+                                                      Offset(1),
+                                                      NumCPU(TRExFitter::NCPU, RooFit::Hybrid),
+                                                      RooFit::Optimize(kTRUE)));
 
     std::vector<double> x(fLHscanSteps);
     std::vector<double> y(fLHscanSteps);
@@ -7004,11 +7004,11 @@ void TRExFit::Get2DLikelihoodScan( RooWorkspace *ws, const std::vector<std::stri
         // this caused problems with the offset between the different sup processes
         offset = 0;
     }
-    RooAbsReal* nll = simPdf->createNLL(*data,
-                                        Constrain(*mc->GetNuisanceParameters()),
-                                        Offset(offset),
-                                        NumCPU(TRExFitter::NCPU, RooFit::Hybrid),
-                                        RooFit::Optimize(kTRUE));
+    std::unique_ptr<RooAbsReal> nll(simPdf->createNLL(*data,
+                                                      Constrain(*mc->GetNuisanceParameters()),
+                                                      Offset(offset),
+                                                      NumCPU(TRExFitter::NCPU, RooFit::Hybrid),
+                                                      RooFit::Optimize(kTRUE)));
 
     RooMinimizer m(*nll); // get MINUIT interface of fit
     m.setErrorLevel(-1);
@@ -7633,13 +7633,13 @@ void TRExFit::RunToys(){
 
 
         const RooArgSet* glbObs = mc.GetGlobalObservables();
-        RooAbsReal* nll = simPdf.createNLL(*dummy,
-                                           RooFit::Constrain(*mc.GetNuisanceParameters()),
-                                           RooFit::GlobalObservables(*glbObs),
-                                           RooFit::Offset(1),
-                                           RooFit::NumCPU(1, RooFit::Hybrid),
-                                           RooFit::Optimize(kTRUE),
-                                           RooFit::ExternalConstraints(*externalConstraints));
+        std::unique_ptr<RooAbsReal> nll(simPdf.createNLL(*dummy,
+                                                         RooFit::Constrain(*mc.GetNuisanceParameters()),
+                                                         RooFit::GlobalObservables(*glbObs),
+                                                         RooFit::Offset(1),
+                                                         RooFit::NumCPU(1, RooFit::Hybrid),
+                                                         RooFit::Optimize(kTRUE),
+                                                         RooFit::ExternalConstraints(*externalConstraints)));
 
         std::vector<TH1D> h_toys;
         for (std::size_t inf = 0; inf < nfs.size(); ++inf) {

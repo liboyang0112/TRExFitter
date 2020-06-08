@@ -2342,11 +2342,11 @@ void MultiFit::GetLikelihoodScan( RooWorkspace *ws, const std::string& varName, 
 
     std::unique_ptr<TGraph> graph;
     if(recreate){
-        RooAbsReal* nll = simPdf->createNLL(*data,
-                                            Constrain(*mc->GetNuisanceParameters()),
-                                            Offset(1),
-                                            NumCPU(TRExFitter::NCPU, RooFit::Hybrid),
-                                            RooFit::Optimize(kTRUE));
+        std::unique_ptr<RooAbsReal> nll(simPdf->createNLL(*data,
+                                        Constrain(*mc->GetNuisanceParameters()),
+                                        Offset(1),
+                                        NumCPU(TRExFitter::NCPU, RooFit::Hybrid),
+                                        RooFit::Optimize(kTRUE)));
         std::vector<double> x(fLHscanSteps);
         std::vector<double> y(fLHscanSteps);
         RooMinimizer m(*nll); // get MINUIT interface of fit
@@ -2606,11 +2606,11 @@ void MultiFit::Get2DLikelihoodScan( RooWorkspace *ws, const std::vector<std::str
         // this caused problems with the offset between the different sup processes
         offset = 0;
     }
-    RooAbsReal* nll = simPdf->createNLL(*data,
-                                        Constrain(*mc->GetNuisanceParameters()),
-                                        Offset(offset),
-                                        NumCPU(TRExFitter::NCPU, RooFit::Hybrid),
-                                        RooFit::Optimize(kTRUE));
+    std::unique_ptr<RooAbsReal> nll(simPdf->createNLL(*data,
+                                                      Constrain(*mc->GetNuisanceParameters()),
+                                                      Offset(offset),
+                                                      NumCPU(TRExFitter::NCPU, RooFit::Hybrid),
+                                                      RooFit::Optimize(kTRUE)));
 
     RooMinimizer m(*nll); // get MINUIT interface of fit
     m.setErrorLevel(-1);
