@@ -56,10 +56,10 @@ std::unique_ptr<TH1> HistoReader::ReadSingleHistogram(const std::vector<std::str
         }
         //Pre-processing of histograms (rebinning, lumi scaling)
         if(fFitter->fRegions[i_ch]->fHistoBins.size() > 0){
-            const char *hname = htmp->GetName();
+            const std::string hname = htmp->GetName();
             std::unique_ptr<TH1> tmp_copy(static_cast<TH1*>(htmp->Rebin(fFitter->fRegions[i_ch]->fHistoNBinsRebin, "tmp_copy", &(fFitter->fRegions[i_ch]->fHistoBins[0]))));
             htmp.reset(tmp_copy.release());
-            htmp->SetName(hname);
+            htmp->SetName(hname.c_str());
             if(TRExFitter::MERGEUNDEROVERFLOW) Common::MergeUnderOverFlow(htmp.get());
         }
         else if(fFitter->fRegions[i_ch]->fHistoNBinsRebin != -1) {

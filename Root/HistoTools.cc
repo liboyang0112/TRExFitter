@@ -39,15 +39,15 @@ using namespace std;
 
 //_________________________________________________________________________
 //
-TH1D* HistoTools::TranformHistogramBinning(TH1* originalHist){
+std::unique_ptr<TH1D> HistoTools::TranformHistogramBinning(const TH1* originalHist){
 
     const unsigned int nBins = originalHist -> GetNbinsX();
     unsigned int nBinsNew = 0;
     for(unsigned int iBin = 1; iBin <= nBins; ++iBin){
         if(originalHist->GetBinContent(iBin)>=0) nBinsNew++;
     }
-    TH1D *hFinal = new TH1D(originalHist->GetName()+(TString)"_regBin",originalHist->GetTitle(),nBinsNew,0,1);
-    hFinal -> SetDirectory(0);
+    std::unique_ptr<TH1D> hFinal = std::make_unique<TH1D>(originalHist->GetName()+(TString)"_regBin",originalHist->GetTitle(),nBinsNew,0,1);
+    hFinal -> SetDirectory(nullptr);
     unsigned int iBinNew = 1;
     for(unsigned int iBin = 1; iBin <= nBins; ++iBin){
         if(originalHist->GetBinContent(iBin)<0) continue;
@@ -55,7 +55,7 @@ TH1D* HistoTools::TranformHistogramBinning(TH1* originalHist){
         hFinal -> SetBinError(iBinNew,originalHist->GetBinError(iBin));
         iBinNew++;
     }
-    //
+
     return hFinal;
 }
 

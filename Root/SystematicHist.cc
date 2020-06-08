@@ -69,12 +69,16 @@ void SystematicHist::WriteToFile(TFile *f,bool reWriteOrig) const{
         if(fIsShape){
             Common::WriteHistToFile(fHistShapeUp.get(),fFileNameShapeUp);
             Common::WriteHistToFile(fHistShapeDown.get(),fFileNameShapeDown);
-            Common::WriteHistToFile(HistoTools::TranformHistogramBinning(fHistShapeUp.get()),fFileNameShapeUp);
-            Common::WriteHistToFile(HistoTools::TranformHistogramBinning(fHistShapeDown.get()),fFileNameShapeDown);
+            std::unique_ptr<TH1D> shapeUp = HistoTools::TranformHistogramBinning(fHistShapeUp.get());
+            std::unique_ptr<TH1D> shapeDown = HistoTools::TranformHistogramBinning(fHistShapeDown.get());
+            Common::WriteHistToFile(shapeUp.get(),fFileNameShapeUp);
+            Common::WriteHistToFile(shapeDown.get(),fFileNameShapeDown);
         }
         if(fSystematic->fType==Systematic::SHAPE){
-            Common::WriteHistToFile(HistoTools::TranformHistogramBinning(fHistUp.get()),fFileNameUp);
-            Common::WriteHistToFile(HistoTools::TranformHistogramBinning(fHistDown.get()),fFileNameDown);
+            std::unique_ptr<TH1D> up = HistoTools::TranformHistogramBinning(fHistUp.get());
+            std::unique_ptr<TH1D> down = HistoTools::TranformHistogramBinning(fHistDown.get());
+            Common::WriteHistToFile(up.get(),fFileNameUp);
+            Common::WriteHistToFile(down.get(),fFileNameDown);
         }
     }
     else{
@@ -87,12 +91,16 @@ void SystematicHist::WriteToFile(TFile *f,bool reWriteOrig) const{
         if(fIsShape){
             Common::WriteHistToFile(fHistShapeUp.get(),f);
             Common::WriteHistToFile(fHistShapeDown.get(),f);
-            Common::WriteHistToFile(HistoTools::TranformHistogramBinning(fHistShapeUp.get()),f);
-            Common::WriteHistToFile(HistoTools::TranformHistogramBinning(fHistShapeDown.get()),f);
+            std::unique_ptr<TH1D> shapeUp = HistoTools::TranformHistogramBinning(fHistShapeUp.get());
+            std::unique_ptr<TH1D> shapeDown = HistoTools::TranformHistogramBinning(fHistShapeDown.get());
+            Common::WriteHistToFile(shapeUp.get(),f);
+            Common::WriteHistToFile(shapeDown.get(),f);
         }
         if(fSystematic->fType==Systematic::SHAPE){
-            Common::WriteHistToFile(HistoTools::TranformHistogramBinning(fHistUp.get()),f);
-            Common::WriteHistToFile(HistoTools::TranformHistogramBinning(fHistDown.get()),f);
+            std::unique_ptr<TH1D> up = HistoTools::TranformHistogramBinning(fHistUp.get());
+            std::unique_ptr<TH1D> down = HistoTools::TranformHistogramBinning(fHistDown.get());
+            Common::WriteHistToFile(up.get(),f);
+            Common::WriteHistToFile(down.get(),f);
         }
     }
 }
