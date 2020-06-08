@@ -404,12 +404,12 @@ void HistoReader::ReadTRExProducedHistograms() {
                 std::string systName = "stat_"+fFitter->fSamples[i_smp]->fName;
                 std::string systStoredName = systName;
                 WriteDebugStatus("HistoReader::ReadTRExProducedHistograms", "adding separate gammas as SHAPE systematic " + systName);
-                SystematicHist* syh_tmp = sh->AddHistoSyst(systName,
-                                                           systStoredName,
-                                                           Form("%s_%s_%s_Up",  regionName.c_str(),sampleName.c_str(),systStoredName.c_str()), fileName,
-                                                           Form("%s_%s_%s_Down",regionName.c_str(),sampleName.c_str(),systStoredName.c_str()), fileName,
-                                                           0
-                                                          );
+                std::shared_ptr<SystematicHist> syh_tmp = sh->AddHistoSyst(systName,
+                                                                           systStoredName,
+                                                                           Form("%s_%s_%s_Up",  regionName.c_str(),sampleName.c_str(),systStoredName.c_str()), fileName,
+                                                                           Form("%s_%s_%s_Down",regionName.c_str(),sampleName.c_str(),systStoredName.c_str()), fileName,
+                                                                           0
+                                                                          );
                 if(!syh_tmp){
                     WriteWarningStatus("HistoReader::ReadTRExProducedHistograms", "No histogram found for separate gamma, but may be you will create it right now.");
                 }
@@ -478,7 +478,7 @@ void HistoReader::ReadTRExProducedHistograms() {
                 }
                 WriteDebugStatus("HistoReader::ReadTRExProducedHistograms", "      Reading syst " + systName);
                 // norm only
-                SystematicHist* syh(nullptr);
+                std::shared_ptr<SystematicHist> syh(nullptr);
                 if(fFitter->fSamples[i_smp]->fSystematics[i_syst]->fType == Systematic::OVERALL){
                     if( fFitter->fKeepPruning ){
                         if( binContent == -2 || binContent == 2 ) continue;
@@ -630,10 +630,10 @@ void HistoReader::ReadOneRegion(const int i_ch, const bool is_data) {
             }
             std::unique_ptr<TH1> hUp = GetSystHisto(i_ch, i_smp, syst, files_names, is_data, true);
             std::unique_ptr<TH1> hDown = GetSystHisto(i_ch, i_smp, syst, files_names, is_data, false);
-            SystematicHist *syh = sh->AddHistoSyst(isyst->fName,
-                                                   isyst->fStoredName,
-                                                   hUp.get(),
-                                                   hDown.get());
+            std::shared_ptr<SystematicHist> syh = sh->AddHistoSyst(isyst->fName,
+                                                                   isyst->fStoredName,
+                                                                   hUp.get(),
+                                                                   hDown.get());
             syh->fSystematic = isyst;
             syh->fScaleUp = isyst->fScaleUp;
             if(isyst->fScaleUpRegions.size()!=0) {
@@ -689,10 +689,10 @@ bool HistoReader::SetSystematics(const int i_ch,
 
     // if Overall only ...
     if(syst->fType==Systematic::OVERALL) {
-        SystematicHist *syh = reg->GetSampleHist(ismp->fName)->AddOverallSyst(syst->fName,
-                                                                              syst->fStoredName,
-                                                                              syst->fOverallUp,
-                                                                              syst->fOverallDown);
+        std::shared_ptr<SystematicHist> syh = reg->GetSampleHist(ismp->fName)->AddOverallSyst(syst->fName,
+                                                                                              syst->fStoredName,
+                                                                                              syst->fOverallUp,
+                                                                                              syst->fOverallDown);
         syh->fSystematic = syst;
         syh->fScaleUp = syst->fScaleUp;
         if(syst->fScaleUpRegions.size()!=0) {

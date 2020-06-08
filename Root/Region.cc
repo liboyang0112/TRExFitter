@@ -280,7 +280,7 @@ void Region::BuildPreFitErrorHist(){
         //
         // non-SHAPE Systematics
         //
-        for(int i_syst=0;i_syst<fSampleHists[i]->fNSyst;i_syst++){
+        for(std::size_t i_syst = 0; i_syst < fSampleHists[i]->fSyst.size(); ++i_syst){
             const std::string systName = fSampleHists[i]->fSyst[i_syst]->fName;
             if(fSampleHists[i]->fSyst[i_syst]->fSystematic->fType==Systematic::SHAPE) continue;
             if(!systIsThere[systName]){
@@ -300,7 +300,7 @@ void Region::BuildPreFitErrorHist(){
         // SHAPE Systematics
         // (but remove the MC-stat ones (for samples with fSeparateGammas)!!
         //
-        for(int i_syst=0;i_syst<fSampleHists[i]->fNSyst;i_syst++){
+        for(std::size_t i_syst = 0; i_syst < fSampleHists[i]->fSyst.size(); ++i_syst) {
             const std::string systName = fSampleHists[i]->fSyst[i_syst]->fName;
             if(fSampleHists[i]->fSyst[i_syst]->fSystematic->fType!=Systematic::SHAPE) continue;
             if(systName.find("stat_")!=std::string::npos) continue;
@@ -346,7 +346,7 @@ void Region::BuildPreFitErrorHist(){
             const std::string systName = fSystNames[i_syst];
 
             // get SystematicHist
-            SystematicHist* sh = fSampleHists[i]->GetSystematic(systName);
+            std::shared_ptr<SystematicHist> sh = fSampleHists[i]->GetSystematic(systName);
 
             // hack: add a systematic hist if not there... FIXME
             if(sh==nullptr){
@@ -393,7 +393,7 @@ void Region::BuildPreFitErrorHist(){
                 }
                 // for shape systematics
                 if(origShapeSystName[systName]!="" && systName.find(Form("%s_bin_%d",fName.c_str(),i_bin-1))!=std::string::npos){
-                    SystematicHist *shOrig = fSampleHists[i]->GetSystematic(origShapeSystName[systName]);
+                    std::shared_ptr<SystematicHist> shOrig = fSampleHists[i]->GetSystematic(origShapeSystName[systName]);
                     if(!shOrig) continue;
                     yieldUp   = shOrig->fHistUp->GetBinContent(i_bin);
                     yieldDown = 2*yieldNominal - yieldUp;
@@ -469,7 +469,7 @@ void Region::BuildPreFitErrorHist(){
                 if(fSampleHists[i]->fSample->fType==Sample::GHOST) continue;
                 if(fSampleHists[i]->fSample->fType==Sample::SIGNAL && (!(TRExFitter::SHOWSTACKSIG && TRExFitter::ADDSTACKSIG) || fRatioType=="DATA/BKG")) continue;
                 // get SystematicHist
-                SystematicHist* sh = fSampleHists[i]->GetSystematic(systName);
+                std::shared_ptr<SystematicHist> sh = fSampleHists[i]->GetSystematic(systName);
                 // increase diffUp/Down according to the previously stored histograms
                 const double yieldNominal = hNom->GetBinContent(i_bin);
                 diffUp   += (sh->fHistUp  ->GetBinContent(i_bin) - yieldNominal)*scale;
@@ -838,8 +838,8 @@ double Region::GetMultFactors( FitResults* fitRes,
     double multShape = 0.;
     double systValue = 0.;
     const SampleHist *sh = fSampleHists[i].get();
-    for(int i_syst=0; i_syst<sh->fNSyst; ++i_syst){
-        const SystematicHist *syh = sh->fSyst[i_syst].get();
+    for(std::size_t i_syst = 0; i_syst < sh->fSyst.size(); ++i_syst){
+        std::shared_ptr<SystematicHist> syh = sh->fSyst[i_syst];
         std::string systName = syh->fName;
         TString systNameNew(systName); // used in pull tables
         std::shared_ptr<Systematic> syst = syh->fSystematic;
@@ -956,7 +956,7 @@ void Region::BuildPostFitErrorHist(FitResults *fitRes, const std::vector<std::st
         //
         // Systematics
         //
-        for(int i_syst=0;i_syst<fSampleHists[i_sample]->fNSyst;i_syst++){
+        for(std::size_t i_syst = 0; i_syst < fSampleHists[i_sample]->fSyst.size(); ++i_syst) {
             if(!fSampleHists[i_sample]->fSyst[i_syst]->fSystematic) continue;
             const std::string systName = fSampleHists[i_sample]->fSyst[i_syst]->fName;
             if(fSampleHists[i_sample]->fSyst[i_syst]->fSystematic->fType==Systematic::SHAPE) continue;
@@ -969,7 +969,7 @@ void Region::BuildPostFitErrorHist(FitResults *fitRes, const std::vector<std::st
         //
         // SHAPE Systematics
         //
-        for(int i_syst=0;i_syst<fSampleHists[i_sample]->fNSyst;i_syst++){
+        for(std::size_t i_syst = 0; i_syst < fSampleHists[i_sample]->fSyst.size(); ++i_syst) {
             if(!fSampleHists[i_sample]->fSyst[i_syst]->fSystematic) continue;
             const std::string systName = fSampleHists[i_sample]->fSyst[i_syst]->fName;
             if(systName.find("stat_")!=std::string::npos) continue; // fSeparateGammas already added later
@@ -1055,7 +1055,7 @@ void Region::BuildPostFitErrorHist(FitResults *fitRes, const std::vector<std::st
             //
             // Get SystematicHist
             //
-            SystematicHist* sh = fSampleHists[i]->GetSystematic(systName);
+            std::shared_ptr<SystematicHist> sh = fSampleHists[i]->GetSystematic(systName);
 
             // hack: add a systematic hist if not there
             if(!sh){
@@ -1246,7 +1246,7 @@ void Region::BuildPostFitErrorHist(FitResults *fitRes, const std::vector<std::st
             i_morph_sample++;
             // now apply the corrections from morph
             // Use it only ONCE for all combines morph templates
-            SystematicHist* sh = fSampleHists[morph_index]->GetSystematic(systName);
+            std::shared_ptr<SystematicHist> sh = fSampleHists[morph_index]->GetSystematic(systName);
 
             // hack: add a systematic hist if not there
             if(sh==nullptr){
@@ -1308,7 +1308,7 @@ void Region::BuildPostFitErrorHist(FitResults *fitRes, const std::vector<std::st
                 // skip signal if Bkg only
                 if(fFitType==TRExFit::BONLY && fSampleHists[i]->fSample->fType==Sample::SIGNAL) continue;
                 // get SystematicHist
-                const SystematicHist* sh = fSampleHists[i]->GetSystematic(systName);
+                std::shared_ptr<SystematicHist> sh = fSampleHists[i]->GetSystematic(systName);
                 // increase diffUp/Down according to the previously stored histograms
                 // yieldNominal_postFit = fSampleHists[i]->fHist_postFit->GetBinContent(i_bin);
                 if(!sh) continue;
@@ -2042,7 +2042,7 @@ void Region::PrintSystTable(FitResults *fitRes, string opt) const{
             const Sample* s = sh->fSample;
             if(s->fType==Sample::DATA) continue;
             if(s->fType==Sample::GHOST) continue;
-            const SystematicHist* syh = sh->GetSystematic(fSystNames[i_syst]);
+            std::shared_ptr<SystematicHist> syh = sh->GetSystematic(fSystNames[i_syst]);
             if(syh==nullptr){
                 out << " |    nan   ";
                 texout << " &    nan   ";
@@ -2114,7 +2114,7 @@ void Region::PrintSystTable(FitResults *fitRes, string opt) const{
 
                     if (std::find(sample_syste.begin(), sample_syste.end(), fSystNames.at(i_syst)) == sample_syste.end()) continue;
 
-                    const SystematicHist* syh = sh->GetSystematic(fSystNames[i_syst]);
+                    std::shared_ptr<SystematicHist> syh = sh->GetSystematic(fSystNames[i_syst]);
 
                     if(isPostFit){
                         TH1 *h_up = syh->fHistUp_postFit.get();
@@ -2615,7 +2615,7 @@ void Region::SystPruning(PruningUtil *pu){
                 WriteWarningStatus("Region::SystPruning", "Cannot find reference pruning sample: " + syst->fReferencePruning + " in region: " + fName);
                 continue;
             }
-            const SystematicHist *refSysH = refSmpH->GetSystematic(syst->fName);
+            std::shared_ptr<SystematicHist> refSysH = refSmpH->GetSystematic(syst->fName);
             if(refSysH==nullptr){
                 WriteWarningStatus("Region::SystPruning", "Cannot find systematic " + syst->fName + " for reference pruning sample " + syst->fReferencePruning);
                 continue;

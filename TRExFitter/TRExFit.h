@@ -402,7 +402,10 @@ public:
      */
     int GetSystIndex(const SampleHist* const sh, const std::string& name) const;
 
-    SystematicHist* CombineSpecialHistos(SystematicHist* orig, const std::vector<SystematicHist*>& vec, Systematic::COMBINATIONTYPE type, const SampleHist* sh) const;
+    std::shared_ptr<SystematicHist> CombineSpecialHistos(std::shared_ptr<SystematicHist> orig,
+                                                         const std::vector<std::shared_ptr<SystematicHist> >& vec,
+                                                         Systematic::COMBINATIONTYPE type,
+                                                         const SampleHist* sh) const;
 
     /**
       *  A helper function to get the list of unique names of non-gamma systematics

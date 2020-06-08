@@ -176,7 +176,7 @@ void NtupleReader::ReadNtuples(){
                 //
                 // if Overall only ...
                 if(syst->fType==Systematic::OVERALL){
-                    SystematicHist *syh = reg->GetSampleHist(smp->fName)->AddOverallSyst(syst->fName,syst->fStoredName,syst->fOverallUp,syst->fOverallDown);
+                    std::shared_ptr<SystematicHist> syh = reg->GetSampleHist(smp->fName)->AddOverallSyst(syst->fName,syst->fStoredName,syst->fOverallUp,syst->fOverallDown);
                     syh->fSystematic = isyst;
                     syh->fScaleUp = syst->fScaleUp;
                     if(syst->fScaleUpRegions.size()!=0)
@@ -190,7 +190,7 @@ void NtupleReader::ReadNtuples(){
                 }
                 // if Stat uncertainty on MC sample
                 if(syst->fType == Systematic::STAT){
-                    SystematicHist *syh = reg->GetSampleHist(smp->fName)->AddStatSyst(syst->fName,syst->fStoredName,syst->fBins[0]);
+                    std::shared_ptr<SystematicHist> syh = reg->GetSampleHist(smp->fName)->AddStatSyst(syst->fName,syst->fStoredName,syst->fBins[0]);
                     syh->fSystematic = isyst;
                     continue;
                 }
@@ -199,7 +199,7 @@ void NtupleReader::ReadNtuples(){
                     WriteInfoStatus("NtupleReader::ReadNtuples", "Systematic " + syst->fName + " set as dummy for sample " + smp->fName + " (region " + reg->fName + ")");
                     hUp   = (TH1D*)sh->fHist->Clone(Form("h_%s_%s_%sUp",  reg->fName.c_str(),smp->fName.c_str(),syst->fStoredName.c_str()));
                     hDown = (TH1D*)sh->fHist->Clone(Form("h_%s_%s_%sDown",reg->fName.c_str(),smp->fName.c_str(),syst->fStoredName.c_str()));
-                    SystematicHist *syh = sh->AddHistoSyst(syst->fName,syst->fStoredName,hUp,hDown);
+                    std::shared_ptr<SystematicHist> syh = sh->AddHistoSyst(syst->fName,syst->fStoredName,hUp,hDown);
                     syh->fSystematic = isyst;
                     syh->fScaleUp = syst->fScaleUp;
                     if(syst->fScaleUpRegions.size()!=0)
@@ -419,8 +419,10 @@ void NtupleReader::ReadNtuples(){
                 if(hUp==nullptr)   hUp   = static_cast<TH1D*>(reg->GetSampleHist(fFitter->fSamples[i_smp]->fName )->fHist.get());
                 if(hDown==nullptr) hDown = static_cast<TH1D*>(reg->GetSampleHist(fFitter->fSamples[i_smp]->fName )->fHist.get());
                 //
-                SystematicHist *syh = sh->AddHistoSyst(isyst->fName,
-                                                       isyst->fStoredName,hUp,hDown);
+                std::shared_ptr<SystematicHist> syh = sh->AddHistoSyst(isyst->fName,
+                                                                       isyst->fStoredName,
+                                                                       hUp,
+                                                                       hDown);
                 syh->fSystematic = isyst;
                 syh->fScaleUp = isyst->fScaleUp;
                 if(isyst->fScaleUpRegions.size()!=0)
