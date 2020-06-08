@@ -381,7 +381,7 @@ public:
     * @@param name
     * @return SampleHist
     */
-    SampleHist* GetSampleHistFromName(const Region* const reg, const std::string& name) const;
+    std::shared_ptr<SampleHist> GetSampleHistFromName(const Region* const reg, const std::string& name) const;
 
     /**
      * A helper function to Copy a smoothing from a reference histogram to other histograms bin by bin

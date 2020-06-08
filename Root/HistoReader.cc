@@ -396,7 +396,7 @@ void HistoReader::ReadTRExProducedHistograms() {
             else{
                 fFitter->fRegions[i_ch]->SetSampleHist(fFitter->fSamples[i_smp],regionName+"_"+sampleName,fileName);
             }
-            SampleHist* sh = fFitter->fRegions[i_ch]->GetSampleHist(sampleName);
+            std::shared_ptr<SampleHist> sh = fFitter->fRegions[i_ch]->GetSampleHist(sampleName);
             if(!sh) continue;
             
             // separate gammas -> Add systematic
@@ -595,7 +595,7 @@ void HistoReader::ReadOneRegion(const int i_ch, const bool is_data) {
         TH1* h_orig = static_cast<TH1*>(h->Clone( Form("%s_orig",h->GetName())));
 
         // Importing the histogram in TRExFitter
-        SampleHist *sh = fFitter->fRegions[i_ch]->SetSampleHist(ismp, h.get());
+        std::shared_ptr<SampleHist> sh = fFitter->fRegions[i_ch]->SetSampleHist(ismp, h.get());
         sh->fHist_orig.reset(h_orig);
         sh->fHist_orig->SetName(Form("%s_orig",sh->fHist->GetName())); // fix the name
     
@@ -603,7 +603,7 @@ void HistoReader::ReadOneRegion(const int i_ch, const bool is_data) {
         if (!(ismp->fUseSystematics) && !is_data) continue;
     
         if (!is_data) {
-            ReadNormShape(sh, i_ch, ismp);
+            ReadNormShape(sh.get(), i_ch, ismp);
         }
    
         for(const auto& isyst : ismp->fSystematics) {

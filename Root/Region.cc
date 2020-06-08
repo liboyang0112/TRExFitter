@@ -147,19 +147,19 @@ Region::~Region(){
 
 //__________________________________________________________________________________
 //
-SampleHist* Region::SetSampleHist(Sample *sample, string histoName, string fileName){
+std::shared_ptr<SampleHist> Region::SetSampleHist(Sample *sample, string histoName, string fileName){
     fSampleHists.emplace_back(new SampleHist( sample, histoName, fileName ));
     if(sample->fType==Sample::DATA){
         fHasData = true;
-        fData = fSampleHists[fNSamples].get();
+        fData = fSampleHists[fNSamples];
     }
     else if(sample->fType==Sample::SIGNAL){
         fHasSig = true;
-        fSig.emplace_back(fSampleHists[fNSamples].get());
+        fSig.emplace_back(fSampleHists[fNSamples]);
         fNSig++;
     }
     else if(sample->fType==Sample::BACKGROUND){
-        fBkg.emplace_back(fSampleHists[fNSamples].get());
+        fBkg.emplace_back(fSampleHists[fNSamples]);
         fNBkg++;
     }
     else if(sample->fType==Sample::GHOST){
@@ -174,24 +174,24 @@ SampleHist* Region::SetSampleHist(Sample *sample, string histoName, string fileN
     fSampleHists[fNSamples]->fFitName = fFitName;
     fSampleHists[fNSamples]->fVariableTitle = fVariableTitle;
     fNSamples++;
-    return fSampleHists[fNSamples-1].get();
+    return fSampleHists[fNSamples-1];
 }
 
 //__________________________________________________________________________________
 //
-SampleHist* Region::SetSampleHist(Sample *sample, TH1* hist ){
+std::shared_ptr<SampleHist> Region::SetSampleHist(Sample *sample, TH1* hist ){
     fSampleHists.emplace_back(new SampleHist( sample, hist ));
     if(sample->fType==Sample::DATA){
         fHasData = true;
-        fData = fSampleHists[fNSamples].get();
+        fData = fSampleHists[fNSamples];
     }
     else if(sample->fType==Sample::SIGNAL){
         fHasSig = true;
-        fSig.emplace_back(fSampleHists[fNSamples].get());
+        fSig.emplace_back(fSampleHists[fNSamples]);
         fNSig ++;
     }
     else if(sample->fType==Sample::BACKGROUND){
-        fBkg.emplace_back(fSampleHists[fNSamples].get());
+        fBkg.emplace_back(fSampleHists[fNSamples]);
         fNBkg ++;
     }
     else if(sample->fType==Sample::GHOST){
@@ -206,7 +206,7 @@ SampleHist* Region::SetSampleHist(Sample *sample, TH1* hist ){
     fSampleHists[fNSamples]->fFitName = fFitName;
     fSampleHists[fNSamples]->fVariableTitle = fVariableTitle;
     fNSamples++;
-    return fSampleHists[fNSamples-1].get();
+    return fSampleHists[fNSamples-1];
 }
 
 //__________________________________________________________________________________
@@ -252,9 +252,9 @@ void Region::SetRegionDataType( DataType type ){
 
 //__________________________________________________________________________________
 //
-SampleHist* Region::GetSampleHist(const std::string &sampleName) const{
+std::shared_ptr<SampleHist> Region::GetSampleHist(const std::string &sampleName) const{
     for(int i_smp=0;i_smp<fNSamples;i_smp++){
-        if(fSampleHists[i_smp]->fName == sampleName) return fSampleHists[i_smp].get();
+        if(fSampleHists[i_smp]->fName == sampleName) return fSampleHists[i_smp];
     }
     return nullptr;
 }
@@ -1662,7 +1662,7 @@ std::unique_ptr<TRExPlot> Region::DrawPostFit(FitResults* fitRes,
                 if(TRExFitter::OPTION["NormSigSRonly"] && fRegionType==SIGNAL) p->AddNormSignal(hSigNew[i],title);
             }
             if(TRExFitter::SHOWOVERLAYSIG){
-                Common::ScaleNominal(fSig[i],hSigNew[i]);
+                Common::ScaleNominal(fSig[i].get(),hSigNew[i]);
                 p->AddOverSignal(hSigNew[i],title);
             }
         }
@@ -2610,7 +2610,7 @@ void Region::SystPruning(PruningUtil *pu){
             if(!syh->fSystematic) continue;
             std::shared_ptr<Systematic> syst = syh->fSystematic;
             if(syst->fReferencePruning == "") continue;
-            SampleHist *refSmpH = GetSampleHist(syst->fReferencePruning);
+            std::shared_ptr<SampleHist> refSmpH = GetSampleHist(syst->fReferencePruning);
             if(refSmpH==nullptr){
                 WriteWarningStatus("Region::SystPruning", "Cannot find reference pruning sample: " + syst->fReferencePruning + " in region: " + fName);
                 continue;

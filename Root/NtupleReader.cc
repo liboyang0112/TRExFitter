@@ -28,7 +28,6 @@ void NtupleReader::ReadNtuples(){
     std::string fullSelection;
     std::string fullMCweight;
     std::vector<std::string> fullPaths;
-    SampleHist *sh;
     //
     // Import custom functions from .C files
     //
@@ -121,7 +120,7 @@ void NtupleReader::ReadNtuples(){
             TH1* h_orig = static_cast<TH1*>(h->Clone( Form("%s_orig",h->GetName()) ));
             //
             // Importing the histogram in TRExFitter
-            sh = fFitter->fRegions[i_ch]->SetSampleHist( fFitter->fSamples[i_smp], h );
+            std::shared_ptr<SampleHist> sh = fFitter->fRegions[i_ch]->SetSampleHist( fFitter->fSamples[i_smp], h );
             sh->fHist_orig.reset(h_orig);
             sh->fHist_orig->SetName( Form("%s_orig",sh->fHist->GetName()) ); // fix the name
 

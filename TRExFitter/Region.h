@@ -50,9 +50,9 @@ public:
     // Methods
     // -------
 
-    SampleHist* SetSampleHist(Sample *sample, std::string histoName, std::string fileName);
-    SampleHist* SetSampleHist(Sample *sample, TH1* hist );
-    SampleHist* GetSampleHist(const std::string &sampleName) const;
+    std::shared_ptr<SampleHist> SetSampleHist(Sample *sample, std::string histoName, std::string fileName);
+    std::shared_ptr<SampleHist> SetSampleHist(Sample *sample, TH1* hist );
+    std::shared_ptr<SampleHist> GetSampleHist(const std::string &sampleName) const;
 
     void BuildPreFitErrorHist();
     void SavePreFitUncertaintyAndTotalMCObjects();
@@ -139,15 +139,15 @@ public:
     RegionType fRegionType;
     DataType fRegionDataType;
     bool fHasData;
-    SampleHist *fData;
+    std::shared_ptr<SampleHist> fData;
     bool fHasSig;
     int fNSig;
-    std::vector<SampleHist*> fSig;
+    std::vector<std::shared_ptr<SampleHist> > fSig;
     int fNBkg;
-    std::vector<SampleHist*> fBkg;
+    std::vector<std::shared_ptr<SampleHist> > fBkg;
     int fNSamples;
-    std::vector < std::unique_ptr<SampleHist> > fSampleHists;
-    std::vector < std::unique_ptr<Sample> > fSamples;
+    std::vector < std::shared_ptr<SampleHist> > fSampleHists;
+    std::vector < std::shared_ptr<Sample> > fSamples;
     double fYmaxScale;
     double fYmin;
     double fYmax;
