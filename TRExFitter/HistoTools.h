@@ -54,7 +54,7 @@ namespace HistoTools {
     * @param Original histogram
     * @return Trasformed histogram
     */
-    TH1D* TranformHistogramBinning(TH1* originalHist);
+    std::unique_ptr<TH1D> TranformHistogramBinning(const TH1* originalHist);
 
     /**
      * A helper function to smooth and symmetrize histograms
