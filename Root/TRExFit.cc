@@ -284,10 +284,6 @@ TRExFit::~TRExFit() {
     for(auto ireg : fRegions) {
         delete ireg;
     }
-
-    for(auto ismp : fSamples) {
-        delete ismp;
-    }
 }
 
 //__________________________________________________________________________________
@@ -336,11 +332,11 @@ void TRExFit::SetFitRegion(FitRegion region){
 
 //__________________________________________________________________________________
 //
-Sample* TRExFit::NewSample(const std::string& name,int type){
-    fSamples.push_back(new Sample(name,type));
+std::shared_ptr<Sample> TRExFit::NewSample(const std::string& name,int type){
+    fSamples.emplace_back(new Sample(name,type));
     //
-    fNSamples ++;
-    return fSamples[fNSamples-1];
+    fNSamples++;
+    return fSamples.back();
 }
 
 //__________________________________________________________________________________
@@ -3207,7 +3203,7 @@ void TRExFit::CreateCustomAsimov() const {
     // fill a different CustomAsimov data-set for each element in the list
     for(const auto& customAsimov : customAsimovList){
         WriteDebugStatus("TRExFit::CreateCustomAsimov", "CustomAsimov: " + customAsimov);
-        Sample *ca = GetSample("customAsimov_"+customAsimov);
+        std::shared_ptr<Sample> ca = GetSample("customAsimov_"+customAsimov);
         // create a new data sample taking the nominal S and B
         for(int i_ch=0; i_ch<fNRegions; ++i_ch) {
             Region *reg = fRegions[i_ch];
@@ -3237,7 +3233,7 @@ void TRExFit::CreateCustomAsimov() const {
                 exit(EXIT_FAILURE);
             }
 
-            std::shared_ptr<SampleHist> cash = reg->SetSampleHist(ca,static_cast<TH1*>(sample_hist->fHist->Clone()));
+            std::shared_ptr<SampleHist> cash = reg->SetSampleHist(ca.get(),static_cast<TH1*>(sample_hist->fHist->Clone()));
             cash->fHist_orig->SetName( Form("%s_orig",cash->fHist->GetName()) ); // fix the name
             cash->fHist->Scale(0.);
             //
@@ -3300,7 +3296,7 @@ void TRExFit::UnfoldingAlternativeAsimov() {
         hist->Reset();
 
         // Add new signal
-        const Sample* newAsimov = GetSample("AlternativeSignal_"+ireg->fName);
+        std::shared_ptr<Sample> newAsimov = GetSample("AlternativeSignal_"+ireg->fName);
         if (!newAsimov) {
             WriteErrorStatus("TRExFit::UnfoldingAlternativeAsimov", "Cannot read the new asimov sample");
             exit(EXIT_FAILURE);
@@ -3583,7 +3579,7 @@ void TRExFit::DrawSystematicNormalisationSummary() const {
     // First get the dimensions right
     const std::vector<std::string> uniqueSysts = GetUniqueSystNamesWithoutGamma();
     const std::vector<Region*> regions = GetNonValidationRegions();
-    const std::vector<Sample*> samples = GetNonDataNonGhostSamples();
+    const std::vector<std::shared_ptr<Sample> > samples = GetNonDataNonGhostSamples();
 
     const int xBins = regions.size()*samples.size();
 
@@ -3710,11 +3706,11 @@ void TRExFit::DrawPruningPlot() const{
     int iReg = 0;
     int nSmp = 0;
     // make a list of non-data, non-ghost samples
-    std::vector< Sample* > samplesVec;
+    std::vector<std::shared_ptr<Sample> > samplesVec;
     for(int i_smp=0;i_smp<fNSamples;i_smp++){
         if(fSamples[i_smp]->fType==Sample::DATA) continue;
         if(fSamples[i_smp]->fType==Sample::GHOST) continue;
-        samplesVec.push_back(fSamples[i_smp]);
+        samplesVec.emplace_back(fSamples[i_smp]);
         nSmp++;
     }
     // make a list of non-gamma systematics only
@@ -5412,7 +5408,7 @@ Region* TRExFit::GetRegion(const std::string& name) const{
 
 //__________________________________________________________________________________
 //
-Sample* TRExFit::GetSample(const std::string& name) const{
+std::shared_ptr<Sample> TRExFit::GetSample(const std::string& name) const{
     for(unsigned int i=0;i<fSamples.size();i++){
         if(fSamples[i]->fName == name) return fSamples[i];
     }
@@ -6444,9 +6440,9 @@ void TRExFit::ComputeBinning(int regIter){
             if(fSamples[i_smp]->fType==Sample::GHOST) continue;
             if( Common::FindInStringVector(fSamples[i_smp]->fRegions,fRegions[regIter]->fName)<0 ) continue;
             //
-            fullSelection = FullSelection(  fRegions[regIter],fSamples[i_smp]);
-            fullMCweight  = FullWeight(     fRegions[regIter],fSamples[i_smp]);
-            fullPaths     = FullNtuplePaths(fRegions[regIter],fSamples[i_smp]);
+            fullSelection = FullSelection(  fRegions[regIter],fSamples[i_smp].get());
+            fullMCweight  = FullWeight(     fRegions[regIter],fSamples[i_smp].get());
+            fullPaths     = FullNtuplePaths(fRegions[regIter],fSamples[i_smp].get());
             for(unsigned int i_path=0;i_path<fullPaths.size();i_path++){
                 int tmp_debugLevel=TRExFitter::DEBUGLEVEL;
                 TRExFitter::SetDebugLevel(0);
@@ -6512,7 +6508,7 @@ void TRExFit::ComputeBinning(int regIter){
             if(fSamples[i_smp]->fType==Sample::DATA) continue;
             if(fSamples[i_smp]->fType==Sample::GHOST) continue;
             //
-            fullPaths     = FullHistogramPaths(fRegions[regIter],fSamples[i_smp]);
+            fullPaths     = FullHistogramPaths(fRegions[regIter],fSamples[i_smp].get());
             for(unsigned int i_path=0;i_path<fullPaths.size();i_path++){
                 int tmp_debugLevel=TRExFitter::DEBUGLEVEL;
                 TRExFitter::SetDebugLevel(0);
@@ -8345,8 +8341,8 @@ std::vector<Region*> TRExFit::GetNonValidationRegions() const {
 
 //__________________________________________________________________________________
 //
-std::vector<Sample*> TRExFit::GetNonDataNonGhostSamples() const {
-    std::vector<Sample*> result;
+std::vector<std::shared_ptr<Sample> > TRExFit::GetNonDataNonGhostSamples() const {
+    std::vector<std::shared_ptr<Sample> > result;
 
     for (const auto& isample : fSamples) {
         if (isample->fType == Sample::DATA) continue;

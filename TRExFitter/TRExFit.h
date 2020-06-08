@@ -103,7 +103,7 @@ public:
     void SetLimitType( LimitType type );
     void SetFitRegion(FitRegion region);
 
-    Sample* NewSample(const std::string& name,int type=0);
+    std::shared_ptr<Sample> NewSample(const std::string& name,int type=0);
     std::shared_ptr<Systematic> NewSystematic(const std::string& name);
     Region* NewRegion(const std::string& name);
 
@@ -195,7 +195,7 @@ public:
     void PrintConfigSummary() const;
 
     Region* GetRegion(const std::string& name) const;
-    Sample* GetSample(const std::string& name) const;
+    std::shared_ptr<Sample> GetSample(const std::string& name) const;
     std::size_t GetSampleIndex(const std::string& name) const;
 
     void ProduceNPRanking(std::string NPnames="all");
@@ -423,7 +423,7 @@ public:
       * A helper function to get the vector of non-data, non-ghost samples
       * @return the vector of non-data, non-ghost samples
       */
-    std::vector<Sample*> GetNonDataNonGhostSamples() const;
+    std::vector<std::shared_ptr<Sample> > GetNonDataNonGhostSamples() const;
 
     /**
       * A helper function that does the dropping of the bins
@@ -521,7 +521,7 @@ public:
     std::vector < std::unique_ptr<TFile> > fFiles;
 
     std::vector < Region* > fRegions;
-    std::vector < Sample* > fSamples;
+    std::vector < std::shared_ptr<Sample> > fSamples;
     std::vector < std::shared_ptr<Systematic> > fSystematics;
     std::vector < std::shared_ptr<NormFactor> >fNormFactors;
     std::vector < std::shared_ptr<ShapeFactor> > fShapeFactors;

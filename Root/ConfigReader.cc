@@ -3011,7 +3011,7 @@ int ConfigReader::ReadSampleOptions() {
         if (confSet == nullptr) break;
         nSmp++;
 
-        Sample *sample = nullptr;
+        std::shared_ptr<Sample> sample = nullptr;
         std::shared_ptr<NormFactor> nfactor = nullptr;
         std::shared_ptr<ShapeFactor> sfactor = nullptr;
         int type = 0;
@@ -3666,7 +3666,7 @@ int ConfigReader::ReadSampleOptions() {
                 }
             }
             WriteDebugStatus("ConfigReader::ReadSampleOptions", "Creating sample " + fFitter->fSamples[i_smp]->fAsimovReplacementFor.first);
-            Sample *ca = fFitter->NewSample("customAsimov_"+fFitter->fSamples[i_smp]->fAsimovReplacementFor.first,Sample::GHOST);
+            std::shared_ptr<Sample> ca = fFitter->NewSample("customAsimov_"+fFitter->fSamples[i_smp]->fAsimovReplacementFor.first,Sample::GHOST);
             ca->SetTitle("Pseudo-Data ("+fFitter->fSamples[i_smp]->fAsimovReplacementFor.first+")");
             ca->fUseSystematics = false;
         }
@@ -3681,7 +3681,7 @@ int ConfigReader::ReadNormFactorOptions(){
     std::string param = "";
 
     int nNorm = 0;
-    Sample *sample = nullptr;
+    std::shared_ptr<Sample> sample = nullptr;
 
     while(true){
         ConfigSet *confSet = fParser->GetConfigSet("NormFactor", nNorm);
@@ -3846,7 +3846,7 @@ int ConfigReader::ReadNormFactorOptions(){
 int ConfigReader::ReadShapeFactorOptions(){
     std::string param = "";
     int nShape = 0;
-    Sample *sample = nullptr;
+    std::shared_ptr<Sample> sample = nullptr;
 
     while(true){
         ConfigSet *confSet = fParser->GetConfigSet("ShapeFactor",nShape);
@@ -3985,7 +3985,7 @@ int ConfigReader::ReadSystOptions(){
 
     int nSys = 0;
 
-    Sample *sample = nullptr;
+    std::shared_ptr<Sample> sample = nullptr;
     //Addition for StatOnly fit: dummy systematic for the significance computation and limit setting
     if (fFitter->fStatOnly) {
         int typed = Systematic::OVERALL;
@@ -4874,7 +4874,7 @@ int ConfigReader::ReadSystOptions(){
 //__________________________________________________________________________________
 //
 int ConfigReader::SetSystNoDecorelate(ConfigSet *confSet, std::shared_ptr<Systematic> sys, const std::vector<std::string>& samples, const std::vector<std::string>& exclude){
-    Sample *sam = nullptr;
+    std::shared_ptr<Sample> sam = nullptr;
 
     fFitter->fSystematics.emplace_back( sys );
 
@@ -4936,7 +4936,7 @@ int ConfigReader::SetSystRegionDecorelate(ConfigSet *confSet,
                                           const std::vector<std::string>& exclude,
                                           const std::vector<std::string>& regions,
                                           int type) {
-    Sample *sam = nullptr;
+    std::shared_ptr<Sample> sam = nullptr;
     std::string param = "";
 
     for(const auto& ireg : fRegNames) {
@@ -5059,7 +5059,7 @@ int ConfigReader::SetSystRegionDecorelate(ConfigSet *confSet,
 //__________________________________________________________________________________
 //
 int ConfigReader::SetSystSampleDecorelate(ConfigSet *confSet, std::shared_ptr<Systematic> sys, const std::vector<std::string> &samples, const std::vector<std::string> &exclude){
-    Sample *sam = nullptr;
+    std::shared_ptr<Sample> sam = nullptr;
     std::string param = "";
 
     // (this is really messy)
@@ -5123,7 +5123,7 @@ int ConfigReader::SetSystSampleDecorelate(ConfigSet *confSet, std::shared_ptr<Sy
 //__________________________________________________________________________________
 //
 int ConfigReader::SetSystShapeDecorelate(ConfigSet *confSet, std::shared_ptr<Systematic> sys, const std::vector<std::string> &samples, const std::vector<std::string> &exclude){
-    Sample *sam = nullptr;
+    std::shared_ptr<Sample> sam = nullptr;
     std::string param = "";
 
     // cloning the sys
@@ -6970,7 +6970,7 @@ int ConfigReader::ProcessUnfoldingSamples() {
                 Common::FindInStringVector(isample->fRegions, ireg->fName) < 0) continue;
 
             // Convert the UnfoldingSample to sample and adjust the paths
-            const std::vector<Sample*> samples = isample->ConvertToSample(ireg, fFitter->fNumberUnfoldingTruthBins, fFitter->fName);
+            const std::vector<std::shared_ptr<Sample> > samples = isample->ConvertToSample(ireg, fFitter->fNumberUnfoldingTruthBins, fFitter->fName);
             fFitter->fSamples.insert(fFitter->fSamples.end(), samples.begin(), samples.end());
             fFitter->fNSamples += fFitter->fNumberUnfoldingTruthBins;
         }

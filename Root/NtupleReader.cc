@@ -73,10 +73,10 @@ void NtupleReader::ReadNtuples(){
             // read nominal
             //
             // set variables, selection, weight and paths
-            variable      = fFitter->Variable(       fFitter->fRegions[i_ch],fFitter->fSamples[i_smp]);
-            fullSelection = fFitter->FullSelection(  fFitter->fRegions[i_ch],fFitter->fSamples[i_smp]);
-            fullMCweight  = fFitter->FullWeight(     fFitter->fRegions[i_ch],fFitter->fSamples[i_smp]);
-            fullPaths     = fFitter->FullNtuplePaths(fFitter->fRegions[i_ch],fFitter->fSamples[i_smp]);
+            variable      = fFitter->Variable(       fFitter->fRegions[i_ch],fFitter->fSamples[i_smp].get());
+            fullSelection = fFitter->FullSelection(  fFitter->fRegions[i_ch],fFitter->fSamples[i_smp].get());
+            fullMCweight  = fFitter->FullWeight(     fFitter->fRegions[i_ch],fFitter->fSamples[i_smp].get());
+            fullPaths     = fFitter->FullNtuplePaths(fFitter->fRegions[i_ch],fFitter->fSamples[i_smp].get());
             //
             h = nullptr;
             for(unsigned int i_path=0;i_path<fullPaths.size();i_path++){
@@ -120,7 +120,7 @@ void NtupleReader::ReadNtuples(){
             TH1* h_orig = static_cast<TH1*>(h->Clone( Form("%s_orig",h->GetName()) ));
             //
             // Importing the histogram in TRExFitter
-            std::shared_ptr<SampleHist> sh = fFitter->fRegions[i_ch]->SetSampleHist( fFitter->fSamples[i_smp], h );
+            std::shared_ptr<SampleHist> sh = fFitter->fRegions[i_ch]->SetSampleHist( fFitter->fSamples[i_smp].get(), h );
             sh->fHist_orig.reset(h_orig);
             sh->fHist_orig->SetName( Form("%s_orig",sh->fHist->GetName()) ); // fix the name
 
@@ -171,7 +171,7 @@ void NtupleReader::ReadNtuples(){
                 WriteDebugStatus("NtupleReader::ReadNtuples", "Adding syst " + syst->fName);
                 //
                 Region *reg = fFitter->fRegions[i_ch];
-                Sample *smp = fFitter->fSamples[i_smp];
+                std::shared_ptr<Sample> smp = fFitter->fSamples[i_smp];
                 //
                 // if Overall only ...
                 if(syst->fType==Systematic::OVERALL){
@@ -226,8 +226,8 @@ void NtupleReader::ReadNtuples(){
                 hUp = nullptr;
                 if(syst->fHasUpVariation){
                     // set variables, selection, weight and paths
-                    fullMCweight  = fFitter->FullWeight(     fFitter->fRegions[i_ch],fFitter->fSamples[i_smp],syst,true);
-                    fullPaths     = fFitter->FullNtuplePaths(fFitter->fRegions[i_ch],fFitter->fSamples[i_smp],syst,true);
+                    fullMCweight  = fFitter->FullWeight(     fFitter->fRegions[i_ch],fFitter->fSamples[i_smp].get(),syst,true);
+                    fullPaths     = fFitter->FullNtuplePaths(fFitter->fRegions[i_ch],fFitter->fSamples[i_smp].get(),syst,true);
                     WriteDebugStatus("NtupleReader::ReadNtuples", "  Syst Up full weight: " + fullMCweight);
                     for(unsigned int i_path=0;i_path<fullPaths.size();i_path++){
                         TH1D* htmp = nullptr;
@@ -329,8 +329,8 @@ void NtupleReader::ReadNtuples(){
                 //
                 hDown = nullptr;
                 if(syst->fHasDownVariation){
-                    fullMCweight  = fFitter->FullWeight(     fFitter->fRegions[i_ch],fFitter->fSamples[i_smp],syst,false);
-                    fullPaths     = fFitter->FullNtuplePaths(fFitter->fRegions[i_ch],fFitter->fSamples[i_smp],syst,false);
+                    fullMCweight  = fFitter->FullWeight(     fFitter->fRegions[i_ch],fFitter->fSamples[i_smp].get(),syst,false);
+                    fullPaths     = fFitter->FullNtuplePaths(fFitter->fRegions[i_ch],fFitter->fSamples[i_smp].get(),syst,false);
                     for(unsigned int i_path=0;i_path<fullPaths.size();i_path++){
                         TH1D* htmp = nullptr;
                         if(reg->fHistoBins.size() > 0){
@@ -454,9 +454,9 @@ void NtupleReader::DefineVariable(int regIter){
         WriteDebugStatus("NtupleReader::DefineVariable", " -> is used in the considered region");
         //
         // set selection, weight and paths (no variables)
-        fullSelection = fFitter->FullSelection(  fFitter->fRegions[regIter],fFitter->fSamples[i_smp]);
-        fullMCweight  = fFitter->FullWeight(     fFitter->fRegions[regIter],fFitter->fSamples[i_smp]);
-        fullPaths     = fFitter->FullNtuplePaths(fFitter->fRegions[regIter],fFitter->fSamples[i_smp]);
+        fullSelection = fFitter->FullSelection(  fFitter->fRegions[regIter],fFitter->fSamples[i_smp].get());
+        fullMCweight  = fFitter->FullWeight(     fFitter->fRegions[regIter],fFitter->fSamples[i_smp].get());
+        fullPaths     = fFitter->FullNtuplePaths(fFitter->fRegions[regIter],fFitter->fSamples[i_smp].get());
         //
         for(unsigned int i_path=0;i_path<fullPaths.size();i_path++){
             WriteDebugStatus("TRExFit::DefineVariable", " -> Retrieving : " + fFitter->fRegions[regIter]->fCorrVar1 +

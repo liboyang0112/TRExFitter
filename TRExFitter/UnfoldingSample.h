@@ -1,6 +1,7 @@
 #ifndef UNFOLDINGSAMPLE_H_
 #define UNFOLDINGSAMPLE_H_
 
+#include <memory>
 #include <string>
 #include <vector>
 
@@ -32,9 +33,9 @@ public:
     inline bool GetHasAcceptance() const {return fHasAcceptance;}
     
 
-    std::vector<Sample*> ConvertToSample(const Region* reg,
-                                         const int bins,
-                                         const std::string& name) const;
+    std::vector<std::shared_ptr<Sample> > ConvertToSample(const Region* reg,
+                                                          const int bins,
+                                                          const std::string& name) const;
     
     std::vector<std::string> fResponseMatrixFiles;
     std::vector<std::string> fResponseMatrixNames;

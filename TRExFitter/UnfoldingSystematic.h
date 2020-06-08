@@ -38,7 +38,7 @@ public:
                                                                   const int bins,
                                                                   const std::string& name,
                                                                   const std::string& unfoldingSampleName,
-                                                                  std::vector<Sample*>& samples) const;
+                                                                  std::vector<std::shared_ptr<Sample> >& samples) const;
 
     std::vector<std::string> fRegions;
     std::vector<std::string> fSamples;

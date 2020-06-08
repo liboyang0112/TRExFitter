@@ -26,7 +26,7 @@ std::vector<std::shared_ptr<Systematic> > UnfoldingSystematic::ConvertToSystemat
                                                                                    const int bins,
                                                                                    const std::string& name,
                                                                                    const std::string& unfoldingSampleName,
-                                                                                   std::vector<Sample*>& samples) const {
+                                                                                   std::vector<std::shared_ptr<Sample> >& samples) const {
 
     if (samples.size() < 1) {
         WriteErrorStatus("UnfoldingSystematic::ConvertToSystematic:", "Samples size < 1");

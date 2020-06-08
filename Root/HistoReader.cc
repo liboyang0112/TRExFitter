@@ -216,7 +216,7 @@ void HistoReader::ReadTRExProducedHistograms() {
     for(int i_smp=0;i_smp<fFitter->fNSamples;i_smp++){
         if(!fFitter->fSamples[i_smp]->fUseSystematics) continue;
         if(fFitter->fSamples[i_smp]->fDivideBy!=""){
-            const Sample* smp = fFitter->GetSample(fFitter->fSamples[i_smp]->fDivideBy);
+            std::shared_ptr<Sample> smp = fFitter->GetSample(fFitter->fSamples[i_smp]->fDivideBy);
             for(const auto& isyst : smp->fSystematics) {
                 const std::string systNPName = isyst->fNuisanceParameter;
                 if(!fFitter->fSamples[i_smp]->HasNuisanceParameter(systNPName)){
@@ -240,7 +240,7 @@ void HistoReader::ReadTRExProducedHistograms() {
             }
         }
         if(fFitter->fSamples[i_smp]->fMultiplyBy!=""){
-            const Sample* smp = fFitter->GetSample(fFitter->fSamples[i_smp]->fMultiplyBy);
+            std::shared_ptr<Sample> smp = fFitter->GetSample(fFitter->fSamples[i_smp]->fMultiplyBy);
             for(const auto& isyst : smp->fSystematics) {
                 const std::string systNPName = isyst->fNuisanceParameter;
                 if(!fFitter->fSamples[i_smp]->HasNuisanceParameter(systNPName)){
@@ -264,7 +264,7 @@ void HistoReader::ReadTRExProducedHistograms() {
             }
         }
         for(const auto& sample : fFitter->fSamples[i_smp]->fSubtractSamples){
-            const Sample* smp = fFitter->GetSample(sample);
+            std::shared_ptr<Sample> smp = fFitter->GetSample(sample);
             for(const auto& isyst : smp->fSystematics) {
                 const std::string systNPName = isyst->fNuisanceParameter;
                 if(!fFitter->fSamples[i_smp]->HasNuisanceParameter(systNPName)){
@@ -288,7 +288,7 @@ void HistoReader::ReadTRExProducedHistograms() {
             }
         }
         for(const auto& sample : fFitter->fSamples[i_smp]->fAddSamples){
-            const Sample* smp = fFitter->GetSample(sample);
+            std::shared_ptr<Sample> smp = fFitter->GetSample(sample);
             for(const auto& isyst : smp->fSystematics) {
                 const std::string systNPName = isyst->fNuisanceParameter;
                 if(!fFitter->fSamples[i_smp]->HasNuisanceParameter(systNPName)){
@@ -320,7 +320,7 @@ void HistoReader::ReadTRExProducedHistograms() {
             for(const auto& norm : fFitter->fNormFactors){
                 if(norm->fName == par) nominalValue = norm->fNominal;
             }
-            Sample *smpNominal = nullptr;
+            std::shared_ptr<Sample> smpNominal = nullptr;
             for(const auto& smp : fFitter->fSamples){
                 if(!smp->fIsMorph[par]) continue;
                 if(smp->fMorphValue[par] == nominalValue){ // FIXME: eventually add something to flag a sample as nominal for morphing
@@ -341,7 +341,7 @@ void HistoReader::ReadTRExProducedHistograms() {
     // fSystFromSample
     for(const auto& smp : fFitter->fSamples){
         if(smp->fSystFromSample!=""){
-            Sample *smpReference = nullptr;
+            std::shared_ptr<Sample> smpReference = nullptr;
             for(const auto& smp2 : fFitter->fSamples){
                 if(smp2->fName == smp->fName) continue;
                 if(smp2->fName == smp->fSystFromSample){
@@ -391,10 +391,10 @@ void HistoReader::ReadTRExProducedHistograms() {
             const std::string sampleName = fFitter->fSamples[i_smp]->fName;
             WriteDebugStatus("HistoReader::ReadTRExProducedHistograms", "    Reading sample " + sampleName);
             if(fFitter->fBootstrap!="" && fFitter->fBootstrapIdx>=0 && fFitter->fBootstrapSample == sampleName ){
-                fFitter->fRegions[i_ch]->SetSampleHist(fFitter->fSamples[i_smp],regionName+"_"+sampleName,fileNameBootstrap);
+                fFitter->fRegions[i_ch]->SetSampleHist(fFitter->fSamples[i_smp].get(),regionName+"_"+sampleName,fileNameBootstrap);
             }
             else{
-                fFitter->fRegions[i_ch]->SetSampleHist(fFitter->fSamples[i_smp],regionName+"_"+sampleName,fileName);
+                fFitter->fRegions[i_ch]->SetSampleHist(fFitter->fSamples[i_smp].get(),regionName+"_"+sampleName,fileName);
             }
             std::shared_ptr<SampleHist> sh = fFitter->fRegions[i_ch]->GetSampleHist(sampleName);
             if(!sh) continue;
@@ -582,7 +582,7 @@ void HistoReader::ReadOneRegion(const int i_ch, const bool is_data) {
         //
         // read nominal
         //
-        std::vector<std::string> fullPaths = fFitter->FullHistogramPaths(fFitter->fRegions[i_ch],ismp);
+        std::vector<std::string> fullPaths = fFitter->FullHistogramPaths(fFitter->fRegions[i_ch],ismp.get());
 
         if (!is_data) {
             for (const auto& ipath : fullPaths){
@@ -595,7 +595,7 @@ void HistoReader::ReadOneRegion(const int i_ch, const bool is_data) {
         TH1* h_orig = static_cast<TH1*>(h->Clone( Form("%s_orig",h->GetName())));
 
         // Importing the histogram in TRExFitter
-        std::shared_ptr<SampleHist> sh = fFitter->fRegions[i_ch]->SetSampleHist(ismp, h.get());
+        std::shared_ptr<SampleHist> sh = fFitter->fRegions[i_ch]->SetSampleHist(ismp.get(), h.get());
         sh->fHist_orig.reset(h_orig);
         sh->fHist_orig->SetName(Form("%s_orig",sh->fHist->GetName())); // fix the name
     
@@ -603,7 +603,7 @@ void HistoReader::ReadOneRegion(const int i_ch, const bool is_data) {
         if (!(ismp->fUseSystematics) && !is_data) continue;
     
         if (!is_data) {
-            ReadNormShape(sh.get(), i_ch, ismp);
+            ReadNormShape(sh.get(), i_ch, ismp.get());
         }
    
         for(const auto& isyst : ismp->fSystematics) {
@@ -626,7 +626,7 @@ void HistoReader::ReadOneRegion(const int i_ch, const bool is_data) {
             WriteDebugStatus("HistoReader::ReadHistograms", "Adding syst " + syst->fName);
             
             if (!is_data) {
-                if (SetSystematics(i_ch, ismp, isyst)) continue;
+                if (SetSystematics(i_ch, ismp.get(), isyst)) continue;
             }
             std::unique_ptr<TH1> hUp = GetSystHisto(i_ch, i_smp, syst, files_names, is_data, true);
             std::unique_ptr<TH1> hDown = GetSystHisto(i_ch, i_smp, syst, files_names, is_data, false);
@@ -722,7 +722,7 @@ std::unique_ptr<TH1> HistoReader::GetSystHisto(const int i_ch,
     
     if ((syst->fHasDownVariation && !is_up) || (syst->fHasUpVariation && is_up)) {
         const auto& fullPaths = fFitter->FullHistogramPaths(fFitter->fRegions[i_ch],
-                                                            fFitter->fSamples[i_smp],
+                                                            fFitter->fSamples[i_smp].get(),
                                                             syst,
                                                             is_up);
         
