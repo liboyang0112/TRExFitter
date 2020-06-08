@@ -263,7 +263,7 @@ void FoldingManager::PrepareFoldedDistributions(const TH1D* truth, const TH2D* r
 
     for (int itruth = 1; itruth <= nTruthBins; ++itruth) {
         // doing projection to get the bin edges correctly
-        TH1D* h = horizontal ? response->ProjectionY() : response->ProjectionX();
+        std::unique_ptr<TH1D> h = horizontal ? std::unique_ptr<TH1D>(response->ProjectionY()) : std::unique_ptr<TH1D>(response->ProjectionX());
         h->Reset();
         /// what to do with the uncertainties??
         fFoldedDistributions.emplace_back(*h);
