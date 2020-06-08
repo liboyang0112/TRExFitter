@@ -3,6 +3,7 @@
 
 #include "TRExFitter/HistoTools.h"
 
+#include <memory>
 #include <string>
 #include <vector>
 
@@ -33,11 +34,11 @@ public:
     inline void SetHasAcceptance(const bool a) {fHasAcceptance = a;}
     inline bool GetHasAcceptance() const {return fHasAcceptance;}
 
-    std::vector<Systematic*> ConvertToSystematic(const Region* reg,
-                                                 const int bins,
-                                                 const std::string& name,
-                                                 const std::string& unfoldingSampleName,
-                                                 std::vector<Sample*>& samples) const;
+    std::vector<std::shared_ptr<Systematic> > ConvertToSystematic(const Region* reg,
+                                                                  const int bins,
+                                                                  const std::string& name,
+                                                                  const std::string& unfoldingSampleName,
+                                                                  std::vector<std::shared_ptr<Sample> >& samples) const;
 
     std::vector<std::string> fRegions;
     std::vector<std::string> fSamples;

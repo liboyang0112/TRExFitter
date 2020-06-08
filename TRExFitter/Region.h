@@ -50,13 +50,13 @@ public:
     // Methods
     // -------
 
-    SampleHist* SetSampleHist(Sample *sample, std::string histoName, std::string fileName);
-    SampleHist* SetSampleHist(Sample *sample, TH1* hist );
-    SampleHist* GetSampleHist(const std::string &sampleName) const;
+    std::shared_ptr<SampleHist> SetSampleHist(Sample *sample, std::string histoName, std::string fileName);
+    std::shared_ptr<SampleHist> SetSampleHist(Sample *sample, TH1* hist );
+    std::shared_ptr<SampleHist> GetSampleHist(const std::string &sampleName) const;
 
     void BuildPreFitErrorHist();
     void SavePreFitUncertaintyAndTotalMCObjects();
-    std::unique_ptr<TRExPlot> DrawPreFit(const std::vector<int>& canvasSize, std::string opt="");
+    std::shared_ptr<TRExPlot> DrawPreFit(const std::vector<int>& canvasSize, std::string opt="");
     double GetMultFactors( FitResults* fitRes,
                            std::ofstream& pullTex,
                            const int i /*sample*/,
@@ -66,7 +66,7 @@ public:
                            const bool isUp = true) const;
 
     void BuildPostFitErrorHist(FitResults *fitRes, const std::vector<std::string>& morph_names);
-    std::unique_ptr<TRExPlot> DrawPostFit(FitResults* fitRes,
+    std::shared_ptr<TRExPlot> DrawPostFit(FitResults* fitRes,
                                           std::ofstream& pullTex,
                                           const std::vector<std::string>& morph_names,
                                           const std::vector<int>& canvasSize,
@@ -139,15 +139,15 @@ public:
     RegionType fRegionType;
     DataType fRegionDataType;
     bool fHasData;
-    SampleHist *fData;
+    std::shared_ptr<SampleHist> fData;
     bool fHasSig;
     int fNSig;
-    std::vector<SampleHist*> fSig;
+    std::vector<std::shared_ptr<SampleHist> > fSig;
     int fNBkg;
-    std::vector<SampleHist*> fBkg;
+    std::vector<std::shared_ptr<SampleHist> > fBkg;
     int fNSamples;
-    std::vector < std::unique_ptr<SampleHist> > fSampleHists;
-    std::vector < std::unique_ptr<Sample> > fSamples;
+    std::vector < std::shared_ptr<SampleHist> > fSampleHists;
+    std::vector < std::shared_ptr<Sample> > fSamples;
     double fYmaxScale;
     double fYmin;
     double fYmax;
@@ -234,8 +234,8 @@ public:
     std::vector<std::string> fHistoNameSuffs;
 
     // plot objects
-    std::unique_ptr<TRExPlot> fPlotPreFit;
-    std::unique_ptr<TRExPlot> fPlotPostFit;
+    std::shared_ptr<TRExPlot> fPlotPreFit;
+    std::shared_ptr<TRExPlot> fPlotPostFit;
 
     bool fUseStatErr;
 

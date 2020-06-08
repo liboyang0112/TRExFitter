@@ -98,7 +98,7 @@ class HistoReader {
           */
         bool SetSystematics(const int i_ch,
                             Sample* ismp,
-                            Systematic* syst);
+                            std::shared_ptr<Systematic> syst);
 
         /**
           * A heleper function to read systematic hists

@@ -1084,19 +1084,19 @@ void MultiFit::ComparePulls(string category) const{
     std::vector< string > Names;
     std::vector< string > Titles;
     std::vector< string > Categories;
-    string systName;
+    std::string systName;
     for(unsigned int i_fit=0;i_fit<N;i_fit++){
         if(fCombine && i_fit==N-1) break;
-        for(int i_syst=0;i_syst<fFitList[i_fit]->fNSyst;i_syst++){
-            systName = fFitList[i_fit]->fSystematics[i_syst]->fNuisanceParameter;
-            if(systName == "") systName = fFitList[i_fit]->fSystematics[i_syst]->fName;
+        for(const auto& isyst : fFitList[i_fit]->fSystematics) {
+            systName = isyst->fNuisanceParameter;
+            if(systName == "") systName = isyst->fName;
             if(Common::FindInStringVector(Names,systName)<0){
                 Names.push_back(systName);
-                Titles.push_back(fFitList[i_fit]->fSystematics[i_syst]->fTitle);
-                if(Common::FindInStringVector(fFitList[i_fit]->fDecorrSysts,fFitList[i_fit]->fSystematics[i_syst]->fName)>=0){
+                Titles.push_back(isyst->fTitle);
+                if(Common::FindInStringVector(fFitList[i_fit]->fDecorrSysts,isyst->fName)>=0){
                     Titles[Titles.size()-1] += fFitList[i_fit]->fDecorrSuff;
                 }
-                Categories.push_back(fFitList[i_fit]->fSystematics[i_syst]->fCategory);
+                Categories.push_back(isyst->fCategory);
             }
         }
     }
@@ -1344,13 +1344,13 @@ void MultiFit::CompareNormFactors(string category) const{
     std::vector< string > Categories;
     for(unsigned int i_fit=0;i_fit<N;i_fit++){
         if(fCombine && i_fit==N-1) break;
-        for(int i_norm=0;i_norm<fFitList[i_fit]->fNNorm;i_norm++){
-            const std::string normName = fFitList[i_fit]->fNormFactors[i_norm]->fName;
+        for(const auto& inorm : fFitList[i_fit]->fNormFactors) {
+            const std::string normName = inorm->fName;
             if(normName==fPOI) continue;
             if(Common::FindInStringVector(Names,normName)<0){
                 Names.push_back(normName);
-                Titles.push_back(fFitList[i_fit]->fNormFactors[i_norm]->fTitle);
-                Categories.push_back(fFitList[i_fit]->fNormFactors[i_norm]->fCategory);
+                Titles.push_back(inorm->fTitle);
+                Categories.push_back(inorm->fCategory);
             }
         }
     }
@@ -1586,7 +1586,7 @@ void MultiFit::ProduceNPRanking( string NPnames/*="all"*/ ) const{
     const std::string& inputData = fDataName;
 
     // create a list of Systematics
-    std::vector< Systematic* > vSystematics;
+    std::vector< std::shared_ptr<Systematic> > vSystematics;
     std::vector< std::string > Names;
     for(const auto& ifit : fFitList) {
         if (!ifit->fUseInFit) continue;
@@ -1600,7 +1600,7 @@ void MultiFit::ProduceNPRanking( string NPnames/*="all"*/ ) const{
     }
 
     // create a list of norm factors
-    std::vector< NormFactor* > vNormFactors;
+    std::vector< std::shared_ptr<NormFactor> > vNormFactors;
     std::vector< std::string > nfNames;
     for(const auto& ifit : fFitList) {
         if (!ifit->fUseInFit) continue;

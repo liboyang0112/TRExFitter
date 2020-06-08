@@ -22,22 +22,22 @@ UnfoldingSystematic::UnfoldingSystematic() :
 {
 }
 
-std::vector<Systematic*> UnfoldingSystematic::ConvertToSystematic(const Region* reg,
-                                                                  const int bins,
-                                                                  const std::string& name,
-                                                                  const std::string& unfoldingSampleName,
-                                                                  std::vector<Sample*>& samples) const {
+std::vector<std::shared_ptr<Systematic> > UnfoldingSystematic::ConvertToSystematic(const Region* reg,
+                                                                                   const int bins,
+                                                                                   const std::string& name,
+                                                                                   const std::string& unfoldingSampleName,
+                                                                                   std::vector<std::shared_ptr<Sample> >& samples) const {
 
     if (samples.size() < 1) {
         WriteErrorStatus("UnfoldingSystematic::ConvertToSystematic:", "Samples size < 1");
         exit(EXIT_FAILURE);
     }
 
-    std::vector<Systematic*> result;
+    std::vector<std::shared_ptr<Systematic> > result;
     for (int ibin = 0; ibin < bins; ++ibin) {
         const std::string sampleName = reg->fName + "_Truth_bin_" + std::to_string(ibin+1);
 
-        Systematic* syst = new Systematic(fName, fType);
+        std::shared_ptr<Systematic> syst = std::make_shared<Systematic>(fName, fType);
         if(fNuisanceParameter != ""){
             syst->fNuisanceParameter = fNuisanceParameter;
             TRExFitter::NPMAP[syst->fName] = syst->fNuisanceParameter;

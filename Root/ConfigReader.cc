@@ -508,7 +508,7 @@ int ConfigReader::ReadJobOptions(){
         param = confSet->Get("HistoName");
         if(param!=""){
             fFitter->fHistoNames.clear();
-            fFitter->fHistoNames.push_back( RemoveQuotes(param) );
+            fFitter->fHistoNames.emplace_back( RemoveQuotes(param) );
         }
         param = confSet->Get("HistoNames");
         if(param!=""){
@@ -517,12 +517,12 @@ int ConfigReader::ReadJobOptions(){
         param = confSet->Get("HistoNameNominal");
         if(param!=""){
           fFitter->fHistoNamesNominal.clear();
-          fFitter->fHistoNamesNominal.push_back( RemoveQuotes(param) );
+          fFitter->fHistoNamesNominal.emplace_back( RemoveQuotes(param) );
         }
         param = confSet->Get("HistoFile");
         if(param!=""){
             fFitter->fHistoFiles.clear();
-            fFitter->fHistoFiles.push_back( RemoveQuotes(param) );
+            fFitter->fHistoFiles.emplace_back( RemoveQuotes(param) );
         }
         param = confSet->Get("HistoFiles");
         if(param!=""){
@@ -865,7 +865,7 @@ int ConfigReader::ReadJobOptions(){
     param = confSet->Get("RegionGroups");
     if( param != "" ) {
         std::vector<std::string> groups = Vectorize(param,',');
-        for(const std::string& igroup : groups) fFitter->fRegionGroups.push_back(igroup);
+        for(const std::string& igroup : groups) fFitter->fRegionGroups.emplace_back(igroup);
     }
 
     // Set KeepPrefitBlindedBins
@@ -2153,7 +2153,7 @@ int ConfigReader::ReadRegionOptions(const std::string& opt){
         nReg++;
         if(fOnlyRegions.size()>0 && Common::FindInStringVector(fOnlyRegions,RemoveQuotes(confSet->GetValue()))<0) continue;
         if(fToExclude.size()>0 && Common::FindInStringVector(fToExclude,RemoveQuotes(confSet->GetValue()))>=0) continue;
-        fRegNames.push_back( CheckName(confSet->GetValue()) );
+        fRegNames.emplace_back( CheckName(confSet->GetValue()) );
         fRegions.emplace_back( CheckName(confSet->GetValue()) );
         Region *reg;
         reg = fFitter->NewRegion(CheckName(confSet->GetValue()));
@@ -2563,7 +2563,7 @@ int ConfigReader::ReadRegionOptions(const std::string& opt){
                     reg -> fTransfoDzBkg=Common::convertStoD(vec_bins[3]);
                     if(vec_bins.size()>4){
                         for(const std::string& ibkg : vec_bins){
-                            reg -> fAutoBinBkgsInSig.push_back(ibkg);
+                            reg -> fAutoBinBkgsInSig.emplace_back(ibkg);
                         }
                     }
                 }
@@ -2576,7 +2576,7 @@ int ConfigReader::ReadRegionOptions(const std::string& opt){
                     reg -> fTransfoFzBkg=Common::convertStoD(vec_bins[3]);
                     if(vec_bins.size()>4){
                         for(const std::string& ibkg : vec_bins){
-                            reg -> fAutoBinBkgsInSig.push_back(ibkg);
+                            reg -> fAutoBinBkgsInSig.emplace_back(ibkg);
                         }
                     }
                 }
@@ -2589,7 +2589,7 @@ int ConfigReader::ReadRegionOptions(const std::string& opt){
                     else reg -> fTransfoJpar3 = 5.;
                     if(vec_bins.size()>5){
                         for(const std::string& ibkg : vec_bins){
-                            reg -> fAutoBinBkgsInSig.push_back(ibkg);
+                            reg -> fAutoBinBkgsInSig.emplace_back(ibkg);
                         }
                     }
                 }
@@ -2684,7 +2684,7 @@ int ConfigReader::ReadRegionOptions(const std::string& opt){
             reg->fDropBins.clear();
             const std::vector<std::string>& s = Vectorize( param,',' );
             for(const std::string& is : s){
-                reg->fDropBins.push_back(atoi(is.c_str()));
+                reg->fDropBins.emplace_back(atoi(is.c_str()));
             }
         }
 
@@ -2746,7 +2746,7 @@ int ConfigReader::SetRegionHIST(Region* reg, ConfigSet *confSet){
     param = confSet->Get("HistoFile");
     if(param!=""){
         reg->fHistoFiles.clear();
-        reg->fHistoFiles.push_back( RemoveQuotes(param) );
+        reg->fHistoFiles.emplace_back( RemoveQuotes(param) );
     }
     // Set HistoFiles
     param = confSet->Get("HistoFiles");
@@ -2756,7 +2756,7 @@ int ConfigReader::SetRegionHIST(Region* reg, ConfigSet *confSet){
     param = confSet->Get("HistoName");
     if(param!=""){
         reg->fHistoNames.clear();
-        reg->fHistoNames.push_back( RemoveQuotes(param) );
+        reg->fHistoNames.emplace_back( RemoveQuotes(param) );
     }
     // Set HistoNames
     param = confSet->Get("HistoNames");
@@ -2766,7 +2766,7 @@ int ConfigReader::SetRegionHIST(Region* reg, ConfigSet *confSet){
     param = confSet->Get("HistoPath");
     if(param!=""){
         reg->fHistoPaths.clear();
-        reg->fHistoPaths.push_back( RemoveQuotes(param) );
+        reg->fHistoPaths.emplace_back( RemoveQuotes(param) );
     }
     // Set HistoFiles
     param = confSet->Get("HistoPaths");
@@ -2776,7 +2776,7 @@ int ConfigReader::SetRegionHIST(Region* reg, ConfigSet *confSet){
     param = confSet->Get("HistoFileSuff");
     if(param !=""){
         reg->fHistoFileSuffs.clear();
-        reg->fHistoFileSuffs.push_back( RemoveQuotes(param) );
+        reg->fHistoFileSuffs.emplace_back( RemoveQuotes(param) );
     }
     // Set HistoPathSuffs
     param = confSet->Get("HistoFileSuffs");
@@ -2784,7 +2784,7 @@ int ConfigReader::SetRegionHIST(Region* reg, ConfigSet *confSet){
         reg->fHistoFileSuffs.clear();
         std::vector<std::string> paths = Vectorize( param,',' );
         for(std::string ipath : paths){
-            reg->fHistoFileSuffs.push_back( RemoveQuotes(ipath) );
+            reg->fHistoFileSuffs.emplace_back( RemoveQuotes(ipath) );
         }
     }
 
@@ -2792,7 +2792,7 @@ int ConfigReader::SetRegionHIST(Region* reg, ConfigSet *confSet){
     param = confSet->Get("HistoNameSuff");
     if(param !=""){
         reg->fHistoNameSuffs.clear();
-        reg->fHistoNameSuffs.push_back( RemoveQuotes(param) );
+        reg->fHistoNameSuffs.emplace_back( RemoveQuotes(param) );
     }
     // Set HistoNameSuffs
     param = confSet->Get("HistoNameSuffs");
@@ -2800,7 +2800,7 @@ int ConfigReader::SetRegionHIST(Region* reg, ConfigSet *confSet){
         reg->fHistoNameSuffs.clear();
         std::vector<std::string> paths = Vectorize( param,',' );
         for(std::string ipath : paths){
-            reg->fHistoNameSuffs.push_back( RemoveQuotes(ipath) );
+            reg->fHistoNameSuffs.emplace_back( RemoveQuotes(ipath) );
         }
     }
 
@@ -2808,7 +2808,7 @@ int ConfigReader::SetRegionHIST(Region* reg, ConfigSet *confSet){
     param = confSet->Get("HistoPathSuff");
     if(param !=""){
         reg->fHistoPathSuffs.clear();
-        reg->fHistoPathSuffs.push_back( RemoveQuotes(param) );
+        reg->fHistoPathSuffs.emplace_back( RemoveQuotes(param) );
     }
     // Set HistoPathSuffs
     param = confSet->Get("HistoPathSuffs");
@@ -2816,7 +2816,7 @@ int ConfigReader::SetRegionHIST(Region* reg, ConfigSet *confSet){
         reg->fHistoPathSuffs.clear();
         std::vector<std::string> paths = Vectorize( param,',' );
         for(std::string ipath : paths){
-            reg->fHistoPathSuffs.push_back( RemoveQuotes(ipath) );
+            reg->fHistoPathSuffs.emplace_back( RemoveQuotes(ipath) );
         }
     }
 
@@ -2912,7 +2912,7 @@ int ConfigReader::SetRegionNTUP(Region* reg, ConfigSet *confSet){
     param = confSet->Get("NtupleFile");
     if(param!=""){
         reg->fNtupleFiles.clear();
-        reg->fNtupleFiles.push_back( RemoveQuotes(param) );
+        reg->fNtupleFiles.emplace_back( RemoveQuotes(param) );
     }
     // Set NtupleFiles
     param = confSet->Get("NtupleFiles");
@@ -2922,7 +2922,7 @@ int ConfigReader::SetRegionNTUP(Region* reg, ConfigSet *confSet){
     param = confSet->Get("NtupleFileSuff");
     if(param!="") {
         reg->fNtupleFileSuffs.clear();
-        reg->fNtupleFileSuffs.push_back( RemoveQuotes(param) );
+        reg->fNtupleFileSuffs.emplace_back( RemoveQuotes(param) );
     }
     // Set NtupleFileSuffs
     param = confSet->Get("NtupleFileSuffs");
@@ -2935,7 +2935,7 @@ int ConfigReader::SetRegionNTUP(Region* reg, ConfigSet *confSet){
     param = confSet->Get("NtupleName");
     if(param!="") {
         reg->fNtupleNames.clear();
-        reg->fNtupleNames.push_back( RemoveQuotes(param) );
+        reg->fNtupleNames.emplace_back( RemoveQuotes(param) );
     }
     // Set NtupleNames
     param = confSet->Get("NtupleNames");
@@ -2945,7 +2945,7 @@ int ConfigReader::SetRegionNTUP(Region* reg, ConfigSet *confSet){
     param = confSet->Get("NtupleNameSuff");
     if(param!="") {
         reg->fNtupleNameSuffs.clear();
-        reg->fNtupleNameSuffs.push_back( RemoveQuotes(param) );
+        reg->fNtupleNameSuffs.emplace_back( RemoveQuotes(param) );
     }
     // Set NtupleNameSuffs
     param = confSet->Get("NtupleNameSuffs");
@@ -2958,7 +2958,7 @@ int ConfigReader::SetRegionNTUP(Region* reg, ConfigSet *confSet){
     param = confSet->Get("NtuplePath");
     if(param!="") {
         reg->fNtuplePaths.clear();
-        reg->fNtuplePaths.push_back( RemoveQuotes(param) );
+        reg->fNtuplePaths.emplace_back( RemoveQuotes(param) );
     }
     // Set NtuplePaths
     param = confSet->Get("NtuplePaths");
@@ -2968,7 +2968,7 @@ int ConfigReader::SetRegionNTUP(Region* reg, ConfigSet *confSet){
     param = confSet->Get("NtuplePathSuff");
     if(param != "") {
         reg->fNtuplePathSuffs.clear();
-        reg->fNtuplePathSuffs.push_back( RemoveQuotes(param) );
+        reg->fNtuplePathSuffs.emplace_back( RemoveQuotes(param) );
     }
     // Set NtuplePathSuffs
     param = confSet->Get("NtuplePathSuffs");
@@ -3011,9 +3011,9 @@ int ConfigReader::ReadSampleOptions() {
         if (confSet == nullptr) break;
         nSmp++;
 
-        Sample *sample = nullptr;
-        NormFactor *nfactor = nullptr;
-        ShapeFactor *sfactor = nullptr;
+        std::shared_ptr<Sample> sample = nullptr;
+        std::shared_ptr<NormFactor> nfactor = nullptr;
+        std::shared_ptr<ShapeFactor> sfactor = nullptr;
         int type = 0;
         std::string param = "";
 
@@ -3083,7 +3083,7 @@ int ConfigReader::ReadSampleOptions() {
         if (fFitter->fInputType == 0){
             // Set HistoFile
             param = confSet->Get("HistoFile");
-            if(param!="") sample->fHistoFiles.push_back( RemoveQuotes(param) );
+            if(param!="") sample->fHistoFiles.emplace_back( RemoveQuotes(param) );
 
             // Set HistoFiles
             param = confSet->Get("HistoFiles");
@@ -3091,7 +3091,7 @@ int ConfigReader::ReadSampleOptions() {
 
             // Set HistoFileSuff
             param = confSet->Get("HistoFileSuff");
-            if(param!="") sample->fHistoFileSuffs.push_back( RemoveQuotes(param) );
+            if(param!="") sample->fHistoFileSuffs.emplace_back( RemoveQuotes(param) );
 
             // Set HistoFileSuffs
             param = confSet->Get("HistoFileSuffs");
@@ -3099,7 +3099,7 @@ int ConfigReader::ReadSampleOptions() {
 
             // Set HistoName
             param = confSet->Get("HistoName");
-            if(param!="") sample->fHistoNames.push_back( RemoveQuotes(param) );
+            if(param!="") sample->fHistoNames.emplace_back( RemoveQuotes(param) );
 
             // Set HistoNames
             param = confSet->Get("HistoNames");
@@ -3107,7 +3107,7 @@ int ConfigReader::ReadSampleOptions() {
 
             // Set HistoNameSuff
             param = confSet->Get("HistoNameSuff");
-            if(param!="") sample->fHistoNameSuffs.push_back( RemoveQuotes(param) );
+            if(param!="") sample->fHistoNameSuffs.emplace_back( RemoveQuotes(param) );
 
             // Set HistoNameSuffs
             param = confSet->Get("HistoNameSuffs");
@@ -3115,7 +3115,7 @@ int ConfigReader::ReadSampleOptions() {
 
             // Set HistoPath
             param = confSet->Get("HistoPath");
-            if(param!="") sample->fHistoPaths.push_back( RemoveQuotes(param) );
+            if(param!="") sample->fHistoPaths.emplace_back( RemoveQuotes(param) );
 
             // Set HistoPaths
             param = confSet->Get("HistoPaths");
@@ -3123,7 +3123,7 @@ int ConfigReader::ReadSampleOptions() {
 
             // Set HistoPathSuff
             param = confSet->Get("HistoPathSuff");
-            if(param!="") sample->fHistoPathSuffs.push_back( RemoveQuotes(param) );
+            if(param!="") sample->fHistoPathSuffs.emplace_back( RemoveQuotes(param) );
 
             // Set HistoPathSuffs
             param = confSet->Get("HistoPathSuffs");
@@ -3135,14 +3135,14 @@ int ConfigReader::ReadSampleOptions() {
         } else if (fFitter->fInputType == 1){ // NTUP input
             // Set NtupleFile
             param = confSet->Get("NtupleFile");
-            if(param!="") sample->fNtupleFiles.push_back( RemoveQuotes(param) );
+            if(param!="") sample->fNtupleFiles.emplace_back( RemoveQuotes(param) );
 
             // Set NtupleFiles
             param = confSet->Get("NtupleFiles");
             if(param!="") sample->fNtupleFiles = Vectorize( param ,',' );
 
             param = confSet->Get("NtupleFileSuff");
-            if(param!="") sample->fNtupleFileSuffs.push_back( RemoveQuotes(param) );
+            if(param!="") sample->fNtupleFileSuffs.emplace_back( RemoveQuotes(param) );
 
             // Set NtupleFileSuffs
             param = confSet->Get("NtupleFileSuffs");
@@ -3150,7 +3150,7 @@ int ConfigReader::ReadSampleOptions() {
 
             // Set NtupleName
             param = confSet->Get("NtupleName");
-            if(param!="") sample->fNtupleNames.push_back( RemoveQuotes(param) );
+            if(param!="") sample->fNtupleNames.emplace_back( RemoveQuotes(param) );
 
             // Set NtupleNames
             param = confSet->Get("NtupleNames");
@@ -3158,7 +3158,7 @@ int ConfigReader::ReadSampleOptions() {
 
             // Set NtupleNameSuff
             param = confSet->Get("NtupleNameSuff");
-            if(param!="") sample->fNtupleNameSuffs.push_back( RemoveQuotes(param) );
+            if(param!="") sample->fNtupleNameSuffs.emplace_back( RemoveQuotes(param) );
 
             // Set NtupleNameSuffs
             param = confSet->Get("NtupleNameSuffs");
@@ -3166,7 +3166,7 @@ int ConfigReader::ReadSampleOptions() {
 
             // Set NtuplePath
             param = confSet->Get("NtuplePath");
-            if(param!="") sample->fNtuplePaths.push_back( RemoveQuotes(param) );
+            if(param!="") sample->fNtuplePaths.emplace_back( RemoveQuotes(param) );
 
             // Set NtuplePaths
             param = confSet->Get("NtuplePaths");
@@ -3174,7 +3174,7 @@ int ConfigReader::ReadSampleOptions() {
 
             // Set NtuplePathSuff
             param = confSet->Get("NtuplePathSuff");
-            if(param!="") sample->fNtuplePathSuffs.push_back( RemoveQuotes(param) );
+            if(param!="") sample->fNtuplePathSuffs.emplace_back( RemoveQuotes(param) );
 
             // Set NtuplePathSuffs
             param = confSet->Get("NtuplePathSuffs");
@@ -3297,7 +3297,7 @@ int ConfigReader::ReadSampleOptions() {
             std::string regName = fFitter->fRegions[i_reg]->fName;
             if( (regions_str=="" || regions_str=="all" || Common::FindInStringVector(regions,regName)>=0)
                 && Common::FindInStringVector(exclude,regName)<0 ){
-                sample->fRegions.push_back( fFitter->fRegions[i_reg]->fName );
+                sample->fRegions.emplace_back( fFitter->fRegions[i_reg]->fName );
             }
         }
 
@@ -3333,9 +3333,8 @@ int ConfigReader::ReadSampleOptions() {
             }
             nfactor->fRegions = sample->fRegions;
             if( Common::FindInStringVector(fFitter->fNormFactorNames,nfactor->fName)<0 ){
-                fFitter->fNormFactors.push_back( nfactor );
-                fFitter->fNormFactorNames.push_back( nfactor->fName );
-                fFitter->fNNorm++;
+                fFitter->fNormFactors.emplace_back( nfactor );
+                fFitter->fNormFactorNames.emplace_back( nfactor->fName );
             }
         }
 
@@ -3371,22 +3370,21 @@ int ConfigReader::ReadSampleOptions() {
             }
             sfactor->fRegions = sample->fRegions;
             if( Common::FindInStringVector(fFitter->fShapeFactorNames,sfactor->fName)<0 ){
-                fFitter->fShapeFactors.push_back( sfactor );
-                fFitter->fShapeFactorNames.push_back( sfactor->fName );
-                fFitter->fNShape++;
+                fFitter->fShapeFactors.emplace_back( sfactor );
+                fFitter->fShapeFactorNames.emplace_back( sfactor->fName );
             }
         }
 
         // Set LumiScale
         param = confSet->Get("LumiScale");
-        if(param!="") sample->fLumiScales.push_back( atof(param.c_str()) );
+        if(param!="") sample->fLumiScales.emplace_back( atof(param.c_str()) );
 
         // Set LumiScales
         param = confSet->Get("LumiScales");
         if(param!=""){
             std::vector<std::string> lumiScales_str = Vectorize( param ,',' );
             for(const std::string& ilumiscale : lumiScales_str){
-                sample->fLumiScales.push_back( atof(ilumiscale.c_str()) );
+                sample->fLumiScales.emplace_back( atof(ilumiscale.c_str()) );
             }
         }
 
@@ -3478,7 +3476,7 @@ int ConfigReader::ReadSampleOptions() {
                     return 1;
                 }
             }
-            sample->fSubtractSamples.push_back( RemoveQuotes(param) );
+            sample->fSubtractSamples.emplace_back( RemoveQuotes(param) );
         }
 
         // Set SubtractSamples
@@ -3507,7 +3505,7 @@ int ConfigReader::ReadSampleOptions() {
                     return 1;
                 }
             }
-            sample->fAddSamples.push_back( RemoveQuotes(param) );
+            sample->fAddSamples.emplace_back( RemoveQuotes(param) );
         }
 
         // Set AddSamples
@@ -3614,7 +3612,7 @@ int ConfigReader::ReadSampleOptions() {
             for(std::string set : sets){
                 std::vector<std::string> regions_corr = Vectorize(set,':');
                 WriteDebugStatus("ConfigReader::ReadSampleOptions", "Correlating gammas for this sample in regions " + set);
-                sample->fCorrelateGammasInRegions.push_back(regions_corr);
+                sample->fCorrelateGammasInRegions.emplace_back(regions_corr);
             }
         }
 
@@ -3645,13 +3643,12 @@ int ConfigReader::ReadSampleOptions() {
                 if (!fFitter->MorphIsAlreadyPresent(name, value)) fFitter->AddTemplateWeight(name, value);
                 // set proper normalization
                 std::string morphName = "morph_"+name+"_"+Common::ReplaceString(std::to_string(value),"-","m");
-                NormFactor *nf = sample->AddNormFactor(morphName, 1, 0, 10, false);
-                fFitter->fNormFactors.push_back( nf );
-                fFitter->fNormFactorNames.push_back( nf->fName );
-                fFitter->fNNorm++;
+                std::shared_ptr<NormFactor> nf = sample->AddNormFactor(morphName, 1, 0, 10, false);
+                fFitter->fNormFactors.emplace_back( nf );
+                fFitter->fNormFactorNames.emplace_back( nf->fName );
                 sample->fIsMorph[name] = true;
                 sample->fMorphValue[name] = value;
-                if(Common::FindInStringVector(fFitter->fMorphParams,name)<0) fFitter->fMorphParams.push_back( name );
+                if(Common::FindInStringVector(fFitter->fMorphParams,name)<0) fFitter->fMorphParams.emplace_back( name );
             }
         }
 
@@ -3669,7 +3666,7 @@ int ConfigReader::ReadSampleOptions() {
                 }
             }
             WriteDebugStatus("ConfigReader::ReadSampleOptions", "Creating sample " + fFitter->fSamples[i_smp]->fAsimovReplacementFor.first);
-            Sample *ca = fFitter->NewSample("customAsimov_"+fFitter->fSamples[i_smp]->fAsimovReplacementFor.first,Sample::GHOST);
+            std::shared_ptr<Sample> ca = fFitter->NewSample("customAsimov_"+fFitter->fSamples[i_smp]->fAsimovReplacementFor.first,Sample::GHOST);
             ca->SetTitle("Pseudo-Data ("+fFitter->fSamples[i_smp]->fAsimovReplacementFor.first+")");
             ca->fUseSystematics = false;
         }
@@ -3684,8 +3681,7 @@ int ConfigReader::ReadNormFactorOptions(){
     std::string param = "";
 
     int nNorm = 0;
-    NormFactor *nfactor = nullptr;
-    Sample *sample = nullptr;
+    std::shared_ptr<Sample> sample = nullptr;
 
     while(true){
         ConfigSet *confSet = fParser->GetConfigSet("NormFactor", nNorm);
@@ -3730,13 +3726,12 @@ int ConfigReader::ReadNormFactorOptions(){
             }
         }
 
-        nfactor = new NormFactor(CheckName(confSet->GetValue()));
+        std::shared_ptr<NormFactor> nfactor = std::make_shared<NormFactor>(CheckName(confSet->GetValue()));
 
         TRExFitter::SYSTMAP[nfactor->fName] = nfactor->fName;
         if( Common::FindInStringVector(fFitter->fNormFactorNames,nfactor->fName)<0 ){
-            fFitter->fNormFactors.push_back( nfactor );
-            fFitter->fNormFactorNames.push_back( nfactor->fName );
-            fFitter->fNNorm++;
+            fFitter->fNormFactors.emplace_back( nfactor );
+            fFitter->fNormFactorNames.emplace_back( nfactor->fName );
         }
         else{
             nfactor = fFitter->fNormFactors[ Common::FindInStringVector(fFitter->fNormFactorNames,nfactor->fName) ];
@@ -3807,7 +3802,7 @@ int ConfigReader::ReadNormFactorOptions(){
             nfactor->fNuisanceParameter = v[1];
             TRExFitter::NPMAP[nfactor->fName] = v[1];
             // set nominal, min and max according to the norm factor the expression depends on FIXME
-            for(NormFactor *nf : fFitter->fNormFactors){
+            for(const auto& nf : fFitter->fNormFactors){
                 if(nf->fNuisanceParameter == v[1]){
                     nfactor->fNominal = nf->fNominal;
                     nfactor->fMin = nf->fMin;
@@ -3851,8 +3846,7 @@ int ConfigReader::ReadNormFactorOptions(){
 int ConfigReader::ReadShapeFactorOptions(){
     std::string param = "";
     int nShape = 0;
-    ShapeFactor *sfactor = nullptr;
-    Sample *sample = nullptr;
+    std::shared_ptr<Sample> sample = nullptr;
 
     while(true){
         ConfigSet *confSet = fParser->GetConfigSet("ShapeFactor",nShape);
@@ -3896,11 +3890,10 @@ int ConfigReader::ReadShapeFactorOptions(){
             }
         }
 
-        sfactor = new ShapeFactor(CheckName(confSet->GetValue()));
+        std::shared_ptr<ShapeFactor> sfactor = std::make_shared<ShapeFactor>(CheckName(confSet->GetValue()));
         if( Common::FindInStringVector(fFitter->fShapeFactorNames,sfactor->fName)<0 ){
-            fFitter->fShapeFactors.push_back( sfactor );
-            fFitter->fShapeFactorNames.push_back( sfactor->fName );
-            fFitter->fNShape++;
+            fFitter->fShapeFactors.emplace_back( sfactor );
+            fFitter->fShapeFactorNames.emplace_back( sfactor->fName );
         }
         else{
             sfactor = fFitter->fShapeFactors[ Common::FindInStringVector(fFitter->fShapeFactorNames,sfactor->fName) ];
@@ -3992,18 +3985,17 @@ int ConfigReader::ReadSystOptions(){
 
     int nSys = 0;
 
-    Sample *sample = nullptr;
+    std::shared_ptr<Sample> sample = nullptr;
     //Addition for StatOnly fit: dummy systematic for the significance computation and limit setting
     if (fFitter->fStatOnly) {
         int typed = Systematic::OVERALL;
-        Systematic *sysd = new Systematic("Dummy",typed);
+        std::shared_ptr<Systematic> sysd = std::make_shared<Systematic>("Dummy",typed);
         sysd->fOverallUp   = 0.;
         sysd->fOverallDown = -0.;
         sysd->fScaleUp   = 1.;
         sysd->fScaleDown   = 1.;
-        fFitter->fSystematics.push_back( sysd );
+        fFitter->fSystematics.emplace_back( sysd );
         TRExFitter::SYSTMAP[sysd->fName] = "Dummy";
-        fFitter->fNSyst++;
         for(int i_smp=0;i_smp<fFitter->fNSamples;i_smp++){
             sample = fFitter->fSamples[i_smp];
             if(sample->fType == Sample::SIGNAL ) {
@@ -4018,7 +4010,6 @@ int ConfigReader::ReadSystOptions(){
         nSys++;
 
         std::string param = "";
-        Systematic *sys = nullptr;
         if(fOnlySystematics.size()>0 && Common::FindInStringVector(fOnlySystematics,CheckName(confSet->GetValue()))<0) continue;
         if(fToExclude.size()>0 && Common::FindInStringVector(fToExclude,CheckName(confSet->GetValue()))>=0) continue;
         std::string samples_str = confSet->Get("Samples");
@@ -4080,7 +4071,7 @@ int ConfigReader::ReadSystOptions(){
 
         std::string decorrelate = confSet->Get("Decorrelate");
 
-        sys = new Systematic(CheckName(confSet->GetValue()),type);
+        std::shared_ptr<Systematic> sys = std::make_shared<Systematic>(CheckName(confSet->GetValue()),type);
         TRExFitter::SYSTMAP[sys->fName] = sys->fTitle;
         if(param == "OVERALL") sys->fIsNormOnly=true;
 
@@ -4158,12 +4149,12 @@ int ConfigReader::ReadSystOptions(){
             if(fFitter->fInputType==0){ // HIST input
                 param = confSet->Get("HistoPathUp");
                 if(param!=""){
-                    sys->fHistoPathsUp.push_back(RemoveQuotes(param));
+                    sys->fHistoPathsUp.emplace_back(RemoveQuotes(param));
                     hasUp   = true;
                 }
                 param = confSet->Get("HistoPathDown");
                 if(param!=""){
-                    sys->fHistoPathsDown.push_back(RemoveQuotes(param));
+                    sys->fHistoPathsDown.emplace_back(RemoveQuotes(param));
                     hasDown = true;
                 }
                 param = confSet->Get("HistoPathSufUp");
@@ -4178,12 +4169,12 @@ int ConfigReader::ReadSystOptions(){
                 }
                 param = confSet->Get("HistoFileUp");
                 if(param!=""){
-                    sys->fHistoFilesUp.push_back(RemoveQuotes(param));
+                    sys->fHistoFilesUp.emplace_back(RemoveQuotes(param));
                     hasUp   = true;
                 }
                 param = confSet->Get("HistoFileDown");
                 if(param!=""){
-                    sys->fHistoFilesDown.push_back(RemoveQuotes(param));
+                    sys->fHistoFilesDown.emplace_back(RemoveQuotes(param));
                     hasDown = true;
                 }
                 param = confSet->Get("HistoFilesUp");
@@ -4208,12 +4199,12 @@ int ConfigReader::ReadSystOptions(){
                 }
                 param = confSet->Get("HistoNameUp");
                 if(param!=""){
-                    sys->fHistoNamesUp.push_back(RemoveQuotes(param));
+                    sys->fHistoNamesUp.emplace_back(RemoveQuotes(param));
                     hasUp   = true;
                 }
                 param = confSet->Get("HistoNameDown");
                 if(param!=""){
-                    sys->fHistoNamesDown.push_back(RemoveQuotes(param));
+                    sys->fHistoNamesDown.emplace_back(RemoveQuotes(param));
                     hasDown = true;
                 }
                 param = confSet->Get("HistoNameSufUp");
@@ -4229,12 +4220,12 @@ int ConfigReader::ReadSystOptions(){
                 // For reference file when using systematics on it - like JER on data
                 param = confSet->Get("HistoPathUpRefSample");
                 if(param!=""){
-                    sys->fHistoPathsUpRefSample.push_back(RemoveQuotes(param));
+                    sys->fHistoPathsUpRefSample.emplace_back(RemoveQuotes(param));
                     hasUp   = true;
                 }
                 param = confSet->Get("HistoPathDownRefSample");
                 if(param!=""){
-                    sys->fHistoPathsDownRefSample.push_back(RemoveQuotes(param));
+                    sys->fHistoPathsDownRefSample.emplace_back(RemoveQuotes(param));
                     hasDown   = true;
                 }
                 param = confSet->Get("HistoPathsUpRefSample");
@@ -4259,12 +4250,12 @@ int ConfigReader::ReadSystOptions(){
                 }
                 param = confSet->Get("HistoFileUpRefSample");
                 if(param!=""){
-                    sys->fHistoFilesUpRefSample.push_back(RemoveQuotes(param));
+                    sys->fHistoFilesUpRefSample.emplace_back(RemoveQuotes(param));
                     hasUp   = true;
                 }
                 param = confSet->Get("HistoFileDownRefSample");
                 if(param!=""){
-                    sys->fHistoFilesDownRefSample.push_back(RemoveQuotes(param));
+                    sys->fHistoFilesDownRefSample.emplace_back(RemoveQuotes(param));
                     hasDown = true;
                 }
                 param = confSet->Get("HistoFilesUpRefSample");
@@ -4299,12 +4290,12 @@ int ConfigReader::ReadSystOptions(){
                 }
                 param = confSet->Get("HistoNameUpRefSample");
                 if(param!=""){
-                    sys->fHistoNamesUpRefSample.push_back(RemoveQuotes(param));
+                    sys->fHistoNamesUpRefSample.emplace_back(RemoveQuotes(param));
                     hasUp   = true;
                 }
                 param = confSet->Get("HistoNameDownRefSample");
                 if(param!=""){
-                    sys->fHistoNamesDown.push_back(RemoveQuotes(param));
+                    sys->fHistoNamesDown.emplace_back(RemoveQuotes(param));
                     hasDown = true;
                 }
                 param = confSet->Get("HistoNamesUpRefSample");
@@ -4331,12 +4322,12 @@ int ConfigReader::ReadSystOptions(){
             else if(fFitter->fInputType==1){ // NTUP option
                 param = confSet->Get("NtuplePathUp");
                 if(param!=""){
-                    sys->fNtuplePathsUp.push_back(RemoveQuotes(param));
+                    sys->fNtuplePathsUp.emplace_back(RemoveQuotes(param));
                     hasUp   = true;
                 }
                 param = confSet->Get("NtuplePathDown");
                 if(param!=""){
-                    sys->fNtuplePathsDown.push_back(RemoveQuotes(param));
+                    sys->fNtuplePathsDown.emplace_back(RemoveQuotes(param));
                     hasDown = true;
                 }
                 param = confSet->Get("NtuplePathsUp");
@@ -4361,12 +4352,12 @@ int ConfigReader::ReadSystOptions(){
                 }
                 param = confSet->Get("NtupleFileUp");
                 if(param!=""){
-                    sys->fNtupleFilesUp.push_back(RemoveQuotes(param));
+                    sys->fNtupleFilesUp.emplace_back(RemoveQuotes(param));
                     hasUp   = true;
                 }
                 param = confSet->Get("NtupleFileDown");
                 if(param!=""){
-                    sys->fNtupleFilesDown.push_back(RemoveQuotes(param));
+                    sys->fNtupleFilesDown.emplace_back(RemoveQuotes(param));
                     hasDown = true;
                 }
                 param = confSet->Get("NtupleFilesUp");
@@ -4391,12 +4382,12 @@ int ConfigReader::ReadSystOptions(){
                 }
                 param = confSet->Get("NtupleNameUp");
                 if(param!=""){
-                    sys->fNtupleNamesUp.push_back(RemoveQuotes(param));
+                    sys->fNtupleNamesUp.emplace_back(RemoveQuotes(param));
                     hasUp   = true;
                 }
                 param = confSet->Get("NtupleNameDown");
                 if(param!=""){
-                    sys->fNtupleNamesDown.push_back(RemoveQuotes(param));
+                    sys->fNtupleNamesDown.emplace_back(RemoveQuotes(param));
                     hasDown = true;
                 }
                 param = confSet->Get("NtupleNamesUp");
@@ -4446,12 +4437,12 @@ int ConfigReader::ReadSystOptions(){
                 // For reference file when using systematics on it - like JER on data
                 param = confSet->Get("NtuplePathUpRefSample");
                 if(param!=""){
-                    sys->fNtuplePathsUpRefSample.push_back( RemoveQuotes(param) );
+                    sys->fNtuplePathsUpRefSample.emplace_back( RemoveQuotes(param) );
                     hasUp   = true;
                 }
                 param = confSet->Get("NtuplePathDownRefSample");
                 if(param!=""){
-                    sys->fNtuplePathsDownRefSample.push_back( RemoveQuotes(param) );
+                    sys->fNtuplePathsDownRefSample.emplace_back( RemoveQuotes(param) );
                     hasDown = true;
                 }
                 param = confSet->Get("NtuplePathsUpRefSample");
@@ -4476,12 +4467,12 @@ int ConfigReader::ReadSystOptions(){
                 }
                 param = confSet->Get("NtupleFileUpRefSample");
                 if(param!=""){
-                    sys->fNtupleFilesUpRefSample.push_back( RemoveQuotes(param) );
+                    sys->fNtupleFilesUpRefSample.emplace_back( RemoveQuotes(param) );
                     hasUp   = true;
                 }
                 param = confSet->Get("NtupleFileDownRefSample");
                 if(param!=""){
-                    sys->fNtupleFilesDownRefSample.push_back( RemoveQuotes(param) );
+                    sys->fNtupleFilesDownRefSample.emplace_back( RemoveQuotes(param) );
                     hasDown = true;
                 }
                 param = confSet->Get("NtupleFilesUpRefSample");
@@ -4506,12 +4497,12 @@ int ConfigReader::ReadSystOptions(){
                 }
                 param = confSet->Get("NtupleNameUpRefSample");
                 if(param!=""){
-                    sys->fNtupleNamesUpRefSample.push_back( RemoveQuotes(param) );
+                    sys->fNtupleNamesUpRefSample.emplace_back( RemoveQuotes(param) );
                     hasUp   = true;
                 }
                 param = confSet->Get("NtupleNameDownRefSample");
                 if(param!=""){
-                    sys->fNtupleNamesDownRefSample.push_back( RemoveQuotes(param) );
+                    sys->fNtupleNamesDownRefSample.emplace_back( RemoveQuotes(param) );
                     hasDown = true;
                 }
                 param = confSet->Get("NtupleNamesUpRefSample");
@@ -4853,7 +4844,7 @@ int ConfigReader::ReadSystOptions(){
         for (std::string ier : fExcludeRegionSample){
             std::vector<std::string> pair_ERS = Vectorize(ier,':');
             if (pair_ERS.size()==2){
-                sys->fExcludeRegionSample.push_back(pair_ERS);
+                sys->fExcludeRegionSample.emplace_back(pair_ERS);
             }
         }
         if ( decorrelate == "" && type != Systematic::STAT) {
@@ -4882,11 +4873,10 @@ int ConfigReader::ReadSystOptions(){
 
 //__________________________________________________________________________________
 //
-int ConfigReader::SetSystNoDecorelate(ConfigSet *confSet, Systematic *sys, const std::vector<std::string>& samples, const std::vector<std::string>& exclude){
-    Sample *sam = nullptr;
+int ConfigReader::SetSystNoDecorelate(ConfigSet *confSet, std::shared_ptr<Systematic> sys, const std::vector<std::string>& samples, const std::vector<std::string>& exclude){
+    std::shared_ptr<Sample> sam = nullptr;
 
-    fFitter->fSystematics.push_back( sys );
-    fFitter->fNSyst++;
+    fFitter->fSystematics.emplace_back( sys );
 
     // Set NuisanceParameter
     std::string param = confSet->Get("NuisanceParameter");
@@ -4941,12 +4931,12 @@ int ConfigReader::SetSystNoDecorelate(ConfigSet *confSet, Systematic *sys, const
 //__________________________________________________________________________________
 //
 int ConfigReader::SetSystRegionDecorelate(ConfigSet *confSet,
-                                          Systematic *sys,
+                                          std::shared_ptr<Systematic> sys,
                                           const std::vector<std::string>& samples,
                                           const std::vector<std::string>& exclude,
                                           const std::vector<std::string>& regions,
                                           int type) {
-    Sample *sam = nullptr;
+    std::shared_ptr<Sample> sam = nullptr;
     std::string param = "";
 
     for(const auto& ireg : fRegNames) {
@@ -4974,15 +4964,15 @@ int ConfigReader::SetSystRegionDecorelate(ConfigSet *confSet,
             WriteInfoStatus("ConfigReader::SetSystRegionDecorelate", ireg + " " + std::to_string(nbins));
             // decorrelate by bin
             for (unsigned int i_bin = 0; i_bin < nbins; i_bin++) {
-                Systematic* mySys= new Systematic(*sys);
+                std::shared_ptr<Systematic> mySys = std::make_shared<Systematic>(*sys);
                 mySys->fName=(mySys->fName)+"_"+ireg+"_bin"+std::to_string(i_bin);
                 std::vector<std::string> tmpReg;
-                tmpReg.push_back( ireg );
+                tmpReg.emplace_back( ireg );
                 mySys->fRegions = tmpReg;
                 std::vector<int> tmpBin;
-                tmpBin.push_back( i_bin );
+                tmpBin.emplace_back( i_bin );
                 mySys->fBins = tmpBin;
-                fFitter->fSystematics.push_back( mySys );
+                fFitter->fSystematics.emplace_back( mySys );
 
                 // Set NuisanceParameter
                 param = confSet->Get("NuisanceParameter");
@@ -5002,7 +4992,6 @@ int ConfigReader::SetSystRegionDecorelate(ConfigSet *confSet,
                     mySys->fTitle = RemoveQuotes(param)+" ("+reg->fLabel+", bin "+std::to_string(i_bin)+")";
                     TRExFitter::SYSTMAP[mySys->fName] = mySys->fTitle;
                 }
-                fFitter->fNSyst++;
                 for (int i_smp=0;i_smp<fFitter->fNSamples;i_smp++){
                     sam = fFitter->fSamples[i_smp];
                     if(sam->fType == Sample::DATA) continue;
@@ -5018,12 +5007,12 @@ int ConfigReader::SetSystRegionDecorelate(ConfigSet *confSet,
         } else {
             //
             // cloning the sys for each region
-            Systematic* mySys= new Systematic(*sys);
+            std::shared_ptr<Systematic> mySys = std::make_shared<Systematic>(*sys);
             mySys->fName=(mySys->fName)+"_"+ireg;
             std::vector<std::string> tmpReg;
-            tmpReg.push_back( ireg );
+            tmpReg.emplace_back( ireg );
             mySys->fRegions = tmpReg;
-            fFitter->fSystematics.push_back( mySys );
+            fFitter->fSystematics.emplace_back( mySys );
 
             // Set NuisanceParameter
             param = confSet->Get("NuisanceParameter");
@@ -5044,7 +5033,6 @@ int ConfigReader::SetSystRegionDecorelate(ConfigSet *confSet,
                 mySys->fTitle = RemoveQuotes(param)+" ("+reg->fLabel+")";
                 TRExFitter::SYSTMAP[mySys->fName] = mySys->fTitle;
             }
-            fFitter->fNSyst++;
             //
             for(int i_smp=0;i_smp<fFitter->fNSamples;i_smp++){
                 sam = fFitter->fSamples[i_smp];
@@ -5065,15 +5053,13 @@ int ConfigReader::SetSystRegionDecorelate(ConfigSet *confSet,
         }
     }
 
-    delete sys;
-
     return 0;
 }
 
 //__________________________________________________________________________________
 //
-int ConfigReader::SetSystSampleDecorelate(ConfigSet *confSet, Systematic *sys, const std::vector<std::string> &samples, const std::vector<std::string> &exclude){
-    Sample *sam = nullptr;
+int ConfigReader::SetSystSampleDecorelate(ConfigSet *confSet, std::shared_ptr<Systematic> sys, const std::vector<std::string> &samples, const std::vector<std::string> &exclude){
+    std::shared_ptr<Sample> sam = nullptr;
     std::string param = "";
 
     // (this is really messy)
@@ -5100,9 +5086,9 @@ int ConfigReader::SetSystSampleDecorelate(ConfigSet *confSet, Systematic *sys, c
         WriteInfoStatus("ConfigReader::SetSystSampleDecorelate", " --> KEEPING SAMPLE: " + sam->fName);
         //
         // cloning the sys for each sample
-        Systematic* mySys= new Systematic(*sys);
+        std::shared_ptr<Systematic> mySys = std::make_shared<Systematic>(*sys);
         mySys->fName=(mySys->fName)+"_"+sam->fName;
-        fFitter->fSystematics.push_back( mySys );
+        fFitter->fSystematics.emplace_back( mySys );
 
         // Set NuisanceParameter
         param = confSet->Get("NuisanceParameter");
@@ -5123,7 +5109,6 @@ int ConfigReader::SetSystSampleDecorelate(ConfigSet *confSet, Systematic *sys, c
             mySys->fTitle = RemoveQuotes(param)+" "+sam->fTitle;
             TRExFitter::SYSTMAP[mySys->fName] = mySys->fTitle;
         }
-        fFitter->fNSyst++;
 
         // Add sample/syst cross-reference
         sam->AddSystematic(mySys);
@@ -5132,21 +5117,19 @@ int ConfigReader::SetSystSampleDecorelate(ConfigSet *confSet, Systematic *sys, c
         FixReferenceSamples(mySys);
     }
 
-    delete sys;
-
     return 0;
 }
 
 //__________________________________________________________________________________
 //
-int ConfigReader::SetSystShapeDecorelate(ConfigSet *confSet, Systematic *sys, const std::vector<std::string> &samples, const std::vector<std::string> &exclude){
-    Sample *sam = nullptr;
+int ConfigReader::SetSystShapeDecorelate(ConfigSet *confSet, std::shared_ptr<Systematic> sys, const std::vector<std::string> &samples, const std::vector<std::string> &exclude){
+    std::shared_ptr<Sample> sam = nullptr;
     std::string param = "";
 
     // cloning the sys
-    Systematic* mySys1= new Systematic(*sys);
+    std::shared_ptr<Systematic> mySys1 = std::make_shared<Systematic>(*sys);
     mySys1->fName=(mySys1->fName)+"_Acc";
-    fFitter->fSystematics.push_back( mySys1 );
+    fFitter->fSystematics.emplace_back( mySys1 );
     mySys1->fIsNormOnly = true;
     mySys1->fIsShapeOnly = false;
 
@@ -5169,7 +5152,6 @@ int ConfigReader::SetSystShapeDecorelate(ConfigSet *confSet, Systematic *sys, co
         mySys1->fTitle = RemoveQuotes(param)+" Acc.";
         TRExFitter::SYSTMAP[mySys1->fName] = mySys1->fTitle;
     }
-    fFitter->fNSyst++;
 
     for(int i_smp=0;i_smp<fFitter->fNSamples;i_smp++){
         sam = fFitter->fSamples[i_smp];
@@ -5190,12 +5172,12 @@ int ConfigReader::SetSystShapeDecorelate(ConfigSet *confSet, Systematic *sys, co
 
     if ( sys->fType!=Systematic::OVERALL ) {
         // cloning the sys
-        Systematic* mySys2= new Systematic(*sys);
+        std::shared_ptr<Systematic> mySys2 = std::make_shared<Systematic>(*sys);
         mySys2->fName=(mySys2->fName)+"_Shape";
         mySys2->fIsNormOnly=false;
         mySys2->fIsShapeOnly=true;
 
-        fFitter->fSystematics.push_back( mySys2 );
+        fFitter->fSystematics.emplace_back( mySys2 );
 
         //Set NuisanceParameter
         param = confSet->Get("NuisanceParameter");
@@ -5216,7 +5198,6 @@ int ConfigReader::SetSystShapeDecorelate(ConfigSet *confSet, Systematic *sys, co
             mySys2->fTitle = RemoveQuotes(param)+" Shape";
             TRExFitter::SYSTMAP[mySys2->fName] = mySys2->fTitle;
         }
-        fFitter->fNSyst++;
 
         for(int i_smp=0;i_smp<fFitter->fNSamples;i_smp++){
             sam = fFitter->fSamples[i_smp];
@@ -5229,8 +5210,6 @@ int ConfigReader::SetSystShapeDecorelate(ConfigSet *confSet, Systematic *sys, co
         }
         FixReferenceSamples(mySys2);
     }
-
-    delete sys;
 
     return 0;
 }
@@ -5253,11 +5232,11 @@ int ConfigReader::PostConfig(const std::string& opt){
     }
 
     // add nuisance parameter - systematic title correspondence
-    for(auto syst : fFitter->fSystematics){
+    for(const auto& syst : fFitter->fSystematics){
         if(syst->fNuisanceParameter!=syst->fName) TRExFitter::SYSTMAP[syst->fNuisanceParameter] = syst->fTitle;
     }
     // add nuisance parameter - norm-factor title correspondence & fix nuisance parameter
-    for(auto norm : fFitter->fNormFactors){
+    for(const auto& norm : fFitter->fNormFactors){
         if(TRExFitter::NPMAP[norm->fName]=="") TRExFitter::NPMAP[norm->fName] = norm->fName;
         if(norm->fNuisanceParameter!=norm->fName) TRExFitter::SYSTMAP[norm->fNuisanceParameter] = norm->fTitle;
     }
@@ -5321,11 +5300,10 @@ int ConfigReader::PostConfig(const std::string& opt){
     if(fFitter->fSaturatedModel){
         for(auto reg : fFitter->fRegions){
             std::string sfactorName = "saturated_model_sf_" + reg->fName;
-            ShapeFactor *sfactor = new ShapeFactor(sfactorName);
+            std::shared_ptr<ShapeFactor> sfactor = std::make_shared<ShapeFactor>(sfactorName);
             if( Common::FindInStringVector(fFitter->fShapeFactorNames,sfactor->fName)<0 ){
-                fFitter->fShapeFactors.push_back( sfactor );
-                fFitter->fShapeFactorNames.push_back( sfactor->fName );
-                fFitter->fNShape++;
+                fFitter->fShapeFactors.emplace_back( sfactor );
+                fFitter->fShapeFactorNames.emplace_back( sfactor->fName );
             }
             else{
                 sfactor = fFitter->fShapeFactors[ Common::FindInStringVector(fFitter->fShapeFactorNames,sfactor->fName) ];
@@ -5345,11 +5323,13 @@ int ConfigReader::PostConfig(const std::string& opt){
             // set nbins
             sfactor->fNbins = reg->fNbins;
             // save list of
-            sfactor->fRegions.push_back(reg->fName);
+            sfactor->fRegions.emplace_back(reg->fName);
             // attach the syst to all non-data samples
             for(auto sample : fFitter->fSamples){
                 if(sample->fType == Sample::DATA) continue;
-                sample->AddShapeFactor(sfactor);
+                if (Common::FindInStringVector(sample->fRegions,reg->fName) >= 0) {
+                    sample->AddShapeFactor(sfactor);
+                }
             }
         }
     }
@@ -6995,7 +6975,7 @@ int ConfigReader::ProcessUnfoldingSamples() {
                 Common::FindInStringVector(isample->fRegions, ireg->fName) < 0) continue;
 
             // Convert the UnfoldingSample to sample and adjust the paths
-            const std::vector<Sample*> samples = isample->ConvertToSample(ireg, fFitter->fNumberUnfoldingTruthBins, fFitter->fName);
+            const std::vector<std::shared_ptr<Sample> > samples = isample->ConvertToSample(ireg, fFitter->fNumberUnfoldingTruthBins, fFitter->fName);
             fFitter->fSamples.insert(fFitter->fSamples.end(), samples.begin(), samples.end());
             fFitter->fNSamples += fFitter->fNumberUnfoldingTruthBins;
         }
@@ -7043,13 +7023,13 @@ int ConfigReader::ProcessUnfoldingSystematics() {
                 exit(EXIT_FAILURE);
             }
 
-            const std::vector<Systematic*> systs = isyst->ConvertToSystematic(ireg,
-                                                                              fFitter->fNumberUnfoldingTruthBins,
-                                                                              fFitter->fName,
-                                                                              unfoldingSampleName,
-                                                                              fFitter->fSamples);
+            const std::vector<std::shared_ptr<Systematic> > systs = isyst->ConvertToSystematic(ireg,
+                                                                                               fFitter->fNumberUnfoldingTruthBins,
+                                                                                               fFitter->fName,
+                                                                                               unfoldingSampleName,
+                                                                                               fFitter->fSamples);
+
             fFitter->fSystematics.insert(fFitter->fSystematics.end(), systs.begin(), systs.end());
-            fFitter->fNSyst += fFitter->fNumberUnfoldingTruthBins;
         }
     }
 
@@ -7062,14 +7042,13 @@ int ConfigReader::AddUnfoldingNormFactors() {
 
     for (int i = 0; i < fFitter->fNumberUnfoldingTruthBins; ++i) {
         const std::string name = "Bin_" + std::to_string(i+1);
-        NormFactor* nf = new NormFactor(name);
+        std::shared_ptr<NormFactor> nf = std::make_shared<NormFactor>(name);
 
         TRExFitter::SYSTMAP[nf->fName] = nf->fName;
 
         if(Common::FindInStringVector(fFitter->fNormFactorNames, nf->fName) < 0) {
            fFitter->fNormFactors.emplace_back(nf);
            fFitter->fNormFactorNames.emplace_back(nf->fName);
-           fFitter->fNNorm++;
         }
 
         nf->fNuisanceParameter = nf->fName;
@@ -7120,7 +7099,7 @@ int ConfigReader::AddUnfoldingNormFactors() {
 
 //__________________________________________________________________________________
 //
-void ConfigReader::FixReferenceSamples(Systematic* sys) const {
+void ConfigReader::FixReferenceSamples(std::shared_ptr<Systematic> sys) const {
 
     if (sys->fHistoPathsUpRefSample.size()     == 0) sys->fHistoPathsUpRefSample     = sys->fHistoPathsUp;
     if (sys->fHistoPathsDownRefSample.size()   == 0) sys->fHistoPathsDownRefSample   = sys->fHistoPathsDown;

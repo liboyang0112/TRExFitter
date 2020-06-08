@@ -28,7 +28,6 @@ void NtupleReader::ReadNtuples(){
     std::string fullSelection;
     std::string fullMCweight;
     std::vector<std::string> fullPaths;
-    SampleHist *sh;
     //
     // Import custom functions from .C files
     //
@@ -74,10 +73,10 @@ void NtupleReader::ReadNtuples(){
             // read nominal
             //
             // set variables, selection, weight and paths
-            variable      = fFitter->Variable(       fFitter->fRegions[i_ch],fFitter->fSamples[i_smp]);
-            fullSelection = fFitter->FullSelection(  fFitter->fRegions[i_ch],fFitter->fSamples[i_smp]);
-            fullMCweight  = fFitter->FullWeight(     fFitter->fRegions[i_ch],fFitter->fSamples[i_smp]);
-            fullPaths     = fFitter->FullNtuplePaths(fFitter->fRegions[i_ch],fFitter->fSamples[i_smp]);
+            variable      = fFitter->Variable(       fFitter->fRegions[i_ch],fFitter->fSamples[i_smp].get());
+            fullSelection = fFitter->FullSelection(  fFitter->fRegions[i_ch],fFitter->fSamples[i_smp].get());
+            fullMCweight  = fFitter->FullWeight(     fFitter->fRegions[i_ch],fFitter->fSamples[i_smp].get());
+            fullPaths     = fFitter->FullNtuplePaths(fFitter->fRegions[i_ch],fFitter->fSamples[i_smp].get());
             //
             h = nullptr;
             for(unsigned int i_path=0;i_path<fullPaths.size();i_path++){
@@ -121,7 +120,7 @@ void NtupleReader::ReadNtuples(){
             TH1* h_orig = static_cast<TH1*>(h->Clone( Form("%s_orig",h->GetName()) ));
             //
             // Importing the histogram in TRExFitter
-            sh = fFitter->fRegions[i_ch]->SetSampleHist( fFitter->fSamples[i_smp], h );
+            std::shared_ptr<SampleHist> sh = fFitter->fRegions[i_ch]->SetSampleHist( fFitter->fSamples[i_smp].get(), h );
             sh->fHist_orig.reset(h_orig);
             sh->fHist_orig->SetName( Form("%s_orig",sh->fHist->GetName()) ); // fix the name
 
@@ -129,40 +128,38 @@ void NtupleReader::ReadNtuples(){
             //  -----------------------------------
             //
             // read norm factors
-            for(int i_norm=0;i_norm<fFitter->fSamples[i_smp]->fNNorm;i_norm++){
-                NormFactor *nf = fFitter->fSamples[i_smp]->fNormFactors[i_norm].get();
+            for(const auto& inorm : fFitter->fSamples[i_smp]->fNormFactors) {
                 //
                 // eventually skip norm factor / region combination
-                if( nf->fRegions.size()>0 && Common::FindInStringVector(nf->fRegions,fFitter->fRegions[i_ch]->fName)<0  ) continue;
-                if( nf->fExclude.size()>0 && Common::FindInStringVector(nf->fExclude,fFitter->fRegions[i_ch]->fName)>=0 ) continue;
+                if(inorm->fRegions.size()>0 && Common::FindInStringVector(inorm->fRegions,fFitter->fRegions[i_ch]->fName)<0  ) continue;
+                if(inorm->fExclude.size()>0 && Common::FindInStringVector(inorm->fExclude,fFitter->fRegions[i_ch]->fName)>=0 ) continue;
                 //
-                WriteDebugStatus("NtupleReader::ReadNtuples", "Adding norm " + nf->fName);
+                WriteDebugStatus("NtupleReader::ReadNtuples", "Adding norm " + inorm->fName);
                 //
-                sh->AddNormFactor( nf );
+                sh->AddNormFactor(inorm);
             }
 
             //
             //  -----------------------------------
             //
             // read shape factors
-            for(int i_shape=0;i_shape<fFitter->fSamples[i_smp]->fNShape;i_shape++){
-                ShapeFactor *sf = fFitter->fSamples[i_smp]->fShapeFactors[i_shape].get();
+            for(const auto& ishape : fFitter->fSamples[i_smp]->fShapeFactors) {
                 //
                 // eventually skip shape factor / region combination
-                if( sf->fRegions.size()>0 && Common::FindInStringVector(sf->fRegions,fFitter->fRegions[i_ch]->fName)<0  ) continue;
-                if( sf->fExclude.size()>0 && Common::FindInStringVector(sf->fExclude,fFitter->fRegions[i_ch]->fName)>=0 ) continue;
+                if(ishape->fRegions.size()>0 && Common::FindInStringVector(ishape->fRegions,fFitter->fRegions[i_ch]->fName)<0  ) continue;
+                if(ishape->fExclude.size()>0 && Common::FindInStringVector(ishape->fExclude,fFitter->fRegions[i_ch]->fName)>=0 ) continue;
                 //
-                WriteDebugStatus("NtupleReader::ReadNtuples", "Adding shape " + sf->fName);
+                WriteDebugStatus("NtupleReader::ReadNtuples", "Adding shape " + ishape->fName);
                 //
-                sh->AddShapeFactor( sf );
+                sh->AddShapeFactor(ishape);
             }
 
             //
             //  -----------------------------------
             //
             // read systematics (Shape and Histo)
-            for(int i_syst=0;i_syst<fFitter->fSamples[i_smp]->fNSyst;i_syst++){
-                Systematic * syst = fFitter->fSamples[i_smp]->fSystematics[i_syst].get();
+            for(const auto& isyst : fFitter->fSamples[i_smp]->fSystematics) {
+                Systematic * syst = isyst.get();
                 //
                 // eventually skip systematic / region combination
                 if( syst->fRegions.size()>0 && Common::FindInStringVector(syst->fRegions,fFitter->fRegions[i_ch]->fName)<0  ) continue;
@@ -174,12 +171,12 @@ void NtupleReader::ReadNtuples(){
                 WriteDebugStatus("NtupleReader::ReadNtuples", "Adding syst " + syst->fName);
                 //
                 Region *reg = fFitter->fRegions[i_ch];
-                Sample *smp = fFitter->fSamples[i_smp];
+                std::shared_ptr<Sample> smp = fFitter->fSamples[i_smp];
                 //
                 // if Overall only ...
                 if(syst->fType==Systematic::OVERALL){
-                    SystematicHist *syh = reg->GetSampleHist(smp->fName)->AddOverallSyst(syst->fName,syst->fStoredName,syst->fOverallUp,syst->fOverallDown);
-                    syh->fSystematic = syst;
+                    std::shared_ptr<SystematicHist> syh = reg->GetSampleHist(smp->fName)->AddOverallSyst(syst->fName,syst->fStoredName,syst->fOverallUp,syst->fOverallDown);
+                    syh->fSystematic = isyst;
                     syh->fScaleUp = syst->fScaleUp;
                     if(syst->fScaleUpRegions.size()!=0)
                         if(syst->fScaleUpRegions[reg->fName]!=0)
@@ -192,8 +189,8 @@ void NtupleReader::ReadNtuples(){
                 }
                 // if Stat uncertainty on MC sample
                 if(syst->fType == Systematic::STAT){
-                    SystematicHist *syh = reg->GetSampleHist(smp->fName)->AddStatSyst(syst->fName,syst->fStoredName,syst->fBins[0]);
-                    syh->fSystematic = syst;
+                    std::shared_ptr<SystematicHist> syh = reg->GetSampleHist(smp->fName)->AddStatSyst(syst->fName,syst->fStoredName,syst->fBins[0]);
+                    syh->fSystematic = isyst;
                     continue;
                 }
                 // else ...
@@ -201,8 +198,8 @@ void NtupleReader::ReadNtuples(){
                     WriteInfoStatus("NtupleReader::ReadNtuples", "Systematic " + syst->fName + " set as dummy for sample " + smp->fName + " (region " + reg->fName + ")");
                     hUp   = (TH1D*)sh->fHist->Clone(Form("h_%s_%s_%sUp",  reg->fName.c_str(),smp->fName.c_str(),syst->fStoredName.c_str()));
                     hDown = (TH1D*)sh->fHist->Clone(Form("h_%s_%s_%sDown",reg->fName.c_str(),smp->fName.c_str(),syst->fStoredName.c_str()));
-                    SystematicHist *syh = sh->AddHistoSyst(syst->fName,syst->fStoredName,hUp,hDown);
-                    syh->fSystematic = syst;
+                    std::shared_ptr<SystematicHist> syh = sh->AddHistoSyst(syst->fName,syst->fStoredName,hUp,hDown);
+                    syh->fSystematic = isyst;
                     syh->fScaleUp = syst->fScaleUp;
                     if(syst->fScaleUpRegions.size()!=0)
                         if(syst->fScaleUpRegions[reg->fName]!=0)
@@ -229,8 +226,8 @@ void NtupleReader::ReadNtuples(){
                 hUp = nullptr;
                 if(syst->fHasUpVariation){
                     // set variables, selection, weight and paths
-                    fullMCweight  = fFitter->FullWeight(     fFitter->fRegions[i_ch],fFitter->fSamples[i_smp],syst,true);
-                    fullPaths     = fFitter->FullNtuplePaths(fFitter->fRegions[i_ch],fFitter->fSamples[i_smp],syst,true);
+                    fullMCweight  = fFitter->FullWeight(     fFitter->fRegions[i_ch],fFitter->fSamples[i_smp].get(),syst,true);
+                    fullPaths     = fFitter->FullNtuplePaths(fFitter->fRegions[i_ch],fFitter->fSamples[i_smp].get(),syst,true);
                     WriteDebugStatus("NtupleReader::ReadNtuples", "  Syst Up full weight: " + fullMCweight);
                     for(unsigned int i_path=0;i_path<fullPaths.size();i_path++){
                         TH1D* htmp = nullptr;
@@ -332,8 +329,8 @@ void NtupleReader::ReadNtuples(){
                 //
                 hDown = nullptr;
                 if(syst->fHasDownVariation){
-                    fullMCweight  = fFitter->FullWeight(     fFitter->fRegions[i_ch],fFitter->fSamples[i_smp],syst,false);
-                    fullPaths     = fFitter->FullNtuplePaths(fFitter->fRegions[i_ch],fFitter->fSamples[i_smp],syst,false);
+                    fullMCweight  = fFitter->FullWeight(     fFitter->fRegions[i_ch],fFitter->fSamples[i_smp].get(),syst,false);
+                    fullPaths     = fFitter->FullNtuplePaths(fFitter->fRegions[i_ch],fFitter->fSamples[i_smp].get(),syst,false);
                     for(unsigned int i_path=0;i_path<fullPaths.size();i_path++){
                         TH1D* htmp = nullptr;
                         if(reg->fHistoBins.size() > 0){
@@ -421,17 +418,19 @@ void NtupleReader::ReadNtuples(){
                 if(hUp==nullptr)   hUp   = static_cast<TH1D*>(reg->GetSampleHist(fFitter->fSamples[i_smp]->fName )->fHist.get());
                 if(hDown==nullptr) hDown = static_cast<TH1D*>(reg->GetSampleHist(fFitter->fSamples[i_smp]->fName )->fHist.get());
                 //
-                SystematicHist *syh = sh->AddHistoSyst(fFitter->fSamples[i_smp]->fSystematics[i_syst]->fName,
-                                                       fFitter->fSamples[i_smp]->fSystematics[i_syst]->fStoredName,hUp,hDown);
-                syh->fSystematic = fFitter->fSamples[i_smp]->fSystematics[i_syst].get();
-                syh->fScaleUp = fFitter->fSamples[i_smp]->fSystematics[i_syst]->fScaleUp;
-                if(fFitter->fSamples[i_smp]->fSystematics[i_syst]->fScaleUpRegions.size()!=0)
-                    if(fFitter->fSamples[i_smp]->fSystematics[i_syst]->fScaleUpRegions[reg->fName]!=0)
-                        syh->fScaleUp *= fFitter->fSamples[i_smp]->fSystematics[i_syst]->fScaleUpRegions[reg->fName];
-                syh->fScaleDown = fFitter->fSamples[i_smp]->fSystematics[i_syst]->fScaleDown;
-                if(fFitter->fSamples[i_smp]->fSystematics[i_syst]->fScaleDownRegions.size()!=0)
-                    if(fFitter->fSamples[i_smp]->fSystematics[i_syst]->fScaleDownRegions[reg->fName]!=0)
-                        syh->fScaleDown *= fFitter->fSamples[i_smp]->fSystematics[i_syst]->fScaleDownRegions[reg->fName];
+                std::shared_ptr<SystematicHist> syh = sh->AddHistoSyst(isyst->fName,
+                                                                       isyst->fStoredName,
+                                                                       hUp,
+                                                                       hDown);
+                syh->fSystematic = isyst;
+                syh->fScaleUp = isyst->fScaleUp;
+                if(isyst->fScaleUpRegions.size()!=0)
+                    if(isyst->fScaleUpRegions[reg->fName]!=0)
+                        syh->fScaleUp *= isyst->fScaleUpRegions[reg->fName];
+                syh->fScaleDown = isyst->fScaleDown;
+                if(isyst->fScaleDownRegions.size()!=0)
+                    if(isyst->fScaleDownRegions[reg->fName]!=0)
+                        syh->fScaleDown *= isyst->fScaleDownRegions[reg->fName];
             }
         }
     }
@@ -455,9 +454,9 @@ void NtupleReader::DefineVariable(int regIter){
         WriteDebugStatus("NtupleReader::DefineVariable", " -> is used in the considered region");
         //
         // set selection, weight and paths (no variables)
-        fullSelection = fFitter->FullSelection(  fFitter->fRegions[regIter],fFitter->fSamples[i_smp]);
-        fullMCweight  = fFitter->FullWeight(     fFitter->fRegions[regIter],fFitter->fSamples[i_smp]);
-        fullPaths     = fFitter->FullNtuplePaths(fFitter->fRegions[regIter],fFitter->fSamples[i_smp]);
+        fullSelection = fFitter->FullSelection(  fFitter->fRegions[regIter],fFitter->fSamples[i_smp].get());
+        fullMCweight  = fFitter->FullWeight(     fFitter->fRegions[regIter],fFitter->fSamples[i_smp].get());
+        fullPaths     = fFitter->FullNtuplePaths(fFitter->fRegions[regIter],fFitter->fSamples[i_smp].get());
         //
         for(unsigned int i_path=0;i_path<fullPaths.size();i_path++){
             WriteDebugStatus("TRExFit::DefineVariable", " -> Retrieving : " + fFitter->fRegions[regIter]->fCorrVar1 +

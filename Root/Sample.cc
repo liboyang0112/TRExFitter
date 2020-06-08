@@ -40,9 +40,6 @@ Sample::Sample(const std::string& name,int type) :
     fBuildPullTable(0),
     fSelection("1"),
     fMCweight("1"),
-    fNSyst(0),
-    fNNorm(0),
-    fNShape(0),
     fSeparateGammas(false),
     fMCstatScale(1.),
     fCorrelateGammasWithSample(""),
@@ -128,30 +125,27 @@ void Sample::AddHistoName(const std::string& name){
 
 //__________________________________________________________________________________
 // norm factors and systs
-void Sample::AddNormFactor(NormFactor* normFactor){
+void Sample::AddNormFactor(std::shared_ptr<NormFactor> normFactor){
     fNormFactors.emplace_back(normFactor);
-    fNNorm ++;
 }
 
 //__________________________________________________________________________________
 //
-void Sample::AddShapeFactor(ShapeFactor* shapeFactor){
+void Sample::AddShapeFactor(std::shared_ptr<ShapeFactor> shapeFactor){
     fShapeFactors.emplace_back(shapeFactor);
-    fNShape ++;
 }
 
 //__________________________________________________________________________________
 //
-void Sample::AddSystematic(Systematic* syst){
+void Sample::AddSystematic(std::shared_ptr<Systematic> syst){
     fSystematics.emplace_back(syst);
-    fNSyst++;
 }
 
 //__________________________________________________________________________________
 //
 bool Sample::HasSystematic(const std::string& name) const{
-    for(int i_syst=0;i_syst<fNSyst;i_syst++){
-        if(fSystematics[i_syst]->fName==name) return true;
+    for(const auto& isyst : fSystematics) {
+        if(isyst->fName==name) return true;
     }
     return false;
 }
@@ -159,8 +153,8 @@ bool Sample::HasSystematic(const std::string& name) const{
 //__________________________________________________________________________________
 //
 bool Sample::HasNuisanceParameter(const std::string& name) const{
-    for(int i_syst=0;i_syst<fNSyst;i_syst++){
-        if(fSystematics[i_syst]->fNuisanceParameter==name) return true;
+    for(const auto& isyst : fSystematics) {
+        if(isyst->fNuisanceParameter==name) return true;
     }
     return false;
 }
@@ -168,32 +162,29 @@ bool Sample::HasNuisanceParameter(const std::string& name) const{
 //__________________________________________________________________________________
 //
 bool Sample::HasNormFactor(const std::string& name) const{
-    for(int i_norm=0;i_norm<fNNorm;i_norm++){
-        if(fNormFactors[i_norm]->fName==name) return true;
+    for(const auto& inorm : fNormFactors) {
+        if(inorm->fName==name) return true;
     }
     return false;
 }
 
 //__________________________________________________________________________________
 //
-NormFactor* Sample::AddNormFactor(const std::string& name,double nominal,double min,double max,bool isConst){
+std::shared_ptr<NormFactor> Sample::AddNormFactor(const std::string& name,double nominal,double min,double max,bool isConst){
     fNormFactors.emplace_back(new NormFactor(name,nominal,min,max,isConst));
-    fNNorm ++;
-    return fNormFactors[fNNorm-1].get();
+    return fNormFactors.back();
 }
 
 //__________________________________________________________________________________
 //
-ShapeFactor* Sample::AddShapeFactor(const std::string& name,double nominal,double min,double max,bool isConst){
+std::shared_ptr<ShapeFactor> Sample::AddShapeFactor(const std::string& name,double nominal,double min,double max,bool isConst){
     fShapeFactors.emplace_back(new ShapeFactor(name,nominal,min,max,isConst));
-    fNShape ++;
-    return fShapeFactors[fNShape-1].get();
+    return fShapeFactors.back();
 }
 
 //__________________________________________________________________________________
 //
-Systematic* Sample::AddSystematic(const std::string& name,int type,double up,double down){
+std::shared_ptr<Systematic> Sample::AddSystematic(const std::string& name,int type,double up,double down){
     fSystematics.emplace_back(new Systematic(name,type,up,down));
-    fNSyst++;
-    return fSystematics[fNSyst-1].get();
+    return fSystematics.back();
 }

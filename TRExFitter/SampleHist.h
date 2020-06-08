@@ -37,20 +37,20 @@ public:
 
     TH1* GetHist() const;
     const Sample* GetSample() const {return fSample;}
-    SystematicHist* AddOverallSyst(const std::string& name,const std::string& storedName,double up,double down);
-    SystematicHist* AddStatSyst(const std::string& name,const std::string& storedName,int i_bin);
-    SystematicHist* AddHistoSyst(const std::string& name,const std::string& storedName,TH1* h_up,TH1* h_down);
-    SystematicHist* AddHistoSyst(const std::string& name,const std::string& storedName, const std::string& histoName_up,
-                                 const std::string& fileName_up, const std::string& histoName_down,
-                                 const std::string& fileName_down, int pruned=0);
-    SystematicHist* GetSystematic(const std::string& systName) const;
-    SystematicHist* GetSystFromNP(const std::string& NuisParName) const;
-    NormFactor* AddNormFactor(const std::string& name,double nominal, double min, double max);
-    NormFactor* AddNormFactor(NormFactor *normFactor);
-    NormFactor* GetNormFactor(const std::string& name) const;
-    ShapeFactor* AddShapeFactor(const std::string& name,double nominal, double min, double max);
-    ShapeFactor* AddShapeFactor(ShapeFactor *shapeFactor);
-    ShapeFactor* GetShapeFactor(const std::string& name) const;
+    std::shared_ptr<SystematicHist> AddOverallSyst(const std::string& name,const std::string& storedName,double up,double down);
+    std::shared_ptr<SystematicHist> AddStatSyst(const std::string& name,const std::string& storedName,int i_bin);
+    std::shared_ptr<SystematicHist> AddHistoSyst(const std::string& name,const std::string& storedName,TH1* h_up,TH1* h_down);
+    std::shared_ptr<SystematicHist> AddHistoSyst(const std::string& name,const std::string& storedName, const std::string& histoName_up,
+                                                 const std::string& fileName_up, const std::string& histoName_down,
+                                                 const std::string& fileName_down, int pruned=0);
+    std::shared_ptr<SystematicHist> GetSystematic(const std::string& systName) const;
+    std::shared_ptr<SystematicHist> GetSystFromNP(const std::string& NuisParName) const;
+    std::shared_ptr<NormFactor> AddNormFactor(const std::string& name,double nominal, double min, double max);
+    std::shared_ptr<NormFactor> AddNormFactor(std::shared_ptr<NormFactor> normFactor);
+    std::shared_ptr<NormFactor> GetNormFactor(const std::string& name) const;
+    std::shared_ptr<ShapeFactor> AddShapeFactor(const std::string& name,double nominal, double min, double max);
+    std::shared_ptr<ShapeFactor> AddShapeFactor(std::shared_ptr<ShapeFactor> shapeFactor);
+    std::shared_ptr<ShapeFactor> GetShapeFactor(const std::string& name) const;
 
     bool HasSyst(const std::string& name) const;
     bool HasNorm(const std::string& name) const;
@@ -115,12 +115,7 @@ public:
     bool fIsSig;
     std::map<std::string,bool> fIsMorph;
 
-    int fNSyst;
-    std::vector < std::unique_ptr<SystematicHist> > fSyst;
-    int fNNorm;
-    std::vector < std::unique_ptr<NormFactor> > fNormFactors;
-    int fNShape;
-    std::vector < std::unique_ptr<ShapeFactor> > fShapeFactors;
+    std::vector < std::shared_ptr<SystematicHist> > fSyst;
 
     // other useful info
     std::string fFitName;
