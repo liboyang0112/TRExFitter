@@ -57,7 +57,7 @@ namespace TRExFitter{
     extern int NCPU;
     //
     extern std::map< std::string, double > OPTION;
-    extern std::map<std::string, TFile* > TFILEMAP;
+    extern std::map<std::string, std::shared_ptr<TFile> > TFILEMAP;
     extern bool GUESSMCSTATERROR;
     extern bool CORRECTNORMFORNEGATIVEINTEGRAL;
 }
@@ -71,7 +71,7 @@ enum BlindingType {
   SOVERSQRTSPLUSB = 4
 };
 
-TFile* GetFile(const std::string& fileName);
+std::shared_ptr<TFile> GetFile(const std::string& fileName);
 TH1D* HistFromNtuple(const std::string& ntuple, const std::string& variable, int nbin, double xmin, double xmax, const std::string& selection, const std::string& weight, int Nev=-1);
 TH1D* HistFromNtupleBinArr(const std::string& ntuple, const std::string& variable, int nbin, double *bins, const std::string& selection, const std::string& weight, int Nev=-1);
 std::unique_ptr<TH1> HistFromFile(const std::string& fullName);
@@ -79,7 +79,7 @@ std::unique_ptr<TH1> HistFromFile(const std::string& fileName, const std::string
 std::unique_ptr<TH2> Hist2DFromFile(const std::string& fullName);
 std::unique_ptr<TH2> Hist2DFromFile(const std::string& fileName, const std::string& histoName);
 void WriteHistToFile(TH1* h, const std::string& fileName, const std::string& option="UPDATE");
-void WriteHistToFile(TH1* h, TFile *f);
+void WriteHistToFile(TH1* h, std::shared_ptr<TFile> f);
 void MergeUnderOverFlow(TH1* h);
 std::vector<std::string> CreatePathsList(std::vector<std::string> paths, std::vector<std::string> pathSufs,
                                          std::vector<std::string> files, std::vector<std::string> fileSufs,

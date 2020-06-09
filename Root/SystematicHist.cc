@@ -58,7 +58,7 @@ SystematicHist::~SystematicHist(){
 
 //_____________________________________________________________________________
 //
-void SystematicHist::WriteToFile(TFile *f,bool reWriteOrig) const{
+void SystematicHist::WriteToFile(std::shared_ptr<TFile> f,bool reWriteOrig) const{
     if(f==nullptr){
         Common::WriteHistToFile(fHistUp.get(),fFileNameUp);
         Common::WriteHistToFile(fHistDown.get(),fFileNameDown);

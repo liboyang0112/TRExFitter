@@ -420,7 +420,7 @@ bool SampleHist::HasShapeFactor(const std::string& name) const{
 
 //_____________________________________________________________________________
 //
-void SampleHist::WriteToFile(TFile *f,bool reWriteOrig){
+void SampleHist::WriteToFile(std::shared_ptr<TFile> f,bool reWriteOrig){
     if(f==nullptr){
         if(fHist_orig!=nullptr && reWriteOrig)   Common::WriteHistToFile(fHist_orig.get(), fFileName);
         if(fHist!=nullptr)        Common::WriteHistToFile(fHist.get(), fFileName);

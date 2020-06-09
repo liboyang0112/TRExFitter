@@ -623,8 +623,8 @@ void TRExFit::WriteHistos(bool reWriteOrig) const{
                     sh->fSyst[i_syst]->fHistoNameShapeDown = sh->fSyst[i_syst]->fHistShapeDown->GetName();
                 }
             }
-            if(singleOutputFile) sh->WriteToFile(fFiles[0].get()   ,reWriteOrig);
-            else                 sh->WriteToFile(fFiles[i_ch].get(),reWriteOrig);
+            if(singleOutputFile) sh->WriteToFile(fFiles[0]   ,reWriteOrig);
+            else                 sh->WriteToFile(fFiles[i_ch],reWriteOrig);
         }
     }
     WriteInfoStatus("TRExFit::WriteHistos","-------------------------------------------");
@@ -1275,11 +1275,10 @@ void TRExFit::CloseInputFiles(){
     // Close all input files
     for(auto& it : TRExFitter::TFILEMAP){
         TDirectory *dir = gDirectory;
-        TFile *f = it.second;
+        std::shared_ptr<TFile> f = it.second;
         if(f) {
             dir->cd();
             f->Close();
-            delete f;
         }
     }
     TRExFitter::TFILEMAP.clear();

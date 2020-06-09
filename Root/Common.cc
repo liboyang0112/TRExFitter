@@ -68,7 +68,7 @@ std::vector <std::string> TRExFitter::IMAGEFORMAT;
 int TRExFitter::NCPU = 1;
 //
 std::map<std::string,double> TRExFitter::OPTION;
-std::map<std::string, TFile* > TRExFitter::TFILEMAP;
+std::map<std::string, std::shared_ptr<TFile> > TRExFitter::TFILEMAP;
 
 //----------------------------------------------------------------------------------
 //----------------------------------------------------------------------------------
@@ -164,13 +164,13 @@ TH1D* Common::HistFromNtupleBinArr(const std::string& ntuple,
 
 //__________________________________________________________________________________
 //
-TFile* Common::GetFile(const std::string& fileName) {
+std::shared_ptr<TFile> Common::GetFile(const std::string& fileName) {
     auto it = TRExFitter::TFILEMAP.find(fileName);
     if(it != TRExFitter::TFILEMAP.end()) return it->second;
     else {
-       auto f = TFile::Open(fileName.c_str());
-       TFile* result = f;
-       TRExFitter::TFILEMAP.insert(std::pair<std::string, TFile* >(fileName,f));
+       std::shared_ptr<TFile> f(TFile::Open(fileName.c_str()));
+       std::shared_ptr<TFile> result = f;
+       TRExFitter::TFILEMAP.insert(std::pair<std::string, std::shared_ptr<TFile> >(fileName,f));
        return result;
     }
 }
@@ -193,7 +193,7 @@ std::unique_ptr<TH1> Common::HistFromFile(const std::string& fileName,
     if (fileName.find("customAsimov") != std::string::npos) hasCustomAsimov = true;
     WriteVerboseStatus("Common::HistFromFile", "  Extracting histogram    " + histoName + "  from file    " + fileName + "    ...");
     std::unique_ptr<TH1> h = nullptr;
-    TFile *f = Common::GetFile(fileName);
+    std::shared_ptr<TFile> f = Common::GetFile(fileName);
     if(!f){
             WriteErrorStatus("Common::HistFromFile", "cannot find input file '" + fileName + "'");
             return nullptr;
@@ -225,7 +225,7 @@ std::unique_ptr<TH2> Common::Hist2DFromFile(const std::string& fileName,
     if(histoName=="") return nullptr;
     WriteVerboseStatus("Common::Hist2DFromFile", "  Extracting histogram    " + histoName + "  from file    " + fileName + "    ...");
     std::unique_ptr<TH2> h = nullptr;
-    TFile *f = Common::GetFile(fileName);
+    std::shared_ptr<TFile> f = Common::GetFile(fileName);
     if(!f){
             WriteErrorStatus("Common::Hist2DFromFile", "cannot find input file '" + fileName + "'");
             return nullptr;
@@ -255,7 +255,7 @@ void Common::WriteHistToFile(TH1* h,
 //__________________________________________________________________________________
 //
 void Common::WriteHistToFile(TH1* h,
-                             TFile *f) {
+                             std::shared_ptr<TFile> f) {
     TDirectory *dir = gDirectory;
     f->cd();
     h->Write("",TObject::kOverwrite);
