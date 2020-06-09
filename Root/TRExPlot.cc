@@ -407,6 +407,7 @@ void TRExPlot::Draw(std::string options){
         hasData = false;
         h_data = (TH1D*)h_tot->Clone("dummyData");//tajes data = total
         h_data->SetTitle("Asimov Data");
+        h_data->SetDirectory(nullptr);
         g_data = new TGraphAsymmErrors(h_data);
     }
 
