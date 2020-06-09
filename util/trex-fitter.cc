@@ -248,6 +248,7 @@ void FitExample(std::string opt="h",std::string configFile="config/myFit.config"
         myFit->WriteHistos();
         if(TRExFitter::SYSTCONTROLPLOTS) myFit->DrawSystPlots();
         if(TRExFitter::SYSTDATAPLOT)     myFit->DrawSystPlotsSumSamples();
+        myFit->CloseInputFiles();
     }
     else if(readNtuples){
         std::cout << "Reading ntuples..." << std::endl;

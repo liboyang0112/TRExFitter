@@ -58,7 +58,7 @@ SystematicHist::~SystematicHist(){
 
 //_____________________________________________________________________________
 //
-void SystematicHist::WriteToFile(TFile *f,bool reWriteOrig) const{
+void SystematicHist::WriteToFile(std::shared_ptr<TFile> f,bool reWriteOrig) const{
     if(f==nullptr){
         Common::WriteHistToFile(fHistUp.get(),fFileNameUp);
         Common::WriteHistToFile(fHistDown.get(),fFileNameDown);
@@ -189,7 +189,6 @@ void SystematicHist::Add(SystematicHist *syh,double scale){
           std::unique_ptr<TH1> htemp (static_cast<TH1*>(syh->fHistUp->Clone("hDummyShapeUp")));
           htemp->Scale(1.0/(1.0+syh->fNormUp));
           fHistShapeUp->Add(htemp.get(),scale);
-          htemp.reset(nullptr);
         }
     }
     fHistDown->Add(syh->fHistDown.get(),scale);
@@ -199,7 +198,6 @@ void SystematicHist::Add(SystematicHist *syh,double scale){
           std::unique_ptr<TH1> htemp (static_cast<TH1*>(syh->fHistDown->Clone("hDummyShapeDown")));
           htemp->Scale(1.0/(1.0+syh->fNormDown));
           fHistShapeDown->Add(htemp.get(),scale);
-          htemp.reset(nullptr);
         }
     }
 }

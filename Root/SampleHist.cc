@@ -78,6 +78,8 @@ SampleHist::SampleHist(Sample *sample,TH1 *hist) :
     fHist->SetLineWidth(1);
 
     fHist_orig = std::unique_ptr<TH1>(static_cast<TH1*>(fHist->Clone(Form("%s_orig",fHist->GetName()))));
+    fHist->SetDirectory(nullptr);
+    fHist_orig->SetDirectory(nullptr);
     
     fIsMorph = fSample->fIsMorph;
 }
@@ -116,6 +118,8 @@ SampleHist::SampleHist(Sample *sample, const std::string& histoName, const std::
     if(fHist_orig==nullptr){
         fHist_orig = std::unique_ptr<TH1>(static_cast<TH1*>(fHist->Clone(Form("%s_orig",fHist->GetName()))));
     }
+    fHist->SetDirectory(nullptr);
+    fHist_orig->SetDirectory(nullptr);
 
     fIsMorph = fSample->fIsMorph;
 }
@@ -143,6 +147,10 @@ std::shared_ptr<SystematicHist> SampleHist::AddOverallSyst(const std::string& na
     syh->fHistDown_orig.reset(static_cast<TH1*>(fHist_orig->Clone(Form("%s_%s_%s_Down_orig",fRegionName.c_str(),fSample->fName.c_str(),storedName.c_str()))));
     syh->fHistUp_orig  ->Scale(1.+up);
     syh->fHistDown_orig->Scale(1.+down);
+    syh->fHistUp->SetDirectory(nullptr);
+    syh->fHistDown->SetDirectory(nullptr);
+    syh->fHistUp_orig->SetDirectory(nullptr);
+    syh->fHistDown_orig->SetDirectory(nullptr);
     syh->fIsOverall = true;
     syh->fIsShape   = false;
     syh->fNormUp   = up;
@@ -178,6 +186,12 @@ std::shared_ptr<SystematicHist> SampleHist::AddStatSyst(const std::string& name,
     syh->fIsShape   = true;
     syh->fNormUp   = ( Common::EffIntegral(syh->fHistUp.get())   -  Common::EffIntegral(fHist.get()) ) / Common::EffIntegral(fHist.get());
     syh->fNormDown = ( Common::EffIntegral(syh->fHistDown.get()) - Common::EffIntegral(fHist.get()) ) / Common::EffIntegral(fHist.get());
+    syh->fHistUp->SetDirectory(nullptr);
+    syh->fHistDown->SetDirectory(nullptr);
+    syh->fHistShapeUp->SetDirectory(nullptr);
+    syh->fHistShapeDown->SetDirectory(nullptr);
+    syh->fHistUp_orig->SetDirectory(nullptr);
+    syh->fHistDown_orig->SetDirectory(nullptr);
     return syh;
 }
 
@@ -215,6 +229,14 @@ std::shared_ptr<SystematicHist> SampleHist::AddHistoSyst(const std::string& name
         syh->fHistShapeDown.reset(static_cast<TH1*>(fHist->Clone(Form("%s_%s_Shape_Down",  fHist->GetName(),storedName.c_str()))));
     }
 
+    syh->fHistUp->SetDirectory(nullptr);
+    syh->fHistDown->SetDirectory(nullptr);
+    syh->fHistShapeUp->SetDirectory(nullptr);
+    syh->fHistShapeDown->SetDirectory(nullptr);
+    syh->fHistUp_orig->SetDirectory(nullptr);
+    syh->fHistDown_orig->SetDirectory(nullptr);
+    syh->fHistUp_preSmooth->SetDirectory(nullptr);
+    syh->fHistDown_preSmooth->SetDirectory(nullptr);
     syh->fIsOverall = true;
     syh->fIsShape   = true;
     syh->fNormUp   = ( Common::EffIntegral(syh->fHistUp.get())   -  Common::EffIntegral(fHist.get()) ) / Common::EffIntegral(fHist.get());
@@ -293,6 +315,12 @@ std::shared_ptr<SystematicHist> SampleHist::AddHistoSyst(const std::string& name
         sh->fIsOverall = true;
     }
     if(sh->fNormUp == 0 && sh->fNormDown == 0) sh->fIsOverall = false;
+    sh->fHistUp->SetDirectory(nullptr);
+    sh->fHistDown->SetDirectory(nullptr);
+    sh->fHistShapeUp->SetDirectory(nullptr);
+    sh->fHistShapeDown->SetDirectory(nullptr);
+    sh->fHistUp_orig->SetDirectory(nullptr);
+    sh->fHistDown_orig->SetDirectory(nullptr);
     //
     return sh;
 }
@@ -420,7 +448,7 @@ bool SampleHist::HasShapeFactor(const std::string& name) const{
 
 //_____________________________________________________________________________
 //
-void SampleHist::WriteToFile(TFile *f,bool reWriteOrig){
+void SampleHist::WriteToFile(std::shared_ptr<TFile> f,bool reWriteOrig){
     if(f==nullptr){
         if(fHist_orig!=nullptr && reWriteOrig)   Common::WriteHistToFile(fHist_orig.get(), fFileName);
         if(fHist!=nullptr)        Common::WriteHistToFile(fHist.get(), fFileName);

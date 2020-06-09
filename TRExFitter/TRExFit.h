@@ -518,7 +518,7 @@ public:
     std::string fInputName;
     std::string fFitResultsFile;
 
-    std::vector < std::unique_ptr<TFile> > fFiles;
+    std::vector < std::shared_ptr<TFile> > fFiles;
 
     std::vector < Region* > fRegions;
     std::vector < std::shared_ptr<Sample> > fSamples;
