@@ -266,7 +266,6 @@ void FitExample(std::string opt="h",std::string configFile="config/myFit.config"
         myFit->WriteHistos();
         if(TRExFitter::SYSTCONTROLPLOTS) myFit->DrawSystPlots();
         if(TRExFitter::SYSTDATAPLOT)     myFit->DrawSystPlotsSumSamples();
-        myFit->CloseInputFiles();
     }
     else{
         if(drawPreFit || drawPostFit || createWorkspace || drawSeparation || rebinAndSmooth || groupedImpact) {
@@ -289,7 +288,6 @@ void FitExample(std::string opt="h",std::string configFile="config/myFit.config"
         myFit->WriteHistos(false);
         if(TRExFitter::SYSTCONTROLPLOTS) myFit->DrawSystPlots();
         if(TRExFitter::SYSTDATAPLOT)     myFit->DrawSystPlotsSumSamples();
-        myFit->CloseInputFiles();
     }
 
     if(pruning){

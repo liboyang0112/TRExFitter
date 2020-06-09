@@ -187,6 +187,7 @@ std::unique_ptr<TH1> HistoReader::ReadSingleHistogram(const std::vector<std::str
             result->Add(htmp.get());
         }
     }
+    result->SetDirectory(nullptr);
     return result;
 }
 
@@ -598,6 +599,7 @@ void HistoReader::ReadOneRegion(const int i_ch, const bool is_data) {
         std::shared_ptr<SampleHist> sh = fFitter->fRegions[i_ch]->SetSampleHist(ismp.get(), h.get());
         sh->fHist_orig.reset(h_orig);
         sh->fHist_orig->SetName(Form("%s_orig",sh->fHist->GetName())); // fix the name
+        sh->fHist_orig->SetDirectory(nullptr);
     
         // end here no systematics allowed (e.g. generally for GHOST samples)
         if (!(ismp->fUseSystematics) && !is_data) continue;
@@ -743,6 +745,7 @@ std::unique_ptr<TH1> HistoReader::GetSystHisto(const int i_ch,
         result.reset(static_cast<TH1*>(fFitter->fRegions[i_ch]->GetSampleHist(fFitter->fSamples[i_smp]->fName)->fHist->Clone()));
     }
 
+    result->SetDirectory(nullptr);
     return result;
 }
 

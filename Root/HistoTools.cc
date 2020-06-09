@@ -86,6 +86,7 @@ void HistoTools::ManageHistograms(const int smoothingLevel, const Symmetrization
                 result.reset(static_cast<TH1*>(originDown->Clone()));
             }
         }
+        result->SetDirectory(nullptr);
         return result;
     };
 

@@ -202,6 +202,7 @@ void TRExPlot::SetBinWidth(double width){
 //
 void TRExPlot::SetData(TH1* h,std::string name){
     h_data = (TH1*)h->Clone();
+    h_data->SetDirectory(nullptr);
     // if no name is given, take the histogram title
     if(name=="") name = h->GetTitle();
     fDataName = name;
@@ -258,7 +259,10 @@ void TRExPlot::AddOverSignal(TH1* h,std::string name){
 //_____________________________________________________________________________
 //
 void TRExPlot::AddBackground(TH1* h,std::string name){
-    if(h_tot==nullptr) h_tot = (TH1*)h->Clone();
+    if(h_tot==nullptr) {
+        h_tot = (TH1*)h->Clone();
+        h_tot->SetDirectory(nullptr);
+    }
     else h_tot->Add(h);
     // if no name is given, take the histogram title
     if(name=="") name = h->GetTitle();
@@ -279,6 +283,7 @@ void TRExPlot::AddBackground(TH1* h,std::string name){
 void TRExPlot::SetTotBkg(TH1* h){
     h_tot = (TH1*)h->Clone();
     h_tot->Scale(fLumiScale);
+    h_tot->SetDirectory(nullptr);
     g_tot = new TGraphAsymmErrors(h);
     for(int i=0;i<g_tot->GetN();i++){
         g_tot->GetY()[i]      *= fLumiScale;
@@ -347,11 +352,12 @@ void TRExPlot::BlindData(){
 //_____________________________________________________________________________
 //
 TH1* TRExPlot::GetTotBkg() const{
-  TH1* h = (TH1*)h_tot->Clone("h_tot_bkg");
-  for (unsigned int i=0; i<fSigNames.size(); ++i) {
-    h->Add( h_signal[i], -1);
-  }
-  return h;
+    TH1* h = (TH1*)h_tot->Clone("h_tot_bkg");
+    for (unsigned int i=0; i<fSigNames.size(); ++i) {
+      h->Add( h_signal[i], -1);
+    }
+    h->SetDirectory(nullptr);
+    return h;
 }
 
 //_____________________________________________________________________________
@@ -372,6 +378,7 @@ void TRExPlot::Draw(std::string options){
     gStyle->SetEndErrorSize(0);
     pad0->cd();
     h_dummy = (TH1*)h_tot->Clone("h_dummy");
+    h_dummy->SetDirectory(nullptr);
     h_dummy->Scale(0);
     if(pad0->GetWw() > pad0->GetWh()){
         h_dummy->GetYaxis()->SetTickLength(0.01);

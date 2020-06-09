@@ -356,6 +356,8 @@ void Region::BuildPreFitErrorHist(){
                 // (note: do it even if the syst is not there; in this case the variation hist will be = to the nominal)
                 sh->fHistUp.reset(static_cast<TH1*>(hNom->Clone(Form("%s_%s_Up",  hNom->GetName(),systName.c_str()))));
                 sh->fHistDown.reset(static_cast<TH1*>(hNom->Clone(Form("%s_%s_Down",hNom->GetName(),systName.c_str()))));
+                sh->fHistUp->SetDirectory(nullptr);
+                sh->fHistDown->SetDirectory(nullptr);
             }
 
             std::shared_ptr<Systematic> syst = sh->fSystematic;
@@ -420,6 +422,8 @@ void Region::BuildPreFitErrorHist(){
         // initialize the tot variation hists
         fTotUp[i_syst].reset(static_cast<TH1*>(fTot->Clone(Form("h_%s_tot_%s_Up",  fName.c_str(), systName.c_str()))));
         fTotDown[i_syst].reset(static_cast<TH1*>(fTot->Clone(Form("h_%s_tot_%s_Down",fName.c_str(), systName.c_str()))));
+        fTotUp[i_syst]->SetDirectory(nullptr);
+        fTotDown[i_syst]->SetDirectory(nullptr);
         // - loop on bins
         for(int i_bin=1;i_bin<fTot->GetNbinsX()+1;i_bin++){
             // - loop on samples
@@ -697,6 +701,7 @@ std::shared_ptr<TRExPlot> Region::DrawPreFit(const std::vector<int>& canvasSize,
         if(TRExFitter::SHOWSTACKSIG && TRExFitter::ADDSTACKSIG){
             if(fTot==nullptr) fTot.reset(static_cast<TH1*>(h->Clone("h_tot")));
             else              fTot->Add(h.get());
+            fTot->SetDirectory(nullptr);
         }
         container.signalYields.emplace_back(std::move(tmp));
     }
@@ -759,6 +764,7 @@ std::shared_ptr<TRExPlot> Region::DrawPreFit(const std::vector<int>& canvasSize,
         p->AddBackground(h.get(),title);
         if(fTot==nullptr) fTot.reset(static_cast<TH1*>(h->Clone("h_tot")));
         else          fTot->Add(h.get());
+        fTot->SetDirectory(nullptr);
         container.backgroundYields.emplace_back(std::move(tmp));
     }
 
@@ -780,6 +786,7 @@ std::shared_ptr<TRExPlot> Region::DrawPreFit(const std::vector<int>& canvasSize,
     p->BlindData();
     if(fBinWidth>0) p->SetBinWidth(fBinWidth);
     if(p->GetBlindingHisto()) fBlindedBins =  static_cast<TH1D*>(p->GetBlindingHisto()->Clone("blinding_region"));
+    fBlindedBins->SetDirectory(nullptr);
 
     //
     // Computes the uncertainty bands arround the h_tot histogram
@@ -1069,6 +1076,8 @@ void Region::BuildPostFitErrorHist(FitResults *fitRes, const std::vector<std::st
             //
             sh->fHistUp_postFit.reset(static_cast<TH1*>(fSampleHists[i]->fHist_postFit->Clone(Form("%s_%s_Up_postFit",  fSampleHists[i]->fHist->GetName(),systName.c_str()))));
             sh->fHistDown_postFit.reset(static_cast<TH1*>(fSampleHists[i]->fHist_postFit->Clone(Form("%s_%s_Down_postFit",fSampleHists[i]->fHist->GetName(),systName.c_str()))));
+            sh->fHistUp_postFit->SetDirectory(nullptr);
+            sh->fHistDown_postFit->SetDirectory(nullptr);
 
             // check if the sample is morph sample
             for (const auto& i_morph : morph_names){
@@ -1260,6 +1269,8 @@ void Region::BuildPostFitErrorHist(FitResults *fitRes, const std::vector<std::st
             //
             sh->fHistUp_postFit.reset(static_cast<TH1*>(fSampleHists[morph_index]->fHist_postFit->Clone(Form("%s_%s_Up_postFit",  fSampleHists[morph_index]->fHist->GetName(),systName.c_str()))));
             sh->fHistDown_postFit.reset(static_cast<TH1*>(fSampleHists[morph_index]->fHist_postFit->Clone(Form("%s_%s_Down_postFit",fSampleHists[morph_index]->fHist->GetName(),systName.c_str()))));
+            sh->fHistUp_postFit->SetDirectory(nullptr);
+            sh->fHistDown_postFit->SetDirectory(nullptr);
 
             // loop over bins
             for (int i_bin=1;i_bin<fTot_postFit->GetNbinsX()+1;i_bin++){
@@ -1294,6 +1305,8 @@ void Region::BuildPostFitErrorHist(FitResults *fitRes, const std::vector<std::st
         fTotUp_postFit[i_syst] -> Scale(0); //initialising the content to 0
         fTotDown_postFit[i_syst].reset(static_cast<TH1*>(fTot_postFit->Clone(Form("h_tot_%s_Down_postFit",systName.c_str()))));
         fTotDown_postFit[i_syst] -> Scale(0); //initialising the content to 0
+        fTotUp_postFit[i_syst]->SetDirectory(nullptr);
+        fTotDown_postFit[i_syst]->SetDirectory(nullptr);
 
         // - loop on bins
         for(int i_bin=1;i_bin<fTot_postFit->GetNbinsX()+1;i_bin++){
@@ -1505,6 +1518,7 @@ std::shared_ptr<TRExPlot> Region::DrawPostFit(FitResults* fitRes,
         }
         hSmpNew[i] = static_cast<TH1*>(hNew->Clone());
         fSampleHists[i]->fHist_postFit.reset(hSmpNew[i]);
+        fSampleHists[i]->fHist_postFit->SetDirectory(nullptr);
     }
     //
     // 2) Scale all samples by norm factors
@@ -1592,6 +1606,7 @@ std::shared_ptr<TRExPlot> Region::DrawPostFit(FitResults* fitRes,
             if(fSampleHists[i]->fSample->fType==Sample::GHOST) continue;
             if(hTot==nullptr) hTot.reset(static_cast<TH1*>(hSmpNew[i]->Clone("hTotPostFit")));
             else              hTot->Add(hSmpNew[i]);
+            hTot->SetDirectory(nullptr);
         }
         const double totPred = hTot->Integral();
         const double totData = fData->fHist->Integral();
@@ -1685,6 +1700,7 @@ std::shared_ptr<TRExPlot> Region::DrawPostFit(FitResults* fitRes,
         if(fSampleHists[i]->fSample->fType==Sample::SIGNAL && !(TRExFitter::SHOWSTACKSIG && TRExFitter::ADDSTACKSIG)) continue;
         if(j==0) fTot_postFit.reset(static_cast<TH1*>(hSmpNew[i]->Clone("h_tot_postFit")));
         else fTot_postFit->Add(hSmpNew[i]);
+        fTot_postFit->SetDirectory(nullptr);
         j++;
     }
 
@@ -2648,6 +2664,7 @@ std::unique_ptr<TH1> Region::GetTotHist(bool includeSignal) {
             hTot->Add(hTmp);
         }
     }
+    hTot->SetDirectory(nullptr);
     return hTot;
 }
 

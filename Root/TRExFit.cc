@@ -568,7 +568,7 @@ void TRExFit::CreateRootFiles(){
         WriteInfoStatus("TRExFit::CreateRootFiles","Creating/updating file " + fileName + " ...");
         if(recreate) fFiles.emplace_back(std::move(TFile::Open(fileName.c_str(),"RECREATE")));
         else         fFiles.emplace_back(std::move(TFile::Open(fileName.c_str(),"UPDATE")));
-        TRExFitter::TFILEMAP.insert(std::make_pair(fileName,fFiles[fFiles.size()-1].get()));
+        TRExFitter::TFILEMAP.insert(std::make_pair(fileName,fFiles.back()));
     }
     else{
         for(int i_ch=0;i_ch<fNRegions;i_ch++){
@@ -582,7 +582,7 @@ void TRExFit::CreateRootFiles(){
             WriteInfoStatus("TRExFit::CreateRootFiles","Creating/updating file " + fileName + " ...");
             if(recreate) fFiles.emplace_back(std::move(TFile::Open(fileName.c_str(),"RECREATE")));
             else         fFiles.emplace_back(std::move(TFile::Open(fileName.c_str(),"UPDATE")));
-            TRExFitter::TFILEMAP.insert(std::make_pair(fileName,fFiles[fFiles.size()-1].get()));
+            TRExFitter::TFILEMAP.insert(std::make_pair(fileName,fFiles.back()));
         }
     }
 }
@@ -964,12 +964,15 @@ void TRExFit::CorrectHistograms(){
             //
             // Save to _preSmooth histograms (to be shown in syst plots) at this point
             sh->fHist_preSmooth.reset(static_cast<TH1*>(sh->fHist->Clone(Form("%s_preSmooth",sh->fHist->GetName()))));
+            sh->fHist_preSmooth->SetDirectory(nullptr);
             for(auto& syh : sh->fSyst){
                 if(syh!=nullptr){
                     if(syh->fHistUp!=nullptr)   syh->fHistUp_preSmooth.reset(static_cast<TH1*>(syh->fHistUp->Clone(Form("%s_preSmooth",syh->fHistUp->GetName()))));
                     else                        syh->fHistUp_preSmooth.reset(static_cast<TH1*>(sh->fHist_preSmooth->Clone()));
+                    syh->fHistUp_preSmooth->SetDirectory(nullptr);
                     if(syh->fHistDown!=nullptr) syh->fHistDown_preSmooth.reset(static_cast<TH1*>(syh->fHistDown->Clone(Form("%s_preSmooth",syh->fHistDown->GetName()))));
                     else                        syh->fHistDown_preSmooth.reset(static_cast<TH1*>(sh->fHist_preSmooth->Clone()));
+                    syh->fHistDown_preSmooth->SetDirectory(nullptr);
                 }
             }
 
