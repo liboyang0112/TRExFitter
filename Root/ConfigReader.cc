@@ -2162,6 +2162,24 @@ int ConfigReader::ReadRegionOptions(const std::string& opt){
         reg->SetLabel(RemoveQuotes(confSet->Get("Label")),RemoveQuotes(confSet->Get("ShortLabel")));
 
         std::string param = "";
+        
+        // Set Type
+        param = confSet->Get("Type");
+        if(param != ""){
+            std::transform(param.begin(), param.end(), param.begin(), ::toupper);
+            if( param=="CONTROL" )     reg -> SetRegionType(Region::CONTROL);
+            else if( param=="VALIDATION" )  reg -> SetRegionType(Region::VALIDATION);
+            else if( param=="SIGNAL" )      reg -> SetRegionType(Region::SIGNAL);
+            else {
+                WriteErrorStatus("ConfigReader::ReadRegionOptions", "You specified 'Type' option in region but did not provide valid parameter. Please check this!");
+                return 1;
+            }
+        }
+        if(reg -> fRegionType != Region::VALIDATION){
+            reg->fUseGammaPulls = fFitter->fUseGammaPulls;
+            fHasAtLeastOneValidRegion = true;
+        }
+
         // Set axisTitle
         param = confSet->Get("YaxisTitle");
         if( param != "") reg->fYTitle = RemoveQuotes(param);
@@ -2486,7 +2504,7 @@ int ConfigReader::ReadRegionOptions(const std::string& opt){
             }
             reg->fNumberUnfoldingRecoBins = bins;
         } else {
-            if (fFitter->fFitType == TRExFit::UNFOLDING) {
+            if (fFitter->fFitType == TRExFit::UNFOLDING && reg->fRegionType == Region::SIGNAL) {
                 WriteErrorStatus("ConfigReader::ReadRegionOptions", "You need to provide the number of reco bins (NumberOfRecoBins) in each Region.");
                 return 1;
             }
@@ -2505,10 +2523,6 @@ int ConfigReader::ReadRegionOptions(const std::string& opt){
             }
         }
 
-
-        // Paths for the unfolding code
-        // Paths for the unfolding code
-        // Paths for the unfolding code
         // Setting based on input type
         if (fFitter->fInputType == 0){
             if (SetRegionHIST(reg, confSet) != 0) return 1;
@@ -2611,23 +2625,6 @@ int ConfigReader::ReadRegionOptions(const std::string& opt){
         // Set BinWidth
         param = confSet->Get("BinWidth");
         if(param != "") reg->fBinWidth = atof(param.c_str());
-
-        // Set Type
-        param = confSet->Get("Type");
-        if(param != ""){
-            std::transform(param.begin(), param.end(), param.begin(), ::toupper);
-            if( param=="CONTROL" )     reg -> SetRegionType(Region::CONTROL);
-            else if( param=="VALIDATION" )  reg -> SetRegionType(Region::VALIDATION);
-            else if( param=="SIGNAL" )      reg -> SetRegionType(Region::SIGNAL);
-            else {
-                WriteErrorStatus("ConfigReader::ReadRegionOptions", "You specified 'Type' option in region but did not provide valid parameter. Please check this!");
-                return 1;
-            }
-        }
-        if(reg -> fRegionType != Region::VALIDATION){
-            reg->fUseGammaPulls = fFitter->fUseGammaPulls;
-            fHasAtLeastOneValidRegion = true;
-        }
 
         // Set DataType
         param = confSet->Get("DataType");
