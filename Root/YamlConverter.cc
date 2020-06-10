@@ -871,7 +871,7 @@ bool YamlConverter::PlotContainerIsOK(const YamlConverter::PlotContainer& contai
         if (yields.size() != nBins) return false;
     }
 
-    if (container.data.size() != nBins) return false;
+    if (!container.data.empty() && container.data.size() != nBins) return false;
 
     return true;
 }
