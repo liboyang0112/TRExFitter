@@ -1408,7 +1408,7 @@ void TRExFit::DrawAndSaveAll(std::string opt){
 
 //__________________________________________________________________________________
 //
-TRExPlot* TRExFit::DrawSummary(std::string opt, TRExPlot* prefit_plot) {
+std::shared_ptr<TRExPlot> TRExFit::DrawSummary(std::string opt, std::shared_ptr<TRExPlot> prefit_plot) {
     WriteInfoStatus("TRExFit::DrawSummary", "-------------------------------------------");
     WriteInfoStatus("TRExFit::DrawSummary", "Building Summary Plot...");
     gSystem->mkdir(fName.c_str(),true);
@@ -1597,12 +1597,12 @@ TRExPlot* TRExFit::DrawSummary(std::string opt, TRExPlot* prefit_plot) {
         }
     }
     //
-    TRExPlot *p;
+    std::shared_ptr<TRExPlot> p;
     //
     if (fSummaryCanvasSize.size() == 0){
-        p = new TRExPlot(fInputName+"_summary",900,700,TRExFitter::NORATIO);
+        p = std::make_shared<TRExPlot>(fInputName+"_summary",900,700,TRExFitter::NORATIO);
     } else {
-        p = new TRExPlot(fInputName+"_summary",fSummaryCanvasSize.at(0),fSummaryCanvasSize.at(1),TRExFitter::NORATIO);
+        p = std::make_shared<TRExPlot>(fInputName+"_summary",fSummaryCanvasSize.at(0),fSummaryCanvasSize.at(1),TRExFitter::NORATIO);
     }
     if(fYmin!=0) p->fYmin = fYmin;
     else         p->fYmin = 1;
@@ -2088,14 +2088,14 @@ void TRExFit::DrawMergedPlot(std::string opt,std::string group) const{
     }
     //
     // merge and plot them
-    TRExPlot *p;
+    std::shared_ptr<TRExPlot> p;
     int cWidthMerge = 1200;
     int cHeightMerge = 600;
     if(fMergeCanvasSize.size()>1){
         cWidthMerge = fMergeCanvasSize.at(0);
         cHeightMerge = fMergeCanvasSize.at(1);
     }
-    p = new TRExPlot(fInputName+"_merge",cWidthMerge,cHeightMerge,TRExFitter::NORATIO);
+    p = std::make_shared<TRExPlot>(fInputName+"_merge",cWidthMerge,cHeightMerge,TRExFitter::NORATIO);
     //
     p->SetData(Common::MergeHistograms(hDataVec),"");
     for(unsigned int i_sig=0;i_sig<hSignalVec.size();i_sig++){

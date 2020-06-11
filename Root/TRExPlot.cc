@@ -122,9 +122,6 @@ TRExPlot::~TRExPlot(){
     delete h_dummy;
     delete leg;
     delete leg1;
-    delete pad0;
-    delete pad1;
-    delete c;
 }
 
 //_____________________________________________________________________________
