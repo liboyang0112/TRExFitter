@@ -3959,7 +3959,7 @@ void TRExFit::Fit(bool isLHscanOnly){
             //
             WriteInfoStatus("TRExFit::Fit","Creating ws for regions with real data only...");
             if (TRExFitter::DEBUGLEVEL < 2) std::cout.setstate(std::ios_base::failbit);
-            std::unique_ptr<RooWorkspace> ws_forFit (PerformWorkspaceCombination( regionsForDataFit ));
+            std::unique_ptr<RooWorkspace> ws_forFit = PerformWorkspaceCombination( regionsForDataFit );
             if (TRExFitter::DEBUGLEVEL < 2) std::cout.clear();
             if (!ws_forFit){
                 WriteErrorStatus("TRExFit::Fit","Cannot retrieve the workspace, exiting!");
@@ -3985,7 +3985,7 @@ void TRExFit::Fit(bool isLHscanOnly){
         // Create the final asimov dataset for fit
         //
         if (TRExFitter::DEBUGLEVEL < 2) std::cout.setstate(std::ios_base::failbit);
-        ws = std::unique_ptr<RooWorkspace>(PerformWorkspaceCombination( regionsToFit ));
+        ws = PerformWorkspaceCombination( regionsToFit );
         if (TRExFitter::DEBUGLEVEL < 2) std::cout.clear();
         if (!ws){
             WriteErrorStatus("TRExFit::Fit","Cannot retrieve the workspace, exiting!");
@@ -4050,7 +4050,7 @@ void TRExFit::Fit(bool isLHscanOnly){
             else if ( fFitRegion == CRSR && (fRegions[i_ch] -> fRegionType == Region::CONTROL || fRegions[i_ch] -> fRegionType == Region::SIGNAL) )
                 regionsToFit.push_back( fRegions[i_ch] -> fName );
         }
-        ws = std::unique_ptr<RooWorkspace>(PerformWorkspaceCombination( regionsToFit ));
+        ws = PerformWorkspaceCombination( regionsToFit );
         if (!ws){
             WriteErrorStatus("TRExFit::Fit","Cannot retrieve the workspace, exiting!");
             exit(EXIT_FAILURE);
@@ -4850,7 +4850,7 @@ std::map < std::string, double > TRExFit::PerformFit( RooWorkspace *ws, RooDataS
 
 //__________________________________________________________________________________
 //
-RooWorkspace* TRExFit::PerformWorkspaceCombination( std::vector < std::string > &regionsToFit ) const{
+std::unique_ptr<RooWorkspace> TRExFit::PerformWorkspaceCombination( std::vector < std::string > &regionsToFit ) const{
 
     //
     // Definition of the fit regions
@@ -4906,11 +4906,15 @@ RooWorkspace* TRExFit::PerformWorkspaceCombination( std::vector < std::string > 
     RooStats::HistFactory::HistoToWorkspaceFactoryFast factory(*measurement);
 
     // Creating the combined model
-    RooWorkspace* ws = factory.MakeCombinedModel( vec_chName, vec_ws );
+    std::unique_ptr<RooWorkspace> ws(factory.MakeCombinedModel( vec_chName, vec_ws ));
 
     // Configure the workspace
-    RooStats::HistFactory::HistoToWorkspaceFactoryFast::ConfigureWorkspaceForMeasurement( "simPdf", ws, *measurement );
+    RooStats::HistFactory::HistoToWorkspaceFactoryFast::ConfigureWorkspaceForMeasurement( "simPdf", ws.get(), *measurement );
     if (TRExFitter::DEBUGLEVEL < 2) std::cout.clear();
+
+    for (auto& iws : vec_ws) {
+        delete iws;
+    }
 
     for (auto& ifile : file_vec) {
         ifile->Close();
@@ -5093,7 +5097,7 @@ void TRExFit::GetLimit(){
             //
             WriteInfoStatus("TRExFit::GetLimit","Creating ws for regions with real data only...");
             if (TRExFitter::DEBUGLEVEL < 2) std::cout.setstate(std::ios_base::failbit);
-            std::unique_ptr<RooWorkspace> ws_forFit (PerformWorkspaceCombination( regionsForFit ));
+            std::unique_ptr<RooWorkspace> ws_forFit = PerformWorkspaceCombination( regionsForFit );
             if (TRExFitter::DEBUGLEVEL < 2) std::cout.clear();
             if (!ws_forFit){
                 WriteErrorStatus("TRExFit::GetLimit","Cannot retrieve the workspace, exiting!");
@@ -5114,7 +5118,7 @@ void TRExFit::GetLimit(){
         // Create the final asimov dataset for limit setting
         //
         if (TRExFitter::DEBUGLEVEL < 2) std::cout.setstate(std::ios_base::failbit);
-        std::unique_ptr<RooWorkspace> ws_forLimit(PerformWorkspaceCombination( regionsForLimit ));
+        std::unique_ptr<RooWorkspace> ws_forLimit = PerformWorkspaceCombination( regionsForLimit );
         if (TRExFitter::DEBUGLEVEL < 2) std::cout.clear();
         if (!ws_forLimit){
             WriteErrorStatus("TRExFit::GetLimit","Cannot retrieve the workspace, exiting!");
@@ -5212,7 +5216,7 @@ void TRExFit::GetSignificance(){
             //
             WriteInfoStatus("TRExFit::GetSignificance","Creating ws for regions with real data only...");
             if (TRExFitter::DEBUGLEVEL < 2) std::cout.setstate(std::ios_base::failbit);
-            std::unique_ptr<RooWorkspace> ws_forFit (PerformWorkspaceCombination( regionsForFit ));
+            std::unique_ptr<RooWorkspace> ws_forFit = PerformWorkspaceCombination( regionsForFit );
             if (TRExFitter::DEBUGLEVEL < 2) std::cout.clear();
             if (!ws_forFit){
                 WriteErrorStatus("TRExFit::GetSignificance","Cannot retrieve the workspace, exiting!");
@@ -5233,7 +5237,7 @@ void TRExFit::GetSignificance(){
         // Create the final asimov dataset for limit setting
         //
         if (TRExFitter::DEBUGLEVEL < 2) std::cout.setstate(std::ios_base::failbit);
-        std::unique_ptr<RooWorkspace> ws_forSignificance (PerformWorkspaceCombination( regionsForSign ));
+        std::unique_ptr<RooWorkspace> ws_forSignificance = PerformWorkspaceCombination( regionsForSign );
         if (TRExFitter::DEBUGLEVEL < 2) std::cout.clear();
         if (!ws_forSignificance){
             WriteErrorStatus("TRExFit::GetSignificance","Cannot retrieve the workspace, exiting!");
@@ -5612,7 +5616,7 @@ void TRExFit::ProduceNPRanking( std::string NPnames/*="all"*/ ){
             //
             WriteInfoStatus("TRExFit::ProduceNPRanking","Creating ws for regions with real data only...");
             if (TRExFitter::DEBUGLEVEL < 2) std::cout.setstate(std::ios_base::failbit);
-            std::unique_ptr<RooWorkspace> ws_forFit (PerformWorkspaceCombination( regionsForDataFit ));
+            std::unique_ptr<RooWorkspace> ws_forFit = PerformWorkspaceCombination( regionsForDataFit );
             if (TRExFitter::DEBUGLEVEL < 2) std::cout.clear();
             if (!ws_forFit){
                 WriteErrorStatus("TRExFit::ProduceNPRanking","Cannot retrieve the workspace, exiting!");
@@ -5632,7 +5636,7 @@ void TRExFit::ProduceNPRanking( std::string NPnames/*="all"*/ ){
         // Create the final asimov dataset for fit
         //
         if (TRExFitter::DEBUGLEVEL < 2) std::cout.setstate(std::ios_base::failbit);
-        ws = std::unique_ptr<RooWorkspace>(PerformWorkspaceCombination( regionsToFit ));
+        ws = PerformWorkspaceCombination( regionsToFit );
         if (TRExFitter::DEBUGLEVEL < 2) std::cout.clear();
         if (!ws){
             WriteErrorStatus("TRExFit::ProduceNPRanking","Cannot retrieve the workspace, exiting!");
@@ -7538,7 +7542,7 @@ void TRExFit::RunToys(){
                 regionsToFit.emplace_back(ireg->fName);
             }
         }
-        std::unique_ptr<RooWorkspace> ws (PerformWorkspaceCombination(regionsToFit));
+        std::unique_ptr<RooWorkspace> ws = PerformWorkspaceCombination(regionsToFit);
         if (!ws){
             WriteErrorStatus("TRExFit::RunToys","Cannot retrieve the workspace, exiting!");
             exit(EXIT_FAILURE);
