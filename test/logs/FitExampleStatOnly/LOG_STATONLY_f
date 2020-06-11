@@ -363,8 +363,8 @@ Nuisance Parameters:     RooArgSet:: = (alpha_Dummy)
 Global Observables:      RooArgSet:: = (nom_alpha_Dummy)
 PDF:                     RooSimultaneous::simPdf[ indexCat=channelCat SR_1=model_SR_1 SR_2=model_SR_2 ] = 56.2
 
-=== DEBUG::TRExFit::DumpData: Activating binned likelihood attribute for SR_1_model
-=== DEBUG::TRExFit::DumpData: Activating binned likelihood attribute for SR_2_model
+=== DEBUG::TRExFit::RunToys: Activating binned likelihood attribute for SR_1_model
+=== DEBUG::TRExFit::RunToys: Activating binned likelihood attribute for SR_2_model
 [#1] INFO:NumericIntegration -- RooRealIntegral::init(SR_1_model_Int[obs_x_SR_1]) using numeric integrator RooBinIntegrator to calculate Int(obs_x_SR_1)
 [#1] INFO:NumericIntegration -- RooRealIntegral::init(SR_2_model_Int[obs_x_SR_2]) using numeric integrator RooBinIntegrator to calculate Int(obs_x_SR_2)
 [#1] INFO:NumericIntegration -- RooRealIntegral::init(SR_1_model_Int[obs_x_SR_1]) using numeric integrator RooBinIntegrator to calculate Int(obs_x_SR_1)
