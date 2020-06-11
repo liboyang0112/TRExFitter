@@ -7554,7 +7554,7 @@ void TRExFit::RunToys(){
             if (arg->IsA() == RooRealSumPdf::Class()) {
                 arg->setAttribute("BinnedLikelihood");
                 const std::string& temp_string = arg->GetName();
-                WriteDebugStatus("TRExFit::DumpData", "Activating binned likelihood attribute for " + temp_string);
+                WriteDebugStatus("TRExFit::RunToys", "Activating binned likelihood attribute for " + temp_string);
             }
         }
         // create map to store fit results
