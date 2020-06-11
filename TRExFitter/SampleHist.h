@@ -108,7 +108,7 @@ public:
     std::unique_ptr<TH1> fHist_orig;
     std::unique_ptr<TH1> fHist_regBin;
     std::unique_ptr<TH1> fHist_preSmooth; // new - to use only for syst plots
-    std::unique_ptr<TH1> fHist_postFit;
+    std::shared_ptr<TH1> fHist_postFit;
     std::string fFileName;
     std::string fHistoName;
     bool fIsData;

@@ -1517,9 +1517,8 @@ std::shared_ptr<TRExPlot> Region::DrawPostFit(FitResults* fitRes,
             hNew->SetBinContent(i_bin,binContentNew);
         }
         hSmpNew[i].reset(static_cast<TH1*>(hNew->Clone()));
-        TH1* h = static_cast<TH1*>(hSmpNew[i]->Clone());
-        fSampleHists[i]->fHist_postFit.reset(h);
-        fSampleHists[i]->fHist_postFit->SetDirectory(nullptr);
+        fSampleHists[i]->fHist_postFit = hSmpNew[i];
+        if (fSampleHists[i]->fHist_postFit) fSampleHists[i]->fHist_postFit->SetDirectory(nullptr);
     }
     //
     // 2) Scale all samples by norm factors
