@@ -1451,9 +1451,9 @@ std::shared_ptr<TRExPlot> Region::DrawPostFit(FitResults* fitRes,
     //
     // 0) Create a new hist for each sample
     //
-    std::vector<TH1* > hSmpNew(fNSamples);
+    std::vector<std::shared_ptr<TH1> > hSmpNew(fNSamples);
     for(int i=0;i<fNSamples;i++){
-        hSmpNew[i] = static_cast<TH1*>(fSampleHists[i]->fHist->Clone());
+        hSmpNew[i].reset(static_cast<TH1*>(fSampleHists[i]->fHist->Clone()));
         // set to 0 uncertainty in each bin if MCstat set to FALSE
         if((!fSampleHists[i]->fSample->fUseMCStat && !fSampleHists[i]->fSample->fSeparateGammas) || fUseGammaPulls){
             for(int i_bin=0;i_bin<hSmpNew[i]->GetNbinsX()+2;i_bin++) hSmpNew[i]->SetBinError(i_bin,0.);
@@ -1516,9 +1516,9 @@ std::shared_ptr<TRExPlot> Region::DrawPostFit(FitResults* fitRes,
             //
             hNew->SetBinContent(i_bin,binContentNew);
         }
-        hSmpNew[i] = static_cast<TH1*>(hNew->Clone());
-        fSampleHists[i]->fHist_postFit.reset(hSmpNew[i]);
-        fSampleHists[i]->fHist_postFit->SetDirectory(nullptr);
+        hSmpNew[i].reset(static_cast<TH1*>(hNew->Clone()));
+        fSampleHists[i]->fHist_postFit = hSmpNew[i];
+        if (fSampleHists[i]->fHist_postFit) fSampleHists[i]->fHist_postFit->SetDirectory(nullptr);
     }
     //
     // 2) Scale all samples by norm factors
@@ -1605,7 +1605,7 @@ std::shared_ptr<TRExPlot> Region::DrawPostFit(FitResults* fitRes,
             if(fSampleHists[i]->fSample->fType==Sample::DATA) continue;
             if(fSampleHists[i]->fSample->fType==Sample::GHOST) continue;
             if(hTot==nullptr) hTot.reset(static_cast<TH1*>(hSmpNew[i]->Clone("hTotPostFit")));
-            else              hTot->Add(hSmpNew[i]);
+            else              hTot->Add(hSmpNew[i].get());
             hTot->SetDirectory(nullptr);
         }
         const double totPred = hTot->Integral();
@@ -1637,8 +1637,8 @@ std::shared_ptr<TRExPlot> Region::DrawPostFit(FitResults* fitRes,
     // 3) Add the new Sig and Bkg to plot
     //
     {
-        std::vector<TH1*> hBkgNew;
-        std::vector<TH1*> hSigNew;
+        std::vector<std::shared_ptr<TH1> > hBkgNew;
+        std::vector<std::shared_ptr<TH1> > hSigNew;
         for(int i=0; i<fNSamples; i++){
             if(fSampleHists[i]->fSample->fType==Sample::SIGNAL){
                 std::vector<double> tmp;
@@ -1667,25 +1667,25 @@ std::shared_ptr<TRExPlot> Region::DrawPostFit(FitResults* fitRes,
             container.samples.emplace_back(fSig[i]->fSample->fTitle);
             std::string title = fSig[i]->fSample->fTitle;
             if(fSig[i]->fSample->fGroup != "") title = fSig[i]->fSample->fGroup;
-            if(TRExFitter::SHOWSTACKSIG)    p->AddSignal(    hSigNew[i],title);
+            if(TRExFitter::SHOWSTACKSIG)    p->AddSignal(    hSigNew[i].get(),title);
             if(TRExFitter::SHOWNORMSIG){
                 if( (TRExFitter::OPTION["NormSigSRonly"] && fRegionType==SIGNAL)
                  || !TRExFitter::OPTION["NormSigSRonly"] )
-                    p->AddNormSignal(hSigNew[i],title);
+                    p->AddNormSignal(hSigNew[i].get(),title);
             }
             else{
-                if(TRExFitter::OPTION["NormSigSRonly"] && fRegionType==SIGNAL) p->AddNormSignal(hSigNew[i],title);
+                if(TRExFitter::OPTION["NormSigSRonly"] && fRegionType==SIGNAL) p->AddNormSignal(hSigNew[i].get(),title);
             }
             if(TRExFitter::SHOWOVERLAYSIG){
-                Common::ScaleNominal(fSig[i].get(),hSigNew[i]);
-                p->AddOverSignal(hSigNew[i],title);
+                Common::ScaleNominal(fSig[i].get(),hSigNew[i].get());
+                p->AddOverSignal(hSigNew[i].get(),title);
             }
         }
         for(int i=0;i<fNBkg;i++){
             container.samples.emplace_back(fBkg[i]->fSample->fTitle);
             std::string title = fBkg[i]->fSample->fTitle;
             if(fBkg[i]->fSample->fGroup != "") title = fBkg[i]->fSample->fGroup;
-            p->AddBackground(hBkgNew[i],title);
+            p->AddBackground(hBkgNew[i].get(),title);
         }
     }
 
@@ -1699,7 +1699,7 @@ std::shared_ptr<TRExPlot> Region::DrawPostFit(FitResults* fitRes,
         if(fSampleHists[i]->fSample->fType==Sample::GHOST) continue;
         if(fSampleHists[i]->fSample->fType==Sample::SIGNAL && !(TRExFitter::SHOWSTACKSIG && TRExFitter::ADDSTACKSIG)) continue;
         if(j==0) fTot_postFit.reset(static_cast<TH1*>(hSmpNew[i]->Clone("h_tot_postFit")));
-        else fTot_postFit->Add(hSmpNew[i]);
+        else fTot_postFit->Add(hSmpNew[i].get());
         fTot_postFit->SetDirectory(nullptr);
         j++;
     }
