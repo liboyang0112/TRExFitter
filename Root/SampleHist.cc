@@ -463,8 +463,8 @@ void SampleHist::WriteToFile(std::shared_ptr<TFile> f,bool reWriteOrig){
     //
     // save separate gammas as histograms
     if(fSample->fSeparateGammas){
-        TH1 *htempUp   = static_cast<TH1*>(fHist->Clone());
-        TH1 *htempDown = static_cast<TH1*>(fHist->Clone());
+        std::unique_ptr<TH1> htempUp(static_cast<TH1*>(fHist->Clone()));
+        std::unique_ptr<TH1> htempDown(static_cast<TH1*>(fHist->Clone()));
         for(int i_bin=1;i_bin<=fHist->GetNbinsX();++i_bin) {
             htempUp  ->AddBinContent(i_bin, 1.*fHist->GetBinError(i_bin));
             htempDown->AddBinContent(i_bin,-1.*fHist->GetBinError(i_bin));
@@ -482,7 +482,7 @@ void SampleHist::WriteToFile(std::shared_ptr<TFile> f,bool reWriteOrig){
         WriteDebugStatus("SampleHist::WriteToFile", "adding separate gammas as SHAPE systematic " + systName);
         gamma->fRegions.clear();
         gamma->fRegions.push_back(fRegionName);
-        std::shared_ptr<SystematicHist> syh = AddHistoSyst(systName,systName,htempUp,htempDown);
+        std::shared_ptr<SystematicHist> syh = AddHistoSyst(systName,systName,htempUp.get(),htempDown.get());
         if (!syh) {
             WriteErrorStatus("TRExFit::SampleHist", "Histo pointer is nullptr, cannot continue running the code");
             exit(EXIT_FAILURE);
@@ -507,9 +507,8 @@ void SampleHist::WriteToFile(std::shared_ptr<TFile> f,bool reWriteOrig){
         else           isyst->WriteToFile(f,      reWriteOrig);
         // for shape hist, save also the syst(up)-nominal (to feed HistFactory)
         if(isyst->fSystematic->fType==Systematic::SHAPE){
-            std::unique_ptr<TH1> hVar = HistoTools::TranformHistogramBinning(
-              static_cast<TH1*>(isyst->fHistUp->Clone(Form("%s_%s_%s_Up_Var",  fRegionName.c_str(),fSample->fName.c_str(),isyst->fSystematic->fStoredName.c_str())))
-            );
+            std::unique_ptr<TH1> tmp(static_cast<TH1*>(isyst->fHistUp->Clone(Form("%s_%s_%s_Up_Var",  fRegionName.c_str(),fSample->fName.c_str(),isyst->fSystematic->fStoredName.c_str()))));
+            std::unique_ptr<TH1> hVar = HistoTools::TranformHistogramBinning(tmp.get());
             hVar->Add(fHist_regBin.get(),-1);
             hVar->Divide(fHist_regBin.get());
             // no negative bins here!
