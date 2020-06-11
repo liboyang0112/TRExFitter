@@ -1416,10 +1416,9 @@ TRExPlot* TRExFit::DrawSummary(std::string opt, TRExPlot* prefit_plot) {
     const bool checkVR = opt.find("valid")!=std::string::npos;
     if(TRExFitter::POISSONIZE) opt += " poissonize";
     // build one bin per region
-    TH1D* h_data = 0;
-    std::vector<TH1D*> h_sig;
-    std::vector<TH1D*> h_bkg;
-    TH1D *h_tot;
+    std::unique_ptr<TH1D> h_data = nullptr;
+    std::vector<std::unique_ptr<TH1D> > h_sig;
+    std::vector<std::unique_ptr<TH1D> > h_bkg;
     std::unique_ptr<TGraphAsymmErrors> g_err(nullptr);
     int Nsig = 0;
     int Nbkg = 0;
@@ -1431,7 +1430,6 @@ TRExPlot* TRExFit::DrawSummary(std::string opt, TRExPlot* prefit_plot) {
     int lineWidth;
     double integral;
     double intErr; // to store the integral error
-    TH1* h; // to store varius histograms temporary
     //
     // Building region - bin correspondence
     //
@@ -1517,10 +1515,11 @@ TRExPlot* TRExFit::DrawSummary(std::string opt, TRExPlot* prefit_plot) {
             h_sig.back()->SetFillColor(fillColor);
             h_sig.back()->SetLineWidth(lineWidth);
             for(unsigned int i_bin=1;i_bin<=regionVec.size();i_bin++){
+                std::unique_ptr<TH1D> h;
                 sh = fRegions[regionVec[i_bin-1]]->GetSampleHist( name );
                 if(sh!=nullptr){
-                    if(isPostFit)  h = (TH1D*)sh->fHist_postFit->Clone(); // Michele
-                    else           h = (TH1D*)sh->fHist->Clone(); // Michele
+                    if(isPostFit)  h.reset(static_cast<TH1D*>(sh->fHist_postFit->Clone())); // Michele
+                    else           h.reset(static_cast<TH1D*>(sh->fHist->Clone())); // Michele
                     //
                     if(!isPostFit){
                         // FIXME SF
@@ -1553,10 +1552,11 @@ TRExPlot* TRExFit::DrawSummary(std::string opt, TRExPlot* prefit_plot) {
             h_bkg.back()->SetFillColor(fillColor);
             h_bkg.back()->SetLineWidth(lineWidth);
             for(int i_bin=1;i_bin<=(int)regionVec.size();i_bin++){
+                std::unique_ptr<TH1D> h;
                 sh = fRegions[regionVec[i_bin-1]]->GetSampleHist( name );
                 if(sh!=nullptr){
-                    if(isPostFit)  h = (TH1D*)sh->fHist_postFit->Clone(); // Michele
-                    else           h = (TH1D*)sh->fHist->Clone(); // Michele
+                    if(isPostFit)  h.reset(static_cast<TH1D*>(sh->fHist_postFit->Clone())); // Michele
+                    else           h.reset(static_cast<TH1D*>(sh->fHist->Clone())); // Michele
                     //
                     if(!isPostFit){
                         // scale it according to NormFactors but only for the correct regions
@@ -1585,8 +1585,8 @@ TRExPlot* TRExFit::DrawSummary(std::string opt, TRExPlot* prefit_plot) {
             Nbkg++;
         }
         else if(fSamples[i_smp]->fType==Sample::DATA){
-            h_data = new TH1D(name.c_str(),title.c_str(), Nbin,0,Nbin);
-            std::string temp_string = h_data->GetTitle();
+            h_data = std::make_unique<TH1D>(name.c_str(),title.c_str(), Nbin,0,Nbin);
+            const std::string temp_string = h_data->GetTitle();
             WriteDebugStatus("TRExFit::DrawSummary", "Adding Data:   " + temp_string);
             for(int i_bin=1;i_bin<=(int)regionVec.size();i_bin++){
                 if(fRegions[regionVec[i_bin-1]]->fRegionDataType==Region::ASIMOVDATA)
@@ -1645,24 +1645,24 @@ TRExPlot* TRExFit::DrawSummary(std::string opt, TRExPlot* prefit_plot) {
         for (int i = 0; i < Nbkg; ++i) {
             if (!h_bkg[i]) continue;
             if (!bkg) bkg.reset(static_cast<TH1*>(h_bkg[i]->Clone()));
-            else      bkg->Add(h_bkg[i]);
+            else      bkg->Add(h_bkg[i].get());
         }
         const std::vector<int>& blindedBins = Common::ComputeBlindedBins(signal.get(),
                                                                          bkg.get(),
                                                                          fBlindingType,
                                                                          fBlindingThreshold);
         p->SetBinBlinding(blindedBins);
-        if(isPostFit && fKeepPrefitBlindedBins && fBlindedBins) p->SetBlindingHisto(fBlindedBins);
+        if(isPostFit && fKeepPrefitBlindedBins && fBlindedBins) p->SetBlindingHisto(fBlindedBins.get());
     }
     //
-    if(h_data) p->SetData(h_data, h_data->GetTitle());
+    if(h_data) p->SetData(h_data.get(), h_data->GetTitle());
     for(int i=0;i<Nsig;i++){
-        if(TRExFitter::SHOWSTACKSIG_SUMMARY)   p->AddSignal(    h_sig[i],h_sig[i]->GetTitle());
-        if(TRExFitter::SHOWNORMSIG_SUMMARY)    p->AddNormSignal(h_sig[i],h_sig[i]->GetTitle());
-        if(TRExFitter::SHOWOVERLAYSIG_SUMMARY) p->AddOverSignal(h_sig[i],h_sig[i]->GetTitle());
+        if(TRExFitter::SHOWSTACKSIG_SUMMARY)   p->AddSignal(    h_sig[i].get(),h_sig[i]->GetTitle());
+        if(TRExFitter::SHOWNORMSIG_SUMMARY)    p->AddNormSignal(h_sig[i].get(),h_sig[i]->GetTitle());
+        if(TRExFitter::SHOWOVERLAYSIG_SUMMARY) p->AddOverSignal(h_sig[i].get(),h_sig[i]->GetTitle());
     }
     for(int i=0;i<Nbkg;i++){
-        p->AddBackground(h_bkg[i],h_bkg[i]->GetTitle());
+        p->AddBackground(h_bkg[i].get(),h_bkg[i]->GetTitle());
     }
 
     if( TRExFitter::PREFITONPOSTFIT && isPostFit) {
@@ -1672,7 +1672,7 @@ TRExPlot* TRExFit::DrawSummary(std::string opt, TRExPlot* prefit_plot) {
     //
     // Build tot
     //
-    h_tot = new TH1D("h_Tot_summary","h_Tot_summary", Nbin,0,Nbin);
+    std::unique_ptr<TH1D> h_tot = std::make_unique<TH1D>("h_Tot_summary","h_Tot_summary", Nbin,0,Nbin);
 
     for(int i_bin=1;i_bin<=Nbin;i_bin++){
         double mc_stat_err;
@@ -1884,10 +1884,10 @@ TRExPlot* TRExFit::DrawSummary(std::string opt, TRExPlot* prefit_plot) {
         }
     }
     //
-    if(isPostFit)  g_err = BuildTotError( h_tot, h_up, h_down, npNames, fFitResults->fCorrMatrix.get() );
-    else           g_err = BuildTotError( h_tot, h_up, h_down, npNames );
+    if(isPostFit)  g_err = BuildTotError( h_tot.get(), h_up, h_down, npNames, fFitResults->fCorrMatrix.get() );
+    else           g_err = BuildTotError( h_tot.get(), h_up, h_down, npNames );
     //
-    p->SetTotBkg(h_tot);
+    p->SetTotBkg(h_tot.get());
     p->BlindData();
     p->SetTotBkgAsym(g_err.get());
     //
@@ -1896,7 +1896,7 @@ TRExPlot* TRExFit::DrawSummary(std::string opt, TRExPlot* prefit_plot) {
         p->SetBinLabel(i_bin,fRegions[regionVec[i_bin-1]]->fShortLabel.c_str());
     }
     p->Draw(opt);
-    if(!isPostFit && p->GetBlindingHisto()) fBlindedBins = static_cast<TH1D*>(p->GetBlindingHisto()->Clone("blinding_trexfit"));
+    if(!isPostFit && p->GetBlindingHisto()) fBlindedBins.reset(static_cast<TH1D*>(p->GetBlindingHisto()->Clone("blinding_trexfit")));
     //
     if(divisionVec.size()>0){
         p->pad0->cd();
@@ -2286,7 +2286,6 @@ void TRExFit::BuildYieldTable(std::string opt, std::string group) const{
     }
     // build one bin per region
     std::vector<TH1D*> h_smp(fNSamples);
-    TH1D *h_tot;
     std::vector<std::unique_ptr<TGraphAsymmErrors> > g_err(fNSamples);
     std::unique_ptr<TGraphAsymmErrors> g_err_tot(nullptr);
     //
@@ -2577,7 +2576,7 @@ void TRExFit::BuildYieldTable(std::string opt, std::string group) const{
     //
     // Build tot
     //
-    h_tot = new TH1D("h_Tot_","h_Tot", Nbin,0,Nbin);
+    std::unique_ptr<TH1D> h_tot = std::make_unique<TH1D>("h_Tot_","h_Tot", Nbin,0,Nbin);
     for(int i_bin=1;i_bin<=Nbin;i_bin++){
         if(isPostFit) h_tot->SetBinContent( i_bin,fRegions[regionVec[i_bin-1]]->fTot_postFit->IntegralAndError(1,fRegions[regionVec[i_bin-1]]->fTot_postFit->GetNbinsX(),intErr) );
         else          h_tot->SetBinContent( i_bin,fRegions[regionVec[i_bin-1]]->fTot->IntegralAndError(        1,fRegions[regionVec[i_bin-1]]->fTot->GetNbinsX(),        intErr) );
@@ -2661,8 +2660,8 @@ void TRExFit::BuildYieldTable(std::string opt, std::string group) const{
         }
     }
     //
-    if(isPostFit)  g_err_tot = BuildTotError( h_tot, h_up, h_down, npNames, fFitResults->fCorrMatrix.get() );
-    else           g_err_tot = BuildTotError( h_tot, h_up, h_down, npNames );
+    if(isPostFit)  g_err_tot = BuildTotError( h_tot.get(), h_up, h_down, npNames, fFitResults->fCorrMatrix.get() );
+    else           g_err_tot = BuildTotError( h_tot.get(), h_up, h_down, npNames );
     //
     if(TRExFitter::SHOWSTACKSIG && TRExFitter::ADDSTACKSIG) out << " | Total | ";
     else                                                    out << " | Tot.Bkg. | ";

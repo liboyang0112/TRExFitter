@@ -117,10 +117,7 @@ TRExPlot::TRExPlot(std::string name,int canvasWidth,int canvasHeight,bool hideRa
 //_____________________________________________________________________________
 //
 TRExPlot::~TRExPlot(){
-    delete h_data;
     delete h_stack;
-    delete h_tot;
-    delete g_tot;
     delete h_tot_bkg_prefit;
     delete h_dummy;
     delete leg;
@@ -201,7 +198,7 @@ void TRExPlot::SetBinWidth(double width){
 //_____________________________________________________________________________
 //
 void TRExPlot::SetData(TH1* h,std::string name){
-    h_data = (TH1*)h->Clone();
+    h_data.reset(static_cast<TH1*>(h->Clone()));
     h_data->SetDirectory(nullptr);
     // if no name is given, take the histogram title
     if(name=="") name = h->GetTitle();
@@ -260,7 +257,7 @@ void TRExPlot::AddOverSignal(TH1* h,std::string name){
 //
 void TRExPlot::AddBackground(TH1* h,std::string name){
     if(h_tot==nullptr) {
-        h_tot = (TH1*)h->Clone();
+        h_tot.reset(static_cast<TH1*>(h->Clone()));
         h_tot->SetDirectory(nullptr);
     }
     else h_tot->Add(h);
@@ -281,10 +278,10 @@ void TRExPlot::AddBackground(TH1* h,std::string name){
 //_____________________________________________________________________________
 //
 void TRExPlot::SetTotBkg(TH1* h){
-    h_tot = (TH1*)h->Clone();
+    h_tot.reset(static_cast<TH1*>(h->Clone()));
     h_tot->Scale(fLumiScale);
     h_tot->SetDirectory(nullptr);
-    g_tot = new TGraphAsymmErrors(h);
+    g_tot = std::make_unique<TGraphAsymmErrors>(h);
     for(int i=0;i<g_tot->GetN();i++){
         g_tot->GetY()[i]      *= fLumiScale;
         g_tot->GetEYlow()[i]  *= fLumiScale;
@@ -295,7 +292,7 @@ void TRExPlot::SetTotBkg(TH1* h){
 //_____________________________________________________________________________
 //
 void TRExPlot::SetTotBkgAsym(TGraphAsymmErrors* g){
-    g_tot = (TGraphAsymmErrors*)g->Clone();
+    g_tot.reset(static_cast<TGraphAsymmErrors*>(g->Clone()));
     for(int i=0;i<g_tot->GetN();i++){
         g_tot->GetY()[i] *= fLumiScale;
         g_tot->GetEYlow()[i]  *= fLumiScale;
@@ -323,13 +320,13 @@ void TRExPlot::BlindData(){
     
     if(h_data && ((fSigNames.size() > 0) || (fOverSigNames.size() > 0)) && h_tot) {
         if(fBlinding) {
-            Common::BlindDataHisto(h_data,fBlinding.get());
+            Common::BlindDataHisto(h_data.get(),fBlinding.get());
         } else{
-            fBlinding = Common::BlindDataHisto(h_data, fBlindedBins);
+            fBlinding = Common::BlindDataHisto(h_data.get(), fBlindedBins);
             // if more than one signal:
             if(fSigNames.size() > 1) {
                 for(std::size_t i_sig = 1; i_sig < fSigNames.size(); ++i_sig) {
-                    auto tmp = Common::BlindDataHisto(h_data, fBlindedBins);
+                    auto tmp = Common::BlindDataHisto(h_data.get(), fBlindedBins);
                     fBlinding->Add(tmp.get());
                     fBlinding->Scale(2.);
                 }
@@ -337,7 +334,7 @@ void TRExPlot::BlindData(){
             // now blind if oversig is used
             if(fOverSigNames.size() > 0) {
                 for(std::size_t i_sig = 0; i_sig < fOverSigNames.size(); ++i_sig) {
-                    auto tmp = Common::BlindDataHisto(h_data, fBlindedBins);
+                    auto tmp = Common::BlindDataHisto(h_data.get(), fBlindedBins);
                     fBlinding->Add(tmp.get());
                     fBlinding->Scale(2.);
                 }
@@ -390,7 +387,7 @@ void TRExPlot::Draw(std::string options){
     h_dummy->Draw("HIST");
     if(options.find("log")!=std::string::npos) pad0->SetLogy();
 
-    if(g_tot==nullptr) g_tot = new TGraphAsymmErrors(h_tot);
+    if(g_tot==nullptr) g_tot = std::make_unique<TGraphAsymmErrors>(h_tot.get());
 
     //
     // Determines if the data is real (and computes the poisson uncertainty) or not
@@ -400,15 +397,15 @@ void TRExPlot::Draw(std::string options){
         h_data->SetMarkerSize(1.4);
         h_data->SetLineWidth(2);
         // build asym data
-        if(options.find("poiss")!=std::string::npos) g_data = poissonize(h_data);
-        else                                         g_data = histToGraph(h_data);
+        if(options.find("poiss")!=std::string::npos) g_data = poissonize(h_data.get());
+        else                                         g_data = histToGraph(h_data.get());
     }
     else{
         hasData = false;
-        h_data = (TH1D*)h_tot->Clone("dummyData");//tajes data = total
+        h_data.reset(static_cast<TH1D*>(h_tot->Clone("dummyData")));//tajes data = total
         h_data->SetTitle("Asimov Data");
         h_data->SetDirectory(nullptr);
-        g_data = new TGraphAsymmErrors(h_data);
+        g_data = std::make_unique<TGraphAsymmErrors>(h_data.get());
     }
 
     //
@@ -592,7 +589,7 @@ void TRExPlot::Draw(std::string options){
 
         // Add data in the legend if real data are here
         if(hasData){
-            leg->AddEntry(h_data,fDataName.c_str(),"lep");
+            leg->AddEntry(h_data.get(),fDataName.c_str(),"lep");
             leg1->AddEntry((TObject*)0,Form("%.1f",h_data->Integral()),"");
         }
 
@@ -607,8 +604,8 @@ void TRExPlot::Draw(std::string options){
         }
         leg->AddEntry((TObject*)0,"Total","");
         leg1->AddEntry((TObject*)0,Form("%.1f",h_tot->Integral()),"");
-        if(TRExFitter::OPTION["TRExbbStyle"]!=0) leg->AddEntry(g_tot,"Total unc.","f");
-        else leg->AddEntry(g_tot,"Uncertainty","f");
+        if(TRExFitter::OPTION["TRExbbStyle"]!=0) leg->AddEntry(g_tot.get(),"Total unc.","f");
+        else leg->AddEntry(g_tot.get(),"Uncertainty","f");
         leg1->AddEntry((TObject*)0," ","");
 
         if(TRExFitter::PREFITONPOSTFIT && h_tot_bkg_prefit) {
@@ -635,8 +632,8 @@ void TRExPlot::Draw(std::string options){
         //
         // Draws data in the legend only is real data
         if(hasData){
-            if(TRExFitter::REMOVEXERRORS) leg->AddEntry(h_data,fDataName.c_str(),"ep");
-            else                          leg->AddEntry(h_data,fDataName.c_str(),"lep");
+            if(TRExFitter::REMOVEXERRORS) leg->AddEntry(h_data.get(),fDataName.c_str(),"ep");
+            else                          leg->AddEntry(h_data.get(),fDataName.c_str(),"lep");
         }
         //
         // Signal and background legend
@@ -646,8 +643,8 @@ void TRExPlot::Draw(std::string options){
             for(unsigned int i_smp=0;i_smp<fOverSigNames.size();i_smp++) leg->AddEntry(h_oversig[i_smp], fOverSigNames[i_smp].c_str(),"l");
         }
         for(unsigned int i_smp=0;i_smp<fBkgNames.size();i_smp++)     leg->AddEntry(h_bkg[i_smp], fBkgNames[i_smp].c_str(),"f");
-        if(TRExFitter::OPTION["TRExbbStyle"]!=0) leg->AddEntry(g_tot,"Total unc.","f");
-        else leg->AddEntry(g_tot,"Uncertainty","f");
+        if(TRExFitter::OPTION["TRExbbStyle"]!=0) leg->AddEntry(g_tot.get(),"Total unc.","f");
+        else leg->AddEntry(g_tot.get(),"Uncertainty","f");
         if(TRExFitter::OPTION["TRExbbStyle"]!=0){
             for(unsigned int i_smp=0;i_smp<fNormSigNames.size();i_smp++) leg->AddEntry(h_normsig[i_smp], (fNormSigNames[i_smp]+" (norm)").c_str(),"l");
             for(unsigned int i_smp=0;i_smp<fOverSigNames.size();i_smp++) leg->AddEntry(h_oversig[i_smp], fOverSigNames[i_smp].c_str(),"l");
@@ -682,21 +679,20 @@ void TRExPlot::Draw(std::string options){
         //    h_ratio: is the real Data/MC ratio
         //    h_ratio2: is a MC/MC ratio to plot the uncertainty band
         //
-        TH1* h_ratio = nullptr;
         if(fRatioType=="S/B" || fRatioType=="S/SQRT(B)" || fRatioType=="S/SQRT(S+B)"){ // ...
-            if(fSigNames.size()>0)          h_ratio = (TH1*)h_signal[0] ->Clone("h_ratio");
+            if(fSigNames.size()>0)          h_ratio.reset(static_cast<TH1*>(h_signal[0] ->Clone("h_ratio")));
             else if(fNormSigNames.size()>0){
-                h_ratio = (TH1*)h_normsig[0]->Clone("h_ratio");
+                h_ratio.reset(static_cast<TH1*>(h_normsig[0]->Clone("h_ratio")));
                 h_ratio->Scale(1./signalScale[0]);
             }
-            else if(fOverSigNames.size()>0) h_ratio = (TH1*)h_oversig[0]->Clone("h_ratio");
+            else if(fOverSigNames.size()>0) h_ratio.reset(static_cast<TH1*>(h_oversig[0]->Clone("h_ratio")));
             else{
-                h_ratio = (TH1*)h_tot->Clone("h_ratio");
+                h_ratio.reset(static_cast<TH1*>(h_tot->Clone("h_ratio")));
                 h_ratio->Scale(0);
             }
         }
         else{
-            h_ratio = (TH1*)h_data->Clone("h_ratio");
+            h_ratio.reset(static_cast<TH1*>(h_data->Clone("h_ratio")));
         }
 
         // in case of S/B,.. and several signal samples, build other ratios
@@ -720,7 +716,7 @@ void TRExPlot::Draw(std::string options){
             }
         }
 
-        TH1 *h_tot_nosyst = (TH1*)h_tot->Clone("h_tot_nosyst");
+        h_tot_nosyst.reset(static_cast<TH1*>(h_tot->Clone("h_tot_nosyst")));
         for(int i_bin=0;i_bin<h_tot_nosyst->GetNbinsX()+2;i_bin++){
             h_tot_nosyst->SetBinError(i_bin,0);
         }
@@ -748,14 +744,14 @@ void TRExPlot::Draw(std::string options){
         //
         // Compute Data/MC ratio
         //
-        h_ratio->Divide(h_tot_nosyst);
-        for(auto h_tmp : h_addRatioVec) h_tmp->Divide(h_tot_nosyst);
+        h_ratio->Divide(h_tot_nosyst.get());
+        for(auto h_tmp : h_addRatioVec) h_tmp->Divide(h_tot_nosyst.get());
         if(TRExFitter::OPRATIO) h_ratio->SetMarkerStyle(24);
         else                    h_ratio->SetMarkerStyle(h_data->GetMarkerStyle());
         h_ratio->SetMarkerSize(1.4);
         h_ratio->SetMarkerColor(kBlack);
         h_ratio->SetLineWidth(2);
-        TGraphAsymmErrors *g_ratio = histToGraph(h_ratio);
+        g_ratio = histToGraph(h_ratio.get());
         for(int i_bin=1;i_bin<=h_ratio->GetNbinsX();i_bin++){
             //For the ratio plot, the error is just to illustrate the "poisson uncertainty on the data"
             if(TRExFitter::REMOVEXERRORS){
@@ -786,7 +782,7 @@ void TRExPlot::Draw(std::string options){
         //
         // Now draws everything
         //
-        TLine *hline = new TLine(h_dummy2->GetXaxis()->GetXmin(),1,h_dummy2->GetXaxis()->GetXmax(),1);
+        hline = std::make_unique<TLine>(h_dummy2->GetXaxis()->GetXmin(),1,h_dummy2->GetXaxis()->GetXmax(),1);
         hline->SetLineColor(kBlack);
         hline->SetLineWidth(2);
         hline->SetLineStyle(2);
@@ -878,7 +874,7 @@ void TRExPlot::Draw(std::string options){
         // ---
 
         pad1->cd();
-        TLatex *KSlab = new TLatex();
+        KSlab = std::make_unique<TLatex>();
         KSlab->SetNDC(1);
         KSlab->SetTextFont(42);
         KSlab->SetTextSize(0.1);
@@ -900,10 +896,10 @@ void TRExPlot::Draw(std::string options){
         for(unsigned int i_smp=0;i_smp<fOverSigNames.size();i_smp++)  SetHistBinWidth(h_oversig[i_smp],fBinWidth);
         for(unsigned int i_smp=0;i_smp<fBkgNames.size();i_smp++)      SetHistBinWidth(h_bkg[i_smp],    fBinWidth);
         //
-        if(h_tot) SetHistBinWidth(h_tot,fBinWidth);
-        if(g_tot) SetGraphBinWidth(g_tot,fBinWidth);
-        if(h_data) SetHistBinWidth(h_data,fBinWidth);
-        if(g_data) SetGraphBinWidth(g_data,fBinWidth);
+        if(h_tot) SetHistBinWidth(h_tot.get(),fBinWidth);
+        if(g_tot) SetGraphBinWidth(g_tot.get(),fBinWidth);
+        if(h_data) SetHistBinWidth(h_data.get(),fBinWidth);
+        if(g_data) SetGraphBinWidth(g_data.get(),fBinWidth);
         // try to guess y axis label...
         if(ytitle=="Events"){
             if(xtitle.find("GeV")!=std::string::npos){
@@ -926,7 +922,7 @@ void TRExPlot::Draw(std::string options){
 
     // turn off x-error bars
     if(TRExFitter::REMOVEXERRORS){
-        for (UInt_t i=0; i< (UInt_t)g_data->GetN(); i++) {
+        for (int i=0; i < g_data->GetN(); i++) {
             g_data->SetPointEXlow(i,0);
             g_data->SetPointEXhigh(i,0);
         }
@@ -997,12 +993,6 @@ void TRExPlot::WriteToFile(const std::string& name) const{
 
 //_____________________________________________________________________________
 //
-TCanvas* TRExPlot::GetCanvas() const{
-    return c;
-}
-
-//_____________________________________________________________________________
-//
 void TRExPlot::SetBinBlinding(const std::vector<int>& bins){
     fBlindedBins = bins;
 }
@@ -1023,6 +1013,7 @@ const std::vector<int>& TRExPlot::GetBlindedBins() const {
 //
 void TRExPlot::SetBlindingHisto(const TH1* h) {
     fBlinding.reset(static_cast<TH1D*>(h->Clone()));
+    if (fBlinding) fBlinding->SetDirectory(nullptr);
 }
 
 //_____________________________________________________________________________
@@ -1041,9 +1032,9 @@ double GC_down(double data) {
 
 //_____________________________________________________________________________
 //
-TGraphAsymmErrors* poissonize(TH1 *h) {
-    TGraphAsymmErrors* gr= new TGraphAsymmErrors(h);
-    for (UInt_t i=0; i< (UInt_t)gr->GetN(); i++) {
+std::unique_ptr<TGraphAsymmErrors> poissonize(const TH1 *h) {
+    std::unique_ptr<TGraphAsymmErrors> gr = std::make_unique<TGraphAsymmErrors>(h);
+    for (int i = 0; i < gr->GetN(); i++) {
         double content = gr->GetErrorYhigh(i) * gr->GetErrorYhigh(i); // this to fix the case of the merged plots, where histograms (even data) are scaled; so the actual content is the square of the stat. error (right?)
         gr->SetPointError(i,0.499*h->GetBinWidth(i+1),0.5*h->GetBinWidth(i+1),GC_down(content),GC_up(content));
         if(h->GetBinContent(i+1)==0){
@@ -1062,9 +1053,9 @@ TGraphAsymmErrors* poissonize(TH1 *h) {
 
 //_____________________________________________________________________________
 //
-TGraphAsymmErrors* histToGraph(TH1* h){
-    TGraphAsymmErrors* gr= new TGraphAsymmErrors(h);
-    for (UInt_t i=0; i< (UInt_t)gr->GetN(); i++) {
+std::unique_ptr<TGraphAsymmErrors> histToGraph(const TH1* h){
+    std::unique_ptr<TGraphAsymmErrors> gr = std::make_unique<TGraphAsymmErrors>(h);
+    for (int i = 0; i < gr->GetN(); i++) {
         gr->SetPointEXlow(i,0.499*h->GetBinWidth(i+1));
         gr->SetPointEXhigh(i,0.5*h->GetBinWidth(i+1));
         if(h->GetBinContent(i+1)==0){

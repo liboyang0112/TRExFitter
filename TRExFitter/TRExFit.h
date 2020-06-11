@@ -689,7 +689,7 @@ public:
     std::vector< std::string > fRegionGroups;
 
     bool fKeepPrefitBlindedBins;
-    TH1D* fBlindedBins;
+    std::unique_ptr<TH1D> fBlindedBins;
 
     std::string fCustomAsimov;
 
