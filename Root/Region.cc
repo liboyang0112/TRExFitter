@@ -489,8 +489,8 @@ void Region::BuildPreFitErrorHist(){
 
     //
     // build the vectors of variations (sum histograms for systematics with the same NP)
-    std::vector< TH1* > h_up;
-    std::vector< TH1* > h_down;
+    std::vector< std::shared_ptr<TH1> > h_up;
+    std::vector< std::shared_ptr<TH1> > h_down;
     for(size_t i_syst=0;i_syst< fSystNames.size(); ++i_syst){
         // look for all the already stored systematics, to find if one had the same NP
         bool found = false;
@@ -518,8 +518,8 @@ void Region::BuildPreFitErrorHist(){
             fTotUp[i_syst]  ->Scale(fTot->Integral()/fTotUp[i_syst]  ->Integral());
             fTotDown[i_syst]->Scale(fTot->Integral()/fTotDown[i_syst]->Integral());
         }
-        h_up.  push_back(fTotUp[i_syst].get() );
-        h_down.push_back(fTotDown[i_syst].get());
+        h_up.  emplace_back(fTotUp[i_syst] );
+        h_down.emplace_back(fTotDown[i_syst]);
     }
     fErr = BuildTotError( fTot.get(), h_up, h_down, fNpNames );
     fErr->SetName("g_totErr");
@@ -785,7 +785,7 @@ std::shared_ptr<TRExPlot> Region::DrawPreFit(const std::vector<int>& canvasSize,
     p->SetTotBkg(fTot.get());
     p->BlindData();
     if(fBinWidth>0) p->SetBinWidth(fBinWidth);
-    if(p->GetBlindingHisto()) fBlindedBins =  static_cast<TH1D*>(p->GetBlindingHisto()->Clone("blinding_region"));
+    if(p->GetBlindingHisto()) fBlindedBins.reset(static_cast<TH1D*>(p->GetBlindingHisto()->Clone("blinding_region")));
     if (fBlindedBins) fBlindedBins->SetDirectory(nullptr);
 
     //
@@ -1338,12 +1338,12 @@ void Region::BuildPostFitErrorHist(FitResults *fitRes, const std::vector<std::st
     //
     // Build the vectors of variations (necessary to call BuildTotError)
     //
-    std::vector< TH1* > h_up;
-    std::vector< TH1* > h_down;
+    std::vector< std::shared_ptr<TH1> > h_up;
+    std::vector< std::shared_ptr<TH1> > h_down;
     std::vector<std::string> systNuisPars;
     for(size_t i_syst=0;i_syst<fSystNames.size();++i_syst){
-        h_up.  push_back(fTotUp_postFit[i_syst].get()  );
-        h_down.push_back(fTotDown_postFit[i_syst].get());
+        h_up.  emplace_back(fTotUp_postFit[i_syst]  );
+        h_down.emplace_back(fTotDown_postFit[i_syst]);
         systNuisPars.push_back(TRExFitter::NPMAP[fSystNames[i_syst]]);
     }
     fErr_postFit = BuildTotError( fTot_postFit.get(), h_up, h_down, systNuisPars, fitRes->fCorrMatrix.get());
@@ -2122,8 +2122,8 @@ void Region::PrintSystTable(FitResults *fitRes, string opt) const{
                 if(s->fType==Sample::DATA) continue;
                 if(s->fType==Sample::GHOST) continue;
 
-                std::vector<TH1*> category_histo_up;
-                std::vector<TH1*> category_histo_down;
+                std::vector<std::shared_ptr<TH1> > category_histo_up;
+                std::vector<std::shared_ptr<TH1> > category_histo_down;
                 const std::vector<std::string> sample_syste = category_syst_names[s->fName][category];
                 for(int i_syst=0;i_syst<(int)fSystNames.size();i_syst++){
                     if(!sh->HasSyst(fSystNames[i_syst])) continue;
@@ -2137,16 +2137,16 @@ void Region::PrintSystTable(FitResults *fitRes, string opt) const{
                         h_up->SetDirectory(nullptr);
                         TH1 *h_down = syh->fHistDown_postFit.get();
                         h_down->SetDirectory(nullptr);
-                        category_histo_up.push_back(h_up);
-                        category_histo_down.push_back(h_down);
+                        category_histo_up.emplace_back(static_cast<TH1*>(h_up->Clone()));
+                        category_histo_down.emplace_back(static_cast<TH1*>(h_down->Clone()));
                     }
                     else{
                         TH1 *h_up = syh->fHistUp.get();
                         h_up->SetDirectory(0);
                         TH1 *h_down = syh->fHistDown.get();
                         h_down->SetDirectory(0);
-                        category_histo_up.push_back(h_up);
-                        category_histo_down.push_back(h_down);
+                        category_histo_up.emplace_back(static_cast<TH1*>(h_up->Clone()));
+                        category_histo_down.emplace_back(static_cast<TH1*>(h_down->Clone()));
                     }
                 }
 
@@ -2299,7 +2299,7 @@ double GetDeltaN(double alpha, double Iz, double Ip, double Imi, int intCode){
 
 //___________________________________________________________
 // function to get pre/post-fit agreement
-std::pair<double,int> GetChi2Test( TH1* h_data, TH1* h_nominal, std::vector< TH1* > h_up, std::vector< string > fSystNames, CorrelationMatrix *matrix ){
+std::pair<double,int> GetChi2Test( TH1* h_data, TH1* h_nominal, std::vector< std::shared_ptr<TH1> > h_up, std::vector< string > fSystNames, CorrelationMatrix *matrix ){
     const unsigned int nbins = h_nominal->GetNbinsX();
     int ndf = 0;
     for(unsigned int i=0;i<nbins;++i){
@@ -2402,8 +2402,8 @@ std::pair<double,int> GetChi2Test( TH1* h_data, TH1* h_nominal, std::vector< TH1
 // - correlation matrix
 // Note: if matrix = nullptr => no correlation, i.e. matrix = 1 (used for pre-fit, or to neglect correlation)
 std::unique_ptr<TGraphAsymmErrors> BuildTotError( const TH1* const h_nominal,
-                                                  const std::vector< TH1* >& h_up,
-                                                  const std::vector< TH1* >& h_down,
+                                                  const std::vector< std::shared_ptr<TH1> >& h_up,
+                                                  const std::vector< std::shared_ptr<TH1> >& h_down,
                                                   const std::vector< string >& fSystNames,
                                                   CorrelationMatrix *matrix ){
     if(!h_nominal){

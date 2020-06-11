@@ -215,7 +215,7 @@ void TRExPlot::AddSignal(TH1* h,std::string name){
         h_signal[idx]->Add(h,fLumiScale);
     }
     else{
-        h_signal.push_back((TH1*)h->Clone());
+        h_signal.emplace_back(static_cast<TH1*>(h->Clone()));
         h_signal[fSigNames.size()]->Scale(fLumiScale);
         fSigNames.push_back(name);
     }
@@ -231,7 +231,7 @@ void TRExPlot::AddNormSignal(TH1* h,std::string name){
         h_normsig[idx]->Add(h,fLumiScale);
     }
     else{
-        h_normsig.push_back((TH1*)h->Clone());
+        h_normsig.emplace_back(static_cast<TH1*>(h->Clone()));
         h_normsig[fNormSigNames.size()]->Scale(fLumiScale);
         fNormSigNames.push_back(name);
     }
@@ -247,7 +247,7 @@ void TRExPlot::AddOverSignal(TH1* h,std::string name){
         h_oversig[idx]->Add(h,fLumiScale);
     }
     else{
-        h_oversig.push_back((TH1*)h->Clone());
+        h_oversig.emplace_back(static_cast<TH1*>(h->Clone()));
         h_oversig[fOverSigNames.size()]->Scale(fLumiScale);
         fOverSigNames.push_back(name);
     }
@@ -269,7 +269,7 @@ void TRExPlot::AddBackground(TH1* h,std::string name){
         h_bkg[idx]->Add(h,fLumiScale);
     }
     else{
-        h_bkg.push_back((TH1*)h->Clone());
+        h_bkg.emplace_back(static_cast<TH1*>(h->Clone()));
         h_bkg[fBkgNames.size()]->Scale(fLumiScale);
         fBkgNames.push_back(name);
     }
@@ -351,7 +351,7 @@ void TRExPlot::BlindData(){
 TH1* TRExPlot::GetTotBkg() const{
     TH1* h = (TH1*)h_tot->Clone("h_tot_bkg");
     for (unsigned int i=0; i<fSigNames.size(); ++i) {
-      h->Add( h_signal[i], -1);
+      h->Add( h_signal[i].get(), -1);
     }
     h->SetDirectory(nullptr);
     return h;
@@ -413,7 +413,7 @@ void TRExPlot::Draw(std::string options){
     //
     for(int i_smp=fBkgNames.size()-1;i_smp>=0;i_smp--){
         h_bkg[i_smp]->SetLineWidth(1);
-        h_stack->Add(h_bkg[i_smp]);
+        h_stack->Add(h_bkg[i_smp].get());
     }
 
     //
@@ -421,7 +421,7 @@ void TRExPlot::Draw(std::string options){
     //
     for(int i_smp=fSigNames.size()-1;i_smp>=0;i_smp--){
         h_signal[i_smp]->SetLineWidth(1);
-        h_stack->Add(h_signal[i_smp]);
+        h_stack->Add(h_signal[i_smp].get());
     }
 
     //
@@ -493,9 +493,8 @@ void TRExPlot::Draw(std::string options){
     //
     // Draw blinding markers
     //
-    TH1D* h_blind = nullptr;
     if(fBlinding) {
-        h_blind = static_cast<TH1D*>(fBlinding->Clone("h_blind"));
+        h_blind.reset(static_cast<TH1D*>(fBlinding->Clone("h_blind")));
         h_blind->SetLineWidth(0);
         h_blind->SetLineColor(kGray);
         h_blind->SetFillColor(kGray);
@@ -595,11 +594,11 @@ void TRExPlot::Draw(std::string options){
 
         // Signal and background legends
         for(unsigned int i_smp=0;i_smp<fSigNames.size();i_smp++){
-            leg->AddEntry(h_signal[i_smp], fSigNames[i_smp].c_str(),"f");
+            leg->AddEntry(h_signal[i_smp].get(), fSigNames[i_smp].c_str(),"f");
             leg1->AddEntry((TObject*)0,Form("%.1f",h_signal[i_smp]->Integral()),"");
         }
         for(unsigned int i_smp=0;i_smp<fBkgNames.size();i_smp++){
-            leg->AddEntry(h_bkg[i_smp], fBkgNames[i_smp].c_str(),"f");
+            leg->AddEntry(h_bkg[i_smp].get(), fBkgNames[i_smp].c_str(),"f");
             leg1->AddEntry((TObject*)0,Form("%.1f",h_bkg[i_smp]->Integral()),"");
         }
         leg->AddEntry((TObject*)0,"Total","");
@@ -637,17 +636,17 @@ void TRExPlot::Draw(std::string options){
         }
         //
         // Signal and background legend
-        for(unsigned int i_smp=0;i_smp<fSigNames.size();i_smp++)     leg->AddEntry(h_signal[i_smp], fSigNames[i_smp].c_str(),"f");
+        for(unsigned int i_smp=0;i_smp<fSigNames.size();i_smp++)     leg->AddEntry(h_signal[i_smp].get(), fSigNames[i_smp].c_str(),"f");
         if(TRExFitter::OPTION["TRExbbStyle"]==0){
-            for(unsigned int i_smp=0;i_smp<fNormSigNames.size();i_smp++) leg->AddEntry(h_normsig[i_smp], (fNormSigNames[i_smp]+" *").c_str(),"l");
-            for(unsigned int i_smp=0;i_smp<fOverSigNames.size();i_smp++) leg->AddEntry(h_oversig[i_smp], fOverSigNames[i_smp].c_str(),"l");
+            for(unsigned int i_smp=0;i_smp<fNormSigNames.size();i_smp++) leg->AddEntry(h_normsig[i_smp].get(), (fNormSigNames[i_smp]+" *").c_str(),"l");
+            for(unsigned int i_smp=0;i_smp<fOverSigNames.size();i_smp++) leg->AddEntry(h_oversig[i_smp].get(), fOverSigNames[i_smp].c_str(),"l");
         }
-        for(unsigned int i_smp=0;i_smp<fBkgNames.size();i_smp++)     leg->AddEntry(h_bkg[i_smp], fBkgNames[i_smp].c_str(),"f");
+        for(unsigned int i_smp=0;i_smp<fBkgNames.size();i_smp++)     leg->AddEntry(h_bkg[i_smp].get(), fBkgNames[i_smp].c_str(),"f");
         if(TRExFitter::OPTION["TRExbbStyle"]!=0) leg->AddEntry(g_tot.get(),"Total unc.","f");
         else leg->AddEntry(g_tot.get(),"Uncertainty","f");
         if(TRExFitter::OPTION["TRExbbStyle"]!=0){
-            for(unsigned int i_smp=0;i_smp<fNormSigNames.size();i_smp++) leg->AddEntry(h_normsig[i_smp], (fNormSigNames[i_smp]+" (norm)").c_str(),"l");
-            for(unsigned int i_smp=0;i_smp<fOverSigNames.size();i_smp++) leg->AddEntry(h_oversig[i_smp], fOverSigNames[i_smp].c_str(),"l");
+            for(unsigned int i_smp=0;i_smp<fNormSigNames.size();i_smp++) leg->AddEntry(h_normsig[i_smp].get(), (fNormSigNames[i_smp]+" (norm)").c_str(),"l");
+            for(unsigned int i_smp=0;i_smp<fOverSigNames.size();i_smp++) leg->AddEntry(h_oversig[i_smp].get(), fOverSigNames[i_smp].c_str(),"l");
         }
         //
         if(TRExFitter::PREFITONPOSTFIT && h_tot_bkg_prefit) leg->AddEntry(h_tot_bkg_prefit,"Pre-Fit Bkgd.","l");
@@ -665,7 +664,7 @@ void TRExPlot::Draw(std::string options){
     if(pad1!=nullptr){
         pad1->cd();
         pad1->GetFrame()->SetY1(2);
-        TH1* h_dummy2 = (TH1*)h_tot->Clone("h_dummy2");
+        h_dummy2.reset(static_cast<TH1*>(h_tot->Clone("h_dummy2")));
         h_dummy2->Scale(0);
         if(pad0->GetWw() > pad0->GetWh()) h_dummy2->GetYaxis()->SetTickLength(0.01);
         h_dummy2->Draw("HIST");
@@ -720,7 +719,7 @@ void TRExPlot::Draw(std::string options){
         for(int i_bin=0;i_bin<h_tot_nosyst->GetNbinsX()+2;i_bin++){
             h_tot_nosyst->SetBinError(i_bin,0);
         }
-        TGraphAsymmErrors *g_ratio2 = (TGraphAsymmErrors*)g_tot->Clone("g_ratio2");
+        g_ratio2.reset(static_cast<TGraphAsymmErrors*>(g_tot->Clone("g_ratio2")));
 
         //
         // Plots style
@@ -827,7 +826,7 @@ void TRExPlot::Draw(std::string options){
         // Mark blinded bins in ratio pad as  well
         //
         if(h_blind!=nullptr){
-            TH1D* h_blindratio = (TH1D*)h_blind->Clone("h_blindratio");
+            h_blindratio.reset(static_cast<TH1D*>(h_blind->Clone("h_blindratio")));
             h_blindratio->Scale(2.);
             h_blindratio->Draw("HIST same");
         }
@@ -891,10 +890,10 @@ void TRExPlot::Draw(std::string options){
     //
     // Set bin width and eventually divide larger bins by this bin width
     if(fBinWidth>0){
-        for(unsigned int i_smp=0;i_smp<fSigNames.size();i_smp++)      SetHistBinWidth(h_signal[i_smp], fBinWidth);
-        for(unsigned int i_smp=0;i_smp<fNormSigNames.size();i_smp++)  SetHistBinWidth(h_normsig[i_smp],fBinWidth);
-        for(unsigned int i_smp=0;i_smp<fOverSigNames.size();i_smp++)  SetHistBinWidth(h_oversig[i_smp],fBinWidth);
-        for(unsigned int i_smp=0;i_smp<fBkgNames.size();i_smp++)      SetHistBinWidth(h_bkg[i_smp],    fBinWidth);
+        for(unsigned int i_smp=0;i_smp<fSigNames.size();i_smp++)      SetHistBinWidth(h_signal[i_smp].get(), fBinWidth);
+        for(unsigned int i_smp=0;i_smp<fNormSigNames.size();i_smp++)  SetHistBinWidth(h_normsig[i_smp].get(),fBinWidth);
+        for(unsigned int i_smp=0;i_smp<fOverSigNames.size();i_smp++)  SetHistBinWidth(h_oversig[i_smp].get(),fBinWidth);
+        for(unsigned int i_smp=0;i_smp<fBkgNames.size();i_smp++)      SetHistBinWidth(h_bkg[i_smp].get(),    fBinWidth);
         //
         if(h_tot) SetHistBinWidth(h_tot.get(),fBinWidth);
         if(g_tot) SetGraphBinWidth(g_tot.get(),fBinWidth);

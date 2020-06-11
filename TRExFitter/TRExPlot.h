@@ -63,10 +63,10 @@ class TRExPlot {
     std::string fName;
     std::unique_ptr<TH1> h_data;
     std::unique_ptr<TGraphAsymmErrors> g_data;
-    std::vector<TH1*> h_bkg;
-    std::vector<TH1*> h_signal;
-    std::vector<TH1*> h_normsig;
-    std::vector<TH1*> h_oversig;
+    std::vector<std::unique_ptr<TH1> > h_bkg;
+    std::vector<std::unique_ptr<TH1> > h_signal;
+    std::vector<std::unique_ptr<TH1> > h_normsig;
+    std::vector<std::unique_ptr<TH1> > h_oversig;
     THStack* h_stack;
     std::unique_ptr<TH1> h_tot;
     std::unique_ptr<TGraphAsymmErrors> g_tot;
@@ -75,6 +75,10 @@ class TRExPlot {
     std::unique_ptr<TH1> h_ratio;
     std::unique_ptr<TH1> h_tot_nosyst;
     std::unique_ptr<TGraphAsymmErrors> g_ratio;
+    std::unique_ptr<TGraphAsymmErrors> g_ratio2;
+    std::unique_ptr<TH1D> h_blind;
+    std::unique_ptr<TH1D> h_blindratio;
+    std::unique_ptr<TH1> h_dummy2;
 
     TCanvas* c;
     TLegend* leg;
