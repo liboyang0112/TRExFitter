@@ -1408,7 +1408,7 @@ void TRExFit::DrawAndSaveAll(std::string opt){
 
 //__________________________________________________________________________________
 //
-TRExPlot* TRExFit::DrawSummary(std::string opt, TRExPlot* prefit_plot) {
+std::shared_ptr<TRExPlot> TRExFit::DrawSummary(std::string opt, std::shared_ptr<TRExPlot> prefit_plot) {
     WriteInfoStatus("TRExFit::DrawSummary", "-------------------------------------------");
     WriteInfoStatus("TRExFit::DrawSummary", "Building Summary Plot...");
     gSystem->mkdir(fName.c_str(),true);
@@ -1416,10 +1416,9 @@ TRExPlot* TRExFit::DrawSummary(std::string opt, TRExPlot* prefit_plot) {
     const bool checkVR = opt.find("valid")!=std::string::npos;
     if(TRExFitter::POISSONIZE) opt += " poissonize";
     // build one bin per region
-    TH1D* h_data = 0;
-    std::vector<TH1D*> h_sig;
-    std::vector<TH1D*> h_bkg;
-    TH1D *h_tot;
+    std::unique_ptr<TH1D> h_data = nullptr;
+    std::vector<std::unique_ptr<TH1D> > h_sig;
+    std::vector<std::unique_ptr<TH1D> > h_bkg;
     std::unique_ptr<TGraphAsymmErrors> g_err(nullptr);
     int Nsig = 0;
     int Nbkg = 0;
@@ -1431,7 +1430,6 @@ TRExPlot* TRExFit::DrawSummary(std::string opt, TRExPlot* prefit_plot) {
     int lineWidth;
     double integral;
     double intErr; // to store the integral error
-    TH1* h; // to store varius histograms temporary
     //
     // Building region - bin correspondence
     //
@@ -1517,10 +1515,11 @@ TRExPlot* TRExFit::DrawSummary(std::string opt, TRExPlot* prefit_plot) {
             h_sig.back()->SetFillColor(fillColor);
             h_sig.back()->SetLineWidth(lineWidth);
             for(unsigned int i_bin=1;i_bin<=regionVec.size();i_bin++){
+                std::unique_ptr<TH1D> h;
                 sh = fRegions[regionVec[i_bin-1]]->GetSampleHist( name );
                 if(sh!=nullptr){
-                    if(isPostFit)  h = (TH1D*)sh->fHist_postFit->Clone(); // Michele
-                    else           h = (TH1D*)sh->fHist->Clone(); // Michele
+                    if(isPostFit)  h.reset(static_cast<TH1D*>(sh->fHist_postFit->Clone())); // Michele
+                    else           h.reset(static_cast<TH1D*>(sh->fHist->Clone())); // Michele
                     //
                     if(!isPostFit){
                         // FIXME SF
@@ -1553,10 +1552,11 @@ TRExPlot* TRExFit::DrawSummary(std::string opt, TRExPlot* prefit_plot) {
             h_bkg.back()->SetFillColor(fillColor);
             h_bkg.back()->SetLineWidth(lineWidth);
             for(int i_bin=1;i_bin<=(int)regionVec.size();i_bin++){
+                std::unique_ptr<TH1D> h;
                 sh = fRegions[regionVec[i_bin-1]]->GetSampleHist( name );
                 if(sh!=nullptr){
-                    if(isPostFit)  h = (TH1D*)sh->fHist_postFit->Clone(); // Michele
-                    else           h = (TH1D*)sh->fHist->Clone(); // Michele
+                    if(isPostFit)  h.reset(static_cast<TH1D*>(sh->fHist_postFit->Clone())); // Michele
+                    else           h.reset(static_cast<TH1D*>(sh->fHist->Clone())); // Michele
                     //
                     if(!isPostFit){
                         // scale it according to NormFactors but only for the correct regions
@@ -1585,8 +1585,8 @@ TRExPlot* TRExFit::DrawSummary(std::string opt, TRExPlot* prefit_plot) {
             Nbkg++;
         }
         else if(fSamples[i_smp]->fType==Sample::DATA){
-            h_data = new TH1D(name.c_str(),title.c_str(), Nbin,0,Nbin);
-            std::string temp_string = h_data->GetTitle();
+            h_data = std::make_unique<TH1D>(name.c_str(),title.c_str(), Nbin,0,Nbin);
+            const std::string temp_string = h_data->GetTitle();
             WriteDebugStatus("TRExFit::DrawSummary", "Adding Data:   " + temp_string);
             for(int i_bin=1;i_bin<=(int)regionVec.size();i_bin++){
                 if(fRegions[regionVec[i_bin-1]]->fRegionDataType==Region::ASIMOVDATA)
@@ -1597,12 +1597,12 @@ TRExPlot* TRExFit::DrawSummary(std::string opt, TRExPlot* prefit_plot) {
         }
     }
     //
-    TRExPlot *p;
+    std::shared_ptr<TRExPlot> p;
     //
     if (fSummaryCanvasSize.size() == 0){
-        p = new TRExPlot(fInputName+"_summary",900,700,TRExFitter::NORATIO);
+        p = std::make_shared<TRExPlot>(fInputName+"_summary",900,700,TRExFitter::NORATIO);
     } else {
-        p = new TRExPlot(fInputName+"_summary",fSummaryCanvasSize.at(0),fSummaryCanvasSize.at(1),TRExFitter::NORATIO);
+        p = std::make_shared<TRExPlot>(fInputName+"_summary",fSummaryCanvasSize.at(0),fSummaryCanvasSize.at(1),TRExFitter::NORATIO);
     }
     if(fYmin!=0) p->fYmin = fYmin;
     else         p->fYmin = 1;
@@ -1645,24 +1645,24 @@ TRExPlot* TRExFit::DrawSummary(std::string opt, TRExPlot* prefit_plot) {
         for (int i = 0; i < Nbkg; ++i) {
             if (!h_bkg[i]) continue;
             if (!bkg) bkg.reset(static_cast<TH1*>(h_bkg[i]->Clone()));
-            else      bkg->Add(h_bkg[i]);
+            else      bkg->Add(h_bkg[i].get());
         }
         const std::vector<int>& blindedBins = Common::ComputeBlindedBins(signal.get(),
                                                                          bkg.get(),
                                                                          fBlindingType,
                                                                          fBlindingThreshold);
         p->SetBinBlinding(blindedBins);
-        if(isPostFit && fKeepPrefitBlindedBins && fBlindedBins) p->SetBlindingHisto(fBlindedBins);
+        if(isPostFit && fKeepPrefitBlindedBins && fBlindedBins) p->SetBlindingHisto(fBlindedBins.get());
     }
     //
-    if(h_data) p->SetData(h_data, h_data->GetTitle());
+    if(h_data) p->SetData(h_data.get(), h_data->GetTitle());
     for(int i=0;i<Nsig;i++){
-        if(TRExFitter::SHOWSTACKSIG_SUMMARY)   p->AddSignal(    h_sig[i],h_sig[i]->GetTitle());
-        if(TRExFitter::SHOWNORMSIG_SUMMARY)    p->AddNormSignal(h_sig[i],h_sig[i]->GetTitle());
-        if(TRExFitter::SHOWOVERLAYSIG_SUMMARY) p->AddOverSignal(h_sig[i],h_sig[i]->GetTitle());
+        if(TRExFitter::SHOWSTACKSIG_SUMMARY)   p->AddSignal(    h_sig[i].get(),h_sig[i]->GetTitle());
+        if(TRExFitter::SHOWNORMSIG_SUMMARY)    p->AddNormSignal(h_sig[i].get(),h_sig[i]->GetTitle());
+        if(TRExFitter::SHOWOVERLAYSIG_SUMMARY) p->AddOverSignal(h_sig[i].get(),h_sig[i]->GetTitle());
     }
     for(int i=0;i<Nbkg;i++){
-        p->AddBackground(h_bkg[i],h_bkg[i]->GetTitle());
+        p->AddBackground(h_bkg[i].get(),h_bkg[i]->GetTitle());
     }
 
     if( TRExFitter::PREFITONPOSTFIT && isPostFit) {
@@ -1672,7 +1672,7 @@ TRExPlot* TRExFit::DrawSummary(std::string opt, TRExPlot* prefit_plot) {
     //
     // Build tot
     //
-    h_tot = new TH1D("h_Tot_summary","h_Tot_summary", Nbin,0,Nbin);
+    std::unique_ptr<TH1D> h_tot = std::make_unique<TH1D>("h_Tot_summary","h_Tot_summary", Nbin,0,Nbin);
 
     for(int i_bin=1;i_bin<=Nbin;i_bin++){
         double mc_stat_err;
@@ -1684,10 +1684,10 @@ TRExPlot* TRExFit::DrawSummary(std::string opt, TRExPlot* prefit_plot) {
     //
     //   Build error band
     // build the vectors of variations
-    std::vector< TH1* > h_up;
-    std::vector< TH1* > h_down;
-    TH1* h_tmp_Up;
-    TH1* h_tmp_Down;
+    std::vector< std::shared_ptr<TH1> > h_up;
+    std::vector< std::shared_ptr<TH1> > h_down;
+    std::unique_ptr<TH1> h_tmp_Up;
+    std::unique_ptr<TH1> h_tmp_Down;
     std::vector<std::string> systNames;
     std::vector<std::string> npNames;
     int i_np = -1;
@@ -1716,27 +1716,27 @@ TRExPlot* TRExFit::DrawSummary(std::string opt, TRExPlot* prefit_plot) {
             //
             if(isPostFit){
                 if(syst_idx<0){
-                    h_tmp_Up   = fRegions[regionVec[i_bin-1]]->fTot_postFit.get();
-                    h_tmp_Down = fRegions[regionVec[i_bin-1]]->fTot_postFit.get();
+                    h_tmp_Up.reset(static_cast<TH1*>(fRegions[regionVec[i_bin-1]]->fTot_postFit->Clone()));
+                    h_tmp_Down.reset(static_cast<TH1*>(fRegions[regionVec[i_bin-1]]->fTot_postFit->Clone()));
                 }
                 else{
-                    h_tmp_Up   = fRegions[regionVec[i_bin-1]]->fTotUp_postFit[syst_idx].get();
-                    h_tmp_Down = fRegions[regionVec[i_bin-1]]->fTotDown_postFit[syst_idx].get();
+                    h_tmp_Up.reset(static_cast<TH1*>(fRegions[regionVec[i_bin-1]]->fTotUp_postFit[syst_idx]->Clone()));
+                    h_tmp_Down.reset(static_cast<TH1*>(fRegions[regionVec[i_bin-1]]->fTotDown_postFit[syst_idx]->Clone()));
                 }
             }
             else{
                 if(syst_idx<0){
-                    h_tmp_Up   = fRegions[regionVec[i_bin-1]]->fTot.get();
-                    h_tmp_Down = fRegions[regionVec[i_bin-1]]->fTot.get();
+                    h_tmp_Up.reset(static_cast<TH1*>(fRegions[regionVec[i_bin-1]]->fTot->Clone()));
+                    h_tmp_Down.reset(static_cast<TH1*>(fRegions[regionVec[i_bin-1]]->fTot->Clone()));
                 }
                 else{
-                    h_tmp_Up   = fRegions[regionVec[i_bin-1]]->fTotUp[syst_idx].get();
-                    h_tmp_Down = fRegions[regionVec[i_bin-1]]->fTotDown[syst_idx].get();
+                    h_tmp_Up.reset(static_cast<TH1*>(fRegions[regionVec[i_bin-1]]->fTotUp[syst_idx]->Clone()));
+                    h_tmp_Down.reset(static_cast<TH1*>(fRegions[regionVec[i_bin-1]]->fTotDown[syst_idx]->Clone()));
                 }
             }
             if(i_bin==1){
-                h_up.  push_back( new TH1D(Form("h_Tot_%s_Up_TMP"  ,systName.c_str()), Form("h_Tot_%s_Up_TMP",  systName.c_str()), Nbin,0,Nbin) );
-                h_down.push_back( new TH1D(Form("h_Tot_%s_Down_TMP",systName.c_str()), Form("h_Tot_%s_Down_TMP",systName.c_str()), Nbin,0,Nbin) );
+                h_up.  emplace_back( new TH1D(Form("h_Tot_%s_Up_TMP"  ,systName.c_str()), Form("h_Tot_%s_Up_TMP",  systName.c_str()), Nbin,0,Nbin) );
+                h_down.emplace_back( new TH1D(Form("h_Tot_%s_Down_TMP",systName.c_str()), Form("h_Tot_%s_Down_TMP",systName.c_str()), Nbin,0,Nbin) );
             }
             h_up[i_np]  ->SetBinContent( i_bin,h_tmp_Up  ->Integral() );
             h_down[i_np]->SetBinContent( i_bin,h_tmp_Down->Integral() );
@@ -1745,16 +1745,16 @@ TRExPlot* TRExFit::DrawSummary(std::string opt, TRExPlot* prefit_plot) {
             for(int j_syst=0;j_syst<(int)fRegions[regionVec[i_bin-1]]->fSystNames.size();j_syst++){
                 if(j_syst==syst_idx) continue;
                 if(systNuisPar==TRExFitter::NPMAP[ fRegions[regionVec[i_bin-1]]->fSystNames[j_syst] ]){
-                    TH1* h_tmp = nullptr;
+                    std::unique_ptr<TH1> h_tmp = nullptr;
                     if(isPostFit){
-                        h_tmp_Up   = fRegions[regionVec[i_bin-1]]->fTotUp_postFit[j_syst].get();
-                        h_tmp_Down = fRegions[regionVec[i_bin-1]]->fTotDown_postFit[j_syst].get();
-                        h_tmp      = fRegions[regionVec[i_bin-1]]->fTot_postFit.get();
+                        h_tmp_Up.reset(static_cast<TH1*>(fRegions[regionVec[i_bin-1]]->fTotUp_postFit[j_syst]->Clone()));
+                        h_tmp_Down.reset(static_cast<TH1*>(fRegions[regionVec[i_bin-1]]->fTotDown_postFit[j_syst]->Clone()));
+                        h_tmp.reset(static_cast<TH1*>(fRegions[regionVec[i_bin-1]]->fTot_postFit->Clone()));
                     }
                     else{
-                        h_tmp_Up   = fRegions[regionVec[i_bin-1]]->fTotUp[j_syst].get();
-                        h_tmp_Down = fRegions[regionVec[i_bin-1]]->fTotDown[j_syst].get();
-                        h_tmp      = fRegions[regionVec[i_bin-1]]->fTot.get();
+                        h_tmp_Up.reset(static_cast<TH1*>(fRegions[regionVec[i_bin-1]]->fTotUp[j_syst]->Clone()));
+                        h_tmp_Down.reset(static_cast<TH1*>(fRegions[regionVec[i_bin-1]]->fTotDown[j_syst]->Clone()));
+                        h_tmp.reset(static_cast<TH1*>(fRegions[regionVec[i_bin-1]]->fTot->Clone()));
                     }
                     h_up[i_np]  ->AddBinContent( i_bin,h_tmp_Up  ->Integral()-h_tmp->Integral() );
                     h_down[i_np]->AddBinContent( i_bin,h_tmp_Down->Integral()-h_tmp->Integral() );
@@ -1784,15 +1784,15 @@ TRExPlot* TRExFit::DrawSummary(std::string opt, TRExPlot* prefit_plot) {
                     }
                 }
                 if(syst_idx<0){
-                    h_tmp_Up   = region->fTot_postFit.get();
-                    h_tmp_Down = region->fTot_postFit.get();
+                    h_tmp_Up.reset(static_cast<TH1*>(region->fTot_postFit->Clone()));
+                    h_tmp_Down.reset(static_cast<TH1*>(region->fTot_postFit->Clone()));
                 }
                 else{
-                    h_tmp_Up   = region->fTotUp_postFit[syst_idx].get();
-                    h_tmp_Down = region->fTotDown_postFit[syst_idx].get();
+                    h_tmp_Up.reset(static_cast<TH1*>(region->fTotUp_postFit[syst_idx]->Clone()));
+                    h_tmp_Down.reset(static_cast<TH1*>(region->fTotDown_postFit[syst_idx]->Clone()));
                 }
-                h_up.  push_back( new TH1D(Form("h_Tot_%s_Up_TMP"  ,gammaName.c_str()), Form("h_Tot_%s_Up_TMP",  gammaName.c_str()), Nbin,0,Nbin) );
-                h_down.push_back( new TH1D(Form("h_Tot_%s_Down_TMP",gammaName.c_str()), Form("h_Tot_%s_Down_TMP",gammaName.c_str()), Nbin,0,Nbin) );
+                h_up.  emplace_back( new TH1D(Form("h_Tot_%s_Up_TMP"  ,gammaName.c_str()), Form("h_Tot_%s_Up_TMP",  gammaName.c_str()), Nbin,0,Nbin) );
+                h_down.emplace_back( new TH1D(Form("h_Tot_%s_Down_TMP",gammaName.c_str()), Form("h_Tot_%s_Down_TMP",gammaName.c_str()), Nbin,0,Nbin) );
                 h_up[i_np]  ->SetBinContent( i_ch,h_tmp_Up  ->Integral() );
                 h_down[i_np]->SetBinContent( i_ch,h_tmp_Down->Integral() );
             }
@@ -1820,15 +1820,15 @@ TRExPlot* TRExFit::DrawSummary(std::string opt, TRExPlot* prefit_plot) {
                         }
                     }
                     if(syst_idx<0){
-                        h_tmp_Up   = region->fTot_postFit.get();
-                        h_tmp_Down = region->fTot_postFit.get();
+                        h_tmp_Up.reset(static_cast<TH1*>(region->fTot_postFit->Clone()));
+                        h_tmp_Down.reset(static_cast<TH1*>(region->fTot_postFit->Clone()));
                     }
                     else{
-                        h_tmp_Up   = region->fTotUp_postFit[syst_idx].get();
-                        h_tmp_Down = region->fTotDown_postFit[syst_idx].get();
+                        h_tmp_Up.reset(static_cast<TH1*>(region->fTotUp_postFit[syst_idx]->Clone()));
+                        h_tmp_Down.reset(static_cast<TH1*>(region->fTotDown_postFit[syst_idx]->Clone()));
                     }
-                    h_up.  push_back( new TH1D(Form("h_Tot_%s_Up_TMP"  ,gammaName.c_str()), Form("h_Tot_%s_Up_TMP",  gammaName.c_str()), Nbin,0,Nbin) );
-                    h_down.push_back( new TH1D(Form("h_Tot_%s_Down_TMP",gammaName.c_str()), Form("h_Tot_%s_Down_TMP",gammaName.c_str()), Nbin,0,Nbin) );
+                    h_up.  emplace_back( new TH1D(Form("h_Tot_%s_Up_TMP"  ,gammaName.c_str()), Form("h_Tot_%s_Up_TMP",  gammaName.c_str()), Nbin,0,Nbin) );
+                    h_down.emplace_back( new TH1D(Form("h_Tot_%s_Down_TMP",gammaName.c_str()), Form("h_Tot_%s_Down_TMP",gammaName.c_str()), Nbin,0,Nbin) );
                     h_up[i_np]  ->SetBinContent( i_ch,h_tmp_Up  ->Integral() );
                     h_down[i_np]->SetBinContent( i_ch,h_tmp_Down->Integral() );
                 }
@@ -1857,37 +1857,37 @@ TRExPlot* TRExFit::DrawSummary(std::string opt, TRExPlot* prefit_plot) {
             //
             if(isPostFit){
                 if(syst_idx<0){
-                    h_tmp_Up   = fRegions[regionVec[i_bin-1]]->fTot_postFit.get();
-                    h_tmp_Down = fRegions[regionVec[i_bin-1]]->fTot_postFit.get();
+                    h_tmp_Up.reset(static_cast<TH1*>(fRegions[regionVec[i_bin-1]]->fTot_postFit->Clone()));
+                    h_tmp_Down.reset(static_cast<TH1*>(fRegions[regionVec[i_bin-1]]->fTot_postFit->Clone()));
                 }
                 else{
-                    h_tmp_Up   = fRegions[regionVec[i_bin-1]]->fTotUp_postFit[syst_idx].get();
-                    h_tmp_Down = fRegions[regionVec[i_bin-1]]->fTotDown_postFit[syst_idx].get();
+                    h_tmp_Up.reset(static_cast<TH1*>(fRegions[regionVec[i_bin-1]]->fTotUp_postFit[syst_idx]->Clone()));
+                    h_tmp_Down.reset(static_cast<TH1*>(fRegions[regionVec[i_bin-1]]->fTotDown_postFit[syst_idx]->Clone()));
                 }
             }
             else{
                 if(syst_idx<0){
-                    h_tmp_Up   = fRegions[regionVec[i_bin-1]]->fTot.get();
-                    h_tmp_Down = fRegions[regionVec[i_bin-1]]->fTot.get();
+                    h_tmp_Up.reset(static_cast<TH1*>(fRegions[regionVec[i_bin-1]]->fTot->Clone()));
+                    h_tmp_Down.reset(static_cast<TH1*>(fRegions[regionVec[i_bin-1]]->fTot->Clone()));
                 }
                 else{
-                    h_tmp_Up   = fRegions[regionVec[i_bin-1]]->fTotUp[syst_idx].get();
-                    h_tmp_Down = fRegions[regionVec[i_bin-1]]->fTotDown[syst_idx].get();
+                    h_tmp_Up.reset(static_cast<TH1*>(fRegions[regionVec[i_bin-1]]->fTotUp[syst_idx]->Clone()));
+                    h_tmp_Down.reset(static_cast<TH1*>(fRegions[regionVec[i_bin-1]]->fTotDown[syst_idx]->Clone()));
                 }
             }
             if(i_bin==1){
-                h_up.  push_back( new TH1D(Form("h_Tot_%s_Up_TMP"  ,normName.c_str()), Form("h_Tot_%s_Up_TMP",  normName.c_str()), Nbin,0,Nbin) );
-                h_down.push_back( new TH1D(Form("h_Tot_%s_Down_TMP",normName.c_str()), Form("h_Tot_%s_Down_TMP",normName.c_str()), Nbin,0,Nbin) );
+                h_up.  emplace_back( new TH1D(Form("h_Tot_%s_Up_TMP"  ,normName.c_str()), Form("h_Tot_%s_Up_TMP",  normName.c_str()), Nbin,0,Nbin) );
+                h_down.emplace_back( new TH1D(Form("h_Tot_%s_Down_TMP",normName.c_str()), Form("h_Tot_%s_Down_TMP",normName.c_str()), Nbin,0,Nbin) );
             }
             h_up[i_np]  ->SetBinContent( i_bin,h_tmp_Up  ->Integral() );
             h_down[i_np]->SetBinContent( i_bin,h_tmp_Down->Integral() );
         }
     }
     //
-    if(isPostFit)  g_err = BuildTotError( h_tot, h_up, h_down, npNames, fFitResults->fCorrMatrix.get() );
-    else           g_err = BuildTotError( h_tot, h_up, h_down, npNames );
+    if(isPostFit)  g_err = BuildTotError( h_tot.get(), h_up, h_down, npNames, fFitResults->fCorrMatrix.get() );
+    else           g_err = BuildTotError( h_tot.get(), h_up, h_down, npNames );
     //
-    p->SetTotBkg(h_tot);
+    p->SetTotBkg(h_tot.get());
     p->BlindData();
     p->SetTotBkgAsym(g_err.get());
     //
@@ -1896,7 +1896,7 @@ TRExPlot* TRExFit::DrawSummary(std::string opt, TRExPlot* prefit_plot) {
         p->SetBinLabel(i_bin,fRegions[regionVec[i_bin-1]]->fShortLabel.c_str());
     }
     p->Draw(opt);
-    if(!isPostFit && p->GetBlindingHisto()) fBlindedBins = static_cast<TH1D*>(p->GetBlindingHisto()->Clone("blinding_trexfit"));
+    if(!isPostFit && p->GetBlindingHisto()) fBlindedBins.reset(static_cast<TH1D*>(p->GetBlindingHisto()->Clone("blinding_trexfit")));
     //
     if(divisionVec.size()>0){
         p->pad0->cd();
@@ -1967,14 +1967,6 @@ TRExPlot* TRExFit::DrawSummary(std::string opt, TRExPlot* prefit_plot) {
             else           p->SaveAs((fName+"/Plots/Summary"        +(checkVR?"_VR":"")+fSuffix+"."+format).c_str());
         }
     }
-    //
-    for(std::size_t i_syst=0; i_syst < h_up.size(); ++i_syst) {
-        delete h_up[i_syst];
-        delete h_down[i_syst];
-    }
-    h_up.clear();
-    h_down.clear();
-    //
     return p;
 }
 
@@ -2096,14 +2088,14 @@ void TRExFit::DrawMergedPlot(std::string opt,std::string group) const{
     }
     //
     // merge and plot them
-    TRExPlot *p;
+    std::shared_ptr<TRExPlot> p;
     int cWidthMerge = 1200;
     int cHeightMerge = 600;
     if(fMergeCanvasSize.size()>1){
         cWidthMerge = fMergeCanvasSize.at(0);
         cHeightMerge = fMergeCanvasSize.at(1);
     }
-    p = new TRExPlot(fInputName+"_merge",cWidthMerge,cHeightMerge,TRExFitter::NORATIO);
+    p = std::make_shared<TRExPlot>(fInputName+"_merge",cWidthMerge,cHeightMerge,TRExFitter::NORATIO);
     //
     p->SetData(Common::MergeHistograms(hDataVec),"");
     for(unsigned int i_sig=0;i_sig<hSignalVec.size();i_sig++){
@@ -2285,8 +2277,7 @@ void TRExFit::BuildYieldTable(std::string opt, std::string group) const{
         texout.open((fName+"/Tables/Yields_postFit"+suffix+".tex").c_str());
     }
     // build one bin per region
-    std::vector<TH1D*> h_smp(fNSamples);
-    TH1D *h_tot;
+    std::vector<std::unique_ptr<TH1D> > h_smp(fNSamples);
     std::vector<std::unique_ptr<TGraphAsymmErrors> > g_err(fNSamples);
     std::unique_ptr<TGraphAsymmErrors> g_err_tot(nullptr);
     //
@@ -2362,7 +2353,7 @@ void TRExFit::BuildYieldTable(std::string opt, std::string group) const{
         }
         else{
             idxVec.push_back(i_smp);
-            h_smp[idxVec[i_smp]] = new TH1D(("h_"+name).c_str(),title.c_str(), Nbin,0,Nbin);
+            h_smp[idxVec[i_smp]].reset(new TH1D(("h_"+name).c_str(),title.c_str(), Nbin,0,Nbin));
         }
         for(unsigned int i_bin=1;i_bin<=regionVec.size();i_bin++){
             sh = fRegions[regionVec[i_bin-1]]->GetSampleHist( name );
@@ -2412,10 +2403,10 @@ void TRExFit::BuildYieldTable(std::string opt, std::string group) const{
         if(fSamples[i_smp]->fType==Sample::DATA) continue;
         name = fSamples[i_smp]->fName;
         // build the vectors of variations
-        std::vector< TH1* > h_up;
-        std::vector< TH1* > h_down;
-        TH1* h_tmp_Up;
-        TH1* h_tmp_Down;
+        std::vector< std::shared_ptr<TH1> > h_up;
+        std::vector< std::shared_ptr<TH1> > h_down;
+        std::unique_ptr<TH1> h_tmp_Up;
+        std::unique_ptr<TH1> h_tmp_Down;
         std::vector<std::string> npNames;
         i_np = -1;
         //
@@ -2443,32 +2434,32 @@ void TRExFit::BuildYieldTable(std::string opt, std::string group) const{
                 if(sh!=nullptr){
                     if(isPostFit){
                         if(syst_idx<0 || sh->GetSystematic(systName)==nullptr){
-                            h_tmp_Up   = sh->fHist_postFit.get();
-                            h_tmp_Down = sh->fHist_postFit.get();
+                            h_tmp_Up.reset(static_cast<TH1*>(sh->fHist_postFit->Clone()));
+                            h_tmp_Down.reset(static_cast<TH1*>(sh->fHist_postFit->Clone()));
                         }
                         else{
-                            h_tmp_Up   = sh->GetSystematic(systName)->fHistUp_postFit.get();
-                            h_tmp_Down = sh->GetSystematic(systName)->fHistDown_postFit.get();
+                            h_tmp_Up.reset(static_cast<TH1*>(sh->GetSystematic(systName)->fHistUp_postFit->Clone()));
+                            h_tmp_Down.reset(static_cast<TH1*>(sh->GetSystematic(systName)->fHistDown_postFit->Clone()));
                         }
                     }
                     else {
                         if(syst_idx<0 || sh->GetSystematic(systName)==nullptr){
-                            h_tmp_Up   = sh->fHist.get();
-                            h_tmp_Down = sh->fHist.get();
+                            h_tmp_Up.reset(static_cast<TH1*>(sh->fHist->Clone()));
+                            h_tmp_Down.reset(static_cast<TH1*>(sh->fHist->Clone()));
                         }
                         else{
-                            h_tmp_Up   = sh->GetSystematic(systName)->fHistUp.get();
-                            h_tmp_Down = sh->GetSystematic(systName)->fHistDown.get();
+                            h_tmp_Up.reset(static_cast<TH1*>(sh->GetSystematic(systName)->fHistUp->Clone()));
+                            h_tmp_Down.reset(static_cast<TH1*>(sh->GetSystematic(systName)->fHistDown->Clone()));
                         }
                     }
                 }
                 else {
-                    h_tmp_Up   = new TH1D(Form("h_DUMMY_%s_up_%i",  systName.c_str(),i_bin-1),"h_dummy",1,0,1);
-                    h_tmp_Down = new TH1D(Form("h_DUMMY_%s_down_%i",systName.c_str(),i_bin-1),"h_dummy",1,0,1);
+                    h_tmp_Up.reset(new TH1D(Form("h_DUMMY_%s_up_%i",  systName.c_str(),i_bin-1),"h_dummy",1,0,1));
+                    h_tmp_Down.reset(new TH1D(Form("h_DUMMY_%s_down_%i",systName.c_str(),i_bin-1),"h_dummy",1,0,1));
                 }
                 if(i_bin==1){
-                    h_up.  push_back( new TH1D(Form("h_%s_%s_Up_TMP",  name.c_str(),systName.c_str()),Form("h_%s_%s_Up_TMP",  name.c_str(),systName.c_str()), Nbin,0,Nbin) );
-                    h_down.push_back( new TH1D(Form("h_%s_%s_Down_TMP",name.c_str(),systName.c_str()),Form("h_%s_%s_Down_TMP",name.c_str(),systName.c_str()), Nbin,0,Nbin) );
+                    h_up.  emplace_back( new TH1D(Form("h_%s_%s_Up_TMP",  name.c_str(),systName.c_str()),Form("h_%s_%s_Up_TMP",  name.c_str(),systName.c_str()), Nbin,0,Nbin) );
+                    h_down.emplace_back( new TH1D(Form("h_%s_%s_Down_TMP",name.c_str(),systName.c_str()),Form("h_%s_%s_Down_TMP",name.c_str(),systName.c_str()), Nbin,0,Nbin) );
                 }
                 double scale = 1.;
                 if (!isPostFit){
@@ -2484,22 +2475,22 @@ void TRExFit::BuildYieldTable(std::string opt, std::string group) const{
                     if(idxVec[j_smp]==i_smp && i_smp!=j_smp){
                         if(isPostFit){
                             if(syst_idx<0 || sh->GetSystematic(systName)==nullptr){
-                                h_tmp_Up   = sh->fHist_postFit.get();
-                                h_tmp_Down = sh->fHist_postFit.get();
+                                h_tmp_Up.reset(static_cast<TH1*>(sh->fHist_postFit->Clone()));
+                                h_tmp_Down.reset(static_cast<TH1*>(sh->fHist_postFit->Clone()));
                             }
                             else{
-                                h_tmp_Up   = sh->GetSystematic(systName)->fHistUp_postFit.get();
-                                h_tmp_Down = sh->GetSystematic(systName)->fHistDown_postFit.get();
+                                h_tmp_Up.reset(static_cast<TH1*>(sh->GetSystematic(systName)->fHistUp_postFit->Clone()));
+                                h_tmp_Down.reset(static_cast<TH1*>(sh->GetSystematic(systName)->fHistDown_postFit->Clone()));
                             }
                         }
                         else{
                             if(syst_idx<0 || sh->GetSystematic(systName)==nullptr){
-                                h_tmp_Up   = sh->fHist.get();
-                                h_tmp_Down = sh->fHist.get();
+                                h_tmp_Up.reset(static_cast<TH1*>(sh->fHist->Clone()));
+                                h_tmp_Down.reset(static_cast<TH1*>(sh->fHist->Clone()));
                             }
                             else{
-                                h_tmp_Up   = sh->GetSystematic(systName)->fHistUp.get();
-                                h_tmp_Down = sh->GetSystematic(systName)->fHistDown.get();
+                                h_tmp_Up.reset(static_cast<TH1*>(sh->GetSystematic(systName)->fHistUp->Clone()));
+                                h_tmp_Down.reset(static_cast<TH1*>(sh->GetSystematic(systName)->fHistDown->Clone()));
                             }
                         }
                         double morph_scale = 1.;
@@ -2513,8 +2504,8 @@ void TRExFit::BuildYieldTable(std::string opt, std::string group) const{
             }
         }
         //
-        if(isPostFit)  g_err[i_smp] = BuildTotError( h_smp[i_smp], h_up, h_down, npNames, fFitResults->fCorrMatrix.get() );
-        else           g_err[i_smp] = BuildTotError( h_smp[i_smp], h_up, h_down, npNames );
+        if(isPostFit)  g_err[i_smp] = BuildTotError( h_smp[i_smp].get(), h_up, h_down, npNames, fFitResults->fCorrMatrix.get() );
+        else           g_err[i_smp] = BuildTotError( h_smp[i_smp].get(), h_up, h_down, npNames );
     }
     //
     // Print samples except ghosts, data for blind fits, signal for B-only...
@@ -2577,7 +2568,7 @@ void TRExFit::BuildYieldTable(std::string opt, std::string group) const{
     //
     // Build tot
     //
-    h_tot = new TH1D("h_Tot_","h_Tot", Nbin,0,Nbin);
+    std::unique_ptr<TH1D> h_tot = std::make_unique<TH1D>("h_Tot_","h_Tot", Nbin,0,Nbin);
     for(int i_bin=1;i_bin<=Nbin;i_bin++){
         if(isPostFit) h_tot->SetBinContent( i_bin,fRegions[regionVec[i_bin-1]]->fTot_postFit->IntegralAndError(1,fRegions[regionVec[i_bin-1]]->fTot_postFit->GetNbinsX(),intErr) );
         else          h_tot->SetBinContent( i_bin,fRegions[regionVec[i_bin-1]]->fTot->IntegralAndError(        1,fRegions[regionVec[i_bin-1]]->fTot->GetNbinsX(),        intErr) );
@@ -2586,10 +2577,10 @@ void TRExFit::BuildYieldTable(std::string opt, std::string group) const{
     //
     //   Build error band
     // build the vectors of variations
-    std::vector< TH1* > h_up;
-    std::vector< TH1* > h_down;
-    TH1* h_tmp_Up;
-    TH1* h_tmp_Down;
+    std::vector< std::shared_ptr<TH1> > h_up;
+    std::vector< std::shared_ptr<TH1> > h_down;
+    std::unique_ptr<TH1> h_tmp_Up;
+    std::unique_ptr<TH1> h_tmp_Down;
     std::vector<std::string> npNames;
     i_np = -1;
     //
@@ -2614,27 +2605,27 @@ void TRExFit::BuildYieldTable(std::string opt, std::string group) const{
             //
             if(isPostFit){
                 if(syst_idx<0){
-                    h_tmp_Up   = fRegions[regionVec[i_bin-1]]->fTot_postFit.get();
-                    h_tmp_Down = fRegions[regionVec[i_bin-1]]->fTot_postFit.get();
+                    h_tmp_Up.reset(static_cast<TH1*>(fRegions[regionVec[i_bin-1]]->fTot_postFit->Clone()));
+                    h_tmp_Down.reset(static_cast<TH1*>(fRegions[regionVec[i_bin-1]]->fTot_postFit->Clone()));
                 }
                 else{
-                    h_tmp_Up   = fRegions[regionVec[i_bin-1]]->fTotUp_postFit[syst_idx].get();
-                    h_tmp_Down = fRegions[regionVec[i_bin-1]]->fTotDown_postFit[syst_idx].get();
+                    h_tmp_Up.reset(static_cast<TH1*>(fRegions[regionVec[i_bin-1]]->fTotUp_postFit[syst_idx]->Clone()));
+                    h_tmp_Down.reset(static_cast<TH1*>(fRegions[regionVec[i_bin-1]]->fTotDown_postFit[syst_idx]->Clone()));
                 }
             }
             else{
                 if(syst_idx<0){
-                    h_tmp_Up   = fRegions[regionVec[i_bin-1]]->fTot.get();
-                    h_tmp_Down = fRegions[regionVec[i_bin-1]]->fTot.get();
+                    h_tmp_Up.reset(static_cast<TH1*>(fRegions[regionVec[i_bin-1]]->fTot->Clone()));
+                    h_tmp_Down.reset(static_cast<TH1*>(fRegions[regionVec[i_bin-1]]->fTot->Clone()));
                 }
                 else{
-                    h_tmp_Up   = fRegions[regionVec[i_bin-1]]->fTotUp[syst_idx].get();
-                    h_tmp_Down = fRegions[regionVec[i_bin-1]]->fTotDown[syst_idx].get();
+                    h_tmp_Up.reset(static_cast<TH1*>(fRegions[regionVec[i_bin-1]]->fTotUp[syst_idx]->Clone()));
+                    h_tmp_Down.reset(static_cast<TH1*>(fRegions[regionVec[i_bin-1]]->fTotDown[syst_idx]->Clone()));
                 }
             }
             if(i_bin==1){
-                h_up.  push_back( new TH1D(Form("h_Tot_%s_Up_TMP"  ,systName.c_str()), Form("h_Tot_%s_Up_TMP",  systName.c_str()), Nbin,0,Nbin) );
-                h_down.push_back( new TH1D(Form("h_Tot_%s_Down_TMP",systName.c_str()), Form("h_Tot_%s_Down_TMP",systName.c_str()), Nbin,0,Nbin) );
+                h_up.  emplace_back( new TH1D(Form("h_Tot_%s_Up_TMP"  ,systName.c_str()), Form("h_Tot_%s_Up_TMP",  systName.c_str()), Nbin,0,Nbin) );
+                h_down.emplace_back( new TH1D(Form("h_Tot_%s_Down_TMP",systName.c_str()), Form("h_Tot_%s_Down_TMP",systName.c_str()), Nbin,0,Nbin) );
             }
             h_up[i_np]  ->SetBinContent( i_bin,h_tmp_Up  ->Integral() );
             h_down[i_np]->SetBinContent( i_bin,h_tmp_Down->Integral() );
@@ -2643,16 +2634,16 @@ void TRExFit::BuildYieldTable(std::string opt, std::string group) const{
             for(int j_syst=0;j_syst<(int)fRegions[regionVec[i_bin-1]]->fSystNames.size();j_syst++){
                 if(j_syst==syst_idx) continue;
                 if(systNuisPar==TRExFitter::NPMAP[ fRegions[regionVec[i_bin-1]]->fSystNames[j_syst] ]){
-                    TH1* h_tmp = nullptr;
+                    std::unique_ptr<TH1> h_tmp = nullptr;
                     if(isPostFit){
-                        h_tmp_Up   = fRegions[regionVec[i_bin-1]]->fTotUp_postFit[j_syst].get();
-                        h_tmp_Down = fRegions[regionVec[i_bin-1]]->fTotDown_postFit[j_syst].get();
-                        h_tmp      = fRegions[regionVec[i_bin-1]]->fTot_postFit.get();
+                        h_tmp_Up.reset(static_cast<TH1*>(fRegions[regionVec[i_bin-1]]->fTotUp_postFit[j_syst]->Clone()));
+                        h_tmp_Down.reset(static_cast<TH1*>(fRegions[regionVec[i_bin-1]]->fTotDown_postFit[j_syst]->Clone()));
+                        h_tmp.reset(static_cast<TH1*>(fRegions[regionVec[i_bin-1]]->fTot_postFit->Clone()));
                     }
                     else{
-                        h_tmp_Up   = fRegions[regionVec[i_bin-1]]->fTotUp[j_syst].get();
-                        h_tmp_Down = fRegions[regionVec[i_bin-1]]->fTotDown[j_syst].get();
-                        h_tmp      = fRegions[regionVec[i_bin-1]]->fTot.get();
+                        h_tmp_Up.reset(static_cast<TH1*>(fRegions[regionVec[i_bin-1]]->fTotUp[j_syst]->Clone()));
+                        h_tmp_Down.reset(static_cast<TH1*>(fRegions[regionVec[i_bin-1]]->fTotDown[j_syst]->Clone()));
+                        h_tmp.reset(static_cast<TH1*>(fRegions[regionVec[i_bin-1]]->fTot->Clone()));
                     }
                     h_up[i_np]  ->AddBinContent( i_bin,h_tmp_Up  ->Integral()-h_tmp->Integral() );
                     h_down[i_np]->AddBinContent( i_bin,h_tmp_Down->Integral()-h_tmp->Integral() );
@@ -2661,8 +2652,8 @@ void TRExFit::BuildYieldTable(std::string opt, std::string group) const{
         }
     }
     //
-    if(isPostFit)  g_err_tot = BuildTotError( h_tot, h_up, h_down, npNames, fFitResults->fCorrMatrix.get() );
-    else           g_err_tot = BuildTotError( h_tot, h_up, h_down, npNames );
+    if(isPostFit)  g_err_tot = BuildTotError( h_tot.get(), h_up, h_down, npNames, fFitResults->fCorrMatrix.get() );
+    else           g_err_tot = BuildTotError( h_tot.get(), h_up, h_down, npNames );
     //
     if(TRExFitter::SHOWSTACKSIG && TRExFitter::ADDSTACKSIG) out << " | Total | ";
     else                                                    out << " | Tot.Bkg. | ";
@@ -2752,14 +2743,6 @@ void TRExFit::BuildYieldTable(std::string opt, std::string group) const{
     if(fTableOptions.find("STANDALONE")!=std::string::npos){
         texout << "\\end{document}" << std::endl;
     }
-    //
-    for(int i_syst=0;i_syst<(int)h_up.size();i_syst++){
-        delete h_up[i_syst];
-        delete h_down[i_syst];
-    }
-    h_up.clear();
-    h_down.clear();
-    //
     if(fCleanTables){
         std::string shellcommand = "cat "+fName+"/Tables/Yields"+suffix+".tex|sed -e \"s/\\#/ /g\" > "+fName+"/Tables/Yields";
         if(isPostFit) shellcommand += "_postFit";

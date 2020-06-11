@@ -138,7 +138,7 @@ public:
     // separation plots
     void DrawAndSaveSeparationPlots() const;
 
-    TRExPlot* DrawSummary(std::string opt="", TRExPlot* = nullptr) ;
+    std::shared_ptr<TRExPlot> DrawSummary(std::string opt="", std::shared_ptr<TRExPlot> = nullptr);
     void DrawMergedPlot(std::string opt="",std::string group="") const;
     void BuildYieldTable(std::string opt="",std::string group="") const;
 
@@ -689,7 +689,7 @@ public:
     std::vector< std::string > fRegionGroups;
 
     bool fKeepPrefitBlindedBins;
-    TH1D* fBlindedBins;
+    std::unique_ptr<TH1D> fBlindedBins;
 
     std::string fCustomAsimov;
 

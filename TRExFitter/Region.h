@@ -161,14 +161,14 @@ public:
     // to draw
     std::unique_ptr<TH1> fTot;
     std::unique_ptr<TGraphAsymmErrors> fErr;
-    std::vector<std::unique_ptr<TH1> > fTotUp;
-    std::vector<std::unique_ptr<TH1> > fTotDown;
+    std::vector<std::shared_ptr<TH1> > fTotUp;
+    std::vector<std::shared_ptr<TH1> > fTotDown;
 
     // post fit
     std::unique_ptr<TH1> fTot_postFit;
     std::unique_ptr<TGraphAsymmErrors> fErr_postFit;
-    std::vector<std::unique_ptr<TH1> > fTotUp_postFit;
-    std::vector<std::unique_ptr<TH1> > fTotDown_postFit;
+    std::vector<std::shared_ptr<TH1> > fTotUp_postFit;
+    std::vector<std::shared_ptr<TH1> > fTotDown_postFit;
 
     // ntuple stuff
     std::string fBinTransfo;
@@ -268,7 +268,7 @@ public:
 
     std::string fGroup; // used to split yield tables
 
-    TH1D* fBlindedBins;
+    std::unique_ptr<TH1D> fBlindedBins;
     bool fKeepPrefitBlindedBins;
     int fGetChi2;
 
@@ -316,11 +316,11 @@ double GetDeltaN(double alpha, double Iz, double Ip, double Imi, int intCode=4);
 
 // To build the total error band
 std::unique_ptr<TGraphAsymmErrors> BuildTotError( const TH1* const h_nominal,
-                                                  const std::vector< TH1* >& h_up,
-                                                  const std::vector< TH1* >& h_down,
+                                                  const std::vector< std::shared_ptr<TH1> >& h_up,
+                                                  const std::vector< std::shared_ptr<TH1> >& h_down,
                                                   const std::vector< std::string >& systNames,
                                                   CorrelationMatrix* matrix=nullptr );
 
-std::pair<double,int> GetChi2Test( TH1* h_data, TH1* h_nominal, std::vector< TH1* > h_up, std::vector< std::string > fSystNames, CorrelationMatrix *matrix=nullptr );
+std::pair<double,int> GetChi2Test( TH1* h_data, TH1* h_nominal, std::vector< std::shared_ptr<TH1> > h_up, std::vector< std::string > fSystNames, CorrelationMatrix *matrix=nullptr );
 
 #endif

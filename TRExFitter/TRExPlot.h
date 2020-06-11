@@ -15,7 +15,9 @@ class TGraphAsymmErrors;
 class TH1;
 class TH1D;
 class THStack;
+class TLatex;
 class TLegend;
+class TLine;
 class TPad;
 
 class TRExPlot {
@@ -58,27 +60,33 @@ class TRExPlot {
     void SaveAs(const std::string& name) const;
     void WriteToFile(const std::string& name) const;
 
-    TCanvas* GetCanvas() const;
-
-
     std::string fName;
-    TH1* h_data;
-    TGraphAsymmErrors* g_data;
-    std::vector<TH1*> h_bkg;
-    std::vector<TH1*> h_signal;
-    std::vector<TH1*> h_normsig;
-    std::vector<TH1*> h_oversig;
+    std::unique_ptr<TH1> h_data;
+    std::unique_ptr<TGraphAsymmErrors> g_data;
+    std::vector<std::unique_ptr<TH1> > h_bkg;
+    std::vector<std::unique_ptr<TH1> > h_signal;
+    std::vector<std::unique_ptr<TH1> > h_normsig;
+    std::vector<std::unique_ptr<TH1> > h_oversig;
     THStack* h_stack;
-    TH1* h_tot;
-    TGraphAsymmErrors* g_tot;
+    std::unique_ptr<TH1> h_tot;
+    std::unique_ptr<TGraphAsymmErrors> g_tot;
     TH1* h_tot_bkg_prefit;
     TH1* h_dummy;
+    std::unique_ptr<TH1> h_ratio;
+    std::unique_ptr<TH1> h_tot_nosyst;
+    std::unique_ptr<TGraphAsymmErrors> g_ratio;
+    std::unique_ptr<TGraphAsymmErrors> g_ratio2;
+    std::unique_ptr<TH1D> h_blind;
+    std::unique_ptr<TH1D> h_blindratio;
+    std::unique_ptr<TH1> h_dummy2;
 
     TCanvas* c;
     TLegend* leg;
     TLegend* leg1;
     TPad* pad0;
     TPad* pad1;
+    std::unique_ptr<TLatex> KSlab;
+    std::unique_ptr<TLine> hline;
 
     std::string xtitle;
     std::string ytitle;
@@ -139,8 +147,8 @@ private:
 // function to get asymmetric error bars for hists
 double GC_up(double data);
 double GC_down(double data);
-TGraphAsymmErrors* poissonize(TH1 *h);
-TGraphAsymmErrors* histToGraph(TH1* h);
+std::unique_ptr<TGraphAsymmErrors> poissonize(const TH1 *h);
+std::unique_ptr<TGraphAsymmErrors> histToGraph(const TH1* h);
 void SetHistBinWidth(TH1* h,double width);
 void SetGraphBinWidth(TGraphAsymmErrors* g,double width);
 

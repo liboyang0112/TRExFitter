@@ -336,8 +336,8 @@ void FitExample(std::string opt="h",std::string configFile="config/myFit.config"
         else                                         myFit->BuildGroupedImpactTable();
     }
 
-    TRExPlot* prefit_plot = nullptr;
-    TRExPlot* prefit_plot_valid = nullptr;
+    std::shared_ptr<TRExPlot> prefit_plot = nullptr;
+    std::shared_ptr<TRExPlot> prefit_plot_valid = nullptr;
     if( drawPostFit && TRExFitter::PREFITONPOSTFIT ) {
         drawPreFit = true;
     }
