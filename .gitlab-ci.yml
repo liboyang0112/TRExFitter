@@ -732,7 +732,7 @@ site_build:
     expire_in: 1 hour
 
 ##
-## deploy the website to EOS
+## deploy the website to EOS, but only for master branch of main repository
 ##     see https://gitlab.cern.ch/ci-tools/ci-web-deployer/
 ##
 site_deploy:
@@ -749,4 +749,4 @@ site_deploy:
   before_script:
     - "" # overwrite default, do nothing
   only:
-    - master
+    - master@TRExStats/TRExFitter
