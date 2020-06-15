@@ -8461,6 +8461,8 @@ void TRExFit::PrepareUnfolding() {
                 PlotMigrationResponse(matrix.get(), false, ireg->fName, "");
 
                 manager.SetResponseMatrix(matrix.get());
+                outputFile->cd();
+                matrix->Write((ireg->fName + "_" + isample->GetName() + "_response").c_str());
             } else {
                 // need to add acceptance, selection and migration
                 {
@@ -8486,6 +8488,8 @@ void TRExFit::PrepareUnfolding() {
 
                     // pass the migration to the tool
                     manager.SetMigrationMatrix(matrix.get(), false);
+                    outputFile->cd();
+                    matrix->Write((ireg->fName + "_" + isample->GetName() + "_migration").c_str());
                 }
 
                 // add selection eff
@@ -8522,6 +8526,8 @@ void TRExFit::PrepareUnfolding() {
 
                 manager.CalculateResponseMatrix(true);
                 PlotMigrationResponse(manager.GetResponseMatrix(), false, ireg->fName, "");
+                outputFile->cd();
+                manager.GetResponseMatrix()->Write((ireg->fName + "_" + isample->GetName() + "_response").c_str());
             }
 
             manager.FoldTruth();
@@ -8598,6 +8604,11 @@ void TRExFit::ProcessUnfoldingSystematics(FoldingManager* manager,
             }
 
             manager->SetResponseMatrix(matrix.get());
+            
+            if (fPlotSystematicMigrations) {
+                file->cd();
+                matrix->Write((reg->fName + "_" + syst->GetName() + "_response").c_str());
+            }
         } else {
             {
                 /// migration first
@@ -8624,6 +8635,10 @@ void TRExFit::ProcessUnfoldingSystematics(FoldingManager* manager,
                 }
 
                 manager->SetMigrationMatrix(matrix.get(), false);
+                if (fPlotSystematicMigrations) {
+                    file->cd();
+                    matrix->Write((reg->fName + "_" + syst->GetName() + "_migration").c_str());
+                }
             }
 
             // selectio eff now
@@ -8661,6 +8676,8 @@ void TRExFit::ProcessUnfoldingSystematics(FoldingManager* manager,
             manager->CalculateResponseMatrix(true);
             if (fPlotSystematicMigrations) {
                 PlotMigrationResponse(manager->GetResponseMatrix(), false, reg->fName, syst->GetName());
+                file->cd();
+                manager->GetResponseMatrix()->Write((reg->fName + "_" + syst->GetName() + "_response").c_str());
             }
         }
         manager->FoldTruth();
