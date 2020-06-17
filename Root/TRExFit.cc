@@ -272,7 +272,9 @@ TRExFit::TRExFit(std::string name) :
     fReorderNPs(false),
     fBlindSRs(false),
     fHEPDataFormat(false),
-    fAlternativeShapeHistFactory(false)
+    fAlternativeShapeHistFactory(false),
+    fFitStrategy(-1),
+    fBinnedLikelihood(false)
 {
     TRExFitter::IMAGEFORMAT.emplace_back("png");
 }
@@ -4478,28 +4480,30 @@ RooDataSet* TRExFit::DumpData( RooWorkspace *ws,  std::map < std::string, int > 
         ws->loadSnapshot("InitialStateModelNuis");
     }
 
-    //Setting binned likelihood option
-    RooFIter rfiter = ws->components().fwdIterator();
-    RooAbsArg* arg;
-    while ((arg = rfiter.next())) {
-        if (arg->IsA() == RooRealSumPdf::Class()) {
-            arg->setAttribute("BinnedLikelihood");
-            std::string temp_string = arg->GetName();
-            WriteDebugStatus("TRExFit::DumpData", "Activating binned likelihood attribute for " + temp_string);
+    if (fBinnedLikelihood) {
+        //Setting binned likelihood option
+        RooFIter rfiter = ws->components().fwdIterator();
+        RooAbsArg* arg;
+        while ((arg = rfiter.next())) {
+            if (arg->IsA() == RooRealSumPdf::Class()) {
+                arg->setAttribute("BinnedLikelihood");
+                std::string temp_string = arg->GetName();
+                WriteDebugStatus("TRExFit::DumpData", "Activating binned likelihood attribute for " + temp_string);
+            }
         }
     }
 
     //Creating a set
-    const char* weightName="weightVar";
+    static const std::string weightName="weightVar";
     RooArgSet obsAndWeight;
     obsAndWeight.add(*mc->GetObservables());
 
     RooRealVar* weightVar = nullptr;
-    if ( !(weightVar = ws->var(weightName)) ){
-        ws->import(*(new RooRealVar(weightName, weightName, 1,0,10000000)));
-        weightVar = ws->var(weightName);
+    if ( !(weightVar = ws->var(weightName.c_str())) ){
+        ws->import(*(new RooRealVar(weightName.c_str(), weightName.c_str(), 1,0,10000000)));
+        weightVar = ws->var(weightName.c_str());
     }
-    obsAndWeight.add(*ws->var(weightName));
+    obsAndWeight.add(*ws->var(weightName.c_str()));
     ws->defineSet("obsAndWeight",obsAndWeight);
 
     //
@@ -4643,6 +4647,7 @@ std::map < std::string, double > TRExFit::PerformFit( RooWorkspace *ws, RooDataS
     // Fit configuration (SPLUSB or BONLY)
     //
     FittingTool fitTool{};
+    fitTool.SetStrategy(fFitStrategy);
     fitTool.SetDebug(debugLevel);
     if(fitType==BONLY){
         fitTool.ValPOI(0.);
@@ -5500,7 +5505,7 @@ void TRExFit::DrawAndSaveSeparationPlots() const{
 
         myText(0.20,0.83,1,Form("#sqrt{s} = %s, %s", cme.c_str(), lumi.c_str()));
 
-        if(fAtlasLabel!="none") ATLASLabelNew(0.20,0.84+0.04,(char*)(fAtlasLabel+"  Simulation").c_str(), kBlack, gStyle->GetTextSize());
+        if(fAtlasLabel!="none") ATLASLabelNew(0.20,0.84+0.04,(fAtlasLabel+"  Simulation").c_str(), kBlack, gStyle->GetTextSize());
 
         std::ostringstream SEP;
         SEP.precision(3);
@@ -5707,6 +5712,7 @@ void TRExFit::ProduceNPRanking( std::string NPnames/*="all"*/ ){
         }
     }
     FittingTool fitTool{};
+    fitTool.SetStrategy(fFitStrategy);
     fitTool.SetDebug(TRExFitter::DEBUGLEVEL);
     fitTool.ValPOI(poiInitial);
     fitTool.ConstPOI(false);
@@ -6511,10 +6517,10 @@ void TRExFit::ComputeBinning(int regIter){
                 //
                 // Pre-processing of histograms (rebinning, lumi scaling)
                 if(fRegions[regIter]->fHistoBins.size() > 0){
-                    const char *hname = htmp->GetName();
+                    const std::string hname = htmp->GetName();
                     std::unique_ptr<TH1> tmp_copy(static_cast<TH1*>(htmp->Rebin(fRegions[regIter]->fHistoNBinsRebin, "tmp_copy", &fRegions[regIter]->fHistoBins[0])));
                     htmp.reset(tmp_copy.release());
-                    htmp->SetName(hname);
+                    htmp->SetName(hname.c_str());
                     if(TRExFitter::MERGEUNDEROVERFLOW) Common::MergeUnderOverFlow(htmp.get());
                 }
                 else if(fRegions[regIter]->fHistoNBinsRebin != -1) {
@@ -6794,10 +6800,17 @@ void TRExFit::GetLikelihoodScan( RooWorkspace *ws, std::string varName, RooDataS
 
     std::vector<double> x(fLHscanSteps);
     std::vector<double> y(fLHscanSteps);
+    
+    ROOT::Math::MinimizerOptions::SetDefaultMinimizer("Minuit2");
+    ROOT::Math::MinimizerOptions::SetDefaultStrategy(1);
+    ROOT::Math::MinimizerOptions::SetDefaultPrintLevel(-1);
+    const double tol =        ::ROOT::Math::MinimizerOptions::DefaultTolerance(); //AsymptoticCalculator enforces not less than 1 on this
+    
     RooMinimizer m(*nll); // get MINUIT interface of fit
-    m.setErrorLevel(-1);
     m.setPrintLevel(-1);
     m.setStrategy(2); // set precision to high
+    m.optimizeConst(2);
+    m.setEps(tol);
     var->setConstant(kTRUE); // make POI constant in the fit
     double min = 9999999;
     for (int ipoint = 0; ipoint < fLHscanSteps; ++ipoint) {
@@ -6999,10 +7012,17 @@ void TRExFit::Get2DLikelihoodScan( RooWorkspace *ws, const std::vector<std::stri
                                                       NumCPU(TRExFitter::NCPU, RooFit::Hybrid),
                                                       RooFit::Optimize(kTRUE)));
 
+    ROOT::Math::MinimizerOptions::SetDefaultMinimizer("Minuit2");
+    ROOT::Math::MinimizerOptions::SetDefaultStrategy(1);
+    ROOT::Math::MinimizerOptions::SetDefaultPrintLevel(-1);
+    const TString minimType = ::ROOT::Math::MinimizerOptions::DefaultMinimizerType().c_str();
+    const double tol =        ::ROOT::Math::MinimizerOptions::DefaultTolerance(); //AsymptoticCalculator enforces not less than 1 on this
     RooMinimizer m(*nll); // get MINUIT interface of fit
+    m.optimizeConst(2);
     m.setErrorLevel(-1);
     m.setPrintLevel(-1);
     m.setStrategy(2); // set precision to high
+    m.setEps(tol);
     //Set both POIs to constant
     varX->setConstant(kTRUE); // make POI constant in the fit
     varY->setConstant(kTRUE); // make POI constant in the fit
@@ -7547,14 +7567,16 @@ void TRExFit::RunToys(){
             WriteErrorStatus("TRExFit::RunToys","Cannot retrieve the workspace, exiting!");
             exit(EXIT_FAILURE);
         }
-        //Setting binned likelihood option
-        RooFIter rfiter = ws->components().fwdIterator();
-        RooAbsArg* arg;
-        while ((arg = rfiter.next())) {
-            if (arg->IsA() == RooRealSumPdf::Class()) {
-                arg->setAttribute("BinnedLikelihood");
-                const std::string& temp_string = arg->GetName();
-                WriteDebugStatus("TRExFit::RunToys", "Activating binned likelihood attribute for " + temp_string);
+        if (fBinnedLikelihood) {
+            //Setting binned likelihood option
+            RooFIter rfiter = ws->components().fwdIterator();
+            RooAbsArg* arg;
+            while ((arg = rfiter.next())) {
+                if (arg->IsA() == RooRealSumPdf::Class()) {
+                    arg->setAttribute("BinnedLikelihood");
+                    const std::string& temp_string = arg->GetName();
+                    WriteDebugStatus("TRExFit::DumpData", "Activating binned likelihood attribute for " + temp_string);
+                }
             }
         }
         // create map to store fit results
@@ -7712,9 +7734,16 @@ void TRExFit::RunToys(){
             WriteInfoStatus("TRExFit::RunToys","Fitting toy n. " + std::to_string(i_toy+1));
             //Set new dataset for NLL
             nll->setData(*toyData);
+            ROOT::Math::MinimizerOptions::SetDefaultMinimizer("Minuit2");
+            ROOT::Math::MinimizerOptions::SetDefaultStrategy(1);
+            ROOT::Math::MinimizerOptions::SetDefaultPrintLevel(-1);
+            const double tol =        ::ROOT::Math::MinimizerOptions::DefaultTolerance(); //AsymptoticCalculator enforces not less than 1 on this
             RooMinimizer m(*nll); // get MINUIT interface of fit
+            m.optimizeConst(2);
             m.setErrorLevel(-1);
             m.setPrintLevel(-1);
+            m.setStrategy(1);
+            m.setEps(tol);
             //m.setStrategy(2); // set precision to high
             m.migrad();
             RooFitResult* r = m.save(); // save fit result

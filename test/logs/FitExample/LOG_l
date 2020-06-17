@@ -232,8 +232,6 @@ PDF:                     RooSimultaneous::simPdf[ indexCat=channelCat SR_1=model
 === DEBUG::TRExFit::DumpData:        - Region: SR_2       DataType: 0
 === DEBUG::TRExFit::DumpData:     * No NP values injected 
 === DEBUG::TRExFit::DumpData:     * POI value: 0.000000
-=== DEBUG::TRExFit::DumpData: Activating binned likelihood attribute for SR_1_model
-=== DEBUG::TRExFit::DumpData: Activating binned likelihood attribute for SR_2_model
 [#1] INFO:ObjectHandling -- RooWorkspace::import(combined) importing dataset newasimovData
 [#1] INFO:ObjectHandling -- RooWorkSpace::import(combined) changing name of dataset from  newasimovData to ttHFitterData
 Settings:
@@ -1800,6 +1798,6 @@ CLsb = 0.126663
 CLs = 0.255361
 ************************
 Finished with 38 calls to minimize(nll)
-Real time 0:00:03, CP time 2.210
+Real time 0:00:02, CP time 2.130
 mkdir: created directory ‘FitExample/Limits’
 mkdir: created directory ‘FitExample/Limits//asymptotics/’

@@ -619,7 +619,16 @@ int ConfigReaderMulti::ReadJobOptions() {
             fMultiFitter->fHEPDataFormat = false;
         }
     }
-
+    
+    // Set FitStrategy
+    param = confSet->Get("FitStrategy");
+    if (param != "") {
+        fMultiFitter->fFitStrategy = stoi(param);
+        if (fMultiFitter->fFitStrategy > 2) {
+            WriteWarningStatus("ConfigReaderMulti::ReadJobOptions", "FitStrategy > 2, setting to default (-1)");
+            fMultiFitter->fFitStrategy = -1;
+        }
+    }
 
     return 0;
 }

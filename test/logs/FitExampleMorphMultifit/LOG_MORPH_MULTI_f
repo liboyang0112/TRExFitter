@@ -40,159 +40,114 @@ RooAbsTestStatistic::initSimMode: creating slave calculator #3 for state CR_ll (
 [#1] INFO:Minization -- RooNLLVar::evaluatePartition(SR_emu) first = 0 last = 20 Likelihood offset now set to -3.4074e+06
 [#1] INFO:Minization -- RooNLLVar::evaluatePartition(CR_ll) first = 0 last = 20 Likelihood offset now set to -1.76275e+06
 [#1] INFO:Fitting -- RooAddition::defaultErrorLevel(nll_simPdf_obsData_with_constr) Summation contains a RooNLLVar, using its error level
+[#1] INFO:Minization -- RooMinimizer::optimizeConst: activating const optimization
 [1;32m=== INFO::FittingTool::FitPDF: [0m
 [1;32m=== INFO::FittingTool::FitPDF: [0m
 [1;32m=== INFO::FittingTool::FitPDF: [0m
 [1;32m=== INFO::FittingTool::FitPDF: Fit try no.1[0m
 [1;32m=== INFO::FittingTool::FitPDF: ======================[0m
 [1;32m=== INFO::FittingTool::FitPDF: [0m
-Minuit2Minimizer: Minimize with max-calls 47000 convergence for edm < 1 strategy 1
-MnSeedGenerator: for initial parameters FCN = 367.8755851552
-MnSeedGenerator: Initial state:   - FCN =   367.8755851552 Edm =     0.886566 NCalls =    373
-VariableMetric: start iterating until Edm is < 0.001
-VariableMetric: Initial state   - FCN =   367.8755851552 Edm =     0.886566 NCalls =    373
-VariableMetric: Iteration #   0 - FCN =   367.8755851552 Edm =     0.886566 NCalls =    373
-VariableMetric: Iteration #   1 - FCN =   366.0577512524 Edm =      1.59488 NCalls =    567
-VariableMetric: Iteration #   2 - FCN =    364.926530209 Edm =     0.344301 NCalls =    757
-VariableMetric: Iteration #   3 - FCN =   364.1893033675 Edm =     0.264559 NCalls =    947
-VariableMetric: Iteration #   4 - FCN =   363.3521669084 Edm =   0.00219926 NCalls =   1137
-VariableMetric: Iteration #   5 - FCN =   363.3500280986 Edm =  2.47811e-05 NCalls =   1326
-VariableMetric: After Hessian   - FCN =   363.3500280986 Edm =   0.00163307 NCalls =   6254
-VariableMetric: Iteration #   6 - FCN =   363.3500280986 Edm =   0.00163307 NCalls =   6254
-Info: VariableMetricBuilder: Tolerance is not sufficient, continue the minimization
-Info in Current  Edm is : edm = 0.00163307
-Info in Required Edm is : edmval = 0.001
-VariableMetric: Iteration #   7 - FCN =   363.3484021001 Edm =  4.25411e-08 NCalls =   6443
+Minuit2Minimizer: Minimize with max-calls 47000 convergence for edm < 0.01 strategy 1
 Minuit2Minimizer : Valid minimum - status = 0
-FVAL  = 363.348402100135957
-Edm   = 4.25410726975739771e-08
-Nfcn  = 6443
-alpha_JET_BJES_Response	  = 0.00135237	 +/-  0.122316	(limited)
-alpha_bTagSF_B_0	  = -0.000553986	 +/-  0.183026	(limited)
-gamma_shape_stat_Bkg_CR_CR_Wmass_bin_0	  = 0.999982	 +/-  0.138463	(limited)
-gamma_shape_stat_Bkg_CR_CR_Wmass_bin_1	  = 0.999986	 +/-  0.179316	(limited)
-gamma_shape_stat_Bkg_CR_CR_Wmass_bin_10	  = 0.999998	 +/-  0.0359388	(limited)
-gamma_shape_stat_Bkg_CR_CR_Wmass_bin_11	  = 0.999998	 +/-  0.033444	(limited)
-gamma_shape_stat_Bkg_CR_CR_Wmass_bin_12	  = 0.999998	 +/-  0.0331725	(limited)
-gamma_shape_stat_Bkg_CR_CR_Wmass_bin_13	  = 0.999998	 +/-  0.032365	(limited)
-gamma_shape_stat_Bkg_CR_CR_Wmass_bin_14	  = 0.999997	 +/-  0.0336919	(limited)
-gamma_shape_stat_Bkg_CR_CR_Wmass_bin_15	  = 0.999998	 +/-  0.0344933	(limited)
-gamma_shape_stat_Bkg_CR_CR_Wmass_bin_16	  = 0.999997	 +/-  0.0352689	(limited)
-gamma_shape_stat_Bkg_CR_CR_Wmass_bin_17	  = 0.999997	 +/-  0.0389755	(limited)
-gamma_shape_stat_Bkg_CR_CR_Wmass_bin_18	  = 0.999999	 +/-  0.0400628	(limited)
-gamma_shape_stat_Bkg_CR_CR_Wmass_bin_19	  = 0.999999	 +/-  0.0435076	(limited)
-gamma_shape_stat_Bkg_CR_CR_Wmass_bin_2	  = 0.999993	 +/-  0.0781856	(limited)
-gamma_shape_stat_Bkg_CR_CR_Wmass_bin_20	  = 1	 +/-  0.0473771	(limited)
-gamma_shape_stat_Bkg_CR_CR_Wmass_bin_21	  = 1	 +/-  0.0506569	(limited)
-gamma_shape_stat_Bkg_CR_CR_Wmass_bin_22	  = 1	 +/-  0.0560709	(limited)
-gamma_shape_stat_Bkg_CR_CR_Wmass_bin_23	  = 1	 +/-  0.0645288	(limited)
-gamma_shape_stat_Bkg_CR_CR_Wmass_bin_24	  = 1	 +/-  0.0452952	(limited)
-gamma_shape_stat_Bkg_CR_CR_Wmass_bin_3	  = 0.999996	 +/-  0.0606577	(limited)
-gamma_shape_stat_Bkg_CR_CR_Wmass_bin_4	  = 0.999997	 +/-  0.0468673	(limited)
-gamma_shape_stat_Bkg_CR_CR_Wmass_bin_5	  = 0.999997	 +/-  0.0412676	(limited)
-gamma_shape_stat_Bkg_CR_CR_Wmass_bin_6	  = 0.999997	 +/-  0.0378504	(limited)
-gamma_shape_stat_Bkg_CR_CR_Wmass_bin_7	  = 0.999997	 +/-  0.0367186	(limited)
-gamma_shape_stat_Bkg_CR_CR_Wmass_bin_8	  = 0.999998	 +/-  0.0362471	(limited)
-gamma_shape_stat_Bkg_CR_CR_Wmass_bin_9	  = 0.999998	 +/-  0.0345597	(limited)
-gamma_shape_stat_Bkg_CR_CR_ll_bin_0	  = 1	 +/-  0.0461105	(limited)
-gamma_shape_stat_Bkg_CR_CR_ll_bin_1	  = 1	 +/-  0.0504444	(limited)
-gamma_shape_stat_Bkg_CR_CR_ll_bin_10	  = 1	 +/-  0.0390968	(limited)
-gamma_shape_stat_Bkg_CR_CR_ll_bin_11	  = 1	 +/-  0.0332597	(limited)
-gamma_shape_stat_Bkg_CR_CR_ll_bin_12	  = 1	 +/-  0.039377	(limited)
-gamma_shape_stat_Bkg_CR_CR_ll_bin_13	  = 1	 +/-  0.0360101	(limited)
-gamma_shape_stat_Bkg_CR_CR_ll_bin_14	  = 1	 +/-  0.0487337	(limited)
-gamma_shape_stat_Bkg_CR_CR_ll_bin_15	  = 1	 +/-  0.0448699	(limited)
-gamma_shape_stat_Bkg_CR_CR_ll_bin_16	  = 1	 +/-  0.0546317	(limited)
-gamma_shape_stat_Bkg_CR_CR_ll_bin_17	  = 1	 +/-  0.0503632	(limited)
-gamma_shape_stat_Bkg_CR_CR_ll_bin_18	  = 1	 +/-  0.0656831	(limited)
-gamma_shape_stat_Bkg_CR_CR_ll_bin_19	  = 1	 +/-  0.0229296	(limited)
-gamma_shape_stat_Bkg_CR_CR_ll_bin_2	  = 1	 +/-  0.0316937	(limited)
-gamma_shape_stat_Bkg_CR_CR_ll_bin_3	  = 1	 +/-  0.0280417	(limited)
-gamma_shape_stat_Bkg_CR_CR_ll_bin_4	  = 1	 +/-  0.0401728	(limited)
-gamma_shape_stat_Bkg_CR_CR_ll_bin_5	  = 1	 +/-  0.0271755	(limited)
-gamma_shape_stat_Bkg_CR_CR_ll_bin_6	  = 1	 +/-  0.0331135	(limited)
-gamma_shape_stat_Bkg_CR_CR_ll_bin_7	  = 1	 +/-  0.0375094	(limited)
-gamma_shape_stat_Bkg_CR_CR_ll_bin_8	  = 1	 +/-  0.0269145	(limited)
-gamma_shape_stat_Bkg_CR_CR_ll_bin_9	  = 1	 +/-  0.0526324	(limited)
-gamma_shape_stat_Bkg_SR_SR_emu_bin_0	  = 0.999971	 +/-  0.203198	(limited)
-gamma_shape_stat_Bkg_SR_SR_emu_bin_1	  = 1	 +/-  0.07806	(limited)
-gamma_shape_stat_Bkg_SR_SR_emu_bin_10	  = 1	 +/-  0.0358397	(limited)
-gamma_shape_stat_Bkg_SR_SR_emu_bin_11	  = 1	 +/-  0.0335975	(limited)
-gamma_shape_stat_Bkg_SR_SR_emu_bin_12	  = 1	 +/-  0.035331	(limited)
-gamma_shape_stat_Bkg_SR_SR_emu_bin_13	  = 1	 +/-  0.0283882	(limited)
-gamma_shape_stat_Bkg_SR_SR_emu_bin_14	  = 0.999999	 +/-  0.0338486	(limited)
-gamma_shape_stat_Bkg_SR_SR_emu_bin_15	  = 0.999998	 +/-  0.0299825	(limited)
-gamma_shape_stat_Bkg_SR_SR_emu_bin_16	  = 1	 +/-  0.0274039	(limited)
-gamma_shape_stat_Bkg_SR_SR_emu_bin_17	  = 0.999999	 +/-  0.0308247	(limited)
-gamma_shape_stat_Bkg_SR_SR_emu_bin_18	  = 1	 +/-  0.0306183	(limited)
-gamma_shape_stat_Bkg_SR_SR_emu_bin_19	  = 0.999999	 +/-  0.0283669	(limited)
-gamma_shape_stat_Bkg_SR_SR_emu_bin_2	  = 0.999998	 +/-  0.0617365	(limited)
-gamma_shape_stat_Bkg_SR_SR_emu_bin_3	  = 1	 +/-  0.0480407	(limited)
-gamma_shape_stat_Bkg_SR_SR_emu_bin_4	  = 0.999998	 +/-  0.0513409	(limited)
-gamma_shape_stat_Bkg_SR_SR_emu_bin_5	  = 1	 +/-  0.053229	(limited)
-gamma_shape_stat_Bkg_SR_SR_emu_bin_6	  = 0.999997	 +/-  0.0381957	(limited)
-gamma_shape_stat_Bkg_SR_SR_emu_bin_7	  = 1	 +/-  0.0381427	(limited)
-gamma_shape_stat_Bkg_SR_SR_emu_bin_8	  = 1	 +/-  0.0346748	(limited)
-gamma_shape_stat_Bkg_SR_SR_emu_bin_9	  = 1	 +/-  0.0412011	(limited)
-gamma_shape_stat_Bkg_SR_SR_lep_bin_0	  = 0.999948	 +/-  0.0676629	(limited)
-gamma_shape_stat_Bkg_SR_SR_lep_bin_1	  = 0.999968	 +/-  0.0523194	(limited)
-gamma_shape_stat_Bkg_SR_SR_lep_bin_10	  = 1.00001	 +/-  0.0319022	(limited)
-gamma_shape_stat_Bkg_SR_SR_lep_bin_11	  = 0.999991	 +/-  0.0315607	(limited)
-gamma_shape_stat_Bkg_SR_SR_lep_bin_12	  = 0.999988	 +/-  0.0317545	(limited)
-gamma_shape_stat_Bkg_SR_SR_lep_bin_13	  = 1.00001	 +/-  0.0326836	(limited)
-gamma_shape_stat_Bkg_SR_SR_lep_bin_14	  = 0.999976	 +/-  0.0345829	(limited)
-gamma_shape_stat_Bkg_SR_SR_lep_bin_15	  = 0.999959	 +/-  0.0342916	(limited)
-gamma_shape_stat_Bkg_SR_SR_lep_bin_16	  = 1.00003	 +/-  0.0377362	(limited)
-gamma_shape_stat_Bkg_SR_SR_lep_bin_17	  = 1	 +/-  0.0426067	(limited)
-gamma_shape_stat_Bkg_SR_SR_lep_bin_18	  = 1.00004	 +/-  0.0474144	(limited)
-gamma_shape_stat_Bkg_SR_SR_lep_bin_19	  = 1.00003	 +/-  0.0496204	(limited)
-gamma_shape_stat_Bkg_SR_SR_lep_bin_2	  = 1.00002	 +/-  0.0453885	(limited)
-gamma_shape_stat_Bkg_SR_SR_lep_bin_20	  = 0.999958	 +/-  0.0565792	(limited)
-gamma_shape_stat_Bkg_SR_SR_lep_bin_21	  = 1	 +/-  0.0567387	(limited)
-gamma_shape_stat_Bkg_SR_SR_lep_bin_22	  = 0.999989	 +/-  0.0584835	(limited)
-gamma_shape_stat_Bkg_SR_SR_lep_bin_23	  = 1.00002	 +/-  0.0709249	(limited)
-gamma_shape_stat_Bkg_SR_SR_lep_bin_24	  = 1.00002	 +/-  0.0865806	(limited)
-gamma_shape_stat_Bkg_SR_SR_lep_bin_3	  = 0.999995	 +/-  0.0419868	(limited)
-gamma_shape_stat_Bkg_SR_SR_lep_bin_4	  = 0.999999	 +/-  0.0390235	(limited)
-gamma_shape_stat_Bkg_SR_SR_lep_bin_5	  = 0.999965	 +/-  0.0388294	(limited)
-gamma_shape_stat_Bkg_SR_SR_lep_bin_6	  = 1.00003	 +/-  0.0357267	(limited)
-gamma_shape_stat_Bkg_SR_SR_lep_bin_7	  = 1.00001	 +/-  0.0354337	(limited)
-gamma_shape_stat_Bkg_SR_SR_lep_bin_8	  = 0.999989	 +/-  0.0319939	(limited)
-gamma_shape_stat_Bkg_SR_SR_lep_bin_9	  = 0.999987	 +/-  0.0314018	(limited)
-topWidth	  = 1.32177	 +/-  0.121375	(limited)
-ttbarXsec	  = 1	 +/-  0.00441389	(limited)
+FVAL  = 363.348402066476694
+Edm   = 7.04966497680217651e-09
+Nfcn  = 1899
+alpha_JET_BJES_Response	  = 0.00136756	 +/-  0.122621	(limited)
+alpha_bTagSF_B_0	  = -0.000512972	 +/-  0.183015	(limited)
+gamma_shape_stat_Bkg_CR_CR_Wmass_bin_0	  = 0.999985	 +/-  0.138446	(limited)
+gamma_shape_stat_Bkg_CR_CR_Wmass_bin_1	  = 0.999988	 +/-  0.179299	(limited)
+gamma_shape_stat_Bkg_CR_CR_Wmass_bin_10	  = 0.999998	 +/-  0.0359321	(limited)
+gamma_shape_stat_Bkg_CR_CR_Wmass_bin_11	  = 0.999998	 +/-  0.0334367	(limited)
+gamma_shape_stat_Bkg_CR_CR_Wmass_bin_12	  = 0.999998	 +/-  0.0331658	(limited)
+gamma_shape_stat_Bkg_CR_CR_Wmass_bin_13	  = 0.999998	 +/-  0.0323579	(limited)
+gamma_shape_stat_Bkg_CR_CR_Wmass_bin_14	  = 0.999998	 +/-  0.0336854	(limited)
+gamma_shape_stat_Bkg_CR_CR_Wmass_bin_15	  = 0.999998	 +/-  0.0344866	(limited)
+gamma_shape_stat_Bkg_CR_CR_Wmass_bin_16	  = 0.999998	 +/-  0.0352628	(limited)
+gamma_shape_stat_Bkg_CR_CR_Wmass_bin_17	  = 0.999998	 +/-  0.0389699	(limited)
+gamma_shape_stat_Bkg_CR_CR_Wmass_bin_18	  = 0.999999	 +/-  0.0400569	(limited)
+gamma_shape_stat_Bkg_CR_CR_Wmass_bin_19	  = 1	 +/-  0.0435025	(limited)
+gamma_shape_stat_Bkg_CR_CR_Wmass_bin_2	  = 0.999995	 +/-  0.0781779	(limited)
+gamma_shape_stat_Bkg_CR_CR_Wmass_bin_20	  = 1	 +/-  0.0473725	(limited)
+gamma_shape_stat_Bkg_CR_CR_Wmass_bin_21	  = 1	 +/-  0.0506522	(limited)
+gamma_shape_stat_Bkg_CR_CR_Wmass_bin_22	  = 1	 +/-  0.0560666	(limited)
+gamma_shape_stat_Bkg_CR_CR_Wmass_bin_23	  = 1	 +/-  0.0645259	(limited)
+gamma_shape_stat_Bkg_CR_CR_Wmass_bin_24	  = 1	 +/-  0.0452908	(limited)
+gamma_shape_stat_Bkg_CR_CR_Wmass_bin_3	  = 0.999997	 +/-  0.0606505	(limited)
+gamma_shape_stat_Bkg_CR_CR_Wmass_bin_4	  = 0.999998	 +/-  0.0468617	(limited)
+gamma_shape_stat_Bkg_CR_CR_Wmass_bin_5	  = 0.999998	 +/-  0.0412622	(limited)
+gamma_shape_stat_Bkg_CR_CR_Wmass_bin_6	  = 0.999998	 +/-  0.0378447	(limited)
+gamma_shape_stat_Bkg_CR_CR_Wmass_bin_7	  = 0.999998	 +/-  0.0367128	(limited)
+gamma_shape_stat_Bkg_CR_CR_Wmass_bin_8	  = 0.999998	 +/-  0.0362409	(limited)
+gamma_shape_stat_Bkg_CR_CR_Wmass_bin_9	  = 0.999998	 +/-  0.0345535	(limited)
+gamma_shape_stat_Bkg_CR_CR_ll_bin_0	  = 1	 +/-  0.0461142	(limited)
+gamma_shape_stat_Bkg_CR_CR_ll_bin_1	  = 1	 +/-  0.0504473	(limited)
+gamma_shape_stat_Bkg_CR_CR_ll_bin_10	  = 1	 +/-  0.0390958	(limited)
+gamma_shape_stat_Bkg_CR_CR_ll_bin_11	  = 1	 +/-  0.0332589	(limited)
+gamma_shape_stat_Bkg_CR_CR_ll_bin_12	  = 1	 +/-  0.039376	(limited)
+gamma_shape_stat_Bkg_CR_CR_ll_bin_13	  = 1	 +/-  0.0360094	(limited)
+gamma_shape_stat_Bkg_CR_CR_ll_bin_14	  = 1	 +/-  0.0487327	(limited)
+gamma_shape_stat_Bkg_CR_CR_ll_bin_15	  = 1	 +/-  0.0448691	(limited)
+gamma_shape_stat_Bkg_CR_CR_ll_bin_16	  = 1	 +/-  0.0546308	(limited)
+gamma_shape_stat_Bkg_CR_CR_ll_bin_17	  = 1	 +/-  0.0503624	(limited)
+gamma_shape_stat_Bkg_CR_CR_ll_bin_18	  = 1	 +/-  0.065682	(limited)
+gamma_shape_stat_Bkg_CR_CR_ll_bin_19	  = 1	 +/-  0.0229289	(limited)
+gamma_shape_stat_Bkg_CR_CR_ll_bin_2	  = 1	 +/-  0.0316945	(limited)
+gamma_shape_stat_Bkg_CR_CR_ll_bin_3	  = 1	 +/-  0.0280419	(limited)
+gamma_shape_stat_Bkg_CR_CR_ll_bin_4	  = 1	 +/-  0.0401723	(limited)
+gamma_shape_stat_Bkg_CR_CR_ll_bin_5	  = 1	 +/-  0.0271751	(limited)
+gamma_shape_stat_Bkg_CR_CR_ll_bin_6	  = 1	 +/-  0.0331126	(limited)
+gamma_shape_stat_Bkg_CR_CR_ll_bin_7	  = 1	 +/-  0.0375082	(limited)
+gamma_shape_stat_Bkg_CR_CR_ll_bin_8	  = 1	 +/-  0.0269138	(limited)
+gamma_shape_stat_Bkg_CR_CR_ll_bin_9	  = 1	 +/-  0.0526302	(limited)
+gamma_shape_stat_Bkg_SR_SR_emu_bin_0	  = 0.999974	 +/-  0.203214	(limited)
+gamma_shape_stat_Bkg_SR_SR_emu_bin_1	  = 1.00001	 +/-  0.0780306	(limited)
+gamma_shape_stat_Bkg_SR_SR_emu_bin_10	  = 1	 +/-  0.035839	(limited)
+gamma_shape_stat_Bkg_SR_SR_emu_bin_11	  = 1	 +/-  0.0335994	(limited)
+gamma_shape_stat_Bkg_SR_SR_emu_bin_12	  = 1	 +/-  0.0353346	(limited)
+gamma_shape_stat_Bkg_SR_SR_emu_bin_13	  = 1	 +/-  0.0283922	(limited)
+gamma_shape_stat_Bkg_SR_SR_emu_bin_14	  = 0.999999	 +/-  0.0338589	(limited)
+gamma_shape_stat_Bkg_SR_SR_emu_bin_15	  = 0.999998	 +/-  0.029991	(limited)
+gamma_shape_stat_Bkg_SR_SR_emu_bin_16	  = 1	 +/-  0.0274118	(limited)
+gamma_shape_stat_Bkg_SR_SR_emu_bin_17	  = 0.999999	 +/-  0.0308329	(limited)
+gamma_shape_stat_Bkg_SR_SR_emu_bin_18	  = 1	 +/-  0.0306227	(limited)
+gamma_shape_stat_Bkg_SR_SR_emu_bin_19	  = 0.999999	 +/-  0.0283659	(limited)
+gamma_shape_stat_Bkg_SR_SR_emu_bin_2	  = 0.999998	 +/-  0.0617091	(limited)
+gamma_shape_stat_Bkg_SR_SR_emu_bin_3	  = 1	 +/-  0.0480205	(limited)
+gamma_shape_stat_Bkg_SR_SR_emu_bin_4	  = 0.999998	 +/-  0.0513232	(limited)
+gamma_shape_stat_Bkg_SR_SR_emu_bin_5	  = 1	 +/-  0.0532107	(limited)
+gamma_shape_stat_Bkg_SR_SR_emu_bin_6	  = 0.999998	 +/-  0.0381863	(limited)
+gamma_shape_stat_Bkg_SR_SR_emu_bin_7	  = 1.00001	 +/-  0.0381325	(limited)
+gamma_shape_stat_Bkg_SR_SR_emu_bin_8	  = 1	 +/-  0.0346691	(limited)
+gamma_shape_stat_Bkg_SR_SR_emu_bin_9	  = 1	 +/-  0.0411997	(limited)
+gamma_shape_stat_Bkg_SR_SR_lep_bin_0	  = 0.999947	 +/-  0.0675235	(limited)
+gamma_shape_stat_Bkg_SR_SR_lep_bin_1	  = 0.999967	 +/-  0.0521861	(limited)
+gamma_shape_stat_Bkg_SR_SR_lep_bin_10	  = 1.00001	 +/-  0.0318587	(limited)
+gamma_shape_stat_Bkg_SR_SR_lep_bin_11	  = 0.999991	 +/-  0.0315297	(limited)
+gamma_shape_stat_Bkg_SR_SR_lep_bin_12	  = 0.999989	 +/-  0.0317418	(limited)
+gamma_shape_stat_Bkg_SR_SR_lep_bin_13	  = 1.00001	 +/-  0.0326864	(limited)
+gamma_shape_stat_Bkg_SR_SR_lep_bin_14	  = 0.999977	 +/-  0.034609	(limited)
+gamma_shape_stat_Bkg_SR_SR_lep_bin_15	  = 0.99996	 +/-  0.0343373	(limited)
+gamma_shape_stat_Bkg_SR_SR_lep_bin_16	  = 1.00003	 +/-  0.0377623	(limited)
+gamma_shape_stat_Bkg_SR_SR_lep_bin_17	  = 1	 +/-  0.0426719	(limited)
+gamma_shape_stat_Bkg_SR_SR_lep_bin_18	  = 1.00004	 +/-  0.0474987	(limited)
+gamma_shape_stat_Bkg_SR_SR_lep_bin_19	  = 1.00003	 +/-  0.0497085	(limited)
+gamma_shape_stat_Bkg_SR_SR_lep_bin_2	  = 1.00002	 +/-  0.0452621	(limited)
+gamma_shape_stat_Bkg_SR_SR_lep_bin_20	  = 0.999958	 +/-  0.0566974	(limited)
+gamma_shape_stat_Bkg_SR_SR_lep_bin_21	  = 1	 +/-  0.0568218	(limited)
+gamma_shape_stat_Bkg_SR_SR_lep_bin_22	  = 0.999989	 +/-  0.058553	(limited)
+gamma_shape_stat_Bkg_SR_SR_lep_bin_23	  = 1.00002	 +/-  0.0709356	(limited)
+gamma_shape_stat_Bkg_SR_SR_lep_bin_24	  = 1.00002	 +/-  0.0865288	(limited)
+gamma_shape_stat_Bkg_SR_SR_lep_bin_3	  = 0.999995	 +/-  0.0418664	(limited)
+gamma_shape_stat_Bkg_SR_SR_lep_bin_4	  = 0.999998	 +/-  0.0389064	(limited)
+gamma_shape_stat_Bkg_SR_SR_lep_bin_5	  = 0.999965	 +/-  0.0387415	(limited)
+gamma_shape_stat_Bkg_SR_SR_lep_bin_6	  = 1.00003	 +/-  0.0356173	(limited)
+gamma_shape_stat_Bkg_SR_SR_lep_bin_7	  = 1.00001	 +/-  0.0353452	(limited)
+gamma_shape_stat_Bkg_SR_SR_lep_bin_8	  = 0.999989	 +/-  0.0319396	(limited)
+gamma_shape_stat_Bkg_SR_SR_lep_bin_9	  = 0.999987	 +/-  0.031363	(limited)
+topWidth	  = 1.32176	 +/-  0.121451	(limited)
+ttbarXsec	  = 1	 +/-  0.00441408	(limited)
 Info in Minuit2Minimizer::Hesse : Hesse is valid - matrix is accurate
-Minuit2Minimizer::GetMinosError for parameter 92  topWidth using max-calls 47000, tolerance 1
-MnFunctionCross: parameter 0 set to 1.2004
-MnSeedGenerator: for initial parameters FCN = 363.842899785
-MnSeedGenerator: Initial state:   - FCN =    363.842899785 Edm =  8.66542e-06 NCalls =    193
-VariableMetric: start iterating until Edm is < 0.0005
-VariableMetric: Initial state   - FCN =    363.842899785 Edm =  8.66542e-06 NCalls =    193
-VariableMetric: Iteration #   0 - FCN =    363.842899785 Edm =  8.66542e-06 NCalls =    193
-VariableMetric: Iteration #   1 - FCN =    363.842891167 Edm =  1.30101e-09 NCalls =    380
-MnFunctionCross: parameter 0 set to 1.19973
-MnSeedGenerator: for initial parameters FCN = 363.8484095257
-MnSeedGenerator: Initial state:   - FCN =   363.8484095257 Edm =  4.72311e-06 NCalls =    193
-VariableMetric: start iterating until Edm is < 0.0005
-VariableMetric: Initial state   - FCN =   363.8484095257 Edm =  4.72311e-06 NCalls =    193
-VariableMetric: Iteration #   0 - FCN =   363.8484095257 Edm =  4.72311e-06 NCalls =    193
-VariableMetric: Iteration #   1 - FCN =   363.8484047705 Edm =  1.15597e-09 NCalls =    380
-MnFunctionCross: parameter 0 set to 1.44313
-MnSeedGenerator: for initial parameters FCN = 363.8421775994
-MnSeedGenerator: Initial state:   - FCN =   363.8421775994 Edm =  1.06396e-05 NCalls =    193
-VariableMetric: start iterating until Edm is < 0.0005
-VariableMetric: Initial state   - FCN =   363.8421775994 Edm =  1.06396e-05 NCalls =    193
-VariableMetric: Iteration #   0 - FCN =   363.8421775994 Edm =  1.06396e-05 NCalls =    193
-VariableMetric: Iteration #   1 - FCN =   363.8421671419 Edm =  3.71581e-09 NCalls =    380
-MnFunctionCross: parameter 0 set to 1.44389
-MnSeedGenerator: for initial parameters FCN = 363.8484052299
-MnSeedGenerator: Initial state:   - FCN =   363.8484052299 Edm =  6.11074e-06 NCalls =    193
-VariableMetric: start iterating until Edm is < 0.0005
-VariableMetric: Initial state   - FCN =   363.8484052299 Edm =  6.11074e-06 NCalls =    193
-VariableMetric: Iteration #   0 - FCN =   363.8484052299 Edm =  6.11074e-06 NCalls =    193
-VariableMetric: Iteration #   1 - FCN =   363.8483990906 Edm =  3.93104e-10 NCalls =    380
-Minos: Lower error for parameter topWidth  :  -0.122039
-Minos: Upper error for parameter topWidth  :  0.122129
+Minuit2Minimizer::GetMinosError for parameter 92  topWidth using max-calls 47000, tolerance 0.01
 [1;32m=== INFO::FittingTool::FitPDF: [0m
 [1;32m=== INFO::FittingTool::FitPDF: [0m
 [1;32m=== INFO::FittingTool::FitPDF: [0m
@@ -205,7 +160,7 @@ Minos: Upper error for parameter topWidth  :  0.122129
 [1;32m=== INFO::FittingTool::FitPDF: [0m
 [1;32m=== INFO::FittingTool::FitPDF: [0m
 [1;32m=== INFO::FittingTool::FitPDF: [0m
-[1;32m=== INFO::FittingTool::FitPDF:    -> Reduced Final value of the NLL = -33613774.77112835645675659180[0m
+[1;32m=== INFO::FittingTool::FitPDF:    -> Reduced Final value of the NLL = -33613774.77112838625907897949[0m
 [1;32m=== INFO::FittingTool::FitPDF:    -> Final value of the NLL = -32613774.771128[0m
 [1;32m=== INFO::FittingTool::FitPDF:    -> Final value of offset = -32614138.119530[0m
 [1;32m=== INFO::FittingTool::FitPDF:    -> Final NLL - offset = 363.348402[0m

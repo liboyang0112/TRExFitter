@@ -19,6 +19,6 @@
  | saturated_model_sf_CR_ll_bin_17 |    nan    |    nan    |
  | saturated_model_sf_CR_ll_bin_18 |    nan    |    nan    |
  | saturated_model_sf_CR_ll_bin_19 |    nan    |    nan    |
- | ttbarXsec | 0 / 0 | 0.00469728 / -0.00469728 |
- | bTagSF_B_0 | 0 / 0 | 0.00446435 / -0.00448089 |
+ | ttbarXsec | 0 / 0 | 0.00473519 / -0.00473519 |
+ | bTagSF_B_0 | 0 / 0 | 0.00450106 / -0.00451785 |
  | JET_BJES_Response | 0 / 0 | 7.05064e-08 / -1.07307e-07 |

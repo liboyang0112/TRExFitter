@@ -826,6 +826,8 @@ public:
     bool fBlindSRs;
     bool fHEPDataFormat;
     bool fAlternativeShapeHistFactory;
+    int fFitStrategy;
+    bool fBinnedLikelihood;
 };
 
 #endif

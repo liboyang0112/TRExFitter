@@ -1982,6 +1982,30 @@ int ConfigReader::ReadFitOptions(){
             fFitter->fSaturatedModel = false;
         }
     }
+    
+    // Set Minuit2 fit strategy
+    param = confSet->Get("FitStrategy");
+    if (param != "") {
+        fFitter->fFitStrategy = stoi(param);
+        if (fFitter->fFitStrategy > 2) {
+            WriteWarningStatus("ConfigReader::ReadFitOptions", "Fit strategy value is > 2, setting to default instead (-1)");
+            fFitter->fFitStrategy = -1;
+        }
+    }
+    
+    // Set BinnedLikelihoodOptimization
+    param = confSet->Get("BinnedLikelihoodOptimization");
+    if (param != "") {
+        std::transform(param.begin(), param.end(), param.begin(), ::toupper);
+        if( param == "TRUE" ){
+            fFitter->fBinnedLikelihood = true;
+        } else if (param == "FALSE"){
+            fFitter->fBinnedLikelihood = false;
+        } else {
+            WriteWarningStatus("ConfigReader::ReadFitOptions", "You specified 'BinnedLikelihoodOptimization' option but did not provide valid parameter. Using default (false)");
+            fFitter->fBinnedLikelihood = false;
+        }
+    }
 
     return 0;
 }

@@ -66,6 +66,8 @@ public:
 
     inline void SetExternalConstraints(const RooArgSet* externalConstraints = 0){ m_externalConstraints = externalConstraints; }
 
+    inline void SetStrategy(const int strategy){m_strategy = strategy;}
+
     //
     // Specific functions
     //
@@ -130,6 +132,7 @@ private:
     std::set<std::string> m_subCategories;
 
     const RooArgSet* m_externalConstraints;
+    int m_strategy;
 };
 
 

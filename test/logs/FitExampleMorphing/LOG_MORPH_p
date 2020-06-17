@@ -43,7 +43,7 @@ Drawing post-fit plots...
 [1;32m=== INFO::Region::BuildPostFitErrorHist: ----------------------- ---------------------------- -----------------------[0m
 [1;32m=== INFO::Region::BuildPostFitErrorHist: ----------------------- POST-FIT AGREEMENT EVALUATION -----------------------[0m
 [1;32m=== INFO::Region::BuildPostFitErrorHist: --- REGION SR_lep:[0m
-[1;32m=== INFO::Region::BuildPostFitErrorHist:   chi2        = 0.000831[0m
+[1;32m=== INFO::Region::BuildPostFitErrorHist:   chi2        = 0.000751[0m
 [1;32m=== INFO::Region::BuildPostFitErrorHist:   ndof        = 25[0m
 [1;32m=== INFO::Region::BuildPostFitErrorHist:   probability = 1.000000[0m
 [1;32m=== INFO::Region::BuildPostFitErrorHist: ----------------------- ---------------------------- -----------------------[0m
@@ -54,7 +54,7 @@ Drawing post-fit plots...
 [1;32m=== INFO::Region::BuildPostFitErrorHist: ----------------------- ---------------------------- -----------------------[0m
 [1;32m=== INFO::Region::BuildPostFitErrorHist: ----------------------- POST-FIT AGREEMENT EVALUATION -----------------------[0m
 [1;32m=== INFO::Region::BuildPostFitErrorHist: --- REGION CR_Wmass:[0m
-[1;32m=== INFO::Region::BuildPostFitErrorHist:   chi2        = 0.000006[0m
+[1;32m=== INFO::Region::BuildPostFitErrorHist:   chi2        = 0.000007[0m
 [1;32m=== INFO::Region::BuildPostFitErrorHist:   ndof        = 25[0m
 [1;32m=== INFO::Region::BuildPostFitErrorHist:   probability = 1.000000[0m
 [1;32m=== INFO::Region::BuildPostFitErrorHist: ----------------------- ---------------------------- -----------------------[0m
