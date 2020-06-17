@@ -133,8 +133,9 @@ MultiFit::MultiFit(const string& name) :
     fShowTotalOnly(false),
     fuseGammasForCorr(false),
     fPOIInitial(1.),
-    fHEPDataFormat(false) {
-
+    fHEPDataFormat(false),
+    fFitStrategy(-1)
+{
     fNPCategories.emplace_back("");
 }
 
@@ -322,6 +323,7 @@ std::map < std::string, double > MultiFit::FitCombinedWS(int fitType, const std:
     // Fit configuration (1: SPLUSB or 2: BONLY)
     //
     FittingTool fitTool{};
+    fitTool.SetStrategy(fFitStrategy);
     fitTool.SetDebug(TRExFitter::DEBUGLEVEL);
     if(fitType==2){
         fitTool.ValPOI(0.);
@@ -1728,6 +1730,7 @@ void MultiFit::ProduceNPRanking( string NPnames/*="all"*/ ) const{
     // Initialize the FittingTool object
     //
     FittingTool fitTool{};
+    fitTool.SetStrategy(fFitStrategy);
     fitTool.SetDebug(TRExFitter::DEBUGLEVEL);
     fitTool.ValPOI(fPOIInitial);
     fitTool.ConstPOI(false);
@@ -2349,10 +2352,17 @@ void MultiFit::GetLikelihoodScan( RooWorkspace *ws, const std::string& varName, 
                                         RooFit::Optimize(kTRUE)));
         std::vector<double> x(fLHscanSteps);
         std::vector<double> y(fLHscanSteps);
+        const TString minimType = ::ROOT::Math::MinimizerOptions::DefaultMinimizerType().c_str();
+        const double tol =        ::ROOT::Math::MinimizerOptions::DefaultTolerance(); //AsymptoticCalculator enforces not less than 1 on this
+        ROOT::Math::MinimizerOptions::SetDefaultMinimizer("Minuit2");
+        ROOT::Math::MinimizerOptions::SetDefaultStrategy(1);
+        ROOT::Math::MinimizerOptions::SetDefaultPrintLevel(-1);
         RooMinimizer m(*nll); // get MINUIT interface of fit
+        m.optimizeConst(2);
         m.setErrorLevel(-1);
         m.setPrintLevel(-1);
         m.setStrategy(2); // set precision to high
+        m.setEps(tol);
         var->setConstant(kTRUE); // make POI constant in the fit
         double min = 9999999;
         for (int ipoint = 0; ipoint < fLHscanSteps; ++ipoint) {
@@ -2612,10 +2622,17 @@ void MultiFit::Get2DLikelihoodScan( RooWorkspace *ws, const std::vector<std::str
                                                       NumCPU(TRExFitter::NCPU, RooFit::Hybrid),
                                                       RooFit::Optimize(kTRUE)));
 
+    const TString minimType = ::ROOT::Math::MinimizerOptions::DefaultMinimizerType().c_str();
+    const double tol =        ::ROOT::Math::MinimizerOptions::DefaultTolerance(); //AsymptoticCalculator enforces not less than 1 on this
+    ROOT::Math::MinimizerOptions::SetDefaultMinimizer("Minuit2");
+    ROOT::Math::MinimizerOptions::SetDefaultStrategy(1);
+    ROOT::Math::MinimizerOptions::SetDefaultPrintLevel(-1);
     RooMinimizer m(*nll); // get MINUIT interface of fit
+    m.optimizeConst(2);
     m.setErrorLevel(-1);
     m.setPrintLevel(-1);
     m.setStrategy(2); // set precision to high
+    m.setEps(tol);
 
     //Set both POIs to constant
     varX->setConstant(kTRUE); // make POI constant in the fit

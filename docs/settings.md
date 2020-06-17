@@ -188,8 +188,10 @@ The following settings are for normal fits, performed without the action `m`.
 | BlindedParameters            | A comma separated list of POI/NPs that will be written as a hexadecimal number so it is not easy to read to not accidentally unblind. When at least one parameter is set the console output of the minimization is removed.
 | DoNonProfileFitSystThreshold | When performing a NonProfileFit, systematics are not added to total if smaller than this threshold |
 | NPValuesFromFitResults       | If set to a valid path pointing to a fit-result text file, the NPValues for Asimov-data creation will be readed from it |
-| SetGlobalObservables         | If set to TRUE (default is FALASE), and if NPValues or NPValuesFromFitResults are set, also the global observables are shifted in the Likelihood according to the parameter values |
-| HEPDataFormat                | If set to TRUE (default is FALASE), will produce outputs in HEPData format |
+| SetGlobalObservables         | If set to TRUE (default is FALSE), and if NPValues or NPValuesFromFitResults are set, also the global observables are shifted in the Likelihood according to the parameter values |
+| HEPDataFormat                | If set to TRUE (default is FALSE), will produce outputs in HEPData format |
+| FitStrategy                  | Set Minuit2 fitting strategy, can be: 0, 1 or 2. If negative value is set the default is used (1) |
+| BinnedLikelihoodOptimization | Can be set to TRUE or FALSE (default). If se to TRUE, will use the `BinnedLikelihood` optimisation of RooFit that has significant speed improvements, but results in less stable correlation matrix computation |
 
 
 ### `Limit block` settings
@@ -510,6 +512,7 @@ These options are for multi-fits, performed with action `m`.
 | POIAsimov        | Sets the the value of the POI for the fit. Needs to be used with `DataName: asimovData`. Default is 1. |
 | POIInitial       | Sets the initial value of the POI for the fit. Default is 1. |
 | HEPDataFormat    | If set to `TRUE` wil lproduce output in HEPData yaml format. |
+| FitStrategy      | Set Minuit2 fitting strategy, can be: 0, 1 or 2. If negative value is set the default is used (1) |
 
 
 ### Multi-fit `Fit` block settings

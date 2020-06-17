@@ -11,7 +11,6 @@
 #include "TRandom3.h"
 
 //Roostats includes
-#include "RooMinimizer.h"
 #include "Math/MinimizerOptions.h"
 #include "RooStats/AsymptoticCalculator.h"
 #include "RooStats/ModelConfig.h"
@@ -52,7 +51,8 @@ FittingTool::FittingTool():
     m_randomize(false),
     m_randomNP(0.1),
     m_randSeed(-999),
-    m_externalConstraints(nullptr) {
+    m_externalConstraints(nullptr),
+    m_strategy(-1) {
 }
 
 //________________________________________________________________________
@@ -220,43 +220,35 @@ double FittingTool::FitPDF( RooStats::ModelConfig* model, RooAbsPdf* fitpdf, Roo
     //
     // return here if specified not to perform the fit
     if(noFit) return nllval;
+    
+    ROOT::Math::MinimizerOptions::SetDefaultMinimizer("Minuit2");
+    ROOT::Math::MinimizerOptions::SetDefaultStrategy(1);
+    ROOT::Math::MinimizerOptions::SetDefaultPrintLevel(-1);
 
-    //
     // Safe fit loop
-    ROOT::Math::MinimizerOptions::SetDefaultMinimizer(m_minimType);
-    int strat = ROOT::Math::MinimizerOptions::DefaultStrategy();
-    if(TRExFitter::OPTION["FitStrategy"]!=0){
-        strat = TRExFitter::OPTION["FitStrategy"];
-        if(TRExFitter::OPTION["FitStrategy"]<0) strat = 0;
-        if(TRExFitter::OPTION["FitStrategy"]>3){
-            WriteWarningStatus("FittingTool::FitPDF","Set strategy > 3. Setting to default (1)");
-            strat = 1;
-        }
+    int strat = ::ROOT::Math::MinimizerOptions::DefaultStrategy();
+    if(m_strategy >= 0) {
+        strat = m_strategy;
+        WriteInfoStatus("FittingTool::FitPDF", "Manually setting strategy to "+std::to_string(strat));
     }
+    
+    const TString minimType = ::ROOT::Math::MinimizerOptions::DefaultMinimizerType().c_str();
+    const TString algorithm = ::ROOT::Math::MinimizerOptions::DefaultMinimizerAlgo().c_str();
+    const double tol =        ::ROOT::Math::MinimizerOptions::DefaultTolerance(); //AsymptoticCalculator enforces not less than 1 on this
+
     RooMinimizer minim(*nll);
+    minim.optimizeConst(2);
     minim.setStrategy(strat);
-    minim.setPrintLevel(1);
-    minim.setEps(1);
+    minim.setMinimizerType(minimType);
+    minim.setPrintLevel(m_debug - 1);
+    minim.setEps(tol);
     // it doesn't make sense to try more than 2 additional strategies
     const int maxRetries = 3 - strat;
-
-    // experimental - playing around fit minimisation precision
-//     minim.setEps(100);
-//     minim.setMaxIterations(500*200*10);
-//     minim.setMaxFunctionCalls(500*200*10);
-//     minim.setMaxIterations(500*200*10);
-//     minim.setMaxFunctionCalls(500*200*10);
-//     minim.setOffsetting(true);
 
     // fast fit - e.g. for ranking
     if(fastFit){
         minim.setStrategy(0);  // to be the same as ttH comb
         minim.setPrintLevel(0);
-//         minim.setEps(0.1);  // to balance and not to have crazy results...
-//         minim.setMaxIterations(100*10);
-//         minim.setMaxFunctionCalls(100*10);
-//         minim.setMaxIterations(100*minim.getNPar());
-//         minim.setMaxFunctionCalls(100*minim.getNPar());
     }
 
     TStopwatch sw;
@@ -274,8 +266,7 @@ double FittingTool::FitPDF( RooStats::ModelConfig* model, RooAbsPdf* fitpdf, Roo
     WriteInfoStatus("FittingTool::FitPDF", "======================");
     WriteInfoStatus("FittingTool::FitPDF", "");
 
-    ROOT::Math::MinimizerOptions::SetDefaultStrategy(strat);
-    status = minim.minimize(ROOT::Math::MinimizerOptions::DefaultMinimizerType().c_str(),ROOT::Math::MinimizerOptions::DefaultMinimizerAlgo().c_str());
+    status = minim.minimize(minimType.Data(),algorithm.Data());
     m_hessStatus= minim.hesse();
     std::unique_ptr<RooFitResult> r(minim.save());
     m_edm = r->edm();
@@ -298,7 +289,7 @@ double FittingTool::FitPDF( RooStats::ModelConfig* model, RooAbsPdf* fitpdf, Roo
         WriteWarningStatus("FittingTool::FitPDF", "   ********************************");
         WriteWarningStatus("FittingTool::FitPDF", "");
         minim.setStrategy(strat);
-        status = minim.minimize(ROOT::Math::MinimizerOptions::DefaultMinimizerType().c_str(), ROOT::Math::MinimizerOptions::DefaultMinimizerAlgo().c_str());
+        status = minim.minimize(minimType.Data(),algorithm.Data());
         m_hessStatus= minim.hesse();
         r.reset(minim.save());
         m_edm = r->edm();
@@ -663,7 +654,6 @@ void FittingTool::FitExcludingGroup(bool excludeGammas, bool statOnly, RooAbsDat
         }
     }
 
-    //constrainedParams->Print("v");
     // repeat the fit here ....
     std::unique_ptr<RooAbsReal> nll(fitpdf->createNLL(*fitdata,
                                     RooFit::Constrain(*constrainedParams),
@@ -673,11 +663,21 @@ void FittingTool::FitExcludingGroup(bool excludeGammas, bool statOnly, RooAbsDat
                                     RooFit::Optimize(kTRUE),
                                     RooFit::ExternalConstraints(*m_externalConstraints)
                                    ));
+    
+    ROOT::Math::MinimizerOptions::SetDefaultMinimizer("Minuit2");
+    ROOT::Math::MinimizerOptions::SetDefaultStrategy(1);
+    ROOT::Math::MinimizerOptions::SetDefaultPrintLevel(-1);
+    const TString minimType = ::ROOT::Math::MinimizerOptions::DefaultMinimizerType().c_str();
+    const TString algorithm = ::ROOT::Math::MinimizerOptions::DefaultMinimizerAlgo().c_str();
+    const double tol =        ::ROOT::Math::MinimizerOptions::DefaultTolerance(); //AsymptoticCalculator enforces not less than 1 on this
+    
     RooMinimizer minim2(*nll);
+    minim2.optimizeConst(2);
     minim2.setStrategy(1);
-    minim2.setPrintLevel(1); // set to -1 to reduce output
-    minim2.setEps(1);
-    const int status = minim2.minimize(ROOT::Math::MinimizerOptions::DefaultMinimizerType().c_str(), ROOT::Math::MinimizerOptions::DefaultMinimizerAlgo().c_str());
+    minim2.setMinimizerType(minimType);
+    minim2.setPrintLevel(1);
+    minim2.setEps(tol);
+    const int status = minim2.minimize(minimType.Data(),algorithm.Data());
     RooRealVar* thePOI = static_cast<RooRealVar*>(mc->GetParametersOfInterest()->first());
 
     const bool HessStatus = minim2.hesse();

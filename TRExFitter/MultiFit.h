@@ -180,6 +180,7 @@ public:
     double fPOIInitial;
     bool fHEPDataFormat;
     std::vector<std::string> fConfigPaths;
+    int fFitStrategy;
 };
 
 #endif
