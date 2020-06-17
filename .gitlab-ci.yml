@@ -15,8 +15,10 @@ stages:
   - check_and_build
   - ustep
   - hnstep
+  - bstep
   - wstep
   - flsstep
+  - istep
   - wstep_multi
   - fstep_multi
   - rstep
@@ -177,6 +179,24 @@ histograms_unfolding:
     artifacts:
       paths:
         - FitExampleUnfolding
+
+##
+## "bstep" step: run the correction to produced histogram
+##
+
+correction_ntuple:
+    stage: bstep
+    needs:
+      - compile
+      - histograms_ntuple
+    script:
+      - trex-fitter b test/configs/FitExampleNtuple.config >& LOG_NTUPLE_b
+      - cat LOG_NTUPLE_b | grep -v "TRExFitter" >& temp_log && mv temp_log LOG_NTUPLE_b
+      - set -e
+      - ls
+      - ls FitExampleNtuple/Histograms/
+      - source test/scripts/FitExampleNtuple/check_step_b_ntuple.sh
+      - echo "=> Passed quick logfile checks"
 
 ##
 ## "wstep" step: produces the workspace
@@ -458,6 +478,29 @@ significance:
     artifacts:
       paths:
         - FitExample
+
+##
+## "istep" step: compute the gropued impact
+##    Artifact: keeps the FitExample folder
+##
+impact_ntuple:
+    stage: istep
+    needs:
+      - compile
+      - histograms_ntuple
+      - workspace_ntuple
+      - fit_ntuple
+    script:
+      - trex-fitter i test/configs/FitExampleNtuple.config >& LOG_NTUPLE_i
+      - cat LOG_NTUPLE_i | grep -v "TRExFitter" >& temp_log && mv temp_log LOG_NTUPLE_i
+      - ls
+      - set -e
+      - ls FitExampleNtuple
+      - ls FitExampleNtuple/Fits/
+      - ls FitExampleNtuple/Fits/GroupedImpact.txt
+      - cat FitExampleNtuple/Fits/GroupedImpact.txt
+      - source test/scripts/FitExampleNtuple/check_step_i_ntuple.sh
+      - echo "=> Passed quick logfile checks"
 
 ##
 ## "rstep" step: compute the ranking
