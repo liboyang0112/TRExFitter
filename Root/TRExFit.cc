@@ -7652,9 +7652,20 @@ void TRExFit::RunToys(){
                                                          RooFit::Optimize(kTRUE),
                                                          RooFit::ExternalConstraints(*externalConstraints)));
 
+        auto isUnfolding = [&](std::size_t index) {
+            if (fNormFactors.at(index)->fName.find("Bin_") != std::string::npos) {
+                return true;
+            }
+            return false;
+        };
+
         std::vector<TH1D> h_toys;
+        std::vector<TH1D> h_pulls;
         for (std::size_t inf = 0; inf < nfs.size(); ++inf) {
             h_toys.emplace_back(("h_toys_nf_"+std::to_string(inf)).c_str(),("h_toys_nf_"+std::to_string(inf)).c_str(),fToysHistoNbins,min,max);
+            if (fFitType == TRExFit::FitType::UNFOLDING && isUnfolding(inf)) {
+                h_pulls.emplace_back(("h_pulls_nf_"+std::to_string(inf)).c_str(),("h_pulls_nf_"+std::to_string(inf)).c_str(),fToysHistoNbins,-3,3);
+            }
         }
         for(int i_toy = 0; i_toy < fFitToys; ++i_toy) {
 
@@ -7751,6 +7762,11 @@ void TRExFit::RunToys(){
             for (std::size_t inf = 0; inf < nfs.size(); ++inf) {
                 h_toys.at(inf).Fill(nfs.at(inf)->getVal());
                 WriteInfoStatus("TRExFit::RunToys","Toy n. " + std::to_string(i_toy+1) + ", fitted value of NF: " + fNormFactorNames.at(inf) + ": " + std::to_string(nfs.at(inf)->getVal()));
+
+                if (fFitType == TRExFit::FitType::UNFOLDING && isUnfolding(inf)) {
+                    const double value = nfs.at(inf)->getError() > 1e-6 ? (nfs.at(inf)->getVal() - 1.) / nfs.at(inf)->getError() : -9999;
+                    h_pulls.at(inf).Fill(value);
+                }
             }
 
             delete r;
@@ -7779,6 +7795,11 @@ void TRExFit::RunToys(){
             // Also create a ROOT file
             h_toys.at(inf).Write();
         }
+
+        if (fFitType == TRExFit::FitType::UNFOLDING) {
+            DrawToyPullPlot(h_pulls, out.get());
+        }
+
         out->Close();
 }
 
@@ -9365,4 +9386,83 @@ std::map < std::string, double > TRExFit::NPValuesFromFitResults(const std::stri
         npValues[inp->fName] = inp->fFitValue;
     }
     return npValues;
+}
+
+//__________________________________________________________________________________
+//
+void TRExFit::DrawToyPullPlot(std::vector<TH1D>& hist, TFile* out) const {
+
+    std::vector<double> mean;
+    std::vector<double> sigma;
+    std::vector<double> meanError;
+    std::vector<double> sigmaError;
+
+    for (auto& ihist : hist) {
+        TF1 g("g","gaus",-3,3);
+        ihist.Fit(&g, "RQ");
+
+        mean.emplace_back(g.GetParameter(1));
+        sigma.emplace_back(g.GetParameter(2));
+        meanError.emplace_back(g.GetParError(1));
+        sigmaError.emplace_back(g.GetParError(2));
+
+        out->cd();
+        ihist.Write();
+    }
+
+    TH1D h_mean("","",hist.size(), 0, hist.size());
+    TH1D h_sigma("","",hist.size(), 0, hist.size());
+
+    for (std::size_t i = 0; i < hist.size(); ++i) {
+        h_mean.SetBinContent(i+1, mean.at(i));
+        h_mean.SetBinError(i+1, meanError.at(i));
+        h_sigma.SetBinContent(i+1, sigma.at(i));
+        h_sigma.SetBinError(i+1, sigmaError.at(i));
+
+        h_mean.GetXaxis()->SetBinLabel(i+1, ("bin " + std::to_string(i+1)).c_str());
+    }
+
+    h_mean.GetYaxis()->SetRangeUser(-1, 3);
+    h_mean.GetYaxis()->SetTitle("#frac{#mu_{fitted}-1}{#sigma_{fitted}}");
+    h_mean.LabelsOption("v");
+    h_mean.SetLineColor(kBlue);
+    h_mean.SetMarkerColor(kBlue);
+    h_sigma.SetLineColor(kRed);
+    h_sigma.SetMarkerColor(kRed);
+    
+    TCanvas c("c","c",800,600);
+    h_mean.Draw("PE");
+    h_sigma.Draw("PE SAME");
+
+    TLine l_mean(0, 0, hist.size(), 0);
+    TLine l_sigma(0, 1, hist.size(), 1);
+
+    l_mean.SetLineColor(kBlue);
+    l_mean.SetLineWidth(2);
+    l_mean.SetLineStyle(2);
+    l_sigma.SetLineColor(kRed);
+    l_sigma.SetLineWidth(2);
+    l_sigma.SetLineStyle(2);
+
+    l_mean.Draw("same");
+    l_sigma.Draw("same");
+
+    TLegend leg(0.7, 0.8, 0.9, 0.9);
+    leg.SetFillStyle(0.);
+    leg.SetBorderSize(0.);
+    leg.AddEntry(&h_mean, "mean", "p");
+    leg.AddEntry(&h_sigma, "sigma", "p");
+    leg.Draw("same");
+        
+    if (fAtlasLabel != "none") ATLASLabel(0.3,0.85,fAtlasLabel.c_str());
+
+    gPad->RedrawAxis();
+
+    out->cd();
+    h_mean.Write("pull_mean");
+    h_sigma.Write("pull_sigma");
+
+    for(const auto& format : TRExFitter::IMAGEFORMAT) {
+        c.SaveAs((fName+"/Toys/PullPlot."+format).c_str());
+    }
 }
