@@ -1,0 +1,2 @@
+#!/bin/bash
+diff -w -I "Real time"  -I "RooRealVar::" -I "mkdir" -I "libSM.so" -I "libASImage" -I "png file FitExampleNtupleAllSteps" LOG_NTUPLE_nwfdp test/logs/FitExampleNtupleAllSteps/LOG_NTUPLE_nwfdp && diff -w FitExampleNtupleAllSteps/Fits/FitExampleNtupleAllSteps.txt test/reference/FitExampleNtuple/Fits/FitExampleNtuple.txt && for file in `ls FitExampleNtupleAllSteps/Tables/*.txt`; do f=$(echo $file | sed "s/FitExampleNtupleAllSteps/FitExampleNtuple/g") ; diff -w $file test/reference/$f; done 

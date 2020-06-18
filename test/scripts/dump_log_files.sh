@@ -116,6 +116,11 @@ for step in n b w f d p i ; do
   rm -f LOG_NTUPLE_$step
 done
 
+echo "==> Ntuple combined nwfdp step ongoing"
+./build/bin/trex-fitter nwfdp test/configs/FitExampleNtupleAllSteps.config >& LOG_NTUPLE_nwfdp
+cat LOG_NTUPLE_nwfdp | grep -v "TRExFitter" >& test/logs/FitExampleNtupleAllSteps/LOG_NTUPLE_nwfdp
+rm -f LOG_NTUPLE_nwfdp
+
 for step in w f; do
   echo "==> Morphing multifit $step step ongoing"
   ./build/bin/trex-fitter m$step test/configs/FitExampleMorphMultifit.config >& LOG_MORPH_MULTI_$step
