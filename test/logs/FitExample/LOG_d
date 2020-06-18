@@ -67,6 +67,7 @@ Applying systematics pruning...
 Info in <TCanvas::Print>: png file FitExample/NormalisationPlot.png has been created
 Info in <TCanvas::Print>: png file FitExample/Pruning.png has been created
 Drawing pre-fit plots...
+Warning in <TCanvas::Constructor>: Deleting canvas with same name: c_SR_1
 === DEBUG::Region::DrawPreFit: SigXsecOverSM => Scaling Signal by 1.000000
 [1;32m=== INFO::Region::BuildPreFitErrorHist: Building pre-fit plot for region SR_1 ...[0m
 === DEBUG::Region::BuildPreFitErrorHist:   Sample: Bkg1
@@ -121,6 +122,7 @@ Drawing pre-fit plots...
 === DEBUG::Region::DrawPreFit: Writing file FitExample/Histograms/SR_1_preFit.root
 [1;32m=== INFO::YamlConverter::Write: Writing prefit plot SR_1 yaml file to: FitExample/Plots/SR_1_prefit.yaml[0m
 Info in <TCanvas::Print>: png file FitExample/Plots/SR_1.png has been created
+Warning in <TCanvas::Constructor>: Deleting canvas with same name: c_SR_2
 === DEBUG::Region::DrawPreFit: SigXsecOverSM => Scaling Signal by 1.000000
 [1;32m=== INFO::Region::BuildPreFitErrorHist: Building pre-fit plot for region SR_2 ...[0m
 === DEBUG::Region::BuildPreFitErrorHist:   Sample: Bkg1
@@ -160,6 +162,7 @@ Info in <TCanvas::Print>: png file FitExample/Plots/SR_1.png has been created
 === DEBUG::Region::DrawPreFit: Writing file FitExample/Histograms/SR_2_preFit.root
 [1;32m=== INFO::YamlConverter::Write: Writing prefit plot SR_2 yaml file to: FitExample/Plots/SR_2_prefit.yaml[0m
 Info in <TCanvas::Print>: png file FitExample/Plots/SR_2.png has been created
+Warning in <TCanvas::Constructor>: Deleting canvas with same name: c_VR
 === DEBUG::Region::DrawPreFit: SigXsecOverSM => Scaling Signal by 1.000000
 [1;32m=== INFO::Region::BuildPreFitErrorHist: Building pre-fit plot for region VR ...[0m
 === DEBUG::Region::BuildPreFitErrorHist:   Sample: Bkg1
