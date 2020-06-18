@@ -7763,13 +7763,15 @@ void TRExFit::RunToys(){
             m.migrad();
             RooFitResult* r = m.save(); // save fit result
 
+            std::size_t unfIndex(0);
             for (std::size_t inf = 0; inf < nfs.size(); ++inf) {
                 h_toys.at(inf).Fill(nfs.at(inf)->getVal());
                 WriteInfoStatus("TRExFit::RunToys","Toy n. " + std::to_string(i_toy+1) + ", fitted value of NF: " + fNormFactorNames.at(inf) + ": " + std::to_string(nfs.at(inf)->getVal()));
 
                 if (fFitType == TRExFit::FitType::UNFOLDING && isUnfolding(inf)) {
                     const double value = nfs.at(inf)->getError() > 1e-6 ? (nfs.at(inf)->getVal() - 1.) / nfs.at(inf)->getError() : -9999;
-                    h_pulls.at(inf).Fill(value);
+                    h_pulls.at(unfIndex).Fill(value);
+                    ++unfIndex;
                 }
             }
 

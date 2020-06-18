@@ -213,6 +213,7 @@ void TRExPlot::AddSignal(TH1* h,std::string name){
     }
     else{
         h_signal.emplace_back(static_cast<TH1*>(h->Clone()));
+        h_signal.back()->SetDirectory(nullptr);
         h_signal[fSigNames.size()]->Scale(fLumiScale);
         fSigNames.push_back(name);
     }
@@ -229,6 +230,7 @@ void TRExPlot::AddNormSignal(TH1* h,std::string name){
     }
     else{
         h_normsig.emplace_back(static_cast<TH1*>(h->Clone()));
+        h_normsig.back()->SetDirectory(nullptr);
         h_normsig[fNormSigNames.size()]->Scale(fLumiScale);
         fNormSigNames.push_back(name);
     }
@@ -245,6 +247,7 @@ void TRExPlot::AddOverSignal(TH1* h,std::string name){
     }
     else{
         h_oversig.emplace_back(static_cast<TH1*>(h->Clone()));
+        h_oversig.back()->SetDirectory(nullptr);
         h_oversig[fOverSigNames.size()]->Scale(fLumiScale);
         fOverSigNames.push_back(name);
     }
@@ -267,6 +270,7 @@ void TRExPlot::AddBackground(TH1* h,std::string name){
     }
     else{
         h_bkg.emplace_back(static_cast<TH1*>(h->Clone()));
+        h_bkg.back()->SetDirectory(nullptr);
         h_bkg[fBkgNames.size()]->Scale(fLumiScale);
         fBkgNames.push_back(name);
     }
@@ -662,6 +666,7 @@ void TRExPlot::Draw(std::string options){
         pad1->cd();
         pad1->GetFrame()->SetY1(2);
         h_dummy2.reset(static_cast<TH1*>(h_tot->Clone("h_dummy2")));
+        h_dummy2->SetDirectory(nullptr);
         h_dummy2->Scale(0);
         if(pad0->GetWw() > pad0->GetWh()) h_dummy2->GetYaxis()->SetTickLength(0.01);
         h_dummy2->Draw("HIST");
@@ -684,11 +689,13 @@ void TRExPlot::Draw(std::string options){
             else if(fOverSigNames.size()>0) h_ratio.reset(static_cast<TH1*>(h_oversig[0]->Clone("h_ratio")));
             else{
                 h_ratio.reset(static_cast<TH1*>(h_tot->Clone("h_ratio")));
+                h_ratio->SetDirectory(nullptr);
                 h_ratio->Scale(0);
             }
         }
         else{
             h_ratio.reset(static_cast<TH1*>(h_data->Clone("h_ratio")));
+            h_ratio->SetDirectory(nullptr);
         }
 
         // in case of S/B,.. and several signal samples, build other ratios
@@ -713,6 +720,7 @@ void TRExPlot::Draw(std::string options){
         }
 
         h_tot_nosyst.reset(static_cast<TH1*>(h_tot->Clone("h_tot_nosyst")));
+        h_tot_nosyst->SetDirectory(nullptr);
         for(int i_bin=0;i_bin<h_tot_nosyst->GetNbinsX()+2;i_bin++){
             h_tot_nosyst->SetBinError(i_bin,0);
         }

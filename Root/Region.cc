@@ -133,10 +133,10 @@ Region::Region(const string& name) :
     std::string cName = "c_"+fName;
     if(TRExFitter::OPTION["CanvasWidth"]!=0)  canvasWidth  = TRExFitter::OPTION["CanvasWidth"];
     if(TRExFitter::OPTION["CanvasHeight"]!=0) canvasHeight = TRExFitter::OPTION["CanvasHeight"];
-    fPlotPreFit = std::make_unique<TRExPlot>(cName,canvasWidth,canvasHeight,TRExFitter::NORATIO);
+    fPlotPreFit = std::make_shared<TRExPlot>(cName,canvasWidth,canvasHeight,TRExFitter::NORATIO);
     fPlotPreFit->fShowYields = TRExFitter::SHOWYIELDS;
     cName = "c_"+fName+"_postFit";
-    fPlotPostFit = std::make_unique<TRExPlot>(cName,canvasWidth,canvasHeight,TRExFitter::NORATIO);
+    fPlotPostFit = std::make_shared<TRExPlot>(cName,canvasWidth,canvasHeight,TRExFitter::NORATIO);
     fPlotPostFit->fShowYields = TRExFitter::SHOWYIELDS;
 }
 
@@ -565,7 +565,13 @@ std::shared_ptr<TRExPlot> Region::DrawPreFit(const std::vector<int>& canvasSize,
 
     std::shared_ptr<TRExPlot> p(nullptr);
     if (canvasSize.size() == 0){
-        p = fPlotPreFit;
+        int canvasWidth = 600;
+        int canvasHeight = 700;
+        const std::string cName = "c_"+fName;
+        if(TRExFitter::OPTION["CanvasWidth"]!=0)  canvasWidth  = TRExFitter::OPTION["CanvasWidth"];
+        if(TRExFitter::OPTION["CanvasHeight"]!=0) canvasHeight = TRExFitter::OPTION["CanvasHeight"];
+        p = std::make_shared<TRExPlot>(cName,canvasWidth,canvasHeight,TRExFitter::NORATIO);
+        p->fShowYields = TRExFitter::SHOWYIELDS;
     } else {
         p = std::make_shared<TRExPlot>(("c_"+fName).c_str(), canvasSize.at(0), canvasSize.at(1),TRExFitter::NORATIO);
         p->fShowYields = TRExFitter::SHOWYIELDS;
