@@ -72,13 +72,13 @@ class TRExPlot {
     std::unique_ptr<TGraphAsymmErrors> g_tot;
     TH1* h_tot_bkg_prefit;
     TH1* h_dummy;
-    std::unique_ptr<TH1> h_ratio;
-    std::unique_ptr<TH1> h_tot_nosyst;
-    std::unique_ptr<TGraphAsymmErrors> g_ratio;
-    std::unique_ptr<TGraphAsymmErrors> g_ratio2;
-    std::unique_ptr<TH1D> h_blind;
-    std::unique_ptr<TH1D> h_blindratio;
-    std::unique_ptr<TH1> h_dummy2;
+    std::shared_ptr<TH1> h_ratio;
+    std::shared_ptr<TH1> h_tot_nosyst;
+    std::shared_ptr<TGraphAsymmErrors> g_ratio;
+    std::shared_ptr<TGraphAsymmErrors> g_ratio2;
+    std::shared_ptr<TH1D> h_blind;
+    std::shared_ptr<TH1D> h_blindratio;
+    std::shared_ptr<TH1> h_dummy2;
 
     TCanvas* c;
     TLegend* leg;
