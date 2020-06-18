@@ -4871,7 +4871,7 @@ std::unique_ptr<RooWorkspace> TRExFit::PerformWorkspaceCombination( std::vector 
     } else {
         rootFileCombined.reset(TFile::Open( (fName+"/RooStats/"+fInputName+"_combined_"+fInputName+fSuffix+"_model.root").c_str(),"read"));
     }
-    if(!rootFileCombined) measurement = std::unique_ptr<RooStats::HistFactory::Measurement>(static_cast<RooStats::HistFactory::Measurement*>(rootFileCombined -> Get( (fInputName+fSuffix).c_str())));
+    if(rootFileCombined) measurement = std::unique_ptr<RooStats::HistFactory::Measurement>(static_cast<RooStats::HistFactory::Measurement*>(rootFileCombined -> Get( (fInputName+fSuffix).c_str())));
     //
     std::vector<std::unique_ptr<TFile> > file_vec;
     for(int i_ch=0; i_ch < fNRegions; ++i_ch) {
@@ -4886,6 +4886,10 @@ std::unique_ptr<RooWorkspace> TRExFit::PerformWorkspaceCombination( std::vector 
         std::string fileName = fName+"/RooStats/"+fInputName+"_"+fRegions[i_ch]->fName+"_"+fInputName+fSuffix+"_model.root";
         if(fBootstrap!="" && fBootstrapIdx>=0) fileName = fName+"/RooStats/"+fBootstrapSyst+fBootstrapSample+"_BSId"+Form("%d",fBootstrapIdx)+"/"+fInputName+"_"+fRegions[i_ch]->fName+"_"+fInputName+fSuffix+"_model.root";
         file_vec.emplace_back(std::move(TFile::Open(fileName.c_str())));
+        if (!file_vec.back()) {
+            WriteErrorStatus("TRExFit::PerformWorkspaceCombination", "Input file with the workspace doesnt exist!");
+            exit(EXIT_FAILURE);
+        }
         RooWorkspace *tmp_ws = static_cast<RooWorkspace*>(file_vec.back()->Get((fRegions[i_ch]->fName).c_str()));
         if(!tmp_ws){
             WriteErrorStatus("TRExFit::PerformWorkspaceCombination", "The workspace (\"" + fRegions[i_ch] -> fName + "\") cannot be found in file " + fileName + ". Please check !");
@@ -4925,7 +4929,7 @@ std::unique_ptr<RooWorkspace> TRExFit::PerformWorkspaceCombination( std::vector 
         ifile->Close();
     }
 
-    rootFileCombined->Close();
+    if (rootFileCombined) rootFileCombined->Close();
 
     return ws;
 }
