@@ -509,6 +509,12 @@ public:
      */
     std::map < std::string, double > NPValuesFromFitResults(const std::string& fitResultsFile);
 
+    /**
+     * A helper function to plot pull plots from toys when unfolding is used
+     * @param Results in each bin
+     * @param output file to save the result
+     */
+    void DrawToyPullPlot(std::vector<TH1D>& hist, TFile* out) const;
     // -------------------------
 
     std::string fName;
