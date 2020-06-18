@@ -23,6 +23,7 @@ stages:
   - fstep_multi
   - rstep
   - draw
+  - allsteps
   - image_build
   - image_test
   - build_website
@@ -701,6 +702,30 @@ draw_postfit_ntuple:
       - ls FitExampleNtuple
       - ls FitExampleNtuple/Plots/
       - source test/scripts/FitExampleNtuple/check_step_p_ntuple.sh
+      - echo "=> Passed quick logfile checks"
+
+##
+## run all steps: comapre with the individual steps
+##
+allsteps_ntuple:
+    stage: allsteps
+    needs:
+      - compile
+      - histograms_ntuple
+      - workspace_ntuple
+      - fit_ntuple
+      - draw_prefit_ntuple
+      - draw_postfit_ntuple
+    script:
+      - trex-fitter nwfdp test/configs/FitExampleNtupleAllSteps.config >& LOG_NTUPLE_nwfdp
+      - cat LOG_NTUPLE_nwfdp | grep -v "TRExFitter" >& temp_log && mv temp_log LOG_NTUPLE_nwfdp
+      - ls
+      - set -e
+      - ls FitExampleNtupleAllSteps
+      - ls FitExampleNtupleAllSteps/Fits/
+      - ls FitExampleNtupleAllSteps/Plots/
+      - ls FitExampleNtupleAllSteps/Tables/
+      - source test/scripts/FitExampleNtupleAllSteps/check_step_nwfdp_ntuple.sh
       - echo "=> Passed quick logfile checks"
 
 ##
