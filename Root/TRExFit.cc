@@ -7755,11 +7755,9 @@ void TRExFit::RunToys(){
             const double tol =        ::ROOT::Math::MinimizerOptions::DefaultTolerance(); //AsymptoticCalculator enforces not less than 1 on this
             RooMinimizer m(*nll); // get MINUIT interface of fit
             m.optimizeConst(2);
-            m.setErrorLevel(-1);
             m.setPrintLevel(-1);
             m.setStrategy(1);
             m.setEps(tol);
-            //m.setStrategy(2); // set precision to high
             m.migrad();
             RooFitResult* r = m.save(); // save fit result
 
