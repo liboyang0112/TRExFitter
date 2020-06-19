@@ -3353,10 +3353,13 @@ int ConfigReader::ReadSampleOptions() {
                 nfactor = sample->AddNormFactor( Vectorize(param,',')[0] );
             }
             nfactor->fRegions = sample->fRegions;
+            TRExFitter::SYSTMAP[nfactor->fName] = nfactor->fName;
             if( Common::FindInStringVector(fFitter->fNormFactorNames,nfactor->fName)<0 ){
                 fFitter->fNormFactors.emplace_back( nfactor );
                 fFitter->fNormFactorNames.emplace_back( nfactor->fName );
             }
+
+            TRExFitter::NPMAP[nfactor->fName] = nfactor->fName;
         }
 
         // Set ShapeFactor
