@@ -496,6 +496,7 @@ void TRExPlot::Draw(std::string options){
     //
     if(fBlinding) {
         h_blind.reset(static_cast<TH1D*>(fBlinding->Clone("h_blind")));
+        h_blind->SetDirectory(nullptr);
         h_blind->SetLineWidth(0);
         h_blind->SetLineColor(kGray);
         h_blind->SetFillColor(kGray);
@@ -832,6 +833,7 @@ void TRExPlot::Draw(std::string options){
         //
         if(h_blind!=nullptr){
             h_blindratio.reset(static_cast<TH1D*>(h_blind->Clone("h_blindratio")));
+            h_blindratio->SetDirectory(nullptr);
             h_blindratio->Scale(2.);
             h_blindratio->Draw("HIST same");
         }
