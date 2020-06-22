@@ -1898,7 +1898,10 @@ std::shared_ptr<TRExPlot> TRExFit::DrawSummary(std::string opt, std::shared_ptr<
         p->SetBinLabel(i_bin,fRegions[regionVec[i_bin-1]]->fShortLabel.c_str());
     }
     p->Draw(opt);
-    if(!isPostFit && p->GetBlindingHisto()) fBlindedBins.reset(static_cast<TH1D*>(p->GetBlindingHisto()->Clone("blinding_trexfit")));
+    if(!isPostFit && p->GetBlindingHisto()) {
+        fBlindedBins.reset(static_cast<TH1D*>(p->GetBlindingHisto()->Clone("blinding_trexfit")));
+        fBlindedBins->SetDirectory(nullptr);
+    }
     //
     if(divisionVec.size()>0){
         p->pad0->cd();
