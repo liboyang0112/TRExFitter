@@ -52,7 +52,9 @@ FittingTool::FittingTool():
     m_randomNP(0.1),
     m_randSeed(-999),
     m_externalConstraints(nullptr),
-    m_strategy(-1) {
+    m_strategy(-1),
+    m_useHesse(true)
+{
 }
 
 //________________________________________________________________________
@@ -267,7 +269,11 @@ double FittingTool::FitPDF( RooStats::ModelConfig* model, RooAbsPdf* fitpdf, Roo
     WriteInfoStatus("FittingTool::FitPDF", "");
 
     status = minim.minimize(minimType.Data(),algorithm.Data());
-    m_hessStatus= minim.hesse();
+    if (m_useHesse) {
+        m_hessStatus = minim.hesse();
+    } else {
+        m_hessStatus = 0;
+    }
     std::unique_ptr<RooFitResult> r(minim.save());
     m_edm = r->edm();
 
@@ -290,7 +296,11 @@ double FittingTool::FitPDF( RooStats::ModelConfig* model, RooAbsPdf* fitpdf, Roo
         WriteWarningStatus("FittingTool::FitPDF", "");
         minim.setStrategy(strat);
         status = minim.minimize(minimType.Data(),algorithm.Data());
-        m_hessStatus= minim.hesse();
+        if (m_useHesse) {
+            m_hessStatus = minim.hesse();
+        } else {
+            m_hessStatus = 0;
+        }
         r.reset(minim.save());
         m_edm = r->edm();
 

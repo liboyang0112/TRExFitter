@@ -67,6 +67,8 @@ public:
     inline void SetExternalConstraints(const RooArgSet* externalConstraints = 0){ m_externalConstraints = externalConstraints; }
 
     inline void SetStrategy(const int strategy){m_strategy = strategy;}
+    
+    inline void SetUseHesse(const bool flag){m_useHesse = flag;}
 
     //
     // Specific functions
@@ -133,6 +135,7 @@ private:
 
     const RooArgSet* m_externalConstraints;
     int m_strategy;
+    bool m_useHesse;
 };
 
 
