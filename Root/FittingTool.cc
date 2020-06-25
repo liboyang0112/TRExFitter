@@ -417,7 +417,12 @@ double FittingTool::FitPDF( RooStats::ModelConfig* model, RooAbsPdf* fitpdf, Roo
 void FittingTool::SaveFitResult( const std::string &fileName )
 {
     std::unique_ptr<TFile> f(TFile::Open(fileName.c_str(),"RECREATE"));
+    if (!f) {
+        WriteWarningStatus("FittingTool::SaveFitResult", "Cannot open file: " + fileName + " cannot write the fit result");
+        return;
+    }
     m_fitResult->Write("",TObject::kOverwrite);
+    f->Close();
 }
 
 //____________________________________________________________________________________

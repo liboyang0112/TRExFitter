@@ -36,6 +36,7 @@
 #include "RooCategory.h"
 #include "RooRealSumPdf.h"
 #include "RooDataHist.h"
+#include "RooFormulaVar.h"
 #include "RooHistPdf.h"
 #include "RooArgSet.h"
 #include "RooConstVar.h"
