@@ -5627,6 +5627,16 @@ int ConfigReader::ReadUnfoldingOptions() {
         fFitter->fFitIsBlind = false;
     }
 
+    param = confSet->Get("DivideByBinWidth");
+    if (param != "") {
+        std::transform(param.begin(), param.end(), param.begin(), ::toupper);
+        if (param == "TRUE") {
+            fFitter->fUnfoldingDivideByBinWidth = true;
+        } else {
+            fFitter->fUnfoldingDivideByBinWidth = false;
+        }
+    }
+
     return 0;
 }
 

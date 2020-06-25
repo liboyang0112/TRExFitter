@@ -823,6 +823,7 @@ public:
     double fResponseZmin;
     double fResponseZmax;
     bool fMigrationText;
+    bool fUnfoldingDivideByBinWidth;
     PruningUtil::SHAPEOPTION fPruningShapeOption;
     bool fSummaryLogY;
     /// This variable is needed only for multifit

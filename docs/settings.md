@@ -645,6 +645,7 @@ These options are for multi-fits, performed with action `m`.
 | ResponseZmin   | for response plots |
 | PlotSystematicMigrations   | if set to TRUE will plot migration/response plots for all systematics |
 | MigrationText   | if set to TRUE will show numbers in migration/response matrix plots |
+| DivideByBinWidth | if set to TRUE will divide the bin content by bin width in the final plot with unfolded data |
 
 ### TruthSample block
 | **Option** | **Function** |
