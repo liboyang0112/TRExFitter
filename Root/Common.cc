@@ -1377,3 +1377,12 @@ std::unique_ptr<TGraphAsymmErrors> Common::GetRatioBand(const TGraphAsymmErrors*
     
     return result;
 }
+
+//__________________________________________________________________________________
+//
+std::string Common::IntToFixLenStr(int i,int n){
+    std::stringstream ss;
+    ss << std::setw(n) << std::setfill('0') << i;
+    std::string s = ss.str();
+    return s;
+}

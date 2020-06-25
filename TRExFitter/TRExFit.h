@@ -515,6 +515,11 @@ public:
      * @param output file to save the result
      */
     void DrawToyPullPlot(std::vector<TH1D>& hist, TFile* out) const;
+    
+    /**
+     * A helper function to replace the norm-factor expression of the last bin of a truth distribution when performing normalized-cross-section unfolding
+     */
+    void FixUnfoldingExpressions();
     // -------------------------
 
     std::string fName;
@@ -834,6 +839,8 @@ public:
     bool fAlternativeShapeHistFactory;
     int fFitStrategy;
     bool fBinnedLikelihood;
+    bool fUnfoldNormXSec;
+    int fUnfoldNormXSecBinN;
 };
 
 #endif

@@ -9,6 +9,7 @@
 #include "TCanvas.h"
 #include "TH2.h"
 #include "TRandom3.h"
+#include "TFile.h"
 
 //Roostats includes
 #include "Math/MinimizerOptions.h"
@@ -402,12 +403,27 @@ double FittingTool::FitPDF( RooStats::ModelConfig* model, RooAbsPdf* fitpdf, Roo
 
 //____________________________________________________________________________________
 //
+void FittingTool::SaveFitResult( const std::string &fileName )
+{
+    std::unique_ptr<TFile> f(TFile::Open(fileName.c_str(),"RECREATE"));
+    m_fitResult->Write("",TObject::kOverwrite);
+}
+
+//____________________________________________________________________________________
+//
 void FittingTool::ExportFitResultInTextFile( const std::string &fileName, const std::vector<std::string>& blinded )
 {
     if(!m_fitResult){
         WriteErrorStatus("FittingTool::ExportFitResultInTextFile", "The FitResultObject seems not to be defined.");
         return;
     }
+    
+    //
+    // Also saves fit result in root file with same name as txt file
+    //
+    TString fName = fileName;
+    fName.ReplaceAll(".txt",".root");
+    SaveFitResult(fName.Data());
 
     //
     // Printing the nuisance parameters post-fit values
