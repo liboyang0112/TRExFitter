@@ -253,6 +253,14 @@ std::unique_ptr<TH2> CombineHistos2DFromFullPaths(const std::vector<std::string>
   * @return ratio graph
   */  
 std::unique_ptr<TGraphAsymmErrors> GetRatioBand(const TGraphAsymmErrors* total, const TH1D* data);
+
+/**
+  * A helper function to transform an integer into a string, with leading zeros
+  * @param input int
+  * @param number of places (default = 3)
+  * @return string
+  */  
+std::string IntToFixLenStr(int i,int n=3);
 }
 
 #endif

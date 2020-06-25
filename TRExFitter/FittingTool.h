@@ -78,6 +78,8 @@ public:
                   bool noFit = false,
                   bool saturatedModel = false );
 
+    void SaveFitResult(const std::string& fileName);
+
     void ExportFitResultInTextFile(const std::string& finalName,
                                    const std::vector<std::string>& blinded);
 

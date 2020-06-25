@@ -40,10 +40,14 @@ public:
     std::unique_ptr<TGraphAsymmErrors> GetUnfoldedResultErrorBand() const;
     std::unique_ptr<TH1D> GetUnfoldedResult() const;
 
+    inline void SetNormXSec(bool value=false) {fNormXSec = value;}
+    
 private:
 
     std::vector<FitValue> fFitValues;
     std::unique_ptr<TH1D> fTruthDistribution;
+    
+    bool fNormXSec;
 
 };
 
