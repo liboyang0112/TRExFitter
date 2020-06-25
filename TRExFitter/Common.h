@@ -54,7 +54,6 @@ namespace TRExFitter{
     extern std::map< std::string,std::string > SYSTTEX;
     extern std::map< std::string,std::string > NPMAP;
     extern std::vector< std::string > IMAGEFORMAT;
-    extern int NCPU;
     //
     extern std::map< std::string, double > OPTION;
     extern std::map<std::string, std::shared_ptr<TFile> > TFILEMAP;

@@ -134,7 +134,8 @@ MultiFit::MultiFit(const string& name) :
     fuseGammasForCorr(false),
     fPOIInitial(1.),
     fHEPDataFormat(false),
-    fFitStrategy(-1)
+    fFitStrategy(-1),
+    fCPU(1)
 {
     fNPCategories.emplace_back("");
 }
@@ -326,6 +327,7 @@ std::map < std::string, double > MultiFit::FitCombinedWS(int fitType, const std:
     fitTool.SetUseHesse(true);
     fitTool.SetStrategy(fFitStrategy);
     fitTool.SetDebug(TRExFitter::DEBUGLEVEL);
+    fitTool.SetNCPU(fCPU);
     if(fitType==2){
         fitTool.ValPOI(0.);
         fitTool.ConstPOI(true);
@@ -1734,6 +1736,7 @@ void MultiFit::ProduceNPRanking( string NPnames/*="all"*/ ) const{
     fitTool.SetUseHesse(false);
     fitTool.SetStrategy(fFitStrategy);
     fitTool.SetDebug(TRExFitter::DEBUGLEVEL);
+    fitTool.SetNCPU(fCPU);
     fitTool.ValPOI(fPOIInitial);
     fitTool.ConstPOI(false);
 
@@ -2350,7 +2353,7 @@ void MultiFit::GetLikelihoodScan( RooWorkspace *ws, const std::string& varName, 
         std::unique_ptr<RooAbsReal> nll(simPdf->createNLL(*data,
                                         Constrain(*mc->GetNuisanceParameters()),
                                         Offset(1),
-                                        NumCPU(TRExFitter::NCPU, RooFit::Hybrid),
+                                        NumCPU(fCPU, RooFit::Hybrid),
                                         RooFit::Optimize(kTRUE)));
         std::vector<double> x(fLHscanSteps);
         std::vector<double> y(fLHscanSteps);
@@ -2621,7 +2624,7 @@ void MultiFit::Get2DLikelihoodScan( RooWorkspace *ws, const std::vector<std::str
     std::unique_ptr<RooAbsReal> nll(simPdf->createNLL(*data,
                                                       Constrain(*mc->GetNuisanceParameters()),
                                                       Offset(offset),
-                                                      NumCPU(TRExFitter::NCPU, RooFit::Hybrid),
+                                                      NumCPU(fCPU, RooFit::Hybrid),
                                                       RooFit::Optimize(kTRUE)));
 
     const TString minimType = ::ROOT::Math::MinimizerOptions::DefaultMinimizerType().c_str();

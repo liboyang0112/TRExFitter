@@ -40,6 +40,8 @@ public:
     // Gettters and setters
     //
     inline void SetDebug (const int debug){ m_debug = debug; }
+    
+    inline void SetNCPU (const int cpu){ m_CPU = cpu; }
 
     inline void MinimType (const TString& type){ m_minimType = type; }
 
@@ -107,6 +109,7 @@ public:
     void CheckUnderconstraint(const RooRealVar* const var) const;
 
 private:
+    int m_CPU;
     TString m_minimType;
     int m_minuitStatus;
     int m_hessStatus;

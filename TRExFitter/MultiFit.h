@@ -181,6 +181,7 @@ public:
     bool fHEPDataFormat;
     std::vector<std::string> fConfigPaths;
     int fFitStrategy;
+    int fCPU;
 };
 
 #endif
