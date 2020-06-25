@@ -1223,6 +1223,48 @@ int ConfigReader::ReadJobOptions(){
         }
     }
 
+    // Set RemoveLargeSyst
+    param = confSet->Get("RemoveLargeSyst");
+    if (param != "") {
+        std::transform(param.begin(), param.end(), param.begin(), ::toupper);
+        if (param == "TRUE") {
+            fFitter->fRemoveLargeSyst = true;
+        } else if (param == "FALSE") {
+            fFitter->fRemoveLargeSyst = false;
+        } else {
+            WriteWarningStatus("ConfigReader::ReadJobOptions", "You specified 'RemoveLargeSyst' option but you did not provide valid setting. Using default (true)");
+            fFitter->fRemoveLargeSyst = true;
+        }
+    }
+    
+    // Set RemoveSystOnEmptySample
+    param = confSet->Get("RemoveSystOnEmptySample");
+    if( param != "" ){
+        std::transform(param.begin(), param.end(), param.begin(), ::toupper);
+        if (param == "TRUE") {
+            fFitter->fRemoveSystOnEmptySample = true;
+        } else if (param == "FALSE") {
+            fFitter->fRemoveSystOnEmptySample = false;
+        } else {
+            WriteWarningStatus("ConfigReader::ReadJobOptions", "You specified 'RemoveSystOnEmptySample' option but you did not provide valid setting. Using default (false)");
+            fFitter->fRemoveSystOnEmptySample = false;
+        }
+    }
+
+    // Set ShowValidationPruning
+    param = confSet->Get("ShowValidationPruning");
+    if( param != "" ){
+        std::transform(param.begin(), param.end(), param.begin(), ::toupper);
+        if (param == "TRUE") {
+            fFitter->fValidationPruning = true;
+        } else if (param == "FALSE") {
+            fFitter->fValidationPruning = false;
+        } else {
+            WriteWarningStatus("ConfigReader::ReadJobOptions", "You specified 'ValidationPruning' option but you did not provide valid setting. Using default (false)");
+            fFitter->fValidationPruning = false;
+        }
+    }
+
     // success
     return 0;
 }

@@ -277,6 +277,9 @@ TRExFit::TRExFit(std::string name) :
     fAlternativeShapeHistFactory(false),
     fFitStrategy(-1),
     fBinnedLikelihood(false),
+    fRemoveLargeSyst(true),
+    fRemoveSystOnEmptySample(false),
+    fValidationPruning(false),
     fUnfoldNormXSec(false),
     fUnfoldNormXSecBinN(-1)
 {
@@ -3552,6 +3555,8 @@ void TRExFit::SystPruning() const {
     pu.SetThresholdNorm(fThresholdSystPruning_Normalisation);
     pu.SetThresholdShape(fThresholdSystPruning_Shape);
     pu.SetThresholdIsLarge(fThresholdSystLarge);
+    pu.SetRemoveLargeSyst(fRemoveLargeSyst);
+    pu.SetRemoveSystOnEmptySample(fRemoveSystOnEmptySample);
 
     for(auto& reg : fRegions){
         // if want to skip validation regions from pruning, add a condition here
@@ -3723,10 +3728,10 @@ void TRExFit::DrawPruningPlot() const{
     }
     //
     for(int i_reg=0;i_reg<fNRegions;i_reg++){
-        if(fRegions[i_reg]->fRegionType==Region::VALIDATION) continue;
+        if(!fValidationPruning && fRegions[i_reg]->fRegionType==Region::VALIDATION) continue;
 
         out << "In Region : " << fRegions[i_reg]->fName << std::endl ;
-        histPrun.emplace_back( std::move(std::unique_ptr<TH2F>(new TH2F (Form("h_prun_%s", fRegions[i_reg]->fName.c_str()  ),fRegions[i_reg]->fShortLabel.c_str(),nSmp,0,nSmp, uniqueSyst.size(),0,uniqueSyst.size()))));
+        histPrun.emplace_back(new TH2F (Form("h_prun_%s", fRegions[i_reg]->fName.c_str()  ),fRegions[i_reg]->fShortLabel.c_str(),nSmp,0,nSmp, uniqueSyst.size(),0,uniqueSyst.size()));
         histPrun.back()->SetDirectory(0);
 
         for(int i_smp=0;i_smp<nSmp;i_smp++){

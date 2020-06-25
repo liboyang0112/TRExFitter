@@ -27,6 +27,8 @@ public:
     void SetThresholdNorm(const double thres);
     void SetThresholdShape(const double thres);
     void SetThresholdIsLarge(const double thres);
+    void SetRemoveLargeSyst(const bool flag);
+    void SetRemoveSystOnEmptySample(const bool flag);
 
     // if hTot is not set, just prun w.r.t. only this nominal,
     // otherwise use hTot and do relative pruning
@@ -60,6 +62,8 @@ public:
     double fThresholdNorm;
     double fThresholdShape;
     double fThresholdIsLarge;
+    bool fRemoveLargeSyst;
+    bool fRemoveSystOnEmptySample;
 };
 
 #endif
