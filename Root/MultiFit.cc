@@ -323,6 +323,7 @@ std::map < std::string, double > MultiFit::FitCombinedWS(int fitType, const std:
     // Fit configuration (1: SPLUSB or 2: BONLY)
     //
     FittingTool fitTool{};
+    fitTool.SetUseHesse(true);
     fitTool.SetStrategy(fFitStrategy);
     fitTool.SetDebug(TRExFitter::DEBUGLEVEL);
     if(fitType==2){
@@ -1730,6 +1731,7 @@ void MultiFit::ProduceNPRanking( string NPnames/*="all"*/ ) const{
     // Initialize the FittingTool object
     //
     FittingTool fitTool{};
+    fitTool.SetUseHesse(false);
     fitTool.SetStrategy(fFitStrategy);
     fitTool.SetDebug(TRExFitter::DEBUGLEVEL);
     fitTool.ValPOI(fPOIInitial);

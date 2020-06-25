@@ -4654,6 +4654,7 @@ std::map < std::string, double > TRExFit::PerformFit( RooWorkspace *ws, RooDataS
     // Fit configuration (SPLUSB or BONLY)
     //
     FittingTool fitTool{};
+    fitTool.SetUseHesse(true);
     fitTool.SetStrategy(fFitStrategy);
     fitTool.SetDebug(debugLevel);
     if(fitType==BONLY){
@@ -5811,6 +5812,7 @@ void TRExFit::ProduceNPRanking( std::string NPnames/*="all"*/ ){
         }
     }
     FittingTool fitTool{};
+    fitTool.SetUseHesse(false);
     fitTool.SetStrategy(fFitStrategy);
     fitTool.SetDebug(TRExFitter::DEBUGLEVEL);
     fitTool.ValPOI(poiInitial);
