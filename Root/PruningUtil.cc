@@ -15,7 +15,10 @@ PruningUtil::PruningUtil() :
     fShapeOption(PruningUtil::SHAPEOPTION::MAXBIN),
     fThresholdNorm(-1),
     fThresholdShape(-1),
-    fThresholdIsLarge(-1) {
+    fThresholdIsLarge(-1),
+    fRemoveLargeSyst(true),
+    fRemoveSystOnEmptySample(false)
+{
 }
 
 //__________________________________________________________________________________
@@ -47,6 +50,18 @@ void PruningUtil::SetThresholdShape(const double thres) {
 void PruningUtil::SetThresholdIsLarge(const double thres) {
     fThresholdIsLarge = thres;
 }
+    
+//__________________________________________________________________________________
+//
+void PruningUtil::SetRemoveLargeSyst(const bool flag) {
+    fRemoveLargeSyst = flag;
+}
+
+//__________________________________________________________________________________
+//
+void PruningUtil::SetRemoveSystOnEmptySample(const bool flag) {
+    fRemoveSystOnEmptySample = flag;
+}
 
 //__________________________________________________________________________________
 //
@@ -76,6 +91,7 @@ int PruningUtil::CheckSystPruning(const TH1* const hUp,
     // get norm effects
     const double normUp   = std::fabs((Common::EffIntegral(hUp  )-Common::EffIntegral(hNom))/Common::EffIntegral(hRef.get()));
     const double normDown = std::fabs((Common::EffIntegral(hDown)-Common::EffIntegral(hNom))/Common::EffIntegral(hRef.get()));
+    const double normNom = Common::EffIntegral(hNom);
 
     // check if systematic has no shape --> 1
     bool hasShape(true);
@@ -94,16 +110,30 @@ int PruningUtil::CheckSystPruning(const TH1* const hUp,
 
     // now check for crazy systematics
     bool hasGoodShape = true;
+    bool hasGoodNorm = true;
     if(fThresholdIsLarge>=0) {
-        if (fShapeOption == PruningUtil::SHAPEOPTION::MAXBIN) {
-            hasGoodShape = !HasShapeRelative(hNom,hShapeUp.get(),hShapeDown.get(),hRef.get(),fThresholdIsLarge);
-        }
-        if (fShapeOption == PruningUtil::SHAPEOPTION::KSTEST) {
-            hasGoodShape = !HasShapeKS(hNom,hShapeUp.get(),hShapeDown.get(),fThresholdIsLarge);
+        if (fRemoveLargeSyst) {
+            if ((std::fabs(normUp) > fThresholdIsLarge) || (std::fabs(normDown) > fThresholdIsLarge)) {
+                hasShape = false;
+                hasNorm = false;
+            }
+        } else {
+            if (fShapeOption == PruningUtil::SHAPEOPTION::MAXBIN) {
+                hasGoodShape = !HasShapeRelative(hNom,hShapeUp.get(),hShapeDown.get(),hRef.get(),fThresholdIsLarge);
+            }
+            if (fShapeOption == PruningUtil::SHAPEOPTION::KSTEST) {
+                hasGoodShape = !HasShapeKS(hNom,hShapeUp.get(),hShapeDown.get(),fThresholdIsLarge);
+            }
+            hasGoodNorm = ((normUp <= fThresholdIsLarge) && (normDown <= fThresholdIsLarge));
         }
     }
-    bool hasGoodNorm = true;
-    if(fThresholdIsLarge>=0) hasGoodNorm = ((normUp <= fThresholdIsLarge) && (normDown <= fThresholdIsLarge));
+
+    if (fRemoveSystOnEmptySample) {
+        if (normNom < 1e-4) {
+            hasShape = false;
+            hasNorm = false;
+        }
+    }
 
     if(!hasGoodShape && !hasGoodNorm) res = -4;
     else if(!hasGoodShape) res = -3;

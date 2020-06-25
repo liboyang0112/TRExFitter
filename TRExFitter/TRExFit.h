@@ -839,6 +839,9 @@ public:
     bool fAlternativeShapeHistFactory;
     int fFitStrategy;
     bool fBinnedLikelihood;
+    bool fRemoveLargeSyst;
+    bool fRemoveSystOnEmptySample;
+    bool fValidationPruning;
     bool fUnfoldNormXSec;
     int fUnfoldNormXSecBinN;
 };
