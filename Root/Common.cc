@@ -1379,6 +1379,27 @@ std::unique_ptr<TGraphAsymmErrors> Common::GetRatioBand(const TGraphAsymmErrors*
 
 //__________________________________________________________________________________
 //
+void Common::ScaleByBinWidth(TH1* h) {
+    for (int ibin = 1; ibin <= h->GetNbinsX(); ++ibin) {
+        const double width = h->GetBinWidth(ibin);
+        h->SetBinContent(ibin,h->GetBinContent(ibin)/width);
+        h->SetBinError(  ibin,h->GetBinError(ibin)  /width);
+    }
+}
+
+//__________________________________________________________________________________
+//
+void Common::ScaleByBinWidth(TGraphAsymmErrors* g) {
+    for(int ibin = 0; ibin < g->GetN(); ++ibin) {
+        const double width = g->GetErrorXhigh(ibin) + g->GetErrorXlow(ibin);
+        g->SetPoint(      ibin,g->GetX()[ibin], g->GetY()[ibin]/width);
+        g->SetPointEYhigh(ibin,g->GetErrorYhigh(ibin)/width);
+        g->SetPointEYlow( ibin,g->GetErrorYlow(ibin) /width);
+    }
+}
+
+//__________________________________________________________________________________
+//
 std::string Common::IntToFixLenStr(int i,int n){
     std::stringstream ss;
     ss << std::setw(n) << std::setfill('0') << i;

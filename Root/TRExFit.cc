@@ -268,6 +268,7 @@ TRExFit::TRExFit(std::string name) :
     fResponseZmin(0),
     fResponseZmax(1),
     fMigrationText(false),
+    fUnfoldingDivideByBinWidth(false),
     fPruningShapeOption(PruningUtil::SHAPEOPTION::MAXBIN),
     fSummaryLogY(true),
     fUseInFit(true),
@@ -9200,6 +9201,14 @@ void TRExFit::PlotUnfold(TH1D* data,
     if (mc.empty()) {
         WriteWarningStatus("TRExFit::PlotUnfold", "No MC samples set for plotting. Will not create the final plots");
         return;
+    }
+
+    if (fUnfoldingDivideByBinWidth) {
+        Common::ScaleByBinWidth(data);
+        Common::ScaleByBinWidth(total);
+        for (auto& imc : mc) {
+            Common::ScaleByBinWidth(imc.get());
+        }
     }
 
     TCanvas c("","",600,600);

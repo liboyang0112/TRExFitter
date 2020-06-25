@@ -5684,6 +5684,16 @@ int ConfigReader::ReadUnfoldingOptions() {
         fFitter->fUnfoldNormXSecBinN = std::stoi(param);
     }
 
+    param = confSet->Get("DivideByBinWidth");
+    if (param != "") {
+        std::transform(param.begin(), param.end(), param.begin(), ::toupper);
+        if (param == "TRUE") {
+            fFitter->fUnfoldingDivideByBinWidth = true;
+        } else {
+            fFitter->fUnfoldingDivideByBinWidth = false;
+        }
+    }
+
     return 0;
 }
 

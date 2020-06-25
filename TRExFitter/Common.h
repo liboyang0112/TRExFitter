@@ -254,6 +254,18 @@ std::unique_ptr<TH2> CombineHistos2DFromFullPaths(const std::vector<std::string>
 std::unique_ptr<TGraphAsymmErrors> GetRatioBand(const TGraphAsymmErrors* total, const TH1D* data);
 
 /**
+ * A helepr function to divide bin content by bin width
+ * @param histogram
+ */
+void ScaleByBinWidth(TH1* h);
+
+/**
+ * A helepr function to divide bin content by bin width
+ * @param raph
+ */
+void ScaleByBinWidth(TGraphAsymmErrors* g);
+
+/**
   * A helper function to transform an integer into a string, with leading zeros
   * @param input int
   * @param number of places (default = 3)
