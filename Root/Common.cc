@@ -65,7 +65,6 @@ std::map <std::string,std::string> TRExFitter::SYSTMAP;
 std::map <std::string,std::string> TRExFitter::SYSTTEX;
 std::map <std::string,std::string> TRExFitter::NPMAP;
 std::vector <std::string> TRExFitter::IMAGEFORMAT;
-int TRExFitter::NCPU = 1;
 //
 std::map<std::string,double> TRExFitter::OPTION;
 std::map<std::string, std::shared_ptr<TFile> > TRExFitter::TFILEMAP;

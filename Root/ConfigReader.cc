@@ -1837,7 +1837,7 @@ int ConfigReader::ReadFitOptions(){
     // Set NumCPU
     param = confSet->Get("NumCPU");
     if( param != "" ){
-        TRExFitter::NCPU = std::atoi( param.c_str());
+        fFitter->fCPU = std::atoi( param.c_str());
     }
 
     // Set StatOnlyFit

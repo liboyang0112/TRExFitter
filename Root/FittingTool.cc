@@ -33,6 +33,7 @@ using namespace std;
 //________________________________________________________________________
 //
 FittingTool::FittingTool():
+    m_CPU(1),
     m_minimType("Minuit2"),
     m_minuitStatus(-1),
     m_hessStatus(-1),
@@ -101,7 +102,7 @@ double FittingTool::FitPDF( RooStats::ModelConfig* model, RooAbsPdf* fitpdf, Roo
                                     RooFit::Constrain(*constrainedParams),
                                     RooFit::GlobalObservables(*glbObs),
                                     RooFit::Offset(1),
-                                    RooFit::NumCPU(TRExFitter::NCPU,RooFit::Hybrid),
+                                    RooFit::NumCPU(m_CPU,RooFit::Hybrid),
                                     RooFit::Optimize(kTRUE),
                                     RooFit::ExternalConstraints(*m_externalConstraints)
                                     ));
@@ -659,7 +660,7 @@ void FittingTool::FitExcludingGroup(bool excludeGammas, bool statOnly, RooAbsDat
                                     RooFit::Constrain(*constrainedParams),
                                     RooFit::GlobalObservables(*glbObs),
                                     RooFit::Offset(1),
-                                    NumCPU(TRExFitter::NCPU,RooFit::Hybrid),
+                                    NumCPU(m_CPU,RooFit::Hybrid),
                                     RooFit::Optimize(kTRUE),
                                     RooFit::ExternalConstraints(*m_externalConstraints)
                                    ));

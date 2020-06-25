@@ -378,7 +378,7 @@ int ConfigReaderMulti::ReadJobOptions() {
     // Set NumCPU
     param = confSet->Get("NumCPU");
     if( param != "" ){
-        TRExFitter::NCPU = atoi( param.c_str());
+        fMultiFitter->fCPU = atoi( param.c_str());
     }
 
     // Set FastFit

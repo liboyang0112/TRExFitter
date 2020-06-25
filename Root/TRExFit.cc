@@ -233,6 +233,7 @@ TRExFit::TRExFit(std::string name) :
     fSaturatedModel(false),
     fDoSystNormalizationPlots(true),
     fDebugNev(-1),
+    fCPU(1),
     fMatrixOrientation(FoldingManager::MATRIXORIENTATION::TRUTHONHORIZONTALAXIS),
     fTruthDistributionPath(""),
     fTruthDistributionFile(""),
@@ -4652,6 +4653,7 @@ std::map < std::string, double > TRExFit::PerformFit( RooWorkspace *ws, RooDataS
     FittingTool fitTool{};
     fitTool.SetStrategy(fFitStrategy);
     fitTool.SetDebug(debugLevel);
+    fitTool.SetNCPU(fCPU);
     if(fitType==BONLY){
         fitTool.ValPOI(0.);
         fitTool.ConstPOI(true);
@@ -5722,6 +5724,7 @@ void TRExFit::ProduceNPRanking( std::string NPnames/*="all"*/ ){
     fitTool.SetStrategy(fFitStrategy);
     fitTool.SetDebug(TRExFitter::DEBUGLEVEL);
     fitTool.ValPOI(poiInitial);
+    fitTool.SetNCPU(fCPU);
     fitTool.ConstPOI(false);
     if(fStatOnly){
         fitTool.NoGammas();
@@ -6802,7 +6805,7 @@ void TRExFit::GetLikelihoodScan( RooWorkspace *ws, std::string varName, RooDataS
     std::unique_ptr<RooAbsReal> nll(simPdf->createNLL(*data,
                                                       Constrain(*mc->GetNuisanceParameters()),
                                                       Offset(1),
-                                                      NumCPU(TRExFitter::NCPU, RooFit::Hybrid),
+                                                      NumCPU(fCPU, RooFit::Hybrid),
                                                       RooFit::Optimize(kTRUE)));
 
     std::vector<double> x(fLHscanSteps);
@@ -7016,7 +7019,7 @@ void TRExFit::Get2DLikelihoodScan( RooWorkspace *ws, const std::vector<std::stri
     std::unique_ptr<RooAbsReal> nll(simPdf->createNLL(*data,
                                                       Constrain(*mc->GetNuisanceParameters()),
                                                       Offset(offset),
-                                                      NumCPU(TRExFitter::NCPU, RooFit::Hybrid),
+                                                      NumCPU(fCPU, RooFit::Hybrid),
                                                       RooFit::Optimize(kTRUE)));
 
     ROOT::Math::MinimizerOptions::SetDefaultMinimizer("Minuit2");
@@ -7655,7 +7658,7 @@ void TRExFit::RunToys(){
                                                          RooFit::Constrain(*mc.GetNuisanceParameters()),
                                                          RooFit::GlobalObservables(*glbObs),
                                                          RooFit::Offset(1),
-                                                         RooFit::NumCPU(1, RooFit::Hybrid),
+                                                         RooFit::NumCPU(fCPU, RooFit::Hybrid),
                                                          RooFit::Optimize(kTRUE),
                                                          RooFit::ExternalConstraints(*externalConstraints)));
 

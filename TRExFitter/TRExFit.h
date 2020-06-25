@@ -786,6 +786,8 @@ public:
     bool fDoSystNormalizationPlots;
 
     int fDebugNev;
+    
+    int fCPU;
 
     FoldingManager::MATRIXORIENTATION fMatrixOrientation;
 
