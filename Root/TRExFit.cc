@@ -21,6 +21,7 @@
 #include "TRExFitter/UnfoldingSample.h"
 #include "TRExFitter/UnfoldingSystematic.h"
 #include "TRExFitter/YamlConverter.h"
+#include "TRExFitter/CorrelationMatrix.h"
 
 // UnfoldingCode includes
 #include "UnfoldingCode/UnfoldingCode/UnfoldingTools.h"
@@ -42,6 +43,7 @@
 #include "RooGaussian.h"
 #include "RooPoisson.h"
 #include "RooMinimizer.h"
+#include "RooFitResult.h"
 
 //HistFactory headers
 #include "RooStats/AsymptoticCalculator.h"
@@ -233,6 +235,7 @@ TRExFit::TRExFit(std::string name) :
     fSaturatedModel(false),
     fDoSystNormalizationPlots(true),
     fDebugNev(-1),
+    fCPU(1),
     fMatrixOrientation(FoldingManager::MATRIXORIENTATION::TRUTHONHORIZONTALAXIS),
     fTruthDistributionPath(""),
     fTruthDistributionFile(""),
@@ -275,7 +278,12 @@ TRExFit::TRExFit(std::string name) :
     fHEPDataFormat(false),
     fAlternativeShapeHistFactory(false),
     fFitStrategy(-1),
-    fBinnedLikelihood(false)
+    fBinnedLikelihood(false),
+    fRemoveLargeSyst(true),
+    fRemoveSystOnEmptySample(false),
+    fValidationPruning(false),
+    fUnfoldNormXSec(false),
+    fUnfoldNormXSecBinN(-1)
 {
     TRExFitter::IMAGEFORMAT.emplace_back("png");
 }
@@ -3549,6 +3557,8 @@ void TRExFit::SystPruning() const {
     pu.SetThresholdNorm(fThresholdSystPruning_Normalisation);
     pu.SetThresholdShape(fThresholdSystPruning_Shape);
     pu.SetThresholdIsLarge(fThresholdSystLarge);
+    pu.SetRemoveLargeSyst(fRemoveLargeSyst);
+    pu.SetRemoveSystOnEmptySample(fRemoveSystOnEmptySample);
 
     for(auto& reg : fRegions){
         // if want to skip validation regions from pruning, add a condition here
@@ -3720,10 +3730,10 @@ void TRExFit::DrawPruningPlot() const{
     }
     //
     for(int i_reg=0;i_reg<fNRegions;i_reg++){
-        if(fRegions[i_reg]->fRegionType==Region::VALIDATION) continue;
+        if(!fValidationPruning && fRegions[i_reg]->fRegionType==Region::VALIDATION) continue;
 
         out << "In Region : " << fRegions[i_reg]->fName << std::endl ;
-        histPrun.emplace_back( std::move(std::unique_ptr<TH2F>(new TH2F (Form("h_prun_%s", fRegions[i_reg]->fName.c_str()  ),fRegions[i_reg]->fShortLabel.c_str(),nSmp,0,nSmp, uniqueSyst.size(),0,uniqueSyst.size()))));
+        histPrun.emplace_back(new TH2F (Form("h_prun_%s", fRegions[i_reg]->fName.c_str()  ),fRegions[i_reg]->fShortLabel.c_str(),nSmp,0,nSmp, uniqueSyst.size(),0,uniqueSyst.size()));
         histPrun.back()->SetDirectory(0);
 
         for(int i_smp=0;i_smp<nSmp;i_smp++){
@@ -4651,8 +4661,10 @@ std::map < std::string, double > TRExFit::PerformFit( RooWorkspace *ws, RooDataS
     // Fit configuration (SPLUSB or BONLY)
     //
     FittingTool fitTool{};
+    fitTool.SetUseHesse(true);
     fitTool.SetStrategy(fFitStrategy);
     fitTool.SetDebug(debugLevel);
+    fitTool.SetNCPU(fCPU);
     if(fitType==BONLY){
         fitTool.ValPOI(0.);
         fitTool.ConstPOI(true);
@@ -5032,14 +5044,102 @@ void TRExFit::PlotUnfoldedData() const {
 
     UnfoldingResult unfolded;
     unfolded.SetTruthDistribution(truth.get());
+    unfolded.SetNormXSec(fUnfoldNormXSec);
 
     // pass the fit results to the tool
     for (int i = 0; i < fNumberUnfoldingTruthBins; ++i) {
-        const std::string name = "Bin_" + std::to_string(i+1);
-        const double mean = fFitResults->GetNuisParValue(name);
-        const double up   = mean + fFitResults->GetNuisParErrUp(name);
-        const double down = mean + fFitResults->GetNuisParErrDown(name);
-        unfolded.AddFitValue(mean, up, down);
+        std::string name = "Bin_" + Common::IntToFixLenStr(i+1) + "_mu";
+        // if it's last bin and getting norm xsec:
+        if(fUnfoldNormXSec && i==fUnfoldNormXSecBinN-1){
+            // get value and error of non-independent parameter from workspace and fit result
+            // - get workspace
+            const std::string wsFileName = fName+"/RooStats/"+fInputName+"_combined_"+fInputName+fSuffix+"_model.root";
+            std::unique_ptr<TFile> wsFile(TFile::Open(wsFileName.c_str(),"read"));
+//             std::unique_ptr<RooWorkspace> ws(static_cast<RooWorkspace*>(wsFile->Get("combined"))); // for some reasons induces a crash
+            RooWorkspace* ws = static_cast<RooWorkspace*>(wsFile->Get("combined"));
+            // - get fit-result
+            const std::string frFileName = fName+"/Fits/"+fName+fSuffix+".root";
+            std::unique_ptr<TFile> frFile(TFile::Open(frFileName.c_str(),"read"));
+            std::unique_ptr<RooFitResult> fr(nullptr);
+            // loop on keys in file
+            for(auto *key : *gDirectory->GetListOfKeys()){
+                std::string keyName = key->GetName();
+                if(keyName.find("nll_simPdf")!=std::string::npos){
+                    fr.reset(static_cast<RooFitResult*>(frFile->Get(keyName.c_str())));
+                    break;
+                }
+            }
+            // calculate propagated value and error in 2 ways:
+            // 1. by hand:
+            double num = 1.;
+            double den = 1.;
+            const double N = truth->Integral();
+            const double Ni = truth->GetBinContent(i+1);
+            for (int j = 0; j < fNumberUnfoldingTruthBins; ++j){
+                if(j==fUnfoldNormXSecBinN-1) continue;
+                const double Nj = truth->GetBinContent(j+1);
+                num -= fFitResults->GetNuisParValue("Bin_" + Common::IntToFixLenStr(j+1) + "_mu") * Nj/N;
+                den -= Nj/N;
+            }
+            const double mean0 = num/den;
+            double error0 = 0.;
+            for (int j = 0; j < fNumberUnfoldingTruthBins; ++j){
+                if(j==fUnfoldNormXSecBinN-1) continue;
+                const std::string par_j = "Bin_" + Common::IntToFixLenStr(j+1) + "_mu";
+                const double Nj = truth->GetBinContent(j+1);
+                for (int k = 0; k < fNumberUnfoldingTruthBins; ++k){
+                    if(k==fUnfoldNormXSecBinN-1) continue;
+                    const std::string par_k = "Bin_" + Common::IntToFixLenStr(k+1) + "_mu";
+                    const double Nk = truth->GetBinContent(k+1);
+                    double rho = fFitResults->fCorrMatrix->GetCorrelation(par_j,par_k);
+                    double err_j = fFitResults->GetNuisParErrUp(par_j);
+                    double err_k = fFitResults->GetNuisParErrUp(par_k);
+                    error0 += rho*(Nj/Ni)*(Nk/Ni)*err_j*err_k;
+                }
+            }
+            error0 = sqrt(error0);
+            const double up0   = mean0 + error0;
+            const double down0 = mean0 - error0;
+            // 2. within RooFit:
+            std::unique_ptr<RooFormulaVar> muN(nullptr);
+            for(auto *arg : ws->allFunctions()){
+                std::string argName = arg->GetName();
+                if(argName=="Bin_" + Common::IntToFixLenStr(fUnfoldNormXSecBinN) + "_mu"){
+                    muN.reset(static_cast<RooFormulaVar*>(arg));
+                }
+            }
+            // propagate fit results to ws
+            for(auto *par : fr->floatParsFinal()){
+                ws->var( par->GetName() )->setVal( (static_cast<RooRealVar*>(par))->getVal() );
+                ws->var( par->GetName() )->setError( (static_cast<RooRealVar*>(par))->getError() );
+            }
+            const double mean = muN!=nullptr ? muN->getVal() : 0.;
+            const double error = muN!=nullptr ? muN->getPropagatedError(*fr) : 0.;
+            const double up   = mean + error;
+            const double down = mean - error;
+            // Choose which one to take
+            if(ws==nullptr || fr==nullptr || muN==nullptr){
+                // if problems in getting roofit fit result, just use the by-hand one:
+                WriteWarningStatus("TRExFit::PlotUnfoldedData","No suitable RooFitResult or norm factor in WS found: taking by-hand calculation.");
+                unfolded.AddFitValue(mean0, up0, down0);
+            }
+            else{
+                // otherwise, check compatibility:
+                // - for mean (1% threshold)
+                if(fabs(mean-mean0)/(0.5*(mean+mean0))>0.01) WriteWarningStatus("TRExFit::PlotUnfoldedData","Propagation of nominal unfolding result to non-independent bin giving incompatible results: " + std::to_string(mean0) + " vs. " + std::to_string(mean) + ". Note that the latter will be used.");
+                // - for error (1% threshold)
+                if(fabs(error-error0)/(0.5*(error+error0))>0.01) WriteWarningStatus("TRExFit::PlotUnfoldedData","Propagation of unfolding error to non-independent bin giving incompatible results: " + std::to_string(error0) + " vs. " + std::to_string(error) + ". Note that the latter will be used.");
+                // in any case use the roofit one
+                unfolded.AddFitValue(mean, up, down);
+            }
+            wsFile->Close();
+        }
+        else{
+            const double mean = fFitResults->GetNuisParValue(name);
+            const double up   = mean + fFitResults->GetNuisParErrUp(name);
+            const double down = mean + fFitResults->GetNuisParErrDown(name);
+            unfolded.AddFitValue(mean, up, down);
+        }
     }
 
     std::unique_ptr<TH1D> data               = unfolded.GetUnfoldedResult();
@@ -5720,9 +5820,11 @@ void TRExFit::ProduceNPRanking( std::string NPnames/*="all"*/ ){
         }
     }
     FittingTool fitTool{};
+    fitTool.SetUseHesse(false);
     fitTool.SetStrategy(fFitStrategy);
     fitTool.SetDebug(TRExFitter::DEBUGLEVEL);
     fitTool.ValPOI(poiInitial);
+    fitTool.SetNCPU(fCPU);
     fitTool.ConstPOI(false);
     if(fStatOnly){
         fitTool.NoGammas();
@@ -6803,7 +6905,7 @@ void TRExFit::GetLikelihoodScan( RooWorkspace *ws, std::string varName, RooDataS
     std::unique_ptr<RooAbsReal> nll(simPdf->createNLL(*data,
                                                       Constrain(*mc->GetNuisanceParameters()),
                                                       Offset(1),
-                                                      NumCPU(TRExFitter::NCPU, RooFit::Hybrid),
+                                                      NumCPU(fCPU, RooFit::Hybrid),
                                                       RooFit::Optimize(kTRUE)));
 
     std::vector<double> x(fLHscanSteps);
@@ -7017,7 +7119,7 @@ void TRExFit::Get2DLikelihoodScan( RooWorkspace *ws, const std::vector<std::stri
     std::unique_ptr<RooAbsReal> nll(simPdf->createNLL(*data,
                                                       Constrain(*mc->GetNuisanceParameters()),
                                                       Offset(offset),
-                                                      NumCPU(TRExFitter::NCPU, RooFit::Hybrid),
+                                                      NumCPU(fCPU, RooFit::Hybrid),
                                                       RooFit::Optimize(kTRUE)));
 
     ROOT::Math::MinimizerOptions::SetDefaultMinimizer("Minuit2");
@@ -7602,7 +7704,9 @@ void TRExFit::RunToys(){
         RooAbsPdf *pdf = mc.GetPdf();
         RooArgSet obsSet = *(mc.GetObservables());
         std::vector<RooRealVar*> nfs;
-        for (const auto& iname : fNormFactorNames) {
+        for (const auto& nf: fNormFactors) {
+            const std::string& iname = nf->fName;
+            if(nf->fExpression.first!="") continue;
             nfs.emplace_back(static_cast<RooRealVar*>((& ws->allVars()[iname.c_str()])));
         }
 
@@ -7624,7 +7728,9 @@ void TRExFit::RunToys(){
         std::vector<double> tauVec;
         for(const auto& nf : fNormFactors){
             if(nf->fTau!=0){
-                l.add(*ws->var(nf->fName.c_str()));
+                if(ws->var(nf->fName.c_str())!=nullptr) l.add(*ws->var(nf->fName.c_str()));
+                else if(ws->function(nf->fName.c_str())!=nullptr) l.add(*ws->function(nf->fName.c_str()));
+                else WriteWarningStatus("TRExFit::RunToys","Cannot apply tau to norm factor " + nf->fName);
                 nomVec.push_back( nf->fNominal );
                 tauVec.push_back( nf->fTau );
             }
@@ -7656,7 +7762,7 @@ void TRExFit::RunToys(){
                                                          RooFit::Constrain(*mc.GetNuisanceParameters()),
                                                          RooFit::GlobalObservables(*glbObs),
                                                          RooFit::Offset(1),
-                                                         RooFit::NumCPU(1, RooFit::Hybrid),
+                                                         RooFit::NumCPU(fCPU, RooFit::Hybrid),
                                                          RooFit::Optimize(kTRUE),
                                                          RooFit::ExternalConstraints(*externalConstraints)));
 
@@ -7768,7 +7874,8 @@ void TRExFit::RunToys(){
             std::size_t unfIndex(0);
             for (std::size_t inf = 0; inf < nfs.size(); ++inf) {
                 h_toys.at(inf).Fill(nfs.at(inf)->getVal());
-                WriteInfoStatus("TRExFit::RunToys","Toy n. " + std::to_string(i_toy+1) + ", fitted value of NF: " + fNormFactorNames.at(inf) + ": " + std::to_string(nfs.at(inf)->getVal()));
+//                 WriteInfoStatus("TRExFit::RunToys","Toy n. " + std::to_string(i_toy+1) + ", fitted value of NF: " + fNormFactorNames.at(inf) + ": " + std::to_string(nfs.at(inf)->getVal()));
+                WriteInfoStatus("TRExFit::RunToys","Toy n. " + std::to_string(i_toy+1) + ", fitted value of NF: " + nfs.at(inf)->GetName() + ": " + std::to_string(nfs.at(inf)->getVal()) + " +/- " + std::to_string(nfs.at(inf)->getError()));
 
                 if (fFitType == TRExFit::FitType::UNFOLDING && isUnfolding(inf)) {
                     const double value = nfs.at(inf)->getError() > 1e-6 ? (nfs.at(inf)->getVal() - 1.) / nfs.at(inf)->getError() : -9999;
@@ -7790,13 +7897,13 @@ void TRExFit::RunToys(){
             g.SetLineColor(kRed);
             h_toys.at(inf).Fit("g","RQ");
             g.Draw("same");
-            h_toys.at(inf).GetXaxis()->SetTitle(fNormFactorNames.at(inf).c_str());
+            h_toys.at(inf).GetXaxis()->SetTitle(nfs.at(inf)->GetName());
             h_toys.at(inf).GetYaxis()->SetTitle("Pseudo-experiements");
             myText(0.60,0.90,1,Form("Mean  = %.2f #pm %.2f",g.GetParameter(1), g.GetParError(1)));
             myText(0.60,0.85,1,Form("Sigma = %.2f #pm %.2f",g.GetParameter(2),g.GetParError(2)));
             myText(0.60,0.80,1,Form("#chi^{2}/ndf = %.2f / %d",g.GetChisquare(),g.GetNDF()));
             for(const auto& format : TRExFitter::IMAGEFORMAT) {
-                c.SaveAs((fName+"/Toys/ToysPlot_"+fNormFactorNames.at(inf)+"."+format).c_str());
+                c.SaveAs((fName+"/Toys/ToysPlot_"+nfs.at(inf)->GetName()+"."+format).c_str());
             }
             fVarNameMinos = varMinosTmp; // retore Minos settings
 
@@ -9135,6 +9242,12 @@ void TRExFit::PlotUnfold(TH1D* data,
     total->GetYaxis()->SetTitleSize(0.07);
     total->GetYaxis()->SetTitleOffset(1.1);
 
+    if(fUnfoldNormXSec){
+        for (auto& itruth : mc) {
+            itruth->Scale(1./itruth->Integral());
+        }
+    }
+    
     std::unique_ptr<TH1> h_dummy(static_cast<TH1*>(mc[0]->Clone()));
     const double corr = fUnfoldingScaleRangeY > 0 ? fUnfoldingScaleRangeY : (fUnfoldingLogY ? 1e6 : 1.5);
     h_dummy->GetYaxis()->SetRangeUser(0.0001, corr*h_dummy->GetMaximum());
@@ -9320,7 +9433,9 @@ void TRExFit::ApplyExternalConstraints(RooWorkspace* ws,
     std::vector<double> tauVec;
     for(const auto& nf : fNormFactors){
         if(nf->fTau!=0){
-            l.add(*ws->var(nf->fName.c_str()));
+            if(ws->var(nf->fName.c_str())!=nullptr) l.add(*ws->var(nf->fName.c_str()));
+            else if(ws->function(nf->fName.c_str())!=nullptr) l.add(*ws->function(nf->fName.c_str()));
+            else WriteWarningStatus("TRExFit::ApplyExternalConstraints","Cannot apply tau to norm factor " + nf->fName);
             nomVec.push_back( nf->fNominal );
             tauVec.push_back( nf->fTau );
         }
@@ -9414,14 +9529,15 @@ void TRExFit::DrawToyPullPlot(std::vector<TH1D>& hist, TFile* out) const {
     std::vector<double> sigmaError;
 
     for (auto& ihist : hist) {
-        TF1 g("g","gaus",-3,3);
-        ihist.Fit(&g, "RQ");
-
-        mean.emplace_back(g.GetParameter(1));
-        sigma.emplace_back(g.GetParameter(2));
-        meanError.emplace_back(g.GetParError(1));
-        sigmaError.emplace_back(g.GetParError(2));
-
+        mean.emplace_back(ihist.GetMean());
+        sigma.emplace_back(ihist.GetRMS());
+        meanError.emplace_back(ihist.GetMeanError());
+        sigmaError.emplace_back(ihist.GetRMSError());
+        
+        TCanvas c("c","c",600,600);
+        ihist.Draw();
+        c.SaveAs(((std::string)ihist.GetName()+".png").c_str());
+        
         out->cd();
         ihist.Write();
     }
@@ -9480,5 +9596,37 @@ void TRExFit::DrawToyPullPlot(std::vector<TH1D>& hist, TFile* out) const {
 
     for(const auto& format : TRExFitter::IMAGEFORMAT) {
         c.SaveAs((fName+"/Toys/PullPlot."+format).c_str());
+    }
+}
+
+//__________________________________________________________________________________
+//
+void TRExFit::FixUnfoldingExpressions() {
+    if(fUnfoldNormXSec){
+        // Get truth histogram
+        std::unique_ptr<TFile> input(TFile::Open((fName + "/UnfoldingHistograms/FoldedHistograms.root").c_str(), "READ"));
+        if (!input) {
+            WriteErrorStatus("TRExFit::FixUnfoldingExpressions", "Cannot read file from " + fName + "/UnfoldingHistograms/FoldedHistograms.root");
+            exit(EXIT_FAILURE);
+        }
+        std::unique_ptr<TH1D> truth(dynamic_cast<TH1D*>(input->Get("truth_distribution")));
+        if (!truth) {
+            WriteErrorStatus("TRExFit::FixUnfoldingExpressions", "Cannot read the truth distribution");
+            exit(EXIT_FAILURE);
+        }
+        truth->SetDirectory(nullptr);
+        const double N = truth->Integral();
+        // Get expression of last bin norm-factor
+        std::string NFname = "Bin_" + Common::IntToFixLenStr(fUnfoldNormXSecBinN) + "_mu";
+        for (const auto& inorm : fNormFactors) {
+            if (inorm->fName==NFname) {
+                TString expression(inorm->fExpression.first);
+                for (int i = 0; i < fNumberUnfoldingTruthBins; ++i) {
+                // replace all "Nj/N" with truth->bincontent/truth->integral
+                    expression.ReplaceAll("N"+std::to_string(i+1)+"/N",std::to_string(truth->GetBinContent(i+1)/N));
+                }
+                inorm->fExpression.first = expression.Data();
+            }
+        }
     }
 }

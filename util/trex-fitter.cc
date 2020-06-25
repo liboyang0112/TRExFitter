@@ -233,7 +233,7 @@ void FitExample(std::string opt="h",std::string configFile="config/myFit.config"
     // Free the memeory
     myFit->fUnfoldingSamples.clear();
     myFit->fUnfoldingSystematics.clear();
-
+    
     if(readHistograms){
         std::cout << "Reading histograms..." << std::endl;
         myFit->CreateRootFiles();
@@ -289,6 +289,10 @@ void FitExample(std::string opt="h",std::string configFile="config/myFit.config"
         if(TRExFitter::SYSTCONTROLPLOTS) myFit->DrawSystPlots();
         if(TRExFitter::SYSTDATAPLOT)     myFit->DrawSystPlotsSumSamples();
     }
+
+    // Fix expression to last bin for normalized-cross-section unfolding, taking bin contents of the truth histogram
+    // (after histogram creating and reading)
+    myFit->FixUnfoldingExpressions();
 
     if(pruning){
         std::cout << "Applying systematics pruning..." << std::endl;

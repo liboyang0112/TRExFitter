@@ -9,6 +9,7 @@
 #include "TCanvas.h"
 #include "TH2.h"
 #include "TRandom3.h"
+#include "TFile.h"
 
 //Roostats includes
 #include "Math/MinimizerOptions.h"
@@ -33,6 +34,7 @@ using namespace std;
 //________________________________________________________________________
 //
 FittingTool::FittingTool():
+    m_CPU(1),
     m_minimType("Minuit2"),
     m_minuitStatus(-1),
     m_hessStatus(-1),
@@ -52,7 +54,9 @@ FittingTool::FittingTool():
     m_randomNP(0.1),
     m_randSeed(-999),
     m_externalConstraints(nullptr),
-    m_strategy(-1) {
+    m_strategy(-1),
+    m_useHesse(true)
+{
 }
 
 //________________________________________________________________________
@@ -101,7 +105,7 @@ double FittingTool::FitPDF( RooStats::ModelConfig* model, RooAbsPdf* fitpdf, Roo
                                     RooFit::Constrain(*constrainedParams),
                                     RooFit::GlobalObservables(*glbObs),
                                     RooFit::Offset(1),
-                                    RooFit::NumCPU(TRExFitter::NCPU,RooFit::Hybrid),
+                                    RooFit::NumCPU(m_CPU,RooFit::Hybrid),
                                     RooFit::Optimize(kTRUE),
                                     RooFit::ExternalConstraints(*m_externalConstraints)
                                     ));
@@ -267,7 +271,11 @@ double FittingTool::FitPDF( RooStats::ModelConfig* model, RooAbsPdf* fitpdf, Roo
     WriteInfoStatus("FittingTool::FitPDF", "");
 
     status = minim.minimize(minimType.Data(),algorithm.Data());
-    m_hessStatus= minim.hesse();
+    if (m_useHesse) {
+        m_hessStatus = minim.hesse();
+    } else {
+        m_hessStatus = 0;
+    }
     std::unique_ptr<RooFitResult> r(minim.save());
     m_edm = r->edm();
 
@@ -290,7 +298,11 @@ double FittingTool::FitPDF( RooStats::ModelConfig* model, RooAbsPdf* fitpdf, Roo
         WriteWarningStatus("FittingTool::FitPDF", "");
         minim.setStrategy(strat);
         status = minim.minimize(minimType.Data(),algorithm.Data());
-        m_hessStatus= minim.hesse();
+        if (m_useHesse) {
+            m_hessStatus = minim.hesse();
+        } else {
+            m_hessStatus = 0;
+        }
         r.reset(minim.save());
         m_edm = r->edm();
 
@@ -402,12 +414,27 @@ double FittingTool::FitPDF( RooStats::ModelConfig* model, RooAbsPdf* fitpdf, Roo
 
 //____________________________________________________________________________________
 //
+void FittingTool::SaveFitResult( const std::string &fileName )
+{
+    std::unique_ptr<TFile> f(TFile::Open(fileName.c_str(),"RECREATE"));
+    m_fitResult->Write("",TObject::kOverwrite);
+}
+
+//____________________________________________________________________________________
+//
 void FittingTool::ExportFitResultInTextFile( const std::string &fileName, const std::vector<std::string>& blinded )
 {
     if(!m_fitResult){
         WriteErrorStatus("FittingTool::ExportFitResultInTextFile", "The FitResultObject seems not to be defined.");
         return;
     }
+    
+    //
+    // Also saves fit result in root file with same name as txt file
+    //
+    TString fName = fileName;
+    fName.ReplaceAll(".txt",".root");
+    SaveFitResult(fName.Data());
 
     //
     // Printing the nuisance parameters post-fit values
@@ -659,7 +686,7 @@ void FittingTool::FitExcludingGroup(bool excludeGammas, bool statOnly, RooAbsDat
                                     RooFit::Constrain(*constrainedParams),
                                     RooFit::GlobalObservables(*glbObs),
                                     RooFit::Offset(1),
-                                    NumCPU(TRExFitter::NCPU,RooFit::Hybrid),
+                                    NumCPU(m_CPU,RooFit::Hybrid),
                                     RooFit::Optimize(kTRUE),
                                     RooFit::ExternalConstraints(*m_externalConstraints)
                                    ));

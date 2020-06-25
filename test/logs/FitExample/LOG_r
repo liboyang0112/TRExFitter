@@ -324,7 +324,6 @@ gamma_stat_SR_2_bin_0	  = 1.00583	 +/-  0.0289987	(limited)
 gamma_stat_SR_2_bin_1	  = 1.02184	 +/-  0.0476051	(limited)
 gamma_stat_SR_2_bin_2	  = 0.986405	 +/-  0.0848485	(limited)
 gamma_stat_SR_2_bin_3	  = 0.923338	 +/-  0.116347	(limited)
-Info in Minuit2Minimizer::Hesse : Hesse is valid - matrix is accurate
 [1;32m=== INFO::FittingTool::FitPDF: [0m
 [1;32m=== INFO::FittingTool::FitPDF: [0m
 [1;32m=== INFO::FittingTool::FitPDF: [0m
@@ -422,7 +421,6 @@ gamma_stat_SR_2_bin_0	  = 0.995617	 +/-  0.0287042	(limited)
 gamma_stat_SR_2_bin_1	  = 1.0306	 +/-  0.0479417	(limited)
 gamma_stat_SR_2_bin_2	  = 0.988444	 +/-  0.0841611	(limited)
 gamma_stat_SR_2_bin_3	  = 0.972587	 +/-  0.12244	(limited)
-Info in Minuit2Minimizer::Hesse : Hesse is valid - matrix is accurate
 [1;32m=== INFO::FittingTool::FitPDF: [0m
 [1;32m=== INFO::FittingTool::FitPDF: [0m
 [1;32m=== INFO::FittingTool::FitPDF: [0m
@@ -519,7 +517,6 @@ gamma_stat_SR_2_bin_0	  = 1.01646	 +/-  0.0293019	(limited)
 gamma_stat_SR_2_bin_1	  = 1.0113	 +/-  0.0470528	(limited)
 gamma_stat_SR_2_bin_2	  = 0.976794	 +/-  0.083283	(limited)
 gamma_stat_SR_2_bin_3	  = 0.872725	 +/-  0.109623	(limited)
-Info in Minuit2Minimizer::Hesse : Hesse is valid - matrix is accurate
 [1;32m=== INFO::FittingTool::FitPDF: [0m
 [1;32m=== INFO::FittingTool::FitPDF: [0m
 [1;32m=== INFO::FittingTool::FitPDF: [0m
@@ -617,7 +614,6 @@ gamma_stat_SR_2_bin_0	  = 0.985447	 +/-  0.0284173	(limited)
 gamma_stat_SR_2_bin_1	  = 1.03966	 +/-  0.0485313	(limited)
 gamma_stat_SR_2_bin_2	  = 0.987035	 +/-  0.0848866	(limited)
 gamma_stat_SR_2_bin_3	  = 0.993102	 +/-  0.137679	(limited)
-Info in Minuit2Minimizer::Hesse : Hesse is valid - matrix is accurate
 [1;32m=== INFO::FittingTool::FitPDF: [0m
 [1;32m=== INFO::FittingTool::FitPDF: [0m
 [1;32m=== INFO::FittingTool::FitPDF: [0m
@@ -715,7 +711,6 @@ gamma_stat_SR_2_bin_0	  = 1.00206	 +/-  0.0293019	(limited)
 gamma_stat_SR_2_bin_1	  = 1.02721	 +/-  0.0479983	(limited)
 gamma_stat_SR_2_bin_2	  = 0.996056	 +/-  0.0850607	(limited)
 gamma_stat_SR_2_bin_3	  = 0.948003	 +/-  0.121747	(limited)
-Info in Minuit2Minimizer::Hesse : Hesse is valid - matrix is accurate
 [1;32m=== INFO::FittingTool::FitPDF: [0m
 [1;32m=== INFO::FittingTool::FitPDF: [0m
 [1;32m=== INFO::FittingTool::FitPDF: [0m
@@ -813,7 +808,6 @@ gamma_stat_SR_2_bin_0	  = 0.999424	 +/-  0.0292388	(limited)
 gamma_stat_SR_2_bin_1	  = 1.02529	 +/-  0.0479287	(limited)
 gamma_stat_SR_2_bin_2	  = 0.979426	 +/-  0.0831849	(limited)
 gamma_stat_SR_2_bin_3	  = 0.946797	 +/-  0.121881	(limited)
-Info in Minuit2Minimizer::Hesse : Hesse is valid - matrix is accurate
 [1;32m=== INFO::FittingTool::FitPDF: [0m
 [1;32m=== INFO::FittingTool::FitPDF: [0m
 [1;32m=== INFO::FittingTool::FitPDF: [0m
@@ -911,7 +905,6 @@ gamma_stat_SR_2_bin_0	  = 1.00259	 +/-  0.0293133	(limited)
 gamma_stat_SR_2_bin_1	  = 1.02766	 +/-  0.0480145	(limited)
 gamma_stat_SR_2_bin_2	  = 0.999737	 +/-  0.0854379	(limited)
 gamma_stat_SR_2_bin_3	  = 0.948494	 +/-  0.121757	(limited)
-Info in Minuit2Minimizer::Hesse : Hesse is valid - matrix is accurate
 [1;32m=== INFO::FittingTool::FitPDF: [0m
 [1;32m=== INFO::FittingTool::FitPDF: [0m
 [1;32m=== INFO::FittingTool::FitPDF: [0m
@@ -1009,7 +1002,6 @@ gamma_stat_SR_2_bin_0	  = 0.998806	 +/-  0.0292274	(limited)
 gamma_stat_SR_2_bin_1	  = 1.02491	 +/-  0.0479184	(limited)
 gamma_stat_SR_2_bin_2	  = 0.975875	 +/-  0.0828558	(limited)
 gamma_stat_SR_2_bin_3	  = 0.946732	 +/-  0.121949	(limited)
-Info in Minuit2Minimizer::Hesse : Hesse is valid - matrix is accurate
 [1;32m=== INFO::FittingTool::FitPDF: [0m
 [1;32m=== INFO::FittingTool::FitPDF: [0m
 [1;32m=== INFO::FittingTool::FitPDF: [0m
@@ -1105,7 +1097,6 @@ gamma_stat_SR_2_bin_0	  = 0.997484	 +/-  0.0290223	(limited)
 gamma_stat_SR_2_bin_1	  = 1.02227	 +/-  0.0476599	(limited)
 gamma_stat_SR_2_bin_2	  = 0.961147	 +/-  0.0777108	(limited)
 gamma_stat_SR_2_bin_3	  = 0.940557	 +/-  0.121046	(limited)
-Info in Minuit2Minimizer::Hesse : Hesse is valid - matrix is accurate
 [1;32m=== INFO::FittingTool::FitPDF: [0m
 [1;32m=== INFO::FittingTool::FitPDF: [0m
 [1;32m=== INFO::FittingTool::FitPDF: [0m
@@ -1202,7 +1193,6 @@ gamma_stat_SR_2_bin_0	  = 1.00441	 +/-  0.029179	(limited)
 gamma_stat_SR_2_bin_1	  = 1.03025	 +/-  0.047949	(limited)
 gamma_stat_SR_2_bin_2	  = 1.01703	 +/-  0.0820986	(limited)
 gamma_stat_SR_2_bin_3	  = 0.953563	 +/-  0.122109	(limited)
-Info in Minuit2Minimizer::Hesse : Hesse is valid - matrix is accurate
 [1;32m=== INFO::FittingTool::FitPDF: [0m
 [1;32m=== INFO::FittingTool::FitPDF: [0m
 [1;32m=== INFO::FittingTool::FitPDF: [0m
@@ -1298,7 +1288,6 @@ gamma_stat_SR_2_bin_0	  = 0.995552	 +/-  0.0289804	(limited)
 gamma_stat_SR_2_bin_1	  = 1.01998	 +/-  0.0475818	(limited)
 gamma_stat_SR_2_bin_2	  = 0.946076	 +/-  0.0765273	(limited)
 gamma_stat_SR_2_bin_3	  = 0.936627	 +/-  0.12072	(limited)
-Info in Minuit2Minimizer::Hesse : Hesse is valid - matrix is accurate
 [1;32m=== INFO::FittingTool::FitPDF: [0m
 [1;32m=== INFO::FittingTool::FitPDF: [0m
 [1;32m=== INFO::FittingTool::FitPDF: [0m
@@ -1396,7 +1385,6 @@ gamma_stat_SR_2_bin_0	  = 1.00625	 +/-  0.0292209	(limited)
 gamma_stat_SR_2_bin_1	  = 1.03229	 +/-  0.0480228	(limited)
 gamma_stat_SR_2_bin_2	  = 1.03251	 +/-  0.0833081	(limited)
 gamma_stat_SR_2_bin_3	  = 0.956751	 +/-  0.122359	(limited)
-Info in Minuit2Minimizer::Hesse : Hesse is valid - matrix is accurate
 [1;32m=== INFO::FittingTool::FitPDF: [0m
 [1;32m=== INFO::FittingTool::FitPDF: [0m
 [1;32m=== INFO::FittingTool::FitPDF: [0m
@@ -1497,7 +1485,6 @@ gamma_stat_SR_2_bin_0	  = 1.00149	 +/-  0.0293168	(limited)
 gamma_stat_SR_2_bin_1	  = 1.02549	 +/-  0.0479399	(limited)
 gamma_stat_SR_2_bin_2	  = 0.986963	 +/-  0.0845128	(limited)
 gamma_stat_SR_2_bin_3	  = 0.943355	 +/-  0.121231	(limited)
-Info in Minuit2Minimizer::Hesse : Hesse is valid - matrix is accurate
 [1;32m=== INFO::FittingTool::FitPDF: [0m
 [1;32m=== INFO::FittingTool::FitPDF: [0m
 [1;32m=== INFO::FittingTool::FitPDF: [0m
@@ -1594,7 +1581,6 @@ gamma_stat_SR_2_bin_0	  = 1.00014	 +/-  0.0292726	(limited)
 gamma_stat_SR_2_bin_1	  = 1.02694	 +/-  0.0479915	(limited)
 gamma_stat_SR_2_bin_2	  = 0.988371	 +/-  0.0844933	(limited)
 gamma_stat_SR_2_bin_3	  = 0.950861	 +/-  0.12219	(limited)
-Info in Minuit2Minimizer::Hesse : Hesse is valid - matrix is accurate
 [1;32m=== INFO::FittingTool::FitPDF: [0m
 [1;32m=== INFO::FittingTool::FitPDF: [0m
 [1;32m=== INFO::FittingTool::FitPDF: [0m
@@ -1691,7 +1677,6 @@ gamma_stat_SR_2_bin_0	  = 1.0002	 +/-  0.029279	(limited)
 gamma_stat_SR_2_bin_1	  = 1.02748	 +/-  0.0479997	(limited)
 gamma_stat_SR_2_bin_2	  = 0.990729	 +/-  0.0846092	(limited)
 gamma_stat_SR_2_bin_3	  = 0.952472	 +/-  0.122323	(limited)
-Info in Minuit2Minimizer::Hesse : Hesse is valid - matrix is accurate
 [1;32m=== INFO::FittingTool::FitPDF: [0m
 [1;32m=== INFO::FittingTool::FitPDF: [0m
 [1;32m=== INFO::FittingTool::FitPDF: [0m
@@ -1792,7 +1777,6 @@ gamma_stat_SR_2_bin_0	  = 1.00147	 +/-  0.0293155	(limited)
 gamma_stat_SR_2_bin_1	  = 1.0249	 +/-  0.0479065	(limited)
 gamma_stat_SR_2_bin_2	  = 0.984486	 +/-  0.0842861	(limited)
 gamma_stat_SR_2_bin_3	  = 0.941447	 +/-  0.120918	(limited)
-Info in Minuit2Minimizer::Hesse : Hesse is valid - matrix is accurate
 [1;32m=== INFO::FittingTool::FitPDF: [0m
 [1;32m=== INFO::FittingTool::FitPDF: [0m
 [1;32m=== INFO::FittingTool::FitPDF: [0m
@@ -1890,7 +1874,6 @@ gamma_stat_SR_2_bin_0	  = 1.00099	 +/-  0.0293059	(limited)
 gamma_stat_SR_2_bin_1	  = 1.02908	 +/-  0.0479919	(limited)
 gamma_stat_SR_2_bin_2	  = 1.00006	 +/-  0.0846438	(limited)
 gamma_stat_SR_2_bin_3	  = 0.956273	 +/-  0.12249	(limited)
-Info in Minuit2Minimizer::Hesse : Hesse is valid - matrix is accurate
 [1;32m=== INFO::FittingTool::FitPDF: [0m
 [1;32m=== INFO::FittingTool::FitPDF: [0m
 [1;32m=== INFO::FittingTool::FitPDF: [0m
@@ -1987,7 +1970,6 @@ gamma_stat_SR_2_bin_0	  = 1.00071	 +/-  0.0292964	(limited)
 gamma_stat_SR_2_bin_1	  = 1.02326	 +/-  0.0477694	(limited)
 gamma_stat_SR_2_bin_2	  = 0.97526	 +/-  0.0825301	(limited)
 gamma_stat_SR_2_bin_3	  = 0.937455	 +/-  0.120251	(limited)
-Info in Minuit2Minimizer::Hesse : Hesse is valid - matrix is accurate
 [1;32m=== INFO::FittingTool::FitPDF: [0m
 [1;32m=== INFO::FittingTool::FitPDF: [0m
 [1;32m=== INFO::FittingTool::FitPDF: [0m
@@ -2083,7 +2065,6 @@ gamma_stat_SR_2_bin_0	  = 0.999815	 +/-  0.0292566	(limited)
 gamma_stat_SR_2_bin_1	  = 1.02835	 +/-  0.0479979	(limited)
 gamma_stat_SR_2_bin_2	  = 0.993166	 +/-  0.0846599	(limited)
 gamma_stat_SR_2_bin_3	  = 0.956321	 +/-  0.12257	(limited)
-Info in Minuit2Minimizer::Hesse : Hesse is valid - matrix is accurate
 [1;32m=== INFO::FittingTool::FitPDF: [0m
 [1;32m=== INFO::FittingTool::FitPDF: [0m
 [1;32m=== INFO::FittingTool::FitPDF: [0m
@@ -2181,7 +2162,6 @@ gamma_stat_SR_2_bin_0	  = 1.00181	 +/-  0.0293083	(limited)
 gamma_stat_SR_2_bin_1	  = 1.02401	 +/-  0.0478383	(limited)
 gamma_stat_SR_2_bin_2	  = 0.982067	 +/-  0.0839372	(limited)
 gamma_stat_SR_2_bin_3	  = 0.93776	 +/-  0.120238	(limited)
-Info in Minuit2Minimizer::Hesse : Hesse is valid - matrix is accurate
 [1;32m=== INFO::FittingTool::FitPDF: [0m
 [1;32m=== INFO::FittingTool::FitPDF: [0m
 [1;32m=== INFO::FittingTool::FitPDF: [0m
@@ -2279,7 +2259,6 @@ gamma_stat_SR_1_bin_3	  = 0.939215	 +/-  0.121222	(limited)
 gamma_stat_SR_2_bin_1	  = 1.02571	 +/-  0.0479506	(limited)
 gamma_stat_SR_2_bin_2	  = 0.988735	 +/-  0.0846998	(limited)
 gamma_stat_SR_2_bin_3	  = 0.943684	 +/-  0.121251	(limited)
-Info in Minuit2Minimizer::Hesse : Hesse is valid - matrix is accurate
 [1;32m=== INFO::FittingTool::FitPDF: [0m
 [1;32m=== INFO::FittingTool::FitPDF: [0m
 [1;32m=== INFO::FittingTool::FitPDF: [0m
@@ -2377,7 +2356,6 @@ gamma_stat_SR_1_bin_3	  = 0.9475	 +/-  0.122282	(limited)
 gamma_stat_SR_2_bin_1	  = 1.02677	 +/-  0.0479872	(limited)
 gamma_stat_SR_2_bin_2	  = 0.986848	 +/-  0.0843107	(limited)
 gamma_stat_SR_2_bin_3	  = 0.950738	 +/-  0.122206	(limited)
-Info in Minuit2Minimizer::Hesse : Hesse is valid - matrix is accurate
 [1;32m=== INFO::FittingTool::FitPDF: [0m
 [1;32m=== INFO::FittingTool::FitPDF: [0m
 [1;32m=== INFO::FittingTool::FitPDF: [0m
@@ -2474,7 +2452,6 @@ gamma_stat_SR_1_bin_3	  = 0.948812	 +/-  0.122362	(limited)
 gamma_stat_SR_2_bin_0	  = 1.00053	 +/-  0.0292945	(limited)
 gamma_stat_SR_2_bin_2	  = 0.99312	 +/-  0.0847797	(limited)
 gamma_stat_SR_2_bin_3	  = 0.95285	 +/-  0.122324	(limited)
-Info in Minuit2Minimizer::Hesse : Hesse is valid - matrix is accurate
 [1;32m=== INFO::FittingTool::FitPDF: [0m
 [1;32m=== INFO::FittingTool::FitPDF: [0m
 [1;32m=== INFO::FittingTool::FitPDF: [0m
@@ -2571,7 +2548,6 @@ gamma_stat_SR_1_bin_3	  = 0.937608	 +/-  0.120987	(limited)
 gamma_stat_SR_2_bin_0	  = 1.00116	 +/-  0.029306	(limited)
 gamma_stat_SR_2_bin_2	  = 0.982467	 +/-  0.0839141	(limited)
 gamma_stat_SR_2_bin_3	  = 0.941289	 +/-  0.120924	(limited)
-Info in Minuit2Minimizer::Hesse : Hesse is valid - matrix is accurate
 [1;32m=== INFO::FittingTool::FitPDF: [0m
 [1;32m=== INFO::FittingTool::FitPDF: [0m
 [1;32m=== INFO::FittingTool::FitPDF: [0m
@@ -2669,7 +2645,6 @@ gamma_stat_SR_1_bin_3	  = 0.951263	 +/-  0.122517	(limited)
 gamma_stat_SR_2_bin_0	  = 1.00116	 +/-  0.0293116	(limited)
 gamma_stat_SR_2_bin_1	  = 1.02914	 +/-  0.0479881	(limited)
 gamma_stat_SR_2_bin_3	  = 0.956143	 +/-  0.122464	(limited)
-Info in Minuit2Minimizer::Hesse : Hesse is valid - matrix is accurate
 [1;32m=== INFO::FittingTool::FitPDF: [0m
 [1;32m=== INFO::FittingTool::FitPDF: [0m
 [1;32m=== INFO::FittingTool::FitPDF: [0m
@@ -2766,7 +2741,6 @@ gamma_stat_SR_1_bin_3	  = 0.934842	 +/-  0.120491	(limited)
 gamma_stat_SR_2_bin_0	  = 1.00054	 +/-  0.0292886	(limited)
 gamma_stat_SR_2_bin_1	  = 1.02321	 +/-  0.0477662	(limited)
 gamma_stat_SR_2_bin_3	  = 0.937597	 +/-  0.120294	(limited)
-Info in Minuit2Minimizer::Hesse : Hesse is valid - matrix is accurate
 [1;32m=== INFO::FittingTool::FitPDF: [0m
 [1;32m=== INFO::FittingTool::FitPDF: [0m
 [1;32m=== INFO::FittingTool::FitPDF: [0m
@@ -2862,7 +2836,6 @@ gamma_stat_SR_1_bin_3	  = 0.952537	 +/-  0.122607	(limited)
 gamma_stat_SR_2_bin_0	  = 0.999953	 +/-  0.0292687	(limited)
 gamma_stat_SR_2_bin_1	  = 1.02839	 +/-  0.0479949	(limited)
 gamma_stat_SR_2_bin_2	  = 0.993842	 +/-  0.0846951	(limited)
-Info in Minuit2Minimizer::Hesse : Hesse is valid - matrix is accurate
 [1;32m=== INFO::FittingTool::FitPDF: [0m
 [1;32m=== INFO::FittingTool::FitPDF: [0m
 [1;32m=== INFO::FittingTool::FitPDF: [0m
@@ -2960,7 +2933,6 @@ gamma_stat_SR_1_bin_3	  = 0.933953	 +/-  0.120302	(limited)
 gamma_stat_SR_2_bin_0	  = 1.00165	 +/-  0.0293047	(limited)
 gamma_stat_SR_2_bin_1	  = 1.02393	 +/-  0.0478332	(limited)
 gamma_stat_SR_2_bin_2	  = 0.981289	 +/-  0.0837854	(limited)
-Info in Minuit2Minimizer::Hesse : Hesse is valid - matrix is accurate
 [1;32m=== INFO::FittingTool::FitPDF: [0m
 [1;32m=== INFO::FittingTool::FitPDF: [0m
 [1;32m=== INFO::FittingTool::FitPDF: [0m

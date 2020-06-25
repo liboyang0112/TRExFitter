@@ -65,7 +65,6 @@ std::map <std::string,std::string> TRExFitter::SYSTMAP;
 std::map <std::string,std::string> TRExFitter::SYSTTEX;
 std::map <std::string,std::string> TRExFitter::NPMAP;
 std::vector <std::string> TRExFitter::IMAGEFORMAT;
-int TRExFitter::NCPU = 1;
 //
 std::map<std::string,double> TRExFitter::OPTION;
 std::map<std::string, std::shared_ptr<TFile> > TRExFitter::TFILEMAP;
@@ -1397,4 +1396,13 @@ void Common::ScaleByBinWidth(TGraphAsymmErrors* g) {
         g->SetPointEYhigh(ibin,g->GetErrorYhigh(ibin)/width);
         g->SetPointEYlow( ibin,g->GetErrorYlow(ibin) /width);
     }
+}
+
+//__________________________________________________________________________________
+//
+std::string Common::IntToFixLenStr(int i,int n){
+    std::stringstream ss;
+    ss << std::setw(n) << std::setfill('0') << i;
+    std::string s = ss.str();
+    return s;
 }

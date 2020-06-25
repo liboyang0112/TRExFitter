@@ -40,6 +40,8 @@ public:
     // Gettters and setters
     //
     inline void SetDebug (const int debug){ m_debug = debug; }
+    
+    inline void SetNCPU (const int cpu){ m_CPU = cpu; }
 
     inline void MinimType (const TString& type){ m_minimType = type; }
 
@@ -67,6 +69,8 @@ public:
     inline void SetExternalConstraints(const RooArgSet* externalConstraints = 0){ m_externalConstraints = externalConstraints; }
 
     inline void SetStrategy(const int strategy){m_strategy = strategy;}
+    
+    inline void SetUseHesse(const bool flag){m_useHesse = flag;}
 
     //
     // Specific functions
@@ -77,6 +81,8 @@ public:
                   bool fastFit = false,
                   bool noFit = false,
                   bool saturatedModel = false );
+
+    void SaveFitResult(const std::string& fileName);
 
     void ExportFitResultInTextFile(const std::string& finalName,
                                    const std::vector<std::string>& blinded);
@@ -103,6 +109,7 @@ public:
     void CheckUnderconstraint(const RooRealVar* const var) const;
 
 private:
+    int m_CPU;
     TString m_minimType;
     int m_minuitStatus;
     int m_hessStatus;
@@ -133,6 +140,7 @@ private:
 
     const RooArgSet* m_externalConstraints;
     int m_strategy;
+    bool m_useHesse;
 };
 
 

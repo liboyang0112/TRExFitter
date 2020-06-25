@@ -9,7 +9,8 @@
 #include <iomanip>
 
 UnfoldingResult::UnfoldingResult() :
-    fTruthDistribution(nullptr)
+    fTruthDistribution(nullptr),
+    fNormXSec(false)
 {
 }
 
@@ -52,6 +53,18 @@ std::unique_ptr<TGraphAsymmErrors> UnfoldingResult::GetUnfoldedResultErrorBand()
         result->SetPoint(ibin-1, x, mean);
         result->SetPointError(ibin-1, error_x_low, error_x_high, down, up);
     }
+    
+    if(fNormXSec){
+        double integral = 0.;
+        for (int ibin = 1; ibin <= fTruthDistribution->GetNbinsX(); ++ibin) {
+            integral += result->GetY()[ibin-1];
+        }
+        for (int ibin = 1; ibin <= fTruthDistribution->GetNbinsX(); ++ibin) {
+            result->GetY()[ibin-1] /= integral;
+            result->SetPointEYhigh(ibin-1, result->GetErrorYhigh(ibin-1) / integral );
+            result->SetPointEYlow(ibin-1, result->GetErrorYlow(ibin-1) / integral );
+        }
+    }
 
     return result;
 }
@@ -82,6 +95,8 @@ std::unique_ptr<TH1D> UnfoldingResult::GetUnfoldedResult() const {
         result->SetBinContent(ibin, mean);
         result->SetBinError(ibin, 0);
     }
+    
+    if(fNormXSec) result->Scale(1./result->Integral());
     
     return result;
 }

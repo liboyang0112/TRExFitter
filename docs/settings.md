@@ -22,8 +22,11 @@ The following settings are for normal fits, performed without the action `m`.
 | LumiScale                    | additional value to scale 'after' histogram creation (for fast scaling) IMPORTANT: use it only if you know what you are doing!! |
 | SystPruningShape             | Lower threshold to remove a shape systematic from the fit/limit (suppression is done per sample and per region) (e.g.: 0.02 for 2%) |
 | SystPruningNorm              | Lower threshold to remove a normalisation systematic from the fit/limit (suppression is done per sample and per region) (e.g.: 0.02 for 2%) |
-| SystLarge                    | all systematics above this threshold will be flagged in the pruning plot) (e.g. 0.4 will flag systematics that are larger than 40%) |
+| SystLarge                    | All systematics above this threshold will be removed, unless `RemoveLargeSyst` is set to `FALSE`, then the systematics will be flagged in the pruning plot) (e.g. 0.4 will flag systematics that are larger than 40%). The default is -1, meaning no pruning. |
+| RemoveLargeSyst              | Will prune systematics above threshold set by `SystLarge` if set to `TRUE` (default). It will remove both shape and norm component, effectively removing the systematic uncertainty for a given sample. |
+| RemoveSystOnEmptySample      | If set to `TRUE`, will prune systematics for samples where nominal has integral < 1e-4.  Default is `FALSE` |
 | PruningShapeOption           | Can be `MAXBIN` (Default) or `KSTEST`. `MAXBIN` checks if the systematic variation has at least one bin which is different compared to the nominal (variation is >= threshold). `KSTEST` runs the Kolmogorov test (using the `X` option, a.k.a running pseudoexperiments). When using `KSTEST`, if the probability is <= (1-threshold) then the systematic is marked as having shape component. |
+| ShowValidationPruning        | If set to `TRUE` will show the pruning also in validation regions. Default is `FALSE`. |
 | DoSystNormalizationPlots     | Set to `FALSE` to disable the normalization summary plot that is produced during the `w` step |
 | IntCodeOverall               | interpolation code used for the normalization component of systematics (should match the one used in RooStats) |
 | IntCodeShape                 | interpolation code used for the shape component of systematics (should match the one used in RooStats) |
@@ -646,6 +649,8 @@ These options are for multi-fits, performed with action `m`.
 | PlotSystematicMigrations   | if set to TRUE will plot migration/response plots for all systematics |
 | MigrationText   | if set to TRUE will show numbers in migration/response matrix plots |
 | DivideByBinWidth | if set to TRUE will divide the bin content by bin width in the final plot with unfolded data |
+| UnfoldNormXSec  | if set to TRUE the result will be in the form of normalized cross-section, or relative cross-section, sigma(bin-1)/sigma(tot): the total cross-section is fitted as nuisance parameter, and the relative cross-section in one of the bins (selectable with the option `UnfoldNormXSecBinN`) is obtained as 1 - the other relative cross-sections (error is propagated) |
+| UnfoldNormXSecBinN | in case `UnfoldNormXSec` is set to TRUE, one can specify which bin to obtain as a function of the cross-sections in the other bins (if not set, the last bin of the truth distribution will be selected) |
 
 ### TruthSample block
 | **Option** | **Function** |

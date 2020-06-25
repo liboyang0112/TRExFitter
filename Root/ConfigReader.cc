@@ -1223,6 +1223,48 @@ int ConfigReader::ReadJobOptions(){
         }
     }
 
+    // Set RemoveLargeSyst
+    param = confSet->Get("RemoveLargeSyst");
+    if (param != "") {
+        std::transform(param.begin(), param.end(), param.begin(), ::toupper);
+        if (param == "TRUE") {
+            fFitter->fRemoveLargeSyst = true;
+        } else if (param == "FALSE") {
+            fFitter->fRemoveLargeSyst = false;
+        } else {
+            WriteWarningStatus("ConfigReader::ReadJobOptions", "You specified 'RemoveLargeSyst' option but you did not provide valid setting. Using default (true)");
+            fFitter->fRemoveLargeSyst = true;
+        }
+    }
+    
+    // Set RemoveSystOnEmptySample
+    param = confSet->Get("RemoveSystOnEmptySample");
+    if( param != "" ){
+        std::transform(param.begin(), param.end(), param.begin(), ::toupper);
+        if (param == "TRUE") {
+            fFitter->fRemoveSystOnEmptySample = true;
+        } else if (param == "FALSE") {
+            fFitter->fRemoveSystOnEmptySample = false;
+        } else {
+            WriteWarningStatus("ConfigReader::ReadJobOptions", "You specified 'RemoveSystOnEmptySample' option but you did not provide valid setting. Using default (false)");
+            fFitter->fRemoveSystOnEmptySample = false;
+        }
+    }
+
+    // Set ShowValidationPruning
+    param = confSet->Get("ShowValidationPruning");
+    if( param != "" ){
+        std::transform(param.begin(), param.end(), param.begin(), ::toupper);
+        if (param == "TRUE") {
+            fFitter->fValidationPruning = true;
+        } else if (param == "FALSE") {
+            fFitter->fValidationPruning = false;
+        } else {
+            WriteWarningStatus("ConfigReader::ReadJobOptions", "You specified 'ValidationPruning' option but you did not provide valid setting. Using default (false)");
+            fFitter->fValidationPruning = false;
+        }
+    }
+
     // success
     return 0;
 }
@@ -1837,7 +1879,7 @@ int ConfigReader::ReadFitOptions(){
     // Set NumCPU
     param = confSet->Get("NumCPU");
     if( param != "" ){
-        TRExFitter::NCPU = std::atoi( param.c_str());
+        fFitter->fCPU = std::atoi( param.c_str());
     }
 
     // Set StatOnlyFit
@@ -5626,6 +5668,21 @@ int ConfigReader::ReadUnfoldingOptions() {
         fFitter->fAlternativeAsimovTruthSample = RemoveQuotes(param);
         fFitter->fFitIsBlind = false;
     }
+    
+    param = confSet->Get("UnfoldNormXSec");
+    if (param != "") {
+        std::transform(param.begin(), param.end(), param.begin(), ::toupper);
+        if (param == "TRUE") {
+            fFitter->fUnfoldNormXSec = true;
+        } else {
+            fFitter->fUnfoldNormXSec = false;
+        }
+    }
+    
+    param = confSet->Get("UnfoldNormXSecBinN");
+    if (param != "") {
+        fFitter->fUnfoldNormXSecBinN = std::stoi(param);
+    }
 
     param = confSet->Get("DivideByBinWidth");
     if (param != "") {
@@ -7073,12 +7130,41 @@ int ConfigReader::ProcessUnfoldingSystematics() {
 //__________________________________________________________________________________
 //
 int ConfigReader::AddUnfoldingNormFactors() {
+    // set POI automatically to first available NF when performin unfolding (FIXME: probably it would make sense to set all the NFs to POI in case of unfolding)
+    bool POIset = false;
+    
+    // Add overall norm factor, for normalized xsec:
+    std::shared_ptr<NormFactor> nfTot = nullptr;
+    if(fFitter->fUnfoldNormXSec){
+        WriteInfoStatus("ConfigReader::AddUnfoldingNormFactors", "Adding overall norm-factor to all truth bins to get normalized cross-section");
+        nfTot = std::make_shared<NormFactor>("TotalXsecOverTheory");
+        TRExFitter::SYSTMAP[nfTot->fName] = nfTot->fName;
+        if(Common::FindInStringVector(fFitter->fNormFactorNames, nfTot->fName) < 0) {
+           fFitter->fNormFactors.emplace_back(nfTot);
+           fFitter->fNormFactorNames.emplace_back(nfTot->fName);
+        }
+        nfTot->fNuisanceParameter = nfTot->fName;
+        TRExFitter::NPMAP[nfTot->fName] = nfTot->fName;
+        nfTot->fCategory = "TotalXsec";
+        nfTot->fTitle = "#sigma_{tot} / #sigma_{tot}^{theory}";
+        nfTot->fMin = fFitter->fUnfoldingResultMin;
+        nfTot->fMax = fFitter->fUnfoldingResultMax;
+        nfTot->fNominal = 1;
+        nfTot->fRegions = GetAvailableRegions();
+        //
+        for(auto& isample : fFitter->fSamples) {
+            if (isample->fName.find("_Truth_bin_")==std::string::npos) continue;
+            WriteInfoStatus("ConfigReader::AddUnfoldingNormFactors", "Adding to sample " + isample->fName);
+            isample->AddNormFactor(nfTot);
+        }
+    }
+    
+    // in case no UnfoldNormXSecBinN was specified, set it to the last truth bin
+    if(fFitter->fUnfoldNormXSec && fFitter->fUnfoldNormXSecBinN<=0) fFitter->fUnfoldNormXSecBinN = fFitter->fNumberUnfoldingTruthBins;
 
     for (int i = 0; i < fFitter->fNumberUnfoldingTruthBins; ++i) {
-        const std::string name = "Bin_" + std::to_string(i+1);
+        const std::string name = "Bin_" + Common::IntToFixLenStr(i+1) + "_mu"; // add leading zeros in order to have correct NF ordering in plots
         std::shared_ptr<NormFactor> nf = std::make_shared<NormFactor>(name);
-
-        TRExFitter::SYSTMAP[nf->fName] = nf->fName;
 
         if(Common::FindInStringVector(fFitter->fNormFactorNames, nf->fName) < 0) {
            fFitter->fNormFactors.emplace_back(nf);
@@ -7088,7 +7174,8 @@ int ConfigReader::AddUnfoldingNormFactors() {
         nf->fNuisanceParameter = nf->fName;
         TRExFitter::NPMAP[nf->fName] = nf->fName;
         nf->fCategory = "TruthBins";
-        nf->fTitle = "UnfoldedTruthBin_"+std::to_string(i);
+        nf->fTitle = "Unfolded Truth Bin "+std::to_string(i+1);
+        TRExFitter::SYSTMAP[nf->fName] = nf->fTitle;
         nf->fMin = fFitter->fUnfoldingResultMin;
         nf->fMax = fFitter->fUnfoldingResultMax;
         nf->fNominal = 1;
@@ -7104,8 +7191,42 @@ int ConfigReader::AddUnfoldingNormFactors() {
             if (std::find(sampleNames.begin(), sampleNames.end(), isample->fName) == sampleNames.end()) continue;
             isample->AddNormFactor(nf);
         }
-
-        // check if the bin is in the list specifies taus
+       
+        // Add expression for last bin in case of norm xsec
+        if(fFitter->fUnfoldNormXSec && i==fFitter->fUnfoldNormXSecBinN-1){
+            WriteInfoStatus("ConfigReader::AddUnfoldingNormFactors", "Adding expression to turn cross section into normalized cross-section");
+            //
+            // build expression:
+            std::string v0 = "";
+            std::string v1 = "";
+            std::string num = "1.";
+            std::string den = "N" + std::to_string(fFitter->fUnfoldNormXSecBinN) + "/N";
+            for (int j = 0; j < fFitter->fNumberUnfoldingTruthBins; ++j){
+                if(j==fFitter->fUnfoldNormXSecBinN-1) continue;
+                std::string NFname = "Bin_" + Common::IntToFixLenStr(j+1) + "_mu";
+                num += "-" + NFname + "*(N" + std::to_string(j+1) + "/N)"; // "Nj/N" will be a place-holder here (replaced in TRExFit::
+                if(j!=0) v1 += ",";
+                v1 += NFname + "[1," + std::to_string(fFitter->fUnfoldingResultMin) + "," + std::to_string(fFitter->fUnfoldingResultMax) + "]";
+            }
+            v0 = "(" + num + ")/(" + den + ")";
+            //
+            nf->fExpression = std::make_pair(v0,v1);
+            // title will contain the expression FIXME
+            nf->fTitle = v0;
+            TRExFitter::SYSTMAP[nf->fName] = v0;
+            // nuis-par will contain the nuis-par of the norm factor the expression depends on FIXME
+            nf->fNuisanceParameter = v1;
+            TRExFitter::NPMAP[nf->fName] = v1;
+        }
+        else{
+            // set the first eligible norm factor to be the POI
+            if(!POIset){
+                fFitter->SetPOI(CheckName(name));
+                fFitter->fFitPOIAsimov = 1;
+                POIset = true;
+            }
+        }
+        // check if the bin is in the list specified taus
         bool hasTau = false;
         double tauValue = 0.;
         if (fTaus.size()==1) {

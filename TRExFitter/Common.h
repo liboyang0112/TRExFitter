@@ -54,7 +54,6 @@ namespace TRExFitter{
     extern std::map< std::string,std::string > SYSTTEX;
     extern std::map< std::string,std::string > NPMAP;
     extern std::vector< std::string > IMAGEFORMAT;
-    extern int NCPU;
     //
     extern std::map< std::string, double > OPTION;
     extern std::map<std::string, std::shared_ptr<TFile> > TFILEMAP;
@@ -265,6 +264,14 @@ void ScaleByBinWidth(TH1* h);
  * @param raph
  */
 void ScaleByBinWidth(TGraphAsymmErrors* g);
+
+/**
+  * A helper function to transform an integer into a string, with leading zeros
+  * @param input int
+  * @param number of places (default = 3)
+  * @return string
+  */  
+std::string IntToFixLenStr(int i,int n=3);
 }
 
 #endif
