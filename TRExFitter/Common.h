@@ -279,6 +279,21 @@ std::string IntToFixLenStr(int i,int n=3);
   * @return conversion result
   */  
 bool StringToBoolean(std::string param);
+
+/**
+  * Get apths to files containing a key from a folder
+  * @param folder path
+  * @param keu
+  * @return vector of paths
+  */  
+std::vector<std::string> GetFilesMatchingString(const std::string& folder, const std::string& key);
+
+/**
+  * Merge txt files into another one
+  * @param paths to the input files
+  * @return outputfile path
+  */  
+void MergeTxTFiles(const std::vector<std::string>& input, const std::string& out);
 }
 
 #endif
