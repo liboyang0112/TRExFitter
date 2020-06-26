@@ -828,7 +828,19 @@ int ConfigReader::ReadJobOptions(){
     // Set GetChi2
     param = confSet->Get("GetChi2");
     if( param != "" ){ // can be TRUE, SYST+STAT, STAT-ONLY... (if it contains STAT and no SYST => stat-only, ptherwise stat+syst)
-        fFitter->fGetChi2 = Common::StringToBoolean(param);
+        std::transform(param.begin(), param.end(), param.begin(), ::toupper);
+        if( param == "TRUE" ){
+            fFitter->fGetChi2 = 2;
+        }
+        else if( param.find("SYST")!=std::string::npos ){
+            fFitter->fGetChi2 = 2;
+        }
+        else if( param.find("STAT")!=std::string::npos ){
+            fFitter->fGetChi2 = 1;
+        } else {
+            WriteErrorStatus("ConfigReader::ReadJobOptions", "You specified 'GetChi2' option but you did not provide valid option. Check this!");
+            return 1;
+        }
     }
 
     // Set DoTables
