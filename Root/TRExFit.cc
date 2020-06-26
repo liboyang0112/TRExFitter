@@ -9620,10 +9620,13 @@ void TRExFit::FixUnfoldingExpressions() {
             if (inorm->fName==NFname) {
                 TString expression(inorm->fExpression.first);
                 for (int i = 0; i < fNumberUnfoldingTruthBins; ++i) {
-                // replace all "Nj/N" with truth->bincontent/truth->integral
+                    // replace all "Nj/N" with truth->bincontent/truth->integral
                     expression.ReplaceAll("N"+std::to_string(i+1)+"/N",std::to_string(truth->GetBinContent(i+1)/N));
                 }
                 inorm->fExpression.first = expression.Data();
+                // title will contain the expression FIXME
+                inorm->fTitle = inorm->fExpression.first;
+                TRExFitter::SYSTMAP[inorm->fName] = inorm->fExpression.first;
             }
         }
     }
