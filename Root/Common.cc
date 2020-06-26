@@ -1406,3 +1406,13 @@ std::string Common::IntToFixLenStr(int i,int n){
     std::string s = ss.str();
     return s;
 }
+
+//__________________________________________________________________________________
+//
+bool Common::StringToBoolean(std::string param) {
+    std::transform(param.begin(), param.end(), param.begin(), ::toupper);
+    
+    if (param == "TRUE") return true;
+    
+    return false;
+}
