@@ -5987,7 +5987,6 @@ void TRExFit::PlotNPRanking(bool flagSysts, bool flagGammas) const{
         Common::MergeTxTFiles(inPaths, fileToRead);
     }
 
-
     //
     unsigned int maxNP = fRankingMaxNP;
     //
