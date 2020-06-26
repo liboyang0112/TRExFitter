@@ -3245,7 +3245,11 @@ int ConfigReader::ReadSampleOptions() {
         // separate gammas
         param = confSet->Get("SeparateGammas");
         if(param != ""){
-            sample->fSeparateGammas = Common::StringToBoolean(param);
+            std::transform(param.begin(), param.end(), param.begin(), ::toupper);
+            if(param == "TRUE"){
+                sample->fSeparateGammas = true;
+                if(confSet->Get("UseMCstat") == "") sample->fUseMCStat = false; // remove the usual gammas for this sample (only if no UseMCstat is specified!!)
+            } else sample->fSeparateGammas = false;
         }
 
         // Scale up/down MC stat size
