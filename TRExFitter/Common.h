@@ -291,6 +291,7 @@ std::vector<std::string> GetFilesMatchingString(const std::string& folder, const
 /**
   * Merge txt files into another one
   * @param paths to the input files
+  * @param path to the output file
   * @return outputfile path
   */  
 void MergeTxTFiles(const std::vector<std::string>& input, const std::string& out);
