@@ -265,9 +265,7 @@ int ConfigReader::ReadJobOptions(){
 
     param = confSet->Get("AllowWrongRegionSample");
     if( param != "") {
-        std::transform(param.begin(), param.end(), param.begin(), ::toupper);
-        if (param == "TRUE") fAllowWrongRegionSample = true;
-        else if (param == "FALSE") fAllowWrongRegionSample = false;
+        fAllowWrongRegionSample = Common::StringToBoolean(param);
     }
 
     // Set outputDir
@@ -310,13 +308,7 @@ int ConfigReader::ReadJobOptions(){
     // Set MergeUnderOverFlow from config
     param = confSet->Get("MergeUnderOverFlow");
     if(param!=""){
-        std::transform(param.begin(), param.end(), param.begin(), ::toupper);
-        if(      param == "TRUE" )  TRExFitter::MERGEUNDEROVERFLOW = true;
-        else if( param == "FALSE" ) TRExFitter::MERGEUNDEROVERFLOW = false;
-        else {
-            WriteWarningStatus("ConfigReader::ReadJobOptions", "You specified 'MergeUnderOverFlow' option but you did not provide valid setting. Using default (FALSE)");
-            TRExFitter::MERGEUNDEROVERFLOW = false;
-        }
+        TRExFitter::MERGEUNDEROVERFLOW = Common::StringToBoolean(param);
     }
 
     // Set paths for the unfolding preprocessing
@@ -658,12 +650,7 @@ int ConfigReader::ReadJobOptions(){
     // Set UseGammaPulls
     param = confSet->Get("UseGammaPulls");
     if( param != ""){
-        std::transform(param.begin(), param.end(), param.begin(), ::toupper);
-        if (param == "TRUE") fFitter->fUseGammaPulls = true;
-        else {
-            WriteWarningStatus("ConfigReader::ReadJobOptions", "You specified 'UseGammaPulls' option but you did not set it to TRUE. Using default (FALSE)");
-            fFitter->fUseGammaPulls = false;
-        }
+        fFitter->fUseGammaPulls = Common::StringToBoolean(param);
     }
 
     // plotting options are in special function
@@ -707,15 +694,7 @@ int ConfigReader::ReadJobOptions(){
     // Set SplitHistoFiles
     param = confSet->Get("SplitHistoFiles");
     if( param != ""){
-        std::transform(param.begin(), param.end(), param.begin(), ::toupper);
-        if( param == "TRUE" ){
-            TRExFitter::SPLITHISTOFILES = true;
-        } else if (param == "FALSE") {
-            TRExFitter::SPLITHISTOFILES = false;
-        } else {
-            WriteWarningStatus("ConfigReader::ReadJobOptions", "You specified 'SplitHistoFiles' option but you did not provide valid setting. Using default (false)");
-            TRExFitter::SPLITHISTOFILES = false;
-        }
+        TRExFitter::SPLITHISTOFILES = Common::StringToBoolean(param);
     }
 
     // Set BlindingThreshold"
@@ -758,29 +737,13 @@ int ConfigReader::ReadJobOptions(){
     // Set StatOnly
     param = confSet->Get("StatOnly");
     if( param != "" ){
-        std::transform(param.begin(), param.end(), param.begin(), ::toupper);
-        if( param == "TRUE" ){
-            fFitter->fStatOnly = true;
-        } else if (param == "FALSE"){
-            fFitter->fStatOnly = false;
-        } else {
-            WriteWarningStatus("ConfigReader::ReadJobOptions", "You specified 'StatOnly' option but you did not provide valid setting. Using default (false)");
-            fFitter->fStatOnly = false;
-        }
+        fFitter->fStatOnly = Common::StringToBoolean(param);
     }
 
     // Set FixNPforStatOnly
     param = confSet->Get("FixNPforStatOnly");
     if( param != "" ){
-        std::transform(param.begin(), param.end(), param.begin(), ::toupper);
-        if( param == "TRUE" ){
-            fFitter->fFixNPforStatOnlyFit = true;
-        } else if (param == "FALSE"){
-            fFitter->fFixNPforStatOnlyFit = false;
-        } else {
-            WriteWarningStatus("ConfigReader::ReadJobOptions", "You specified 'FixNPforStatOnly' option but you did not provide valid setting. Using default (false)");
-            fFitter->fFixNPforStatOnlyFit = false;
-        }
+        fFitter->fFixNPforStatOnlyFit = Common::StringToBoolean(param);
     }
 
     // Set InputFolder
@@ -804,13 +767,7 @@ int ConfigReader::ReadJobOptions(){
     // Set KeepPruning
     param = confSet->Get("KeepPruning");
     if( param != "" ){
-        std::transform(param.begin(), param.end(), param.begin(), ::toupper);
-        if( param == "TRUE" ) fFitter->fKeepPruning = true;
-        else if (param == "FALSE") fFitter->fKeepPruning = false;
-        else {
-            WriteWarningStatus("ConfigReader::ReadJobOptions", "You specified 'KeepPruning' option but you did not provide valid setting. Using default (false)");
-            fFitter->fKeepPruning = false;
-        }
+        fFitter->fKeepPruning = Common::StringToBoolean(param);
     }
 
     // Set AtlasLabel
@@ -822,25 +779,13 @@ int ConfigReader::ReadJobOptions(){
     // Set CleanTables
     param = confSet->Get("CleanTables");
     if( param != "" ){
-        std::transform(param.begin(), param.end(), param.begin(), ::toupper);
-        if( param == "TRUE" ) fFitter->fCleanTables = true;
-        else if (param == "FALSE") fFitter->fCleanTables = false;
-        else {
-            WriteWarningStatus("ConfigReader::ReadJobOptions", "You specified 'CleanTables' option but you did not provide valid setting. Using default (false)");
-            fFitter->fCleanTables = false;
-        }
+        fFitter->fCleanTables = Common::StringToBoolean(param);
     }
 
     // Set SystCategoryTables
     param = confSet->Get("SystCategoryTables");
     if( param != "" ){
-        std::transform(param.begin(), param.end(), param.begin(), ::toupper);
-        if( param == "TRUE" ) fFitter->fSystCategoryTables = true;
-        else if (param == "FALSE") fFitter->fSystCategoryTables = false;
-        else {
-            WriteWarningStatus("ConfigReader::ReadJobOptions", "You specified 'SystCategoryTables' option but you did not provide valid setting. Using default (false)");
-            fFitter->fSystCategoryTables = false;
-        }
+        fFitter->fSystCategoryTables = Common::StringToBoolean(param);
     }
 
     // Set Suffix
@@ -871,13 +816,7 @@ int ConfigReader::ReadJobOptions(){
     // Set KeepPrefitBlindedBins
     param = confSet->Get("KeepPrefitBlindedBins");
     if( param != "" ){
-        std::transform(param.begin(), param.end(), param.begin(), ::toupper);
-        if( param == "TRUE" ) fFitter->fKeepPrefitBlindedBins = true;
-        else if (param == "FALSE") fFitter->fKeepPrefitBlindedBins = false;
-        else {
-            WriteWarningStatus("ConfigReader::ReadJobOptions", "You specified 'KeepPrefitBlindedBins' option but you did not provide valid setting. Using default (false)");
-            fFitter->fKeepPrefitBlindedBins = false;
-        }
+        fFitter->fKeepPrefitBlindedBins = Common::StringToBoolean(param);
     }
 
     // Set CustomAsimov
@@ -907,13 +846,7 @@ int ConfigReader::ReadJobOptions(){
     // Set DoTables
     param = confSet->Get("DoTables");
     if( param != "" ){
-        std::transform(param.begin(), param.end(), param.begin(), ::toupper);
-        if(      param == "TRUE" )  fFitter->fDoTables = true;
-        else if( param == "FALSE" ) fFitter->fDoTables = false;
-        else {
-            WriteWarningStatus("ConfigReader::ReadJobOptions", "You specified 'DoTables' option but you did not provide valid setting. Using default (false)");
-            fFitter->fDoTables = false;
-        }
+        fFitter->fDoTables = Common::StringToBoolean(param);
     }
 
     // Set CustomFunctions
@@ -961,15 +894,7 @@ int ConfigReader::ReadJobOptions(){
     // Set SmoothMorphingTemplates
     param = confSet->Get("SmoothMorphingTemplates");
     if ( param != ""){
-        std::transform(param.begin(), param.end(), param.begin(), ::toupper);
-        if (param == "TRUE"){
-            fFitter->fSmoothMorphingTemplates = "TRUE";
-        }
-        else if (param == "FALSE"){
-            fFitter->fSmoothMorphingTemplates = "";
-        } else {
-            fFitter->fSmoothMorphingTemplates = param;
-        }
+        fFitter->fSmoothMorphingTemplates = Common::StringToBoolean(param);
     }
 
     // Set POIPrecision
@@ -985,70 +910,28 @@ int ConfigReader::ReadJobOptions(){
     // Set UseGammasForCorr
     param = confSet->Get("UseGammasForCorr");
     if( param != ""){
-        std::transform(param.begin(), param.end(), param.begin(), ::toupper);
-        if (param == "TRUE"){
-            fFitter->fuseGammasForCorr = true;
-        } else if (param == "FALSE") {
-            fFitter->fuseGammasForCorr = false;
-        } else {
-            WriteWarningStatus("ConfigReader::ReadJobOptions", "You specified UseGammasForCorr option but did not provide valid parameter. Using default (false)");
-            fFitter->fuseGammasForCorr = false;
-        }
+        fFitter->fuseGammasForCorr = Common::StringToBoolean(param);
     }
 
     // Set PropagateSystsForMorphing
     param = confSet->Get("PropagateSystsForMorphing");
     if( param != ""){
-        std::transform(param.begin(), param.end(), param.begin(), ::toupper);
-        if (param == "TRUE"){
-            fFitter->fPropagateSystsForMorphing = true;
-        } else if (param == "FALSE") {
-            fFitter->fPropagateSystsForMorphing = false;
-        } else {
-            WriteWarningStatus("ConfigReader::ReadJobOptions", "You specified PropagateSystsForMorphing option but did not provide valid parameter. Using default (false)");
-            fFitter->fPropagateSystsForMorphing = false;
-        }
+        fFitter->fPropagateSystsForMorphing = Common::StringToBoolean(param);
     }
 
     // Set UseATLASRounding
     param = confSet->Get("UseATLASRounding");
     if ( param != ""){
-        std::transform(param.begin(), param.end(), param.begin(), ::toupper);
-        if (param == "TRUE") {
-            fFitter->fUseATLASRoundingTxt = true;
-            fFitter->fUseATLASRoundingTex = true;
-        } else if (param == "FALSE") {
-            fFitter->fUseATLASRoundingTxt = false;
-            fFitter->fUseATLASRoundingTex = false;
-        } else {
-            WriteWarningStatus("ConfigReader::ReadJobOptions", "You specified UseATLASRounding option but did not provide valid parameter. Using default (false)");
-            fFitter->fUseATLASRoundingTxt = false;
-            fFitter->fUseATLASRoundingTex = false;
-        }
+        fFitter->fUseATLASRoundingTxt = Common::StringToBoolean(param);
+        fFitter->fUseATLASRoundingTex = Common::StringToBoolean(param);
     }
     param = confSet->Get("UseATLASRoundingTxt");
     if ( param != ""){
-        std::transform(param.begin(), param.end(), param.begin(), ::toupper);
-        if (param == "TRUE") {
-            fFitter->fUseATLASRoundingTxt = true;
-        } else if (param == "FALSE") {
-            fFitter->fUseATLASRoundingTxt = false;
-        } else {
-            WriteWarningStatus("ConfigReader::ReadJobOptions", "You specified UseATLASRoundingTxt option but did not provide valid parameter. Using default (false)");
-            fFitter->fUseATLASRoundingTxt = false;
-        }
+        fFitter->fUseATLASRoundingTxt = Common::StringToBoolean(param);
     }
     param = confSet->Get("UseATLASRoundingTex");
     if ( param != ""){
-        std::transform(param.begin(), param.end(), param.begin(), ::toupper);
-        if (param == "TRUE") {
-            fFitter->fUseATLASRoundingTex = true;
-        } else if (param == "FALSE") {
-            fFitter->fUseATLASRoundingTex = false;
-        } else {
-            WriteWarningStatus("ConfigReader::ReadJobOptions", "You specified UseATLASRoundingTex option but did not provide valid parameter. Using default (false)");
-            fFitter->fUseATLASRoundingTex = false;
-        }
+        fFitter->fUseATLASRoundingTex = Common::StringToBoolean(param);
     }
 
     // Set RankingPOIName
@@ -1075,15 +958,7 @@ int ConfigReader::ReadJobOptions(){
 
     param = confSet->Get("DoSystNormalizationPlots");
     if (param != "") {
-        std::transform(param.begin(), param.end(), param.begin(), ::toupper);
-        if (param == "TRUE") {
-            fFitter->fDoSystNormalizationPlots = true;
-        } else if (param == "FALSE") {
-            fFitter->fDoSystNormalizationPlots = false;
-        } else {
-            WriteWarningStatus("ConfigReader::ReadJobOptions", "You specified DoSystNormalizationPlots option but did not provide valid parameter. Using default (TRUE)");
-            fFitter->fDoSystNormalizationPlots = true;
-        }
+        fFitter->fDoSystNormalizationPlots = Common::StringToBoolean(param);
     }
 
     // Set PrePostFitCanvasSize
@@ -1174,95 +1049,43 @@ int ConfigReader::ReadJobOptions(){
     // Set ReorderNPs
     param = confSet->Get("ReorderNPs");
     if( param != "" ){
-        std::transform(param.begin(), param.end(), param.begin(), ::toupper);
-        if(      param == "TRUE" )  fFitter->fReorderNPs = true;
-        else if( param == "FALSE" ) fFitter->fReorderNPs = false;
-        else {
-            WriteWarningStatus("ConfigReader::ReadJobOptions", "You specified 'ReorderNPs' option but you did not provide valid setting. Using default (false)");
-            fFitter->fReorderNPs = false;
-        }
+        fFitter->fReorderNPs = Common::StringToBoolean(param);
     }
     
     // Set BlindSRs
     param = confSet->Get("BlindSRs");
     if( param != "" ){
-        std::transform(param.begin(), param.end(), param.begin(), ::toupper);
-        if(      param == "TRUE" )  fFitter->fBlindSRs = true;
-        else if( param == "FALSE" ) fFitter->fBlindSRs = false;
-        else {
-            WriteWarningStatus("ConfigReader::ReadJobOptions", "You specified 'BlindSRs' option but you did not provide valid setting. Using default (false)");
-            fFitter->fBlindSRs = false;
-        }
+        fFitter->fBlindSRs = Common::StringToBoolean(param);
     }
     
     // Set HEPDataFormat
     param = confSet->Get("HEPDataFormat");
     if( param != "" ){
-        std::transform(param.begin(), param.end(), param.begin(), ::toupper);
-        if (param == "TRUE") {
-            fFitter->fHEPDataFormat = true;
-        } else if (param == "FALSE") {
-            fFitter->fHEPDataFormat = false;
-        } else {
-            WriteWarningStatus("ConfigReader::ReadJobOptions", "You specified 'HEPDataFormat' option but you did not provide valid setting. Using default (false)");
-            fFitter->fHEPDataFormat = false;
-        }
+        fFitter->fHEPDataFormat = Common::StringToBoolean(param);
     }
 
     // Set AlternativeShapeHistFactory
     param = confSet->Get("AlternativeShapeHistFactory");
     if( param != "" ){
-        std::transform(param.begin(), param.end(), param.begin(), ::toupper);
-        if (param == "TRUE") {
-            fFitter->fAlternativeShapeHistFactory = true;
-        } else if (param == "FALSE") {
-            fFitter->fAlternativeShapeHistFactory = false;
-        } else {
-            WriteWarningStatus("ConfigReader::ReadJobOptions", "You specified 'AlternativeShapeHistFactory' option but you did not provide valid setting. Using default (false)");
-            fFitter->fAlternativeShapeHistFactory = false;
-        }
+        fFitter->fAlternativeShapeHistFactory = Common::StringToBoolean(param);
     }
 
     // Set RemoveLargeSyst
     param = confSet->Get("RemoveLargeSyst");
     if (param != "") {
-        std::transform(param.begin(), param.end(), param.begin(), ::toupper);
-        if (param == "TRUE") {
-            fFitter->fRemoveLargeSyst = true;
-        } else if (param == "FALSE") {
-            fFitter->fRemoveLargeSyst = false;
-        } else {
-            WriteWarningStatus("ConfigReader::ReadJobOptions", "You specified 'RemoveLargeSyst' option but you did not provide valid setting. Using default (true)");
-            fFitter->fRemoveLargeSyst = true;
-        }
+        fFitter->fRemoveLargeSyst = Common::StringToBoolean(param);
     }
     
     // Set RemoveSystOnEmptySample
     param = confSet->Get("RemoveSystOnEmptySample");
     if( param != "" ){
-        std::transform(param.begin(), param.end(), param.begin(), ::toupper);
-        if (param == "TRUE") {
-            fFitter->fRemoveSystOnEmptySample = true;
-        } else if (param == "FALSE") {
-            fFitter->fRemoveSystOnEmptySample = false;
-        } else {
-            WriteWarningStatus("ConfigReader::ReadJobOptions", "You specified 'RemoveSystOnEmptySample' option but you did not provide valid setting. Using default (false)");
-            fFitter->fRemoveSystOnEmptySample = false;
-        }
+        fFitter-> fRemoveSystOnEmptySample = Common::StringToBoolean(param);
     }
 
     // Set ShowValidationPruning
     param = confSet->Get("ShowValidationPruning");
     if( param != "" ){
-        std::transform(param.begin(), param.end(), param.begin(), ::toupper);
-        if (param == "TRUE") {
-            fFitter->fValidationPruning = true;
-        } else if (param == "FALSE") {
-            fFitter->fValidationPruning = false;
-        } else {
-            WriteWarningStatus("ConfigReader::ReadJobOptions", "You specified 'ValidationPruning' option but you did not provide valid setting. Using default (false)");
-            fFitter->fValidationPruning = false;
-        }
+        fFitter->fValidationPruning = Common::StringToBoolean(param);
     }
 
     // success
@@ -1311,91 +1134,38 @@ int ConfigReader::SetJobPlot(ConfigSet *confSet){
     // Set SystControlPlots
     param = confSet->Get("SystControlPlots");
     if( param != ""){
-        std::transform(param.begin(), param.end(), param.begin(), ::toupper);
-        if( param == "TRUE" ){
-            TRExFitter::SYSTCONTROLPLOTS = true;
-        } else if (param == "FALSE"){
-            TRExFitter::SYSTCONTROLPLOTS = false;
-        } else {
-            WriteWarningStatus("ConfigReader::SetJobPlot", "You specified 'SystControlPlots' option but you did not provide valid setting. Using default (TRUE)");
-            TRExFitter::SYSTCONTROLPLOTS = true;
-        }
+        TRExFitter::SYSTCONTROLPLOTS = Common::StringToBoolean(param);
     }
 
     // Set SystDataPlots
     param = confSet->Get("SystDataPlots");
     if( param != "" ){
-        std::transform(param.begin(), param.end(), param.begin(), ::toupper);
-        if( param == "TRUE" ){
-            TRExFitter::SYSTDATAPLOT = true;
-            fFitter->fSystDataPlot_upFrame=true;
-        } else if( param == "FALSE" ){
-            TRExFitter::SYSTDATAPLOT = false;
-            fFitter->fSystDataPlot_upFrame= false;
-        } else if( param == "FILLUPFRAME" ){
-            TRExFitter::SYSTDATAPLOT = true;
-            fFitter->fSystDataPlot_upFrame=true;
-        } else {
-            WriteWarningStatus("ConfigReader::SetJobPlot", "You specified 'SystDataPlots' option but the value is not 'TRUE' nor 'FILLUPFRAME'. Setting SystDataPlot and SystDataPlot_upFrame to false");
-            TRExFitter::SYSTDATAPLOT = false;
-            fFitter->fSystDataPlot_upFrame=false;
-        }
+        TRExFitter::SYSTDATAPLOT = Common::StringToBoolean(param);
+        fFitter->fSystDataPlot_upFrame = Common::StringToBoolean(param);
     }
 
     // Set SystErrorBars
     param = confSet->Get("SystErrorBars");
     if( param != ""){
-        std::transform(param.begin(), param.end(), param.begin(), ::toupper);
-        if(param == "TRUE" ){
-            TRExFitter::SYSTERRORBARS = true;
-        } else if (param == "FALSE"){
-            TRExFitter::SYSTERRORBARS = false;
-        } else {
-            WriteWarningStatus("ConfigReader::SetJobPlot", "You specified 'SystErrorBars' option but you did not provide valid setting. Using default (TRUE)");
-            TRExFitter::SYSTERRORBARS = true;
-        }
+        TRExFitter::SYSTERRORBARS = Common::StringToBoolean(param);
     }
 
     // Set GuessMCStatEmptyBins
     param = confSet->Get("GuessMCStatEmptyBins");
     if( param != ""){
-        std::transform(param.begin(), param.end(), param.begin(), ::toupper);
-        if( param == "TRUE" ){
-            TRExFitter::GUESSMCSTATERROR = true;
-        } else if (param == "FALSE") {
-            TRExFitter::GUESSMCSTATERROR = false;
-        } else {
-            WriteWarningStatus("ConfigReader::SetJobPlot", "You specified 'GuessMCStatEmptyBins' option but you did not provide valid setting. Using default (TRUE)");
-            TRExFitter::GUESSMCSTATERROR = true;
-        }
+        TRExFitter::GUESSMCSTATERROR = Common::StringToBoolean(param);
     }
 
     // Set CorrectNormForNegativeIntegral
     param = confSet->Get("CorrectNormForNegativeIntegral");
     if( param != ""){
-        std::transform(param.begin(), param.end(), param.begin(), ::toupper);
-        if( param == "TRUE" ){
-            TRExFitter::CORRECTNORMFORNEGATIVEINTEGRAL = true;
-        } else if (param == "FALSE") {
-            TRExFitter::CORRECTNORMFORNEGATIVEINTEGRAL = false;
-        } else {
-            WriteWarningStatus("ConfigReader::SetJobPlot", "You specified 'CorrectNormForNegativeIntegral' option but you did not provide valid setting. Using default (FALSE)");
-            TRExFitter::CORRECTNORMFORNEGATIVEINTEGRAL = false;
-        }
+        TRExFitter::CORRECTNORMFORNEGATIVEINTEGRAL = Common::StringToBoolean(param);
     }
 
     // Set SuppressNegativeBinWarnings
     param = confSet->Get("SuppressNegativeBinWarnings");
      if( param != ""){
-        std::transform(param.begin(), param.end(), param.begin(), ::toupper);
-        if ( param == "TRUE" ){
-            fFitter->fSuppressNegativeBinWarnings = true;
-        } else if (param == "FALSE"){
-            fFitter->fSuppressNegativeBinWarnings = false;
-        } else {
-            WriteWarningStatus("ConfigReader::SetJobPlot", "You specified SuppressNegativeBinWarnings option but did not provide valid parameter. Using default (false)");
-            fFitter->fSuppressNegativeBinWarnings = false;
-        }
+        fFitter->fSuppressNegativeBinWarnings = Common::StringToBoolean(param);
     }
 
     // Set SignalRegionsPlot
@@ -1439,14 +1209,7 @@ int ConfigReader::SetJobPlot(ConfigSet *confSet){
     // Set SummaryLogY
     param = confSet->Get("SummaryLogY");
     if(param != "") {
-        std::transform(param.begin(), param.end(), param.begin(), ::toupper);
-        if (param == "TRUE") {
-            fFitter->fSummaryLogY = true;
-        } else if (param == "FALSE") {
-            fFitter->fSummaryLogY = false;
-        } else {
-            WriteWarningStatus("ConfigReader::SetJobPlot", "You specified SummaryLogY option but did not provide valid parameter. Using default (TRUE)");
-        }
+        fFitter->fSummaryLogY = Common::StringToBoolean(param);
     }
 
     // Set RatioYmin
@@ -1526,47 +1289,23 @@ int ConfigReader::SetJobPlot(ConfigSet *confSet){
     // Set DoSummaryPlot
     param = confSet->Get("DoSummaryPlot");
     if( param != "" ){
-        std::transform(param.begin(), param.end(), param.begin(), ::toupper);
-        if(      param == "TRUE" )  fFitter->fDoSummaryPlot = true;
-        else if( param == "FALSE" ) fFitter->fDoSummaryPlot = false;
-        else {
-            WriteWarningStatus("ConfigReader::SetJobPlot", "You specified 'DoSummaryPlot' option but did not provide valid parameter. Using default (false)");
-            fFitter->fDoSummaryPlot = false;
-        }
+        fFitter->fDoSummaryPlot = Common::StringToBoolean(param);
     }
 
     // Set DoMergedPlot
     param = confSet->Get("DoMergedPlot");
     if( param != "" ){
-        std::transform(param.begin(), param.end(), param.begin(), ::toupper);
-        if(      param == "TRUE" )  fFitter->fDoMergedPlot = true;
-        else if( param == "FALSE" ) fFitter->fDoMergedPlot = false;
-        else {
-            WriteWarningStatus("ConfigReader::SetJobPlot", "You specified 'DoMergedPlot' option but did not provide valid parameter. Using default (false)");
-            fFitter->fDoMergedPlot = false;
-        }
+        fFitter->fDoMergedPlot = Common::StringToBoolean(param);
     }
 
     // Set DoSignalRegionsPlot
     param = confSet->Get("DoSignalRegionsPlot");
     if( param != "" ){
-        std::transform(param.begin(), param.end(), param.begin(), ::toupper);
-        if(      param == "TRUE" )  fFitter->fDoSignalRegionsPlot = true;
-        else if( param == "FALSE" ) fFitter->fDoSignalRegionsPlot = false;
-        else {
-            WriteWarningStatus("ConfigReader::SetJobPlot", "You specified 'DoSignalRegionsPlot' option but did not provide valid parameter. Using default (false)");
-            fFitter->fDoSignalRegionsPlot = false;
-        }
+        fFitter->fDoSignalRegionsPlot = Common::StringToBoolean(param);
     }
     param = confSet->Get("DoPieChartPlot");
     if( param != "" ){
-        std::transform(param.begin(), param.end(), param.begin(), ::toupper);
-        if(      param == "TRUE" )  fFitter->fDoPieChartPlot = true;
-        else if( param == "FALSE" ) fFitter->fDoPieChartPlot = false;
-        else {
-            WriteWarningStatus("ConfigReader::SetJobPlot", "You specified 'DoPieChartPlot' option but did not provide valid parameter. Using default (false)");
-            fFitter->fDoPieChartPlot = false;
-        }
+        fFitter->fDoPieChartPlot = Common::StringToBoolean(param);
     }
 
     // Set RankingPlot
@@ -1679,15 +1418,7 @@ int ConfigReader::ReadFitOptions(){
     // Set FitBlind
     param = confSet->Get("FitBlind");
     if( param != "" ){
-        std::transform(param.begin(), param.end(), param.begin(), ::toupper);
-        if( param == "TRUE" ){
-            fFitter->fFitIsBlind = true;
-        } else if ( param == "FALSE" ){
-            fFitter->fFitIsBlind = false;
-        } else {
-            WriteWarningStatus("ConfigReader::ReadFitOptions", "You specified 'FitBlind' option but did not provide valid parameter. Using default (false)");
-            fFitter->fFitIsBlind = false;
-        }
+        fFitter->fFitIsBlind = Common::StringToBoolean(param);
     }
 
     // Set POIAsimov
@@ -1719,15 +1450,7 @@ int ConfigReader::ReadFitOptions(){
     // Set InjectGlobalObservables
     param = confSet->Get("InjectGlobalObservables");
     if( param != ""){
-        std::transform(param.begin(), param.end(), param.begin(), ::toupper);
-        if( param == "TRUE" ){
-            fFitter->fInjectGlobalObservables = true;
-        } else if (param == "FALSE") {
-            fFitter->fInjectGlobalObservables = false;
-        } else {
-            WriteWarningStatus("ConfigReader::ReadFitOptions", "You specified 'InjectGlobalObservables' option but did not provide valid parameter. Using default (false)");
-            fFitter->fInjectGlobalObservables = false;
-        }
+        fFitter->fInjectGlobalObservables = Common::StringToBoolean(param);
     }
 
     // Set FixNPs
@@ -1837,14 +1560,7 @@ int ConfigReader::ReadFitOptions(){
     // Set Paral2D
     param = confSet->Get("Parallel2Dscan");
     if ( param != "" ) {
-        if( param == "TRUE" ){
-            fFitter->fParal2D = true;
-        } else if (param == "FALSE") {
-            fFitter->fParal2D = false;
-        } else {
-            WriteWarningStatus("ConfigReader::ReadFitOptions", "You specified 'Parallel2Dscan' option but did not provide valid parameter. Using default (false)");
-            fFitter->fParal2D = false;
-        }
+        fFitter->fParal2D = Common::StringToBoolean(param);
     }
 
     // Set Paral2Dstep
@@ -1885,46 +1601,20 @@ int ConfigReader::ReadFitOptions(){
     // Set StatOnlyFit
     param = confSet->Get("StatOnlyFit");
     if( param != "" ){
-        std::transform(param.begin(), param.end(), param.begin(), ::toupper);
-        if( param == "TRUE" ){
-            fFitter->fStatOnlyFit = true;
-        } else if (param == "FALSE") {
-            fFitter->fStatOnlyFit = false;
-        } else {
-            WriteWarningStatus("ConfigReader::ReadFitOptions", "You specified 'StatOnlyFit' option but did not provide valid parameter. Using default (false)");
-            fFitter->fStatOnlyFit = false;
-        }
+        fFitter->fStatOnlyFit = Common::StringToBoolean(param);
     }
 
     // Set GetGoodnessOfFit
     param = confSet->Get("GetGoodnessOfFit");
     if( param != "" ){
-        std::transform(param.begin(), param.end(), param.begin(), ::toupper);
-        if( param == "TRUE" ){
-            fFitter->fGetGoodnessOfFit = true;
-            fFitter->fSaturatedModel = true;
-        } else if (param == "FALSE"){
-            fFitter->fGetGoodnessOfFit = false;
-            fFitter->fSaturatedModel = false;
-        } else {
-            WriteWarningStatus("ConfigReader::ReadFitOptions", "You specified 'GetGoodnessOfFit' option but did not provide valid parameter. Using default (false)");
-            fFitter->fGetGoodnessOfFit = false;
-            fFitter->fSaturatedModel = false;
-        }
+        fFitter->fGetGoodnessOfFit = Common::StringToBoolean(param);
+        fFitter->fSaturatedModel = Common::StringToBoolean(param);
     }
 
     // Set DoNonProfileFit
     param = confSet->Get("DoNonProfileFit");
     if( param != "" ){
-        std::transform(param.begin(), param.end(), param.begin(), ::toupper);
-        if( param == "TRUE" ){
-            fFitter->fDoNonProfileFit = true;
-        } else if (param == "FALSE"){
-            fFitter->fDoNonProfileFit = false;
-        } else {
-            WriteWarningStatus("ConfigReader::ReadFitOptions", "You specified 'DoNonProfileFit' option but did not provide valid parameter. Using default (false)");
-            fFitter->fDoNonProfileFit = false;
-        }
+        fFitter->fDoNonProfileFit = Common::StringToBoolean(param);
     }
 
     // Set NonProfileFitSystThreshold
@@ -2014,15 +1704,7 @@ int ConfigReader::ReadFitOptions(){
     // Saturated Model fit for goodness of fit
     param = confSet->Get("SaturatedModel");
     if( param != "" ){
-        std::transform(param.begin(), param.end(), param.begin(), ::toupper);
-        if( param == "TRUE" ){
-            fFitter->fSaturatedModel = true;
-        } else if (param == "FALSE"){
-            fFitter->fSaturatedModel = false;
-        } else {
-            WriteWarningStatus("ConfigReader::ReadFitOptions", "You specified 'SaturatedModel' option but did not provide valid parameter. Using default (false)");
-            fFitter->fSaturatedModel = false;
-        }
+        fFitter->fSaturatedModel = Common::StringToBoolean(param);
     }
     
     // Set Minuit2 fit strategy
@@ -2038,15 +1720,7 @@ int ConfigReader::ReadFitOptions(){
     // Set BinnedLikelihoodOptimization
     param = confSet->Get("BinnedLikelihoodOptimization");
     if (param != "") {
-        std::transform(param.begin(), param.end(), param.begin(), ::toupper);
-        if( param == "TRUE" ){
-            fFitter->fBinnedLikelihood = true;
-        } else if (param == "FALSE"){
-            fFitter->fBinnedLikelihood = false;
-        } else {
-            WriteWarningStatus("ConfigReader::ReadFitOptions", "You specified 'BinnedLikelihoodOptimization' option but did not provide valid parameter. Using default (false)");
-            fFitter->fBinnedLikelihood = false;
-        }
+        fFitter->fBinnedLikelihood = Common::StringToBoolean(param);
     }
 
     return 0;
@@ -2082,29 +1756,13 @@ int ConfigReader::ReadLimitOptions(){
     // Set LimitBlind
     param = confSet->Get("LimitBlind");
     if( param != "" ){
-        std::transform(param.begin(), param.end(), param.begin(), ::toupper);
-        if( param == "TRUE" ){
-            fFitter->fLimitIsBlind = true;
-        } else if ( param == "FALSE" ){
-            fFitter->fLimitIsBlind = false;
-        } else {
-            WriteWarningStatus("ConfigReader::ReadLimitOptions", "You specified 'LimitBlind' option but did not provide valid parameter. Using default (false)");
-            fFitter->fLimitIsBlind = false;
-        }
+        fFitter->fLimitIsBlind = Common::StringToBoolean(param);
     }
 
     // Set SignalInjection
     param = confSet->Get("SignalInjection");
     if( param != "" ){
-        std::transform(param.begin(), param.end(), param.begin(), ::toupper);
-        if( param == "TRUE" ){
-            fFitter->fSignalInjection = true;
-        } else if ( param == "FALSE" ){
-            fFitter->fSignalInjection = false;
-        } else {
-            WriteWarningStatus("ConfigReader::ReadLimitOptions", "You specified 'SignalInjection' option but did not provide valid parameter. Using default (false)");
-            fFitter->fSignalInjection = false;
-        }
+        fFitter->fSignalInjection = Common::StringToBoolean(param);
     }
 
     // Set SignalInjectionValue
@@ -2155,15 +1813,7 @@ int ConfigReader::ReadSignificanceOptions(){
     // Set LimitBlind
     param = confSet->Get("SignificanceBlind");
     if( param != "" ){
-        std::transform(param.begin(), param.end(), param.begin(), ::toupper);
-        if( param == "TRUE" ){
-            fFitter->fSignificanceIsBlind = true;
-        } else if ( param == "FALSE" ){
-            fFitter->fSignificanceIsBlind = false;
-        } else {
-            WriteWarningStatus("ConfigReader::ReadSignificanceOptions", "You specified 'SignificanceBlind' option but did not provide valid parameter. Using default (false)");
-            fFitter->fSignificanceIsBlind = false;
-        }
+        fFitter->fSignificanceIsBlind = Common::StringToBoolean(param);
     }
 
     // Set POIAsimov
@@ -2301,13 +1951,7 @@ int ConfigReader::ReadRegionOptions(const std::string& opt){
         // Set LogScale
         param = confSet->Get("LogScale");
         if( param != "" ){
-            std::transform(param.begin(), param.end(), param.begin(), ::toupper);
-            if(param=="TRUE") reg->fLogScale = true;
-            else if(param=="FALSE") reg->fLogScale = false;
-            else {
-                WriteWarningStatus("ConfigReader::ReadRegionOptions", "You specified 'LogScale' option but did not provide valid parameter. Using default (false)");
-                reg->fLogScale = false;
-            }
+            reg->fLogScale = Common::StringToBoolean(param);
         }
 
         // Set Group
@@ -2578,15 +2222,7 @@ int ConfigReader::ReadRegionOptions(const std::string& opt){
 
         param = confSet->Get("NormalizeMigrationMatrix");
         if (param != "") {
-            std::transform(param.begin(), param.end(), param.begin(), ::toupper);
-            if (param == "TRUE") {
-                reg->fNormalizeMigrationMatrix = true;
-            } else if (param == "FALSE") {
-                reg->fNormalizeMigrationMatrix = false;
-            } else {
-                WriteErrorStatus("ConfigReader::ReadRegionOptions", "You specified `NormalizeMigrationMatrix` option, but you did not provide any reasonable option. Using the default (TRUE)!");
-                reg->fNormalizeMigrationMatrix = true;
-            }
+            reg->fNormalizeMigrationMatrix = Common::StringToBoolean(param);
         }
 
         // Setting based on input type
@@ -2707,13 +2343,7 @@ int ConfigReader::ReadRegionOptions(const std::string& opt){
         // Set SkipSmoothing
         param = confSet->Get("SkipSmoothing");
         if( param != "" ){
-            std::transform(param.begin(), param.end(), param.begin(), ::toupper);
-            if(param=="TRUE")  reg->fSkipSmoothing = true;
-            else if(param=="FALSE")  reg->fSkipSmoothing = false;
-            else {
-                WriteWarningStatus("ConfigReader::ReadRegionOptions", "You specified 'SkipSmoothing' option in region but did not provide valid parameter. Using default (FALSE)");
-                reg->fSkipSmoothing = false;
-            }
+            reg->fSkipSmoothing = Common::StringToBoolean(param);
         }
 
         // Set AutomaticDropBins
@@ -2725,15 +2355,7 @@ int ConfigReader::ReadRegionOptions(const std::string& opt){
                 isOK = false;
             }
             if (isOK) {
-                std::transform(param.begin(), param.end(), param.begin(), ::toupper);
-                if (param == "TRUE") {
-                    reg->SetAutomaticDropBins(true);
-                } else if (param == "FALSE") {
-                    reg->SetAutomaticDropBins(false);
-                } else {
-                    WriteWarningStatus("ConfigReader::ReadJobOptions", "You specified 'AutomaticDropBins' option but did not provide a valid setting. Using default (FALSE)");
-                    reg->SetAutomaticDropBins(false);
-                }
+                reg->SetAutomaticDropBins(Common::StringToBoolean(param));
             }
         }
 
@@ -3313,13 +2935,7 @@ int ConfigReader::ReadSampleOptions() {
         // Set NormalizedByTheory
         param = confSet->Get("NormalizedByTheory");
         if(param != ""){
-            std::transform(param.begin(), param.end(), param.begin(), ::toupper);
-            if(param=="FALSE") sample->NormalizedByTheory(false);
-            else if(param=="TRUE") sample->NormalizedByTheory(true);
-            else{
-                WriteWarningStatus("ConfigReader::ReadSampleOptions", "You specified 'NormalizedByTheory' option but did not provide valid parameter. Using default (true)");
-                sample->NormalizedByTheory(true);
-            }
+            sample->NormalizedByTheory(Common::StringToBoolean(param));
         }
 
         // Set MCweight and Selection
@@ -3458,13 +3074,7 @@ int ConfigReader::ReadSampleOptions() {
         // to skip global & region selection for this sample
         param = confSet->Get("IgnoreSelection");
         if(param != ""){
-            std::transform(param.begin(), param.end(), param.begin(), ::toupper);
-            if(param == "TRUE") sample->fIgnoreSelection = "TRUE";
-            else if(param == "FALSE") sample->fIgnoreSelection = "FALSE";
-            else {
-                WriteWarningStatus("ConfigReader::ReadSampleOptions", "You specified 'IgnoreSelection' option but did not provide valid parameter. Using default (false)");
-                sample->fIgnoreSelection = "FALSE";
-            }
+            sample->fIgnoreSelection = Common::StringToBoolean(param);
         }
 
         // Set IgnoreWeights
@@ -3478,13 +3088,7 @@ int ConfigReader::ReadSampleOptions() {
         // to skip MC stat uncertainty for this sample
         param = confSet->Get("UseMCstat");
         if(param != ""){
-            std::transform(param.begin(), param.end(), param.begin(), ::toupper);
-            if(param == "FALSE") sample->fUseMCStat = false;
-            else if (param == "TRUE") sample->fUseMCStat = true;
-            else {
-                WriteWarningStatus("ConfigReader::ReadSampleOptions", "You specified 'UseMCstat' option but did not provide valid parameter. Using default (true)");
-                sample->fUseMCStat = true;
-            }
+            sample->fUseMCStat = Common::StringToBoolean(param);
         }
 
         // Set UseSystematics
@@ -3494,13 +3098,7 @@ int ConfigReader::ReadSampleOptions() {
         if(type == Sample::GHOST || type == Sample::DATA) sample->fUseSystematics = false;
         else                                              sample->fUseSystematics = true;
         if(param != ""){
-            std::transform(param.begin(), param.end(), param.begin(), ::toupper);
-            if(param == "FALSE") sample->fUseSystematics = false;
-            else if(param == "TRUE" ) sample->fUseSystematics = true;
-            else {
-                WriteWarningStatus("ConfigReader::ReadSampleOptions", "You specified 'UseSystematics' option but did not provide valid parameter. Using default (true)");
-                sample->fUseSystematics = true;
-            }
+            sample->fUseSystematics = Common::StringToBoolean(param);
         }
 
         // Set DivideBy
@@ -3626,13 +3224,7 @@ int ConfigReader::ReadSampleOptions() {
         // allow smoothing of nominal histogram?
         param = confSet->Get("Smooth");
         if(param!=""){
-            std::transform(param.begin(), param.end(), param.begin(), ::toupper);
-            if(param == "TRUE") sample->fSmooth = true;
-            else if(param == "FALSE") sample->fSmooth = false;
-            else {
-                WriteWarningStatus("ConfigReader::ReadSampleOptions", "You specified 'Smooth' option but did not provide valid parameter. Using default (false)");
-                sample->fSmooth = false;
-            }
+            sample->fSmooth = Common::StringToBoolean(param);
         }
 
         // Set AsimovReplacementFor
@@ -3657,11 +3249,7 @@ int ConfigReader::ReadSampleOptions() {
             if(param == "TRUE"){
                 sample->fSeparateGammas = true;
                 if(confSet->Get("UseMCstat") == "") sample->fUseMCStat = false; // remove the usual gammas for this sample (only if no UseMCstat is specified!!)
-            } else if (param == "FALSE") sample->fSeparateGammas = false;
-            else {
-                WriteWarningStatus("ConfigReader::ReadSampleOptions", "You specified 'SeparateGammas' option but did not provide valid parameter. Using default (false)");
-                sample->fSeparateGammas = false;
-            }
+            } else sample->fSeparateGammas = false;
         }
 
         // Scale up/down MC stat size
@@ -3812,13 +3400,7 @@ int ConfigReader::ReadNormFactorOptions(){
         // Set Constant
         param = confSet->Get("Constant");
         if(param != ""){
-            std::transform(param.begin(), param.end(), param.begin(), ::toupper);
-            if(param=="TRUE") nfactor->fConst = true;
-            else if(param=="FALSE") nfactor->fConst = false;
-            else {
-                WriteWarningStatus("ConfigReader::ReadNormFactorOptions", "You specified 'Constant' option but did not provide valid parameter. Using default (false)");
-                nfactor->fConst = false;
-            }
+            nfactor->fConst = Common::StringToBoolean(param);
         }
 
         // Set Category
@@ -3974,13 +3556,7 @@ int ConfigReader::ReadShapeFactorOptions(){
         // Set Constant
         param = confSet->Get("Constant");
         if(param != ""){
-            std::transform(param.begin(), param.end(), param.begin(), ::toupper);
-            if(param=="TRUE") sfactor->fConst = true;
-            else if(param=="FALSE") sfactor->fConst = false;
-            else {
-                WriteWarningStatus("ConfigReader::ReadShapeFactorOptions", "You specified 'Constant' option but did not provide valid parameter. Using default (false)");
-                sfactor->fConst = false;
-            }
+            sfactor->fConst = Common::StringToBoolean(param);
         }
 
         // Set Category
@@ -4182,25 +3758,13 @@ int ConfigReader::ReadSystOptions(){
         // Experimental
         param = confSet->Get("IsFreeParameter");
         if(param != ""){
-            std::transform(param.begin(), param.end(), param.begin(), ::toupper);
-            if (param == "TRUE") sys->fIsFreeParameter = true;
-            else if (param == "FALSE") sys->fIsFreeParameter = false;
-            else {
-                WriteWarningStatus("ConfigReader::ReadSystOptions", "You specified 'IsFreeParameter' option but did not provide valid parameter. Using default (false)");
-                sys->fIsFreeParameter = false;
-            }
+            sys->fIsFreeParameter = Common::StringToBoolean(param);
         }
 
         // Set IsCorrelated
         param = confSet->Get("IsCorrelated");
         if(param != ""){
-            std::transform(param.begin(), param.end(), param.begin(), ::toupper);
-            if (param == "TRUE") sys->fIsCorrelated = true;
-            else if (param == "FALSE") sys->fIsCorrelated = false;
-            else {
-                WriteWarningStatus("ConfigReader::ReadSystOptions", "You specified 'IsFreeParameter' option but did not provide valid parameter. Using default (false)");
-                sys->fIsCorrelated = true;
-            }
+            sys->fIsCorrelated = Common::StringToBoolean(param);
         }
 
         // Set StoredName
@@ -4623,13 +4187,7 @@ int ConfigReader::ReadSystOptions(){
 
             param = confSet->Get("PreSmoothing");
             if(param != ""){
-                std::transform(param.begin(), param.end(), param.begin(), ::toupper);
-                if(param == "TRUE") sys->fPreSmoothing = true;
-                else if(param == "FALSE") sys->fPreSmoothing = false;
-                else {
-                    WriteWarningStatus("ConfigReader::ReadSystOptions", "You specified 'PreSmoothing' option but did not provide valid parameter. Using default (false)");
-                    sys->fPreSmoothing = false;
-                }
+                sys->fPreSmoothing = Common::StringToBoolean(param);
             }
 
             param = confSet->Get("SmoothingOption");
@@ -4741,13 +4299,7 @@ int ConfigReader::ReadSystOptions(){
         // Set KeepReferenceOverallVar
         param = confSet->Get("KeepReferenceOverallVar");
         if(param!=""){
-            std::transform(param.begin(), param.end(), param.begin(), ::toupper);
-            if(param == "FALSE") sys->fKeepReferenceOverallVar = false;
-            else if(param == "TRUE" ) sys->fKeepReferenceOverallVar = true;
-            else {
-                WriteWarningStatus("ConfigReader::ReadSystOptions", "You specified 'KeepReferenceOverallVar' option but did not provide valid parameter. Using default (true)");
-                sys->fKeepReferenceOverallVar = true;
-            }
+            sys->fKeepReferenceOverallVar = Common::StringToBoolean(param);
         }
 
         // Set ReferenceSmoothing
@@ -4806,15 +4358,7 @@ int ConfigReader::ReadSystOptions(){
         // Set DropNorm
         param = confSet->Get("NoPruning");
         if (param!="") {
-            std::transform(param.begin(), param.end(), param.begin(), ::toupper);
-            if (param == "TRUE") {
-                sys->fNoPruning = true;
-            } else if (param == "FALSE") {
-                sys->fNoPruning = false;
-            } else {
-                WriteWarningStatus("ConfigReader::ReadSystOptions", "You specified 'NoPruning' option but did not provide valid parameter. Using default (FALSE)");
-                sys->fNoPruning = false;
-            }
+            sys->fNoPruning = Common::StringToBoolean(param);
         }
 
         // Set DropNorm
@@ -4895,13 +4439,7 @@ int ConfigReader::ReadSystOptions(){
         // This will subtract linearly the relative variation on Data from each relative variation on MC
         param = confSet->Get("SubtractRefSampleVar");
         if(param!=""){
-            std::transform(param.begin(), param.end(), param.begin(), ::toupper);
-            if(param == "TRUE" ) sys->fSubtractRefSampleVar = true;// default is false
-            else if(param == "FALSE" ) sys->fSubtractRefSampleVar = false;// default is false
-            else {
-                WriteWarningStatus("ConfigReader::ReadSystOptions", "You specified 'PreSmoothing' option but did not provide valid parameter. Using default (false)");
-                sys->fSubtractRefSampleVar = false;
-            }
+            sys->fSubtractRefSampleVar = Common::StringToBoolean(param);
         }
 
         if(regions[0]!="all") sys->fRegions = regions;
@@ -5557,22 +5095,12 @@ int ConfigReader::ReadUnfoldingOptions() {
 
     param = confSet->Get("LogX");
     if (param != "") {
-        std::transform(param.begin(), param.end(), param.begin(), ::toupper);
-        if (param == "TRUE") {
-            fFitter->fUnfoldingLogX = true;
-        } else {
-            fFitter->fUnfoldingLogX = false;
-        }
+        fFitter->fUnfoldingLogX = Common::StringToBoolean(param);
     }
 
     param = confSet->Get("LogY");
     if (param != "") {
-        std::transform(param.begin(), param.end(), param.begin(), ::toupper);
-        if (param == "TRUE") {
-            fFitter->fUnfoldingLogY = true;
-        } else {
-            fFitter->fUnfoldingLogY = false;
-        }
+        fFitter->fUnfoldingLogY = Common::StringToBoolean(param);
     }
 
     param = confSet->Get("MigrationTitleX");
@@ -5587,22 +5115,12 @@ int ConfigReader::ReadUnfoldingOptions() {
 
     param = confSet->Get("MigrationLogX");
     if (param != "") {
-        std::transform(param.begin(), param.end(), param.begin(), ::toupper);
-        if (param == "TRUE") {
-            fFitter->fMigrationLogX = true;
-        } else {
-            fFitter->fMigrationLogX = false;
-        }
+        fFitter->fMigrationLogX = Common::StringToBoolean(param);
     }
 
     param = confSet->Get("MigrationLogY");
     if (param != "") {
-        std::transform(param.begin(), param.end(), param.begin(), ::toupper);
-        if (param == "TRUE") {
-            fFitter->fMigrationLogY = true;
-        } else {
-            fFitter->fMigrationLogY = false;
-        }
+        fFitter->fMigrationLogY = Common::StringToBoolean(param);
     }
 
     param = confSet->Get("MigrationTitleOffsetX");
@@ -5637,22 +5155,12 @@ int ConfigReader::ReadUnfoldingOptions() {
 
     param = confSet->Get("PlotSystematicMigrations");
     if (param != "") {
-        std::transform(param.begin(), param.end(), param.begin(), ::toupper);
-        if (param == "TRUE") {
-            fFitter->fPlotSystematicMigrations = true;
-        } else {
-            fFitter->fPlotSystematicMigrations = false;
-        }
+        fFitter->fPlotSystematicMigrations = Common::StringToBoolean(param);
     }
 
     param = confSet->Get("MigrationText");
     if (param != "") {
-        std::transform(param.begin(), param.end(), param.begin(), ::toupper);
-        if (param == "TRUE") {
-            fFitter->fMigrationText = true;
-        } else {
-            fFitter->fMigrationText = false;
-        }
+        fFitter->fMigrationText = Common::StringToBoolean(param);
     }
 
     param = confSet->Get("NominalTruthSample");
@@ -5671,12 +5179,7 @@ int ConfigReader::ReadUnfoldingOptions() {
     
     param = confSet->Get("UnfoldNormXSec");
     if (param != "") {
-        std::transform(param.begin(), param.end(), param.begin(), ::toupper);
-        if (param == "TRUE") {
-            fFitter->fUnfoldNormXSec = true;
-        } else {
-            fFitter->fUnfoldNormXSec = false;
-        }
+        fFitter->fUnfoldNormXSec = Common::StringToBoolean(param);
     }
     
     param = confSet->Get("UnfoldNormXSecBinN");
@@ -5686,12 +5189,7 @@ int ConfigReader::ReadUnfoldingOptions() {
 
     param = confSet->Get("DivideByBinWidth");
     if (param != "") {
-        std::transform(param.begin(), param.end(), param.begin(), ::toupper);
-        if (param == "TRUE") {
-            fFitter->fUnfoldingDivideByBinWidth = true;
-        } else {
-            fFitter->fUnfoldingDivideByBinWidth = false;
-        }
+        fFitter->fUnfoldingDivideByBinWidth = Common::StringToBoolean(param);
     }
 
     return 0;
@@ -5745,12 +5243,7 @@ int ConfigReader::ReadTruthSamples() {
 
         param = confSet->Get("UseForPlotting");
         if (param != "") {
-            std::transform(param.begin(), param.end(), param.begin(), ::toupper);
-            if (param == "TRUE") {
-                sample->SetUseForPlotting(true);
-            } else if (param == "FALSE") {
-                sample->SetUseForPlotting(false);
-            }
+            sample->SetUseForPlotting(Common::StringToBoolean(param));
         }
 
         param = confSet->Get("TruthDistributionPath");

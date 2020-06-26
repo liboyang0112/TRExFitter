@@ -272,6 +272,13 @@ void ScaleByBinWidth(TGraphAsymmErrors* g);
   * @return string
   */  
 std::string IntToFixLenStr(int i,int n=3);
+
+/**
+  * Case insensitive string to boolean
+  * @param string
+  * @return conversion result
+  */  
+bool StringToBoolean(std::string param);
 }
 
 #endif
