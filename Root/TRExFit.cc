@@ -5979,15 +5979,14 @@ void TRExFit::PlotNPRankingManager() const{
 //
 void TRExFit::PlotNPRanking(bool flagSysts, bool flagGammas) const{
     //
-    std::string fileToRead = fName+"/Fits/NPRanking"+fSuffix+".txt";
-    //
-    // trick to merge the ranking outputs produced in parallel:
-    std::string cmd = " if [[ `ls "+fName+"/Fits/NPRanking"+fSuffix+"_*` != \"\" ]] ; then";
-    cmd       += " if [[ ! -f "+fName+"/Fits/NPRanking"+fSuffix+".txt ]] ; then";
-    cmd       += " cat "+fName+"/Fits/NPRanking"+fSuffix+"_* > "+fileToRead+" ; ";
-    cmd       += " fi ;";
-    cmd       += " fi ;";
-    gSystem->Exec(cmd.c_str());
+    const std::string fileToRead = fName+"/Fits/NPRanking"+fSuffix+".txt";
+
+    std::ifstream in(fileToRead.c_str());
+    if (!in.good()) { // file doesnt exist
+        const std::vector<std::string>& inPaths = Common::GetFilesMatchingString(fName+"/Fits/","NPRanking"+fSuffix+"_");
+        Common::MergeTxTFiles(inPaths, fileToRead);
+    }
+
     //
     unsigned int maxNP = fRankingMaxNP;
     //
@@ -7636,16 +7635,14 @@ void TRExFit::ProduceSystSubCategoryMap(){
 // combine individual results from grouped impact evaluation into one table
 void TRExFit::BuildGroupedImpactTable() const{
     WriteInfoStatus("TRExFit::BuildGroupedImpactTable", "merging grouped impact evaluations");
-    std::string targetName = fName+"/Fits/GroupedImpact"+fSuffix+".txt";
+    const std::string targetName = fName+"/Fits/GroupedImpact"+fSuffix+".txt";
 
     if(std::ifstream(targetName).good()){
         WriteWarningStatus("TRExFit::BuildGroupedImpactTable","file " + targetName + " already exists, will not overwrite");
     }
     else{
-        std::string cmd = " if [[ `ls "+fName+"/Fits/GroupedImpact"+fSuffix+"_*` != \"\" ]] ; then";
-        cmd            += " cat "+fName+"/Fits/GroupedImpact"+fSuffix+"_* > "+targetName+" ; ";
-        cmd            += " fi ;";
-        gSystem->Exec(cmd.c_str());
+        const std::vector<std::string>& inPaths = Common::GetFilesMatchingString(fName+"/Fits/","GroupedImpact"+fSuffix+"_");
+        Common::MergeTxTFiles(inPaths, targetName);
     }
 }
 

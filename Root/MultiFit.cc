@@ -1878,15 +1878,14 @@ void MultiFit::PlotNPRanking(bool flagSysts, bool flagGammas) const {
     WriteInfoStatus("MultiFit::PlotNPRanking", "....................................");
     WriteInfoStatus("MultiFit::PlotNPRanking", "Plotting Ranking...");
     //
-    string fileToRead = fOutDir+"/Fits/NPRanking.txt";
+    const std::string fileToRead = fOutDir+"/Fits/NPRanking"+fSaveSuf+".txt";
+    std::ifstream in(fileToRead.c_str());
+    if (!in.good()) { // file doesnt exist
+        const std::vector<std::string>& inPaths = Common::GetFilesMatchingString(fOutDir+"/Fits/","NPRanking" + fSaveSuf + "_");
+        Common::MergeTxTFiles(inPaths, fileToRead);
+    }
+
     //
-    // trick to merge the ranking outputs produced in parallel:
-    string cmd = " if [[ `ls "+fOutDir+"/Fits/NPRanking_*` != \"\" ]] ; then";
-    cmd       += " if [[ `ls "+fOutDir+"/Fits/NPRanking.txt` == \"\" ]] ; then";
-    cmd       += " cat "+fOutDir+"/Fits/NPRanking_* > "+fileToRead+" ; ";
-    cmd       += " fi ;";
-    cmd       += " fi ;";
-    gSystem->Exec(cmd.c_str());
     //
     unsigned int maxNP = fFitList[0]->fRankingMaxNP;
     //
@@ -3251,16 +3250,14 @@ TH1D* MultiFit::Rebin(TH1D* h, const vector<double>& vec, bool isData) const{
 // combine individual results from grouped impact evaluation into one table
 void MultiFit::BuildGroupedImpactTable() const{
     WriteInfoStatus("MultiFit::BuildGroupedImpactTable", "merging grouped impact evaluations");
-    std::string targetName = fOutDir+"/Fits/GroupedImpact"+fSaveSuf+".txt";
+    const std::string targetName = fOutDir+"/Fits/GroupedImpact"+fSaveSuf+".txt";
 
     if(std::ifstream(targetName).good()){
         WriteWarningStatus("MultiFit::BuildGroupedImpactTable","file " + targetName + " already exists, will not overwrite");
     }
     else{
-        std::string cmd = " if [[ `ls "+fOutDir+"/Fits/GroupedImpact"+fSaveSuf+"_*` != \"\" ]] ; then";
-        cmd            += " cat "+fOutDir+"/Fits/GroupedImpact"+fSaveSuf+"_* > "+targetName+" ; ";
-        cmd            += " fi ;";
-        gSystem->Exec(cmd.c_str());
+        const std::vector<std::string>& inPaths = Common::GetFilesMatchingString(fOutDir+"/Fits/","GroupedImpact"+fSaveSuf+"_");
+        Common::MergeTxTFiles(inPaths, targetName);
     }
 }
 

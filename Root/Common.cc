@@ -28,7 +28,11 @@
 // c++ stuff
 #include <iostream>
 #include <iomanip>
+#include <filesystem>
+#include <fstream>
 #include <numeric>
+
+namespace fs = std::filesystem;
 
 //----------------------------------------------------------------------------------
 //----------------------------------------------------------------------------------
@@ -1415,4 +1419,48 @@ bool Common::StringToBoolean(std::string param) {
     if (param == "TRUE") return true;
     
     return false;
+}
+
+//__________________________________________________________________________________
+//
+std::vector<std::string> Common::GetFilesMatchingString(const std::string& folder,
+                                                        const std::string& key) {
+
+    std::vector<std::string> result;
+
+    for (const auto& ifile : fs::directory_iterator(folder)) {
+        if (ifile.path().u8string().find(key) != std::string::npos) {
+            result.emplace_back(ifile.path().u8string());
+        }
+    }
+
+    return result;
+}
+
+//__________________________________________________________________________________
+//
+void Common::MergeTxTFiles(const std::vector<std::string>& input, const std::string& out) {
+
+    std::ofstream outFile;
+    outFile.open(out.c_str(), std::ios::trunc);
+    if (!outFile.is_open() || !outFile.good()) {
+        WriteWarningStatus("Common::MergeTxTFiles", "Cannot open output file: " + out);
+        return;
+    }
+    
+    for (const auto& ifile : input) {
+        std::ifstream in(ifile.c_str());
+        if (!in.is_open() || !in.good()) {
+            WriteWarningStatus("Common::MergeTxTFiles", "Cannot open file: " + ifile);
+            continue;
+        }
+
+        std::string line;
+        while(std::getline(in, line)) {
+            outFile << line << "\n";
+        }
+        in.close();
+    }
+
+    outFile.close();
 }
