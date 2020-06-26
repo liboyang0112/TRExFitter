@@ -152,13 +152,7 @@ int ConfigReaderMulti::ReadJobOptions() {
     // Set ShowObserved
     param = confSet->Get("ShowObserved");
     if( param != ""){
-        std::transform(param.begin(), param.end(), param.begin(), ::toupper);
-        if (param == "TRUE") fMultiFitter->fShowObserved = true;
-        else if (param == "FALSE") fMultiFitter->fShowObserved = false;
-        else {
-            WriteWarningStatus("ConfigReaderMulti::ReadJobOptions", "You specified 'ShowObserved' option but you didn't provide valid setting. Using default (FALSE)");
-            fMultiFitter->fShowObserved = false;
-        }
+        fMultiFitter->fShowObserved = Common::StringToBoolean(param); 
     }
 
     // Set LimitTitle
@@ -177,49 +171,25 @@ int ConfigReaderMulti::ReadJobOptions() {
     // Set CompareLimits
     param = confSet->Get("CompareLimits");
     if( param != ""){
-        std::transform(param.begin(), param.end(), param.begin(), ::toupper);
-        if (param == "FALSE") fMultiFitter->fCompareLimits = false;
-        else if (param == "TRUE") fMultiFitter->fCompareLimits = true;
-        else {
-            WriteWarningStatus("ConfigReaderMulti::ReadJobOptions", "You specified 'CompareLimits' option but you didn't provide valid setting. Using default (TRUE)");
-            fMultiFitter->fCompareLimits = true;
-        }
+        fMultiFitter->fCompareLimits = Common::StringToBoolean(param);
     }
 
     // Ser ComparePOI
     param = confSet->Get("ComparePOI");
     if( param != ""){
-        std::transform(param.begin(), param.end(), param.begin(), ::toupper);
-        if (param == "FALSE") fMultiFitter->fComparePOI = false;
-        else if (param == "TRUE") fMultiFitter->fComparePOI = true;
-        else {
-            WriteWarningStatus("ConfigReaderMulti::ReadJobOptions", "You specified 'ComparePOI' option but you didn't provide valid setting. Using default (TRUE)");
-            fMultiFitter->fComparePOI = true;
-        }
+        fMultiFitter->fComparePOI = Common::StringToBoolean(param);
     }
 
     // Set ComparePulls
     param = confSet->Get("ComparePulls");
     if( param != "" ){
-        std::transform(param.begin(), param.end(), param.begin(), ::toupper);
-        if(param == "FALSE") fMultiFitter->fComparePulls  = false;
-        else if(param == "TRUE") fMultiFitter->fComparePulls  = true;
-        else {
-            WriteWarningStatus("ConfigReaderMulti::ReadJobOptions", "You specified 'ComparePulls' option but you didn't provide valid setting. Using default (TRUE)");
-            fMultiFitter->fComparePulls  = true;
-        }
+        fMultiFitter->fComparePulls = Common::StringToBoolean(param);
     }
 
     // Set PlotCombCorrMatrix
     param = confSet->Get("PlotCombCorrMatrix");
     if (param != ""){
-        std::transform(param.begin(), param.end(), param.begin(), ::toupper);
-        if(param == "TRUE") fMultiFitter->fPlotCombCorrMatrix  = true;
-        else if(param == "FALSE") fMultiFitter->fPlotCombCorrMatrix  = false;
-        else {
-            WriteWarningStatus("ConfigReaderMulti::ReadJobOptions", "You specified 'PlotCombCorrMatrix' option but you didn't provide valid setting. Using default (FALSE)");
-            fMultiFitter->fPlotCombCorrMatrix  = false;
-        }
+        fMultiFitter->fPlotCombCorrMatrix = Common::StringToBoolean(param);
     }
 
     // Set CorrelationThreshold
@@ -231,63 +201,31 @@ int ConfigReaderMulti::ReadJobOptions() {
     // Set UseGammasForCorr
     param = confSet->Get("UseGammasForCorr");
     if( param != ""){
-        std::transform(param.begin(), param.end(), param.begin(), ::toupper);
-        if (param == "TRUE"){
-            fMultiFitter->fuseGammasForCorr = true;
-        } else if (param == "FALSE") {
-            fMultiFitter->fuseGammasForCorr = false;
-        } else {
-            WriteWarningStatus("ConfigReaderMulti::ReadJobOptions", "You specified UseGammasForCorr option but did not provide valid parameter. Using default (false)");
-            fMultiFitter->fuseGammasForCorr = false;
-        }
+        fMultiFitter->fuseGammasForCorr = Common::StringToBoolean(param);
     }
 
     // Set Combine
     param = confSet->Get("Combine");
     if( param != ""){
-        std::transform(param.begin(), param.end(), param.begin(), ::toupper);
-        if(param == "TRUE") fMultiFitter->fCombine = true;
-        else if(param == "FALSE") fMultiFitter->fCombine = false;
-        else {
-            WriteWarningStatus("ConfigReaderMulti::ReadJobOptions", "You specified 'Combine' option but you didn't provide valid setting. Using default (FALSE)");
-            fMultiFitter->fCombine = false;
-        }
+        fMultiFitter->fCombine = Common::StringToBoolean(param);
     }
 
     // Set Compare
     param = confSet->Get("Compare");
     if( param != ""){
-        std::transform(param.begin(), param.end(), param.begin(), ::toupper);
-        if (param == "TRUE") fMultiFitter->fCompare = true;
-        else if (param == "FALSE") fMultiFitter->fCompare = false;
-        else {
-            WriteWarningStatus("ConfigReaderMulti::ReadJobOptions", "You specified 'Compare' option but you didn't provide valid setting. Using default (FALSE)");
-            fMultiFitter->fCompare = false;
-        }
+        fMultiFitter->fCompare = Common::StringToBoolean(param);
     }
 
     // Set StatOnly
     param = confSet->Get("StatOnly");
     if( param != "" ){
-        std::transform(param.begin(), param.end(), param.begin(), ::toupper);
-        if(param == "TRUE") fMultiFitter->fStatOnly = true;
-        else if(param == "FALSE") fMultiFitter->fStatOnly = false;
-        else {
-            WriteWarningStatus("ConfigReaderMulti::ReadJobOptions", "You specified 'StatOnly' option but you didn't provide valid setting. Using default (FALSE)");
-            fMultiFitter->fStatOnly = false;
-        }
+        fMultiFitter->fStatOnly = Common::StringToBoolean(param);
     }
 
     // Set IncludeStatOnly
     param = confSet->Get("IncludeStatOnly");
     if( param != ""){
-        std::transform(param.begin(), param.end(), param.begin(), ::toupper);
-        if(param == "TRUE") fMultiFitter->fIncludeStatOnly = true;
-        else if(param == "FALSE") fMultiFitter->fIncludeStatOnly = false;
-        else {
-            WriteWarningStatus("ConfigReaderMulti::ReadJobOptions", "You specified 'IncludeStatOnly' option but you didn't provide valid setting. Using default (FALSE)");
-            fMultiFitter->fIncludeStatOnly = false;
-        }
+        fMultiFitter->fIncludeStatOnly = Common::StringToBoolean(param);
     }
 
     // Set POIName
@@ -345,13 +283,7 @@ int ConfigReaderMulti::ReadJobOptions() {
     // Set CombineChByCh
     param = confSet->Get("CombineChByCh");
     if( param != ""){
-        std::transform(param.begin(), param.end(), param.begin(), ::toupper);
-        if(param == "TRUE") fMultiFitter->fCombineChByCh = true;
-        else if(param == "FALSE") fMultiFitter->fCombineChByCh = false;
-        else {
-            WriteWarningStatus("ConfigReaderMulti::ReadJobOptions", "You specified 'CombineChByCh' option but you didn't provide valid setting. Using default (TRUE)");
-            fMultiFitter->fCombineChByCh = true;
-        }
+        fMultiFitter->fCombineChByCh = Common::StringToBoolean(param);
     }
 
     // Set NPCategories
@@ -384,24 +316,13 @@ int ConfigReaderMulti::ReadJobOptions() {
     // Set FastFit
     param = confSet->Get("FastFit");
     if (param != ""){
-        std::transform(param.begin(), param.end(), param.begin(), ::toupper);
-        if( param == "TRUE" )  fMultiFitter->fFastFit = true;
-        else if( param == "FALSE" )  fMultiFitter->fFastFit = false;
-        else {
-            WriteWarningStatus("ConfigReaderMulti::ReadJobOptions", "You specified 'FastFit' option but you didn't provide valid setting. Using default (FALSE)");
-            fMultiFitter->fFastFit = false;
-        }
+        fMultiFitter->fFastFit = Common::StringToBoolean(param);
     }
 
     // Set FastFitForRanking
     param = confSet->Get("FastFitForRanking");
     if (param != ""){
-        if( param == "TRUE" )  fMultiFitter->fFastFitForRanking = true;
-        else if( param == "FALSE" )  fMultiFitter->fFastFitForRanking = false;
-        else {
-            WriteWarningStatus("ConfigReaderMulti::ReadJobOptions", "You specified 'FastFitForRanking' option but you didn't provide valid setting. Using default (FALSE)");
-            fMultiFitter->fFastFitForRanking = false;
-        }
+        fMultiFitter->fFastFitForRanking = Common::StringToBoolean(param);
     }
 
     // Set NuisParListFile
@@ -411,12 +332,7 @@ int ConfigReaderMulti::ReadJobOptions() {
     // Set PlotSoverB
     param = confSet->Get("PlotSoverB");
     if (param != ""){
-        if( param == "TRUE" ) fMultiFitter->fPlotSoverB = true;
-        else if( param == "FALSE" ) fMultiFitter->fPlotSoverB = false;
-        else {
-            WriteWarningStatus("ConfigReaderMulti::ReadJobOptions", "You specified 'PlotSoverB' option but you didn't provide valid setting. Using default (FALSE)");
-            fMultiFitter->fPlotSoverB = false;
-        }
+        fMultiFitter->fPlotSoverB = Common::StringToBoolean(param);
     }
 
     // Set SignalTitle
@@ -438,25 +354,13 @@ int ConfigReaderMulti::ReadJobOptions() {
     // Set ShowSystForPOI
     param = confSet->Get("ShowSystForPOI");
     if( param != ""){
-        std::transform(param.begin(), param.end(), param.begin(), ::toupper);
-        if(param == "TRUE") fMultiFitter->fShowSystForPOI = true;
-        else if(param == "FALSE") fMultiFitter->fShowSystForPOI = false;
-        else {
-            WriteWarningStatus("ConfigReaderMulti::ReadJobOptions", "You specified 'ShowSystForPOI' option but you didn't provide valid setting. Using default (FALSE)");
-            fMultiFitter->fShowSystForPOI = false;
-        }
+        fMultiFitter->fShowSystForPOI = Common::StringToBoolean(param);
     }
 
     // Set GetGoodnessOfFit
     param = confSet->Get("GetGoodnessOfFit");
     if( param != "" ){
-        std::transform(param.begin(), param.end(), param.begin(), ::toupper);
-        if(param == "TRUE") fMultiFitter->fGetGoodnessOfFit = true;
-        else if(param == "FALSE") fMultiFitter->fGetGoodnessOfFit = false;
-        else {
-            WriteWarningStatus("ConfigReaderMulti::ReadJobOptions", "You specified 'GetGoodnessOfFit' option but you didn't provide valid setting. Using default (FALSE)");
-            fMultiFitter->fGetGoodnessOfFit = false;
-        }
+        fMultiFitter->fGetGoodnessOfFit = Common::StringToBoolean(param);
     }
 
     // Set doLHscan
@@ -542,14 +446,7 @@ int ConfigReaderMulti::ReadJobOptions() {
     // Set Paral2D
     param = confSet->Get("Parallel2Dscan");
     if ( param != "" ) {
-        if( param == "TRUE" ){
-            fMultiFitter->fParal2D = true;
-        } else if (param == "FALSE") {
-            fMultiFitter->fParal2D = false;
-        } else {
-            WriteWarningStatus("ConfigReaderMulti::ReadJobOptions", "You specified 'Parallel2Dscan' option but did not provide valid parameter. Using default (false)");
-            fMultiFitter->fParal2D = false;
-        }
+        fMultiFitter->fParal2D = Common::StringToBoolean(param);
     }
 
     // Set Paral2Dstep
@@ -565,12 +462,7 @@ int ConfigReaderMulti::ReadJobOptions() {
     // Set ShowTotalOnly
     param = confSet->Get("ShowTotalOnly");
     if ( param != "" ) {
-        std::transform(param.begin(), param.end(), param.begin(), ::toupper);
-        if (param == "TRUE") {
-            fMultiFitter->fShowTotalOnly = true;
-        } else if (param == "FALSE"){
-            fMultiFitter->fShowTotalOnly = false;
-        }
+        fMultiFitter->fShowTotalOnly = Common::StringToBoolean(param);
     }
 
     // Set LHscanSteps
@@ -609,15 +501,7 @@ int ConfigReaderMulti::ReadJobOptions() {
     // Set HEPDataFormat
     param = confSet->Get("HEPDataFormat");
     if( param != ""){
-        std::transform(param.begin(), param.end(), param.begin(), ::toupper);
-        if (param == "TRUE") {
-            fMultiFitter->fHEPDataFormat = true;
-        } else if (param == "FALSE") {
-            fMultiFitter->fHEPDataFormat = false;
-        } else {
-            WriteWarningStatus("ConfigReaderMulti::ReadJobOptions", "You specified 'HEPDataFormat' option but did not provide a valid option, using default (false)");
-            fMultiFitter->fHEPDataFormat = false;
-        }
+        fMultiFitter->fHEPDataFormat = Common::StringToBoolean(param);
     }
     
     // Set FitStrategy
@@ -647,29 +531,13 @@ int ConfigReaderMulti::ReadLimitOptions(){
     // Set LimitBlind
     param = confSet->Get("LimitBlind");
     if( param != "" ){
-        std::transform(param.begin(), param.end(), param.begin(), ::toupper);
-        if( param == "TRUE" ){
-            fMultiFitter->fLimitIsBlind = true;
-        } else if ( param == "FALSE" ){
-            fMultiFitter->fLimitIsBlind = false;
-        } else {
-            WriteWarningStatus("ConfigReaderMulti::ReadLimitOptions", "You specified 'LimitBlind' option but did not provide valid parameter. Using default (false)");
-            fMultiFitter->fLimitIsBlind = false;
-        }
+        fMultiFitter->fLimitIsBlind = Common::StringToBoolean(param);
     }
 
     // Set SignalInjection
     param = confSet->Get("SignalInjection");
     if( param != "" ){
-        std::transform(param.begin(), param.end(), param.begin(), ::toupper);
-        if( param == "TRUE" ){
-            fMultiFitter->fSignalInjection = true;
-        } else if ( param == "FALSE" ){
-            fMultiFitter->fSignalInjection = false;
-        } else {
-            WriteWarningStatus("ConfigReaderMulti::ReadLimitOptions", "You specified 'SignalInjection' option but did not provide valid parameter. Using default (false)");
-            fMultiFitter->fSignalInjection = false;
-        }
+        fMultiFitter->fSignalInjection = Common::StringToBoolean(param);
     }
 
     // Set SignalInjectionValue
@@ -720,15 +588,7 @@ int ConfigReaderMulti::ReadSignificanceOptions(){
     // Set LimitBlind
     param = confSet->Get("SignificanceBlind");
     if( param != "" ){
-        std::transform(param.begin(), param.end(), param.begin(), ::toupper);
-        if( param == "TRUE" ){
-            fMultiFitter->fSignificanceIsBlind = true;
-        } else if ( param == "FALSE" ){
-            fMultiFitter->fSignificanceIsBlind = false;
-        } else {
-            WriteWarningStatus("ConfigReaderMulti::ReadSignificanceOptions", "You specified 'SignificanceBlind' option but did not provide valid parameter. Using default (false)");
-            fMultiFitter->fSignificanceIsBlind = false;
-        }
+        fMultiFitter->fSignificanceIsBlind = Common::StringToBoolean(param);
     }
 
     // Set POIAsimov
