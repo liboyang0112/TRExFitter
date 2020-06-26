@@ -9200,6 +9200,12 @@ void TRExFit::PlotUnfold(TH1D* data,
         WriteWarningStatus("TRExFit::PlotUnfold", "No MC samples set for plotting. Will not create the final plots");
         return;
     }
+    
+    if(fUnfoldNormXSec){
+        for (auto& itruth : mc) {
+            itruth->Scale(1./itruth->Integral());
+        }
+    }
 
     if (fUnfoldingDivideByBinWidth) {
         Common::ScaleByBinWidth(data);
@@ -9240,12 +9246,6 @@ void TRExFit::PlotUnfold(TH1D* data,
     total->GetYaxis()->SetTitleSize(0.07);
     total->GetYaxis()->SetTitleOffset(1.1);
 
-    if(fUnfoldNormXSec){
-        for (auto& itruth : mc) {
-            itruth->Scale(1./itruth->Integral());
-        }
-    }
-    
     std::unique_ptr<TH1> h_dummy(static_cast<TH1*>(mc[0]->Clone()));
     const double corr = fUnfoldingScaleRangeY > 0 ? fUnfoldingScaleRangeY : (fUnfoldingLogY ? 1e6 : 1.5);
     h_dummy->GetYaxis()->SetRangeUser(0.0001, corr*h_dummy->GetMaximum());
