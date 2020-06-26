@@ -1442,7 +1442,7 @@ std::vector<std::string> Common::GetFilesMatchingString(const std::string& folde
 void Common::MergeTxTFiles(const std::vector<std::string>& input, const std::string& out) {
 
     std::ofstream outFile;
-    outFile.open(out.c_str());
+    outFile.open(out.c_str(), std::ios::trunc);
     if (!outFile.is_open() || !outFile.good()) {
         WriteWarningStatus("Common::MergeTxTFiles", "Cannot open output file: " + out);
         return;
@@ -1457,7 +1457,7 @@ void Common::MergeTxTFiles(const std::vector<std::string>& input, const std::str
 
         std::string line;
         while(std::getline(in, line)) {
-            outFile << line;
+            outFile << line << "\n";
         }
         in.close();
     }
