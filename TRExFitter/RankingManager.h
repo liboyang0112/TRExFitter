@@ -7,12 +7,24 @@
 #include <vector>
 
 class FitResults;
+class FittingTool;
 class RooDataSet;
 class RooWorkspace;
+class RooSimultaneous;
 class NormFactor;
+
+namespace RooStats {
+    class ModelConfig;
+}
 
 class RankingManager {
 public:
+
+    struct RankingValues {
+        double central;
+        double up;
+        double down;
+    };
 
     explicit RankingManager();
     ~RankingManager();
@@ -41,6 +53,16 @@ public:
                     RooDataSet* data,
                     const std::vector<std::shared_ptr<NormFactor> >& nfs) const;
 
+    double RunSingleFit(FittingTool* fitTool,
+                        RooWorkspace* ws,       
+                        RooStats::ModelConfig *mc,
+                        RooSimultaneous *simPdf,
+                        RooDataSet* data,
+                        const std::pair<std::string, bool>& np,
+                        const bool isUp,
+                        const bool isPrefit,
+                        const RankingValues& values,
+                        const double muhat) const;
 private:
 
     std::string fOutputPath;

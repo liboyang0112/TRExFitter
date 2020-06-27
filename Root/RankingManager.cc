@@ -77,11 +77,6 @@ void RankingManager::RunRanking(FitResults* fitResults,
         exit(EXIT_FAILURE);
     }
     
-    std::map< std::string,double > muVarUp;
-    std::map< std::string,double > muVarDown;
-    std::map< std::string,double > muVarNomUp;
-    std::map< std::string,double > muVarNomDown;
-
     if (fInjectGlobalObservables && !fFitValues.empty()) {
         FitUtils::InjectGlobalObservables(ws, fFitValues);
     }
@@ -129,109 +124,78 @@ void RankingManager::RunRanking(FitResults* fitResults,
         }
         //
         // Getting the postfit values of the nuisance parameter
-        double central = fitResults -> GetNuisParValue(  npName);
-        double up      = fitResults -> GetNuisParErrUp(  npName);
-        double down    = fitResults -> GetNuisParErrDown(npName);
+        const double central = fitResults -> GetNuisParValue(  npName);
+        const double up      = fitResults -> GetNuisParErrUp(  npName);
+        const double down    = fitResults -> GetNuisParErrDown(npName);
         
         outFile << iNP.first << "   " << central << " +" << fabs(up) << " -" << fabs(down)<< "  ";
         //
         // Experimental: reduce the range of ranking
-        if(TRExFitter::OPTION["ReduceRanking"]!=0){
-            up   *= TRExFitter::OPTION["ReduceRanking"];
-            down *= TRExFitter::OPTION["ReduceRanking"];
-        }
+
+        RankingManager::RankingValues values;
+        values.central = central;
+        values.up = up;
+        values.down = down;
+
         //
-        // Set the NP to its post-fit *up* variation and refit to get the fitted POI
-        ws->loadSnapshot("tmp_snapshot");
-        fitTool.ResetFixedNP();
-        // fix NPs that are fixed in the config
-        // this has nothing to do with fixing NPs for the ranking
-        // this is just needed to be compatible with the normal fit
-        if(fFitFixedNPs.size()>0){
-            for(const auto& nuisParToFix : fFitFixedNPs){
-                fitTool.FixNP(nuisParToFix.first,nuisParToFix.second);
-            }
-        }
-
-        fitTool.FixNP( iNP.first, central + std::abs(up));
-        fitTool.FitPDF( mc, simPdf, data );
-        muVarUp[iNP.first]   = (fitTool.ExportFitResultInMap())[fPOIName];
-
-        // Set the NP to its post-fit *down* variation and refit to get the fitted POI
-        ws->loadSnapshot("tmp_snapshot");
-        fitTool.ResetFixedNP();
-        fitTool.FixNP(iNP.first, central - std::abs(down));
-        if(fFitFixedNPs.size()>0){
-            for(const auto& nuisParToFix : fFitFixedNPs){
-                fitTool.FixNP(nuisParToFix.first,nuisParToFix.second);
-            }
-        }
-        fitTool.FitPDF( mc, simPdf, data );
-        muVarDown[iNP.first] = (fitTool.ExportFitResultInMap())[fPOIName];
-
-        double dMuUp   = muVarUp[iNP.first]-muhat;
-        double dMuDown = muVarDown[iNP.first]-muhat;
-
-        // Experimental: reduce the range of ranking
-        if(TRExFitter::OPTION["ReduceRanking"]!=0){
-            dMuUp   /= TRExFitter::OPTION["ReduceRanking"];
-            dMuDown /= TRExFitter::OPTION["ReduceRanking"];
-        }
+        double dMuUp   = RunSingleFit(&fitTool, ws, mc, simPdf, data, iNP, true, false, values, muhat);
+        double dMuDown = RunSingleFit(&fitTool, ws, mc, simPdf, data, iNP, false, false, values, muhat);
 
         outFile << dMuUp << "   " << dMuDown << "  ";
 
-        if(iNP.second){
-            muVarNomUp[  iNP.first] = muhat;
-            muVarNomDown[iNP.first] = muhat;
-        }
-        else{
-            up   = 1.;
-            down = 1.;
-
-            // Experimental: reduce the range of ranking
-            if(TRExFitter::OPTION["ReduceRanking"]!=0){
-                up   *= TRExFitter::OPTION["ReduceRanking"];
-                down *= TRExFitter::OPTION["ReduceRanking"];
-            }
-
-            // Set the NP to its pre-fit *up* variation and refit to get the fitted POI (pre-fit impact on POI)
-            ws->loadSnapshot("tmp_snapshot");
-            fitTool.ResetFixedNP();
-            fitTool.FixNP( iNP.first, central + std::abs(up));
-            fitTool.FitPDF( mc, simPdf, data );
-            if(fFitFixedNPs.size()>0){
-                for(const auto& nuisParToFix : fFitFixedNPs){
-                    fitTool.FixNP(nuisParToFix.first,nuisParToFix.second);
-                }
-            }
-            muVarNomUp[iNP.first]   = (fitTool.ExportFitResultInMap())[fPOIName];
-            //
-            // Set the NP to its pre-fit *down* variation and refit to get the fitted POI (pre-fit impact on POI)
-            ws->loadSnapshot("tmp_snapshot");
-            fitTool.ResetFixedNP();
-            fitTool.FixNP(iNP.first, central - std::abs(down));
-            if(fFitFixedNPs.size()>0){
-                for(const auto& nuisParToFix : fFitFixedNPs){
-                    fitTool.FixNP(nuisParToFix.first,nuisParToFix.second);
-                }
-            }
-            fitTool.FitPDF( mc, simPdf, data );
-            //
-            muVarNomDown[iNP.first] = (fitTool.ExportFitResultInMap())[fPOIName];
-        }
-        dMuUp   = muVarNomUp[iNP.first]-muhat;
-        dMuDown = muVarNomDown[iNP.first]-muhat;
-        //
-        // Experimental: reduce the range of ranking
-        if(TRExFitter::OPTION["ReduceRanking"]!=0){
-            dMuUp   /= TRExFitter::OPTION["ReduceRanking"];
-            dMuDown /= TRExFitter::OPTION["ReduceRanking"];
-        }
-        //
-       outFile << dMuUp << "   " << dMuDown << " " << std::endl;
+        dMuUp   = RunSingleFit(&fitTool, ws, mc, simPdf, data, iNP, true, true, values, muhat);
+        dMuDown = RunSingleFit(&fitTool, ws, mc, simPdf, data, iNP, false, true, values, muhat);
+        
+        outFile << dMuUp << "   " << dMuDown << " " << std::endl;
 
     }
  
     ws->loadSnapshot("tmp_snapshot");
     outFile.close();
+}
+
+double RankingManager::RunSingleFit(FittingTool* fitTool,
+                                    RooWorkspace* ws,       
+                                    RooStats::ModelConfig *mc,
+                                    RooSimultaneous *simPdf,
+                                    RooDataSet* data,
+                                    const std::pair<std::string, bool>& np,
+                                    const bool isUp,
+                                    const bool isPrefit,
+                                    const RankingManager::RankingValues& values,
+                                    const double muhat) const {
+
+    if (isPrefit && np.second) {
+        return 0;
+    }    
+
+    ws->loadSnapshot("tmp_snapshot");
+    fitTool->ResetFixedNP();
+    if(fFitFixedNPs.size()>0){
+        for(const auto& nuisParToFix : fFitFixedNPs){
+            fitTool->FixNP(nuisParToFix.first,nuisParToFix.second);
+        }
+    }
+
+    double shift = 1.0;
+    if (isPrefit) {
+       shift = isUp ? 1. : -1.;
+    } else {
+       shift = isUp ? std::fabs(values.up) : -std::fabs(values.down);
+    }
+
+    if(TRExFitter::OPTION["ReduceRanking"]!=0){
+        shift *= TRExFitter::OPTION["ReduceRanking"];
+    }
+
+    fitTool->FixNP( np.first, values.central + shift);
+    fitTool->FitPDF( mc, simPdf, data );
+
+    double result = (fitTool->ExportFitResultInMap())[fPOIName] - muhat;
+
+    if(TRExFitter::OPTION["ReduceRanking"]!=0){
+        result /= TRExFitter::OPTION["ReduceRanking"];
+    }
+
+    return result;
 }
