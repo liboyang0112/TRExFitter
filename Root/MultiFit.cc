@@ -7,6 +7,7 @@
 #include "TRExFitter/CorrelationMatrix.h"
 #include "TRExFitter/FitResults.h"
 #include "TRExFitter/FittingTool.h"
+#include "TRExFitter/FitUtils.h"
 #include "TRExFitter/LimitEvent.h"
 #include "TRExFitter/NormFactor.h"
 #include "TRExFitter/NuisParameter.h"
@@ -424,7 +425,7 @@ std::map < std::string, double > MultiFit::FitCombinedWS(int fitType, const std:
         exit(EXIT_FAILURE);
     }
 
-    ApplyExternalConstraints(ws, &fitTool, simPdf);
+    FitUtils::ApplyExternalConstraints(ws, &fitTool, simPdf, GetFitNormFactors());
 
     // Performs the fit
     gSystem -> mkdir((fOutDir+"/Fits/").c_str(),true);
@@ -1768,7 +1769,7 @@ void MultiFit::ProduceNPRanking( string NPnames/*="all"*/ ) const{
     }
     const double muhat = fit->fFitResults -> GetNuisParValue( fPOI );
     
-    ApplyExternalConstraints(ws, &fitTool, simPdf);
+    FitUtils::ApplyExternalConstraints(ws, &fitTool, simPdf, GetFitNormFactors());
 
     for(unsigned int i=0;i<nuisPars.size();i++){
 
@@ -3263,46 +3264,20 @@ void MultiFit::BuildGroupedImpactTable() const{
 
 //__________________________________________________________________________________
 //
-void MultiFit::ApplyExternalConstraints(RooWorkspace* ws,
-                                        FittingTool* fitTool,
-                                        RooSimultaneous* simPdf) const {
-
-    // Tikhonov regularization (for unfolding)
-    RooArgList l;
-    std::vector<double> nomVec;
-    std::vector<double> tauVec;
+std::vector<std::shared_ptr<NormFactor> > MultiFit::GetFitNormFactors() const {
+    std::vector<std::shared_ptr<NormFactor> > result;
+    
     std::vector<std::string> names; 
     for (const auto& ifit : fFitList) {
         if (!ifit->fUseInFit) continue;
         for(const auto& nf : ifit->fNormFactors) {
-            if(nf->fTau == 0) continue;
-
             // only add the unique NFs
             if (std::find(names.begin(), names.end(), nf->fName) != names.end()) continue;
             names.emplace_back(nf->fName);
 
-            l.add(*ws->var(nf->fName.c_str()));
-            nomVec.emplace_back(nf->fNominal);
-            tauVec.emplace_back(nf->fTau);
+            result.emplace_back(nf);
         }
     }
 
-    if(tauVec.empty()) return;
-
-    TVectorD nominal(nomVec.size());
-    TMatrixDSym cov(tauVec.size());
-    for(unsigned int i_tau = 0; i_tau < tauVec.size(); ++i_tau) {
-        nominal(i_tau) = nomVec[i_tau];
-        cov(i_tau,i_tau) = (1./tauVec[i_tau]) * (1./tauVec[i_tau]);
-    }
-    RooMultiVarGaussian r("regularization","regularization",l,nominal,cov);
-    ws->import(r);
-    ws->defineSet("myConstraints","regularization");
-    simPdf->setStringAttribute("externalConstraints","myConstraints");
-
-    if(simPdf->getStringAttribute("externalConstraints")) {
-        WriteInfoStatus("MultiFit::ApplyExternalConstraints",Form("Building NLL with external constraints %s",simPdf->getStringAttribute("externalConstraints")));
-        const RooArgSet* externalConstraints = ws->set(simPdf->getStringAttribute("externalConstraints"));
-        fitTool->SetExternalConstraints( externalConstraints );
-    }
+    return result;
 }

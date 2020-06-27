@@ -469,17 +469,6 @@ public:
                                const std::string& regionName,
                                const std::string& systematicName) const;
 
-
-    /**
-      * A helper function to set external constraints
-      * @param Workspace to be fitted
-      * @param Fitting tool used for fitting
-      * @param RooSimultaneous
-      */ 
-    void ApplyExternalConstraints(RooWorkspace* ws,
-                                  FittingTool* fitTool,
-                                  RooSimultaneous* simPdf) const;
-
     /**
       * A helper function to force shape on some systematics
       */ 
