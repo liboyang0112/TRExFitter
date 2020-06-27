@@ -5659,7 +5659,6 @@ void TRExFit::ProduceNPRanking( std::string NPnames/*="all"*/ ){
             WriteInfoStatus("TRExFit::ProduceNPRanking","-------------------------------------------");
             WriteInfoStatus("TRExFit::ProduceNPRanking","Performing fit on regions with DataType = DATA to get NPs to inject in Asimov...");
             std::vector < std:: string > regionsForDataFit = ListRegionsToFit(Region::REALDATA);
-            std::map < std::string, int > regionForDataFitDataType = MapRegionDataTypes(regionsForDataFit);
             //
             // Creates a combined workspace with the regions to be used *in the data fit*
             //

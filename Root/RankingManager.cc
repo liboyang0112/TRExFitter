@@ -130,7 +130,6 @@ void RankingManager::RunRanking(FitResults* fitResults,
         
         outFile << iNP.first << "   " << central << " +" << fabs(up) << " -" << fabs(down)<< "  ";
         //
-        // Experimental: reduce the range of ranking
 
         RankingManager::RankingValues values;
         values.central = central;
@@ -184,6 +183,7 @@ double RankingManager::RunSingleFit(FittingTool* fitTool,
        shift = isUp ? std::fabs(values.up) : -std::fabs(values.down);
     }
 
+    // Experimental: reduce the range of ranking
     if(TRExFitter::OPTION["ReduceRanking"]!=0){
         shift *= TRExFitter::OPTION["ReduceRanking"];
     }
