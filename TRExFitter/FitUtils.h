@@ -1,6 +1,7 @@
 #ifndef FITUTILS_H
 #define FITUTILS_H
 
+#include <map>
 #include <memory>
 #include <vector>
 
@@ -28,6 +29,13 @@ void ApplyExternalConstraints(RooWorkspace* ws,
  * @param workspace
  */
 void SetBinnedLikelihoodOptimisation(RooWorkspace* ws);
+
+/**
+ * A helper function to injects values of NPs
+ * @param workspace
+ * @param map of NP values
+ */
+void InjectGlobalObservables(RooWorkspace* ws, const std::map< std::string, double >& npValues);
 }
 
 #endif
