@@ -1744,375 +1744,19 @@ void MultiFit::PlotNPRanking(bool flagSysts, bool flagGammas) const {
         Common::MergeTxTFiles(inPaths, fileToRead);
     }
 
-    //
-    //
-    unsigned int maxNP = fFitList[0]->fRankingMaxNP;
-    //
-    string paramname;
-    double nuiphat;
-    double nuiperrhi;
-    double nuiperrlo;
-    double PoiUp;
-    double PoiDown;
-    double PoiNomUp;
-    double PoiNomDown;
-    std::vector<string> parname;
-    std::vector<double> nuhat;
-    std::vector<double> nuerrhi;
-    std::vector<double> nuerrlo;
-    std::vector<double> poiup;
-    std::vector<double> poidown;
-    std::vector<double> poinomup;
-    std::vector<double> poinomdown;
-    std::vector<double> number;
-    
-    std::vector<YamlConverter::RankingContainer> containerVec;
+    RankingManager manager{};
+    manager.SetOutputPath(fileToRead);
+    manager.SetAtlasLabel(fFitList[0]->fAtlasLabel);
+    manager.SetLumiLabel(fFitList[0]->fLumiLabel);
+    manager.SetCmeLabel(fFitList[0]->fCmeLabel);
+    manager.SetUseHEPDataFormat(fHEPDataFormat);
+    manager.SetName(fOutDir);
+    manager.SetSuffix(fSaveSuf);
+    manager.SetMaxNPPlot(fFitList[0]->fRankingMaxNP);
+    manager.SetRankingPOIName(fFitList[0]->fRankingPOIName);
+    manager.SetRankingCanvasSize(fFitList[0]->fNPRankingCanvasSize);
 
-    ifstream fin( fileToRead.c_str() );
-    fin >> paramname >> nuiphat >> nuiperrhi >> nuiperrlo >> PoiUp >> PoiDown >> PoiNomUp >> PoiNomDown;
-    if (paramname=="Luminosity"){
-        WriteErrorStatus("MultiFit::PlotNPRanking", "Systematic called \"Luminosity\" found. This creates issues for the ranking plot. Skipping. Suggestion: rename this systematic as \"Lumi\" or \"luminosity\"");
-        fin >> paramname >> nuiphat >> nuiperrhi >> nuiperrlo >> PoiUp >> PoiDown >> PoiNomUp >> PoiNomDown;
-    }
-    while (!fin.eof()){
-        if(paramname.find("stat")!=string::npos && !flagGammas){
-            fin >> paramname >> nuiphat >> nuiperrhi >> nuiperrlo >> PoiUp >> PoiDown >> PoiNomUp >> PoiNomDown;
-            if (paramname=="Luminosity"){
-                WriteErrorStatus("MultiFit::PlotNPRanking", "Systematic called \"Luminosity\" found. This creates issues for the ranking plot. Skipping. Suggestion: rename this systematic as \"Lumi\" or \"luminosity\"");
-                fin >> paramname >> nuiphat >> nuiperrhi >> nuiperrlo >> PoiUp >> PoiDown >> PoiNomUp >> PoiNomDown;
-            }
-            continue;
-        }
-        if(paramname.find("stat")==string::npos && !flagSysts){
-            fin >> paramname >> nuiphat >> nuiperrhi >> nuiperrlo >> PoiUp >> PoiDown >> PoiNomUp >> PoiNomDown;
-            if (paramname=="Luminosity"){
-                WriteErrorStatus("MultiFit::PlotNPRanking", "Systematic called \"Luminosity\" found. This creates issues for the ranking plot. Skipping. Suggestion: rename this systematic as \"Lumi\" or \"luminosity\"");
-                fin >> paramname >> nuiphat >> nuiperrhi >> nuiperrlo >> PoiUp >> PoiDown >> PoiNomUp >> PoiNomDown;
-            }
-            continue;
-        }
-        parname.push_back(paramname);
-        nuhat.push_back(nuiphat);
-        nuerrhi.push_back(nuiperrhi);
-        nuerrlo.push_back(nuiperrlo);
-        poiup.push_back(PoiUp);
-        poidown.push_back(PoiDown);
-        poinomup.push_back(PoiNomUp);
-        poinomdown.push_back(PoiNomDown);
-        
-        YamlConverter::RankingContainer container;
-        container.name = paramname;        
-        container.nphat = nuiphat;        
-        container.nperrhi = nuiperrhi;        
-        container.nperrlo = nuiperrlo; 
-        container.poihi = PoiUp;       
-        container.poilo = PoiDown;       
-        container.poiprehi = PoiNomUp;       
-        container.poiprelo = PoiNomDown;       
-
-        containerVec.emplace_back(std::move(container));
-        
-        fin >> paramname >> nuiphat >> nuiperrhi >> nuiperrlo >> PoiUp >> PoiDown >> PoiNomUp >> PoiNomDown;
-        if (paramname=="Luminosity"){
-            WriteErrorStatus("MultiFit::PlotNPRanking", "Systematic called \"Luminosity\" found. This creates issues for the ranking plot. Skipping. Suggestion: rename this systematic as \"Lumi\" or \"luminosity\"");
-            fin >> paramname >> nuiphat >> nuiperrhi >> nuiperrlo >> PoiUp >> PoiDown >> PoiNomUp >> PoiNomDown;
-        }
-    }
-    
-    {
-        YamlConverter converter{};
-        converter.WriteRanking(containerVec, fOutDir+"/Ranking.yaml");
-        if (fHEPDataFormat) {
-            converter.SetLumi(Common::ReplaceString(fFitList[0]->fLumiLabel, " fb^{-1}", ""));
-            converter.SetCME(Common::ReplaceString(fFitList[0]->fCmeLabel, " TeV", "000"));
-            converter.WriteRankingHEPData(containerVec, fOutDir);
-        }
-    }
-
-    unsigned int SIZE = parname.size();
-    number.push_back(0.5);
-    for (unsigned int i=1;i<SIZE;i++){
-        number.push_back(i+0.5);
-        double sumi = 0.0;
-        int index=-1;
-        sumi += std::max( std::abs(poiup[i]),std::abs(poidown[i]) );
-        for (unsigned int j=1;j<=i;j++){
-            double sumii = 0.0;
-            sumii += std::max( std::abs(poiup[i-j]),std::abs(poidown[i-j]) );
-            if (sumi<sumii){
-                if (index==-1){
-                    swap(poiup[i],poiup[i-j]);
-                    swap(poidown[i],poidown[i-j]);
-                    swap(poinomup[i],poinomup[i-j]);
-                    swap(poinomdown[i],poinomdown[i-j]);
-                    swap(nuhat[i],nuhat[i-j]);
-                    swap(nuerrhi[i],nuerrhi[i-j]);
-                    swap(nuerrlo[i],nuerrlo[i-j]);
-                    swap(parname[i],parname[i-j]);
-                    index=i-j;
-                }
-                else{
-                    swap(poiup[index],poiup[i-j]);
-                    swap(poidown[index],poidown[i-j]);
-                    swap(poinomup[index],poinomup[i-j]);
-                    swap(poinomdown[index],poinomdown[i-j]);
-                    swap(nuhat[index],nuhat[i-j]);
-                    swap(nuerrhi[index],nuerrhi[i-j]);
-                    swap(nuerrlo[index],nuerrlo[i-j]);
-                    swap(parname[index],parname[i-j]);
-                    index=i-j;
-                }
-            }
-            else{
-                break;
-            }
-        }
-    }
-    number.push_back(parname.size()-0.5);
-
-    double poimax = 0;
-    for (unsigned int i=0;i<SIZE;i++) {
-        poimax = std::max(poimax,std::max( std::abs(poiup[i]),std::abs(poidown[i]) ));
-        poimax = std::max(poimax,std::max( std::abs(poinomup[i]),std::abs(poinomdown[i]) ));
-        nuerrlo[i] = std::abs(nuerrlo[i]);
-    }
-    poimax *= 1.2;
-
-    for (unsigned int i=0;i<SIZE;i++) {
-        poiup[i]     *= (2./poimax);
-        poidown[i]   *= (2./poimax);
-        poinomup[i]  *= (2./poimax);
-        poinomdown[i]*= (2./poimax);
-    }
-
-    // Resttrict to the first N
-    if(SIZE>maxNP) SIZE = maxNP;
-
-    // Graphical part - rewritten taking DrawPulls in TRExFitter
-    double lineHeight  =  30.;
-    double offsetUp    =  60.; // external
-    double offsetDown  =  60.;
-    double offsetUp1   = 100.; // internal
-    double offsetDown1 =  15.;
-    int offset = offsetUp + offsetDown + offsetUp1 + offsetDown1;
-    int newHeight = offset + SIZE*lineHeight;
-
-    double xmin = -2.;
-    double xmax =  2.;
-    double max  =  0.;
-
-    TGraphAsymmErrors g{};
-    TGraphAsymmErrors g1{};
-    TGraphAsymmErrors g2{};
-    TGraphAsymmErrors g1a{};
-    TGraphAsymmErrors g2a{};
-
-    int idx = 0;
-    std::vector< string > Names;
-    std::string parTitle;
-
-    for(unsigned int i = parname.size()-SIZE; i<parname.size(); ++i){
-        g.SetPoint(idx, nuhat[i],  idx+0.5);
-        g.SetPointEXhigh(      idx, nuerrhi[i]);
-        g.SetPointEXlow(       idx, nuerrlo[i]);
-
-        g1.SetPoint(      idx, 0.,idx+0.5);
-        g1.SetPointEXhigh(idx, poiup[i]);
-        g1.SetPointEXlow( idx, 0.);
-        g1.SetPointEYhigh(idx, 0.4);
-        g1.SetPointEYlow( idx, 0.4);
-
-        g2.SetPoint(      idx, 0.,idx+0.5);
-        g2.SetPointEXhigh(idx, poidown[i]);
-        g2.SetPointEXlow( idx, 0.);
-        g2.SetPointEYhigh(idx, 0.4);
-        g2.SetPointEYlow( idx, 0.4);
-
-        g1a.SetPoint(      idx, 0.,idx+0.5);
-        g1a.SetPointEXhigh(idx, poinomup[i]);
-        g1a.SetPointEXlow( idx, 0.);
-        g1a.SetPointEYhigh(idx, 0.4);
-        g1a.SetPointEYlow( idx, 0.4);
-
-        g2a.SetPoint(      idx, 0.,idx+0.5);
-        g2a.SetPointEXhigh(idx, poinomdown[i]);
-        g2a.SetPointEXlow( idx, 0.);
-        g2a.SetPointEYhigh(idx, 0.4);
-        g2a.SetPointEYlow( idx, 0.4);
-        if(parname[i].find("gamma")!=string::npos || parname[i].find("stat_")!=string::npos){
-            // get name of the region
-            std::vector<std::string> tmpVec = Vectorize(parname[i],'_');
-            int nWords = tmpVec.size();
-            std::string regName = tmpVec[2];
-            for(int i_word=3;i_word<nWords-2;i_word++){
-                regName += tmpVec[i_word];
-            }
-            // find the short label of this region
-            std::string regTitle = regName;
-            for(auto& ifit : fFitList) {
-                if (!ifit->fUseInFit) continue;
-                for( int i_ch = 0; i_ch < ifit->fNRegions; i_ch++ ){
-                    if(ifit->fRegions[i_ch]->fName==regName){
-                        regTitle = ifit->fRegions[i_ch]->fShortLabel;
-                        break;
-                    }
-                }
-            }
-            // build the title of the nuis par
-            parTitle = "#gamma (" + regTitle + " bin " + tmpVec[nWords-1] + ")";
-        }
-        else parTitle = TRExFitter::SYSTMAP[ parname[i] ];
-
-        if(parTitle==""){
-            parTitle = parname[i];
-        }
-
-        Names.push_back(parTitle);
-
-        idx ++;
-        if(idx > max)  max = idx;
-    }
-
-    TCanvas c("c","c",600,newHeight);
-    c.SetTicks(0,0);
-    gPad->SetLeftMargin(0.4);
-    gPad->SetRightMargin(0.05);
-    gPad->SetTopMargin(1.*offsetUp/newHeight);
-    gPad->SetBottomMargin(1.*offsetDown/newHeight);
-
-    TH1D h_dummy("h_dummy","h_dummy",10,xmin,xmax);
-    h_dummy.SetMaximum( SIZE + offsetUp1/lineHeight   );
-    h_dummy.SetMinimum(      - offsetDown1/lineHeight );
-    h_dummy.SetLineWidth(0);
-    h_dummy.SetFillStyle(0);
-    h_dummy.SetLineColor(kWhite);
-    h_dummy.SetFillColor(kWhite);
-    h_dummy.GetYaxis()->SetLabelSize(0);
-    h_dummy.Draw();
-    h_dummy.GetYaxis()->SetNdivisions(0);
-    for(int i_bin=0;i_bin<h_dummy.GetNbinsX()+1;i_bin++){
-        h_dummy.SetBinContent(i_bin,-10);
-    }
-
-    g1.SetFillColor(kAzure-4);
-    g2.SetFillColor(kCyan);
-    g1.SetLineColor(g1.GetFillColor());
-    g2.SetLineColor(g2.GetFillColor());
-
-    g1a.SetFillColor(kWhite);
-    g2a.SetFillColor(kWhite);
-    g1a.SetLineColor(kAzure-4);
-    g2a.SetLineColor(kCyan);
-    g1a.SetFillStyle(0);
-    g2a.SetFillStyle(0);
-    g1a.SetLineWidth(1);
-    g2a.SetLineWidth(1);
-
-    g.SetLineWidth(2);
-
-    g1a.Draw("5 same");
-    g2a.Draw("5 same");
-    g1.Draw("2 same");
-    g2.Draw("2 same");
-    g.Draw("p same");
-
-    TLatex systs{};
-    systs.SetTextAlign(32);
-    systs.SetTextSize( systs.GetTextSize()*0.8 );
-    for(int i=0;i<max;i++){
-        systs.DrawLatex(xmin-0.1,i+0.5,Names[i].c_str());
-    }
-    h_dummy.GetXaxis()->SetLabelSize( h_dummy.GetXaxis()->GetLabelSize()*0.9 );
-    h_dummy.GetXaxis()->CenterTitle();
-    h_dummy.GetXaxis()->SetTitle("(#hat{#theta}-#theta_{0})/#Delta#theta");
-    h_dummy.GetXaxis()->SetTitleOffset(1.2);
-
-    TGaxis axis_up( -2, SIZE + (offsetUp1)/lineHeight, 2, SIZE + (offsetUp1)/lineHeight, -poimax,poimax, 510, "-" );
-    axis_up.SetLabelOffset( 0.01 );
-    axis_up.SetLabelSize(   h_dummy.GetXaxis()->GetLabelSize() );
-    axis_up.SetLabelFont(   gStyle->GetTextFont() );
-    axis_up.Draw();
-    axis_up.CenterTitle();
-    axis_up.SetTitle(("#Delta"+fPOIName).c_str());
-    if(SIZE==20) axis_up.SetTitleOffset(1.5);
-    if(SIZE==10) axis_up.SetTitleOffset(1.25);
-    axis_up.SetTitleSize(   h_dummy.GetXaxis()->GetLabelSize() );
-    axis_up.SetTitleFont(   gStyle->GetTextFont() );
-
-    TPad pad1("p1","Pad High",0,(newHeight-offsetUp-offsetUp1)/newHeight,0.4,1);
-    pad1.Draw();
-
-    pad1.cd();
-    TLegend leg1(0.02,0.7,1,1.0,("Pre-fit impact on "+fPOIName+":").c_str());
-    leg1.SetFillStyle(0);
-    leg1.SetBorderSize(0);
-    leg1.SetMargin(0.25);
-    leg1.SetNColumns(2);
-    leg1.SetTextFont(gStyle->GetTextFont());
-    leg1.SetTextSize(gStyle->GetTextSize());
-    leg1.AddEntry(&g1a,"#theta = #hat{#theta}+#Delta#theta","f");
-    leg1.AddEntry(&g2a,"#theta = #hat{#theta}-#Delta#theta","f");
-    leg1.Draw();
-
-    TLegend leg2(0.02,0.32,1,0.62,("Post-fit impact on "+fPOIName+":").c_str());
-    leg2.SetFillStyle(0);
-    leg2.SetBorderSize(0);
-    leg2.SetMargin(0.25);
-    leg2.SetNColumns(2);
-    leg2.SetTextFont(gStyle->GetTextFont());
-    leg2.SetTextSize(gStyle->GetTextSize());
-    leg2.AddEntry(&g1,"#theta = #hat{#theta}+#Delta#hat{#theta}","f");
-    leg2.AddEntry(&g2,"#theta = #hat{#theta}-#Delta#hat{#theta}","f");
-    leg2.Draw();
-
-    TLegend leg0(0.02,0.1,1,0.25);
-    leg0.SetFillStyle(0);
-    leg0.SetBorderSize(0);
-    leg0.SetMargin(0.2);
-    leg0.SetTextFont(gStyle->GetTextFont());
-    leg0.SetTextSize(gStyle->GetTextSize());
-    leg0.AddEntry(&g,"Nuis. Param. Pull","lp");
-    leg0.Draw();
-
-    c.cd();
-
-    TLine l0(0,- offsetDown1/lineHeight,0,SIZE+0.5);// + offsetUp1/lineHeight);
-    l0.SetLineStyle(kDashed);
-    l0.SetLineColor(kBlack);
-    l0.Draw("same");
-    TLine l1(-1,- offsetDown1/lineHeight,-1,SIZE+0.5);// + offsetUp1/lineHeight);
-    l1.SetLineStyle(kDashed);
-    l1.SetLineColor(kBlack);
-    l1.Draw("same");
-    TLine l2(1,- offsetDown1/lineHeight,1,SIZE+0.5);// + offsetUp1/lineHeight);
-    l2.SetLineStyle(kDashed);
-    l2.SetLineColor(kBlack);
-    l2.Draw("same");
-
-    if (fFitList[0]->fAtlasLabel != "none") ATLASLabelNew(0.42,(1.*(offsetDown+offsetDown1+SIZE*lineHeight+0.6*offsetUp1)/newHeight),
-                                                          fFitList[0]->fAtlasLabel.c_str(), kBlack, gStyle->GetTextSize());
-    myText(       0.42,(1.*(offsetDown+offsetDown1+SIZE*lineHeight+0.3*offsetUp1)/newHeight), 1,Form("#sqrt{s} = %s, %s",fCmeLabel.c_str(),fLumiLabel.c_str()));
-
-    gPad->RedrawAxis();
-
-    if(flagGammas && flagSysts){
-        for(const auto& format : TRExFitter::IMAGEFORMAT) {
-            c.SaveAs((fOutDir+"/Ranking."+format).c_str());
-        }
-    } else if(flagGammas){
-        for(const auto& format : TRExFitter::IMAGEFORMAT) {
-            c.SaveAs((fOutDir+"/RankingGammas."+format).c_str());
-        }
-    } else if(flagSysts){
-        for(const auto& format : TRExFitter::IMAGEFORMAT) {
-            c.SaveAs((fOutDir+"/RankingSysts."+format).c_str());
-        }
-    } else{
-        WriteWarningStatus("MultiFit::PlotNPRanking", "Your ranking plot felt in unknown category :s");
-        for(const auto& format : TRExFitter::IMAGEFORMAT) {
-            c.SaveAs((fOutDir+"/RankingUnknown."+format).c_str());
-        }
-    }
+    manager.PlotRanking(GetFitRegions(), flagSysts, flagGammas);
 }
 
 //__________________________________________________________________________________
@@ -3171,6 +2815,26 @@ std::vector<std::shared_ptr<Systematic> > MultiFit::GetFitSystematics() const {
             if(Common::FindInStringVector(names,systName) < 0) {
                 names.push_back(systName);
                 result.emplace_back(isyst);
+            }
+        }
+    }
+
+    return result;
+}
+
+//__________________________________________________________________________________
+//
+std::vector<Region* > MultiFit::GetFitRegions() const {
+    std::vector<Region*> result;
+        
+    std::vector< std::string > names;
+    for(const auto& ifit : fFitList) {
+        if (!ifit->fUseInFit) continue;
+        for (const auto& ireg : ifit->fRegions) {
+            const std::string regName = ireg->fName;
+            if(Common::FindInStringVector(names,regName) < 0) {
+                names.emplace_back(regName);
+                result.emplace_back(ireg);
             }
         }
     }

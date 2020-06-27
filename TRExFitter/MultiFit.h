@@ -73,6 +73,12 @@ public:
       */ 
     std::map<std::string, double> GetFixedNPs() const;
     
+    /**
+      * A helper function to get vector of regions
+      * @return the vector
+      */ 
+    std::vector<Region* > GetFitRegions() const;
+
     TH1D* Combine(std::vector<TH1D*> hists) const;
     TH1D* OrderBins(TH1D* h, std::vector<double> vec) const;
     TH1D* Rebin(TH1D* h, const std::vector<double>& vec, bool isData=true) const;

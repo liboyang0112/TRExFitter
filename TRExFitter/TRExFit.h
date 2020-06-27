@@ -198,7 +198,7 @@ public:
     std::size_t GetSampleIndex(const std::string& name) const;
 
     void ProduceNPRanking(const std::string& NPnames);
-    void PlotNPRanking(bool flagSysts=true, bool flagGammas=true) const;
+    void PlotNPRanking(const bool flagSysts, const bool flagGammas) const;
     void PlotNPRankingManager() const;
 
     void PrintSystTables(std::string opt="") const;
