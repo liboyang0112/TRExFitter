@@ -15,6 +15,8 @@
 #include <algorithm>
 #include <fstream>
 
+//__________________________________________________________________________________
+//
 RankingManager::RankingManager() :
     fOutputPath(""),
     fInjectGlobalObservables(false),
@@ -28,9 +30,13 @@ RankingManager::RankingManager() :
 {
 }
 
+//__________________________________________________________________________________
+//
 RankingManager::~RankingManager() {
 }
 
+//__________________________________________________________________________________
+//
 void RankingManager::AddNuisPar(const std::string& name, const bool isNF) {
 
     // check if the NP already exists by checking the names
@@ -48,6 +54,8 @@ void RankingManager::AddNuisPar(const std::string& name, const bool isNF) {
     }
 }
 
+//__________________________________________________________________________________
+//
 void RankingManager::RunRanking(FitResults* fitResults,
                                 RooWorkspace* ws,
                                 RooDataSet* data,
@@ -153,6 +161,8 @@ void RankingManager::RunRanking(FitResults* fitResults,
     outFile.close();
 }
 
+//__________________________________________________________________________________
+//
 double RankingManager::RunSingleFit(FittingTool* fitTool,
                                     RooWorkspace* ws,       
                                     RooStats::ModelConfig *mc,

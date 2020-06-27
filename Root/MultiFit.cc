@@ -11,6 +11,7 @@
 #include "TRExFitter/LimitEvent.h"
 #include "TRExFitter/NormFactor.h"
 #include "TRExFitter/NuisParameter.h"
+#include "TRExFitter/RankingManager.h"
 #include "TRExFitter/Region.h"
 #include "TRExFitter/Sample.h"
 #include "TRExFitter/StatusLogbook.h"
@@ -1580,77 +1581,44 @@ void MultiFit::PlotCombinedCorrelationMatrix() const{
 
 //____________________________________________________________________________________
 //
-void MultiFit::ProduceNPRanking( string NPnames/*="all"*/ ) const{
+void MultiFit::ProduceNPRanking(const  std::string& NPnames) const {
     WriteInfoStatus("MultiFit::ProduceNPRanking", "....................................");
     WriteInfoStatus("MultiFit::ProduceNPRanking", "Producing Ranking...");
 
     if(fFitType==2){
         WriteErrorStatus("MultiFit::ProduceNPRanking", "For ranking plots, the SPLUSB FitType is needed.");
-        abort();
+        exit(EXIT_FAILURE);
     }
 
     const std::string& inputData = fDataName;
 
-    // create a list of Systematics
-    std::vector< std::shared_ptr<Systematic> > vSystematics;
-    std::vector< std::string > Names;
-    for(const auto& ifit : fFitList) {
-        if (!ifit->fUseInFit) continue;
-        for(const auto& isyst : ifit->fSystematics) {
-            const std::string systName = isyst->fNuisanceParameter;
-            if(Common::FindInStringVector(Names,systName) < 0) {
-                Names.push_back(systName);
-                vSystematics.push_back(isyst);
-            }
-        }
-    }
-
     // create a list of norm factors
-    std::vector< std::shared_ptr<NormFactor> > vNormFactors;
-    std::vector< std::string > nfNames;
-    for(const auto& ifit : fFitList) {
-        if (!ifit->fUseInFit) continue;
-        for(const auto& inorm : ifit->fNormFactors) {
-            const std::string normName = inorm->fName;
-            if(Common::FindInStringVector(nfNames,normName) < 0) {
-                nfNames.push_back(normName);
-                vNormFactors.push_back(inorm);
-            }
-        }
-    }
+    std::vector< std::shared_ptr<Systematic> > vSystematics = GetFitSystematics();
+    std::vector< std::shared_ptr<NormFactor> > vNormFactors = GetFitNormFactors();
     
-    const std::size_t Nsyst = Names.size();
-    const std::size_t Nnorm = nfNames.size();
-
     //
     // List of systematics to check
     //
-    std::vector< string > nuisPars;
-    std::vector< bool > isNF;
+    RankingManager manager{};
+    
     std::vector<string> systNames_unique;
-    for(std::size_t i_syst = 0; i_syst < Nsyst; ++i_syst) {
-        if((NPnames=="all") || (NPnames==vSystematics[i_syst]->fNuisanceParameter) ||
-            (atoi(NPnames.c_str())>0) || (strcmp(NPnames.c_str(), "0") ==0))
-            {
-            if(vSystematics[i_syst]->fType == Systematic::SHAPE) continue;
+    for(const auto& isyst : vSystematics) {
+        if((NPnames=="all") || (NPnames == isyst->fNuisanceParameter)) {
+            if(isyst->fType == Systematic::SHAPE) continue;
             if (std::find(systNames_unique.begin(), systNames_unique.end(),
-                vSystematics[i_syst]->fNuisanceParameter) == systNames_unique.end()){
-                systNames_unique.emplace_back(vSystematics[i_syst]->fNuisanceParameter);
+                isyst->fNuisanceParameter) == systNames_unique.end()){
+                systNames_unique.emplace_back(isyst->fNuisanceParameter);
             }
             else {
                 continue;
             }
-            nuisPars.emplace_back(vSystematics[i_syst]->fNuisanceParameter);
-            isNF.emplace_back( false );
+            manager.AddNuisPar(isyst->fNuisanceParameter, false);
         }
     }
-    for(std::size_t i_norm = 0; i_norm<Nnorm; ++i_norm) {
-        if(fPOI==vNormFactors[i_norm]->fName) continue;
-        if(NPnames=="all" || NPnames==vNormFactors[i_norm]->fName ||
-            ( ((atoi(NPnames.c_str())-Nnorm) == i_norm) && (atoi(NPnames.c_str())>0 || strcmp( NPnames.c_str(), "0")==0) )
-            ){
-            nuisPars.emplace_back( vNormFactors[i_norm]->fName );
-            isNF.emplace_back( true );
+    for(const auto& inorm: vNormFactors) {
+        if(inorm->fName == fPOI) continue;
+        if(NPnames=="all" || NPnames == inorm->fName){
+            manager.AddNuisPar(inorm->fName, true);
         }
     }
 
@@ -1660,12 +1628,8 @@ void MultiFit::ProduceNPRanking( string NPnames/*="all"*/ ) const{
     std::string outName = fOutDir+"/Fits/NPRanking";
     if(NPnames!="all") outName += "_"+NPnames;
     outName += ".txt";
-    ofstream outName_file(outName.c_str());
-    //
-    std::map< string,double > muVarUp;
-    std::map< string,double > muVarDown;
-    std::map< string,double > muVarNomUp;
-    std::map< string,double > muVarNomDown;
+    
+    manager.SetOutputPath(outName);
 
     //
     // Get the combined model
@@ -1676,12 +1640,12 @@ void MultiFit::ProduceNPRanking( string NPnames/*="all"*/ ) const{
         exit(EXIT_FAILURE);
     }
     RooWorkspace* ws = dynamic_cast<RooWorkspace*>(f->Get("combWS"));
+    if (!ws) {
+        WriteErrorStatus("MultiFit::ProduceNPRanking", "Cannot read workspace!");
+        exit(EXIT_FAILURE);
+    }
 
-    //
-    // Gets needed objects for the fit
-    //
     RooStats::ModelConfig* mc = dynamic_cast<RooStats::ModelConfig*>(ws->obj("ModelConfig"));
-    RooSimultaneous* simPdf = static_cast<RooSimultaneous*>(mc->GetPdf());
 
     //
     // Creates the data object
@@ -1703,23 +1667,21 @@ void MultiFit::ProduceNPRanking( string NPnames/*="all"*/ ) const{
     }
 
     // Loop on NPs to find gammas and add to the list to be ranked
-    if(NPnames=="all" || NPnames.find("gamma")!=string::npos || (atoi(NPnames.c_str())>0 || strcmp(NPnames.c_str(),"0")==0)){
+    if(NPnames=="all" || NPnames.find("gamma")!=string::npos){
         RooRealVar* var = nullptr;
         const RooArgSet* nuis = static_cast<const RooArgSet*>(mc->GetNuisanceParameters());
         if(nuis){
             std::unique_ptr<TIterator> it2(nuis->createIterator());
-            int i_gamma = 0;
             while( (var = static_cast<RooRealVar*>(it2->Next()))) {
                 const std::string& np = var->GetName();
+                if (np.find("saturated_model") != std::string::npos) continue;
                 if(np.find("gamma")!=string::npos){
                     // add the nuisance parameter to the list nuisPars if it's there in the ws
                     // remove "gamma"...
-                    if(np==NPnames || (((atoi(NPnames.c_str())-(int)Nsyst-(int)Nnorm)==i_gamma) && (atoi(NPnames.c_str())>0 || strcmp(NPnames.c_str(),"0")==0)) || NPnames=="all"){
-                        nuisPars.emplace_back(Common::ReplaceString(np,"gamma_",""));
-                        isNF.emplace_back( true );
+                    if(np==NPnames || NPnames=="all"){
+                        manager.AddNuisPar(Common::ReplaceString(np,"gamma_",""), true);
                         if(NPnames!="all") break;
                     }
-                    i_gamma++;
                 }
             }
         }
@@ -1729,17 +1691,6 @@ void MultiFit::ProduceNPRanking( string NPnames/*="all"*/ ) const{
     // Create snapshot to keep inital values
     //
     ws -> saveSnapshot("tmp_snapshot", *mc->GetPdf()->getParameters(data));
-
-    //
-    // Initialize the FittingTool object
-    //
-    FittingTool fitTool{};
-    fitTool.SetUseHesse(false);
-    fitTool.SetStrategy(fFitStrategy);
-    fitTool.SetDebug(TRExFitter::DEBUGLEVEL);
-    fitTool.SetNCPU(fCPU);
-    fitTool.ValPOI(fPOIInitial);
-    fitTool.ConstPOI(false);
 
     // find the last config that is used in a fit
     int validConfig(999999);
@@ -1757,111 +1708,18 @@ void MultiFit::ProduceNPRanking( string NPnames/*="all"*/ ) const{
 
     TRExFit *fit = fFitList[validConfig];
     fit->ReadFitResults(fOutDir+"/Fits/"+fName+fSaveSuf+".txt");
-    {
-        std::vector<std::string> npNames;
-        std::vector<double> npValues;
-        for(const auto& inorm : fit->fNormFactors) {
-            if (inorm->fName == fPOI) continue;
-            npNames. emplace_back(inorm->fName);
-            npValues.emplace_back(inorm->fNominal);
-        }
-        fitTool.SetNPs( npNames,npValues );
-    }
-    const double muhat = fit->fFitResults -> GetNuisParValue( fPOI );
     
-    FitUtils::ApplyExternalConstraints(ws, &fitTool, simPdf, GetFitNormFactors());
+    manager.SetInjectGlobalObservables(fit->fInjectGlobalObservables);
+    manager.SetNPValues(fit->fFitNPValues);
+    manager.SetFixedNPs(GetFixedNPs());
+    manager.SetFitStrategy(fFitStrategy);
+    manager.SetPOIName(fPOI);
+    manager.SetNCPU(fCPU);
+    manager.SetRng(fit->fRndRange, fit->fUseRnd, fit->fRndSeed);
+    manager.SetStatOnly(fStatOnly);
 
-    for(unsigned int i=0;i<nuisPars.size();i++){
-
-        //Getting the postfit values of the nuisance parameter
-        const double central = fit->fFitResults -> GetNuisParValue(   nuisPars[i] );
-        const double up      = fit->fFitResults -> GetNuisParErrUp(   nuisPars[i] );
-        const double down    = fit->fFitResults -> GetNuisParErrDown( nuisPars[i] );
-        // for gammas
-        if( (NPnames=="all" && nuisPars[i].find("_bin_")!=string::npos) ){
-            nuisPars[i] = "gamma_" + nuisPars[i];
-        }
-        outName_file <<  nuisPars[i] << "   " << central << " +" << fabs(up) << " -" << fabs(down)<< "  ";
-
-        //Set the NP to its post-fit *up* variation and refit to get the fitted POI
-        ws->loadSnapshot("tmp_snapshot");
-        fitTool.ResetFixedNP();
-        // Fix NPs that are specified in the individual configs
-        for (const auto& ifit : fFitList){
-            if (!ifit->fUseInFit) continue;
-            if(ifit->fFitFixedNPs.size()>0){
-                for(const auto& nuisParToFix : ifit->fFitFixedNPs){
-                    fitTool.FixNP(nuisParToFix.first,nuisParToFix.second);
-                }
-            }
-        }
-        fitTool.FixNP( nuisPars[i], central + std::abs(up  ) );
-        fitTool.FitPDF( mc, simPdf, data, fFastFitForRanking );
-        muVarUp[ nuisPars[i] ]   = (fitTool.ExportFitResultInMap())[ fPOI ];
-        //
-        //Set the NP to its post-fit *down* variation and refit to get the fitted POI
-        ws->loadSnapshot("tmp_snapshot");
-        fitTool.ResetFixedNP();
-        // Fix NPs that are specified in the individual configs
-        for (const auto& ifit : fFitList){
-            if (!ifit->fUseInFit) continue;
-            if(ifit->fFitFixedNPs.size()>0){
-                for(const auto& nuisParToFix : ifit->fFitFixedNPs){
-                    fitTool.FixNP(nuisParToFix.first,nuisParToFix.second);
-                }
-            }
-        }
-        fitTool.FixNP( nuisPars[i], central - std::abs(down) );
-        fitTool.FitPDF( mc, simPdf, data, fFastFitForRanking );
-        muVarDown[ nuisPars[i] ] = (fitTool.ExportFitResultInMap())[ fPOI ];
-        outName_file << muVarUp[nuisPars[i]]-muhat << "   " <<  muVarDown[nuisPars[i]]-muhat<< "  ";
-
-        if(isNF[i]){
-            muVarNomUp[   nuisPars[i] ] = muhat;
-            muVarNomDown[ nuisPars[i] ] = muhat;
-        }
-        else{
-            //Set the NP to its pre-fit *up* variation and refit to get the fitted POI (pre-fit impact on POI)
-            ws->loadSnapshot("tmp_snapshot");
-            double prefitUp   = 1.;
-            double prefitDown = 1.;
-            fitTool.ResetFixedNP();
-            // Fix NPs that are specified in the individual configs
-            for (const auto& ifit : fFitList){
-                if (!ifit->fUseInFit) continue;
-                if(ifit->fFitFixedNPs.size()>0){
-                    for(const auto& nuisParToFix : ifit->fFitFixedNPs){
-                        fitTool.FixNP(nuisParToFix.first,nuisParToFix.second);
-                    }
-                }
-            }
-            fitTool.FixNP( nuisPars[i], central + prefitUp );
-            fitTool.FitPDF( mc, simPdf, data, fFastFitForRanking );
-            muVarNomUp[ nuisPars[i] ]   = (fitTool.ExportFitResultInMap())[ fPOI ];
-            //
-            //Set the NP to its pre-fit *down* variation and refit to get the fitted POI (pre-fit impact on POI)
-            ws->loadSnapshot("tmp_snapshot");
-            fitTool.ResetFixedNP();
-            // Fix NPs that are specified in the individual configs
-            for (const auto& ifit : fFitList){
-                if (!ifit->fUseInFit) continue;
-                if(ifit->fFitFixedNPs.size()>0){
-                    for(const auto& nuisParToFix : ifit->fFitFixedNPs){
-                        fitTool.FixNP(nuisParToFix.first,nuisParToFix.second);
-                    }
-                }
-            }
-            fitTool.FixNP( nuisPars[i], central - prefitDown );
-            fitTool.FitPDF( mc, simPdf, data, fFastFitForRanking );
-            //
-            muVarNomDown[ nuisPars[i] ] = (fitTool.ExportFitResultInMap())[ fPOI ];
-        }
-        outName_file << muVarNomUp[nuisPars[i]]-muhat << "   " <<  muVarNomDown[nuisPars[i]]-muhat<< " "<<endl;
-
-    }
-    outName_file.close();
-    ws->loadSnapshot("tmp_snapshot");
-
+    manager.RunRanking(fit->fFitResults, ws, data, GetFitNormFactors());
+    
     f->Close();
 }
 
@@ -3276,6 +3134,44 @@ std::vector<std::shared_ptr<NormFactor> > MultiFit::GetFitNormFactors() const {
             names.emplace_back(nf->fName);
 
             result.emplace_back(nf);
+        }
+    }
+
+    return result;
+}
+
+//__________________________________________________________________________________
+//
+std::map<std::string, double> MultiFit::GetFixedNPs() const {
+
+    std::map<std::string, double> result;
+    for (const auto& ifit : fFitList) {
+        if (!ifit->fUseInFit) continue;
+        for (const auto& ifixed : ifit->fFitFixedNPs) {
+            auto it = result.find(ifixed.first);
+            if (it != result.end()) continue;
+
+            result[ifixed.first] = ifixed.second;
+        }
+    }
+    return result;
+}
+
+//__________________________________________________________________________________
+//
+std::vector<std::shared_ptr<Systematic> > MultiFit::GetFitSystematics() const {
+    
+    std::vector<std::shared_ptr<Systematic> > result;
+
+    std::vector< std::string > names;
+    for(const auto& ifit : fFitList) {
+        if (!ifit->fUseInFit) continue;
+        for(const auto& isyst : ifit->fSystematics) {
+            const std::string systName = isyst->fNuisanceParameter;
+            if(Common::FindInStringVector(names,systName) < 0) {
+                names.push_back(systName);
+                result.emplace_back(isyst);
+            }
         }
     }
 

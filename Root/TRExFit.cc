@@ -5579,7 +5579,7 @@ void TRExFit::DrawAndSaveSeparationPlots() const{
 
 //____________________________________________________________________________________
 //
-void TRExFit::ProduceNPRanking( std::string NPnames/*="all"*/ ){
+void TRExFit::ProduceNPRanking(const std::string& NPnames) {
 
     if(fFitType==BONLY){
         WriteErrorStatus("TRExFit::ProduceNPRanking", "For ranking plots, the SPLUSB FitType is needed.");
@@ -5591,19 +5591,19 @@ void TRExFit::ProduceNPRanking( std::string NPnames/*="all"*/ ){
     //
     RankingManager manager{};
     std::vector<std::string> systNames_unique;
-    for(std::size_t i_syst = 0; i_syst < fSystematics.size(); ++i_syst){
-        if(NPnames=="all" || NPnames==fSystematics[i_syst]->fNuisanceParameter ) {
-            if(fSystematics[i_syst]->fType == Systematic::SHAPE) continue;
-            if (std::find(systNames_unique.begin(), systNames_unique.end(), fSystematics[i_syst]->fNuisanceParameter) == systNames_unique.end())
-                systNames_unique.push_back(fSystematics[i_syst]->fNuisanceParameter);
+    for(const auto& isyst : fSystematics) {
+        if(NPnames=="all" || NPnames==isyst->fNuisanceParameter ) {
+            if(isyst->fType == Systematic::SHAPE) continue;
+            if (std::find(systNames_unique.begin(), systNames_unique.end(), isyst->fNuisanceParameter) == systNames_unique.end())
+                systNames_unique.push_back(isyst->fNuisanceParameter);
             else continue;
-            manager.AddNuisPar(fSystematics[i_syst]->fNuisanceParameter, false);
+            manager.AddNuisPar(isyst->fNuisanceParameter, false);
         }
     }
-    for(std::size_t i_norm = 0; i_norm < fNormFactors.size(); ++i_norm) {
-        if(fPOI == fNormFactors.at(i_norm)->fName) continue;
-        if(NPnames=="all" || NPnames==fNormFactors.at(i_norm)->fName){
-            manager.AddNuisPar(fNormFactors.at(i_norm)->fName, true);
+    for(const auto& inorm : fNormFactors) {
+        if(fPOI == inorm->fName) continue;
+        if(NPnames=="all" || NPnames==inorm->fName){
+            manager.AddNuisPar(inorm->fName, true);
         }
     }
 
@@ -5707,17 +5707,16 @@ void TRExFit::ProduceNPRanking( std::string NPnames/*="all"*/ ){
         const RooArgSet* nuis = static_cast<const RooArgSet*>(mc->GetNuisanceParameters());
         if(nuis){
             std::unique_ptr<TIterator> it2(nuis->createIterator());
-            int i_gamma = 0;
             while( (var = static_cast<RooRealVar*>(it2->Next())) ){
                 const std::string& np = var->GetName();
+                if (np.find("saturated_model") != std::string::npos) continue;
                 if(np.find("gamma")!=std::string::npos){
                     // add the nuisance parameter to the list nuisPars if it's there in the ws
                     // remove "gamma"...
-                    if(np==NPnames || (atoi(NPnames.c_str())-static_cast<int>(fSystematics.size())-static_cast<int>(fNormFactors.size())==i_gamma) || NPnames=="all"){
+                    if(np==NPnames || NPnames=="all"){
                         manager.AddNuisPar(Common::ReplaceString(np,"gamma_",""), true);
                         if(NPnames!="all") break;
                     }
-                    i_gamma++;
                 }
             }
         }

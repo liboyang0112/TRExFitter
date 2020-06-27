@@ -197,7 +197,7 @@ public:
     std::shared_ptr<Sample> GetSample(const std::string& name) const;
     std::size_t GetSampleIndex(const std::string& name) const;
 
-    void ProduceNPRanking(std::string NPnames="all");
+    void ProduceNPRanking(const std::string& NPnames);
     void PlotNPRanking(bool flagSysts=true, bool flagGammas=true) const;
     void PlotNPRankingManager() const;
 
