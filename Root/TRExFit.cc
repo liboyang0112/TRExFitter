@@ -16,6 +16,7 @@
 #include "TRExFitter/StatusLogbook.h"
 #include "TRExFitter/SystematicHist.h"
 #include "TRExFitter/TRExPlot.h"
+#include "TRExFitter/RankingManager.h"
 #include "TRExFitter/Region.h"
 #include "TRExFitter/PruningUtil.h"
 #include "TRExFitter/TruthSample.h"
