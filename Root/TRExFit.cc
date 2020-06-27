@@ -6,6 +6,7 @@
 #include "TRExFitter/ConfigReader.h"
 #include "TRExFitter/FitResults.h"
 #include "TRExFitter/FittingTool.h"
+#include "TRExFitter/FitUtils.h"
 #include "TRExFitter/HistoTools.h"
 #include "TRExFitter/NormFactor.h"
 #include "TRExFitter/NuisParameter.h"
@@ -4496,16 +4497,7 @@ RooDataSet* TRExFit::DumpData( RooWorkspace *ws,  std::map < std::string, int > 
     }
 
     if (fBinnedLikelihood) {
-        //Setting binned likelihood option
-        RooFIter rfiter = ws->components().fwdIterator();
-        RooAbsArg* arg;
-        while ((arg = rfiter.next())) {
-            if (arg->IsA() == RooRealSumPdf::Class()) {
-                arg->setAttribute("BinnedLikelihood");
-                std::string temp_string = arg->GetName();
-                WriteDebugStatus("TRExFit::DumpData", "Activating binned likelihood attribute for " + temp_string);
-            }
-        }
+        FitUtils::SetBinnedLikelihoodOptimisation(ws);
     }
 
     //Creating a set
@@ -4752,7 +4744,7 @@ std::map < std::string, double > TRExFit::PerformFit( RooWorkspace *ws, RooDataS
         fitTool.FixNPs(npNames,npValues);
     }
 
-    ApplyExternalConstraints(ws, &fitTool, simPdf);
+    FitUtils::ApplyExternalConstraints(ws, &fitTool, simPdf, fNormFactors);
 
     // save snapshot before fit
     ws->saveSnapshot("snapshot_BeforeFit_POI", *(mc->GetParametersOfInterest()) );
@@ -5847,7 +5839,7 @@ void TRExFit::ProduceNPRanking( std::string NPnames/*="all"*/ ){
         fitTool.SetNPs( npNames,npValues );
     }
 
-    ApplyExternalConstraints(ws.get(), &fitTool, simPdf);
+    FitUtils::ApplyExternalConstraints(ws.get(), &fitTool, simPdf, fNormFactors);
 
     const double muhat = fFitResults -> GetNuisParValue( fPOI );
 
@@ -7676,16 +7668,7 @@ void TRExFit::RunToys(){
             exit(EXIT_FAILURE);
         }
         if (fBinnedLikelihood) {
-            //Setting binned likelihood option
-            RooFIter rfiter = ws->components().fwdIterator();
-            RooAbsArg* arg;
-            while ((arg = rfiter.next())) {
-                if (arg->IsA() == RooRealSumPdf::Class()) {
-                    arg->setAttribute("BinnedLikelihood");
-                    const std::string& temp_string = arg->GetName();
-                    WriteDebugStatus("TRExFit::DumpData", "Activating binned likelihood attribute for " + temp_string);
-                }
-            }
+            FitUtils::SetBinnedLikelihoodOptimisation(ws.get());
         }
         // create map to store fit results
         // create histogram to store fitted POI values
@@ -9422,45 +9405,6 @@ void TRExFit::RunForceShape() {
 
 //__________________________________________________________________________________
 //
-void TRExFit::ApplyExternalConstraints(RooWorkspace* ws,
-                                       FittingTool* fitTool,
-                                       RooSimultaneous* simPdf) const {
-    // Tikhonov regularization (for unfolding)
-    RooArgList l;
-    std::vector<double> nomVec;
-    std::vector<double> tauVec;
-    for(const auto& nf : fNormFactors){
-        if(nf->fTau!=0){
-            if(ws->var(nf->fName.c_str())!=nullptr) l.add(*ws->var(nf->fName.c_str()));
-            else if(ws->function(nf->fName.c_str())!=nullptr) l.add(*ws->function(nf->fName.c_str()));
-            else WriteWarningStatus("TRExFit::ApplyExternalConstraints","Cannot apply tau to norm factor " + nf->fName);
-            nomVec.push_back( nf->fNominal );
-            tauVec.push_back( nf->fTau );
-        }
-    }
-
-    if(tauVec.empty()) return;
-
-    TVectorD nominal(nomVec.size());
-    TMatrixDSym cov(tauVec.size());
-    for(unsigned int i_tau=0;i_tau<tauVec.size();i_tau++){
-        nominal(i_tau) = nomVec[i_tau];
-        cov(i_tau,i_tau) = (1./tauVec[i_tau]) * (1./tauVec[i_tau]);
-    }
-    RooMultiVarGaussian r("regularization","regularization",l,nominal,cov);
-    ws->import(r);
-    ws->defineSet("myConstraints","regularization");
-    simPdf->setStringAttribute("externalConstraints","myConstraints");
-
-    if(simPdf->getStringAttribute("externalConstraints")){
-        WriteInfoStatus("TRExFit::ApplyExternalConstraints",Form("Building NLL with external constraints %s",simPdf->getStringAttribute("externalConstraints")));
-        const RooArgSet* externalConstraints = ws->set(simPdf->getStringAttribute("externalConstraints"));
-        fitTool->SetExternalConstraints( externalConstraints );
-    }
-}
-
-//__________________________________________________________________________________
-//
 bool TRExFit::DoingMixedFitting() const {
     if(fFitNPValues.size()>0) return false;
     if(fFitNPValuesFromFitResults!="") return false;
@@ -9600,34 +9544,34 @@ void TRExFit::DrawToyPullPlot(std::vector<TH1D>& hist, TFile* out) const {
 //__________________________________________________________________________________
 //
 void TRExFit::FixUnfoldingExpressions() {
-    if(fUnfoldNormXSec){
-        // Get truth histogram
-        std::unique_ptr<TFile> input(TFile::Open((fName + "/UnfoldingHistograms/FoldedHistograms.root").c_str(), "READ"));
-        if (!input) {
-            WriteErrorStatus("TRExFit::FixUnfoldingExpressions", "Cannot read file from " + fName + "/UnfoldingHistograms/FoldedHistograms.root");
-            exit(EXIT_FAILURE);
-        }
-        std::unique_ptr<TH1D> truth(dynamic_cast<TH1D*>(input->Get("truth_distribution")));
-        if (!truth) {
-            WriteErrorStatus("TRExFit::FixUnfoldingExpressions", "Cannot read the truth distribution");
-            exit(EXIT_FAILURE);
-        }
-        truth->SetDirectory(nullptr);
-        const double N = truth->Integral();
-        // Get expression of last bin norm-factor
-        std::string NFname = "Bin_" + Common::IntToFixLenStr(fUnfoldNormXSecBinN) + "_mu";
-        for (const auto& inorm : fNormFactors) {
-            if (inorm->fName==NFname) {
-                TString expression(inorm->fExpression.first);
-                for (int i = 0; i < fNumberUnfoldingTruthBins; ++i) {
-                    // replace all "Nj/N" with truth->bincontent/truth->integral
-                    expression.ReplaceAll("N"+std::to_string(i+1)+"/N",std::to_string(truth->GetBinContent(i+1)/N));
-                }
-                inorm->fExpression.first = expression.Data();
-                // title will contain the expression FIXME
-                inorm->fTitle = inorm->fExpression.first;
-                TRExFitter::SYSTMAP[inorm->fName] = inorm->fExpression.first;
+    if (!fUnfoldNormXSec) return;
+    // Get truth histogram
+    std::unique_ptr<TFile> input(TFile::Open((fName + "/UnfoldingHistograms/FoldedHistograms.root").c_str(), "READ"));
+    if (!input) {
+        WriteErrorStatus("TRExFit::FixUnfoldingExpressions", "Cannot read file from " + fName + "/UnfoldingHistograms/FoldedHistograms.root");
+        exit(EXIT_FAILURE);
+    }
+    std::unique_ptr<TH1D> truth(dynamic_cast<TH1D*>(input->Get("truth_distribution")));
+    if (!truth) {
+        WriteErrorStatus("TRExFit::FixUnfoldingExpressions", "Cannot read the truth distribution");
+        exit(EXIT_FAILURE);
+    }
+    truth->SetDirectory(nullptr);
+    const double N = truth->Integral();
+    // Get expression of last bin norm-factor
+    const std::string NFname = "Bin_" + Common::IntToFixLenStr(fUnfoldNormXSecBinN) + "_mu";
+    for (const auto& inorm : fNormFactors) {
+        if (inorm->fName==NFname) {
+            TString expression(inorm->fExpression.first);
+            for (int i = 0; i < fNumberUnfoldingTruthBins; ++i) {
+                // replace all "Nj/N" with truth->bincontent/truth->integral
+                expression.ReplaceAll("N"+std::to_string(i+1)+"/N",std::to_string(truth->GetBinContent(i+1)/N));
             }
+            inorm->fExpression.first = expression.Data();
+            // title will contain the expression FIXME
+            inorm->fTitle = inorm->fExpression.first;
+            TRExFitter::SYSTMAP[inorm->fName] = inorm->fExpression.first;
         }
     }
+    input->Close();
 }

@@ -56,16 +56,11 @@ public:
     void BuildGroupedImpactTable() const;
 
     /**
-      * A helper function to propagate external constraints
-      * from the individual configs
-      * @param The woskspace that will be modified
-      * @param fitTool
-      * @param the PDF
+      * A helper function to get vector of unique normfactors used i na fit
+      * @return the vector of norm factors
       */ 
-    void ApplyExternalConstraints(RooWorkspace* ws,
-                                  FittingTool* fitTool,
-                                  RooSimultaneous* simPdf) const;
-
+    std::vector<std::shared_ptr<NormFactor> > GetFitNormFactors() const;
+    
     TH1D* Combine(std::vector<TH1D*> hists) const;
     TH1D* OrderBins(TH1D* h, std::vector<double> vec) const;
     TH1D* Rebin(TH1D* h, const std::vector<double>& vec, bool isData=true) const;
