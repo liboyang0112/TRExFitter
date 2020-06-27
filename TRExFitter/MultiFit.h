@@ -80,7 +80,6 @@ public:
     std::vector<Region* > GetFitRegions() const;
 
     TH1D* Combine(std::vector<TH1D*> hists) const;
-    TH1D* OrderBins(TH1D* h, std::vector<double> vec) const;
     TH1D* Rebin(TH1D* h, const std::vector<double>& vec, bool isData=true) const;
 
     std::vector< std::string > fFitNames;

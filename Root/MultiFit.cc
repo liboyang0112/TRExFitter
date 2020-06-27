@@ -2705,22 +2705,6 @@ TH1D* MultiFit::Combine(vector<TH1D*> h) const{
 }
 
 //____________________________________________________________________________________
-// order bins of h acording to a[] (increasing order)
-TH1D* MultiFit::OrderBins(TH1D* h, vector<double> vec) const{
-    map<double,int> binIndex;
-    int Nbins = h->GetNbinsX();
-    for(int i_bin=1;i_bin<=Nbins;i_bin++){
-        binIndex[vec[i_bin-1]] = i_bin;
-    }
-    sort(vec.begin(),vec.end());
-    TH1D *h_new = (TH1D*)h->Clone();
-    for(int i_bin=1;i_bin<=Nbins;i_bin++){
-        h_new->SetBinContent(i_bin,h->GetBinContent(binIndex[vec[i_bin-1]]));
-    }
-    return h_new;
-}
-
-//____________________________________________________________________________________
 // merge bins in bins of SoverSqrtB
 TH1D* MultiFit::Rebin(TH1D* h, const vector<double>& vec, bool isData) const{
     TH1D* h_new = new TH1D(Form("%s_rebin",h->GetName()),Form("%s_rebin",h->GetTitle()),17,-3.8,-0.5);
