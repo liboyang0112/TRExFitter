@@ -2951,5 +2951,5 @@ Real time 0:00:00, CP time 0.020
 [1;32m=== INFO::FittingTool::FitPDF:    -> Final value of offset = -2682.266272[0m
 [1;32m=== INFO::FittingTool::FitPDF:    -> Final NLL - offset = 30.862667[0m
 [1;32m=== INFO::YamlConverter::Write: Writing ranking yaml file to: FitExample/Ranking.yaml[0m
-=== DEBUG::TRExFit::PlotNPRanking: NP ordering...
+=== DEBUG::RankingManager::PlotRanking: NP ordering...
 Info in <TCanvas::Print>: png file FitExample/Ranking.png has been created
