@@ -1,3 +1,6 @@
+#ifndef FITUTILS_H
+#define FITUTILS_H
+
 #include <memory>
 #include <vector>
 
@@ -26,3 +29,5 @@ void ApplyExternalConstraints(RooWorkspace* ws,
  */
 void SetBinnedLikelihoodOptimisation(RooWorkspace* ws);
 }
+
+#endif
