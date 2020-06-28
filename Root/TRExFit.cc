@@ -8,6 +8,7 @@
 #include "TRExFitter/FittingTool.h"
 #include "TRExFitter/FitUtils.h"
 #include "TRExFitter/HistoTools.h"
+#include "TRExFitter/LikelihoodScanManager.h"
 #include "TRExFitter/NormFactor.h"
 #include "TRExFitter/NuisParameter.h"
 #include "TRExFitter/Sample.h"
@@ -6216,129 +6217,31 @@ void TRExFit::ComputeBinning(int regIter){
 
 //__________________________________________________________________________________
 //
-void TRExFit::GetLikelihoodScan( RooWorkspace *ws, std::string varName, RooDataSet* data) const{
+void TRExFit::GetLikelihoodScan(RooWorkspace *ws,
+                                const std::string& varName,
+                                RooDataSet* data) const {
     WriteInfoStatus("TRExFit::GetLikelihoodScan", "Running likelihood scan for the parameter = " + varName);
 
-    // shut-up RooFit!
-    if(TRExFitter::DEBUGLEVEL<=1){
-        if(TRExFitter::DEBUGLEVEL<=0) gErrorIgnoreLevel = kError;
-        else gErrorIgnoreLevel = kWarning;
-        RooMsgService::instance().setGlobalKillBelow(RooFit::FATAL);
-        RooMsgService::instance().getStream(1).removeTopic(Generation);
-        RooMsgService::instance().getStream(1).removeTopic(Plotting);
-        RooMsgService::instance().getStream(1).removeTopic(LinkStateMgmt);
-        RooMsgService::instance().getStream(1).removeTopic(Eval);
-        RooMsgService::instance().getStream(1).removeTopic(Caching);
-        RooMsgService::instance().getStream(1).removeTopic(Optimization);
-        RooMsgService::instance().getStream(1).removeTopic(ObjectHandling);
-        RooMsgService::instance().getStream(1).removeTopic(InputArguments);
-        RooMsgService::instance().getStream(1).removeTopic(Tracing);
-        RooMsgService::instance().getStream(1).removeTopic(Contents);
-        RooMsgService::instance().getStream(1).removeTopic(DataHandling);
-        RooMsgService::instance().setStreamStatus(1,false);
-    }
+    LikelihoodScanManager manager{};
+    manager.SetScanParamsX(fLHscanMin, fLHscanMax, fLHscanSteps);
+    manager.SetNCPU(fCPU);
+    manager.SetOffSet(true);
+    
+    auto scanResult = manager.Run1DScan(ws, varName, data, fNormFactors);
 
-    RooStats::ModelConfig* mc = (RooStats::ModelConfig*)ws->obj("ModelConfig");
-    RooSimultaneous *simPdf = (RooSimultaneous*)(mc->GetPdf());
+    const std::vector<double> x = scanResult.first;
+    const std::vector<double> y = scanResult.second;
 
-    bool isPoI = false;
-    RooRealVar* firstPOI = (RooRealVar*) mc->GetParametersOfInterest()->first();
-    TString firstPOIname = (TString)firstPOI->GetName();
-    if (firstPOIname.Contains(varName.c_str())) isPoI = true;
-
-    RooRealVar* var = nullptr;
-    TString vname = "";
-    std::string vname_s = "";
-    bool foundSyst = false;
-    Double_t minVal = -3;
-    Double_t maxVal =  3;
-    for(auto nf : fNormFactors){
-        if(nf->fName == varName){
-            minVal = nf->fMin;
-            maxVal = nf->fMax;
-        }
-    }
-
-    if (fLHscanMin < 99999) { // is actually set
-        minVal = fLHscanMin;
-    }
-
-    if (fLHscanMax > -99999) { // is actually set
-        maxVal = fLHscanMax;
-    }
-
-    if (isPoI){
-        std::unique_ptr<TIterator> it(mc->GetParametersOfInterest()->createIterator());
-        while( (var = static_cast<RooRealVar*>(it->Next())) ){
-            vname=var->GetName();
-            vname_s=var->GetName();
-            if (vname == varName || vname == "alpha_"+varName) {
-                WriteInfoStatus("TRExFit::GetLikelihoodScan", "GetLikelihoodScan for POI = " + vname_s);
-                foundSyst=true;
-                break;
-            }
-        }
-    }
-    else {
-        std::unique_ptr<TIterator> it(mc->GetNuisanceParameters()->createIterator());
-        while( (var = static_cast<RooRealVar*>(it->Next()))){
-        vname=var->GetName();
-            vname_s=var->GetName();
-            if (vname == varName || vname == "alpha_"+varName) {
-                WriteInfoStatus("TRExFit::GetLikelihoodScan", "GetLikelihoodScan for NP = " + vname_s);
-                foundSyst=true;
-                break;
-            }
-        }
-    }
-
-    if(!foundSyst){
-        WriteWarningStatus("TRExFit::GetLikelihoodScan", "systematic " + varName + " not found (most probably due to Pruning), skip LHscan !");
+    if (x.empty() || y.empty() ) {
+        WriteWarningStatus("TRExFit::GetLikelihoodScan", "Skipping LHscan");
         return;
     }
-    WriteInfoStatus("TRExFit::GetLikelihoodScan", "GetLikelihoodScan for parameter = " + vname_s);
 
     TCanvas can("NLLscan");
 
-    std::unique_ptr<RooAbsReal> nll(simPdf->createNLL(*data,
-                                                      Constrain(*mc->GetNuisanceParameters()),
-                                                      Offset(1),
-                                                      NumCPU(fCPU, RooFit::Hybrid),
-                                                      RooFit::Optimize(kTRUE)));
-
-    std::vector<double> x(fLHscanSteps);
-    std::vector<double> y(fLHscanSteps);
-    
-    ROOT::Math::MinimizerOptions::SetDefaultMinimizer("Minuit2");
-    ROOT::Math::MinimizerOptions::SetDefaultStrategy(1);
-    ROOT::Math::MinimizerOptions::SetDefaultPrintLevel(-1);
-    const double tol =        ::ROOT::Math::MinimizerOptions::DefaultTolerance(); //AsymptoticCalculator enforces not less than 1 on this
-    
-    RooMinimizer m(*nll); // get MINUIT interface of fit
-    m.setPrintLevel(-1);
-    m.setStrategy(2); // set precision to high
-    m.optimizeConst(2);
-    m.setEps(tol);
-    var->setConstant(kTRUE); // make POI constant in the fit
-    double min = 9999999;
-    for (int ipoint = 0; ipoint < fLHscanSteps; ++ipoint) {
-        WriteInfoStatus("TRExFit::GetLikelihoodScan","Running LHscan for point " + std::to_string(ipoint+1) + " out of " + std::to_string(fLHscanSteps) + " points");
-        x[ipoint] = minVal+ipoint*(maxVal-minVal)/(fLHscanSteps - 1);
-        *var = x[ipoint]; // set POI
-        m.migrad(); // minimize again with new posSigXsecOverSM value
-        RooFitResult* r = m.save(); // save fit result
-        y[ipoint] = r->minNll();
-        if (y[ipoint] < min) min = y[ipoint];
-    }
-    var->setConstant(kFALSE); // make POI not constant otherwise we run in errors in the 2D scan
-
-    for (auto & iY : y) {
-        iY = iY - min;
-    }
-
     TGraph graph(fLHscanSteps, &x[0], &y[0]);
     graph.Draw("ALP");
-    graph.GetXaxis()->SetRangeUser(minVal,maxVal);
+    graph.GetXaxis()->SetRangeUser(x[0],x.back());
 
     // y axis
     graph.GetYaxis()->SetTitle("-#Delta #kern[-0.1]{ln(#it{L})}");
@@ -6347,7 +6250,7 @@ void TRExFit::GetLikelihoodScan( RooWorkspace *ws, std::string varName, RooDataS
 
     TString cname="";
     cname.Append("NLLscan_");
-    cname.Append(vname);
+    cname.Append(varName);
 
     can.SetTitle(cname);
     can.SetName(cname);
@@ -6356,40 +6259,38 @@ void TRExFit::GetLikelihoodScan( RooWorkspace *ws, std::string varName, RooDataS
     TLatex tex{};
     tex.SetTextColor(kGray+2);
 
-    TLine l1s(minVal,0.5,maxVal,0.5);
+    TLine l1s(x[0],0.5,x.back(),0.5);
     l1s.SetLineStyle(kDashed);
     l1s.SetLineColor(kGray);
     l1s.SetLineWidth(2);
     if(graph.GetMaximum()>2){
         l1s.Draw();
-        tex.DrawLatex(maxVal,0.5,"#lower[-0.1]{#kern[-1]{1 #it{#sigma}   }}");
+        tex.DrawLatex(x.back(),0.5,"#lower[-0.1]{#kern[-1]{1 #it{#sigma}   }}");
     }
 
-    if(isPoI){
-        if(graph.GetMaximum()>2){
-            TLine l2s(minVal,2,maxVal,2);
-            l2s.SetLineStyle(kDashed);
-            l2s.SetLineColor(kGray);
-            l2s.SetLineWidth(2);
-            l2s.Draw();
-            tex.DrawLatex(maxVal,2,"#lower[-0.1]{#kern[-1]{2 #it{#sigma}   }}");
-        }
-        //
-        if(graph.GetMaximum()>4.5){
-            TLine l3s(minVal,4.5,maxVal,4.5);
-            l3s.SetLineStyle(kDashed);
-            l3s.SetLineColor(kGray);
-            l3s.SetLineWidth(2);
-            l3s.Draw();
-            tex.DrawLatex(maxVal,4.5,"#lower[-0.1]{#kern[-1]{3 #it{#sigma}   }}");
-        }
-        //
-        TLine lv0(0,graph.GetMinimum(),0,graph.GetMaximum());
-        lv0.Draw();
-        //
-        TLine lh0(minVal,0,maxVal,0);
-        lh0.Draw();
+    if(graph.GetMaximum()>2){
+        TLine l2s(x[0],2,x.back(),2);
+        l2s.SetLineStyle(kDashed);
+        l2s.SetLineColor(kGray);
+        l2s.SetLineWidth(2);
+        l2s.Draw();
+        tex.DrawLatex(x.back(),2,"#lower[-0.1]{#kern[-1]{2 #it{#sigma}   }}");
     }
+    //
+    if(graph.GetMaximum()>4.5){
+        TLine l3s(x[0],4.5,x.back(),4.5);
+        l3s.SetLineStyle(kDashed);
+        l3s.SetLineColor(kGray);
+        l3s.SetLineWidth(2);
+        l3s.Draw();
+        tex.DrawLatex(x.back(),4.5,"#lower[-0.1]{#kern[-1]{3 #it{#sigma}   }}");
+    }
+    //
+    TLine lv0(0,graph.GetMinimum(),0,graph.GetMaximum());
+    lv0.Draw();
+    //
+    TLine lh0(x[0],0,x.back(),0);
+    lh0.Draw();
 
     TString LHDir("LHoodPlots/");
     system(TString("mkdir -vp ")+fName+"/"+LHDir);
