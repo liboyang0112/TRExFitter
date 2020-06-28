@@ -436,13 +436,13 @@ std::map < std::string, double > MultiFit::FitCombinedWS(int fitType, const std:
     ws->saveSnapshot("snapshot_BeforeFit_NP" , *(mc->GetNuisanceParameters())   );
     ws->saveSnapshot("snapshot_BeforeFit_GO" , *(mc->GetGlobalObservables())    );
     
+    double nll0 = 0.;
+    if(fGetGoodnessOfFit) nll0 = fitTool.FitPDF( mc, simPdf, static_cast<RooDataSet*>(ws->data("asimovData")), false, true );
+    
     // save snapshot after fit
     ws->saveSnapshot("snapshot_AfterFit_POI", *(mc->GetParametersOfInterest()) );
     ws->saveSnapshot("snapshot_AfterFit_NP" , *(mc->GetNuisanceParameters())   );
     ws->saveSnapshot("snapshot_AfterFit_GO" , *(mc->GetGlobalObservables())    );
-    
-    double nll0 = 0.;
-    if(fGetGoodnessOfFit) nll0 = fitTool.FitPDF( mc, simPdf, static_cast<RooDataSet*>(ws->data("asimovData")), false, true );
     
     //
     // Get number of degrees of freedom
