@@ -4712,7 +4712,7 @@ std::map < std::string, double > TRExFit::PerformFit( RooWorkspace *ws, RooDataS
     if (fBlindedParameters.size() > 0) std::cout.setstate(std::ios_base::failbit);
     if(fGetGoodnessOfFit) nll0 = fitTool.FitPDF( mc, simPdf, static_cast<RooDataSet*>(ws->data("asimovData")), false, true );
 
-    // save snapshot before fit
+    // save snapshot after fit
     ws->saveSnapshot("snapshot_AfterFit_POI", *(mc->GetParametersOfInterest()) );
     ws->saveSnapshot("snapshot_AfterFit_NP" , *(mc->GetNuisanceParameters())   );
     ws->saveSnapshot("snapshot_AfterFit_GO" , *(mc->GetGlobalObservables())    );
@@ -4737,7 +4737,6 @@ std::map < std::string, double > TRExFit::PerformFit( RooWorkspace *ws, RooDataS
     ndof -= nNF;
 
     // Performs the fit
-    fitTool.MinimType("Minuit2");
     const double nll = fitTool.FitPDF( mc, simPdf, data );
     if (debugLevel < 1 && fBlindedParameters.size() == 0) std::cout.clear();
     if(save){
@@ -5197,17 +5196,7 @@ void TRExFit::GetLimit(){
         }
 
         //
-        // Set all saturated model factors to constant
-        RooRealVar* var = nullptr;
-        RooArgSet vars = ws_forLimit->allVars();
-        std::unique_ptr<TIterator> it(vars.createIterator());
-        while( (var = static_cast<RooRealVar*>(it->Next()))) {
-            const std::string& name = var->GetName();
-            if(name.find("saturated_model_sf_")!=std::string::npos){
-                WriteInfoStatus("TRExFit::GetLimit","Fixing parameter " + name );
-                var->setConstant( 1 );
-            }
-        }
+        FitUtils::DisableSaturatedModel(ws_forLimit.get());
 
         //
         // Gets the measurement object in the original combined workspace (created with the "w" command)
@@ -5317,16 +5306,7 @@ void TRExFit::GetSignificance(){
 
         //
         // Set all saturated model factors to constant
-        RooRealVar* var = nullptr;
-        RooArgSet vars = ws_forSignificance->allVars();
-        std::unique_ptr<TIterator> it(vars.createIterator());
-        while( (var = static_cast<RooRealVar*>(it->Next()))) {
-            const std::string& name = var->GetName();
-            if(name.find("saturated_model_sf_")!=std::string::npos){
-                WriteInfoStatus("TRExFit::GetSignificance","Fixing parameter " + name );
-                var->setConstant( 1 );
-            }
-        }
+        FitUtils::DisableSaturatedModel(ws_forSignificance.get());
 
         //
         // Gets the measurement object in the original combined workspace (created with the "w" command)

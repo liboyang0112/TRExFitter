@@ -496,7 +496,7 @@ These options are for multi-fits, performed with action `m`.
 | LimitsFile       | a name of the file with limits results |
 | BonlySuffix      | a suffix of the background only fits |
 | ShowSystForPOI   | can be TRUE or FALSE, set to TRUE if you want to show systematics for POI |
-| GetGoodnessOfFit | can be TRUE or FALSE, set to TRUE to get chi2/NDF for the fit. By default, the "SaturatedModel" is used (which is the only correct way how to estiamte the chi2/NDF). If you want to use the old test using Asimov, set GetGoodnessOfFit to TRUE and set SaturatedModel to FALSE |
+| GetGoodnessOfFit | can be TRUE or FALSE, set to TRUE to get goodness of fit value based on the saturated model |
 | doLHscan         | comma separated list of NP(or POIs) to run LH scan, if first parameter is "all" it will be run for all NP |
 | do2DLHscan       | produces 2D likelihood scan between the chosen parameters. Syntax: "paramX1,paramY1:param X2,paramY2". Warning takes long time. You can reduce the number of steps via `LHscanSteps`. Alternatively you can split up the 2D scan in slices with `Parallel2Dscan` |
 | LHscanMin        | minimum value for the LH scan on x-axis (default is Norm min). This also effect the x-axis in a 2D scan |
@@ -516,6 +516,7 @@ These options are for multi-fits, performed with action `m`.
 | POIInitial       | Sets the initial value of the POI for the fit. Default is 1. |
 | HEPDataFormat    | If set to `TRUE` wil lproduce output in HEPData yaml format. |
 | FitStrategy      | Set Minuit2 fitting strategy, can be: 0, 1 or 2. If negative value is set the default is used (1) |
+| BinnedLikelihoodOptimization | Can be set to TRUE or FALSE (default). If se to TRUE, will use the `BinnedLikelihood` optimisation of RooFit that has significant speed improvements, but results in less stable correlation matrix computation |
 
 
 ### Multi-fit `Fit` block settings

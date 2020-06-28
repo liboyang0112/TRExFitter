@@ -194,6 +194,7 @@ public:
     std::vector<std::string> fConfigPaths;
     int fFitStrategy;
     int fCPU;
+    bool fBinnedLikelihood;
 };
 
 #endif

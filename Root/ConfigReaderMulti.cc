@@ -514,6 +514,12 @@ int ConfigReaderMulti::ReadJobOptions() {
         }
     }
 
+    // Set BinnedLikelihoodOptimization
+    param = confSet->Get("BinnedLikelihoodOptimization");
+    if (param != "") {
+        fMultiFitter->fBinnedLikelihood = Common::StringToBoolean(param);
+    }
+
     return 0;
 }
 
