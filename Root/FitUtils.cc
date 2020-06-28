@@ -130,3 +130,18 @@ void FitUtils::InjectGlobalObservables(RooWorkspace* ws,
         this_glob->setVal(this_value);
     }
 }
+
+//__________________________________________________________________________________
+//
+void FitUtils::DisableSaturatedModel(RooWorkspace* ws) {
+    RooRealVar* var = nullptr;
+    RooArgSet vars = ws->allVars();
+    std::unique_ptr<TIterator> it(vars.createIterator());
+    while( (var = static_cast<RooRealVar*>(it->Next()))) {
+        const std::string& name = var->GetName();
+        if(name.find("saturated_model_sf_")!=std::string::npos){
+            WriteInfoStatus("FitUtils::DisableSaturatedModel","Fixing parameter " + name );
+            var->setConstant( 1 );
+        }
+    }
+}

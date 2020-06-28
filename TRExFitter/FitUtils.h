@@ -36,6 +36,12 @@ void SetBinnedLikelihoodOptimisation(RooWorkspace* ws);
  * @param map of NP values
  */
 void InjectGlobalObservables(RooWorkspace* ws, const std::map< std::string, double >& npValues);
+
+/**
+ * A helper function to set saturated model shapefactors to const
+ * @param workspace
+ */
+void DisableSaturatedModel(RooWorkspace* ws);
 }
 
 #endif
