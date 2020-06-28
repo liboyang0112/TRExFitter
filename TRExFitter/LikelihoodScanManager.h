@@ -7,7 +7,6 @@
 
 class RooDataSet;
 class RooWorkspace;
-class NormFactor;
 
 class LikelihoodScanManager {
 public:
@@ -53,8 +52,7 @@ public:
 
     scanResult1D Run1DScan(const RooWorkspace* ws,
                            const std::string& varName,
-                           RooDataSet* data,
-                           const std::vector<std::shared_ptr<NormFactor> >& nfs) const;
+                           RooDataSet* data) const;
 
     Result2D Run2DScan(const RooWorkspace* ws,
                        const std::pair<std::string,std::string>& varNames,

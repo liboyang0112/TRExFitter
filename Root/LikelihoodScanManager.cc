@@ -1,7 +1,6 @@
 #include "TRExFitter/LikelihoodScanManager.h"
 
 #include "TRExFitter/Common.h"
-#include "TRExFitter/NormFactor.h"
 #include "TRExFitter/StatusLogbook.h"
 
 #include "TRandom3.h"
@@ -61,8 +60,7 @@ LikelihoodScanManager::~LikelihoodScanManager() {
 //
 LikelihoodScanManager::scanResult1D LikelihoodScanManager::Run1DScan(const RooWorkspace* ws,
                                                                      const std::string& varName,
-                                                                     RooDataSet* data,
-                                                                     const std::vector<std::shared_ptr<NormFactor> >& nfs) const {
+                                                                     RooDataSet* data) const {
 
     if (!ws || !data) {
         WriteErrorStatus("LikelihoodScanManager::Run1DScan", "Passed nullptr for ws");
@@ -79,22 +77,6 @@ LikelihoodScanManager::scanResult1D LikelihoodScanManager::Run1DScan(const RooWo
     double min(-3);
     double max(3);
 
-    for (const auto& inf : nfs) {
-        if (inf->fName == varName) {
-            min = inf->fMin;
-            max = inf->fMax;
-            break;
-        }
-    }
-
-    if (fScanMinX < 99999) { // is actually set
-        min = fScanMinX;
-    }
-
-    if (fScanMaxX > -99999) { // is actually set
-        max = fScanMaxX;
-    }
-
     RooRealVar* var(nullptr);
     bool found(false);
     {
@@ -104,6 +86,8 @@ LikelihoodScanManager::scanResult1D LikelihoodScanManager::Run1DScan(const RooWo
             if (vname == varName) {
                 WriteInfoStatus("LikelihoodScanManager::Run1DScan", "GetLikelihoodScan for NP = " + vname);
                 found=true;
+                min = var->getMin();
+                max = var->getMax();
                 break;
             }
         }
@@ -119,6 +103,14 @@ LikelihoodScanManager::scanResult1D LikelihoodScanManager::Run1DScan(const RooWo
                 break;
             }
         }
+    }
+
+    if (fScanMinX < 99999) { // is actually set
+        min = fScanMinX;
+    }
+
+    if (fScanMaxX > -99999) { // is actually set
+        max = fScanMaxX;
     }
 
     LikelihoodScanManager::scanResult1D result;

@@ -6228,7 +6228,7 @@ void TRExFit::GetLikelihoodScan(RooWorkspace *ws,
     manager.SetOffSet(true);
     manager.SetBlindedParameters(fBlindedParameters);
     
-    auto scanResult = manager.Run1DScan(ws, varName, data, fNormFactors);
+    auto scanResult = manager.Run1DScan(ws, varName, data);
 
     const std::vector<double> x = scanResult.first;
     const std::vector<double> y = scanResult.second;
