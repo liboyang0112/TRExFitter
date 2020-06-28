@@ -1822,7 +1822,7 @@ void MultiFit::GetLikelihoodScan( RooWorkspace *ws, const std::string& varName, 
         graph->SetLineColor(kRed);
         graph->SetLineWidth(3);
         minVal = graph->GetXaxis()->GetXmin();
-        minVal = graph->GetXaxis()->GetXmax();
+        maxVal = graph->GetXaxis()->GetXmax();
     }
 
     TCanvas can("NLLscan");
