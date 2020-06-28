@@ -16,6 +16,7 @@
 #include "TRExFitter/StatusLogbook.h"
 #include "TRExFitter/SystematicHist.h"
 #include "TRExFitter/TRExPlot.h"
+#include "TRExFitter/RankingManager.h"
 #include "TRExFitter/Region.h"
 #include "TRExFitter/PruningUtil.h"
 #include "TRExFitter/TruthSample.h"
@@ -4017,8 +4018,8 @@ void TRExFit::Fit(bool isLHscanOnly){
     //
     // Set the global observables to the specified NPValues if the corresponding flag is TRUE
     //
-    if(fInjectGlobalObservables && fFitNPValues.size()) {
-        InjectGlobalObservables( ws.get() );
+    if(fInjectGlobalObservables && !fFitNPValues.empty()) {
+        FitUtils::InjectGlobalObservables(ws.get(), fFitNPValues);
     }
     
     //
@@ -4408,52 +4409,6 @@ void TRExFit::Fit(bool isLHscanOnly){
             Get2DLikelihoodScan( ws.get(), ipair, data.get());
         }
     }
-}
-
-//__________________________________________________________________________________
-//
-void TRExFit::InjectGlobalObservables( RooWorkspace * ws ) {
-    RooStats::ModelConfig* mc = static_cast<RooStats::ModelConfig*>(ws->obj("ModelConfig"));
-    RooArgSet mc_globs = *mc->GetGlobalObservables();
-
-    WriteInfoStatus("TRExFit::InjectGlobalObservables", "Injecting the following NP values to global observables");
-    for(auto const& np_value : fFitNPValues) {
-        const std::string this_name = np_value.first;
-        double this_value = np_value.second;
-    
-        std::ostringstream tmp;
-        tmp << this_name << ": " << this_value;
-        WriteInfoStatus("TRExFit::InjectGlobalObservables", tmp.str());
-    
-        // find the corresponding glob
-        const std::string glob_name = "nom_" + this_name;
-        const std::string glob_name_alpha = "nom_alpha_" + this_name;
-        const std::string glob_name_gamma = "nom_gamma_" + this_name;
-        std::unique_ptr<TIterator> gIter(mc_globs.createIterator());
-        RooRealVar* glob = nullptr;
-        RooRealVar* this_glob = nullptr;
-        while ((glob = static_cast<RooRealVar*>(gIter->Next()))) {
-            if(glob->GetName() == glob_name || glob->GetName() == glob_name_alpha || glob->GetName() == glob_name_gamma) {
-                this_glob = glob;
-                break;
-            }
-        }
-
-        if(!this_glob) {
-            WriteErrorStatus("TRExFit::InjectGlobalObservables", "Could not find global observable "+glob_name);
-            continue;
-        }
-
-        // set gamma values to gamma*nom_gamma
-        // cppcheck-suppress stlIfStrFind
-        if(glob_name.find("nom_gamma_") == 0) {
-            this_value = this_value * this_glob->getVal();
-        }
-
-        this_glob->setVal(this_value);
-    }
-
-    return ;
 }
 
 //__________________________________________________________________________________
@@ -5237,8 +5192,8 @@ void TRExFit::GetLimit(){
         //
         // Set the global observables to the specified NPValues if the corresponding flag is TRUE
         //
-        if(fInjectGlobalObservables && fFitNPValues.size()) {
-            InjectGlobalObservables( ws_forLimit.get() );
+        if(fInjectGlobalObservables && !fFitNPValues.empty()) {
+            FitUtils::InjectGlobalObservables(ws_forLimit.get(), fFitNPValues);
         }
 
         //
@@ -5356,8 +5311,8 @@ void TRExFit::GetSignificance(){
         //
         // Set the global observables to the specified NPValues if the corresponding flag is TRUE
         //
-        if(fInjectGlobalObservables && fFitNPValues.size()) {
-            InjectGlobalObservables( ws_forSignificance.get() );
+        if(fInjectGlobalObservables && !fFitNPValues.empty()) {
+            FitUtils::InjectGlobalObservables(ws_forSignificance.get(), fFitNPValues);
         }
 
         //
@@ -5624,38 +5579,31 @@ void TRExFit::DrawAndSaveSeparationPlots() const{
 
 //____________________________________________________________________________________
 //
-void TRExFit::ProduceNPRanking( std::string NPnames/*="all"*/ ){
+void TRExFit::ProduceNPRanking(const std::string& NPnames) {
 
     if(fFitType==BONLY){
         WriteErrorStatus("TRExFit::ProduceNPRanking", "For ranking plots, the SPLUSB FitType is needed.");
-        abort();
+        exit(EXIT_FAILURE);
     }
 
     //
     // List of systematics to check
     //
-    std::vector< std::string > nuisPars;
-    std::vector< bool > isNF;
+    RankingManager manager{};
     std::vector<std::string> systNames_unique;
-    for(std::size_t i_syst = 0; i_syst < fSystematics.size(); ++i_syst){
-        if(NPnames=="all" || NPnames==fSystematics[i_syst]->fNuisanceParameter ||
-            ( atoi(NPnames.c_str())==static_cast<int>(i_syst) && (atoi(NPnames.c_str())>0 || strcmp(NPnames.c_str(),"0")==0) )
-            ){
-            if(fSystematics[i_syst]->fType == Systematic::SHAPE) continue;
-            if (std::find(systNames_unique.begin(), systNames_unique.end(), fSystematics[i_syst]->fNuisanceParameter) == systNames_unique.end())
-                systNames_unique.push_back(fSystematics[i_syst]->fNuisanceParameter);
+    for(const auto& isyst : fSystematics) {
+        if(NPnames=="all" || NPnames==isyst->fNuisanceParameter ) {
+            if(isyst->fType == Systematic::SHAPE) continue;
+            if (std::find(systNames_unique.begin(), systNames_unique.end(), isyst->fNuisanceParameter) == systNames_unique.end())
+                systNames_unique.push_back(isyst->fNuisanceParameter);
             else continue;
-            nuisPars.push_back( fSystematics[i_syst]->fNuisanceParameter );
-            isNF.push_back( false );
+            manager.AddNuisPar(isyst->fNuisanceParameter, false);
         }
     }
-    for(std::size_t i_norm = 0; i_norm < fNormFactors.size(); ++i_norm) {
-        if(fPOI == fNormFactors.at(i_norm)->fName) continue;
-        if(NPnames=="all" || NPnames==fNormFactors.at(i_norm)->fName ||
-            ( atoi(NPnames.c_str())-fSystematics.size()==i_norm && (atoi(NPnames.c_str())>0 || strcmp(NPnames.c_str(),"0")==0) )
-            ){
-            nuisPars.push_back(fNormFactors.at(i_norm)->fName);
-            isNF.push_back( true );
+    for(const auto& inorm : fNormFactors) {
+        if(fPOI == inorm->fName) continue;
+        if(NPnames=="all" || NPnames==inorm->fName){
+            manager.AddNuisPar(inorm->fName, true);
         }
     }
 
@@ -5669,12 +5617,7 @@ void TRExFit::ProduceNPRanking( std::string NPnames/*="all"*/ ){
     }
     if(NPnames!="all") outName += "_"+NPnames;
     outName += ".txt";
-    std::ofstream outName_file(outName.c_str());
-    //
-    std::map< std::string,double > muVarUp;
-    std::map< std::string,double > muVarDown;
-    std::map< std::string,double > muVarNomUp;
-    std::map< std::string,double > muVarNomDown;
+    manager.SetOutputPath(outName);
 
     //
     // Creating the combined model
@@ -5716,7 +5659,6 @@ void TRExFit::ProduceNPRanking( std::string NPnames/*="all"*/ ){
             WriteInfoStatus("TRExFit::ProduceNPRanking","-------------------------------------------");
             WriteInfoStatus("TRExFit::ProduceNPRanking","Performing fit on regions with DataType = DATA to get NPs to inject in Asimov...");
             std::vector < std:: string > regionsForDataFit = ListRegionsToFit(Region::REALDATA);
-            std::map < std::string, int > regionForDataFitDataType = MapRegionDataTypes(regionsForDataFit);
             //
             // Creates a combined workspace with the regions to be used *in the data fit*
             //
@@ -5753,210 +5695,47 @@ void TRExFit::ProduceNPRanking( std::string NPnames/*="all"*/ ){
         if (TRExFitter::DEBUGLEVEL < 2) std::cout.clear();
     }
 
-    //
-    // Gets needed objects for the fit
-    //
-    if (!ws){
-        WriteErrorStatus("TRExFit::ProduceNPRanking","Cannot retrieve the workspace, exiting!");
+    RooStats::ModelConfig *mc = dynamic_cast<RooStats::ModelConfig*>(ws->obj("ModelConfig"));
+    if (!mc) {
+        WriteErrorStatus("TRExFit::ProduceNPRanking", "Model config is nullptr");
         exit(EXIT_FAILURE);
-    }
-    RooStats::ModelConfig *mc = static_cast<RooStats::ModelConfig*>(ws->obj("ModelConfig"));
-    RooSimultaneous *simPdf = static_cast<RooSimultaneous*>(mc->GetPdf());
-    if (!mc || !simPdf || !data){
-        WriteErrorStatus("TRExFit::ProduceNPRanking","At least one of the objects that is needed to run ranking is not present");
-        exit(EXIT_FAILURE);
-    }
-    
-    //
-    // Set the global observables to the specified NPValues if the corresponding flag is TRUE
-    //
-    if(fInjectGlobalObservables && fFitNPValues.size()) {
-        InjectGlobalObservables( ws.get() );
     }
 
     // Loop on NPs to find gammas and add to the list to be ranked
-    if(NPnames=="all" || NPnames.find("gamma")!=std::string::npos || (atoi(NPnames.c_str())>0 || strcmp(NPnames.c_str(),"0")==0)){
+    if(NPnames=="all" || NPnames.find("gamma")!=std::string::npos){
         RooRealVar* var(nullptr);
         const RooArgSet* nuis = static_cast<const RooArgSet*>(mc->GetNuisanceParameters());
         if(nuis){
             std::unique_ptr<TIterator> it2(nuis->createIterator());
-            int i_gamma = 0;
             while( (var = static_cast<RooRealVar*>(it2->Next())) ){
                 const std::string& np = var->GetName();
+                if (np.find("saturated_model") != std::string::npos) continue;
                 if(np.find("gamma")!=std::string::npos){
                     // add the nuisance parameter to the list nuisPars if it's there in the ws
                     // remove "gamma"...
-                    if(np==NPnames || (atoi(NPnames.c_str())-static_cast<int>(fSystematics.size())-static_cast<int>(fNormFactors.size())==i_gamma && (atoi(NPnames.c_str())>0 || strcmp(NPnames.c_str(),"0")==0)) || NPnames=="all"){
-                        nuisPars.emplace_back(Common::ReplaceString(np,"gamma_",""));
-                        isNF.emplace_back(true);
+                    if(np==NPnames || NPnames=="all"){
+                        manager.AddNuisPar(Common::ReplaceString(np,"gamma_",""), true);
                         if(NPnames!="all") break;
                     }
-                    i_gamma++;
                 }
             }
         }
     }
-
-    //
-    // Create snapshot to keep inital values
-    //
-    ws -> saveSnapshot("tmp_snapshot", *mc->GetPdf()->getParameters(data.get()));
-
-    //
-    // Initialize the FittingTool object
-    //
-    double poiInitial(0.);
-    for(const auto& inf : fNormFactors) {
-        if (inf->fName == fPOI) {
-            poiInitial = inf->fNominal;
-            break;
-        }
-    }
-    FittingTool fitTool{};
-    fitTool.SetUseHesse(false);
-    fitTool.SetStrategy(fFitStrategy);
-    fitTool.SetDebug(TRExFitter::DEBUGLEVEL);
-    fitTool.ValPOI(poiInitial);
-    fitTool.SetNCPU(fCPU);
-    fitTool.ConstPOI(false);
-    if(fStatOnly){
-        fitTool.NoGammas();
-        fitTool.NoSystematics();
-    }
-
-    // Set initial NP to random value if specified
-    fitTool.SetRandomNP(fRndRange, fUseRnd, fRndSeed);
 
     ReadFitResults(fName+"/Fits/"+fInputName+fSuffix+".txt");
-    {
-        std::vector<std::string> npNames;
-        std::vector<double> npValues;
-        for(const auto& inf : fNormFactors) {
-            if (inf->fName == fPOI) continue;
-            npNames. emplace_back(inf->fName);
-            npValues.emplace_back(inf->fNominal);
-        }
-        fitTool.SetNPs( npNames,npValues );
-    }
 
-    FitUtils::ApplyExternalConstraints(ws.get(), &fitTool, simPdf, fNormFactors);
+    manager.SetInjectGlobalObservables(fInjectGlobalObservables);
+    manager.SetNPValues(fFitNPValues);
+    manager.SetFixedNPs(fFitFixedNPs);
+    manager.SetFitStrategy(fFitStrategy);
+    manager.SetPOIName(fPOI);
+    manager.SetNCPU(fCPU);
+    manager.SetRng(fRndRange, fUseRnd, fRndSeed);
+    manager.SetStatOnly(fStatOnly);
 
-    const double muhat = fFitResults -> GetNuisParValue( fPOI );
+    manager.RunRanking(fFitResults, ws.get(), data.get(), fNormFactors);
 
-    for(unsigned int i=0;i<nuisPars.size();i++){
-        //
-        // Getting the postfit values of the nuisance parameter
-        double central = fFitResults -> GetNuisParValue(   nuisPars[i] );
-        double up      = fFitResults -> GetNuisParErrUp(   nuisPars[i] );
-        double down    = fFitResults -> GetNuisParErrDown( nuisPars[i] );
-        //// Thomas : We should be careful with changing naming convention compared to RooFit !!
-        // TRExFitter store gammas names as stat_Reg_bin_i (i.e. remove the gamma_ at the beginning)
-        // Now there is no real identifier in the NP name to state if it is a gamma or not and add back gamma_ except this _bin_
-        if( (nuisPars[i].find("_bin_")!=std::string::npos) ){
-            nuisPars[i] = "gamma_" + nuisPars[i];
-        }
-        outName_file <<  nuisPars[i] << "   " << central << " +" << fabs(up) << " -" << fabs(down)<< "  ";
-        //
-        // Experimental: reduce the range of ranking
-        if(TRExFitter::OPTION["ReduceRanking"]!=0){
-            up   *= TRExFitter::OPTION["ReduceRanking"];
-            down *= TRExFitter::OPTION["ReduceRanking"];
-        }
-        //
-        // Set the NP to its post-fit *up* variation and refit to get the fitted POI
-        ws->loadSnapshot("tmp_snapshot");
-        fitTool.ResetFixedNP();
-        // fix NPs that are fixed in the config
-        // this has nothing to do with fixing NPs for the ranking
-        // this is just needed to be compatible with the normal fit
-        if(fFitFixedNPs.size()>0){
-            for(const auto& nuisParToFix : fFitFixedNPs){
-                fitTool.FixNP(nuisParToFix.first,nuisParToFix.second);
-            }
-        }
-
-        fitTool.FixNP( nuisPars[i], central + std::abs(up));
-        fitTool.FitPDF( mc, simPdf, data.get() );
-        muVarUp[ nuisPars[i] ]   = (fitTool.ExportFitResultInMap())[ fPOI ];
-
-        // Set the NP to its post-fit *down* variation and refit to get the fitted POI
-        ws->loadSnapshot("tmp_snapshot");
-        fitTool.ResetFixedNP();
-        fitTool.FixNP( nuisPars[i], central - std::abs(down));
-        if(fFitFixedNPs.size()>0){
-            for(const auto& nuisParToFix : fFitFixedNPs){
-                fitTool.FixNP(nuisParToFix.first,nuisParToFix.second);
-            }
-        }
-        fitTool.FitPDF( mc, simPdf, data.get() );
-        muVarDown[ nuisPars[i] ] = (fitTool.ExportFitResultInMap())[ fPOI ];
-
-        double dMuUp   = muVarUp[nuisPars[i]]-muhat;
-        double dMuDown = muVarDown[nuisPars[i]]-muhat;
-
-        // Experimental: reduce the range of ranking
-        if(TRExFitter::OPTION["ReduceRanking"]!=0){
-            dMuUp   /= TRExFitter::OPTION["ReduceRanking"];
-            dMuDown /= TRExFitter::OPTION["ReduceRanking"];
-        }
-
-        outName_file << dMuUp << "   " << dMuDown << "  ";
-
-        if(isNF[i]){
-            muVarNomUp[   nuisPars[i] ] = muhat;
-            muVarNomDown[ nuisPars[i] ] = muhat;
-        }
-        else{
-            up   = 1.;
-            down = 1.;
-
-            // Experimental: reduce the range of ranking
-            if(TRExFitter::OPTION["ReduceRanking"]!=0){
-                up   *= TRExFitter::OPTION["ReduceRanking"];
-                down *= TRExFitter::OPTION["ReduceRanking"];
-            }
-
-            // Set the NP to its pre-fit *up* variation and refit to get the fitted POI (pre-fit impact on POI)
-            ws->loadSnapshot("tmp_snapshot");
-            fitTool.ResetFixedNP();
-            fitTool.FixNP( nuisPars[i], central + std::abs(up));
-            fitTool.FitPDF( mc, simPdf, data.get() );
-            if(fFitFixedNPs.size()>0){
-                for(const auto& nuisParToFix : fFitFixedNPs){
-                    fitTool.FixNP(nuisParToFix.first,nuisParToFix.second);
-                }
-            }
-            muVarNomUp[ nuisPars[i] ]   = (fitTool.ExportFitResultInMap())[ fPOI ];
-            //
-            // Set the NP to its pre-fit *down* variation and refit to get the fitted POI (pre-fit impact on POI)
-            ws->loadSnapshot("tmp_snapshot");
-            fitTool.ResetFixedNP();
-            fitTool.FixNP( nuisPars[i], central - std::abs(down));
-            if(fFitFixedNPs.size()>0){
-                for(const auto& nuisParToFix : fFitFixedNPs){
-                    fitTool.FixNP(nuisParToFix.first,nuisParToFix.second);
-                }
-            }
-            fitTool.FitPDF( mc, simPdf, data.get() );
-            //
-            muVarNomDown[ nuisPars[i] ] = (fitTool.ExportFitResultInMap())[ fPOI ];
-        }
-        dMuUp   = muVarNomUp[nuisPars[i]]-muhat;
-        dMuDown = muVarNomDown[nuisPars[i]]-muhat;
-        //
-        // Experimental: reduce the range of ranking
-        if(TRExFitter::OPTION["ReduceRanking"]!=0){
-            dMuUp   /= TRExFitter::OPTION["ReduceRanking"];
-            dMuDown /= TRExFitter::OPTION["ReduceRanking"];
-        }
-        //
-       outName_file << dMuUp << "   " << dMuDown << " " << std::endl;
-
-    }
-    outName_file.close();
-    ws->loadSnapshot("tmp_snapshot");
     if(customWSfile!=nullptr) customWSfile->Close();
-
 }
 
 //____________________________________________________________________________________
@@ -5969,7 +5748,7 @@ void TRExFit::PlotNPRankingManager() const{
 
 //____________________________________________________________________________________
 //
-void TRExFit::PlotNPRanking(bool flagSysts, bool flagGammas) const{
+void TRExFit::PlotNPRanking(const bool flagSysts, const bool flagGammas) const{
     //
     const std::string fileToRead = fName+"/Fits/NPRanking"+fSuffix+".txt";
 
@@ -5979,372 +5758,19 @@ void TRExFit::PlotNPRanking(bool flagSysts, bool flagGammas) const{
         Common::MergeTxTFiles(inPaths, fileToRead);
     }
 
-    //
-    unsigned int maxNP = fRankingMaxNP;
-    //
-    std::string paramname;
-    double nuiphat;
-    double nuiperrhi;
-    double nuiperrlo;
-    double PoiUp;
-    double PoiDown;
-    double PoiNomUp;
-    double PoiNomDown;
-    std::vector<std::string> parname;
-    std::vector<double> nuhat;
-    std::vector<double> nuerrhi;
-    std::vector<double> nuerrlo;
-    std::vector<double> poiup;
-    std::vector<double> poidown;
-    std::vector<double> poinomup;
-    std::vector<double> poinomdown;
-    std::vector<double> number;
+    RankingManager manager{};
+    manager.SetOutputPath(fileToRead);
+    manager.SetAtlasLabel(fAtlasLabel);
+    manager.SetLumiLabel(fLumiLabel);
+    manager.SetCmeLabel(fCmeLabel);
+    manager.SetUseHEPDataFormat(fHEPDataFormat);
+    manager.SetName(fName);
+    manager.SetSuffix(fSuffix);
+    manager.SetMaxNPPlot(fRankingMaxNP);
+    manager.SetRankingPOIName(fRankingPOIName);
+    manager.SetRankingCanvasSize(fNPRankingCanvasSize);
 
-    std::vector<YamlConverter::RankingContainer> containerVec;
-
-    std::ifstream fin( fileToRead.c_str() );
-    fin >> paramname >> nuiphat >> nuiperrhi >> nuiperrlo >> PoiUp >> PoiDown >> PoiNomUp >> PoiNomDown;
-    std::string temp_string = "Systematic called \"Luminosity\" found. This creates issues for the ranking plot. Skipping. Suggestion: rename this systematic as \"Lumi\" or \"luminosity\"";
-    if (paramname=="Luminosity"){
-        WriteErrorStatus("TRExFit::PlotNPRanking", temp_string);
-        fin >> paramname >> nuiphat >> nuiperrhi >> nuiperrlo >> PoiUp >> PoiDown >> PoiNomUp >> PoiNomDown;
-    }
-    while (!fin.eof()){
-        if(paramname.find("gamma")!=std::string::npos && !flagGammas){
-            fin >> paramname >> nuiphat >> nuiperrhi >> nuiperrlo >> PoiUp >> PoiDown >> PoiNomUp >> PoiNomDown;
-            if (paramname=="Luminosity"){
-                WriteErrorStatus("TRExFit::PlotNPRanking", temp_string);
-                fin >> paramname >> nuiphat >> nuiperrhi >> nuiperrlo >> PoiUp >> PoiDown >> PoiNomUp >> PoiNomDown;
-            }
-            continue;
-        }
-        if(paramname.find("gamma")==std::string::npos && !flagSysts){
-            fin >> paramname >> nuiphat >> nuiperrhi >> nuiperrlo >> PoiUp >> PoiDown >> PoiNomUp >> PoiNomDown;
-            if (paramname=="Luminosity"){
-                WriteErrorStatus("TRExFit::PlotNPRanking", temp_string);
-                fin >> paramname >> nuiphat >> nuiperrhi >> nuiperrlo >> PoiUp >> PoiDown >> PoiNomUp >> PoiNomDown;
-            }
-            continue;
-        }
-        parname.push_back(paramname);
-        nuhat.push_back(nuiphat);
-        nuerrhi.push_back(nuiperrhi);
-        nuerrlo.push_back(nuiperrlo);
-        poiup.push_back(PoiUp);
-        poidown.push_back(PoiDown);
-        poinomup.push_back(PoiNomUp);
-        poinomdown.push_back(PoiNomDown);
-
-        YamlConverter::RankingContainer container;
-        container.name = paramname;        
-        container.nphat = nuiphat;        
-        container.nperrhi = nuiperrhi;        
-        container.nperrlo = nuiperrlo; 
-        container.poihi = PoiUp;       
-        container.poilo = PoiDown;       
-        container.poiprehi = PoiNomUp;       
-        container.poiprelo = PoiNomDown;       
-
-        containerVec.emplace_back(std::move(container));
-
-        fin >> paramname >> nuiphat >> nuiperrhi >> nuiperrlo >> PoiUp >> PoiDown >> PoiNomUp >> PoiNomDown;
-        if (paramname=="Luminosity"){
-            WriteErrorStatus("TRExFit::PlotNPRanking", temp_string);
-            fin >> paramname >> nuiphat >> nuiperrhi >> nuiperrlo >> PoiUp >> PoiDown >> PoiNomUp >> PoiNomDown;
-        }
-    }
-
-    {
-        YamlConverter converter{};
-        converter.WriteRanking(containerVec, fName+"/Ranking"+fSuffix+".yaml");
-        if (fHEPDataFormat) {
-            converter.SetLumi(Common::ReplaceString(fLumiLabel, " fb^{-1}", ""));
-            converter.SetCME(Common::ReplaceString(fCmeLabel, " TeV", "000"));
-            converter.WriteRankingHEPData(containerVec, fName);
-        }
-    }
-
-    unsigned int SIZE = parname.size();
-    WriteDebugStatus("TRExFit::PlotNPRanking", "NP ordering...");
-    number.push_back(0.5);
-    for (unsigned int i=1;i<SIZE;i++){
-        number.push_back(i+0.5);
-        double sumi = 0.0;
-        int index=-1;
-        sumi += std::max( std::abs(poiup[i]),std::abs(poidown[i]) );
-        for (unsigned int j=1;j<=i;j++){
-            double sumii = 0.0;
-            sumii += std::max(std::abs(poiup[i-j]),std::abs(poidown[i-j]) );
-            if (sumi<sumii){
-                if (index==-1){
-                    std::swap(poiup[i],poiup[i-j]);
-                    std::swap(poidown[i],poidown[i-j]);
-                    std::swap(poinomup[i],poinomup[i-j]);
-                    std::swap(poinomdown[i],poinomdown[i-j]);
-                    std::swap(nuhat[i],nuhat[i-j]);
-                    std::swap(nuerrhi[i],nuerrhi[i-j]);
-                    std::swap(nuerrlo[i],nuerrlo[i-j]);
-                    std::swap(parname[i],parname[i-j]);
-                    index=i-j;
-                }
-                else{
-                    std::swap(poiup[index],poiup[i-j]);
-                    std::swap(poidown[index],poidown[i-j]);
-                    std::swap(poinomup[index],poinomup[i-j]);
-                    std::swap(poinomdown[index],poinomdown[i-j]);
-                    std::swap(nuhat[index],nuhat[i-j]);
-                    std::swap(nuerrhi[index],nuerrhi[i-j]);
-                    std::swap(nuerrlo[index],nuerrlo[i-j]);
-                    std::swap(parname[index],parname[i-j]);
-                    index=i-j;
-                }
-            }
-            else{
-                break;
-            }
-        }
-    }
-    number.push_back(parname.size()-0.5);
-
-    double poimax = 0;
-    for (unsigned int i=0;i<SIZE;i++) {
-        poimax = std::max(poimax,std::max(std::abs(poiup[i]),std::abs(poidown[i]) ));
-        poimax = std::max(poimax,std::max( std::abs(poinomup[i]),std::abs(poinomdown[i]) ));
-        nuerrlo[i] = std::abs(nuerrlo[i]);
-    }
-    poimax *= 1.2;
-
-    for (unsigned int i=0;i<SIZE;i++) {
-        poiup[i]     *= (2./poimax);
-        poidown[i]   *= (2./poimax);
-        poinomup[i]  *= (2./poimax);
-        poinomdown[i]*= (2./poimax);
-    }
-
-    // Restrict to the first N
-    if(SIZE>maxNP) SIZE = maxNP;
-
-    // Graphical part - rewritten taking DrawPulls in TRExFitter
-    double lineHeight  =  30.;
-    double offsetUp    =  60.; // external
-    double offsetDown  =  60.;
-    double offsetUp1   = 100.; // internal
-    double offsetDown1 =  15.;
-    int offset = offsetUp + offsetDown + offsetUp1 + offsetDown1;
-    int newHeight = offset + SIZE*lineHeight;
-
-    double xmin = -2.;
-    double xmax =  2.;
-    double max  =  0.;
-
-    TGraphAsymmErrors g{};
-    TGraphAsymmErrors g1{};
-    TGraphAsymmErrors g2{};
-    TGraphAsymmErrors g1a{};
-    TGraphAsymmErrors g2a{};
-
-    int idx = 0;
-    std::vector< std::string > Names;
-    std::string parTitle;
-
-    for(unsigned int i = parname.size()-SIZE; i<parname.size(); ++i){
-        g.SetPoint(idx, nuhat[i],  idx+0.5);
-        g.SetPointEXhigh(      idx, nuerrhi[i]);
-        g.SetPointEXlow(       idx, nuerrlo[i]);
-
-        g1.SetPoint(      idx, 0.,idx+0.5);
-        g1.SetPointEXhigh(idx, poiup[i]);
-        g1.SetPointEXlow( idx, 0.);
-        g1.SetPointEYhigh(idx, 0.4);
-        g1.SetPointEYlow( idx, 0.4);
-
-        g2.SetPoint(      idx, 0.,idx+0.5);
-        g2.SetPointEXhigh(idx, poidown[i]);
-        g2.SetPointEXlow( idx, 0.);
-        g2.SetPointEYhigh(idx, 0.4);
-        g2.SetPointEYlow( idx, 0.4);
-
-        g1a.SetPoint(      idx, 0.,idx+0.5);
-        g1a.SetPointEXhigh(idx, poinomup[i]);
-        g1a.SetPointEXlow( idx, 0.);
-        g1a.SetPointEYhigh(idx, 0.4);
-        g1a.SetPointEYlow( idx, 0.4);
-
-        g2a.SetPoint(      idx, 0.,idx+0.5);
-        g2a.SetPointEXhigh(idx, poinomdown[i]);
-        g2a.SetPointEXlow( idx, 0.);
-        g2a.SetPointEYhigh(idx, 0.4);
-        g2a.SetPointEYlow( idx, 0.4);
-
-        if(parname[i].find("gamma")!=std::string::npos){
-            // get name of the region
-            std::vector<std::string> tmpVec = Vectorize(parname[i],'_');
-            int nWords = tmpVec.size();
-            std::string regName = tmpVec[2];
-            for(int i_word=3;i_word<nWords-2;i_word++){
-                regName += tmpVec[i_word];
-            }
-            // find the short label of this region
-            std::string regTitle = regName;
-            for( int i_ch = 0; i_ch < fNRegions; i_ch++ ){
-                if(fRegions[i_ch]->fName==regName){
-                    regTitle = fRegions[i_ch]->fShortLabel;
-                    break;
-                }
-            }
-            // build the title of the nuis par
-            parTitle = "#gamma (" + regTitle + " bin " + tmpVec[nWords-1] + ")";
-        }
-        else parTitle = TRExFitter::SYSTMAP[ parname[i] ];
-
-        Names.push_back(parTitle);
-
-        idx ++;
-        if(idx > max)  max = idx;
-    }
-    int newWidth = 600;
-    if (fNPRankingCanvasSize.size() != 0){
-        newWidth = fNPRankingCanvasSize.at(0);
-        newHeight = fNPRankingCanvasSize.at(1);
-    }
-    TCanvas c("c","c",newWidth,newHeight);
-    c.SetTicks(0,0);
-    gPad->SetLeftMargin(0.4);
-    gPad->SetRightMargin(0.05);
-    gPad->SetTopMargin(1.*offsetUp/newHeight);
-    gPad->SetBottomMargin(1.*offsetDown/newHeight);
-
-    TH1D h_dummy("h_dummy","h_dummy",10,xmin,xmax);
-    h_dummy.SetMaximum( SIZE + offsetUp1/lineHeight   );
-    h_dummy.SetMinimum(      - offsetDown1/lineHeight );
-    h_dummy.SetLineWidth(0);
-    h_dummy.SetFillStyle(0);
-    h_dummy.SetLineColor(kWhite);
-    h_dummy.SetFillColor(kWhite);
-    h_dummy.GetYaxis()->SetLabelSize(0);
-    h_dummy.Draw();
-    h_dummy.GetYaxis()->SetNdivisions(0);
-    for(int i_bin=0;i_bin<h_dummy.GetNbinsX()+1;i_bin++){
-        h_dummy.SetBinContent(i_bin,-10);
-    }
-
-    g1.SetFillColor(kAzure-4);
-    g2.SetFillColor(kCyan);
-    g1.SetLineColor(g1.GetFillColor());
-    g2.SetLineColor(g2.GetFillColor());
-
-    g1a.SetFillColor(kWhite);
-    g2a.SetFillColor(kWhite);
-    g1a.SetLineColor(kAzure-4);
-    g2a.SetLineColor(kCyan);
-    g1a.SetFillStyle(0);
-    g2a.SetFillStyle(0);
-    g1a.SetLineWidth(1);
-    g2a.SetLineWidth(1);
-
-    g.SetLineWidth(2);
-
-    g1a.Draw("5 same");
-    g2a.Draw("5 same");
-    g1.Draw("2 same");
-    g2.Draw("2 same");
-    g.Draw("p same");
-
-    TLatex systs{};
-    systs.SetTextAlign(32);
-    systs.SetTextSize( systs.GetTextSize()*0.8 );
-    for(int i=0;i<max;i++){
-        systs.DrawLatex(xmin-0.1,i+0.5,Names[i].c_str());
-    }
-    h_dummy.GetXaxis()->SetLabelSize( h_dummy.GetXaxis()->GetLabelSize()*0.9 );
-    h_dummy.GetXaxis()->CenterTitle();
-    h_dummy.GetXaxis()->SetTitle("(#hat{#theta}-#theta_{0})/#Delta#theta");
-    h_dummy.GetXaxis()->SetTitleOffset(1.2);
-
-    TGaxis axis_up( -2, SIZE + (offsetUp1)/lineHeight, 2, SIZE + (offsetUp1)/lineHeight, -poimax,poimax, 510, "-" );
-    axis_up.SetLabelOffset( 0.01 );
-    axis_up.SetLabelSize(   h_dummy.GetXaxis()->GetLabelSize() );
-    axis_up.SetLabelFont(   gStyle->GetTextFont() );
-    axis_up.Draw();
-    axis_up.CenterTitle();
-    axis_up.SetTitle(("#Delta"+fRankingPOIName).c_str());
-    if(SIZE==20) axis_up.SetTitleOffset(1.5);
-    axis_up.SetTitleSize(   h_dummy.GetXaxis()->GetLabelSize() );
-    axis_up.SetTitleFont(   gStyle->GetTextFont() );
-
-    TPad pad1("p1","Pad High",0,(newHeight-offsetUp-offsetUp1)/newHeight,0.4,1);
-    pad1.Draw();
-
-    pad1.cd();
-    TLegend leg1(0.02,0.7,1,1.0,("Pre-fit impact on "+fRankingPOIName+":").c_str());
-    leg1.SetFillStyle(0);
-    leg1.SetBorderSize(0);
-    leg1.SetMargin(0.25);
-    leg1.SetNColumns(2);
-    leg1.SetTextFont(gStyle->GetTextFont());
-    leg1.SetTextSize(gStyle->GetTextSize());
-    leg1.AddEntry(&g1a,"#theta = #hat{#theta}+#Delta#theta","f");
-    leg1.AddEntry(&g2a,"#theta = #hat{#theta}-#Delta#theta","f");
-    leg1.Draw();
-
-    TLegend leg2(0.02,0.32,1,0.62,("Post-fit impact on "+fRankingPOIName+":").c_str());
-    leg2.SetFillStyle(0);
-    leg2.SetBorderSize(0);
-    leg2.SetMargin(0.25);
-    leg2.SetNColumns(2);
-    leg2.SetTextFont(gStyle->GetTextFont());
-    leg2.SetTextSize(gStyle->GetTextSize());
-    leg2.AddEntry(&g1,"#theta = #hat{#theta}+#Delta#hat{#theta}","f");
-    leg2.AddEntry(&g2,"#theta = #hat{#theta}-#Delta#hat{#theta}","f");
-    leg2.Draw();
-
-    TLegend leg0(0.02,0.1,1,0.25);
-    leg0.SetFillStyle(0);
-    leg0.SetBorderSize(0);
-    leg0.SetMargin(0.2);
-    leg0.SetTextFont(gStyle->GetTextFont());
-    leg0.SetTextSize(gStyle->GetTextSize());
-    leg0.AddEntry(&g,"Nuis. Param. Pull","lp");
-    leg0.Draw();
-
-    c.cd();
-
-    TLine l0(0,- offsetDown1/lineHeight,0,SIZE+0.5);// + offsetUp1/lineHeight);
-    l0.SetLineStyle(kDashed);
-    l0.SetLineColor(kBlack);
-    l0.Draw("same");
-    TLine l1 (-1,- offsetDown1/lineHeight,-1,SIZE+0.5);// + offsetUp1/lineHeight);
-    l1.SetLineStyle(kDashed);
-    l1.SetLineColor(kBlack);
-    l1.Draw("same");
-    TLine l2(1,- offsetDown1/lineHeight,1,SIZE+0.5);// + offsetUp1/lineHeight);
-    l2.SetLineStyle(kDashed);
-    l2.SetLineColor(kBlack);
-    l2.Draw("same");
-
-    if (fAtlasLabel!= "none") ATLASLabelNew(0.42,(1.*(offsetDown+offsetDown1+SIZE*lineHeight+0.6*offsetUp1)/newHeight), fAtlasLabel.c_str(), kBlack, gStyle->GetTextSize());
-    myText(       0.42,(1.*(offsetDown+offsetDown1+SIZE*lineHeight+0.3*offsetUp1)/newHeight), 1,Form("#sqrt{s} = %s, %s",fCmeLabel.c_str(),fLumiLabel.c_str()));
-
-    gPad->RedrawAxis();
-
-    if(flagGammas && flagSysts){
-        for(const auto& format : TRExFitter::IMAGEFORMAT) {
-            c.SaveAs((fName+"/Ranking"+fSuffix+"."+format).c_str());
-        }
-    } else if(flagGammas){
-        for(const auto& format : TRExFitter::IMAGEFORMAT) {
-            c.SaveAs((fName+"/RankingGammas"+fSuffix+"."+format).c_str());
-        }
-    } else if(flagSysts){
-        for(const auto& format: TRExFitter::IMAGEFORMAT) {
-            c.SaveAs((fName+"/RankingSysts"+fSuffix+"."+format).c_str() );
-        }
-    } else{
-        WriteWarningStatus("TRExFit::PlotNPRanking", "Your ranking plot felt in unknown category :s");
-        for(const auto& format : TRExFitter::IMAGEFORMAT) {
-            c.SaveAs((fName+"/RankingUnknown"+fSuffix+"."+format).c_str() );
-        }
-    }
+    manager.PlotRanking(fRegions, flagSysts, flagGammas);
 }
 
 //____________________________________________________________________________________

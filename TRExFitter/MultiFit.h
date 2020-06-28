@@ -47,7 +47,7 @@ public:
     void ComparePulls(std::string category="") const;
     void CompareNormFactors(std::string category="") const;
     void PlotCombinedCorrelationMatrix() const;
-    void ProduceNPRanking(std::string NPnames="all") const;
+    void ProduceNPRanking(const std::string& NPnames) const;
     void PlotNPRankingManager() const;
     void PlotNPRanking(bool flagSysts=true, bool flagGammas=false) const;
     void PlotSummarySoverB() const;
@@ -56,13 +56,30 @@ public:
     void BuildGroupedImpactTable() const;
 
     /**
-      * A helper function to get vector of unique normfactors used i na fit
+      * A helper function to get vector of unique normfactors used in a fit
       * @return the vector of norm factors
       */ 
     std::vector<std::shared_ptr<NormFactor> > GetFitNormFactors() const;
+
+    /**
+      * A helper function to get vector of unique systematics used in a fit
+      * @return the vector of systematics
+      */ 
+    std::vector<std::shared_ptr<Systematic> > GetFitSystematics() const;
+
+    /**
+      * A helper function to get map of fixed NPs and their values from the individual configs
+      * @return the map
+      */ 
+    std::map<std::string, double> GetFixedNPs() const;
     
+    /**
+      * A helper function to get vector of regions
+      * @return the vector
+      */ 
+    std::vector<Region* > GetFitRegions() const;
+
     TH1D* Combine(std::vector<TH1D*> hists) const;
-    TH1D* OrderBins(TH1D* h, std::vector<double> vec) const;
     TH1D* Rebin(TH1D* h, const std::vector<double>& vec, bool isData=true) const;
 
     std::vector< std::string > fFitNames;

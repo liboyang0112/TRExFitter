@@ -111,6 +111,7 @@ set( lib_headers
   TRExFitter/NtupleReader.h
   TRExFitter/NuisParameter.h
   TRExFitter/PruningUtil.h
+  TRExFitter/RankingManager.h
   TRExFitter/Region.h
   TRExFitter/Sample.h
   TRExFitter/SampleHist.h
@@ -143,6 +144,7 @@ set( lib_sources
   Root/NtupleReader.cc
   Root/NuisParameter.cc
   Root/PruningUtil.cc
+  Root/RankingManager.cc
   Root/Region.cc
   Root/Sample.cc
   Root/SampleHist.cc

@@ -177,7 +177,6 @@ public:
     // fit etc...
     void Fit(bool isLHscanOnly);
     RooDataSet* DumpData( RooWorkspace *ws, std::map < std::string, int > &regionDataType, std::map < std::string, double > &npValues, const double poiValue);
-    void InjectGlobalObservables( RooWorkspace *ws );
     std::map < std::string, double > PerformFit( RooWorkspace *ws, RooDataSet* inputData, FitType fitType=SPLUSB, bool save=false, int debugLevel=1 );
     std::unique_ptr<RooWorkspace> PerformWorkspaceCombination( std::vector < std::string > &regionsToFit ) const;
 
@@ -198,8 +197,8 @@ public:
     std::shared_ptr<Sample> GetSample(const std::string& name) const;
     std::size_t GetSampleIndex(const std::string& name) const;
 
-    void ProduceNPRanking(std::string NPnames="all");
-    void PlotNPRanking(bool flagSysts=true, bool flagGammas=true) const;
+    void ProduceNPRanking(const std::string& NPnames);
+    void PlotNPRanking(const bool flagSysts, const bool flagGammas) const;
     void PlotNPRankingManager() const;
 
     void PrintSystTables(std::string opt="") const;

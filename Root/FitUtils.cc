@@ -15,6 +15,8 @@
 #include "TVectorD.h"
 #include "TMatrixDSym.h"
 
+#include <sstream>
+
 //__________________________________________________________________________________
 //
 void FitUtils::ApplyExternalConstraints(RooWorkspace* ws,
@@ -77,5 +79,54 @@ void FitUtils::SetBinnedLikelihoodOptimisation(RooWorkspace* ws) {
             const std::string temp_string = arg->GetName();
             WriteDebugStatus("FitUtils::SetBinnedLikelihoodOptimisation", "Activating binned likelihood attribute for " + temp_string);
         }
+    }
+}
+
+//__________________________________________________________________________________
+//
+void FitUtils::InjectGlobalObservables(RooWorkspace* ws,
+                                       const std::map< std::string, double >& npValues) {
+    RooStats::ModelConfig* mc = dynamic_cast<RooStats::ModelConfig*>(ws->obj("ModelConfig"));
+    if (!mc) {
+        WriteErrorStatus("FitUtils::InjectGlobalObservables", "Cannot read ModelCOnfig");
+        exit(EXIT_FAILURE);
+    }
+    RooArgSet mc_globs = *mc->GetGlobalObservables();
+
+    WriteInfoStatus("FitUtils::InjectGlobalObservables", "Injecting the following NP values to global observables");
+    for(const auto& np_value : npValues) {
+        const std::string this_name = np_value.first;
+        double this_value = np_value.second;
+    
+        std::ostringstream tmp;
+        tmp << this_name << ": " << this_value;
+        WriteInfoStatus("FitUtils::InjectGlobalObservables", tmp.str());
+    
+        // find the corresponding glob
+        const std::string glob_name = "nom_" + this_name;
+        const std::string glob_name_alpha = "nom_alpha_" + this_name;
+        const std::string glob_name_gamma = "nom_gamma_" + this_name;
+        std::unique_ptr<TIterator> gIter(mc_globs.createIterator());
+        RooRealVar* glob = nullptr;
+        RooRealVar* this_glob = nullptr;
+        while ((glob = static_cast<RooRealVar*>(gIter->Next()))) {
+            if(glob->GetName() == glob_name || glob->GetName() == glob_name_alpha || glob->GetName() == glob_name_gamma) {
+                this_glob = glob;
+                break;
+            }
+        }
+
+        if(!this_glob) {
+            WriteErrorStatus("FitUtils::InjectGlobalObservables", "Could not find global observable "+glob_name);
+            continue;
+        }
+
+        // set gamma values to gamma*nom_gamma
+        // cppcheck-suppress stlIfStrFind
+        if(glob_name.find("nom_gamma_") == 0) {
+            this_value = this_value * this_glob->getVal();
+        }
+
+        this_glob->setVal(this_value);
     }
 }
