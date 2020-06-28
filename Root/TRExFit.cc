@@ -6321,7 +6321,6 @@ void TRExFit::Get2DLikelihoodScan( RooWorkspace *ws, const std::vector<std::stri
         return;
     }
     
-    
     LikelihoodScanManager manager{};
     manager.SetScanParamsX(fLHscanMin, fLHscanMax, fLHscanSteps);
     manager.SetScanParamsY(fLHscanMinY, fLHscanMaxY, fLHscanStepsY);
