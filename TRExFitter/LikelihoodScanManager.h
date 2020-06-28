@@ -12,6 +12,12 @@ class NormFactor;
 class LikelihoodScanManager {
 public:
 
+    struct Result2D {
+        std::vector<double> x;
+        std::vector<double> y;
+        std::vector<std::vector<double> > z;
+    };
+
     explicit LikelihoodScanManager();
     ~LikelihoodScanManager();
 
@@ -33,7 +39,15 @@ public:
     }
 
     inline void SetNCPU(const int n){fCPU = n;}
+    
     inline void SetOffSet(const bool flag){fUseOffset = flag;}
+    
+    inline void SetParalel2Dstep(const int step) {
+        fParal2D = true;
+        fParal2Dstep = step;
+    }
+    
+    inline void SetBlindedParameters(const std::vector<std::string>& par){fBlindedParameters = par;}
 
     typedef std::pair<std::vector<double>, std::vector<double> > scanResult1D;
 
@@ -41,6 +55,10 @@ public:
                            const std::string& varName,
                            RooDataSet* data,
                            const std::vector<std::shared_ptr<NormFactor> >& nfs) const;
+
+    Result2D Run2DScan(const RooWorkspace* ws,
+                       const std::pair<std::string,std::string>& varNames,
+                       RooDataSet* data) const;
 
 private:
     double fScanMinX;
@@ -51,6 +69,9 @@ private:
     int fStepsY;
     bool fUseOffset;
     int fCPU;
+    bool fParal2D;
+    int fParal2Dstep;
+    std::vector<std::string> fBlindedParameters;
 };
 
 #endif
