@@ -137,7 +137,8 @@ MultiFit::MultiFit(const string& name) :
     fPOIInitial(1.),
     fHEPDataFormat(false),
     fFitStrategy(-1),
-    fCPU(1)
+    fCPU(1),
+    fBinnedLikelihood(false)
 {
     fNPCategories.emplace_back("");
 }
@@ -265,6 +266,10 @@ RooWorkspace* MultiFit::CombineWS() const{
 
     // Creating the combined model
     RooWorkspace* ws = factory.MakeCombinedModel( vec_chName, vec_ws );
+    
+    if (fBinnedLikelihood) {
+        FitUtils::SetBinnedLikelihoodOptimisation(ws);
+    }
 
     WriteInfoStatus("MultiFit::CombineWS", "....................................");
 
