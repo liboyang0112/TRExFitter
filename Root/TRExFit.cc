@@ -7053,6 +7053,7 @@ void TRExFit::RunToys(){
             }
             fVarNameMinos = varMinosTmp; // retore Minos settings
 
+            out->cd();
             // Also create a ROOT file
             h_toys.at(inf).Write();
         }
@@ -8640,10 +8641,6 @@ void TRExFit::DrawToyPullPlot(std::vector<TH1D>& hist, TFile* out) const {
         sigma.emplace_back(ihist.GetRMS());
         meanError.emplace_back(ihist.GetMeanError());
         sigmaError.emplace_back(ihist.GetRMSError());
-        
-        TCanvas c("c","c",600,600);
-        ihist.Draw();
-        c.SaveAs(((std::string)ihist.GetName()+".png").c_str());
         
         out->cd();
         ihist.Write();
