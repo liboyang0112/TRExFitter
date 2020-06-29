@@ -105,6 +105,7 @@ set( lib_headers
   TRExFitter/FitUtils.h
   TRExFitter/HistoReader.h
   TRExFitter/HistoTools.h
+  TRExFitter/LikelihoodScanManager.h
   TRExFitter/LimitEvent.h
   TRExFitter/MultiFit.h
   TRExFitter/NormFactor.h
@@ -138,6 +139,7 @@ set( lib_sources
   Root/FitUtils.cc
   Root/HistoReader.cc
   Root/HistoTools.cc
+  Root/LikelihoodScanManager.cc
   Root/LimitEvent.cc
   Root/MultiFit.cc
   Root/NormFactor.cc

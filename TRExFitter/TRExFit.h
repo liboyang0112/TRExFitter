@@ -185,8 +185,8 @@ public:
     void PlotUnfoldedData() const;
     void GetLimit();
     void GetSignificance();
-    void GetLikelihoodScan( RooWorkspace *ws, std::string varName, RooDataSet* data) const;
-    void Get2DLikelihoodScan( RooWorkspace *ws, const std::vector<std::string>& varName, RooDataSet* data) const;
+    void GetLikelihoodScan(RooWorkspace *ws, const std::string& varName, RooDataSet* data) const;
+    void Get2DLikelihoodScan(RooWorkspace *ws, const std::vector<std::string>& varName, RooDataSet* data) const;
 
     // get fit results from txt file
     void ReadFitResults(const std::string& fileName);

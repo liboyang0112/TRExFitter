@@ -318,7 +318,7 @@ PDF:                     RooSimultaneous::simPdf[ indexCat=channelCat SR1=model_
 === DEBUG::TRExFit::DumpData:     * No NP values injected 
 === DEBUG::TRExFit::DumpData:     * POI value: 1.000000
 [#1] INFO:ObjectHandling -- RooWorkspace::import(combined) importing RooMultiVarGaussian::regularization
-[1;32m=== INFO::TRExFit::ApplyExternalConstraints: Building NLL with external constraints myConstraints[0m
+[1;32m=== INFO::FitUtils::ApplyExternalConstraints: Building NLL with external constraints myConstraints[0m
 === DEBUG::FittingTool::FitPDF: -> Entering in FitPDF function
 
 === Using the following for ModelConfig ===
@@ -352,20 +352,20 @@ RooAbsTestStatistic::initSimMode: creating slave calculator #0 for state SR1 (11
 [1;32m=== INFO::FittingTool::FitPDF:  ---> Setting Bin_011_mu to 1.000000[0m
 [#1] INFO:Minization -- RooNLLVar::evaluatePartition(SR1) first = 0 last = 11 Likelihood offset now set to -198773
 === DEBUG::FittingTool::FitPDF:    -> Initial value of the NLL = -198768.489334
-  1) 0x3c39730 RooRealVar::             Bin_001_mu = 0  L(-100 - 100)  "Bin_001_mu"
-  2) 0x3c53df0 RooRealVar::             Bin_002_mu = 1  L(-100 - 100)  "Bin_002_mu"
-  3) 0x3c726f0 RooRealVar::             Bin_003_mu = 1  L(-100 - 100)  "Bin_003_mu"
-  4) 0x3c8cd90 RooRealVar::             Bin_004_mu = 1  L(-100 - 100)  "Bin_004_mu"
-  5) 0x3ca7630 RooRealVar::             Bin_005_mu = 1  L(-100 - 100)  "Bin_005_mu"
-  6) 0x3cc1af0 RooRealVar::             Bin_006_mu = 1  L(-100 - 100)  "Bin_006_mu"
-  7) 0x3cdbf60 RooRealVar::             Bin_007_mu = 1  L(-100 - 100)  "Bin_007_mu"
-  8) 0x3cf6400 RooRealVar::             Bin_008_mu = 1  L(-100 - 100)  "Bin_008_mu"
-  9) 0x3d10cb0 RooRealVar::             Bin_009_mu = 1  L(-100 - 100)  "Bin_009_mu"
- 10) 0x3d2b170 RooRealVar::             Bin_010_mu = 1  L(-100 - 100)  "Bin_010_mu"
- 11) 0x3d45630 RooRealVar::             Bin_011_mu = 1  L(-100 - 100)  "Bin_011_mu"
- 12) 0x3bf4d10 RooRealVar::         alpha_Bkg_norm = 0  L(-5 - 5)  "alpha_Bkg_norm"
- 13) 0x3bf68d0 RooRealVar::               alpha_PS = 0  L(-5 - 5)  "alpha_PS"
- 14) 0x3bf2e00 RooRealVar:: alpha_bTag_SF_B_eigen0 = 0  L(-5 - 5)  "alpha_bTag_SF_B_eigen0"
+  1) 0x387f5c0 RooRealVar::             Bin_001_mu = 0  L(-100 - 100)  "Bin_001_mu"
+  2) 0x3899c80 RooRealVar::             Bin_002_mu = 1  L(-100 - 100)  "Bin_002_mu"
+  3) 0x38b8580 RooRealVar::             Bin_003_mu = 1  L(-100 - 100)  "Bin_003_mu"
+  4) 0x38d2c20 RooRealVar::             Bin_004_mu = 1  L(-100 - 100)  "Bin_004_mu"
+  5) 0x38ed4c0 RooRealVar::             Bin_005_mu = 1  L(-100 - 100)  "Bin_005_mu"
+  6) 0x3907980 RooRealVar::             Bin_006_mu = 1  L(-100 - 100)  "Bin_006_mu"
+  7) 0x3921df0 RooRealVar::             Bin_007_mu = 1  L(-100 - 100)  "Bin_007_mu"
+  8) 0x393c290 RooRealVar::             Bin_008_mu = 1  L(-100 - 100)  "Bin_008_mu"
+  9) 0x3956b40 RooRealVar::             Bin_009_mu = 1  L(-100 - 100)  "Bin_009_mu"
+ 10) 0x3971000 RooRealVar::             Bin_010_mu = 1  L(-100 - 100)  "Bin_010_mu"
+ 11) 0x398b4c0 RooRealVar::             Bin_011_mu = 1  L(-100 - 100)  "Bin_011_mu"
+ 12) 0x383aba0 RooRealVar::         alpha_Bkg_norm = 0  L(-5 - 5)  "alpha_Bkg_norm"
+ 13) 0x383c760 RooRealVar::               alpha_PS = 0  L(-5 - 5)  "alpha_PS"
+ 14) 0x3838c90 RooRealVar:: alpha_bTag_SF_B_eigen0 = 0  L(-5 - 5)  "alpha_bTag_SF_B_eigen0"
 [#1] INFO:Fitting -- RooAddition::defaultErrorLevel(nll_simPdf_newasimovData_with_constr) Summation contains a RooNLLVar, using its error level
 [#1] INFO:Minization -- RooMinimizer::optimizeConst: activating const optimization
 [1;32m=== INFO::FittingTool::FitPDF: [0m
@@ -693,7 +693,7 @@ Info in Minuit2Minimizer::Hesse : Hesse is valid - matrix is accurate
 [1;32m=== INFO::FittingTool::FitPDF:             - hess status 0[0m
 [1;32m=== INFO::FittingTool::FitPDF:             - Edm = 0.000006[0m
 [1;32m=== INFO::FittingTool::FitPDF: ***********************************************************[0m
-Real time 0:00:00, CP time 0.320
+Real time 0:00:00, CP time 0.450
 [1;32m=== INFO::FittingTool::FitPDF: [0m
 [1;32m=== INFO::FittingTool::FitPDF: [0m
 [1;32m=== INFO::FittingTool::FitPDF: [0m
