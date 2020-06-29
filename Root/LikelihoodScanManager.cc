@@ -19,11 +19,11 @@
 #include <algorithm>
 
 LikelihoodScanManager::LikelihoodScanManager() :
-    fScanMinX(-3),
-    fScanMinY(-3),
+    fScanMinX(999999),
+    fScanMinY(-999999),
     fStepsX(30),
-    fScanMaxX(3),
-    fScanMaxY(3),
+    fScanMaxX(999999),
+    fScanMaxY(-999999),
     fStepsY(30),
     fUseOffset(true),
     fCPU(1),
