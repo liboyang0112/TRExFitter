@@ -284,12 +284,28 @@ int ConfigReader::ReadJobOptions(){
     if(param!="") fFitter->fLabel = RemoveQuotes(param);
     else          fFitter->fLabel = fFitter->fName;
 
-    // Set POI
-    fFitter->SetPOI(CheckName(confSet->Get("POI")));
-
-    // POI unit (if any)
-    param = confSet->Get("POIUnit");
-    if(param!="") fFitter->fPOIunit = RemoveQuotes(param);
+    // Set POI and unit
+    param = confSet->Get("POI");
+    if(param!=""){
+        std::vector<std::string> pois = Vectorize(param, ',');
+        std::vector<std::string> units;
+        std::string unit = confSet->Get("POIUnit");
+        if(unit!=""){
+            units = Vectorize(unit, ',');
+            if(pois.size()!=units.size()){
+                WriteWarningStatus("ConfigReader::ReadJobOptions","Number of POI units set different from number of actual POI. Ignoring units.");
+                units.clear();
+            }
+        }
+        for(unsigned int i_poi=0;i_poi<pois.size();i_poi++){
+            if(units.size()>i_poi){
+                fFitter->AddPOI(CheckName(pois[i_poi]),RemoveQuotes(units[i_poi]));
+            }
+            else{
+                fFitter->AddPOI(CheckName(pois[i_poi]));
+            }
+        }
+    }
 
     // Set reading option
     param = confSet->Get("ReadFrom");
@@ -1424,7 +1440,22 @@ int ConfigReader::ReadFitOptions(){
     // Set POIAsimov
     param = confSet->Get("POIAsimov");
     if( param != "" ){
-         fFitter->fFitPOIAsimov = atof(param.c_str());
+        std::vector < std::string > temp_vec = Vectorize(param,',',false);
+        for(std::string iPOI : temp_vec){
+            std::vector < std::string > poi_value = Vectorize(iPOI,':');
+            // single POIAsimov defined
+            if(poi_value.size()==1 && temp_vec.size()==1){
+                fFitter->fFitPOIAsimov[fFitter->fPOIs[0]] = atof(poi_value[0].c_str());
+            }
+            else if(poi_value.size()==1 && temp_vec.size()!=1){
+                WriteWarningStatus("ConfigReader::ReadFitOptions","Incorrect setting of 'POIAsimov'...");
+            }
+            else if(poi_value.size()==2){
+                fFitter->fFitPOIAsimov.insert( std::pair < std::string, double >( poi_value[0], atof(poi_value[1].c_str()) ) );
+            } else {
+                WriteWarningStatus("ConfigReader::ReadFitOptions", "You specified 'POIAsimov' option but did not provide 2 parameters for each POI which is expected. Ignoring");
+            }
+        }
     }
 
     // Set NPValues
@@ -1737,6 +1768,14 @@ int ConfigReader::ReadLimitOptions(){
         return 0; // it is ok to not have Fit set up
     }
 
+    // Set POI to be used for limit
+    param = confSet->Get("POI");
+    if( param != "" ){
+        fFitter->fPOIforLimit = CheckName(param);
+        // add this to the list of POIs
+        fFitter->AddPOI(fFitter->fPOIforLimit);
+    }
+    
     // Set LimitType
     param = confSet->Get("LimitType");
     if( param != "" ){
@@ -1808,6 +1847,14 @@ int ConfigReader::ReadSignificanceOptions(){
     if (confSet == nullptr){
         WriteDebugStatus("ConfigReader::ReadSignificanceOptions", "You do not have Significance option in the config. It is ok, we just want to let you know.");
         return 0; // it is ok to not have Fit set up
+    }
+
+    // Set POI to be used for sig
+    param = confSet->Get("POI");
+    if( param != "" ){
+        fFitter->fPOIforSig = CheckName(param);
+        // add this to the list of POIs
+        fFitter->AddPOI(fFitter->fPOIforSig);
     }
 
     // Set LimitBlind
@@ -6623,8 +6670,6 @@ int ConfigReader::ProcessUnfoldingSystematics() {
 //__________________________________________________________________________________
 //
 int ConfigReader::AddUnfoldingNormFactors() {
-    // set POI automatically to first available NF when performin unfolding (FIXME: probably it would make sense to set all the NFs to POI in case of unfolding)
-    bool POIset = false;
     
     // Add overall norm factor, for normalized xsec:
     std::shared_ptr<NormFactor> nfTot = nullptr;
@@ -6712,12 +6757,9 @@ int ConfigReader::AddUnfoldingNormFactors() {
             TRExFitter::NPMAP[nf->fName] = v1;
         }
         else{
-            // set the first eligible norm factor to be the POI
-            if(!POIset){
-                fFitter->SetPOI(CheckName(name));
-                fFitter->fFitPOIAsimov = 1;
-                POIset = true;
-            }
+            // set this NF as POI
+            fFitter->AddPOI(CheckName(name));
+            fFitter->fFitPOIAsimov[name] = 1;
         }
         // check if the bin is in the list specified taus
         bool hasTau = false;

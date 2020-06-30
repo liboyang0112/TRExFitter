@@ -246,7 +246,7 @@ public:
     std::vector< std::string > fNpNames;
 
     TRExFit::FitType fFitType;
-    std::string fPOI;
+    std::vector<std::string> fPOIs;
     std::string fFitLabel;
 
     std::string fLumiLabel;
