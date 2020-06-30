@@ -91,7 +91,6 @@ Region::Region(const string& name) :
     fIntCode_overall(4),
     fIntCode_shape(0),
     fFitType(TRExFit::SPLUSB),
-    fPOI(""),
     fFitLabel(""),
     fLumiLabel(""),
     fCmeLabel(""),
@@ -929,7 +928,7 @@ void Region::BuildPostFitErrorHist(FitResults *fitRes, const std::vector<std::st
             const std::string systName = inorm->fName;
             // if this norm factor is a morphing one => save the nuis.par
             // skip POI if B-only fit FIXME
-            if(fFitType==TRExFit::BONLY && systName==fPOI) continue;
+            if(fFitType==TRExFit::BONLY && Common::FindInStringVector(fPOIs,systName)>0) continue;
             if(inorm->fConst) continue;
             if(!systIsThere[systName]){
                 fSystNames.push_back(systName);

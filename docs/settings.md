@@ -7,7 +7,8 @@ The following settings are for normal fits, performed without the action `m`.
 | **Option** | **Function** |
 | ---------- | ------------ |
 | Label                        | the label which will be shown on plots, if 'none' is set, no label will be shown |
-| POI                          | the name of the parameter of interest; this should correspond to a NormFactor defined below |
+| POI                          | the name of the parameter of interest; this should correspond to a NormFactor defined below. It is possible to define more than one POI, as a comma-separated list |
+| POIUnit                      | a unit can be added to the POI, for cosmetic reasons, in case it's not a pure number. In case of more than one POI, the argument should be in the form `"name-of-poi-1":"unit-1","name-of-poi2":"unit-2"`
 | ReadFrom                     | can be HIST or NTUP; default is HIST |
 | HistoPath(s)                 | valid only for option HIST above is selected; it's the path(s) where the input root files containing the histograms are stored |
 | HistoFile(s)                 | valid only for option HIST; it's the file name(s) where the input root files containing the histograms are stored |
@@ -201,6 +202,7 @@ The following settings are for normal fits, performed without the action `m`.
 | **Option** | **Function** |
 | ---------- | ------------ |
 | LimitType                    | can be ASYMPTOTIC or TOYS (the latter is not yet supported) |
+| POI                          | Specifies which POI to use for the limit. If nothing is set, the first POI defined under Job will be used |
 | LimitBlind                   | can be TRUE or FALSE (TRUE means that ALL regions are blinded) |
 | SignalInjection              | if set to TRUE, expected signal with signal injection is evaluated |
 | SignalInjectionValue         | Value for the injected signal |
@@ -214,6 +216,7 @@ The following settings are for normal fits, performed without the action `m`.
 | **Option** | **Function** |
 | ---------- | ------------ |
 | SignificanceBlind            | can be TRUE or FALSE (TRUE means that ALL regions are blinded) |
+| POI                          | Specifies which POI to use for the significance. If nothing is set, the first POI defined under Job will be used |
 | POIAsimov                    | value of the POI to inject in the Asimov dataset in SignificanceBlind is set to TRUE |
 | ParamName                    | Name for the parameter in the output ROOT file |
 | ParamValue                   | Value of the parameter in the output file (e.g. 172.5 for top mass) |

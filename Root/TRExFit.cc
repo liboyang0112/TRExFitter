@@ -98,8 +98,6 @@ TRExFit::TRExFit(std::string name) :
     fFitResultsFile(""),
     fNRegions(0),
     fNSamples(0),
-    fPOI(""),
-    fPOIunit(""),
     fUseStatErr(false),
     fStatErrThres(0.05),
     fUseGammaPulls(false),
@@ -153,7 +151,6 @@ TRExFit::TRExFit(std::string name) :
     fFitRegion(CRSR),
     fFitNPValuesFromFitResults(""),
     fInjectGlobalObservables(false),
-    fFitPOIAsimov(0),
     fFitIsBlind(false),
     fUseRnd(false),
     fRndRange(0.1),
@@ -304,8 +301,22 @@ TRExFit::~TRExFit() {
 
 //__________________________________________________________________________________
 //
-void TRExFit::SetPOI(std::string name){
-    fPOI = name;
+void TRExFit::SetPOI(std::string name,std::string unit){
+    fPOIs.clear();
+    fPOIs.emplace_back(name);
+    fPOIunit[name] = unit;
+}
+
+//__________________________________________________________________________________
+//
+void TRExFit::AddPOI(std::string name,std::string unit){
+    if(Common::FindInStringVector(fPOIs,name)<0){
+        fPOIs.emplace_back(name);
+        fPOIunit[name] = unit;
+    }
+    else{
+        WriteWarningStatus("TRExFit::AddPOI","POI " + name + " already set. Skipping.");
+    }
 }
 
 //__________________________________________________________________________________
@@ -371,7 +382,7 @@ Region* TRExFit::NewRegion(const std::string& name){
     fRegions[fNRegions]->fSuffix = fSuffix;
     fRegions[fNRegions]->fFitLabel = fLabel;
     fRegions[fNRegions]->fFitType = fFitType;
-    fRegions[fNRegions]->fPOI = fPOI;
+    fRegions[fNRegions]->fPOIs = fPOIs;
     fRegions[fNRegions]->fIntCode_overall = fIntCode_overall;
     fRegions[fNRegions]->fIntCode_shape   = fIntCode_shape;
     fRegions[fNRegions]->fLumiScale = fLumiScale;
@@ -3341,7 +3352,10 @@ void TRExFit::ToRooStat(bool makeWorkspace, bool exportOnly) const {
         meas.SetOutputFilePrefix((fName+"/RooStats/"+fInputName).c_str());
     }
     meas.SetExportOnly(exportOnly);
-    meas.SetPOI(fPOI.c_str());
+    // insert POIs (in reverse order, since the POI is added "at beginning of vector of PoIs")
+    for(int i_poi=fPOIs.size()-1;i_poi>=0;i_poi--){
+        meas.SetPOI(fPOIs[i_poi].c_str());
+    }
     meas.SetLumi(fLumiScale);
     if(fLumiErr==0){
         meas.AddConstantParam("Lumi");
@@ -3467,7 +3481,7 @@ RooStats::HistFactory::Sample TRExFit::OneSampleToRooStats(RooStats::HistFactory
                              inorm->fMin,
                              inorm->fMax);
         if (inorm->fConst) meas->AddConstantParam(inorm->fName);
-        if (fStatOnly && fFixNPforStatOnlyFit && inorm->fName!=fPOI) {
+        if (fStatOnly && fFixNPforStatOnlyFit && Common::FindInStringVector(fPOIs,inorm->fName)<0) {
             meas->AddConstantParam(inorm->fName);
         }
     }
@@ -3477,7 +3491,7 @@ RooStats::HistFactory::Sample TRExFit::OneSampleToRooStats(RooStats::HistFactory
         WriteDebugStatus("TRExFit::OneSampleToRooStats", "    Adding ShapeFactor: " + ishape->fName + ", " + std::to_string(ishape->fNominal));
         sample.AddShapeFactor(ishape->fName);
         if (ishape->fConst
-            || (fStatOnly && fFixNPforStatOnlyFit && ishape->fName!=fPOI) ) {
+            || (fStatOnly && fFixNPforStatOnlyFit && Common::FindInStringVector(fPOIs,ishape->fName)<0) ) {
             for(int i_bin=0; i_bin < ishape->fNbins; ++i_bin) {
                 meas->AddConstantParam( "gamma_" + ishape->fName + "_bin_" + std::to_string(i_bin) );
             }
@@ -4011,7 +4025,19 @@ void TRExFit::Fit(bool isLHscanOnly){
             exit(EXIT_FAILURE);
         }
         if (TRExFitter::DEBUGLEVEL < 2) std::cout.setstate(std::ios_base::failbit);
-        data = std::unique_ptr<RooDataSet>(DumpData( ws.get(), regionDataType, npValues, npValues.find(fPOI)==npValues.end() ? fFitPOIAsimov : npValues[fPOI] ));
+        std::map<std::string,double> poiValues;
+        for(const auto& poi : fPOIs){
+            // if POI found in npValues, use that value
+            if(npValues.find(poi)!=npValues.end()){
+                poiValues[poi] = npValues[poi];
+            }
+            // else, if found in POIasimov, use that
+            else if(fFitPOIAsimov.find(poi)!=fFitPOIAsimov.end()){
+                poiValues[poi] = fFitPOIAsimov[poi];
+            }
+            // otherwise don't inject anything (FIXME?)
+        }
+        data = std::unique_ptr<RooDataSet>(DumpData( ws.get(), regionDataType, npValues, poiValues ));
         if (TRExFitter::DEBUGLEVEL < 2) std::cout.clear();
     }
     
@@ -4038,6 +4064,10 @@ void TRExFit::Fit(bool isLHscanOnly){
     // Fit result on Asimov with shifted systematics
     //
     if(fDoNonProfileFit && !isLHscanOnly){
+        if(fPOIs.size()!=1){
+            WriteErrorStatus("TRExFit::Fit","Non-profiled fit available only for single POI. Number of POI defined: " + std::to_string(fPOIs.size()));
+            exit(EXIT_FAILURE);
+        }
         //
         std::map<std::string,double> systGroups;
         std::vector<std::string> systGroupNames;
@@ -4081,8 +4111,8 @@ void TRExFit::Fit(bool isLHscanOnly){
         WriteInfoStatus("TRExFit::Fit","Fitting nominal Asimov...");
         data = std::unique_ptr<RooDataSet>(DumpData( ws.get(), regionDataType, fFitNPValues, fFitPOIAsimov ));
         npValues = PerformFit( ws.get(), data.get(), fFitType, false, TRExFitter::DEBUGLEVEL<2 ? 0 : TRExFitter::DEBUGLEVEL);
-        double nominalPOIval = npValues[fPOI];
-        RooRealVar* poiVar = (RooRealVar*) (& ws->allVars()[fPOI.c_str()]);
+        double nominalPOIval = npValues[fPOIs[0]];
+        RooRealVar* poiVar = (RooRealVar*) (& ws->allVars()[fPOIs[0].c_str()]);
         double statUp = poiVar->getErrorHi();
         double statDo = poiVar->getErrorLo();
         // temporary switch off minos (not needed)
@@ -4132,7 +4162,7 @@ void TRExFit::Fit(bool isLHscanOnly){
                     ws->loadSnapshot("InitialStateModelGlob");
                     ws->loadSnapshot("InitialStateModelNuis");
                     npValues = PerformFit( ws.get(), data.get(), fFitType, false, TRExFitter::DEBUGLEVEL<2 ? 0 : TRExFitter::DEBUGLEVEL);
-                    MCstatUp = std::hypot(MCstatUp, (npValues[fPOI]-nominalPOIval));
+                    MCstatUp = std::hypot(MCstatUp, (npValues[fPOIs[0]]-nominalPOIval));
                     // down
                     npVal = fFitNPValues;
                     npVal[gammaName] = 1-statErr;
@@ -4142,7 +4172,7 @@ void TRExFit::Fit(bool isLHscanOnly){
                     ws->loadSnapshot("InitialStateModelGlob");
                     ws->loadSnapshot("InitialStateModelNuis");
                     npValues = PerformFit( ws.get(), data.get(), fFitType, false, TRExFitter::DEBUGLEVEL<2 ? 0 : TRExFitter::DEBUGLEVEL);
-                    MCstatDo = -std::hypot(MCstatDo,(npValues[fPOI]-nominalPOIval));
+                    MCstatDo = -std::hypot(MCstatDo,(npValues[fPOIs[0]]-nominalPOIval));
                 }
             }
             fGammasInStatOnly = false;
@@ -4186,7 +4216,7 @@ void TRExFit::Fit(bool isLHscanOnly){
                         ws->loadSnapshot("InitialStateModelGlob");
                         ws->loadSnapshot("InitialStateModelNuis");
                         npValues = PerformFit( ws.get(), data.get(), fFitType, false, TRExFitter::DEBUGLEVEL<2 ? 0 : TRExFitter::DEBUGLEVEL);
-                        MCstatUpSample[sh->fSample->fName] = std::hypot(MCstatUpSample[sh->fSample->fName], (npValues[fPOI]-nominalPOIval));
+                        MCstatUpSample[sh->fSample->fName] = std::hypot(MCstatUpSample[sh->fSample->fName], (npValues[fPOIs[0]]-nominalPOIval));
                         npVal = fFitNPValues;
                         npVal[gammaName] = 1-statErr;
                         WriteDebugStatus("TRExFit::Fit","Setting "+gammaName+" to "+std::to_string(1-statErr));
@@ -4195,7 +4225,7 @@ void TRExFit::Fit(bool isLHscanOnly){
                         ws->loadSnapshot("InitialStateModelGlob");
                         ws->loadSnapshot("InitialStateModelNuis");
                         npValues = PerformFit( ws.get(), data.get(), fFitType, false, TRExFitter::DEBUGLEVEL<2 ? 0 : TRExFitter::DEBUGLEVEL);
-                        MCstatDoSample[sh->fSample->fName] = -std::hypot(MCstatDoSample[sh->fSample->fName],(npValues[fPOI]-nominalPOIval));
+                        MCstatDoSample[sh->fSample->fName] = -std::hypot(MCstatDoSample[sh->fSample->fName],(npValues[fPOIs[0]]-nominalPOIval));
                         smpTexTitle[sh->fSample->fName] = sh->fSample->fTexTitle;
                     }
                 }
@@ -4223,7 +4253,7 @@ void TRExFit::Fit(bool isLHscanOnly){
                     fFitFixedNPs[syst->fNuisanceParameter] = 0;
                     fFitFixedNPs["alpha_"+syst->fNuisanceParameter] = 0;
                     npValues = PerformFit( ws.get(), data.get(), fFitType, false, TRExFitter::DEBUGLEVEL<2 ? 0 : TRExFitter::DEBUGLEVEL);
-                    double newPOIval = npValues[fPOI];
+                    double newPOIval = npValues[fPOIs[0]];
                     if(ud==0) newPOIvalUp[syst->fNuisanceParameter] = newPOIval;
                     if(ud==1) newPOIvalDo[syst->fNuisanceParameter] = newPOIval;
                 }
@@ -4245,7 +4275,7 @@ void TRExFit::Fit(bool isLHscanOnly){
         tex       << "\\hline" << std::endl;
         tex       << "\\hline" << std::endl;
         tex       << "  Source & Shift up / down";
-        if(fPOIunit!="") tex       << " [" << fPOIunit << "]";
+        if(fPOIunit[fPOIs[0]]!="") tex       << " [" << fPOIunit[fPOIs[0]] << "]";
         tex       << "\\\\" << std::endl;
         tex       << "\\hline" << std::endl;
         tex       << "  Statistical & $+" << Form("%.2f",statUp) << "$ / $" << Form("%.2f",statDo) << "$ \\\\" << std::endl;
@@ -4411,9 +4441,10 @@ void TRExFit::Fit(bool isLHscanOnly){
     }
 }
 
+
 //__________________________________________________________________________________
 //
-RooDataSet* TRExFit::DumpData( RooWorkspace *ws,  std::map < std::string, int > &regionDataType, std::map < std::string, double > &npValues, const double poiValue  ){
+RooDataSet* TRExFit::DumpData( RooWorkspace *ws,  std::map < std::string, int > &regionDataType, std::map < std::string, double > &npValues, std::map < std::string, double > &poiValues ){
     if (TRExFitter::DEBUGLEVEL < 2) std::cout.setstate(std::ios_base::failbit);
 
     //
@@ -4435,7 +4466,15 @@ RooDataSet* TRExFit::DumpData( RooWorkspace *ws,  std::map < std::string, int > 
     else {
         WriteDebugStatus("TRExFit::DumpData", "    * No NP values injected ");
     }
-    WriteDebugStatus("TRExFit::DumpData", "    * POI value: " + std::to_string(poiValue) );
+    if(poiValues.size()){
+        WriteDebugStatus("TRExFit::DumpData", "    * Injected POI values ");
+        for ( const std::pair < std::string, double >& poiValue : poiValues ){
+            WriteDebugStatus("TRExFit::DumpData", "       - POI: " + poiValue.first + "       Value: " + std::to_string(poiValue.second));
+        }
+    }
+    else {
+        WriteDebugStatus("TRExFit::DumpData", "    * No POI values injected ");
+    }
 
     RooStats::ModelConfig *mc = static_cast<RooStats::ModelConfig*>(ws->obj("ModelConfig"));
 
@@ -4478,15 +4517,16 @@ RooDataSet* TRExFit::DumpData( RooWorkspace *ws,  std::map < std::string, int > 
     //     |-> Values of NPs
     //     |-> Values of POI
     //
-
-    //-- POI
-    RooRealVar * poi = static_cast<RooRealVar*>(mc->GetParametersOfInterest()->first());
-    if (!poi){
-        if (TRExFitter::DEBUGLEVEL < 2) std::cout.clear();
-        WriteErrorStatus("TRExFit::DumpData", "Cannot find POI in workspace, exiting...");
-        exit(EXIT_FAILURE);
+    
+    //-- POIs
+    RooRealVar* poi(nullptr);
+    std::unique_ptr<TIterator> poiIterator(mc->GetParametersOfInterest()->createIterator());
+    while( (poi = static_cast<RooRealVar*>(poiIterator->Next()))) {
+        std::map < std::string, double >::const_iterator it_poiValue = poiValues.find( poi -> GetName() );
+        if( it_poiValue != poiValues.end() ){
+            poi -> setVal(it_poiValue -> second);
+        }
     }
-    poi -> setVal(poiValue);
 
     //-- Nuisance parameters
     RooRealVar* var(nullptr);
@@ -4598,7 +4638,7 @@ std::map < std::string, double > TRExFit::PerformFit( RooWorkspace *ws, RooDataS
     std::vector<double> NPvalues;
     double poiInitial(0.);
     for(const auto& inf : fNormFactors) {
-        if (inf->fName == fPOI) {
+        if (Common::FindInStringVector(fPOIs,inf->fName)>=0) {
             poiInitial = inf->fNominal;
             continue;
         }
@@ -4725,7 +4765,7 @@ std::map < std::string, double > TRExFit::PerformFit( RooWorkspace *ws, RooDataS
     int nNF = 0;
     for(const auto& inf : fNormFactors) {
         if(inf->fConst) continue;
-        if(fFitType==BONLY && fPOI==inf->fName) continue;
+        if(fFitType==BONLY && Common::FindInStringVector(fPOIs,inf->fName)>=0) continue;
         // skip if it's a morphing parameter
         if(inf->fName.find("morph_")!=std::string::npos) continue;
         // skip if it has an "Expression"
@@ -5119,6 +5159,18 @@ void TRExFit::PlotUnfoldedData() const {
 //__________________________________________________________________________________
 //
 void TRExFit::GetLimit(){
+    //
+    // Make sure a proper POI is present
+    //
+    if(fPOIforLimit==""){
+        if(fPOIs.size()>0){
+            fPOIforLimit = fPOIs[0];
+        }
+        else{
+            WriteErrorStatus("TRExFit::GetLimit","No POI specified (in 'Limit' or 'Job' block).");
+        }
+    }
+    
     std::unique_ptr<RooDataSet> data(nullptr);
     
     //
@@ -5185,7 +5237,14 @@ void TRExFit::GetLimit(){
             exit(EXIT_FAILURE);
         }
         if (TRExFitter::DEBUGLEVEL < 2) std::cout.setstate(std::ios_base::failbit);
-        data = std::unique_ptr<RooDataSet>(DumpData( ws_forLimit.get(), regionsForLimitDataType, npValues, npValues.find(fPOI)==npValues.end() ? 0 : npValues[fPOI] ));
+        std::map<std::string,double> poiValues;
+        if(npValues.find(fPOIforLimit)!=npValues.end()){
+            poiValues[fPOIforLimit] = npValues[fPOIforLimit];
+        }
+        else{
+            poiValues[fPOIforLimit] = 0;
+        }
+        data = std::unique_ptr<RooDataSet>(DumpData( ws_forLimit.get(), regionsForLimitDataType, npValues, poiValues ));
         if (TRExFitter::DEBUGLEVEL < 2) std::cout.clear();
         
         //
@@ -5206,6 +5265,11 @@ void TRExFit::GetLimit(){
         RooStats::HistFactory::Measurement *originalMeasurement = (RooStats::HistFactory::Measurement*)f_origin -> Get((fInputName+fSuffix).c_str());
         TString outputName = f_origin->GetName();
         f_origin -> Close();
+        
+        //
+        // In case more POI are present, only set the one selected as POIforLimit
+        //
+        static_cast<RooStats::ModelConfig*>(ws_forLimit->obj("ModelConfig"))->SetParametersOfInterest(fPOIforLimit.c_str());
 
         //
         // Creating the rootfile used as input for the limit setting :-)
@@ -5228,6 +5292,18 @@ void TRExFit::GetLimit(){
 //__________________________________________________________________________________
 //
 void TRExFit::GetSignificance(){
+    //
+    // Make sure a proper POI is present
+    //
+    if(fPOIforSig==""){
+        if(fPOIs.size()>0){
+            fPOIforSig = fPOIs[0];
+        }
+        else{
+            WriteErrorStatus("TRExFit::GetSignificance","No POI specified (in 'Significance' or 'Job' block).");
+        }
+    }
+    
     std::unique_ptr<RooDataSet> data(nullptr);
     
     //
@@ -5294,7 +5370,14 @@ void TRExFit::GetSignificance(){
             exit(EXIT_FAILURE);
         }
         if (TRExFitter::DEBUGLEVEL < 2) std::cout.setstate(std::ios_base::failbit);
-        data = std::unique_ptr<RooDataSet>(DumpData( ws_forSignificance.get(), regionsForSignDataType, npValues, npValues.find(fPOI)==npValues.end() ? fSignificancePOIAsimov : npValues[fPOI] ));
+        std::map<std::string,double> poiValues;
+        if(npValues.find(fPOIforSig)!=npValues.end()){
+            poiValues[fPOIforSig] = npValues[fPOIforLimit];
+        }
+        else{
+            poiValues[fPOIforSig] = fSignificancePOIAsimov;
+        }
+        data = std::unique_ptr<RooDataSet>(DumpData( ws_forSignificance.get(), regionsForSignDataType, npValues, poiValues ));
         if (TRExFitter::DEBUGLEVEL < 2) std::cout.clear();
         
         //
@@ -5316,6 +5399,11 @@ void TRExFit::GetSignificance(){
         RooStats::HistFactory::Measurement *originalMeasurement = (RooStats::HistFactory::Measurement*)f_origin -> Get((fInputName + fSuffix).c_str());
         TString outputName = f_origin->GetName();
         f_origin -> Close();
+        
+        //
+        // In case more POI are present, only set the one selected as POIforSig
+        //
+        static_cast<RooStats::ModelConfig*>(ws_forSignificance->obj("ModelConfig"))->SetParametersOfInterest(fPOIforSig.c_str());
 
         //
         // Creating the rootfile used as input for the significance computation
@@ -5581,7 +5669,7 @@ void TRExFit::ProduceNPRanking(const std::string& NPnames) {
         }
     }
     for(const auto& inorm : fNormFactors) {
-        if(fPOI == inorm->fName) continue;
+        if(Common::FindInStringVector(fPOIs,inorm->fName)>=0) continue;
         if(NPnames=="all" || NPnames==inorm->fName){
             manager.AddNuisPar(inorm->fName, true);
         }
@@ -5671,7 +5759,19 @@ void TRExFit::ProduceNPRanking(const std::string& NPnames) {
             exit(EXIT_FAILURE);
         }
         if (TRExFitter::DEBUGLEVEL < 2) std::cout.setstate(std::ios_base::failbit);
-        data = std::unique_ptr<RooDataSet>(DumpData( ws.get(), regionDataType, npValues, npValues.find(fPOI)==npValues.end() ? fFitPOIAsimov : npValues[fPOI] ));
+        std::map<std::string,double> poiValues;
+        for(const auto& poi : fPOIs){
+            // if POI found in npValues, use that value
+            if(npValues.find(poi)!=npValues.end()){
+                poiValues[poi] = npValues[poi];
+            }
+            // else, if found in POIasimov, use that
+            else if(fFitPOIAsimov.find(poi)!=fFitPOIAsimov.end()){
+                poiValues[poi] = fFitPOIAsimov[poi];
+            }
+            // otherwise don't inject anything (FIXME?)
+        }
+        data = std::unique_ptr<RooDataSet>(DumpData( ws.get(), regionDataType, npValues, poiValues ));
         if (TRExFitter::DEBUGLEVEL < 2) std::cout.clear();
     }
 
@@ -5708,7 +5808,12 @@ void TRExFit::ProduceNPRanking(const std::string& NPnames) {
     manager.SetNPValues(fFitNPValues);
     manager.SetFixedNPs(fFitFixedNPs);
     manager.SetFitStrategy(fFitStrategy);
-    manager.SetPOIName(fPOI);
+    if(fPOIs.size()>0){
+        manager.SetPOIName(fPOIs[0]); // FIXME: here we are taking just the first POI for ranking - will have to enable handling of more POIs when producing ranking
+    }
+    else{
+        WriteErrorStatus("TRExFit::ProduceNPRanking","No POI set. Not able to produce ranking.");
+    }
     manager.SetNCPU(fCPU);
     manager.SetRng(fRndRange, fUseRnd, fRndSeed);
     manager.SetStatOnly(fStatOnly);
@@ -6781,7 +6886,7 @@ void TRExFit::ProduceSystSubCategoryMap(){
     for(const auto& inorm : fNormFactors) {
         if(inorm->fSubCategory=="Gammas" || inorm->fSubCategory=="FullSyst" || inorm->fSubCategory=="combine")
              WriteWarningStatus("TRExFit::ProduceSystSubCategoryMap"," use of \"Gammas\", \"FullSyst\" or \"combine\" as SubCategory names is not supported, you will likely run into issues");
-        if (inorm->fName != fPOI) {
+        if (Common::FindInStringVector(fPOIs,inorm->fName)<0) {
             fSubCategoryImpactMap.insert(std::make_pair(inorm->fNuisanceParameter, inorm->fSubCategory));
         }
     }
@@ -6836,7 +6941,7 @@ void TRExFit::RunToys(){
         }
         // create map to store fit results
         // create histogram to store fitted POI values
-        auto&& POInf = fNormFactors[Common::FindInStringVector(fNormFactorNames,fPOI)];
+        auto&& POInf = fNormFactors[Common::FindInStringVector(fNormFactorNames,fPOIs[0])];
         double min = POInf->fMin;
         double max = POInf->fMax;
         if (fToysHistoMin < 9900 && fToysHistoMax > -9000){
@@ -6947,8 +7052,8 @@ void TRExFit::RunToys(){
             // setting POI to constant, not to allow it to fluctuate in toy creation
             for (std::size_t inf = 0; inf < nfs.size(); ++inf) {
                 nfs.at(inf)->setConstant(1);
-                if (fNormFactorNames.at(inf) == fPOI) {
-                    nfs.at(inf)->setVal(fFitPOIAsimov);
+                if (Common::FindInStringVector(fPOIs,fNormFactorNames[inf])>=0) {
+                    nfs.at(inf)->setVal(fFitPOIAsimov[fNormFactorNames[inf]]);
                 } else {
                     auto&& nf = fNormFactors[inf];
                     nfs.at(inf)->setVal(nf->fNominal);
@@ -6985,7 +7090,7 @@ void TRExFit::RunToys(){
                 }
             }
             for (std::size_t inf = 0; inf < nfs.size(); ++inf) {
-                if (fFitType==FitType::BONLY && fNormFactorNames.at(inf) == fPOI) {
+                if (fFitType==FitType::BONLY && Common::FindInStringVector(fPOIs,fNormFactorNames[inf])>=0) {
                     nfs.at(inf)->setVal(0);
                     nfs.at(inf)->setConstant(true);
                 } else {
@@ -7019,7 +7124,6 @@ void TRExFit::RunToys(){
             std::size_t unfIndex(0);
             for (std::size_t inf = 0; inf < nfs.size(); ++inf) {
                 h_toys.at(inf).Fill(nfs.at(inf)->getVal());
-//                 WriteInfoStatus("TRExFit::RunToys","Toy n. " + std::to_string(i_toy+1) + ", fitted value of NF: " + fNormFactorNames.at(inf) + ": " + std::to_string(nfs.at(inf)->getVal()));
                 WriteInfoStatus("TRExFit::RunToys","Toy n. " + std::to_string(i_toy+1) + ", fitted value of NF: " + nfs.at(inf)->GetName() + ": " + std::to_string(nfs.at(inf)->getVal()) + " +/- " + std::to_string(nfs.at(inf)->getError()));
 
                 if (fFitType == TRExFit::FitType::UNFOLDING && isUnfolding(inf)) {
