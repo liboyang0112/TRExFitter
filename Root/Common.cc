@@ -1424,12 +1424,14 @@ bool Common::StringToBoolean(std::string param) {
 //__________________________________________________________________________________
 //
 std::vector<std::string> Common::GetFilesMatchingString(const std::string& folder,
-                                                        const std::string& key) {
+                                                        const std::string& key,
+                                                        const std::string& key2) {
 
     std::vector<std::string> result;
 
     for (const auto& ifile : fs::directory_iterator(folder)) {
-        if (ifile.path().u8string().find(key) != std::string::npos) {
+        if (ifile.path().u8string().find(key) != std::string::npos &&
+            ifile.path().u8string().find(key2) != std::string::npos) {
             result.emplace_back(ifile.path().u8string());
         }
     }

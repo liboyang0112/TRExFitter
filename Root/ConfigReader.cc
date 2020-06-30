@@ -1754,6 +1754,11 @@ int ConfigReader::ReadFitOptions(){
         fFitter->fBinnedLikelihood = Common::StringToBoolean(param);
     }
 
+    param = confSet->Get("UsePOISinRanking");
+    if (param != "") {
+        fFitter->fUsePOISinRanking = Common::StringToBoolean(param);
+    }
+
     return 0;
 }
 

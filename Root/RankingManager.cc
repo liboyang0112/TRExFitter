@@ -36,7 +36,6 @@ RankingManager::RankingManager() :
     fOutputPath(""),
     fInjectGlobalObservables(false),
     fFitStrategy(1),
-    fPOIName("POI"),
     fCPU(1),
     fRndRange(0.1),
     fUseRnd(false),
@@ -49,7 +48,8 @@ RankingManager::RankingManager() :
     fName("MyFit"),
     fSuffix(""),
     fRankingMaxNP(9999),
-    fRankingPOIName(fName)
+    fRankingPOIName(fName),
+    fUsePOISinRanking(false)
 {
 }
 
@@ -94,11 +94,14 @@ void RankingManager::RunRanking(FitResults* fitResults,
         exit(EXIT_FAILURE);
     }
 
-    std::ofstream outFile(fOutputPath.c_str());
+    std::vector<std::ofstream> outFiles;
+    for (const auto& poi : fPOINames) { 
+        outFiles.emplace_back((fOutputPath+"_"+poi+".txt").c_str());
 
-    if (!outFile.good() || !outFile.is_open()) {
-        WriteErrorStatus("RankingManager::RunRanking", "Cannot open file at " + fOutputPath);
-        exit(EXIT_FAILURE);
+        if (!outFiles.back().good() || !outFiles.back().is_open()) {
+            WriteErrorStatus("RankingManager::RunRanking", "Cannot open file at " + fOutputPath +"_" + poi + ".txt");
+            exit(EXIT_FAILURE);
+        }
     }
 
     RooStats::ModelConfig *mc = dynamic_cast<RooStats::ModelConfig*>(ws->obj("ModelConfig"));
@@ -116,7 +119,7 @@ void RankingManager::RunRanking(FitResults* fitResults,
    
     double poiInitial(0.);
     for(const auto& inf : nfs) {
-        if (inf->fName == fPOIName) {
+        if (inf->fName == fPOINames.at(0)) {
             poiInitial = inf->fNominal;
             break;
         }
@@ -138,7 +141,7 @@ void RankingManager::RunRanking(FitResults* fitResults,
     std::vector<std::string> npNames;
     std::vector<double> npValues;
     for(const auto& inf : nfs) {
-        if (inf->fName == fPOIName) continue;
+        if (!fUsePOISinRanking && Common::FindInStringVector(fPOINames, inf->fName) >= 0) continue;
         npNames. emplace_back(inf->fName);
         npValues.emplace_back(inf->fNominal);
     }
@@ -146,21 +149,28 @@ void RankingManager::RunRanking(FitResults* fitResults,
     
     FitUtils::ApplyExternalConstraints(ws, &fitTool, simPdf, nfs);
     
-    const double muhat = fitResults -> GetNuisParValue(fPOIName);
+    std::vector<double> muhats;
+    for (const auto& poi : fPOINames) {
+        muhats.emplace_back(fitResults -> GetNuisParValue(poi));
+    }
     for(const auto& iNP : fNuisPars){
 
         std::string npName = iNP.first;
         if (npName.find("_bin_") != std::string::npos) {
             npName = Common::ReplaceString(npName, "gamma_", "");
         }
+
         //
         // Getting the postfit values of the nuisance parameter
         const double central = fitResults -> GetNuisParValue(  npName);
         const double up      = fitResults -> GetNuisParErrUp(  npName);
         const double down    = fitResults -> GetNuisParErrDown(npName);
         
-        outFile << iNP.first << "   " << central << " +" << fabs(up) << " -" << fabs(down)<< "  ";
-        //
+        for (std::size_t ipoi = 0; ipoi < fPOINames.size(); ++ipoi) {
+            if (iNP.first == fPOINames.at(ipoi)) continue;
+            
+            outFiles.at(ipoi) << iNP.first << "   " << central << " +" << fabs(up) << " -" << fabs(down)<< "  ";
+        }
 
         RankingManager::RankingValues values;
         values.central = central;
@@ -168,37 +178,48 @@ void RankingManager::RunRanking(FitResults* fitResults,
         values.down = down;
 
         //
-        double dMuUp   = RunSingleFit(&fitTool, ws, mc, simPdf, data, iNP, true, false, values, muhat);
-        double dMuDown = RunSingleFit(&fitTool, ws, mc, simPdf, data, iNP, false, false, values, muhat);
+        std::vector<double> dMuUp   = RunSingleFit(&fitTool, ws, mc, simPdf, data, iNP, true, false, values, muhats);
+        std::vector<double> dMuDown = RunSingleFit(&fitTool, ws, mc, simPdf, data, iNP, false, false, values, muhats);
 
-        outFile << dMuUp << "   " << dMuDown << "  ";
+        for (std::size_t ipoi = 0; ipoi < fPOINames.size(); ++ipoi) {
+            if (iNP.first == fPOINames.at(ipoi)) continue;
 
-        dMuUp   = RunSingleFit(&fitTool, ws, mc, simPdf, data, iNP, true, true, values, muhat);
-        dMuDown = RunSingleFit(&fitTool, ws, mc, simPdf, data, iNP, false, true, values, muhat);
-        
-        outFile << dMuUp << "   " << dMuDown << " " << std::endl;
+            outFiles.at(ipoi) << dMuUp.at(ipoi) << "   " << dMuDown.at(ipoi) << "  ";
+        }
+
+        dMuUp   = RunSingleFit(&fitTool, ws, mc, simPdf, data, iNP, true, true, values, muhats);
+        dMuDown = RunSingleFit(&fitTool, ws, mc, simPdf, data, iNP, false, true, values, muhats);
+            
+        for (std::size_t ipoi = 0; ipoi < fPOINames.size(); ++ipoi) {
+            if (iNP.first == fPOINames.at(ipoi)) continue;
+            
+            outFiles.at(ipoi) << dMuUp.at(ipoi) << "   " << dMuDown.at(ipoi) << " " << std::endl;
+        }
 
     }
  
     ws->loadSnapshot("tmp_snapshot");
-    outFile.close();
+    for (auto& ifile : outFiles) {
+        ifile.close();
+    }
 }
 
 //__________________________________________________________________________________
 //
-double RankingManager::RunSingleFit(FittingTool* fitTool,
-                                    RooWorkspace* ws,       
-                                    RooStats::ModelConfig *mc,
-                                    RooSimultaneous *simPdf,
-                                    RooDataSet* data,
-                                    const std::pair<std::string, bool>& np,
-                                    const bool isUp,
-                                    const bool isPrefit,
-                                    const RankingManager::RankingValues& values,
-                                    const double muhat) const {
+std::vector<double> RankingManager::RunSingleFit(FittingTool* fitTool,
+                                                 RooWorkspace* ws,       
+                                                 RooStats::ModelConfig *mc,
+                                                 RooSimultaneous *simPdf,
+                                                 RooDataSet* data,
+                                                 const std::pair<std::string, bool>& np,
+                                                 const bool isUp,
+                                                 const bool isPrefit,
+                                                 const RankingManager::RankingValues& values,
+                                                 const std::vector<double>& muhats) const {
 
     if (isPrefit && np.second) {
-        return 0;
+        std::vector<double> tmp(muhats.size(), 0);
+        return tmp;
     }    
 
     ws->loadSnapshot("tmp_snapshot");
@@ -224,10 +245,15 @@ double RankingManager::RunSingleFit(FittingTool* fitTool,
     fitTool->FixNP( np.first, values.central + shift);
     fitTool->FitPDF( mc, simPdf, data );
 
-    double result = (fitTool->ExportFitResultInMap())[fPOIName] - muhat;
+    std::vector<double> result(fPOINames.size());
+    for (std::size_t ipoi = 0; ipoi < fPOINames.size(); ++ipoi) {
+        result.at(ipoi) = fitTool->ExportFitResultInMap()[fPOINames.at(ipoi)] - muhats.at(ipoi);
+    }
 
     if(TRExFitter::OPTION["ReduceRanking"]!=0){
-        result /= TRExFitter::OPTION["ReduceRanking"];
+        for (auto& i : result) {
+            i /= TRExFitter::OPTION["ReduceRanking"];
+        }
     }
 
     return result;
@@ -319,7 +345,7 @@ void RankingManager::PlotRanking(const std::vector<Region*>& regions,
         if (fHEPDataFormat) {
             converter.SetLumi(Common::ReplaceString(fLumiLabel, " fb^{-1}", ""));
             converter.SetCME(Common::ReplaceString(fCmeLabel, " TeV", "000"));
-            converter.WriteRankingHEPData(containerVec, fName);
+            converter.WriteRankingHEPData(containerVec, fName, fSuffix);
         }
     }
 

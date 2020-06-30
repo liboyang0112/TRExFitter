@@ -39,7 +39,7 @@ public:
     inline void SetNPValues(const std::map<std::string, double>& m){fFitValues = m;}
     inline void SetFixedNPs(const std::map<std::string, double>& m){fFitFixedNPs = m;}
     inline void SetFitStrategy(const int s){fFitStrategy = s;}
-    inline void SetPOIName(const std::string& name){fPOIName = name;}
+    inline void SetPOINames(const std::vector<std::string>& name){fPOINames = name;}
     inline void SetNCPU(const int n){fCPU = n;}
     inline void SetRng(const double range, const bool use, const int seed) {
         fRndRange = range;
@@ -56,6 +56,7 @@ public:
     inline void SetMaxNPPlot(const std::size_t n){fRankingMaxNP = n;}
     inline void SetRankingPOIName(const std::string& l){fRankingPOIName = l;}
     inline void SetRankingCanvasSize(const std::vector<int>& s){fNPRankingCanvasSize = s;}
+    inline void SetUsePOISinRanking(const bool flag){fUsePOISinRanking = flag;}
     
     void AddNuisPar(const std::string& name, const bool isNF);
 
@@ -75,7 +76,7 @@ private:
     std::map<std::string, double> fFitValues;
     std::map<std::string, double> fFitFixedNPs;
     int fFitStrategy;
-    std::string fPOIName;
+    std::vector<std::string> fPOINames;
     int fCPU;
     double fRndRange;
     bool fUseRnd;
@@ -90,17 +91,18 @@ private:
     std::size_t fRankingMaxNP;
     std::string fRankingPOIName;
     std::vector<int> fNPRankingCanvasSize;
+    bool fUsePOISinRanking;
     
-    double RunSingleFit(FittingTool* fitTool,
-                        RooWorkspace* ws,       
-                        RooStats::ModelConfig *mc,
-                        RooSimultaneous *simPdf,
-                        RooDataSet* data,
-                        const std::pair<std::string, bool>& np,
-                        const bool isUp,
-                        const bool isPrefit,
-                        const RankingValues& values,
-                        const double muhat) const;
+    std::vector<double> RunSingleFit(FittingTool* fitTool,
+                                     RooWorkspace* ws,       
+                                     RooStats::ModelConfig *mc,
+                                     RooSimultaneous *simPdf,
+                                     RooDataSet* data,
+                                     const std::pair<std::string, bool>& np,
+                                     const bool isUp,
+                                     const bool isPrefit,
+                                     const RankingValues& values,
+                                     const std::vector<double>& muhat) const;
 
 };
 

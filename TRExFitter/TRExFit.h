@@ -838,6 +838,7 @@ public:
     bool fValidationPruning;
     bool fUnfoldNormXSec;
     int fUnfoldNormXSecBinN;
+    bool fUsePOISinRanking;
 };
 
 #endif
