@@ -141,9 +141,7 @@ public:
     bool fHasData;
     std::shared_ptr<SampleHist> fData;
     bool fHasSig;
-    int fNSig;
     std::vector<std::shared_ptr<SampleHist> > fSig;
-    int fNBkg;
     std::vector<std::shared_ptr<SampleHist> > fBkg;
     int fNSamples;
     std::vector < std::shared_ptr<SampleHist> > fSampleHists;

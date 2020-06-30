@@ -2880,16 +2880,16 @@ void TRExFit::DrawSignalRegionsPlot(int nCols,int nRows, std::vector < Region* >
         S[i] = 0.;
         B[i] = 0.;
         if(regions[i]==nullptr) continue;
-        for(int i_sig=0;i_sig<regions[i]->fNSig;i_sig++) {
-            if(regions[i]->fSig[i_sig]!=nullptr) {
-                const double scale = Common::GetNominalMorphScale(regions[i]->fSig[i_sig].get());
-                S[i] += scale * regions[i]->fSig[i_sig]->fHist->Integral();
+        for(const auto& isig : regions[i]->fSig) {
+            if(isig != nullptr) {
+                const double scale = Common::GetNominalMorphScale(isig.get());
+                S[i] += scale * isig->fHist->Integral();
             }
         }
-        for(int i_bkg=0;i_bkg<regions[i]->fNBkg;i_bkg++){
-            if(regions[i]->fBkg[i_bkg]!=nullptr) {
-                const double scale = Common::GetNominalMorphScale(regions[i]->fBkg[i_bkg].get());
-                B[i] += scale * regions[i]->fBkg[i_bkg]->fHist->Integral();
+        for(const auto& ibkg : regions[i]->fBkg) {
+            if(ibkg != nullptr) {
+                const double scale = Common::GetNominalMorphScale(ibkg.get());
+                B[i] += scale * ibkg->fHist->Integral();
             }
         }
         // to avoid nan or inf...
@@ -3089,7 +3089,7 @@ void TRExFit::DrawPieChartPlot(const std::string &opt, int nCols,int nRows, std:
         std::map < std::string, int > temp_map_for_region_color;
 
         if(regions[i]!=nullptr){
-            for(int i_bkg=regions[i]->fNBkg-1;i_bkg>=0;i_bkg--){
+            for(int i_bkg = regions[i]->fBkg.size()-1; i_bkg >= 0; --i_bkg) {
                 if(regions[i]->fBkg[i_bkg]!=nullptr){
                     std::string title = regions[i]->fBkg[i_bkg]->fSample->fTitle;
                     if(regions[i]->fBkg[i_bkg]->fSample->fGroup != "") title = regions[i]->fBkg[i_bkg]->fSample->fGroup.c_str();
@@ -5471,7 +5471,7 @@ void TRExFit::DrawAndSaveSeparationPlots() const{
         TCanvas dummy3 ("dummy3", "dummy3", 600,600);
         dummy3.cd();
 
-        if(fRegions[i_ch]->fNSig==0){
+        if(fRegions[i_ch]->fSig.size() ==  0){
             WriteErrorStatus("TRExFit::DrawAndSaveSeparationPlots", "No Signal Found");
             continue;
         }
@@ -5479,8 +5479,8 @@ void TRExFit::DrawAndSaveSeparationPlots() const{
         std::unique_ptr<TH1D> sig(static_cast<TH1D*>(fRegions[i_ch]->fSig[0]->fHist->Clone()));
 
         std::unique_ptr<TH1D> bkg (static_cast<TH1D*>(fRegions[i_ch]->fBkg[0]->fHist->Clone())); // clone the first bkg
-        for(int i_bkg=1; i_bkg< fRegions[i_ch] -> fNBkg; i_bkg++){
-            bkg->Add(fRegions[i_ch]->fBkg[i_bkg]->fHist.get()); // add the rest
+        for(const auto& ibkg : fRegions[i_ch]->fBkg) {
+            bkg->Add(ibkg->fHist.get()); // add the rest
         }
 
         sig->SetLineColor( 2 );

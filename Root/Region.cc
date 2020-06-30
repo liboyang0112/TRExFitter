@@ -54,8 +54,6 @@ Region::Region(const string& name) :
     fHasData(false),
     fData(nullptr),
     fHasSig(false),
-    fNSig(0),
-    fNBkg(0),
     fNSamples(0),
     fYmaxScale(0),
     fYmin(0),
@@ -156,11 +154,9 @@ std::shared_ptr<SampleHist> Region::SetSampleHist(Sample *sample, string histoNa
     else if(sample->fType==Sample::SIGNAL){
         fHasSig = true;
         fSig.emplace_back(fSampleHists[fNSamples]);
-        fNSig++;
     }
     else if(sample->fType==Sample::BACKGROUND){
         fBkg.emplace_back(fSampleHists[fNSamples]);
-        fNBkg++;
     }
     else if(sample->fType==Sample::GHOST){
         WriteDebugStatus("Region::SetSampleHist", "Adding GHOST sample.");
@@ -188,11 +184,9 @@ std::shared_ptr<SampleHist> Region::SetSampleHist(Sample *sample, TH1* hist ){
     else if(sample->fType==Sample::SIGNAL){
         fHasSig = true;
         fSig.emplace_back(fSampleHists[fNSamples]);
-        fNSig ++;
     }
     else if(sample->fType==Sample::BACKGROUND){
         fBkg.emplace_back(fSampleHists[fNSamples]);
-        fNBkg ++;
     }
     else if(sample->fType==Sample::GHOST){
         WriteDebugStatus("Region::SetSampleHist", "Adding GHOST sample.");
@@ -637,13 +631,13 @@ std::shared_ptr<TRExPlot> Region::DrawPreFit(const std::vector<int>& canvasSize,
         }
         p->SetData(fData->fHist.get(),fData->fSample->fTitle);
     }
-    for(int i=0;i<fNSig;i++) {
-        container.samples.emplace_back(fSig[i]->fSample->fTitle);
-        std::string title = fSig[i]->fSample->fTitle;
-        if(fSig[i]->fSample->fGroup != "") title = fSig[i]->fSample->fGroup;
-        std::unique_ptr<TH1> h(static_cast<TH1*>(fSig[i]->fHist->Clone()));
+    for(const auto& isig : fSig) {
+        container.samples.emplace_back(isig->fSample->fTitle);
+        std::string title = isig->fSample->fTitle;
+        if(isig->fSample->fGroup != "") title = isig->fSample->fGroup;
+        std::unique_ptr<TH1> h(static_cast<TH1*>(isig->fHist->Clone()));
         // set to 0 uncertainty in each bin if MCstat set to FALSE
-        if(!fSig[i]->fSample->fUseMCStat && !fSig[i]->fSample->fSeparateGammas){
+        if(!isig->fSample->fUseMCStat && !isig->fSample->fSeparateGammas){
             for(int i_bin=0;i_bin<h->GetNbinsX()+2;i_bin++) h->SetBinError(i_bin,0.);
         }
         // else still check if the value is reasonable
@@ -653,8 +647,8 @@ std::shared_ptr<TRExPlot> Region::DrawPreFit(const std::vector<int>& canvasSize,
             }
         }
         // scale it according to NormFactors
-        for(unsigned int i_nf=0;i_nf<fSig[i]->fSample->fNormFactors.size();i_nf++){
-            const NormFactor *nf = fSig[i]->fSample->fNormFactors[i_nf].get();
+        for(unsigned int i_nf=0;i_nf < isig->fSample->fNormFactors.size();i_nf++){
+            const NormFactor *nf = isig->fSample->fNormFactors[i_nf].get();
             // if this norm factor is a morphing one
             if(nf->fName.find("morph_")!=string::npos || nf->fExpression.first!=""){
                 std::string formula = TRExFitter::SYSTMAP[nf->fName];
@@ -680,12 +674,12 @@ std::shared_ptr<TRExPlot> Region::DrawPreFit(const std::vector<int>& canvasSize,
                 TFormula f_morph("f_morph",formula.c_str());
                 const double scale = f_morph.EvalPar(&nfNominalvec[0],nullptr);
                 h->Scale(scale);
-                WriteDebugStatus("Region::DrawPreFit", nf->fName + " => Scaling " + fSig[i]->fSample->fName + " by " + std::to_string(scale));
+                WriteDebugStatus("Region::DrawPreFit", nf->fName + " => Scaling " + isig->fSample->fName + " by " + std::to_string(scale));
             }
             else{
                 if (std::find(nf->fRegions.begin(), nf->fRegions.end(), fName) != nf->fRegions.end()) {
                     h->Scale(nf->fNominal);
-                    WriteDebugStatus("Region::DrawPreFit", nf->fName + " => Scaling " + fSig[i]->fSample->fName + " by " + std::to_string(fSig[i]->fSample->fNormFactors[i_nf]->fNominal));
+                    WriteDebugStatus("Region::DrawPreFit", nf->fName + " => Scaling " + isig->fSample->fName + " by " + std::to_string(isig->fSample->fNormFactors[i_nf]->fNominal));
                 }
             }
         }
@@ -711,13 +705,13 @@ std::shared_ptr<TRExPlot> Region::DrawPreFit(const std::vector<int>& canvasSize,
         }
         container.signalYields.emplace_back(std::move(tmp));
     }
-    for(int i=0;i<fNBkg;i++){
-        container.samples.emplace_back(fBkg[i]->fSample->fTitle);
-        std::string title = fBkg[i]->fSample->fTitle;
-        if(fBkg[i]->fSample->fGroup != "") title = fBkg[i]->fSample->fGroup;
-        std::unique_ptr<TH1> h(static_cast<TH1*>(fBkg[i]->fHist->Clone()));
+    for(const auto& ibkg : fBkg) {
+        container.samples.emplace_back(ibkg->fSample->fTitle);
+        std::string title = ibkg->fSample->fTitle;
+        if(ibkg->fSample->fGroup != "") title = ibkg->fSample->fGroup;
+        std::unique_ptr<TH1> h(static_cast<TH1*>(ibkg->fHist->Clone()));
         // set to 0 uncertainty in each bin if MCstat set to FALSE
-        if(!fBkg[i]->fSample->fUseMCStat && !fBkg[i]->fSample->fSeparateGammas){
+        if(!ibkg->fSample->fUseMCStat && !ibkg->fSample->fSeparateGammas){
             for(int i_bin=0;i_bin<h->GetNbinsX()+2;i_bin++) h->SetBinError(i_bin,0.);
         }
         // else still check if the value is reasonable
@@ -727,8 +721,8 @@ std::shared_ptr<TRExPlot> Region::DrawPreFit(const std::vector<int>& canvasSize,
             }
         }
         // scale it according to NormFactors
-        for(unsigned int i_nf=0;i_nf<fBkg[i]->fSample->fNormFactors.size();i_nf++){
-            const NormFactor *nf = fBkg[i]->fSample->fNormFactors[i_nf].get();
+        for(unsigned int i_nf=0;i_nf < ibkg->fSample->fNormFactors.size();i_nf++){
+            const NormFactor *nf = ibkg->fSample->fNormFactors[i_nf].get();
             // if this norm factor is a morphing one
             if(nf->fName.find("morph_")!=string::npos || nf->fExpression.first!=""){
                 std::string formula = TRExFitter::SYSTMAP[nf->fName];
@@ -754,12 +748,12 @@ std::shared_ptr<TRExPlot> Region::DrawPreFit(const std::vector<int>& canvasSize,
                 TFormula f_morph("f_morph",formula.c_str());
                 const double scale = f_morph.EvalPar(&nfNominalvec[0],nullptr);
                 h->Scale(scale);
-                WriteDebugStatus("Region::DrawPreFit", nf->fName + " => Scaling " + fBkg[i]->fSample->fName + " by " + std::to_string(scale));
+                WriteDebugStatus("Region::DrawPreFit", nf->fName + " => Scaling " + ibkg->fSample->fName + " by " + std::to_string(scale));
             }
             else{
                 if (std::find(nf->fRegions.begin(), nf->fRegions.end(), fName) != nf->fRegions.end()) {
                     h->Scale(nf->fNominal);
-                    WriteDebugStatus("Region::DrawPreFit", nf->fName + " => Scaling " + fBkg[i]->fSample->fName + " by " + std::to_string(fBkg[i]->fSample->fNormFactors[i_nf]->fNominal));
+                    WriteDebugStatus("Region::DrawPreFit", nf->fName + " => Scaling " + ibkg->fSample->fName + " by " + std::to_string(ibkg->fSample->fNormFactors[i_nf]->fNominal));
                 }
             }
         }
@@ -1669,7 +1663,7 @@ std::shared_ptr<TRExPlot> Region::DrawPostFit(FitResults* fitRes,
             }
             p->SetData(fData->fHist.get(),fData->fSample->fTitle);
         }
-        for(int i=0;i<fNSig;i++){
+        for(std::size_t i = 0; i < fSig.size(); ++i) {
             container.samples.emplace_back(fSig[i]->fSample->fTitle);
             std::string title = fSig[i]->fSample->fTitle;
             if(fSig[i]->fSample->fGroup != "") title = fSig[i]->fSample->fGroup;
@@ -1687,7 +1681,7 @@ std::shared_ptr<TRExPlot> Region::DrawPostFit(FitResults* fitRes,
                 p->AddOverSignal(hSigNew[i].get(),title);
             }
         }
-        for(int i=0;i<fNBkg;i++){
+        for(std::size_t i = 0; i < fBkg.size(); ++i) {
             container.samples.emplace_back(fBkg[i]->fSample->fTitle);
             std::string title = fBkg[i]->fSample->fTitle;
             if(fBkg[i]->fSample->fGroup != "") title = fBkg[i]->fSample->fGroup;

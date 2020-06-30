@@ -2254,6 +2254,7 @@ int ConfigReader::ReadRegionOptions(const std::string& opt){
                 bins[iBound] = atof(vec_bins[iBound].c_str());
             }
             reg -> SetRebinning(nBounds-1,bins);
+            delete [] bins;
         }
 
         // Set Binning
@@ -2321,6 +2322,7 @@ int ConfigReader::ReadRegionOptions(const std::string& opt){
                     bins[iBound] = atof(vec_bins[iBound].c_str());
                 }
                 reg -> SetBinning(nBounds-1,bins);
+                delete [] bins;
             }
         }
 
