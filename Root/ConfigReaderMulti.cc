@@ -693,7 +693,7 @@ int ConfigReaderMulti::ReadFitOptions(const std::string& opt, const std::string&
 
         // Set POIName
         param = confSet->Get("POIName");
-        if( param != "" ) fMultiFitter->fFitList[fMultiFitter->fFitList.size()-1]->fPOI = RemoveQuotes(param);
+        if( param != "" ) fMultiFitter->fFitList[fMultiFitter->fFitList.size()-1]->fPOIs[0] = RemoveQuotes(param);
 
         // Set Directory
         param = confSet->Get("Directory");

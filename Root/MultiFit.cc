@@ -642,8 +642,8 @@ void MultiFit::ComparePOI(const string& POI) const {
         dirs.push_back( fFitList[i_fit]->fName );
         titles.push_back( fFitLabels[i_fit] );
         suffs.push_back( fFitSuffs[i_fit] );
-        if(fFitList[i_fit]->fPOI!="") pois.push_back( fFitList[i_fit]->fPOI );
-        else                          pois.push_back( POI );
+        if(fFitList[i_fit]->fPOIs.size()>0) pois.push_back( fFitList[i_fit]->fPOIs[0] );
+        else                                pois.push_back( POI );
     }
     if(fCombine){
         WriteInfoStatus("MultiFit::ComparePOI", "Adding Combined Fit");

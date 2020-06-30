@@ -95,7 +95,8 @@ public:
     TRExFit& operator=(const TRExFit& t) = delete;
     TRExFit& operator=(TRExFit&& t) = delete;
 
-    void SetPOI(std::string name="SigXsecOverSM");
+    void SetPOI(std::string name="SigXsecOverSM",std::string unit="");
+    void AddPOI(std::string name="SigXsecOverSM",std::string unit="");
     void SetStatErrorConfig(bool useIt=true, double thres=0.05, std::string cons="Poisson");
     void SetLumiErr(const double err);
     void SetLumi(const double lumi);
@@ -176,7 +177,7 @@ public:
 
     // fit etc...
     void Fit(bool isLHscanOnly);
-    RooDataSet* DumpData( RooWorkspace *ws, std::map < std::string, int > &regionDataType, std::map < std::string, double > &npValues, const double poiValue);
+    RooDataSet* DumpData( RooWorkspace *ws, std::map < std::string, int > &regionDataType, std::map < std::string, double > &npValues, std::map < std::string, double > &poiValues);
     std::map < std::string, double > PerformFit( RooWorkspace *ws, RooDataSet* inputData, FitType fitType=SPLUSB, bool save=false, int debugLevel=1 );
     std::unique_ptr<RooWorkspace> PerformWorkspaceCombination( std::vector < std::string > &regionsToFit ) const;
 
@@ -530,8 +531,10 @@ public:
 
     int fNRegions;
     int fNSamples;
-    std::string fPOI;
-    std::string fPOIunit;
+    std::vector<std::string> fPOIs;
+    std::map<std::string,std::string> fPOIunit;
+    std::string fPOIforLimit;
+    std::string fPOIforSig;
     bool fUseStatErr;
     double fStatErrThres;
     std::string fStatErrCons;
@@ -640,7 +643,7 @@ public:
     std::map< std::string, double > fFitFixedNPs;
     std::string fFitNPValuesFromFitResults;
     bool fInjectGlobalObservables;
-    double fFitPOIAsimov;
+    std::map< std::string, double > fFitPOIAsimov;
     bool fFitIsBlind;
     bool fUseRnd;
     double fRndRange;
