@@ -143,7 +143,6 @@ public:
     bool fHasSig;
     std::vector<std::shared_ptr<SampleHist> > fSig;
     std::vector<std::shared_ptr<SampleHist> > fBkg;
-    int fNSamples;
     std::vector < std::shared_ptr<SampleHist> > fSampleHists;
     std::vector < std::shared_ptr<Sample> > fSamples;
     double fYmaxScale;
