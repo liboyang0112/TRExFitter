@@ -68,7 +68,8 @@ public:
                       const std::string& path) const;
     
     void WriteRankingHEPData(const std::vector<RankingContainer>& ranking,
-                             const std::string& folder) const;
+                             const std::string& folder,
+                             const std::string& suffix) const;
     
     void WriteCorrelation(const std::vector<std::string>& np,
                           const std::vector<std::vector<double> >& corr,

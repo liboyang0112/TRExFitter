@@ -1653,7 +1653,6 @@ void MultiFit::ProduceNPRanking(const  std::string& NPnames) const {
     //
     std::string outName = fOutDir+"/Fits/NPRanking";
     if(NPnames!="all") outName += "_"+NPnames;
-    outName += ".txt";
     
     manager.SetOutputPath(outName);
 
@@ -1739,7 +1738,7 @@ void MultiFit::ProduceNPRanking(const  std::string& NPnames) const {
     manager.SetNPValues(fit->fFitNPValues);
     manager.SetFixedNPs(GetFixedNPs());
     manager.SetFitStrategy(fFitStrategy);
-    manager.SetPOIName(fPOI);
+    manager.SetPOINames(Common::ToVec(fPOI));
     manager.SetNCPU(fCPU);
     manager.SetRng(fit->fRndRange, fit->fUseRnd, fit->fRndSeed);
     manager.SetStatOnly(fStatOnly);
@@ -1766,7 +1765,7 @@ void MultiFit::PlotNPRanking(bool flagSysts, bool flagGammas) const {
     const std::string fileToRead = fOutDir+"/Fits/NPRanking"+fSaveSuf+".txt";
     std::ifstream in(fileToRead.c_str());
     if (!in.good()) { // file doesnt exist
-        const std::vector<std::string>& inPaths = Common::GetFilesMatchingString(fOutDir+"/Fits/","NPRanking" + fSaveSuf + "_");
+        const std::vector<std::string>& inPaths = Common::GetFilesMatchingString(fOutDir+"/Fits/","NPRanking" + fSaveSuf + "_", "");
         Common::MergeTxTFiles(inPaths, fileToRead);
     }
 
@@ -2546,7 +2545,7 @@ void MultiFit::BuildGroupedImpactTable() const{
         WriteWarningStatus("MultiFit::BuildGroupedImpactTable","file " + targetName + " already exists, will not overwrite");
     }
     else{
-        const std::vector<std::string>& inPaths = Common::GetFilesMatchingString(fOutDir+"/Fits/","GroupedImpact"+fSaveSuf+"_");
+        const std::vector<std::string>& inPaths = Common::GetFilesMatchingString(fOutDir+"/Fits/","GroupedImpact"+fSaveSuf+"_", "");
         Common::MergeTxTFiles(inPaths, targetName);
     }
 }

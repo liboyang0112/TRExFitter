@@ -284,7 +284,8 @@ TRExFit::TRExFit(std::string name) :
     fRemoveSystOnEmptySample(false),
     fValidationPruning(false),
     fUnfoldNormXSec(false),
-    fUnfoldNormXSecBinN(-1)
+    fUnfoldNormXSecBinN(-1),
+    fUsePOISinRanking(false)
 {
     TRExFitter::IMAGEFORMAT.emplace_back("png");
 }
@@ -5669,7 +5670,7 @@ void TRExFit::ProduceNPRanking(const std::string& NPnames) {
         }
     }
     for(const auto& inorm : fNormFactors) {
-        if(Common::FindInStringVector(fPOIs,inorm->fName)>=0) continue;
+        if (!fUsePOISinRanking && Common::FindInStringVector(fPOIs, inorm->fName) >= 0) continue;
         if(NPnames=="all" || NPnames==inorm->fName){
             manager.AddNuisPar(inorm->fName, true);
         }
@@ -5684,7 +5685,6 @@ void TRExFit::ProduceNPRanking(const std::string& NPnames) {
         outName = fName+"/Fits/"+fBootstrapSyst+fBootstrapSample+Form("_BSId%d/",fBootstrapIdx)+"NPRanking"+fSuffix;
     }
     if(NPnames!="all") outName += "_"+NPnames;
-    outName += ".txt";
     manager.SetOutputPath(outName);
 
     //
@@ -5808,15 +5808,17 @@ void TRExFit::ProduceNPRanking(const std::string& NPnames) {
     manager.SetNPValues(fFitNPValues);
     manager.SetFixedNPs(fFitFixedNPs);
     manager.SetFitStrategy(fFitStrategy);
-    if(fPOIs.size()>0){
-        manager.SetPOIName(fPOIs[0]); // FIXME: here we are taking just the first POI for ranking - will have to enable handling of more POIs when producing ranking
+    if(fPOIs.size() > 0){
+        manager.SetPOINames(fPOIs);
     }
     else{
-        WriteErrorStatus("TRExFit::ProduceNPRanking","No POI set. Not able to produce ranking.");
+        WriteWarningStatus("TRExFit::ProduceNPRanking","No POI set. Not able to produce ranking.");
+        return;
     }
     manager.SetNCPU(fCPU);
     manager.SetRng(fRndRange, fUseRnd, fRndSeed);
     manager.SetStatOnly(fStatOnly);
+    manager.SetUsePOISinRanking(fUsePOISinRanking);
 
     manager.RunRanking(fFitResults, ws.get(), data.get(), fNormFactors);
 
@@ -5834,28 +5836,32 @@ void TRExFit::PlotNPRankingManager() const{
 //____________________________________________________________________________________
 //
 void TRExFit::PlotNPRanking(const bool flagSysts, const bool flagGammas) const{
-    //
-    const std::string fileToRead = fName+"/Fits/NPRanking"+fSuffix+".txt";
 
-    std::ifstream in(fileToRead.c_str());
-    if (!in.good()) { // file doesnt exist
-        const std::vector<std::string>& inPaths = Common::GetFilesMatchingString(fName+"/Fits/","NPRanking"+fSuffix+"_");
-        Common::MergeTxTFiles(inPaths, fileToRead);
+    for (const auto& poi : fPOIs) {
+        const std::string fileToRead = fName+"/Fits/NPRanking"+fSuffix+"_"+poi+".txt";
+        std::ifstream in(fileToRead.c_str());
+        if (!in.good()) { // file doesnt exist
+            const std::vector<std::string>& inPaths = Common::GetFilesMatchingString(fName+"/Fits/","NPRanking"+fSuffix+"_", poi);
+            Common::MergeTxTFiles(inPaths, fileToRead);
+        }
     }
 
     RankingManager manager{};
-    manager.SetOutputPath(fileToRead);
     manager.SetAtlasLabel(fAtlasLabel);
     manager.SetLumiLabel(fLumiLabel);
     manager.SetCmeLabel(fCmeLabel);
     manager.SetUseHEPDataFormat(fHEPDataFormat);
     manager.SetName(fName);
-    manager.SetSuffix(fSuffix);
     manager.SetMaxNPPlot(fRankingMaxNP);
     manager.SetRankingPOIName(fRankingPOIName);
     manager.SetRankingCanvasSize(fNPRankingCanvasSize);
 
-    manager.PlotRanking(fRegions, flagSysts, flagGammas);
+    for (const auto& poi : fPOIs) {
+        const std::string fileToRead = fName+"/Fits/NPRanking"+fSuffix+"_"+poi+".txt";
+        manager.SetOutputPath(fileToRead);
+        manager.SetSuffix(fSuffix+"_"+poi);
+        manager.PlotRanking(fRegions, flagSysts, flagGammas);
+    }
 }
 
 //____________________________________________________________________________________
@@ -6902,7 +6908,7 @@ void TRExFit::BuildGroupedImpactTable() const{
         WriteWarningStatus("TRExFit::BuildGroupedImpactTable","file " + targetName + " already exists, will not overwrite");
     }
     else{
-        const std::vector<std::string>& inPaths = Common::GetFilesMatchingString(fName+"/Fits/","GroupedImpact"+fSuffix+"_");
+        const std::vector<std::string>& inPaths = Common::GetFilesMatchingString(fName+"/Fits/","GroupedImpact"+fSuffix+"_", "");
         Common::MergeTxTFiles(inPaths, targetName);
     }
 }

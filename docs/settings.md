@@ -196,6 +196,7 @@ The following settings are for normal fits, performed without the action `m`.
 | HEPDataFormat                | If set to TRUE (default is FALSE), will produce outputs in HEPData format |
 | FitStrategy                  | Set Minuit2 fitting strategy, can be: 0, 1 or 2. If negative value is set the default is used (1) |
 | BinnedLikelihoodOptimization | Can be set to TRUE or FALSE (default). If se to TRUE, will use the `BinnedLikelihood` optimisation of RooFit that has significant speed improvements, but results in less stable correlation matrix computation |
+| UsePOISinRanking | If set to `TRUE` (default is `FALSE`) will include POIs as NPs in the ranking |
 
 
 ### `Limit block` settings

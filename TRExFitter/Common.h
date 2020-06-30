@@ -283,10 +283,11 @@ bool StringToBoolean(std::string param);
 /**
   * Get apths to files containing a key from a folder
   * @param folder path
-  * @param keu
+  * @param key
+  * @param key2
   * @return vector of paths
   */  
-std::vector<std::string> GetFilesMatchingString(const std::string& folder, const std::string& key);
+std::vector<std::string> GetFilesMatchingString(const std::string& folder, const std::string& key, const std::string& key2);
 
 /**
   * Merge txt files into another one

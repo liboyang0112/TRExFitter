@@ -48,7 +48,8 @@ void YamlConverter::WriteRanking(const std::vector<YamlConverter::RankingContain
 }
     
 void YamlConverter::WriteRankingHEPData(const std::vector<RankingContainer>& ranking,
-                                        const std::string& folder) const {
+                                        const std::string& folder,
+                                        const std::string& suffix) const {
 
     gSystem->mkdir((folder+"/HEPData").c_str());
 
@@ -153,7 +154,7 @@ void YamlConverter::WriteRankingHEPData(const std::vector<RankingContainer>& ran
     out << YAML::EndMap;
     
     // Write to the file
-    Write(out, "HEPData ranking", folder + "/HEPData/Ranking.yaml");
+    Write(out, "HEPData ranking", folder + "/HEPData/Ranking"+suffix+".yaml");
 }
 
 void YamlConverter::AddQualifiers(YAML::Emitter& out) const {
