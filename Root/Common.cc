@@ -1205,24 +1205,24 @@ std::vector<int> Common::GetBlindedBins(const Region* reg,
 
     /// stack the samplehists
     std::set<std::string> systNames;
-    for(int i_smp=0; i_smp<reg->fNSamples; ++i_smp) {
-        if (reg->fSampleHists[i_smp]->fSample->fType==Sample::GHOST) continue;
-        else if (reg->fSampleHists[i_smp]->fSample->fType==Sample::DATA) continue;
-        else if (reg->fSampleHists[i_smp]->fSample->fType==Sample::SIGNAL) {
-            const double scale = Common::GetNominalMorphScale(reg->fSampleHists[i_smp].get());
+    for(const auto& isample : reg->fSampleHists) {
+        if (isample->fSample->fType==Sample::GHOST) continue;
+        else if (isample->fSample->fType==Sample::DATA) continue;
+        else if (isample->fSample->fType==Sample::SIGNAL) {
+            const double scale = Common::GetNominalMorphScale(isample.get());
             if(empty_signal){
-                hist_signal.CloneSampleHist(reg->fSampleHists[i_smp].get(),systNames, scale);
+                hist_signal.CloneSampleHist(isample.get(),systNames, scale);
                 if (hist_signal.fHist != nullptr) empty_signal = false;
             } else {
-                hist_signal.SampleHistAddNominal(reg->fSampleHists[i_smp].get(), scale);
+                hist_signal.SampleHistAddNominal(isample.get(), scale);
             }
-        } else if (reg->fSampleHists[i_smp]->fSample->fType==Sample::BACKGROUND) {
-            const double scale = Common::GetNominalMorphScale(reg->fSampleHists[i_smp].get());
+        } else if (isample->fSample->fType==Sample::BACKGROUND) {
+            const double scale = Common::GetNominalMorphScale(isample.get());
             if(empty_bkg){
-                hist_bkg.CloneSampleHist(reg->fSampleHists[i_smp].get(),systNames, scale);
+                hist_bkg.CloneSampleHist(isample.get(),systNames, scale);
                 if (hist_bkg.fHist != nullptr) empty_bkg = false;
             } else {
-                hist_bkg.SampleHistAddNominal(reg->fSampleHists[i_smp].get(), scale);
+                hist_bkg.SampleHistAddNominal(isample.get(), scale);
             }
         } else {
             WriteErrorStatus("Common::GetBlindedBins", "Unknown sample type!");
