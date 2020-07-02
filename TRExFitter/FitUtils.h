@@ -42,6 +42,13 @@ void InjectGlobalObservables(RooWorkspace* ws, const std::map< std::string, doub
  * @param workspace
  */
 void DisableSaturatedModel(RooWorkspace* ws);
+
+/**
+ * A helper function to set POI in a file
+ * @param path to the file
+ * @param POI
+ */
+void SetPOIinFile(const std::string& path, const std::string& poi);
 }
 
 #endif

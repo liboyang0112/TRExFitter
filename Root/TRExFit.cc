@@ -5169,6 +5169,7 @@ void TRExFit::GetLimit(){
         }
         else{
             WriteErrorStatus("TRExFit::GetLimit","No POI specified (in 'Limit' or 'Job' block).");
+            return;
         }
     }
     

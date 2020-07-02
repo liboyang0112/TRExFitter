@@ -12,8 +12,9 @@
 #include "RooSimultaneous.h"
 #include "RooWorkspace.h"
 
-#include "TVectorD.h"
+#include "TFile.h"
 #include "TMatrixDSym.h"
+#include "TVectorD.h"
 
 #include <sstream>
 
@@ -144,4 +145,30 @@ void FitUtils::DisableSaturatedModel(RooWorkspace* ws) {
             var->setConstant( 1 );
         }
     }
+}
+
+//__________________________________________________________________________________
+//
+void FitUtils::SetPOIinFile(const std::string& path, const std::string& poi) {
+    std::unique_ptr<TFile> f(TFile::Open(path.c_str()));
+    if (!f) {
+        WriteErrorStatus("FitUtils::SetPOIinFile", "Cannot open input file at: " + path);
+        return;
+    }
+
+   std::unique_ptr<RooWorkspace> ws(dynamic_cast<RooWorkspace*>(f->Get("combined")));
+    if (!ws) {
+        WriteErrorStatus("FitUtils::SetPOIinFile", "Cannot read workspace");
+        return;
+    }
+
+    std::unique_ptr<RooStats::ModelConfig> mc(dynamic_cast<RooStats::ModelConfig*>(ws->obj("ModelConfig")));
+    if (!mc) {
+        WriteErrorStatus("FitUtils::SetPOIinFile", "Cannot read ModelConfig");
+        return;
+    }
+
+    mc->SetParametersOfInterest(poi.c_str());
+
+    f->Close();
 }
