@@ -480,7 +480,7 @@ These options are for multi-fits, performed with action `m`.
 | StatOnly         | can be TRUE or FALSE, set to TRUE if the fits are stat only fits |
 | IncludeStatOnly  | can be TRUE or FALSE, set to TRUE if you want to include stat only fits |
 | POIName          | the name of the POI in the configs |
-| POIRange         | the range of the chosen POI |
+| POIRange         | the range of the chosen POIs, in the for of `min1:max1,min2:max2`, where the number of options needs to match the number fo POIs |
 | LimitMax         | set maximum value for the limit |
 | POIPrecision     | string, set precision of the POI |
 | DataName         | can be "obsData", "asimovData", or custom string, if nothing is specified the observed data will be used |
@@ -521,6 +521,7 @@ These options are for multi-fits, performed with action `m`.
 | HEPDataFormat    | If set to `TRUE` wil lproduce output in HEPData yaml format. |
 | FitStrategy      | Set Minuit2 fitting strategy, can be: 0, 1 or 2. If negative value is set the default is used (1) |
 | BinnedLikelihoodOptimization | Can be set to TRUE or FALSE (default). If se to TRUE, will use the `BinnedLikelihood` optimisation of RooFit that has significant speed improvements, but results in less stable correlation matrix computation |
+| UsePOISinRanking | If set to `TRUE` (default is `FALSE`) will include POIs as NPs in the ranking |
 
 
 ### Multi-fit `Fit` block settings
