@@ -102,7 +102,8 @@ public:
                           const std::string& directory,
                           const bool isPostFit) const;
 
-    void WriteHEPDataSubmission(const SubmissionContainer& container) const;
+    void WriteHEPDataSubmission(const SubmissionContainer& container,
+                                const std::vector<std::string>& pois) const;
 
 private:
     std::string m_lumi;
@@ -123,7 +124,7 @@ private:
 
     void AddCorrelation(std::ofstream& file) const;
     
-    void AddRanking(std::ofstream& file) const;
+    void AddRanking(std::ofstream& file, const std::vector<std::string>& pois) const;
     
     void AddPlots(std::ofstream& file, const SubmissionContainer& container) const;
     

@@ -198,7 +198,7 @@ void FitExample(std::string opt="h",std::string configFile="config/myFit.config"
         }
 
         YamlConverter converter{};
-        converter.WriteHEPDataSubmission(container);
+        converter.WriteHEPDataSubmission(container, myFit->fPOIs);
     }
 
     // check compatibility between run option and config file

@@ -877,7 +877,13 @@ bool YamlConverter::PlotContainerIsOK(const YamlConverter::PlotContainer& contai
     return true;
 }
     
-void YamlConverter::WriteHEPDataSubmission(const YamlConverter::SubmissionContainer& container) const {
+void YamlConverter::WriteHEPDataSubmission(const YamlConverter::SubmissionContainer& container,
+                                           const std::vector<std::string>& pois) const {
+
+    if (pois.empty()) {
+        WriteWarningStatus("YamlConverter::WriteHEPDataSubmission", "Vector of POIs is empty");
+        return;
+    }
 
     gSystem->mkdir((container.folder + "/HEPData").c_str());
 
@@ -892,8 +898,8 @@ void YamlConverter::WriteHEPDataSubmission(const YamlConverter::SubmissionContai
 
     AddCorrelation(file);
     file << "\n---\n";
-    AddRanking(file);
-    file << "\n---\n";
+    AddRanking(file, pois);
+    
     AddPlots(file, container);
 
     if (container.useTables) {
@@ -914,8 +920,12 @@ void YamlConverter::AddCorrelation(std::ofstream& file) const {
     Add(file, "Correlation.yaml", "NP correlation matrix");
 }
     
-void YamlConverter::AddRanking(std::ofstream& file) const {
-    Add(file, "Ranking.yaml", "NP ranking plot");
+void YamlConverter::AddRanking(std::ofstream& file, const std::vector<std::string>& pois) const {
+    for (const auto& ipoi : pois) {
+        const std::string name = "Ranking_" + ipoi + ".yaml";
+        Add(file, name, "NP ranking plot for " + ipoi);
+        file << "\n---\n";
+    }
 }
 
 void YamlConverter::AddPlots(std::ofstream& file,
