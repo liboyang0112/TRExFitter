@@ -24,6 +24,6 @@
  | saturated_model_sf_CR_Wmass_bin_22 |    nan    |    nan    |
  | saturated_model_sf_CR_Wmass_bin_23 |    nan    |    nan    |
  | saturated_model_sf_CR_Wmass_bin_24 |    nan    |    nan    |
- | ttbarXsec | 0 / 0 | 0.017147 / -0.017147 |
- | bTagSF_B_0 | 0 / 0 | 0.0155412 / -0.0156321 |
- | JET_BJES_Response | 0 / 0 | 0.00192413 / -0.0019271 |
+ | ttbarXsec | 0 / 0 | 0.00963489 / -0.00963489 |
+ | bTagSF_B_0 | 0 / 0 | 0.00879324 / -0.00884746 |
+ | JET_BJES_Response | 0 / 0 | 0.00144579 / -0.00144754 |
