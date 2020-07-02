@@ -147,7 +147,7 @@ Info in <TCanvas::Print>: png file FitExample/Plots/SR_1_postFit.png has been cr
 === DEBUG::Region::DrawPostFit: 1:	109.109695 +6.482380 -6.482380
 === DEBUG::Region::DrawPostFit: 2:	108.739243 +5.972852 -5.972852
 === DEBUG::Region::DrawPostFit: 3:	70.134789 +6.419157 -6.419157
-=== DEBUG::Region::DrawPostFit: 4:	24.278088 +4.196659 -4.196659
+=== DEBUG::Region::DrawPostFit: 4:	24.278088 +4.196657 -4.196657
 [1;32m=== INFO::Region::DrawPostFit: Writing file FitExample/Histograms/SR_2_postFit.root[0m
 Info in <TCanvas::Print>: png file FitExample/Plots/SR_2_postFit.png has been created
 [1;32m=== INFO::Region::BuildPostFitErrorHist: Building post-fit plot for region VR ...[0m
@@ -169,7 +169,7 @@ Info in <TCanvas::Print>: png file FitExample/Plots/Summary_postFit.png has been
 === DEBUG::TRExFit::DrawSummary: Adding Bkg:    Background
 === DEBUG::TRExFit::DrawSummary: Adding Signal: Signal
 === DEBUG::TRExFit::DrawSummary: 1:	316.645988	+15.591890	-15.591890
-=== DEBUG::TRExFit::DrawSummary: 2:	312.261814	+12.771871	-12.771871
+=== DEBUG::TRExFit::DrawSummary: 2:	312.261814	+12.771870	-12.771870
 [1;32m=== INFO::TRExFit::DrawSummary: -------------------------------------------[0m
 [1;32m=== INFO::TRExFit::DrawSummary: Building Summary Plot...[0m
 Warning in <TCanvas::Constructor>: Deleting canvas with same name: FitExample_summary

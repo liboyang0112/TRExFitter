@@ -31,11 +31,11 @@ if [ "${ROOTSYS}" = "" ]; then
     if [ "${1}" = "slc6" ]; then
 	lsetup "root 6.18.00-x86_64-slc6-gcc8-opt" --quiet
     else
-	lsetup "root 6.18.04-x86_64-centos7-gcc8-opt" --quiet
+	lsetup "root 6.20.06-x86_64-centos7-gcc8-opt" --quiet
     fi
 else
     root_version=`root-config --version`
-    if version_gt 6.18 $root_version; then
+    if version_gt 6.20 $root_version; then
 	echo "ERROR root already loaded, but root version too old: $root_version"
     fi
 fi

@@ -46,15 +46,15 @@ Doing grouped systematics impact table...
 [1;32m=== INFO::FittingTool::FitPDF: [0m
 Minuit2Minimizer: Minimize with max-calls 10000 convergence for edm < 0.01 strategy 1
 Minuit2Minimizer : Valid minimum - status = 0
-FVAL  = 42.0725340262275083
-Edm   = 3.63543379201339342e-06
+FVAL  = 42.0725340262321623
+Edm   = 3.63543928088014572e-06
 Nfcn  = 774
 alpha_ATLAS_JVT	  = 0.0865478	 +/-  0.990128	(limited)
 alpha_ATLAS_PRW_DATASF	  = 0.0118343	 +/-  0.991715	(limited)
 alpha_ATLAS_lumi	  = 0.00136167	 +/-  0.993336	(limited)
 alpha_ttb_Gen	  = -0.453946	 +/-  0.857259	(limited)
-alpha_ttc_Gen	  = 0.26141	 +/-  0.882454	(limited)
-alpha_ttlight_Gen	  = 0.886781	 +/-  0.607226	(limited)
+alpha_ttc_Gen	  = 0.26141	 +/-  0.882453	(limited)
+alpha_ttlight_Gen	  = 0.886781	 +/-  0.607225	(limited)
 gamma_stat_ljets_5j3b_HT_bin_0	  = 1.03191	 +/-  0.0466881	(limited)
 gamma_stat_ljets_5j3b_HT_bin_1	  = 1.00032	 +/-  0.0277379	(limited)
 gamma_stat_ljets_5j3b_HT_bin_2	  = 0.976016	 +/-  0.0315607	(limited)
@@ -67,8 +67,9 @@ gamma_stat_ljets_6j4b_BDT_bin_2	  = 1.01751	 +/-  0.0403064	(limited)
 gamma_stat_ljets_6j4b_BDT_bin_3	  = 0.997205	 +/-  0.0420517	(limited)
 gamma_stat_ljets_6j4b_BDT_bin_4	  = 0.986008	 +/-  0.0459179	(limited)
 gamma_stat_ljets_6j4b_BDT_bin_5	  = 1.00491	 +/-  0.0498874	(limited)
-mu_XS_ttH	  = 0.610568	 +/-  0.468286	(limited)
-tt_norm	  = 1.07363	 +/-  0.0849457	(limited)
+mu_XS_ttH	  = 0.610568	 +/-  0.468285	(limited)
+tt_norm	  = 1.07363	 +/-  0.0849455	(limited)
+Minuit2Minimizer::Hesse using max-calls 10000
 Info in Minuit2Minimizer::Hesse : Hesse is valid - matrix is accurate
 Minuit2Minimizer::GetMinosError for parameter 19  tt_norm using max-calls 10000, tolerance 0.01
 Minuit2Minimizer::GetMinosError for parameter 18  mu_XS_ttH using max-calls 10000, tolerance 0.01
@@ -92,25 +93,25 @@ Minuit2Minimizer::GetMinosError for parameter 18  mu_XS_ttH using max-calls 1000
 [1;32m=== INFO::FittingTool::FitExcludingGroup:            breakdown for Nominal[0m
 [1;32m=== INFO::FittingTool::FitExcludingGroup: -----------------------------------------------------[0m
 Minuit2Minimizer: Minimize with max-calls 10000 convergence for edm < 0.01 strategy 1
-MnSeedGenerator: for initial parameters FCN = 54.61649605212
-MnSeedGenerator: Initial state:   - FCN =   54.61649605212 Edm =      3.32189 NCalls =     81
+MnSeedGenerator: for initial parameters FCN = 54.61649605259
+MnSeedGenerator: Initial state:   - FCN =   54.61649605259 Edm =      3.32189 NCalls =     81
 VariableMetric: start iterating until Edm is < 1e-05
-VariableMetric: Initial state   - FCN =   54.61649605212 Edm =      3.32189 NCalls =     81
-VariableMetric: Iteration #   0 - FCN =   54.61649605212 Edm =      3.32189 NCalls =     81
-VariableMetric: Iteration #   1 - FCN =   53.65644062661 Edm =     0.317352 NCalls =    123
-VariableMetric: Iteration #   2 - FCN =   53.39327839354 Edm =    0.0488085 NCalls =    165
-VariableMetric: Iteration #   3 - FCN =   53.30919884895 Edm =    0.0051271 NCalls =    207
-VariableMetric: Iteration #   4 - FCN =   53.30108859744 Edm =   0.00187147 NCalls =    249
-VariableMetric: Iteration #   5 - FCN =   53.29786249366 Edm =  0.000509586 NCalls =    291
-VariableMetric: Iteration #   6 - FCN =   53.29604491526 Edm =  0.000534877 NCalls =    333
-VariableMetric: Iteration #   7 - FCN =   53.29456615552 Edm =  0.000372104 NCalls =    375
-VariableMetric: Iteration #   8 - FCN =   53.29377170859 Edm =  5.01359e-05 NCalls =    417
-VariableMetric: Iteration #   9 - FCN =   53.29369957517 Edm =  1.17407e-06 NCalls =    459
-VariableMetric: After Hessian   - FCN =   53.29369957517 Edm =  1.30947e-06 NCalls =    734
-VariableMetric: Iteration #  10 - FCN =   53.29369957517 Edm =  1.30947e-06 NCalls =    734
+VariableMetric: Initial state   - FCN =   54.61649605259 Edm =      3.32189 NCalls =     81
+VariableMetric: Iteration #   0 - FCN =   54.61649605259 Edm =      3.32189 NCalls =     81
+VariableMetric: Iteration #   1 - FCN =   53.65644062889 Edm =     0.317352 NCalls =    123
+VariableMetric: Iteration #   2 - FCN =   53.39327839053 Edm =    0.0488085 NCalls =    165
+VariableMetric: Iteration #   3 - FCN =   53.30919884266 Edm =    0.0051271 NCalls =    207
+VariableMetric: Iteration #   4 - FCN =   53.30108859194 Edm =   0.00187147 NCalls =    249
+VariableMetric: Iteration #   5 - FCN =   53.29786248891 Edm =  0.000509586 NCalls =    291
+VariableMetric: Iteration #   6 - FCN =    53.2960449107 Edm =  0.000534877 NCalls =    333
+VariableMetric: Iteration #   7 - FCN =   53.29456615063 Edm =  0.000372105 NCalls =    375
+VariableMetric: Iteration #   8 - FCN =   53.29377170374 Edm =  5.01359e-05 NCalls =    417
+VariableMetric: Iteration #   9 - FCN =   53.29369957029 Edm =  1.17407e-06 NCalls =    459
+VariableMetric: After Hessian   - FCN =   53.29369957029 Edm =  1.30947e-06 NCalls =    734
+VariableMetric: Iteration #  10 - FCN =   53.29369957029 Edm =  1.30947e-06 NCalls =    734
 Minuit2Minimizer : Valid minimum - status = 0
-FVAL  = 53.2936995751663858
-Edm   = 1.30947050648382466e-06
+FVAL  = 53.2936995702939313
+Edm   = 1.30946852588960353e-06
 Nfcn  = 734
 alpha_ATLAS_JVT	  = 0.0847744	 +/-  0.99013	(limited)
 alpha_ATLAS_PRW_DATASF	  = 0.0123526	 +/-  0.991715	(limited)
@@ -131,38 +132,39 @@ gamma_stat_ljets_6j4b_BDT_bin_3	  = 0.997186	 +/-  0.0420512	(limited)
 gamma_stat_ljets_6j4b_BDT_bin_4	  = 0.986005	 +/-  0.0459185	(limited)
 gamma_stat_ljets_6j4b_BDT_bin_5	  = 1.0049	 +/-  0.0498867	(limited)
 mu_XS_ttH	  = 0.611164	 +/-  0.468269	(limited)
-tt_norm	  = 1.07365	 +/-  0.0849461	(limited)
+tt_norm	  = 1.07365	 +/-  0.084946	(limited)
+Minuit2Minimizer::Hesse using max-calls 10000
 Info in Minuit2Minimizer::Hesse : Hesse is valid - matrix is accurate
 Minuit2Minimizer::GetMinosError for parameter 18  mu_XS_ttH using max-calls 10000, tolerance 0.01
-MnFunctionCross: parameter 0 set to 0.142685
-MnSeedGenerator: for initial parameters FCN = 53.78038576778
-MnSeedGenerator: Initial state:   - FCN =   53.78038576778 Edm =   0.00151166 NCalls =     77
+MnFunctionCross: parameter 0 set to 0.142691
+MnSeedGenerator: for initial parameters FCN = 53.78037497351
+MnSeedGenerator: Initial state:   - FCN =   53.78037497351 Edm =   0.00151221 NCalls =     77
 VariableMetric: start iterating until Edm is < 5e-06
-VariableMetric: Initial state   - FCN =   53.78038576778 Edm =   0.00151166 NCalls =     77
-VariableMetric: Iteration #   0 - FCN =   53.78038576778 Edm =   0.00151166 NCalls =     77
-VariableMetric: Iteration #   1 - FCN =    53.7788441566 Edm =  4.71075e-06 NCalls =    116
+VariableMetric: Initial state   - FCN =   53.78037497351 Edm =   0.00151221 NCalls =     77
+VariableMetric: Iteration #   0 - FCN =   53.78037497351 Edm =   0.00151221 NCalls =     77
+VariableMetric: Iteration #   1 - FCN =   53.77883281574 Edm =  4.70882e-06 NCalls =    116
 MnFunctionCross: parameter 0 set to 0.135567
-MnSeedGenerator: for initial parameters FCN = 53.79388265055
-MnSeedGenerator: Initial state:   - FCN =   53.79388265055 Edm =  0.000419948 NCalls =     77
+MnSeedGenerator: for initial parameters FCN = 53.79388307271
+MnSeedGenerator: Initial state:   - FCN =   53.79388307271 Edm =  0.000420555 NCalls =     77
 VariableMetric: start iterating until Edm is < 5e-06
-VariableMetric: Initial state   - FCN =   53.79388265055 Edm =  0.000419948 NCalls =     77
-VariableMetric: Iteration #   0 - FCN =   53.79388265055 Edm =  0.000419948 NCalls =     77
-VariableMetric: Iteration #   1 - FCN =   53.79347368991 Edm =  1.14563e-06 NCalls =    116
+VariableMetric: Initial state   - FCN =   53.79388307271 Edm =  0.000420555 NCalls =     77
+VariableMetric: Iteration #   0 - FCN =   53.79388307271 Edm =  0.000420555 NCalls =     77
+VariableMetric: Iteration #   1 - FCN =   53.79347351827 Edm =  1.14729e-06 NCalls =    116
 MnFunctionCross: parameter 0 set to 1.07964
-MnSeedGenerator: for initial parameters FCN = 53.81158017158
-MnSeedGenerator: Initial state:   - FCN =   53.81158017158 Edm =   0.00204085 NCalls =     77
+MnSeedGenerator: for initial parameters FCN = 53.81156699134
+MnSeedGenerator: Initial state:   - FCN =   53.81156699134 Edm =   0.00204008 NCalls =     77
 VariableMetric: start iterating until Edm is < 5e-06
-VariableMetric: Initial state   - FCN =   53.81158017158 Edm =   0.00204085 NCalls =     77
-VariableMetric: Iteration #   0 - FCN =   53.81158017158 Edm =   0.00204085 NCalls =     77
-VariableMetric: Iteration #   1 - FCN =     53.809628901 Edm =  9.96558e-06 NCalls =    116
-VariableMetric: Iteration #   2 - FCN =   53.80961974402 Edm =  1.17046e-08 NCalls =    155
+VariableMetric: Initial state   - FCN =   53.81156699134 Edm =   0.00204008 NCalls =     77
+VariableMetric: Iteration #   0 - FCN =   53.81156699134 Edm =   0.00204008 NCalls =     77
+VariableMetric: Iteration #   1 - FCN =   53.80961647679 Edm =  9.96352e-06 NCalls =    116
+VariableMetric: Iteration #   2 - FCN =   53.80960732138 Edm =  1.16752e-08 NCalls =    155
 MnFunctionCross: parameter 0 set to 1.07236
-MnSeedGenerator: for initial parameters FCN = 53.79378737257
-MnSeedGenerator: Initial state:   - FCN =   53.79378737257 Edm =   0.00032438 NCalls =     77
+MnSeedGenerator: for initial parameters FCN = 53.7937870467
+MnSeedGenerator: Initial state:   - FCN =    53.7937870467 Edm =  0.000323879 NCalls =     77
 VariableMetric: start iterating until Edm is < 5e-06
-VariableMetric: Initial state   - FCN =   53.79378737257 Edm =   0.00032438 NCalls =     77
-VariableMetric: Iteration #   0 - FCN =   53.79378737257 Edm =   0.00032438 NCalls =     77
-VariableMetric: Iteration #   1 - FCN =   53.79346186752 Edm =  9.08806e-08 NCalls =    116
+VariableMetric: Initial state   - FCN =    53.7937870467 Edm =  0.000323879 NCalls =     77
+VariableMetric: Iteration #   0 - FCN =    53.7937870467 Edm =  0.000323879 NCalls =     77
+VariableMetric: Iteration #   1 - FCN =   53.79346204624 Edm =  9.06734e-08 NCalls =    116
 Minos: Lower error for parameter mu_XS_ttH  :  -0.475707
 Minos: Upper error for parameter mu_XS_ttH  :  0.461301
 [1;32m=== INFO::FittingTool::GetGroupedImpact: performing grouped systematics impact evaluation for: FullSyst[0m
@@ -170,35 +172,36 @@ Minos: Upper error for parameter mu_XS_ttH  :  0.461301
 [1;32m=== INFO::FittingTool::FitExcludingGroup:            breakdown for FullSyst[0m
 [1;32m=== INFO::FittingTool::FitExcludingGroup: -----------------------------------------------------[0m
 Minuit2Minimizer: Minimize with max-calls 500 convergence for edm < 0.01 strategy 1
-MnSeedGenerator: for initial parameters FCN = 54.61649605212
-MnSeedGenerator: Initial state:   - FCN =   54.61649605212 Edm =      1.36557 NCalls =      5
+MnSeedGenerator: for initial parameters FCN = 54.61649605259
+MnSeedGenerator: Initial state:   - FCN =   54.61649605259 Edm =      1.36557 NCalls =      5
 VariableMetric: start iterating until Edm is < 1e-05
-VariableMetric: Initial state   - FCN =   54.61649605212 Edm =      1.36557 NCalls =      5
-VariableMetric: Iteration #   0 - FCN =   54.61649605212 Edm =      1.36557 NCalls =      5
-VariableMetric: Iteration #   1 - FCN =   53.29695320962 Edm =   0.00358929 NCalls =      8
-VariableMetric: Iteration #   2 - FCN =   53.29370893543 Edm =  8.16206e-06 NCalls =     11
-VariableMetric: Iteration #   3 - FCN =   53.29370113383 Edm =  4.49462e-11 NCalls =     14
-VariableMetric: After Hessian   - FCN =   53.29370113383 Edm =  4.74074e-11 NCalls =     19
-VariableMetric: Iteration #   4 - FCN =   53.29370113383 Edm =  4.74074e-11 NCalls =     19
+VariableMetric: Initial state   - FCN =   54.61649605259 Edm =      1.36557 NCalls =      5
+VariableMetric: Iteration #   0 - FCN =   54.61649605259 Edm =      1.36557 NCalls =      5
+VariableMetric: Iteration #   1 - FCN =   53.29695320929 Edm =   0.00358929 NCalls =      8
+VariableMetric: Iteration #   2 - FCN =   53.29370893058 Edm =  8.16207e-06 NCalls =     11
+VariableMetric: Iteration #   3 - FCN =   53.29370112897 Edm =   4.4947e-11 NCalls =     14
+VariableMetric: After Hessian   - FCN =   53.29370112897 Edm =  4.74074e-11 NCalls =     19
+VariableMetric: Iteration #   4 - FCN =   53.29370112897 Edm =  4.74074e-11 NCalls =     19
 Minuit2Minimizer : Valid minimum - status = 0
-FVAL  = 53.2937011338304316
-Edm   = 4.74073808065733147e-11
+FVAL  = 53.2937011289701985
+Edm   = 4.74073824870889374e-11
 Nfcn  = 19
 mu_XS_ttH	  = 0.610861	 +/-  0.234491	(limited)
+Minuit2Minimizer::Hesse using max-calls 500
 Info in Minuit2Minimizer::Hesse : Hesse is valid - matrix is accurate
 Minuit2Minimizer::GetMinosError for parameter 0  mu_XS_ttH using max-calls 500, tolerance 0.01
 MnFunctionCross: parameter 0 set to 0.376371
-MnSeedGenerator: for initial parameters FCN = 53.80648161293
-MnSeedGenerator: Initial state:   - FCN =   53.80648161293 Edm =            0 NCalls =      1
+MnSeedGenerator: for initial parameters FCN = 53.80648159518
+MnSeedGenerator: Initial state:   - FCN =   53.80648159518 Edm =            0 NCalls =      1
 MnFunctionCross: parameter 0 set to 0.379311
-MnSeedGenerator: for initial parameters FCN = 53.79353906053
-MnSeedGenerator: Initial state:   - FCN =   53.79353906053 Edm =            0 NCalls =      1
+MnSeedGenerator: for initial parameters FCN = 53.79353905583
+MnSeedGenerator: Initial state:   - FCN =   53.79353905583 Edm =            0 NCalls =      1
 MnFunctionCross: parameter 0 set to 0.845352
-MnSeedGenerator: for initial parameters FCN = 53.7815998802
-MnSeedGenerator: Initial state:   - FCN =    53.7815998802 Edm =            0 NCalls =      1
+MnSeedGenerator: for initial parameters FCN = 53.78159986359
+MnSeedGenerator: Initial state:   - FCN =   53.78159986359 Edm =            0 NCalls =      1
 MnFunctionCross: parameter 0 set to 0.848242
-MnSeedGenerator: for initial parameters FCN = 53.79355321402
-MnSeedGenerator: Initial state:   - FCN =   53.79355321402 Edm =            0 NCalls =      1
+MnSeedGenerator: for initial parameters FCN = 53.79355320901
+MnSeedGenerator: Initial state:   - FCN =   53.79355320901 Edm =            0 NCalls =      1
 Minos: Lower error for parameter mu_XS_ttH  :  -0.231587
 Minos: Upper error for parameter mu_XS_ttH  :  0.237416
 [1;32m=== INFO::FittingTool::GetGroupedImpact: performing grouped systematics impact evaluation for: Gammas[0m
@@ -206,63 +209,64 @@ Minos: Upper error for parameter mu_XS_ttH  :  0.237416
 [1;32m=== INFO::FittingTool::FitExcludingGroup:            breakdown for Gammas[0m
 [1;32m=== INFO::FittingTool::FitExcludingGroup: -----------------------------------------------------[0m
 Minuit2Minimizer: Minimize with max-calls 4000 convergence for edm < 0.01 strategy 1
-MnSeedGenerator: for initial parameters FCN = 54.61649605212
-MnSeedGenerator: Initial state:   - FCN =   54.61649605212 Edm =       3.0417 NCalls =     33
+MnSeedGenerator: for initial parameters FCN = 54.61649605259
+MnSeedGenerator: Initial state:   - FCN =   54.61649605259 Edm =       3.0417 NCalls =     33
 VariableMetric: start iterating until Edm is < 1e-05
-VariableMetric: Initial state   - FCN =   54.61649605212 Edm =       3.0417 NCalls =     33
-VariableMetric: Iteration #   0 - FCN =   54.61649605212 Edm =       3.0417 NCalls =     33
-VariableMetric: Iteration #   1 - FCN =   53.68161044739 Edm =     0.304779 NCalls =     51
-VariableMetric: Iteration #   2 - FCN =   53.34318468131 Edm =    0.0233543 NCalls =     69
-VariableMetric: Iteration #   3 - FCN =   53.30481407314 Edm =   0.00344233 NCalls =     87
-VariableMetric: Iteration #   4 - FCN =    53.2991288742 Edm =  0.000588143 NCalls =    105
-VariableMetric: Iteration #   5 - FCN =   53.29663159597 Edm =   0.00075181 NCalls =    123
-VariableMetric: Iteration #   6 - FCN =   53.29408367405 Edm =  0.000171368 NCalls =    141
-VariableMetric: Iteration #   7 - FCN =    53.2937083699 Edm =  6.98655e-06 NCalls =    159
-VariableMetric: Iteration #   8 - FCN =   53.29369893482 Edm =   7.5695e-08 NCalls =    177
-VariableMetric: After Hessian   - FCN =   53.29369893482 Edm =  7.54832e-08 NCalls =    238
-VariableMetric: Iteration #   9 - FCN =   53.29369893482 Edm =  7.54832e-08 NCalls =    238
+VariableMetric: Initial state   - FCN =   54.61649605259 Edm =       3.0417 NCalls =     33
+VariableMetric: Iteration #   0 - FCN =   54.61649605259 Edm =       3.0417 NCalls =     33
+VariableMetric: Iteration #   1 - FCN =   53.68161045145 Edm =      0.30478 NCalls =     51
+VariableMetric: Iteration #   2 - FCN =    53.3431846741 Edm =    0.0233543 NCalls =     69
+VariableMetric: Iteration #   3 - FCN =   53.30481406626 Edm =   0.00344233 NCalls =     87
+VariableMetric: Iteration #   4 - FCN =   53.29912886925 Edm =  0.000588143 NCalls =    105
+VariableMetric: Iteration #   5 - FCN =   53.29663159006 Edm =   0.00075181 NCalls =    123
+VariableMetric: Iteration #   6 - FCN =   53.29408366895 Edm =  0.000171368 NCalls =    141
+VariableMetric: Iteration #   7 - FCN =   53.29370836501 Edm =  6.98653e-06 NCalls =    159
+VariableMetric: Iteration #   8 - FCN =   53.29369892995 Edm =  7.56944e-08 NCalls =    177
+VariableMetric: After Hessian   - FCN =   53.29369892995 Edm =  7.54824e-08 NCalls =    238
+VariableMetric: Iteration #   9 - FCN =   53.29369892995 Edm =  7.54824e-08 NCalls =    238
 Minuit2Minimizer : Valid minimum - status = 0
-FVAL  = 53.2936989348225509
-Edm   = 7.54831911189402272e-08
+FVAL  = 53.2936989299536492
+Edm   = 7.54824083357204481e-08
 Nfcn  = 238
 alpha_ATLAS_JVT	  = 0.0855962	 +/-  0.989956	(limited)
 alpha_ATLAS_PRW_DATASF	  = 0.0116968	 +/-  0.991318	(limited)
-alpha_ATLAS_lumi	  = 5.26977e-05	 +/-  0.993351	(limited)
-alpha_ttb_Gen	  = -0.454062	 +/-  0.834893	(limited)
+alpha_ATLAS_lumi	  = 5.26976e-05	 +/-  0.993351	(limited)
+alpha_ttb_Gen	  = -0.454062	 +/-  0.834892	(limited)
 alpha_ttc_Gen	  = 0.260574	 +/-  0.865783	(limited)
-alpha_ttlight_Gen	  = 0.886961	 +/-  0.556933	(limited)
+alpha_ttlight_Gen	  = 0.886961	 +/-  0.556932	(limited)
 mu_XS_ttH	  = 0.611072	 +/-  0.42988	(limited)
-tt_norm	  = 1.07365	 +/-  0.0807299	(limited)
+tt_norm	  = 1.07365	 +/-  0.0807297	(limited)
+Minuit2Minimizer::Hesse using max-calls 4000
 Info in Minuit2Minimizer::Hesse : Hesse is valid - matrix is accurate
 Minuit2Minimizer::GetMinosError for parameter 6  mu_XS_ttH using max-calls 4000, tolerance 0.01
-MnFunctionCross: parameter 0 set to 0.181084
-MnSeedGenerator: for initial parameters FCN = 53.7881450386
-MnSeedGenerator: Initial state:   - FCN =    53.7881450386 Edm =   0.00158367 NCalls =     29
+MnFunctionCross: parameter 0 set to 0.181091
+MnSeedGenerator: for initial parameters FCN = 53.78813004756
+MnSeedGenerator: Initial state:   - FCN =   53.78813004756 Edm =   0.00158461 NCalls =     29
 VariableMetric: start iterating until Edm is < 5e-06
-VariableMetric: Initial state   - FCN =    53.7881450386 Edm =   0.00158367 NCalls =     29
-VariableMetric: Iteration #   0 - FCN =    53.7881450386 Edm =   0.00158367 NCalls =     29
-VariableMetric: Iteration #   1 - FCN =   53.78650619432 Edm =  4.84157e-06 NCalls =     44
+VariableMetric: Initial state   - FCN =   53.78813004756 Edm =   0.00158461 NCalls =     29
+VariableMetric: Iteration #   0 - FCN =   53.78813004756 Edm =   0.00158461 NCalls =     29
+VariableMetric: Iteration #   1 - FCN =   53.78649021823 Edm =  4.84447e-06 NCalls =     44
 MnFunctionCross: parameter 0 set to 0.177958
-MnSeedGenerator: for initial parameters FCN = 53.79373973703
-MnSeedGenerator: Initial state:   - FCN =   53.79373973703 Edm =  9.92646e-05 NCalls =     29
+MnSeedGenerator: for initial parameters FCN = 53.79373998433
+MnSeedGenerator: Initial state:   - FCN =   53.79373998433 Edm =  9.96412e-05 NCalls =     29
 VariableMetric: start iterating until Edm is < 5e-06
-VariableMetric: Initial state   - FCN =   53.79373973703 Edm =  9.92646e-05 NCalls =     29
-VariableMetric: Iteration #   0 - FCN =   53.79373973703 Edm =  9.92646e-05 NCalls =     29
-VariableMetric: Iteration #   1 - FCN =     53.793643085 Edm =  2.73095e-07 NCalls =     44
-MnFunctionCross: parameter 0 set to 1.04106
-MnSeedGenerator: for initial parameters FCN = 53.80456334081
-MnSeedGenerator: Initial state:   - FCN =   53.80456334081 Edm =   0.00209499 NCalls =     29
+VariableMetric: Initial state   - FCN =   53.79373998433 Edm =  9.96412e-05 NCalls =     29
+VariableMetric: Iteration #   0 - FCN =   53.79373998433 Edm =  9.96412e-05 NCalls =     29
+VariableMetric: Iteration #   1 - FCN =   53.79364296406 Edm =  2.73997e-07 NCalls =     44
+MnFunctionCross: parameter 0 set to 1.04105
+MnSeedGenerator: for initial parameters FCN = 53.80454501327
+MnSeedGenerator: Initial state:   - FCN =   53.80454501327 Edm =   0.00209329 NCalls =     29
 VariableMetric: start iterating until Edm is < 5e-06
-VariableMetric: Initial state   - FCN =   53.80456334081 Edm =   0.00209499 NCalls =     29
-VariableMetric: Iteration #   0 - FCN =   53.80456334081 Edm =   0.00209499 NCalls =     29
-VariableMetric: Iteration #   1 - FCN =   53.80257529754 Edm =  1.88688e-06 NCalls =     45
+VariableMetric: Initial state   - FCN =   53.80454501327 Edm =   0.00209329 NCalls =     29
+VariableMetric: Iteration #   0 - FCN =   53.80454501327 Edm =   0.00209329 NCalls =     29
+VariableMetric: Iteration #   1 - FCN =   53.80255853076 Edm =  1.88499e-06 NCalls =     45
 MnFunctionCross: parameter 0 set to 1.03729
-MnSeedGenerator: for initial parameters FCN = 53.79370200624
-MnSeedGenerator: Initial state:   - FCN =   53.79370200624 Edm =  8.15067e-05 NCalls =     29
+MnSeedGenerator: for initial parameters FCN = 53.79370184126
+MnSeedGenerator: Initial state:   - FCN =   53.79370184126 Edm =  8.12014e-05 NCalls =     29
 VariableMetric: start iterating until Edm is < 5e-06
-VariableMetric: Initial state   - FCN =   53.79370200624 Edm =  8.15067e-05 NCalls =     29
-VariableMetric: Iteration #   0 - FCN =   53.79370200624 Edm =  8.15067e-05 NCalls =     29
-VariableMetric: Iteration #   1 - FCN =    53.7936199651 Edm =  1.77963e-08 NCalls =     44
+VariableMetric: Initial state   - FCN =   53.79370184126 Edm =  8.12014e-05 NCalls =     29
+VariableMetric: Iteration #   0 - FCN =   53.79370184126 Edm =  8.12014e-05 NCalls =     29
+VariableMetric: Iteration #   1 - FCN =   53.79362010684 Edm =  1.77604e-08 NCalls =     44
 Minos: Lower error for parameter mu_XS_ttH  :  -0.433139
 Minos: Upper error for parameter mu_XS_ttH  :  0.426255
 [1;32m=== INFO::FittingTool::GetGroupedImpact: performing grouped systematics impact evaluation for: Instrumental[0m
@@ -270,28 +274,28 @@ Minos: Upper error for parameter mu_XS_ttH  :  0.426255
 [1;32m=== INFO::FittingTool::FitExcludingGroup:            breakdown for Instrumental[0m
 [1;32m=== INFO::FittingTool::FitExcludingGroup: -----------------------------------------------------[0m
 Minuit2Minimizer: Minimize with max-calls 8500 convergence for edm < 0.01 strategy 1
-MnSeedGenerator: for initial parameters FCN = 54.61649605212
-MnSeedGenerator: Initial state:   - FCN =   54.61649605212 Edm =      2.74595 NCalls =     69
+MnSeedGenerator: for initial parameters FCN = 54.61649605259
+MnSeedGenerator: Initial state:   - FCN =   54.61649605259 Edm =      2.74595 NCalls =     69
 VariableMetric: start iterating until Edm is < 1e-05
-VariableMetric: Initial state   - FCN =   54.61649605212 Edm =      2.74595 NCalls =     69
-VariableMetric: Iteration #   0 - FCN =   54.61649605212 Edm =      2.74595 NCalls =     69
-VariableMetric: Iteration #   1 - FCN =   53.59684875907 Edm =     0.268424 NCalls =    105
-VariableMetric: Iteration #   2 - FCN =   53.37160437346 Edm =    0.0389577 NCalls =    141
-VariableMetric: Iteration #   3 - FCN =   53.31012431565 Edm =   0.00419028 NCalls =    177
-VariableMetric: Iteration #   4 - FCN =   53.30080449998 Edm =   0.00196657 NCalls =    213
-VariableMetric: Iteration #   5 - FCN =   53.29795559654 Edm =  0.000478676 NCalls =    249
-VariableMetric: Iteration #   6 - FCN =   53.29595257416 Edm =  0.000730395 NCalls =    285
-VariableMetric: Iteration #   7 - FCN =   53.29398539067 Edm =  0.000229732 NCalls =    321
-VariableMetric: Iteration #   8 - FCN =   53.29370129177 Edm =  1.16508e-06 NCalls =    357
-VariableMetric: After Hessian   - FCN =   53.29370129177 Edm =   1.5043e-06 NCalls =    562
-VariableMetric: Iteration #   9 - FCN =   53.29370129177 Edm =   1.5043e-06 NCalls =    562
+VariableMetric: Initial state   - FCN =   54.61649605259 Edm =      2.74595 NCalls =     69
+VariableMetric: Iteration #   0 - FCN =   54.61649605259 Edm =      2.74595 NCalls =     69
+VariableMetric: Iteration #   1 - FCN =   53.59684876223 Edm =     0.268424 NCalls =    105
+VariableMetric: Iteration #   2 - FCN =   53.37160437024 Edm =    0.0389577 NCalls =    141
+VariableMetric: Iteration #   3 - FCN =    53.3101243104 Edm =   0.00419028 NCalls =    177
+VariableMetric: Iteration #   4 - FCN =   53.30080449456 Edm =   0.00196657 NCalls =    213
+VariableMetric: Iteration #   5 - FCN =   53.29795559188 Edm =  0.000478676 NCalls =    249
+VariableMetric: Iteration #   6 - FCN =   53.29595256967 Edm =  0.000730395 NCalls =    285
+VariableMetric: Iteration #   7 - FCN =   53.29398538596 Edm =  0.000229732 NCalls =    321
+VariableMetric: Iteration #   8 - FCN =   53.29370128691 Edm =  1.16508e-06 NCalls =    357
+VariableMetric: After Hessian   - FCN =   53.29370128691 Edm =   1.5043e-06 NCalls =    562
+VariableMetric: Iteration #   9 - FCN =   53.29370128691 Edm =   1.5043e-06 NCalls =    562
 Minuit2Minimizer : Valid minimum - status = 0
-FVAL  = 53.2937012917711641
-Edm   = 1.50429783882644108e-06
+FVAL  = 53.293701286905204
+Edm   = 1.50429854402363111e-06
 Nfcn  = 562
-alpha_ttb_Gen	  = -0.453321	 +/-  0.856584	(limited)
-alpha_ttc_Gen	  = 0.260004	 +/-  0.881985	(limited)
-alpha_ttlight_Gen	  = 0.887098	 +/-  0.606301	(limited)
+alpha_ttb_Gen	  = -0.453321	 +/-  0.856585	(limited)
+alpha_ttc_Gen	  = 0.260004	 +/-  0.881986	(limited)
+alpha_ttlight_Gen	  = 0.887098	 +/-  0.606302	(limited)
 gamma_stat_ljets_5j3b_HT_bin_0	  = 1.03189	 +/-  0.0466819	(limited)
 gamma_stat_ljets_5j3b_HT_bin_1	  = 1.00031	 +/-  0.0277369	(limited)
 gamma_stat_ljets_5j3b_HT_bin_2	  = 0.975993	 +/-  0.0315575	(limited)
@@ -304,38 +308,39 @@ gamma_stat_ljets_6j4b_BDT_bin_2	  = 1.01752	 +/-  0.0403075	(limited)
 gamma_stat_ljets_6j4b_BDT_bin_3	  = 0.997214	 +/-  0.0420524	(limited)
 gamma_stat_ljets_6j4b_BDT_bin_4	  = 0.986045	 +/-  0.0459211	(limited)
 gamma_stat_ljets_6j4b_BDT_bin_5	  = 1.00491	 +/-  0.0498865	(limited)
-mu_XS_ttH	  = 0.610846	 +/-  0.466494	(limited)
-tt_norm	  = 1.07361	 +/-  0.081396	(limited)
+mu_XS_ttH	  = 0.610846	 +/-  0.466495	(limited)
+tt_norm	  = 1.07361	 +/-  0.0813962	(limited)
+Minuit2Minimizer::Hesse using max-calls 8500
 Info in Minuit2Minimizer::Hesse : Hesse is valid - matrix is accurate
 Minuit2Minimizer::GetMinosError for parameter 15  mu_XS_ttH using max-calls 8500, tolerance 0.01
-MnFunctionCross: parameter 0 set to 0.144153
-MnSeedGenerator: for initial parameters FCN = 53.77977680129
-MnSeedGenerator: Initial state:   - FCN =   53.77977680129 Edm =   0.00118504 NCalls =     65
+MnFunctionCross: parameter 0 set to 0.14414
+MnSeedGenerator: for initial parameters FCN = 53.779802528
+MnSeedGenerator: Initial state:   - FCN =     53.779802528 Edm =   0.00118404 NCalls =     65
 VariableMetric: start iterating until Edm is < 5e-06
-VariableMetric: Initial state   - FCN =   53.77977680129 Edm =   0.00118504 NCalls =     65
-VariableMetric: Iteration #   0 - FCN =   53.77977680129 Edm =   0.00118504 NCalls =     65
-VariableMetric: Iteration #   1 - FCN =    53.7785548016 Edm =  3.93295e-06 NCalls =     98
-MnFunctionCross: parameter 0 set to 0.13692
-MnSeedGenerator: for initial parameters FCN = 53.79388380331
-MnSeedGenerator: Initial state:   - FCN =   53.79388380331 Edm =  0.000444076 NCalls =     65
+VariableMetric: Initial state   - FCN =     53.779802528 Edm =   0.00118404 NCalls =     65
+VariableMetric: Iteration #   0 - FCN =     53.779802528 Edm =   0.00118404 NCalls =     65
+VariableMetric: Iteration #   1 - FCN =   53.77858160066 Edm =  3.92485e-06 NCalls =     98
+MnFunctionCross: parameter 0 set to 0.136919
+MnSeedGenerator: for initial parameters FCN = 53.79388274801
+MnSeedGenerator: Initial state:   - FCN =   53.79388274801 Edm =  0.000442538 NCalls =     65
 VariableMetric: start iterating until Edm is < 5e-06
-VariableMetric: Initial state   - FCN =   53.79388380331 Edm =  0.000444076 NCalls =     65
-VariableMetric: Iteration #   0 - FCN =   53.79388380331 Edm =  0.000444076 NCalls =     65
-VariableMetric: Iteration #   1 - FCN =   53.79345459024 Edm =  1.23604e-06 NCalls =     98
-MnFunctionCross: parameter 0 set to 1.07754
-MnSeedGenerator: for initial parameters FCN = 53.81248534427
-MnSeedGenerator: Initial state:   - FCN =   53.81248534427 Edm =   0.00168987 NCalls =     65
+VariableMetric: Initial state   - FCN =   53.79388274801 Edm =  0.000442538 NCalls =     65
+VariableMetric: Iteration #   0 - FCN =   53.79388274801 Edm =  0.000442538 NCalls =     65
+VariableMetric: Iteration #   1 - FCN =   53.79345502459 Edm =  1.23192e-06 NCalls =     98
+MnFunctionCross: parameter 0 set to 1.07755
+MnSeedGenerator: for initial parameters FCN = 53.81251675487
+MnSeedGenerator: Initial state:   - FCN =   53.81251675487 Edm =    0.0016919 NCalls =     65
 VariableMetric: start iterating until Edm is < 5e-06
-VariableMetric: Initial state   - FCN =   53.81248534427 Edm =   0.00168987 NCalls =     65
-VariableMetric: Iteration #   0 - FCN =   53.81248534427 Edm =   0.00168987 NCalls =     65
-VariableMetric: Iteration #   1 - FCN =   53.81088568426 Edm =  4.84563e-06 NCalls =     99
+VariableMetric: Initial state   - FCN =   53.81251675487 Edm =    0.0016919 NCalls =     65
+VariableMetric: Iteration #   0 - FCN =   53.81251675487 Edm =    0.0016919 NCalls =     65
+VariableMetric: Iteration #   1 - FCN =   53.81091527155 Edm =  4.85289e-06 NCalls =     99
 MnFunctionCross: parameter 0 set to 1.06972
-MnSeedGenerator: for initial parameters FCN = 53.79378821551
-MnSeedGenerator: Initial state:   - FCN =   53.79378821551 Edm =   0.00039444 NCalls =     65
+MnSeedGenerator: for initial parameters FCN = 53.79378904326
+MnSeedGenerator: Initial state:   - FCN =   53.79378904326 Edm =  0.000395795 NCalls =     65
 VariableMetric: start iterating until Edm is < 5e-06
-VariableMetric: Initial state   - FCN =   53.79378821551 Edm =   0.00039444 NCalls =     65
-VariableMetric: Iteration #   0 - FCN =   53.79378821551 Edm =   0.00039444 NCalls =     65
-VariableMetric: Iteration #   1 - FCN =   53.79339228357 Edm =  1.08897e-07 NCalls =     98
+VariableMetric: Initial state   - FCN =   53.79378904326 Edm =  0.000395795 NCalls =     65
+VariableMetric: Iteration #   0 - FCN =   53.79378904326 Edm =  0.000395795 NCalls =     65
+VariableMetric: Iteration #   1 - FCN =   53.79339175313 Edm =  1.09135e-07 NCalls =     98
 Minos: Lower error for parameter mu_XS_ttH  :  -0.474046
 Minos: Upper error for parameter mu_XS_ttH  :  0.459012
 [1;32m=== INFO::FittingTool::GetGroupedImpact: performing grouped systematics impact evaluation for: NormFactors[0m
@@ -343,27 +348,27 @@ Minos: Upper error for parameter mu_XS_ttH  :  0.459012
 [1;32m=== INFO::FittingTool::FitExcludingGroup:            breakdown for NormFactors[0m
 [1;32m=== INFO::FittingTool::FitExcludingGroup: -----------------------------------------------------[0m
 Minuit2Minimizer: Minimize with max-calls 9500 convergence for edm < 0.01 strategy 1
-MnSeedGenerator: for initial parameters FCN = 54.61649605212
-MnSeedGenerator: Initial state:   - FCN =   54.61649605212 Edm =      2.62881 NCalls =     77
+MnSeedGenerator: for initial parameters FCN = 54.61649605259
+MnSeedGenerator: Initial state:   - FCN =   54.61649605259 Edm =      2.62881 NCalls =     77
 VariableMetric: start iterating until Edm is < 1e-05
-VariableMetric: Initial state   - FCN =   54.61649605212 Edm =      2.62881 NCalls =     77
-VariableMetric: Iteration #   0 - FCN =   54.61649605212 Edm =      2.62881 NCalls =     77
-VariableMetric: Iteration #   1 - FCN =   53.61837218783 Edm =     0.255865 NCalls =    117
-VariableMetric: Iteration #   2 - FCN =   53.39149357659 Edm =    0.0590924 NCalls =    156
-VariableMetric: Iteration #   3 - FCN =   53.30224513478 Edm =   0.00485439 NCalls =    196
-VariableMetric: Iteration #   4 - FCN =   53.29541873917 Edm =   0.00107757 NCalls =    236
-VariableMetric: Iteration #   5 - FCN =   53.29391147664 Edm =  0.000109339 NCalls =    276
-VariableMetric: Iteration #   6 - FCN =   53.29372974496 Edm =  2.22491e-05 NCalls =    316
-VariableMetric: Iteration #   7 - FCN =   53.29369926796 Edm =  7.40401e-07 NCalls =    356
-VariableMetric: After Hessian   - FCN =   53.29369926796 Edm =  9.70054e-07 NCalls =    606
-VariableMetric: Iteration #   8 - FCN =   53.29369926796 Edm =  9.70054e-07 NCalls =    606
+VariableMetric: Initial state   - FCN =   54.61649605259 Edm =      2.62881 NCalls =     77
+VariableMetric: Iteration #   0 - FCN =   54.61649605259 Edm =      2.62881 NCalls =     77
+VariableMetric: Iteration #   1 - FCN =   53.61837219256 Edm =     0.255865 NCalls =    117
+VariableMetric: Iteration #   2 - FCN =   53.39149357494 Edm =    0.0590924 NCalls =    156
+VariableMetric: Iteration #   3 - FCN =   53.30224512921 Edm =   0.00485439 NCalls =    196
+VariableMetric: Iteration #   4 - FCN =   53.29541873384 Edm =   0.00107757 NCalls =    236
+VariableMetric: Iteration #   5 - FCN =   53.29391147178 Edm =  0.000109339 NCalls =    276
+VariableMetric: Iteration #   6 - FCN =   53.29372974009 Edm =  2.22491e-05 NCalls =    316
+VariableMetric: Iteration #   7 - FCN =   53.29369926309 Edm =  7.40402e-07 NCalls =    356
+VariableMetric: After Hessian   - FCN =   53.29369926309 Edm =  9.70055e-07 NCalls =    606
+VariableMetric: Iteration #   8 - FCN =   53.29369926309 Edm =  9.70055e-07 NCalls =    606
 Minuit2Minimizer : Valid minimum - status = 0
-FVAL  = 53.2936992679602497
-Edm   = 9.70053678558816787e-07
+FVAL  = 53.2936992630891382
+Edm   = 9.70054531637343541e-07
 Nfcn  = 606
 alpha_ATLAS_JVT	  = 0.0853763	 +/-  0.983521	(limited)
 alpha_ATLAS_PRW_DATASF	  = 0.0117145	 +/-  0.989491	(limited)
-alpha_ATLAS_lumi	  = 0.000173147	 +/-  0.961527	(limited)
+alpha_ATLAS_lumi	  = 0.000173146	 +/-  0.961527	(limited)
 alpha_ttb_Gen	  = -0.454098	 +/-  0.716198	(limited)
 alpha_ttc_Gen	  = 0.260509	 +/-  0.797661	(limited)
 alpha_ttlight_Gen	  = 0.886815	 +/-  0.472324	(limited)
@@ -380,36 +385,37 @@ gamma_stat_ljets_6j4b_BDT_bin_3	  = 0.997208	 +/-  0.0420526	(limited)
 gamma_stat_ljets_6j4b_BDT_bin_4	  = 0.986027	 +/-  0.0458695	(limited)
 gamma_stat_ljets_6j4b_BDT_bin_5	  = 1.0049	 +/-  0.0497923	(limited)
 mu_XS_ttH	  = 0.611111	 +/-  0.329862	(limited)
+Minuit2Minimizer::Hesse using max-calls 9500
 Info in Minuit2Minimizer::Hesse : Hesse is valid - matrix is accurate
 Minuit2Minimizer::GetMinosError for parameter 18  mu_XS_ttH using max-calls 9500, tolerance 0.01
-MnFunctionCross: parameter 0 set to 0.281196
-MnSeedGenerator: for initial parameters FCN = 53.80611909333
-MnSeedGenerator: Initial state:   - FCN =   53.80611909333 Edm =   0.00048765 NCalls =     73
+MnFunctionCross: parameter 0 set to 0.281197
+MnSeedGenerator: for initial parameters FCN = 53.80611744048
+MnSeedGenerator: Initial state:   - FCN =   53.80611744048 Edm =  0.000487455 NCalls =     73
 VariableMetric: start iterating until Edm is < 5e-06
-VariableMetric: Initial state   - FCN =   53.80611909333 Edm =   0.00048765 NCalls =     73
-VariableMetric: Iteration #   0 - FCN =   53.80611909333 Edm =   0.00048765 NCalls =     73
-VariableMetric: Iteration #   1 - FCN =   53.80562570438 Edm =  9.15044e-07 NCalls =    110
+VariableMetric: Initial state   - FCN =   53.80611744048 Edm =  0.000487455 NCalls =     73
+VariableMetric: Iteration #   0 - FCN =   53.80611744048 Edm =  0.000487455 NCalls =     73
+VariableMetric: Iteration #   1 - FCN =   53.80562425501 Edm =  9.15039e-07 NCalls =    110
 MnFunctionCross: parameter 0 set to 0.285062
-MnSeedGenerator: for initial parameters FCN = 53.79363880069
-MnSeedGenerator: Initial state:   - FCN =   53.79363880069 Edm =   7.7121e-05 NCalls =     73
+MnSeedGenerator: for initial parameters FCN = 53.79363879956
+MnSeedGenerator: Initial state:   - FCN =   53.79363879956 Edm =  7.71076e-05 NCalls =     73
 VariableMetric: start iterating until Edm is < 5e-06
-VariableMetric: Initial state   - FCN =   53.79363880069 Edm =   7.7121e-05 NCalls =     73
-VariableMetric: Iteration #   0 - FCN =   53.79363880069 Edm =   7.7121e-05 NCalls =     73
-VariableMetric: Iteration #   1 - FCN =   53.79356271265 Edm =  1.57092e-07 NCalls =    110
+VariableMetric: Initial state   - FCN =   53.79363879956 Edm =  7.71076e-05 NCalls =     73
+VariableMetric: Iteration #   0 - FCN =   53.79363879956 Edm =  7.71076e-05 NCalls =     73
+VariableMetric: Iteration #   1 - FCN =   53.79356272403 Edm =  1.56959e-07 NCalls =    110
 MnFunctionCross: parameter 0 set to 0.941026
-MnSeedGenerator: for initial parameters FCN = 53.7822519443
-MnSeedGenerator: Initial state:   - FCN =    53.7822519443 Edm =  0.000468952 NCalls =     73
+MnSeedGenerator: for initial parameters FCN = 53.78225077484
+MnSeedGenerator: Initial state:   - FCN =   53.78225077484 Edm =  0.000469141 NCalls =     73
 VariableMetric: start iterating until Edm is < 5e-06
-VariableMetric: Initial state   - FCN =    53.7822519443 Edm =  0.000468952 NCalls =     73
-VariableMetric: Iteration #   0 - FCN =    53.7822519443 Edm =  0.000468952 NCalls =     73
-VariableMetric: Iteration #   1 - FCN =   53.78178955172 Edm =  7.96741e-07 NCalls =    110
+VariableMetric: Initial state   - FCN =   53.78225077484 Edm =  0.000469141 NCalls =     73
+VariableMetric: Iteration #   0 - FCN =   53.78225077484 Edm =  0.000469141 NCalls =     73
+VariableMetric: Iteration #   1 - FCN =    53.7817882008 Edm =  7.96868e-07 NCalls =    110
 MnFunctionCross: parameter 0 set to 0.945027
-MnSeedGenerator: for initial parameters FCN = 53.79362049603
-MnSeedGenerator: Initial state:   - FCN =   53.79362049603 Edm =  6.42032e-05 NCalls =     73
+MnSeedGenerator: for initial parameters FCN = 53.79362049446
+MnSeedGenerator: Initial state:   - FCN =   53.79362049446 Edm =  6.42225e-05 NCalls =     73
 VariableMetric: start iterating until Edm is < 5e-06
-VariableMetric: Initial state   - FCN =   53.79362049603 Edm =  6.42032e-05 NCalls =     73
-VariableMetric: Iteration #   0 - FCN =   53.79362049603 Edm =  6.42032e-05 NCalls =     73
-VariableMetric: Iteration #   1 - FCN =   53.79355633942 Edm =  5.77132e-08 NCalls =    110
+VariableMetric: Initial state   - FCN =   53.79362049446 Edm =  6.42225e-05 NCalls =     73
+VariableMetric: Iteration #   0 - FCN =   53.79362049446 Edm =  6.42225e-05 NCalls =     73
+VariableMetric: Iteration #   1 - FCN =    53.7935563183 Edm =  5.77365e-08 NCalls =    110
 Minos: Lower error for parameter mu_XS_ttH  :  -0.326093
 Minos: Upper error for parameter mu_XS_ttH  :  0.333964
 [1;32m=== INFO::FittingTool::GetGroupedImpact: performing grouped systematics impact evaluation for: Theory[0m
@@ -417,26 +423,26 @@ Minos: Upper error for parameter mu_XS_ttH  :  0.333964
 [1;32m=== INFO::FittingTool::FitExcludingGroup:            breakdown for Theory[0m
 [1;32m=== INFO::FittingTool::FitExcludingGroup: -----------------------------------------------------[0m
 Minuit2Minimizer: Minimize with max-calls 8500 convergence for edm < 0.01 strategy 1
-MnSeedGenerator: for initial parameters FCN = 54.61649605212
-MnSeedGenerator: Initial state:   - FCN =   54.61649605212 Edm =      2.91478 NCalls =     69
+MnSeedGenerator: for initial parameters FCN = 54.61649605259
+MnSeedGenerator: Initial state:   - FCN =   54.61649605259 Edm =      2.91478 NCalls =     69
 VariableMetric: start iterating until Edm is < 1e-05
-VariableMetric: Initial state   - FCN =   54.61649605212 Edm =      2.91478 NCalls =     69
-VariableMetric: Iteration #   0 - FCN =   54.61649605212 Edm =      2.91478 NCalls =     69
+VariableMetric: Initial state   - FCN =   54.61649605259 Edm =      2.91478 NCalls =     69
+VariableMetric: Iteration #   0 - FCN =   54.61649605259 Edm =      2.91478 NCalls =     69
 VariableMetric: Iteration #   1 - FCN =   53.55070600628 Edm =      0.13951 NCalls =    105
-VariableMetric: Iteration #   2 - FCN =   53.36426776802 Edm =    0.0358955 NCalls =    141
-VariableMetric: Iteration #   3 - FCN =   53.30688431378 Edm =   0.00344315 NCalls =    177
-VariableMetric: Iteration #   4 - FCN =   53.29708282957 Edm =   0.00154175 NCalls =    213
-VariableMetric: Iteration #   5 - FCN =   53.29392115094 Edm =  0.000185021 NCalls =    249
-VariableMetric: Iteration #   6 - FCN =   53.29370053679 Edm =  1.48762e-06 NCalls =    285
-VariableMetric: After Hessian   - FCN =   53.29370053679 Edm =  1.79897e-06 NCalls =    490
-VariableMetric: Iteration #   7 - FCN =   53.29370053679 Edm =  1.79897e-06 NCalls =    490
+VariableMetric: Iteration #   2 - FCN =   53.36426776201 Edm =    0.0358955 NCalls =    141
+VariableMetric: Iteration #   3 - FCN =   53.30688430915 Edm =   0.00344315 NCalls =    177
+VariableMetric: Iteration #   4 - FCN =   53.29708282405 Edm =   0.00154175 NCalls =    213
+VariableMetric: Iteration #   5 - FCN =    53.2939211457 Edm =  0.000185021 NCalls =    249
+VariableMetric: Iteration #   6 - FCN =   53.29370053193 Edm =  1.48762e-06 NCalls =    285
+VariableMetric: After Hessian   - FCN =   53.29370053193 Edm =  1.79897e-06 NCalls =    490
+VariableMetric: Iteration #   7 - FCN =   53.29370053193 Edm =  1.79897e-06 NCalls =    490
 Minuit2Minimizer : Valid minimum - status = 0
-FVAL  = 53.2937005367943613
-Edm   = 1.79897177654766139e-06
+FVAL  = 53.2937005319286499
+Edm   = 1.79897388291916963e-06
 Nfcn  = 490
 alpha_ATLAS_JVT	  = 0.0841197	 +/-  0.988194	(limited)
 alpha_ATLAS_PRW_DATASF	  = 0.0121673	 +/-  0.990266	(limited)
-alpha_ATLAS_lumi	  = 0.000392185	 +/-  0.993346	(limited)
+alpha_ATLAS_lumi	  = 0.000392186	 +/-  0.993346	(limited)
 gamma_stat_ljets_5j3b_HT_bin_0	  = 1.03193	 +/-  0.046165	(limited)
 gamma_stat_ljets_5j3b_HT_bin_1	  = 1.00034	 +/-  0.0272485	(limited)
 gamma_stat_ljets_5j3b_HT_bin_2	  = 0.976016	 +/-  0.0314614	(limited)
@@ -451,45 +457,46 @@ gamma_stat_ljets_6j4b_BDT_bin_4	  = 0.986049	 +/-  0.0457963	(limited)
 gamma_stat_ljets_6j4b_BDT_bin_5	  = 1.0049	 +/-  0.0497888	(limited)
 mu_XS_ttH	  = 0.611144	 +/-  0.389672	(limited)
 tt_norm	  = 1.07363	 +/-  0.0486263	(limited)
+Minuit2Minimizer::Hesse using max-calls 8500
 Info in Minuit2Minimizer::Hesse : Hesse is valid - matrix is accurate
 Minuit2Minimizer::GetMinosError for parameter 15  mu_XS_ttH using max-calls 8500, tolerance 0.01
-MnFunctionCross: parameter 0 set to 0.221318
-MnSeedGenerator: for initial parameters FCN = 53.79396299194
-MnSeedGenerator: Initial state:   - FCN =   53.79396299194 Edm =  0.000775862 NCalls =     65
+MnFunctionCross: parameter 0 set to 0.22132
+MnSeedGenerator: for initial parameters FCN = 53.79395912547
+MnSeedGenerator: Initial state:   - FCN =   53.79395912547 Edm =   0.00077622 NCalls =     65
 VariableMetric: start iterating until Edm is < 5e-06
-VariableMetric: Initial state   - FCN =   53.79396299194 Edm =  0.000775862 NCalls =     65
-VariableMetric: Iteration #   0 - FCN =   53.79396299194 Edm =  0.000775862 NCalls =     65
-VariableMetric: Iteration #   1 - FCN =   53.79319766986 Edm =  5.94762e-07 NCalls =     98
+VariableMetric: Initial state   - FCN =   53.79395912547 Edm =   0.00077622 NCalls =     65
+VariableMetric: Iteration #   0 - FCN =   53.79395912547 Edm =   0.00077622 NCalls =     65
+VariableMetric: Iteration #   1 - FCN =    53.7931934501 Edm =  5.94732e-07 NCalls =     98
 MnFunctionCross: parameter 0 set to 1.00097
-MnSeedGenerator: for initial parameters FCN = 53.79324492482
-MnSeedGenerator: Initial state:   - FCN =   53.79324492482 Edm =  0.000730755 NCalls =     65
+MnSeedGenerator: for initial parameters FCN = 53.79324035063
+MnSeedGenerator: Initial state:   - FCN =   53.79324035063 Edm =  0.000730396 NCalls =     65
 VariableMetric: start iterating until Edm is < 5e-06
-VariableMetric: Initial state   - FCN =   53.79324492482 Edm =  0.000730755 NCalls =     65
-VariableMetric: Iteration #   0 - FCN =   53.79324492482 Edm =  0.000730755 NCalls =     65
-VariableMetric: Iteration #   1 - FCN =   53.79250906521 Edm =  4.79705e-07 NCalls =     98
+VariableMetric: Initial state   - FCN =   53.79324035063 Edm =  0.000730396 NCalls =     65
+VariableMetric: Iteration #   0 - FCN =   53.79324035063 Edm =  0.000730396 NCalls =     65
+VariableMetric: Iteration #   1 - FCN =   53.79250485335 Edm =  4.79753e-07 NCalls =     98
 Minos: Lower error for parameter mu_XS_ttH  :  -0.390022
 Minos: Upper error for parameter mu_XS_ttH  :  0.390291
 [1;32m=== INFO::FittingTool::GetGroupedImpact: -----------------------------------------------------[0m
 [1;32m=== INFO::FittingTool::GetGroupedImpact: replicated nominal fit[0m
-[1;32m=== INFO::FittingTool::GetGroupedImpact: POI is:   0.611164 +/- 0.468479    ( +0.461301, -0.475707 )[0m
+[1;32m=== INFO::FittingTool::GetGroupedImpact: POI is:   0.611164 +/- 0.468473    ( +0.461301, -0.475707 )[0m
 [1;32m=== INFO::FittingTool::GetGroupedImpact: -----------------------------------------------------[0m
 [1;32m=== INFO::FittingTool::GetGroupedImpact: category: FullSyst (fixed to best-fit values for fit)[0m
 [1;32m=== INFO::FittingTool::GetGroupedImpact: POI is:   0.610861 +/- 0.234490    ( +0.237416, -0.231587 )[0m
-[1;32m=== INFO::FittingTool::GetGroupedImpact:            --> impact: 0.405570    ( +0.395515, -0.415530 )[0m
+[1;32m=== INFO::FittingTool::GetGroupedImpact:            --> impact: 0.405563    ( +0.395515, -0.415530 )[0m
 [1;32m=== INFO::FittingTool::GetGroupedImpact: -----------------------------------------------------[0m
 [1;32m=== INFO::FittingTool::GetGroupedImpact: category: Gammas (fixed to best-fit values for fit)[0m
-[1;32m=== INFO::FittingTool::GetGroupedImpact: POI is:   0.611072 +/- 0.429988    ( +0.426255, -0.433139 )[0m
-[1;32m=== INFO::FittingTool::GetGroupedImpact:            --> impact: 0.185964    ( +0.176369, -0.196692 )[0m
+[1;32m=== INFO::FittingTool::GetGroupedImpact: POI is:   0.611072 +/- 0.429981    ( +0.426255, -0.433139 )[0m
+[1;32m=== INFO::FittingTool::GetGroupedImpact:            --> impact: 0.185966    ( +0.176369, -0.196692 )[0m
 [1;32m=== INFO::FittingTool::GetGroupedImpact: -----------------------------------------------------[0m
 [1;32m=== INFO::FittingTool::GetGroupedImpact: category: Instrumental (fixed to best-fit values for fit)[0m
-[1;32m=== INFO::FittingTool::GetGroupedImpact: POI is:   0.610846 +/- 0.466693    ( +0.459012, -0.474046 )[0m
-[1;32m=== INFO::FittingTool::GetGroupedImpact:            --> impact: 0.040871    ( +0.045902, -0.039722 )[0m
+[1;32m=== INFO::FittingTool::GetGroupedImpact: POI is:   0.610846 +/- 0.466706    ( +0.459012, -0.474046 )[0m
+[1;32m=== INFO::FittingTool::GetGroupedImpact:            --> impact: 0.040657    ( +0.045902, -0.039722 )[0m
 [1;32m=== INFO::FittingTool::GetGroupedImpact: -----------------------------------------------------[0m
 [1;32m=== INFO::FittingTool::GetGroupedImpact: category: NormFactors (fixed to best-fit values for fit)[0m
-[1;32m=== INFO::FittingTool::GetGroupedImpact: POI is:   0.611111 +/- 0.329915    ( +0.333964, -0.326093 )[0m
-[1;32m=== INFO::FittingTool::GetGroupedImpact:            --> impact: 0.332609    ( +0.318224, -0.346354 )[0m
+[1;32m=== INFO::FittingTool::GetGroupedImpact: POI is:   0.611111 +/- 0.329914    ( +0.333964, -0.326093 )[0m
+[1;32m=== INFO::FittingTool::GetGroupedImpact:            --> impact: 0.332602    ( +0.318224, -0.346354 )[0m
 [1;32m=== INFO::FittingTool::GetGroupedImpact: -----------------------------------------------------[0m
 [1;32m=== INFO::FittingTool::GetGroupedImpact: category: Theory (fixed to best-fit values for fit)[0m
-[1;32m=== INFO::FittingTool::GetGroupedImpact: POI is:   0.611144 +/- 0.389826    ( +0.390291, -0.390022 )[0m
-[1;32m=== INFO::FittingTool::GetGroupedImpact:            --> impact: 0.259823    ( +0.245909, -0.272360 )[0m
+[1;32m=== INFO::FittingTool::GetGroupedImpact: POI is:   0.611144 +/- 0.389825    ( +0.390291, -0.390022 )[0m
+[1;32m=== INFO::FittingTool::GetGroupedImpact:            --> impact: 0.259816    ( +0.245909, -0.272360 )[0m
 [1;32m=== INFO::FittingTool::GetGroupedImpact: -----------------------------------------------------[0m
