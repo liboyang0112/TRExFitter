@@ -248,15 +248,16 @@ int ConfigReaderMulti::ReadJobOptions() {
     // Set POIRange
     param = confSet->Get("POIRange");
     if( param != ""){
-        const auto tmp = Vectorize(param, ':');   
+        const auto tmp = Vectorize(param, ',');   
         if (tmp.size() != fMultiFitter->fPOIs.size()) {
             WriteErrorStatus("ConfigReaderMulti::ReadJobOptions", "You specified 'POIRange' option but you didn't pass the same number of parametrs as the number of POIs. Please check this!");
             return 1;
         }
         for (const auto& irange : tmp) {
-            if (Vectorize(irange,',').size()==2 ) {
-                fMultiFitter->fPOIMin.emplace_back(atof( Vectorize(irange,',')[0].c_str() ));
-                fMultiFitter->fPOIMax.emplace_back(atof( Vectorize(irange,',')[1].c_str() ));
+            const auto vec = Vectorize(irange,':');
+            if (vec.size()==2 ) {
+                fMultiFitter->fPOIMin.emplace_back(atof( vec[0].c_str() ));
+                fMultiFitter->fPOIMax.emplace_back(atof( vec[1].c_str() ));
             } else {
                 WriteErrorStatus("ConfigReaderMulti::ReadJobOptions", "You specified 'POIRange' option but you didn't provide valid setting. Please check this!");
                 return 1;

@@ -1813,7 +1813,7 @@ void MultiFit::PlotNPRanking(bool flagSysts, bool flagGammas) const {
         const std::string fileToRead = fOutDir+"/Fits/NPRanking"+fSaveSuf+"_"+poi+".txt";
         manager.SetOutputPath(fileToRead);
         manager.SetSuffix(fSaveSuf+"_"+poi);
-        manager.PlotRanking(fRegions, flagSysts, flagGammas);
+        manager.PlotRanking(GetFitRegions(), flagSysts, flagGammas);
     }
 }
 
