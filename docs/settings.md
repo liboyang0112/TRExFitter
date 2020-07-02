@@ -482,7 +482,7 @@ These options are for multi-fits, performed with action `m`.
 | POIName          | the name of the POI in the configs |
 | POIRange         | the range of the chosen POIs, in the for of `min1:max1,min2:max2`, where the number of options needs to match the number fo POIs |
 | LimitMax         | set maximum value for the limit |
-| POIPrecision     | string, set precision of the POI |
+| POIPrecision     | comma separated strings, set precision of the POIs |
 | DataName         | can be "obsData", "asimovData", or custom string, if nothing is specified the observed data will be used |
 | FitType          | can be SPLUSB or BONLY |
 | SignalInjection  | can be TRUE or FALSE |

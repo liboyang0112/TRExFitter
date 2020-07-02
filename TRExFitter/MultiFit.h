@@ -46,7 +46,7 @@ public:
     void GetCombinedLimit(std::string inputData="obsData"); // or asimovData
     void GetCombinedSignificance(std::string inputData="obsData"); // or asimovData
 
-    void ComparePOI(const std::string& POI) const;
+    void ComparePOI(const std::string& POI, const std::size_t index) const;
     void CompareLimit();
     void ComparePulls(std::string category="") const;
     void CompareNormFactors(std::string category="") const;
