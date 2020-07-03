@@ -138,7 +138,7 @@ void YamlConverter::WriteRankingHEPData(const std::vector<RankingContainer>& ran
             // NP Prefit imapct down
             out << YAML::BeginMap;
                 out << YAML::Key << "header";
-                out << YAML::Value << YAML::BeginMap << YAML::Key << "name" << YAML::Value << "impact POI prefit high" << YAML::EndMap;
+                out << YAML::Value << YAML::BeginMap << YAML::Key << "name" << YAML::Value << "impact POI prefit low" << YAML::EndMap;
                 AddQualifiers(out);
                 out << YAML::Key << "values";
                 out << YAML::Value << YAML::BeginSeq;
