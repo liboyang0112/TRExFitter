@@ -1,4 +1,4 @@
-FROM atlasamglab/stats-base:root6.23.01
+FROM atlasamglab/stats-base:root6.20.06
 
 SHELL [ "/bin/bash", "-c" ]
 
