@@ -9,7 +9,7 @@ You can take this workspace and hand it to a tool other than `TRExFitter` to run
 `pyhf` includes a utility to read a workspace in `.xml` format and translate it to the `.json` format it uses.
 The specification of this `.json` format is described in more detail [here in the documentation](https://scikit-hep.org/pyhf/likelihood.html).
 
-## Creating a .json workspace
+## Creating a `.json` workspace
 
 To create a workspace in `.json` format, we can use `pyhf xml2json PATH_TO_XML`.
 It needs to be called with a path pointing to the main `.xml` file, which is of type "Combination" and includes:
@@ -150,7 +150,7 @@ There are a few things to keep in mind when fitting with `pyhf`, which may cause
 
 `HistFactory` contains a built-in solution for luminosity uncertainties, which `TRExFitter` does not make use of.
 The advantage of implementing luminosity uncertainties manually is the larger flexibility, which is an advantage when combining analyses.
-See https://its.cern.ch/jira/browse/TTHFITTER-296 for more information on this choice.
+See [TTHFITTER-296](https://its.cern.ch/jira/browse/TTHFITTER-296) for more information on this choice.
 The built-in so-called `lumi` parameter is set to constant in the main `.xml`:
 
 ```html
