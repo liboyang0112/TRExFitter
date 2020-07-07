@@ -2293,28 +2293,32 @@ double GetDeltaN(double alpha, double Iz, double Ip, double Imi, int intCode){
 
 //___________________________________________________________
 // function to get pre/post-fit agreement
-std::pair<double,int> GetChi2Test( TH1* h_data, TH1* h_nominal, std::vector< std::shared_ptr<TH1> > h_up, std::vector< string > fSystNames, CorrelationMatrix *matrix ){
+std::pair<double,int> Region::GetChi2Test( TH1* h_data, TH1* h_nominal, std::vector< std::shared_ptr<TH1> > h_up, std::vector< string > systNames, CorrelationMatrix *matrix ){
     const unsigned int nbins = h_nominal->GetNbinsX();
+    const std::vector<int>& blindedBins = Common::GetBlindedBins(this,
+                                                                 fBlindingType,
+                                                                 fBlindingThreshold);
     int ndf = 0;
     for(unsigned int i=0;i<nbins;++i){
         const double ydata_i = h_data->GetBinContent(i+1);
         if(ydata_i<0) continue; // skip dropped / blinded bins
+        if (std::find(blindedBins.begin(), blindedBins.end(), i+1) != blindedBins.end()) continue;
         ndf ++;
     }
     //
     //Speed Up: remove irrelevant systematics (which would give in any case 0 correlation)
     std::vector< string > EffectiveSystNames;
     std::vector< unsigned int > EffectiveSystIndex;
-    for(unsigned int n=0;n<fSystNames.size();++n){
+    for(unsigned int n=0;n<systNames.size();++n){
       if(matrix!=nullptr){
-        if (matrix->fNuisParIsThere[fSystNames[n]]) {
-           EffectiveSystNames.push_back(fSystNames[n]);
+        if (matrix->fNuisParIsThere[systNames[n]]) {
+           EffectiveSystNames.push_back(systNames[n]);
            EffectiveSystIndex.push_back(n);
         }
-        else WriteDebugStatus("GetChi2Test"," will skip syst. "+fSystNames[n]);
+        else WriteDebugStatus("GetChi2Test"," will skip syst. "+systNames[n]);
       }
       else {
-        EffectiveSystNames.push_back(fSystNames[n]);
+        EffectiveSystNames.push_back(systNames[n]);
         EffectiveSystIndex.push_back(n);
       }
     }
@@ -2327,12 +2331,14 @@ std::pair<double,int> GetChi2Test( TH1* h_data, TH1* h_nominal, std::vector< std
     for(unsigned int i=0;i<nbins;++i){
         double ydata_i = h_data->GetBinContent(i+1);
         if(ydata_i<0) continue; // skip dropped / blinded bins
+        if (std::find(blindedBins.begin(), blindedBins.end(), i+1) != blindedBins.end()) continue;
         const double ynom_i = h_nominal->GetBinContent(i+1);
         jbin = 0;
         for(unsigned int j=0;j<nbins;++j){
             double sum = 0.;
             const double ydata_j = h_data->GetBinContent(j+1);
             if(ydata_j<0) continue; // skip dropped / blinded bins
+            if (std::find(blindedBins.begin(), blindedBins.end(), j+1) != blindedBins.end()) continue;
             const double ynom_j = h_nominal->GetBinContent(j+1);
             for(unsigned int n=0;n<nsyst;++n){ //n!=m, run only across correlated systs
                 if (EffectiveSystNames[n].find("saturated_model") != std::string::npos) continue;
@@ -2347,8 +2353,8 @@ std::pair<double,int> GetChi2Test( TH1* h_data, TH1* h_nominal, std::vector< std
                     sum += (ysyst_i_n-ynom_i) * corr * (ysyst_j_m-ynom_j);
                 }
             }
-            for(unsigned int n=0;n<fSystNames.size();++n){ // n==m, all systs, corr=1
-                if (fSystNames[n].find("saturated_model") != std::string::npos) continue;
+            for(unsigned int n=0;n<systNames.size();++n){ // n==m, all systs, corr=1
+                if (systNames[n].find("saturated_model") != std::string::npos) continue;
                 const double ysyst_i_n = h_up[n]->GetBinContent(i+1), ysyst_j_n = h_up[n]->GetBinContent(j+1);
                 sum += (ysyst_i_n-ynom_i) /* * 1.0 */ * (ysyst_j_n-ynom_j);
             }
@@ -2373,11 +2379,13 @@ std::pair<double,int> GetChi2Test( TH1* h_data, TH1* h_nominal, std::vector< std
     jbin = 0;
     for(unsigned int i=0;i<nbins;++i){
         const double ydata_i = h_data->GetBinContent(i+1);
+        if (std::find(blindedBins.begin(), blindedBins.end(), i+1) != blindedBins.end()) continue;
         if(ydata_i<0) continue; // skip dropped / blinded bins
         const double ynom_i = h_nominal->GetBinContent(i+1);
         jbin = 0;
         for(unsigned int j=0;j<nbins;j++){
             const double ydata_j = h_data->GetBinContent(j+1);
+            if (std::find(blindedBins.begin(), blindedBins.end(), j+1) != blindedBins.end()) continue;
             if(ydata_j<0) continue; // skip dropped / blinded bins
             const double ynom_j = h_nominal->GetBinContent(j+1);
             chi2 += (ydata_i - ynom_i)*C[ibin][jbin]*(ydata_j-ynom_j);
