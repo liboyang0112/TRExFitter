@@ -152,168 +152,168 @@ Printing XML Files for channel: SR1
 Finished printing XML files
 Finished printing XML files
 Getting histogram.  InputFile FitExampleUnfolding/Histograms/FitExampleUnfolding_histos.root HistoPath  HistoName SR1_Data_regBin
-Opened input file: FitExampleUnfolding/Histograms/FitExampleUnfolding_histos.root: 0x24c7d40
+Opened input file: FitExampleUnfolding/Histograms/FitExampleUnfolding_histos.root: 0x4ab2a10
 Collecting Nominal Histogram
 Getting histogram.  InputFile FitExampleUnfolding/Histograms/FitExampleUnfolding_histos.root HistoPath  HistoName SR1_Bkg_regBin
-Opened input file: FitExampleUnfolding/Histograms/FitExampleUnfolding_histos.root: 0x26071c0
+Opened input file: FitExampleUnfolding/Histograms/FitExampleUnfolding_histos.root: 0x4a0d430
 Getting histogram.  InputFile FitExampleUnfolding/Histograms/FitExampleUnfolding_histos.root HistoPath  HistoName SR1_Bkg_bTag_SF_B_eigen0_Shape_Down_regBin
-Opened input file: FitExampleUnfolding/Histograms/FitExampleUnfolding_histos.root: 0x260fc20
+Opened input file: FitExampleUnfolding/Histograms/FitExampleUnfolding_histos.root: 0x48be2e0
 Getting histogram.  InputFile FitExampleUnfolding/Histograms/FitExampleUnfolding_histos.root HistoPath  HistoName SR1_Bkg_bTag_SF_B_eigen0_Shape_Up_regBin
-Opened input file: FitExampleUnfolding/Histograms/FitExampleUnfolding_histos.root: 0x2644360
+Opened input file: FitExampleUnfolding/Histograms/FitExampleUnfolding_histos.root: 0x4a6baf0
 Collecting Nominal Histogram
 Getting histogram.  InputFile FitExampleUnfolding/Histograms/FitExampleUnfolding_histos.root HistoPath  HistoName SR1_SR1_Truth_bin_1_regBin
-Opened input file: FitExampleUnfolding/Histograms/FitExampleUnfolding_histos.root: 0x2646830
+Opened input file: FitExampleUnfolding/Histograms/FitExampleUnfolding_histos.root: 0x4a5dd80
 Getting histogram.  InputFile FitExampleUnfolding/Histograms/FitExampleUnfolding_histos.root HistoPath  HistoName SR1_SR1_Truth_bin_1_bTag_SF_B_eigen0_Shape_Down_regBin
-Opened input file: FitExampleUnfolding/Histograms/FitExampleUnfolding_histos.root: 0x2605d90
+Opened input file: FitExampleUnfolding/Histograms/FitExampleUnfolding_histos.root: 0x4a32fe0
 Getting histogram.  InputFile FitExampleUnfolding/Histograms/FitExampleUnfolding_histos.root HistoPath  HistoName SR1_SR1_Truth_bin_1_bTag_SF_B_eigen0_Shape_Up_regBin
-Opened input file: FitExampleUnfolding/Histograms/FitExampleUnfolding_histos.root: 0x25eb310
+Opened input file: FitExampleUnfolding/Histograms/FitExampleUnfolding_histos.root: 0x4a70780
 Getting histogram.  InputFile FitExampleUnfolding/Histograms/FitExampleUnfolding_histos.root HistoPath  HistoName SR1_SR1_Truth_bin_1_PS_Shape_Down_regBin
-Opened input file: FitExampleUnfolding/Histograms/FitExampleUnfolding_histos.root: 0x2648060
+Opened input file: FitExampleUnfolding/Histograms/FitExampleUnfolding_histos.root: 0x4a70100
 Getting histogram.  InputFile FitExampleUnfolding/Histograms/FitExampleUnfolding_histos.root HistoPath  HistoName SR1_SR1_Truth_bin_1_PS_Shape_Up_regBin
-Opened input file: FitExampleUnfolding/Histograms/FitExampleUnfolding_histos.root: 0x2648ca0
+Opened input file: FitExampleUnfolding/Histograms/FitExampleUnfolding_histos.root: 0x4a72cf0
 Collecting Nominal Histogram
 Getting histogram.  InputFile FitExampleUnfolding/Histograms/FitExampleUnfolding_histos.root HistoPath  HistoName SR1_SR1_Truth_bin_2_regBin
-Opened input file: FitExampleUnfolding/Histograms/FitExampleUnfolding_histos.root: 0x2643760
+Opened input file: FitExampleUnfolding/Histograms/FitExampleUnfolding_histos.root: 0x48caac0
 Getting histogram.  InputFile FitExampleUnfolding/Histograms/FitExampleUnfolding_histos.root HistoPath  HistoName SR1_SR1_Truth_bin_2_bTag_SF_B_eigen0_Shape_Down_regBin
-Opened input file: FitExampleUnfolding/Histograms/FitExampleUnfolding_histos.root: 0x2693d80
+Opened input file: FitExampleUnfolding/Histograms/FitExampleUnfolding_histos.root: 0x48cb310
 Getting histogram.  InputFile FitExampleUnfolding/Histograms/FitExampleUnfolding_histos.root HistoPath  HistoName SR1_SR1_Truth_bin_2_bTag_SF_B_eigen0_Shape_Up_regBin
-Opened input file: FitExampleUnfolding/Histograms/FitExampleUnfolding_histos.root: 0x2642b70
+Opened input file: FitExampleUnfolding/Histograms/FitExampleUnfolding_histos.root: 0x4a670c0
 Getting histogram.  InputFile FitExampleUnfolding/Histograms/FitExampleUnfolding_histos.root HistoPath  HistoName SR1_SR1_Truth_bin_2_PS_Shape_Down_regBin
-Opened input file: FitExampleUnfolding/Histograms/FitExampleUnfolding_histos.root: 0x2694b90
+Opened input file: FitExampleUnfolding/Histograms/FitExampleUnfolding_histos.root: 0x4ac0fe0
 Getting histogram.  InputFile FitExampleUnfolding/Histograms/FitExampleUnfolding_histos.root HistoPath  HistoName SR1_SR1_Truth_bin_2_PS_Shape_Up_regBin
-Opened input file: FitExampleUnfolding/Histograms/FitExampleUnfolding_histos.root: 0x2646ca0
+Opened input file: FitExampleUnfolding/Histograms/FitExampleUnfolding_histos.root: 0x4a6a420
 Collecting Nominal Histogram
 Getting histogram.  InputFile FitExampleUnfolding/Histograms/FitExampleUnfolding_histos.root HistoPath  HistoName SR1_SR1_Truth_bin_3_regBin
-Opened input file: FitExampleUnfolding/Histograms/FitExampleUnfolding_histos.root: 0x26479e0
+Opened input file: FitExampleUnfolding/Histograms/FitExampleUnfolding_histos.root: 0x4a69080
 Getting histogram.  InputFile FitExampleUnfolding/Histograms/FitExampleUnfolding_histos.root HistoPath  HistoName SR1_SR1_Truth_bin_3_bTag_SF_B_eigen0_Shape_Down_regBin
-Opened input file: FitExampleUnfolding/Histograms/FitExampleUnfolding_histos.root: 0x2651a70
+Opened input file: FitExampleUnfolding/Histograms/FitExampleUnfolding_histos.root: 0x4a61c80
 Getting histogram.  InputFile FitExampleUnfolding/Histograms/FitExampleUnfolding_histos.root HistoPath  HistoName SR1_SR1_Truth_bin_3_bTag_SF_B_eigen0_Shape_Up_regBin
-Opened input file: FitExampleUnfolding/Histograms/FitExampleUnfolding_histos.root: 0x2652a70
+Opened input file: FitExampleUnfolding/Histograms/FitExampleUnfolding_histos.root: 0x4a646f0
 Getting histogram.  InputFile FitExampleUnfolding/Histograms/FitExampleUnfolding_histos.root HistoPath  HistoName SR1_SR1_Truth_bin_3_PS_Shape_Down_regBin
-Opened input file: FitExampleUnfolding/Histograms/FitExampleUnfolding_histos.root: 0x2641ba0
+Opened input file: FitExampleUnfolding/Histograms/FitExampleUnfolding_histos.root: 0x4a60040
 Getting histogram.  InputFile FitExampleUnfolding/Histograms/FitExampleUnfolding_histos.root HistoPath  HistoName SR1_SR1_Truth_bin_3_PS_Shape_Up_regBin
-Opened input file: FitExampleUnfolding/Histograms/FitExampleUnfolding_histos.root: 0x26450b0
+Opened input file: FitExampleUnfolding/Histograms/FitExampleUnfolding_histos.root: 0x4ab7100
 Collecting Nominal Histogram
 Getting histogram.  InputFile FitExampleUnfolding/Histograms/FitExampleUnfolding_histos.root HistoPath  HistoName SR1_SR1_Truth_bin_4_regBin
-Opened input file: FitExampleUnfolding/Histograms/FitExampleUnfolding_histos.root: 0x264af30
+Opened input file: FitExampleUnfolding/Histograms/FitExampleUnfolding_histos.root: 0x4ab6c50
 Getting histogram.  InputFile FitExampleUnfolding/Histograms/FitExampleUnfolding_histos.root HistoPath  HistoName SR1_SR1_Truth_bin_4_bTag_SF_B_eigen0_Shape_Down_regBin
-Opened input file: FitExampleUnfolding/Histograms/FitExampleUnfolding_histos.root: 0x265ada0
+Opened input file: FitExampleUnfolding/Histograms/FitExampleUnfolding_histos.root: 0x4a84ce0
 Getting histogram.  InputFile FitExampleUnfolding/Histograms/FitExampleUnfolding_histos.root HistoPath  HistoName SR1_SR1_Truth_bin_4_bTag_SF_B_eigen0_Shape_Up_regBin
-Opened input file: FitExampleUnfolding/Histograms/FitExampleUnfolding_histos.root: 0x264a9c0
+Opened input file: FitExampleUnfolding/Histograms/FitExampleUnfolding_histos.root: 0x4a7e720
 Getting histogram.  InputFile FitExampleUnfolding/Histograms/FitExampleUnfolding_histos.root HistoPath  HistoName SR1_SR1_Truth_bin_4_PS_Shape_Down_regBin
-Opened input file: FitExampleUnfolding/Histograms/FitExampleUnfolding_histos.root: 0x265c060
+Opened input file: FitExampleUnfolding/Histograms/FitExampleUnfolding_histos.root: 0x4a59690
 Getting histogram.  InputFile FitExampleUnfolding/Histograms/FitExampleUnfolding_histos.root HistoPath  HistoName SR1_SR1_Truth_bin_4_PS_Shape_Up_regBin
-Opened input file: FitExampleUnfolding/Histograms/FitExampleUnfolding_histos.root: 0x265f590
+Opened input file: FitExampleUnfolding/Histograms/FitExampleUnfolding_histos.root: 0x4a798c0
 Collecting Nominal Histogram
 Getting histogram.  InputFile FitExampleUnfolding/Histograms/FitExampleUnfolding_histos.root HistoPath  HistoName SR1_SR1_Truth_bin_5_regBin
-Opened input file: FitExampleUnfolding/Histograms/FitExampleUnfolding_histos.root: 0x2661f80
+Opened input file: FitExampleUnfolding/Histograms/FitExampleUnfolding_histos.root: 0x4a87790
 Getting histogram.  InputFile FitExampleUnfolding/Histograms/FitExampleUnfolding_histos.root HistoPath  HistoName SR1_SR1_Truth_bin_5_bTag_SF_B_eigen0_Shape_Down_regBin
-Opened input file: FitExampleUnfolding/Histograms/FitExampleUnfolding_histos.root: 0x2662f40
+Opened input file: FitExampleUnfolding/Histograms/FitExampleUnfolding_histos.root: 0x4a8c9c0
 Getting histogram.  InputFile FitExampleUnfolding/Histograms/FitExampleUnfolding_histos.root HistoPath  HistoName SR1_SR1_Truth_bin_5_bTag_SF_B_eigen0_Shape_Up_regBin
-Opened input file: FitExampleUnfolding/Histograms/FitExampleUnfolding_histos.root: 0x2663e30
+Opened input file: FitExampleUnfolding/Histograms/FitExampleUnfolding_histos.root: 0x4a74ab0
 Getting histogram.  InputFile FitExampleUnfolding/Histograms/FitExampleUnfolding_histos.root HistoPath  HistoName SR1_SR1_Truth_bin_5_PS_Shape_Down_regBin
-Opened input file: FitExampleUnfolding/Histograms/FitExampleUnfolding_histos.root: 0x26661a0
+Opened input file: FitExampleUnfolding/Histograms/FitExampleUnfolding_histos.root: 0x4a5d980
 Getting histogram.  InputFile FitExampleUnfolding/Histograms/FitExampleUnfolding_histos.root HistoPath  HistoName SR1_SR1_Truth_bin_5_PS_Shape_Up_regBin
-Opened input file: FitExampleUnfolding/Histograms/FitExampleUnfolding_histos.root: 0x26691b0
+Opened input file: FitExampleUnfolding/Histograms/FitExampleUnfolding_histos.root: 0x4a77b30
 Collecting Nominal Histogram
 Getting histogram.  InputFile FitExampleUnfolding/Histograms/FitExampleUnfolding_histos.root HistoPath  HistoName SR1_SR1_Truth_bin_6_regBin
-Opened input file: FitExampleUnfolding/Histograms/FitExampleUnfolding_histos.root: 0x2669600
+Opened input file: FitExampleUnfolding/Histograms/FitExampleUnfolding_histos.root: 0x4a7be50
 Getting histogram.  InputFile FitExampleUnfolding/Histograms/FitExampleUnfolding_histos.root HistoPath  HistoName SR1_SR1_Truth_bin_6_bTag_SF_B_eigen0_Shape_Down_regBin
-Opened input file: FitExampleUnfolding/Histograms/FitExampleUnfolding_histos.root: 0x266ae10
+Opened input file: FitExampleUnfolding/Histograms/FitExampleUnfolding_histos.root: 0x4a945d0
 Getting histogram.  InputFile FitExampleUnfolding/Histograms/FitExampleUnfolding_histos.root HistoPath  HistoName SR1_SR1_Truth_bin_6_bTag_SF_B_eigen0_Shape_Up_regBin
-Opened input file: FitExampleUnfolding/Histograms/FitExampleUnfolding_histos.root: 0x2659de0
+Opened input file: FitExampleUnfolding/Histograms/FitExampleUnfolding_histos.root: 0x4a941d0
 Getting histogram.  InputFile FitExampleUnfolding/Histograms/FitExampleUnfolding_histos.root HistoPath  HistoName SR1_SR1_Truth_bin_6_PS_Shape_Down_regBin
-Opened input file: FitExampleUnfolding/Histograms/FitExampleUnfolding_histos.root: 0x2635c80
+Opened input file: FitExampleUnfolding/Histograms/FitExampleUnfolding_histos.root: 0x4a5fc30
 Getting histogram.  InputFile FitExampleUnfolding/Histograms/FitExampleUnfolding_histos.root HistoPath  HistoName SR1_SR1_Truth_bin_6_PS_Shape_Up_regBin
-Opened input file: FitExampleUnfolding/Histograms/FitExampleUnfolding_histos.root: 0x2671380
+Opened input file: FitExampleUnfolding/Histograms/FitExampleUnfolding_histos.root: 0x4a680f0
 Collecting Nominal Histogram
 Getting histogram.  InputFile FitExampleUnfolding/Histograms/FitExampleUnfolding_histos.root HistoPath  HistoName SR1_SR1_Truth_bin_7_regBin
-Opened input file: FitExampleUnfolding/Histograms/FitExampleUnfolding_histos.root: 0x2671be0
+Opened input file: FitExampleUnfolding/Histograms/FitExampleUnfolding_histos.root: 0x4a990e0
 Getting histogram.  InputFile FitExampleUnfolding/Histograms/FitExampleUnfolding_histos.root HistoPath  HistoName SR1_SR1_Truth_bin_7_bTag_SF_B_eigen0_Shape_Down_regBin
-Opened input file: FitExampleUnfolding/Histograms/FitExampleUnfolding_histos.root: 0x266d1f0
+Opened input file: FitExampleUnfolding/Histograms/FitExampleUnfolding_histos.root: 0x4a9b6a0
 Getting histogram.  InputFile FitExampleUnfolding/Histograms/FitExampleUnfolding_histos.root HistoPath  HistoName SR1_SR1_Truth_bin_7_bTag_SF_B_eigen0_Shape_Up_regBin
-Opened input file: FitExampleUnfolding/Histograms/FitExampleUnfolding_histos.root: 0x2631320
+Opened input file: FitExampleUnfolding/Histograms/FitExampleUnfolding_histos.root: 0x4aa0af0
 Getting histogram.  InputFile FitExampleUnfolding/Histograms/FitExampleUnfolding_histos.root HistoPath  HistoName SR1_SR1_Truth_bin_7_PS_Shape_Down_regBin
-Opened input file: FitExampleUnfolding/Histograms/FitExampleUnfolding_histos.root: 0x262ff20
+Opened input file: FitExampleUnfolding/Histograms/FitExampleUnfolding_histos.root: 0x4a9b2f0
 Getting histogram.  InputFile FitExampleUnfolding/Histograms/FitExampleUnfolding_histos.root HistoPath  HistoName SR1_SR1_Truth_bin_7_PS_Shape_Up_regBin
-Opened input file: FitExampleUnfolding/Histograms/FitExampleUnfolding_histos.root: 0x2678a50
+Opened input file: FitExampleUnfolding/Histograms/FitExampleUnfolding_histos.root: 0x4a9e060
 Collecting Nominal Histogram
 Getting histogram.  InputFile FitExampleUnfolding/Histograms/FitExampleUnfolding_histos.root HistoPath  HistoName SR1_SR1_Truth_bin_8_regBin
-Opened input file: FitExampleUnfolding/Histograms/FitExampleUnfolding_histos.root: 0x2678340
+Opened input file: FitExampleUnfolding/Histograms/FitExampleUnfolding_histos.root: 0x4a71c10
 Getting histogram.  InputFile FitExampleUnfolding/Histograms/FitExampleUnfolding_histos.root HistoPath  HistoName SR1_SR1_Truth_bin_8_bTag_SF_B_eigen0_Shape_Down_regBin
-Opened input file: FitExampleUnfolding/Histograms/FitExampleUnfolding_histos.root: 0x267c600
+Opened input file: FitExampleUnfolding/Histograms/FitExampleUnfolding_histos.root: 0x4a6c950
 Getting histogram.  InputFile FitExampleUnfolding/Histograms/FitExampleUnfolding_histos.root HistoPath  HistoName SR1_SR1_Truth_bin_8_bTag_SF_B_eigen0_Shape_Up_regBin
-Opened input file: FitExampleUnfolding/Histograms/FitExampleUnfolding_histos.root: 0x2672b70
+Opened input file: FitExampleUnfolding/Histograms/FitExampleUnfolding_histos.root: 0x4b15f50
 Getting histogram.  InputFile FitExampleUnfolding/Histograms/FitExampleUnfolding_histos.root HistoPath  HistoName SR1_SR1_Truth_bin_8_PS_Shape_Down_regBin
-Opened input file: FitExampleUnfolding/Histograms/FitExampleUnfolding_histos.root: 0x264e400
+Opened input file: FitExampleUnfolding/Histograms/FitExampleUnfolding_histos.root: 0x4a5d4a0
 Getting histogram.  InputFile FitExampleUnfolding/Histograms/FitExampleUnfolding_histos.root HistoPath  HistoName SR1_SR1_Truth_bin_8_PS_Shape_Up_regBin
-Opened input file: FitExampleUnfolding/Histograms/FitExampleUnfolding_histos.root: 0x266e170
+Opened input file: FitExampleUnfolding/Histograms/FitExampleUnfolding_histos.root: 0x4a6ecb0
 Collecting Nominal Histogram
 Getting histogram.  InputFile FitExampleUnfolding/Histograms/FitExampleUnfolding_histos.root HistoPath  HistoName SR1_SR1_Truth_bin_9_regBin
-Opened input file: FitExampleUnfolding/Histograms/FitExampleUnfolding_histos.root: 0x266e620
+Opened input file: FitExampleUnfolding/Histograms/FitExampleUnfolding_histos.root: 0x4a97f70
 Getting histogram.  InputFile FitExampleUnfolding/Histograms/FitExampleUnfolding_histos.root HistoPath  HistoName SR1_SR1_Truth_bin_9_bTag_SF_B_eigen0_Shape_Down_regBin
-Opened input file: FitExampleUnfolding/Histograms/FitExampleUnfolding_histos.root: 0x2688810
+Opened input file: FitExampleUnfolding/Histograms/FitExampleUnfolding_histos.root: 0x4a8fce0
 Getting histogram.  InputFile FitExampleUnfolding/Histograms/FitExampleUnfolding_histos.root HistoPath  HistoName SR1_SR1_Truth_bin_9_bTag_SF_B_eigen0_Shape_Up_regBin
-Opened input file: FitExampleUnfolding/Histograms/FitExampleUnfolding_histos.root: 0x26412a0
+Opened input file: FitExampleUnfolding/Histograms/FitExampleUnfolding_histos.root: 0x4b1a470
 Getting histogram.  InputFile FitExampleUnfolding/Histograms/FitExampleUnfolding_histos.root HistoPath  HistoName SR1_SR1_Truth_bin_9_PS_Shape_Down_regBin
-Opened input file: FitExampleUnfolding/Histograms/FitExampleUnfolding_histos.root: 0x2687b00
+Opened input file: FitExampleUnfolding/Histograms/FitExampleUnfolding_histos.root: 0x4a97480
 Getting histogram.  InputFile FitExampleUnfolding/Histograms/FitExampleUnfolding_histos.root HistoPath  HistoName SR1_SR1_Truth_bin_9_PS_Shape_Up_regBin
-Opened input file: FitExampleUnfolding/Histograms/FitExampleUnfolding_histos.root: 0x2640c60
+Opened input file: FitExampleUnfolding/Histograms/FitExampleUnfolding_histos.root: 0x4b1f4f0
 Collecting Nominal Histogram
 Getting histogram.  InputFile FitExampleUnfolding/Histograms/FitExampleUnfolding_histos.root HistoPath  HistoName SR1_SR1_Truth_bin_10_regBin
-Opened input file: FitExampleUnfolding/Histograms/FitExampleUnfolding_histos.root: 0x2639360
+Opened input file: FitExampleUnfolding/Histograms/FitExampleUnfolding_histos.root: 0x4a5f5a0
 Getting histogram.  InputFile FitExampleUnfolding/Histograms/FitExampleUnfolding_histos.root HistoPath  HistoName SR1_SR1_Truth_bin_10_bTag_SF_B_eigen0_Shape_Down_regBin
-Opened input file: FitExampleUnfolding/Histograms/FitExampleUnfolding_histos.root: 0x2701af0
+Opened input file: FitExampleUnfolding/Histograms/FitExampleUnfolding_histos.root: 0x4b1dde0
 Getting histogram.  InputFile FitExampleUnfolding/Histograms/FitExampleUnfolding_histos.root HistoPath  HistoName SR1_SR1_Truth_bin_10_bTag_SF_B_eigen0_Shape_Up_regBin
-Opened input file: FitExampleUnfolding/Histograms/FitExampleUnfolding_histos.root: 0x2702b20
+Opened input file: FitExampleUnfolding/Histograms/FitExampleUnfolding_histos.root: 0x4b1d680
 Getting histogram.  InputFile FitExampleUnfolding/Histograms/FitExampleUnfolding_histos.root HistoPath  HistoName SR1_SR1_Truth_bin_10_PS_Shape_Down_regBin
-Opened input file: FitExampleUnfolding/Histograms/FitExampleUnfolding_histos.root: 0x26767a0
+Opened input file: FitExampleUnfolding/Histograms/FitExampleUnfolding_histos.root: 0x4aa6a80
 Getting histogram.  InputFile FitExampleUnfolding/Histograms/FitExampleUnfolding_histos.root HistoPath  HistoName SR1_SR1_Truth_bin_10_PS_Shape_Up_regBin
-Opened input file: FitExampleUnfolding/Histograms/FitExampleUnfolding_histos.root: 0x267f2a0
+Opened input file: FitExampleUnfolding/Histograms/FitExampleUnfolding_histos.root: 0x4b26e30
 Collecting Nominal Histogram
 Getting histogram.  InputFile FitExampleUnfolding/Histograms/FitExampleUnfolding_histos.root HistoPath  HistoName SR1_SR1_Truth_bin_11_regBin
-Opened input file: FitExampleUnfolding/Histograms/FitExampleUnfolding_histos.root: 0x265e130
+Opened input file: FitExampleUnfolding/Histograms/FitExampleUnfolding_histos.root: 0x4aa7ea0
 Getting histogram.  InputFile FitExampleUnfolding/Histograms/FitExampleUnfolding_histos.root HistoPath  HistoName SR1_SR1_Truth_bin_11_bTag_SF_B_eigen0_Shape_Down_regBin
-Opened input file: FitExampleUnfolding/Histograms/FitExampleUnfolding_histos.root: 0x270e2b0
+Opened input file: FitExampleUnfolding/Histograms/FitExampleUnfolding_histos.root: 0x4b16cc0
 Getting histogram.  InputFile FitExampleUnfolding/Histograms/FitExampleUnfolding_histos.root HistoPath  HistoName SR1_SR1_Truth_bin_11_bTag_SF_B_eigen0_Shape_Up_regBin
-Opened input file: FitExampleUnfolding/Histograms/FitExampleUnfolding_histos.root: 0x2680750
+Opened input file: FitExampleUnfolding/Histograms/FitExampleUnfolding_histos.root: 0x4b192a0
 Getting histogram.  InputFile FitExampleUnfolding/Histograms/FitExampleUnfolding_histos.root HistoPath  HistoName SR1_SR1_Truth_bin_11_PS_Shape_Down_regBin
-Opened input file: FitExampleUnfolding/Histograms/FitExampleUnfolding_histos.root: 0x270a610
+Opened input file: FitExampleUnfolding/Histograms/FitExampleUnfolding_histos.root: 0x4b2c3d0
 Getting histogram.  InputFile FitExampleUnfolding/Histograms/FitExampleUnfolding_histos.root HistoPath  HistoName SR1_SR1_Truth_bin_11_PS_Shape_Up_regBin
-Opened input file: FitExampleUnfolding/Histograms/FitExampleUnfolding_histos.root: 0x263b2a0
+Opened input file: FitExampleUnfolding/Histograms/FitExampleUnfolding_histos.root: 0x4b27220
 Measurement Name: FitExampleUnfolding	 OutputFilePrefix: FitExampleUnfolding/RooStats/FitExampleUnfolding	 POI: Bin_001_muBin_002_muBin_003_muBin_004_muBin_005_muBin_006_muBin_007_muBin_008_muBin_009_muBin_010_muBin_011_mu	 Lumi: 1	 LumiRelErr: 0.1	 BinLow: 0	 BinHigh: 1	 ExportOnly: 1
 Constant Params:  Lumi
 Channels:
 	 Channel Name: SR1	 InputFile: 
 	 Data:
-	 	 InputFile: FitExampleUnfolding/Histograms/FitExampleUnfolding_histos.root	 HistoName: SR1_Data_regBin	 HistoPath: 	 HistoAddress: 0x26303f0
+	 	 InputFile: FitExampleUnfolding/Histograms/FitExampleUnfolding_histos.root	 HistoName: SR1_Data_regBin	 HistoPath: 	 HistoAddress: 0x4a58290
 	 statErrorConfig:
 	 	 RelErrorThreshold: 0	 ConstraintType: Poisson
 	 Samples: 
 	 	 Name: Bkg	 	 Channel: SR1	 NormalizeByTheory: True	 StatErrorActivate: False
-	 	 	 	 	 InputFile: FitExampleUnfolding/Histograms/FitExampleUnfolding_histos.root	 HistName: SR1_Bkg_regBin	 HistoPath: 	 HistoAddress: 0x2632240
+	 	 	 	 	 InputFile: FitExampleUnfolding/Histograms/FitExampleUnfolding_histos.root	 HistName: SR1_Bkg_regBin	 HistoPath: 	 HistoAddress: 0x4a59bd0
 	 	 Name: SR1_Truth_bin_1	 	 Channel: SR1	 NormalizeByTheory: True	 StatErrorActivate: False
-	 	 	 	 	 InputFile: FitExampleUnfolding/Histograms/FitExampleUnfolding_histos.root	 HistName: SR1_SR1_Truth_bin_1_regBin	 HistoPath: 	 HistoAddress: 0x2637f70
+	 	 	 	 	 InputFile: FitExampleUnfolding/Histograms/FitExampleUnfolding_histos.root	 HistName: SR1_SR1_Truth_bin_1_regBin	 HistoPath: 	 HistoAddress: 0x4a60a10
 	 	 Name: SR1_Truth_bin_2	 	 Channel: SR1	 NormalizeByTheory: True	 StatErrorActivate: False
-	 	 	 	 	 InputFile: FitExampleUnfolding/Histograms/FitExampleUnfolding_histos.root	 HistName: SR1_SR1_Truth_bin_2_regBin	 HistoPath: 	 HistoAddress: 0x264e8f0
+	 	 	 	 	 InputFile: FitExampleUnfolding/Histograms/FitExampleUnfolding_histos.root	 HistName: SR1_SR1_Truth_bin_2_regBin	 HistoPath: 	 HistoAddress: 0x4a76930
 	 	 Name: SR1_Truth_bin_3	 	 Channel: SR1	 NormalizeByTheory: True	 StatErrorActivate: False
-	 	 	 	 	 InputFile: FitExampleUnfolding/Histograms/FitExampleUnfolding_histos.root	 HistName: SR1_SR1_Truth_bin_3_regBin	 HistoPath: 	 HistoAddress: 0x26539e0
+	 	 	 	 	 InputFile: FitExampleUnfolding/Histograms/FitExampleUnfolding_histos.root	 HistName: SR1_SR1_Truth_bin_3_regBin	 HistoPath: 	 HistoAddress: 0x4a7eb20
 	 	 Name: SR1_Truth_bin_4	 	 Channel: SR1	 NormalizeByTheory: True	 StatErrorActivate: False
-	 	 	 	 	 InputFile: FitExampleUnfolding/Histograms/FitExampleUnfolding_histos.root	 HistName: SR1_SR1_Truth_bin_4_regBin	 HistoPath: 	 HistoAddress: 0x265c710
+	 	 	 	 	 InputFile: FitExampleUnfolding/Histograms/FitExampleUnfolding_histos.root	 HistName: SR1_SR1_Truth_bin_4_regBin	 HistoPath: 	 HistoAddress: 0x4a86de0
 	 	 Name: SR1_Truth_bin_5	 	 Channel: SR1	 NormalizeByTheory: True	 StatErrorActivate: False
-	 	 	 	 	 InputFile: FitExampleUnfolding/Histograms/FitExampleUnfolding_histos.root	 HistName: SR1_SR1_Truth_bin_5_regBin	 HistoPath: 	 HistoAddress: 0x2664970
+	 	 	 	 	 InputFile: FitExampleUnfolding/Histograms/FitExampleUnfolding_histos.root	 HistName: SR1_SR1_Truth_bin_5_regBin	 HistoPath: 	 HistoAddress: 0x4a8ee20
 	 	 Name: SR1_Truth_bin_6	 	 Channel: SR1	 NormalizeByTheory: True	 StatErrorActivate: False
-	 	 	 	 	 InputFile: FitExampleUnfolding/Histograms/FitExampleUnfolding_histos.root	 HistName: SR1_SR1_Truth_bin_6_regBin	 HistoPath: 	 HistoAddress: 0x26700c0
+	 	 	 	 	 InputFile: FitExampleUnfolding/Histograms/FitExampleUnfolding_histos.root	 HistName: SR1_SR1_Truth_bin_6_regBin	 HistoPath: 	 HistoAddress: 0x4a96ed0
 	 	 Name: SR1_Truth_bin_7	 	 Channel: SR1	 NormalizeByTheory: True	 StatErrorActivate: False
-	 	 	 	 	 InputFile: FitExampleUnfolding/Histograms/FitExampleUnfolding_histos.root	 HistName: SR1_SR1_Truth_bin_7_regBin	 HistoPath: 	 HistoAddress: 0x2674bc0
+	 	 	 	 	 InputFile: FitExampleUnfolding/Histograms/FitExampleUnfolding_histos.root	 HistName: SR1_SR1_Truth_bin_7_regBin	 HistoPath: 	 HistoAddress: 0x4a9eb40
 	 	 Name: SR1_Truth_bin_8	 	 Channel: SR1	 NormalizeByTheory: True	 StatErrorActivate: False
-	 	 	 	 	 InputFile: FitExampleUnfolding/Histograms/FitExampleUnfolding_histos.root	 HistName: SR1_SR1_Truth_bin_8_regBin	 HistoPath: 	 HistoAddress: 0x267d3f0
+	 	 	 	 	 InputFile: FitExampleUnfolding/Histograms/FitExampleUnfolding_histos.root	 HistName: SR1_SR1_Truth_bin_8_regBin	 HistoPath: 	 HistoAddress: 0x4aa4f80
 	 	 Name: SR1_Truth_bin_9	 	 Channel: SR1	 NormalizeByTheory: True	 StatErrorActivate: False
-	 	 	 	 	 InputFile: FitExampleUnfolding/Histograms/FitExampleUnfolding_histos.root	 HistName: SR1_SR1_Truth_bin_9_regBin	 HistoPath: 	 HistoAddress: 0x2683020
+	 	 	 	 	 InputFile: FitExampleUnfolding/Histograms/FitExampleUnfolding_histos.root	 HistName: SR1_SR1_Truth_bin_9_regBin	 HistoPath: 	 HistoAddress: 0x4b1ceb0
 	 	 Name: SR1_Truth_bin_10	 	 Channel: SR1	 NormalizeByTheory: True	 StatErrorActivate: False
-	 	 	 	 	 InputFile: FitExampleUnfolding/Histograms/FitExampleUnfolding_histos.root	 HistName: SR1_SR1_Truth_bin_10_regBin	 HistoPath: 	 HistoAddress: 0x2705e60
+	 	 	 	 	 InputFile: FitExampleUnfolding/Histograms/FitExampleUnfolding_histos.root	 HistName: SR1_SR1_Truth_bin_10_regBin	 HistoPath: 	 HistoAddress: 0x4b22f60
 	 	 Name: SR1_Truth_bin_11	 	 Channel: SR1	 NormalizeByTheory: True	 StatErrorActivate: False
-	 	 	 	 	 InputFile: FitExampleUnfolding/Histograms/FitExampleUnfolding_histos.root	 HistName: SR1_SR1_Truth_bin_11_regBin	 HistoPath: 	 HistoAddress: 0x270ea90
+	 	 	 	 	 InputFile: FitExampleUnfolding/Histograms/FitExampleUnfolding_histos.root	 HistName: SR1_SR1_Truth_bin_11_regBin	 HistoPath: 	 HistoAddress: 0x4b2d1f0
 	 End of Channel SR1
 End Measurement: FitExampleUnfolding
 Making Model and Measurements (Fast) for measurement: FitExampleUnfolding
@@ -644,7 +644,7 @@ import model into workspace
 [#1] INFO:ObjectHandling -- RooWorkspace::import(SR1) using existing copy of RooStats::HistFactory::FlexibleInterpVar::SR1_Truth_bin_11_SR1_epsilon for import of RooProdPdf::model_SR1
 [#1] INFO:ObjectHandling -- RooWorkspace::import(SR1) using existing copy of RooRealVar::binWidth_obs_x_SR1_11 for import of RooProdPdf::model_SR1
 [#1] INFO:NumericIntegration -- RooRealIntegral::init(SR1_model_Int[obs_x_SR1]) using numeric integrator RooBinIntegrator to calculate Int(obs_x_SR1)
-RooDataSet::AsimovData[obs_x_SR1,weight:binWeightAsimov] = 11 entries (25722.8 weighted)
+RooDataSet::AsimovData[obs_x_SR1,weight:binWeightAsimov] = 11 entries (25743.9 weighted)
 [#1] INFO:ObjectHandling -- RooWorkspace::import(SR1) importing dataset AsimovData
 [#1] INFO:ObjectHandling -- RooWorkSpace::import(SR1) changing name of dataset from  AsimovData to asimovData
 [#1] INFO:ObjectHandling -- RooWorkspace::import(SR1) importing dataset obsData
@@ -657,12 +657,12 @@ variables
 
 p.d.f.s
 -------
-RooRealSumPdf::SR1_model[ binWidth_obs_x_SR1_0 * L_x_Bkg_SR1_overallSyst_x_HistSyst + binWidth_obs_x_SR1_1 * L_x_SR1_Truth_bin_1_SR1_overallSyst_x_HistSyst + binWidth_obs_x_SR1_2 * L_x_SR1_Truth_bin_2_SR1_overallSyst_x_HistSyst + binWidth_obs_x_SR1_3 * L_x_SR1_Truth_bin_3_SR1_overallSyst_x_HistSyst + binWidth_obs_x_SR1_4 * L_x_SR1_Truth_bin_4_SR1_overallSyst_x_HistSyst + binWidth_obs_x_SR1_5 * L_x_SR1_Truth_bin_5_SR1_overallSyst_x_HistSyst + binWidth_obs_x_SR1_6 * L_x_SR1_Truth_bin_6_SR1_overallSyst_x_HistSyst + binWidth_obs_x_SR1_7 * L_x_SR1_Truth_bin_7_SR1_overallSyst_x_HistSyst + binWidth_obs_x_SR1_8 * L_x_SR1_Truth_bin_8_SR1_overallSyst_x_HistSyst + binWidth_obs_x_SR1_9 * L_x_SR1_Truth_bin_9_SR1_overallSyst_x_HistSyst + binWidth_obs_x_SR1_10 * L_x_SR1_Truth_bin_10_SR1_overallSyst_x_HistSyst + binWidth_obs_x_SR1_11 * L_x_SR1_Truth_bin_11_SR1_overallSyst_x_HistSyst ] = 1644.92/25722.8
+RooRealSumPdf::SR1_model[ binWidth_obs_x_SR1_0 * L_x_Bkg_SR1_overallSyst_x_HistSyst + binWidth_obs_x_SR1_1 * L_x_SR1_Truth_bin_1_SR1_overallSyst_x_HistSyst + binWidth_obs_x_SR1_2 * L_x_SR1_Truth_bin_2_SR1_overallSyst_x_HistSyst + binWidth_obs_x_SR1_3 * L_x_SR1_Truth_bin_3_SR1_overallSyst_x_HistSyst + binWidth_obs_x_SR1_4 * L_x_SR1_Truth_bin_4_SR1_overallSyst_x_HistSyst + binWidth_obs_x_SR1_5 * L_x_SR1_Truth_bin_5_SR1_overallSyst_x_HistSyst + binWidth_obs_x_SR1_6 * L_x_SR1_Truth_bin_6_SR1_overallSyst_x_HistSyst + binWidth_obs_x_SR1_7 * L_x_SR1_Truth_bin_7_SR1_overallSyst_x_HistSyst + binWidth_obs_x_SR1_8 * L_x_SR1_Truth_bin_8_SR1_overallSyst_x_HistSyst + binWidth_obs_x_SR1_9 * L_x_SR1_Truth_bin_9_SR1_overallSyst_x_HistSyst + binWidth_obs_x_SR1_10 * L_x_SR1_Truth_bin_10_SR1_overallSyst_x_HistSyst + binWidth_obs_x_SR1_11 * L_x_SR1_Truth_bin_11_SR1_overallSyst_x_HistSyst ] = 1593.06/25743.9
 RooGaussian::alpha_Bkg_normConstraint[ x=alpha_Bkg_norm mean=nom_alpha_Bkg_norm sigma=1 ] = 1
 RooGaussian::alpha_PSConstraint[ x=alpha_PS mean=nom_alpha_PS sigma=1 ] = 1
 RooGaussian::alpha_bTag_SF_B_eigen0Constraint[ x=alpha_bTag_SF_B_eigen0 mean=nom_alpha_bTag_SF_B_eigen0 sigma=1 ] = 1
 RooGaussian::lumiConstraint[ x=Lumi mean=nominalLumi sigma=0.1 ] = 1
-RooProdPdf::model_SR1[ lumiConstraint * alpha_bTag_SF_B_eigen0Constraint * alpha_Bkg_normConstraint * alpha_PSConstraint * SR1_model(obs_x_SR1) ] = 1644.92
+RooProdPdf::model_SR1[ lumiConstraint * alpha_bTag_SF_B_eigen0Constraint * alpha_Bkg_normConstraint * alpha_PSConstraint * SR1_model(obs_x_SR1) ] = 1593.06
 
 functions
 --------
@@ -673,7 +673,7 @@ RooHistFunc::Bkg_SR1_Hist_alphanominal[ depList=(obs_x_SR1) ] = 33.4721
 RooStats::HistFactory::FlexibleInterpVar::Bkg_SR1_epsilon[ paramList=(alpha_bTag_SF_B_eigen0,alpha_Bkg_norm) ] = 1
 RooProduct::Bkg_SR1_overallSyst_x_HistSyst[ Bkg_SR1_Hist_alpha * Bkg_SR1_epsilon ] = 33.4721
 RooProduct::L_x_Bkg_SR1_overallSyst_x_HistSyst[ Lumi * Bkg_SR1_overallSyst_x_HistSyst ] = 33.4721
-RooProduct::L_x_SR1_Truth_bin_10_SR1_overallSyst_x_HistSyst[ Lumi * SR1_Truth_bin_10_SR1_overallSyst_x_HistSyst ] = 25.7152
+RooProduct::L_x_SR1_Truth_bin_10_SR1_overallSyst_x_HistSyst[ Lumi * SR1_Truth_bin_10_SR1_overallSyst_x_HistSyst ] = 21.0297
 RooProduct::L_x_SR1_Truth_bin_11_SR1_overallSyst_x_HistSyst[ Lumi * SR1_Truth_bin_11_SR1_overallSyst_x_HistSyst ] = 90.3216
 RooProduct::L_x_SR1_Truth_bin_1_SR1_overallSyst_x_HistSyst[ Lumi * SR1_Truth_bin_1_SR1_overallSyst_x_HistSyst ] = 0
 RooProduct::L_x_SR1_Truth_bin_2_SR1_overallSyst_x_HistSyst[ Lumi * SR1_Truth_bin_2_SR1_overallSyst_x_HistSyst ] = 0
@@ -683,21 +683,21 @@ RooProduct::L_x_SR1_Truth_bin_5_SR1_overallSyst_x_HistSyst[ Lumi * SR1_Truth_bin
 RooProduct::L_x_SR1_Truth_bin_6_SR1_overallSyst_x_HistSyst[ Lumi * SR1_Truth_bin_6_SR1_overallSyst_x_HistSyst ] = 0
 RooProduct::L_x_SR1_Truth_bin_7_SR1_overallSyst_x_HistSyst[ Lumi * SR1_Truth_bin_7_SR1_overallSyst_x_HistSyst ] = 0
 RooProduct::L_x_SR1_Truth_bin_8_SR1_overallSyst_x_HistSyst[ Lumi * SR1_Truth_bin_8_SR1_overallSyst_x_HistSyst ] = 0
-RooProduct::L_x_SR1_Truth_bin_9_SR1_overallSyst_x_HistSyst[ Lumi * SR1_Truth_bin_9_SR1_overallSyst_x_HistSyst ] = 0.0295972
-PiecewiseInterpolation::SR1_Truth_bin_10_SR1_Hist_alpha[ ] = 25.7152
-RooHistFunc::SR1_Truth_bin_10_SR1_Hist_alpha_0high[ depList=(obs_x_SR1) ] = 25.7152
-RooHistFunc::SR1_Truth_bin_10_SR1_Hist_alpha_0low[ depList=(obs_x_SR1) ] = 25.7152
-RooHistFunc::SR1_Truth_bin_10_SR1_Hist_alpha_1high[ depList=(obs_x_SR1) ] = 25.8419
-RooHistFunc::SR1_Truth_bin_10_SR1_Hist_alpha_1low[ depList=(obs_x_SR1) ] = 25.5855
-RooHistFunc::SR1_Truth_bin_10_SR1_Hist_alphanominal[ depList=(obs_x_SR1) ] = 25.7152
+RooProduct::L_x_SR1_Truth_bin_9_SR1_overallSyst_x_HistSyst[ Lumi * SR1_Truth_bin_9_SR1_overallSyst_x_HistSyst ] = 0
+PiecewiseInterpolation::SR1_Truth_bin_10_SR1_Hist_alpha[ ] = 21.0297
+RooHistFunc::SR1_Truth_bin_10_SR1_Hist_alpha_0high[ depList=(obs_x_SR1) ] = 21.0297
+RooHistFunc::SR1_Truth_bin_10_SR1_Hist_alpha_0low[ depList=(obs_x_SR1) ] = 21.0297
+RooHistFunc::SR1_Truth_bin_10_SR1_Hist_alpha_1high[ depList=(obs_x_SR1) ] = 23.5174
+RooHistFunc::SR1_Truth_bin_10_SR1_Hist_alpha_1low[ depList=(obs_x_SR1) ] = 18.5405
+RooHistFunc::SR1_Truth_bin_10_SR1_Hist_alphanominal[ depList=(obs_x_SR1) ] = 21.0297
 RooStats::HistFactory::FlexibleInterpVar::SR1_Truth_bin_10_SR1_epsilon[ paramList=(alpha_bTag_SF_B_eigen0,alpha_PS) ] = 1
 RooProduct::SR1_Truth_bin_10_SR1_overallNorm_x_sigma_epsilon[ Bin_010_mu * SR1_Truth_bin_10_SR1_epsilon ] = 1
-RooProduct::SR1_Truth_bin_10_SR1_overallSyst_x_HistSyst[ SR1_Truth_bin_10_SR1_Hist_alpha * SR1_Truth_bin_10_SR1_overallNorm_x_sigma_epsilon ] = 25.7152
+RooProduct::SR1_Truth_bin_10_SR1_overallSyst_x_HistSyst[ SR1_Truth_bin_10_SR1_Hist_alpha * SR1_Truth_bin_10_SR1_overallNorm_x_sigma_epsilon ] = 21.0297
 PiecewiseInterpolation::SR1_Truth_bin_11_SR1_Hist_alpha[ ] = 90.3216
 RooHistFunc::SR1_Truth_bin_11_SR1_Hist_alpha_0high[ depList=(obs_x_SR1) ] = 90.3216
 RooHistFunc::SR1_Truth_bin_11_SR1_Hist_alpha_0low[ depList=(obs_x_SR1) ] = 90.3216
-RooHistFunc::SR1_Truth_bin_11_SR1_Hist_alpha_1high[ depList=(obs_x_SR1) ] = 89.6489
-RooHistFunc::SR1_Truth_bin_11_SR1_Hist_alpha_1low[ depList=(obs_x_SR1) ] = 91.0026
+RooHistFunc::SR1_Truth_bin_11_SR1_Hist_alpha_1high[ depList=(obs_x_SR1) ] = 90.1964
+RooHistFunc::SR1_Truth_bin_11_SR1_Hist_alpha_1low[ depList=(obs_x_SR1) ] = 90.4469
 RooHistFunc::SR1_Truth_bin_11_SR1_Hist_alphanominal[ depList=(obs_x_SR1) ] = 90.3216
 RooStats::HistFactory::FlexibleInterpVar::SR1_Truth_bin_11_SR1_epsilon[ paramList=(alpha_bTag_SF_B_eigen0,alpha_PS) ] = 1
 RooProduct::SR1_Truth_bin_11_SR1_overallNorm_x_sigma_epsilon[ Bin_011_mu * SR1_Truth_bin_11_SR1_epsilon ] = 1
@@ -774,15 +774,15 @@ RooHistFunc::SR1_Truth_bin_8_SR1_Hist_alphanominal[ depList=(obs_x_SR1) ] = 0
 RooStats::HistFactory::FlexibleInterpVar::SR1_Truth_bin_8_SR1_epsilon[ paramList=(alpha_bTag_SF_B_eigen0,alpha_PS) ] = 1
 RooProduct::SR1_Truth_bin_8_SR1_overallNorm_x_sigma_epsilon[ Bin_008_mu * SR1_Truth_bin_8_SR1_epsilon ] = 1
 RooProduct::SR1_Truth_bin_8_SR1_overallSyst_x_HistSyst[ SR1_Truth_bin_8_SR1_Hist_alpha * SR1_Truth_bin_8_SR1_overallNorm_x_sigma_epsilon ] = 0
-PiecewiseInterpolation::SR1_Truth_bin_9_SR1_Hist_alpha[ ] = 0.0295972
-RooHistFunc::SR1_Truth_bin_9_SR1_Hist_alpha_0high[ depList=(obs_x_SR1) ] = 0.0295972
-RooHistFunc::SR1_Truth_bin_9_SR1_Hist_alpha_0low[ depList=(obs_x_SR1) ] = 0.0295972
-RooHistFunc::SR1_Truth_bin_9_SR1_Hist_alpha_1high[ depList=(obs_x_SR1) ] = 0.0456587
-RooHistFunc::SR1_Truth_bin_9_SR1_Hist_alpha_1low[ depList=(obs_x_SR1) ] = 0.0134157
-RooHistFunc::SR1_Truth_bin_9_SR1_Hist_alphanominal[ depList=(obs_x_SR1) ] = 0.0295972
+PiecewiseInterpolation::SR1_Truth_bin_9_SR1_Hist_alpha[ ] = 0
+RooHistFunc::SR1_Truth_bin_9_SR1_Hist_alpha_0high[ depList=(obs_x_SR1) ] = 0
+RooHistFunc::SR1_Truth_bin_9_SR1_Hist_alpha_0low[ depList=(obs_x_SR1) ] = 0
+RooHistFunc::SR1_Truth_bin_9_SR1_Hist_alpha_1high[ depList=(obs_x_SR1) ] = 0
+RooHistFunc::SR1_Truth_bin_9_SR1_Hist_alpha_1low[ depList=(obs_x_SR1) ] = 0
+RooHistFunc::SR1_Truth_bin_9_SR1_Hist_alphanominal[ depList=(obs_x_SR1) ] = 0
 RooStats::HistFactory::FlexibleInterpVar::SR1_Truth_bin_9_SR1_epsilon[ paramList=(alpha_bTag_SF_B_eigen0,alpha_PS) ] = 1
 RooProduct::SR1_Truth_bin_9_SR1_overallNorm_x_sigma_epsilon[ Bin_009_mu * SR1_Truth_bin_9_SR1_epsilon ] = 1
-RooProduct::SR1_Truth_bin_9_SR1_overallSyst_x_HistSyst[ SR1_Truth_bin_9_SR1_Hist_alpha * SR1_Truth_bin_9_SR1_overallNorm_x_sigma_epsilon ] = 0.0295972
+RooProduct::SR1_Truth_bin_9_SR1_overallSyst_x_HistSyst[ SR1_Truth_bin_9_SR1_Hist_alpha * SR1_Truth_bin_9_SR1_overallNorm_x_sigma_epsilon ] = 0
 
 datasets
 --------
@@ -874,7 +874,7 @@ Observables:             RooArgSet:: = (obs_x_SR1)
 Parameters of Interest:  RooArgSet:: = (Bin_001_mu,Bin_002_mu,Bin_003_mu,Bin_004_mu,Bin_005_mu,Bin_006_mu,Bin_007_mu,Bin_008_mu,Bin_009_mu,Bin_010_mu,Bin_011_mu)
 Nuisance Parameters:     RooArgSet:: = (alpha_Bkg_norm,alpha_PS,alpha_bTag_SF_B_eigen0)
 Global Observables:      RooArgSet:: = (nom_alpha_bTag_SF_B_eigen0,nom_alpha_Bkg_norm,nom_alpha_PS)
-PDF:                     RooProdPdf::model_SR1[ lumiConstraint * alpha_bTag_SF_B_eigen0Constraint * alpha_Bkg_normConstraint * alpha_PSConstraint * SR1_model(obs_x_SR1) ] = 1644.92
+PDF:                     RooProdPdf::model_SR1[ lumiConstraint * alpha_bTag_SF_B_eigen0Constraint * alpha_Bkg_normConstraint * alpha_PSConstraint * SR1_model(obs_x_SR1) ] = 1593.06
 
 Opening File to hold channel: FitExampleUnfolding/RooStats/FitExampleUnfolding_SR1_FitExampleUnfolding_model.root
 About to write channel measurement to file
@@ -904,7 +904,7 @@ RooArgList:: = (obs_x_SR1)
 [#1] INFO:ObjectHandling -- RooWorkspace::import(combined) importing RooRealVar::nom_alpha_PS
 -----------------------------------------
 create toy data for SR1
-RooDataSet::AsimovData0[obs_x_SR1,channelCat,weight:binWeightAsimov] = 11 entries (25722.8 weighted)
+RooDataSet::AsimovData0[obs_x_SR1,channelCat,weight:binWeightAsimov] = 11 entries (25743.9 weighted)
 [#1] INFO:ObjectHandling -- RooWorkspace::import(combined) importing dataset asimovDataFullModel
 [#1] INFO:ObjectHandling -- RooWorkSpace::import(combined) changing name of dataset from  asimovDataFullModel to asimovData
 [#1] INFO:ObjectHandling -- RooWorkspace::import(combined) importing RooRealVar::obs_x_SR1
@@ -1159,7 +1159,7 @@ Observables:             RooArgSet:: = (obs_x_SR1,weightVar,channelCat)
 Parameters of Interest:  RooArgSet:: = (Bin_001_mu,Bin_002_mu,Bin_003_mu,Bin_004_mu,Bin_005_mu,Bin_006_mu,Bin_007_mu,Bin_008_mu,Bin_009_mu,Bin_010_mu,Bin_011_mu)
 Nuisance Parameters:     RooArgSet:: = (alpha_Bkg_norm,alpha_PS,alpha_bTag_SF_B_eigen0)
 Global Observables:      RooArgSet:: = (nom_alpha_bTag_SF_B_eigen0,nom_alpha_Bkg_norm,nom_alpha_PS)
-PDF:                     RooSimultaneous::simPdf[ indexCat=channelCat SR1=model_SR1 ] = 1644.92
+PDF:                     RooSimultaneous::simPdf[ indexCat=channelCat SR1=model_SR1 ] = 1593.06
 
 Writing combined workspace to file: FitExampleUnfolding/RooStats/FitExampleUnfolding_combined_FitExampleUnfolding_model.root
 Writing combined measurement to file: FitExampleUnfolding/RooStats/FitExampleUnfolding_combined_FitExampleUnfolding_model.root

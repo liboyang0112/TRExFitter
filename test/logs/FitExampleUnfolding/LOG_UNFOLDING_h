@@ -91,20 +91,20 @@ Reading histograms...
 === DEBUG::HistoReader::ReadNormShape: Adding norm Bin_011_mu
 === DEBUG::HistoReader::ReadHistograms: Adding syst bTag_SF_B_eigen0
 === DEBUG::HistoReader::ReadHistograms: Adding syst PS
-[1;33m=== WARNING::HistoTools::CheckHistograms: In histo "SR1_SR1_Truth_bin_4_PS_Up[0m
+[1;33m=== WARNING::HistoTools::CheckHistograms: In histo "SR1_SR1_Truth_bin_2_PS_Up[0m
+[1;33m=== WARNING::HistoTools::CheckHistograms: ", bin 9 has null nominal content but systematics are >0! Hope you know that[0m
+[1;33m=== WARNING::HistoTools::CheckHistograms: In histo "SR1_SR1_Truth_bin_6_PS_Up[0m
 [1;33m=== WARNING::HistoTools::CheckHistograms: ", bin 10 has null nominal content but systematics are >0! Hope you know that[0m
-[1;33m=== WARNING::HistoTools::CheckHistograms: In histo "SR1_SR1_Truth_bin_9_PS_Up[0m
-[1;33m=== WARNING::HistoTools::CheckHistograms: ", bin 2 has null nominal content but systematics are >0! Hope you know that[0m
 [1;33m=== WARNING::HistoTools::CheckHistograms: In histo "SR1_SR1_Truth_bin_10_PS_Up[0m
-[1;33m=== WARNING::HistoTools::CheckHistograms: ", bin 6 has null nominal content but systematics are >0! Hope you know that[0m
+[1;33m=== WARNING::HistoTools::CheckHistograms: ", bin 4 has null nominal content but systematics are >0! Hope you know that[0m
 [1;32m=== INFO::TRExFit::SmoothSystematics: -------------------------------------------[0m
 [1;32m=== INFO::TRExFit::SmoothSystematics: Smoothing and/or Symmetrising Systematic Variations ...[0m
-[1;33m=== WARNING::HistoTools::CheckHistograms: In histo "SR1_SR1_Truth_bin_4_PS_Up[0m
+[1;33m=== WARNING::HistoTools::CheckHistograms: In histo "SR1_SR1_Truth_bin_2_PS_Up[0m
+[1;33m=== WARNING::HistoTools::CheckHistograms: ", bin 9 has null nominal content but systematics are >0! Hope you know that[0m
+[1;33m=== WARNING::HistoTools::CheckHistograms: In histo "SR1_SR1_Truth_bin_6_PS_Up[0m
 [1;33m=== WARNING::HistoTools::CheckHistograms: ", bin 10 has null nominal content but systematics are >0! Hope you know that[0m
-[1;33m=== WARNING::HistoTools::CheckHistograms: In histo "SR1_SR1_Truth_bin_9_PS_Up[0m
-[1;33m=== WARNING::HistoTools::CheckHistograms: ", bin 2 has null nominal content but systematics are >0! Hope you know that[0m
 [1;33m=== WARNING::HistoTools::CheckHistograms: In histo "SR1_SR1_Truth_bin_10_PS_Up[0m
-[1;33m=== WARNING::HistoTools::CheckHistograms: ", bin 6 has null nominal content but systematics are >0! Hope you know that[0m
+[1;33m=== WARNING::HistoTools::CheckHistograms: ", bin 4 has null nominal content but systematics are >0! Hope you know that[0m
 === DEBUG::TRExFit::CreateCustomAsimov: Running CreateCustomAsimov
 [1;32m=== INFO::TRExFit::WriteHistos: -------------------------------------------[0m
 [1;32m=== INFO::TRExFit::WriteHistos: Writing histograms to file FitExampleUnfolding/Histograms/FitExampleUnfolding_histos.root ...[0m

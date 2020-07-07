@@ -243,9 +243,16 @@ std::unique_ptr<TH2D> FoldingManager::MultiplyAcceptanceEfficiencyAndMigration(c
             }
             const double content = horizontal ? mig->GetBinContent(itruth, ireco) : mig->GetBinContent(ireco, itruth);
             const double error = horizontal ? mig->GetBinError(itruth, ireco) : mig->GetBinError(ireco, itruth);
-            result->SetBinContent(itruth, ireco, content*eff/acceptance);
-            /// this assumes no error on truth
-            result->SetBinError(itruth, ireco, error*eff/acceptance);
+
+            if (horizontal) {
+                result->SetBinContent(itruth, ireco, content*eff/acceptance);
+                /// this assumes no error on truth
+                result->SetBinError(itruth, ireco, error*eff/acceptance);
+            } else {
+                result->SetBinContent(ireco, itruth, content*eff/acceptance);
+                /// this assumes no error on truth
+                result->SetBinError(ireco, itruth, error*eff/acceptance);
+            }
         }
     }
 
