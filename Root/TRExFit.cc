@@ -3476,6 +3476,10 @@ RooStats::HistFactory::Sample TRExFit::OneSampleToRooStats(RooStats::HistFactory
     sample.SetNormalizeByTheory(fSamples[i_smp]->fNormalizedByTheory);
     // norm factors
     for(const auto& inorm : h->fSample->fNormFactors) {
+
+        if (Common::FindInStringVector(inorm->fExclude, fRegions[i_ch]->fName) >= 0) continue;
+        if ((inorm->fRegions.size() > 0) && Common::FindInStringVector(inorm->fRegions, fRegions[i_ch]->fName) < 0) continue;
+
         WriteDebugStatus("TRExFit::OneSampleToRooStats", "    Adding NormFactor: " + inorm->fName + ", " + std::to_string(inorm->fNominal));
         sample.AddNormFactor(inorm->fName,
                              inorm->fNominal,
