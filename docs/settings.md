@@ -93,7 +93,7 @@ The following settings are for normal fits, performed without the action `m`.
 | DecorrSysts                  | comma-separated list of systematics which you want to decorrelate from another channel (this is done by automatically attaching a suffix to the NuisanceParameter for each of them); can use wildcards |
 | DecorrSuff                   | the suffix to attach when using DecorrSysts |
 | RegionGroups                 | groups specified here will cause additional yield tables to be created per group, and also merged plots per group if DoMergedPlot is set to TRUE |
-| ReplacementFile              | allows usage of placeholders in the config, which will be overwritten by values provided in an external file; see [Replacement file](#replacement-file) section |
+| ReplacementFile              | allows usage of placeholders in the config, which will be overwritten by values provided in an external file; see Replacement file section in the README |
 | Suffix                       | added to file names of plots, workspace, fit results etc. (equivalent to command line option) |
 | SaveSuffix                   | added to file name of histograms, for usage with hupdate (equivalent to command line option) |
 | HideNP                       | comma-separated list of nuisance parameters to be excluded from pull plots and correlation matrix |
