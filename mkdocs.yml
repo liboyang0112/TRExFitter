@@ -47,6 +47,8 @@ nav:
         - 'Using Expression': AdvancedTutorial2020/Expression.md
         - 'Profile-likelihood unfolding': AdvancedTutorial2020/Unfolding.md
         - 'Mixed data and MC fits': AdvancedTutorial2020/Mixed.md
+    - 'Advanced Topics':
+        - 'TRExFitter to pyhf': advanced_topics/pyhf.md
 
 markdown_extensions:
     - admonition
