@@ -6592,9 +6592,11 @@ std::vector<std::string> ConfigReader::GetAvailableSysts(){
 //__________________________________________________________________________________
 //
 bool ConfigReader::SystHasProblematicName(const std::string& name){
-    if ((name.find("gamma") != std::string::npos) || (name.find("alpha") != std::string::npos)){
+    if ((name.find("gamma") != std::string::npos)
+            || (name.find("alpha") != std::string::npos) 
+            || (name.find("shape_") != std::string::npos)) {
         WriteErrorStatus("ConfigReader::SystHasProblematicName", "NP " + name + " has a problematic name, please change it.");
-        WriteErrorStatus("ConfigReader::SystHasProblematicName", "You should not be using names with: \"gamma\", \"alpha\" as these are used internally and can cause problems.");
+        WriteErrorStatus("ConfigReader::SystHasProblematicName", "You should not be using names with: \"gamma\", \"alpha\" or \"shape_\" as these are used internally and can cause problems.");
         return true;
     }
 
