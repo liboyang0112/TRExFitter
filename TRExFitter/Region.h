@@ -303,6 +303,8 @@ public:
 private:
 
     bool fAutomaticDropBins;
+    
+    std::pair<double,int> GetChi2Test( TH1* h_data, TH1* h_nominal, std::vector< std::shared_ptr<TH1> > h_up, std::vector< std::string > fSystNames, CorrelationMatrix *matrix=nullptr );
 };
 
 
@@ -318,6 +320,5 @@ std::unique_ptr<TGraphAsymmErrors> BuildTotError( const TH1* const h_nominal,
                                                   const std::vector< std::string >& systNames,
                                                   CorrelationMatrix* matrix=nullptr );
 
-std::pair<double,int> GetChi2Test( TH1* h_data, TH1* h_nominal, std::vector< std::shared_ptr<TH1> > h_up, std::vector< std::string > fSystNames, CorrelationMatrix *matrix=nullptr );
 
 #endif
