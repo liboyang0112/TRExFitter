@@ -529,7 +529,6 @@ public:
     std::vector < std::string > fNormFactorNames;
     std::vector < std::string > fShapeFactorNames;
 
-    int fNRegions;
     int fNSamples;
     std::vector<std::string> fPOIs;
     std::map<std::string,std::string> fPOIunit;

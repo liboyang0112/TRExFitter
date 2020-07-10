@@ -3026,11 +3026,11 @@ int ConfigReader::ReadSampleOptions() {
             }
         }
 
-        for(int i_reg=0;i_reg<fFitter->fNRegions;i_reg++){
-            std::string regName = fFitter->fRegions[i_reg]->fName;
+        for(const auto& ireg : fFitter->fRegions) {
+            const std::string regName = ireg->fName;
             if( (regions_str=="" || regions_str=="all" || Common::FindInStringVector(regions,regName)>=0)
                 && Common::FindInStringVector(exclude,regName)<0 ){
-                sample->fRegions.emplace_back( fFitter->fRegions[i_reg]->fName );
+                sample->fRegions.emplace_back(ireg->fName);
             }
         }
 

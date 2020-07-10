@@ -27,7 +27,7 @@ void HistoReader::ReadHistograms(){
     //
     // Loop on regions and samples
     //
-    for(int i_ch=0; i_ch < fFitter->fNRegions; ++i_ch) {
+    for(std::size_t i_ch = 0; i_ch < fFitter->fRegions.size(); ++i_ch) {
         WriteInfoStatus("HistoReader::ReadHistograms", "  Region " + fFitter->fRegions[i_ch]->fName + " ...");
         //
         if(TRExFitter::SPLITHISTOFILES) fFitter->fFiles[i_ch]->cd();
@@ -359,7 +359,7 @@ void HistoReader::ReadTRExProducedHistograms() {
     }
     //
     std::string fileNameBootstrap("");
-    for(int i_ch=0;i_ch<fFitter->fNRegions;i_ch++){
+    for(std::size_t i_ch = 0; i_ch<fFitter->fRegions.size(); ++i_ch) {
         if(fFitter->fKeepPruning){
             histPrun.emplace_back(static_cast<TH2*>(filePrun->Get(Form("h_prun_%s_toSave", fFitter->fRegions[i_ch]->fName.c_str()))));
         }

@@ -42,7 +42,7 @@ void NtupleReader::ReadNtuples(){
     //
     // Loop on regions
     //
-    for(int i_ch=0;i_ch<fFitter->fNRegions;i_ch++){
+    for(std::size_t i_ch = 0; i_ch < fFitter->fRegions.size(); ++i_ch) {
         WriteInfoStatus("NtupleReader::ReadNtuples", "  Region region " + fFitter->fRegions[i_ch]->fName + " ...");
         //
         if(TRExFitter::SPLITHISTOFILES) fFitter->fFiles[i_ch]->cd();
