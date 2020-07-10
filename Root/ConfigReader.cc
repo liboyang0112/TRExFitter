@@ -1440,6 +1440,10 @@ int ConfigReader::ReadFitOptions(){
     // Set POIAsimov
     param = confSet->Get("POIAsimov");
     if( param != "" ){
+        if (fFitter->fPOIs.empty()) {
+            WriteErrorStatus("ConfigReader::ReadFitOptions", "POI is not set, you cannot ask for POIAsimov");
+            return 1;
+        }
         std::vector < std::string > temp_vec = Vectorize(param,',',false);
         for(std::string iPOI : temp_vec){
             std::vector < std::string > poi_value = Vectorize(iPOI,':');
