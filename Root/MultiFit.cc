@@ -83,10 +83,6 @@ MultiFit::MultiFit(const string& name) :
     fPOITitle("best fit XXX"),
     fRankingOnly("all"),
     fGroupedImpactCategory("all"),
-    fPOI(""),
-    fPOIMin(0),
-    fPOIMax(10),
-    fPOIPrecision("1"),
     fLimitMax(0),
     fUseRnd(false),
     fRndRange(0.1),
@@ -139,7 +135,8 @@ MultiFit::MultiFit(const string& name) :
     fHEPDataFormat(false),
     fFitStrategy(-1),
     fCPU(1),
-    fBinnedLikelihood(false)
+    fBinnedLikelihood(false),
+    fUsePOISinRanking(false)
 {
     fNPCategories.emplace_back("");
 }
@@ -460,8 +457,10 @@ std::map < std::string, double > MultiFit::FitCombinedWS(int fitType, const std:
         if (!fit->fUseInFit) continue;
         for(const auto& nf : fit->fNormFactors){
             if(nf->fConst) continue;
-            if(Common::FindInStringVector(nfList,nf->fName)>=0) continue;
-            if(fFitType==2 && fPOI==nf->fName) continue;
+            if(fFitType==TRExFit::BONLY && Common::FindInStringVector(fPOIs,nf->fName)>=0) continue;
+            if(nf->fName.find("morph_")!=std::string::npos) continue;
+            if(nf->fExpression.first!="") continue;
+            if(!ws->obj(nf->fName.c_str())) continue;
             nfList.push_back(nf->fName);
         }
     }
@@ -600,20 +599,43 @@ std::map < std::string, double > MultiFit::FitCombinedWS(int fitType, const std:
 }
 //__________________________________________________________________________________
 //
-void MultiFit::GetCombinedLimit(string inputData) const{
+void MultiFit::GetCombinedLimit(string inputData){
     WriteInfoStatus("MultiFit::GetCombinedLimit", "Running runAsymptoticsCLs macro...");
+    
+    if(fPOIforLimit==""){
+        if(fPOIs.size()>0){
+            fPOIforLimit = fPOIs.at(0);
+        }
+        else{
+            WriteErrorStatus("TRExFit::GetCombinedLimit","No POI specified (in 'Limit' or 'Job' block).");
+            return;
+        }
+    }
 
     string wsFileName = fOutDir+"/ws_combined"+fSaveSuf+".root";
+    FitUtils::SetPOIinFile(wsFileName, fPOIforLimit);
+    
     int sigDebug = 3 - TRExFitter::DEBUGLEVEL;
     if (sigDebug < 0) sigDebug = 0;
     runAsymptoticsCLs(wsFileName.c_str(), "combWS", "ModelConfig", inputData.c_str(), fLimitParamName.c_str(), fLimitParamValue, fLimitOutputPrefixName.c_str(), (fOutDir+"/Limits/").c_str(), fLimitIsBlind, fLimitsConfidence, "asimovData_0", fSignalInjection, fSignalInjectionValue, sigDebug);
 }
 //__________________________________________________________________________________
 //
-void MultiFit::GetCombinedSignificance(string inputData) const{
+void MultiFit::GetCombinedSignificance(string inputData) {
     WriteInfoStatus("MultiFit::GetCombinedSignificance", "Running runSig macro...");
 
+    if(fPOIforSig==""){
+        if(fPOIs.size()>0){
+            fPOIforSig = fPOIs.at(0);
+        }
+        else{
+            WriteErrorStatus("TRExFit::GetCombinedLimit","No POI specified (in 'Limit' or 'Job' block).");
+            return;
+        }
+    }
+
     string wsFileName = fOutDir+"/ws_combined"+fSaveSuf+".root";
+    FitUtils::SetPOIinFile(wsFileName, fPOIforSig);
 
     //
     // Finally computing the significance
@@ -624,9 +646,9 @@ void MultiFit::GetCombinedSignificance(string inputData) const{
 }
 //__________________________________________________________________________________
 //
-void MultiFit::ComparePOI(const string& POI) const {
-    double xmax = fPOIMax + (fPOIMax-fPOIMin);
-    double xmin = fPOIMin;
+void MultiFit::ComparePOI(const string& POI, const std::size_t index) const {
+    double xmax = fPOIMax.at(index) + (fPOIMax.at(index)-fPOIMin.at(index));
+    double xmin = fPOIMin.at(index);
 
     string process = fLabel;
 
@@ -642,8 +664,15 @@ void MultiFit::ComparePOI(const string& POI) const {
         dirs.push_back( fFitList[i_fit]->fName );
         titles.push_back( fFitLabels[i_fit] );
         suffs.push_back( fFitSuffs[i_fit] );
-        if(fFitList[i_fit]->fPOIs.size()>0) pois.push_back( fFitList[i_fit]->fPOIs[0] );
-        else                                pois.push_back( POI );
+        if (fFitList[i_fit]->fPOIs.empty()) pois.push_back( POI );
+        else {
+            const int tmp = Common::FindInStringVector(fFitList[i_fit]->fPOIs,POI);
+            if(tmp >= 0){
+                pois.push_back(fFitList[i_fit]->fPOIs[tmp]);
+            } else {
+                pois.push_back(POI);
+            }
+        }
     }
     if(fCombine){
         WriteInfoStatus("MultiFit::ComparePOI", "Adding Combined Fit");
@@ -800,27 +829,27 @@ void MultiFit::ComparePOI(const string& POI) const {
         h_dummy.GetYaxis()->SetBinLabel(N-i,titles[i].c_str());
         if(fShowSystForPOI){
             tex.SetTextSize(gStyle->GetTextSize()*1.2);
-            tex.DrawLatex(xmin+0.5*(xmax-xmin),N-i-1,Form(("#font[62]{%." + fPOIPrecision + "f}").c_str(),g_central.GetX()[N-i-1]));
-            tex.DrawLatex(xmin+0.6*(xmax-xmin),N-i-1,Form(("#font[62]{^{#plus%." + fPOIPrecision + "f}}").c_str(),g_tot.GetErrorXhigh(N-i-1)));
-            tex.DrawLatex(xmin+0.6*(xmax-xmin),N-i-1,Form(("#font[62]{_{#minus%." + fPOIPrecision + "f}}").c_str(),g_tot.GetErrorXlow(N-i-1)));
+            tex.DrawLatex(xmin+0.5*(xmax-xmin),N-i-1,Form(("#font[62]{%." + fPOIPrecision.at(index) + "f}").c_str(),g_central.GetX()[N-i-1]));
+            tex.DrawLatex(xmin+0.6*(xmax-xmin),N-i-1,Form(("#font[62]{^{#plus%." + fPOIPrecision.at(index) + "f}}").c_str(),g_tot.GetErrorXhigh(N-i-1)));
+            tex.DrawLatex(xmin+0.6*(xmax-xmin),N-i-1,Form(("#font[62]{_{#minus%." + fPOIPrecision.at(index) + "f}}").c_str(),g_tot.GetErrorXlow(N-i-1)));
             tex.DrawLatex(xmin+0.69*(xmax-xmin),N-i-1,"(");
             if (!fShowTotalOnly){
-                tex.DrawLatex(xmin+0.73*(xmax-xmin),N-i-1,Form(("#font[42]{^{#plus%." + fPOIPrecision + "f}}").c_str(),g_stat.GetErrorXhigh(N-i-1)));
-                tex.DrawLatex(xmin+0.73*(xmax-xmin),N-i-1,Form(("#font[42]{_{#minus%." + fPOIPrecision + "f}}").c_str(),g_stat.GetErrorXlow(N-i-1)));
-                tex.DrawLatex(xmin+0.84*(xmax-xmin),N-i-1,Form(("#font[42]{^{#plus%." + fPOIPrecision + "f}}").c_str(),
+                tex.DrawLatex(xmin+0.73*(xmax-xmin),N-i-1,Form(("#font[42]{^{#plus%." + fPOIPrecision.at(index) + "f}}").c_str(),g_stat.GetErrorXhigh(N-i-1)));
+                tex.DrawLatex(xmin+0.73*(xmax-xmin),N-i-1,Form(("#font[42]{_{#minus%." + fPOIPrecision.at(index) + "f}}").c_str(),g_stat.GetErrorXlow(N-i-1)));
+                tex.DrawLatex(xmin+0.84*(xmax-xmin),N-i-1,Form(("#font[42]{^{#plus%." + fPOIPrecision.at(index) + "f}}").c_str(),
                     std::sqrt( g_tot.GetErrorXhigh(N-i-1) * g_tot.GetErrorXhigh(N-i-1) - g_stat.GetErrorXhigh(N-i-1)* g_stat.GetErrorXhigh(N-i-1) ) ) );
-                tex.DrawLatex(xmin+0.84*(xmax-xmin),N-i-1,Form(("#font[42]{_{#minus%." + fPOIPrecision + "f}}").c_str(),
+                tex.DrawLatex(xmin+0.84*(xmax-xmin),N-i-1,Form(("#font[42]{_{#minus%." + fPOIPrecision.at(index) + "f}}").c_str(),
                     std::sqrt( g_tot.GetErrorXlow(N-i-1)*g_tot.GetErrorXlow(N-i-1) - g_stat.GetErrorXlow(N-i-1)*g_stat.GetErrorXlow(N-i-1) ) ) );
                 tex.DrawLatex(xmin+0.94*(xmax-xmin),N-i-1,")");
             }
         }
         else{
-            tex.DrawLatex(xmin+0.5*(xmax-xmin),N-i-1,Form((fPOIName+" = %." + fPOIPrecision + "f").c_str(),g_central.GetX()[N-i-1]));
-            tex.DrawLatex(xmin+0.7*(xmax-xmin),N-i-1,Form(("^{#plus%." + fPOIPrecision + "f}").c_str(),g_tot.GetErrorXhigh(N-i-1)));
-            tex.DrawLatex(xmin+0.7*(xmax-xmin),N-i-1,Form(("_{#minus%." + fPOIPrecision + "f}").c_str(),g_tot.GetErrorXlow(N-i-1)));
+            tex.DrawLatex(xmin+0.5*(xmax-xmin),N-i-1,Form((fPOIName+" = %." + fPOIPrecision.at(index) + "f").c_str(),g_central.GetX()[N-i-1]));
+            tex.DrawLatex(xmin+0.7*(xmax-xmin),N-i-1,Form(("^{#plus%." + fPOIPrecision.at(index) + "f}").c_str(),g_tot.GetErrorXhigh(N-i-1)));
+            tex.DrawLatex(xmin+0.7*(xmax-xmin),N-i-1,Form(("_{#minus%." + fPOIPrecision.at(index) + "f}").c_str(),g_tot.GetErrorXlow(N-i-1)));
             if (!fShowTotalOnly){
-                tex.DrawLatex(xmin+0.85*(xmax-xmin),N-i-1,Form(("^{#plus%." + fPOIPrecision + "f}").c_str(),g_stat.GetErrorXhigh(N-i-1)));
-                tex.DrawLatex(xmin+0.85*(xmax-xmin),N-i-1,Form(("_{#minus%." + fPOIPrecision + "f}").c_str(),g_stat.GetErrorXlow(N-i-1)));
+                tex.DrawLatex(xmin+0.85*(xmax-xmin),N-i-1,Form(("^{#plus%." + fPOIPrecision.at(index) + "f}").c_str(),g_stat.GetErrorXhigh(N-i-1)));
+                tex.DrawLatex(xmin+0.85*(xmax-xmin),N-i-1,Form(("_{#minus%." + fPOIPrecision.at(index) + "f}").c_str(),g_stat.GetErrorXlow(N-i-1)));
             }
         }
     }
@@ -893,7 +922,7 @@ void MultiFit::ComparePOI(const string& POI) const {
     }
 
     for(const auto& format : TRExFitter::IMAGEFORMAT) {
-        c.SaveAs((fOutDir+"/POI"+fSaveSuf+"."+format).c_str() );
+        c.SaveAs((fOutDir+"/POI_"+fPOIs.at(index)+"_"+fSaveSuf+"."+format).c_str() );
     }
 }
 
@@ -1379,12 +1408,10 @@ void MultiFit::CompareNormFactors(string category) const{
         if(fCombine && i_fit==N-1) break;
         for(const auto& inorm : fFitList[i_fit]->fNormFactors) {
             const std::string normName = inorm->fName;
-            if(normName==fPOI) continue;
-            if(Common::FindInStringVector(Names,normName)<0){
-                Names.push_back(normName);
-                Titles.push_back(inorm->fTitle);
-                Categories.push_back(inorm->fCategory);
-            }
+            if (Common::FindInStringVector(fPOIs,normName)>=0) continue;
+            Names.push_back(normName);
+            Titles.push_back(inorm->fTitle);
+            Categories.push_back(inorm->fCategory);
         }
     }
     unsigned int Nnorm = Names.size();
@@ -1641,8 +1668,8 @@ void MultiFit::ProduceNPRanking(const  std::string& NPnames) const {
             manager.AddNuisPar(isyst->fNuisanceParameter, false);
         }
     }
-    for(const auto& inorm: vNormFactors) {
-        if(inorm->fName == fPOI) continue;
+    for(const auto& inorm : vNormFactors) {
+        if (!fUsePOISinRanking && Common::FindInStringVector(fPOIs, inorm->fName) >= 0) continue;
         if(NPnames=="all" || NPnames == inorm->fName){
             manager.AddNuisPar(inorm->fName, true);
         }
@@ -1738,10 +1765,17 @@ void MultiFit::ProduceNPRanking(const  std::string& NPnames) const {
     manager.SetNPValues(fit->fFitNPValues);
     manager.SetFixedNPs(GetFixedNPs());
     manager.SetFitStrategy(fFitStrategy);
-    manager.SetPOINames(Common::ToVec(fPOI));
+    if(fPOIs.size() > 0){
+        manager.SetPOINames(fPOIs);
+    }
+    else{
+        WriteWarningStatus("TRExFit::ProduceNPRanking","No POI set. Not able to produce ranking.");
+        return;
+    }
     manager.SetNCPU(fCPU);
     manager.SetRng(fit->fRndRange, fit->fUseRnd, fit->fRndSeed);
     manager.SetStatOnly(fStatOnly);
+    manager.SetUsePOISinRanking(fUsePOISinRanking);
 
     manager.RunRanking(fit->fFitResults, ws, data, GetFitNormFactors());
     
@@ -1762,15 +1796,16 @@ void MultiFit::PlotNPRanking(bool flagSysts, bool flagGammas) const {
     WriteInfoStatus("MultiFit::PlotNPRanking", "....................................");
     WriteInfoStatus("MultiFit::PlotNPRanking", "Plotting Ranking...");
     //
-    const std::string fileToRead = fOutDir+"/Fits/NPRanking"+fSaveSuf+".txt";
-    std::ifstream in(fileToRead.c_str());
-    if (!in.good()) { // file doesnt exist
-        const std::vector<std::string>& inPaths = Common::GetFilesMatchingString(fOutDir+"/Fits/","NPRanking" + fSaveSuf + "_", "");
-        Common::MergeTxTFiles(inPaths, fileToRead);
+    for (const auto& poi : fPOIs) {
+        const std::string fileToRead = fOutDir+"/Fits/NPRanking"+fSaveSuf+"_"+poi+".txt";
+        std::ifstream in(fileToRead.c_str());
+        if (!in.good()) { // file doesnt exist
+            const std::vector<std::string>& inPaths = Common::GetFilesMatchingString(fOutDir+"/Fits/","NPRanking" + fSaveSuf + "_", poi);
+            Common::MergeTxTFiles(inPaths, fileToRead);
+        }
     }
 
     RankingManager manager{};
-    manager.SetOutputPath(fileToRead);
     manager.SetAtlasLabel(fFitList[0]->fAtlasLabel);
     manager.SetLumiLabel(fFitList[0]->fLumiLabel);
     manager.SetCmeLabel(fFitList[0]->fCmeLabel);
@@ -1780,8 +1815,13 @@ void MultiFit::PlotNPRanking(bool flagSysts, bool flagGammas) const {
     manager.SetMaxNPPlot(fFitList[0]->fRankingMaxNP);
     manager.SetRankingPOIName(fFitList[0]->fRankingPOIName);
     manager.SetRankingCanvasSize(fFitList[0]->fNPRankingCanvasSize);
-
-    manager.PlotRanking(GetFitRegions(), flagSysts, flagGammas);
+    
+    for (const auto& poi : fPOIs) {
+        const std::string fileToRead = fOutDir+"/Fits/NPRanking"+fSaveSuf+"_"+poi+".txt";
+        manager.SetOutputPath(fileToRead);
+        manager.SetSuffix(fSaveSuf+"_"+poi);
+        manager.PlotRanking(GetFitRegions(), flagSysts, flagGammas);
+    }
 }
 
 //__________________________________________________________________________________
@@ -2059,7 +2099,7 @@ void MultiFit::PlotSummarySoverB() const {
     if(fBonlySuffix!="") includeBonly = true;
 
     fFitList[0]->ReadFitResults(fOutDir+"/Fits/"+fName+fSaveSuf+".txt");
-    double muFit = fFitList[0]->fFitResults->GetNuisParValue(fPOI);
+    double muFit = fFitList[0]->fFitResults->GetNuisParValue(fPOIs.at(0));
     if (Common::HistFromFile( fOutDir+"/Limits/"+fName+fSaveSuf+".root/limit" ) == nullptr) {
         WriteWarningStatus("MultiFit::PlotSummarySoverB", "Histo pointer is nullptr, skipping plotting.");
         return;

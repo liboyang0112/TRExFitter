@@ -153,7 +153,11 @@ void FitExample(std::string opt="h",std::string configFile="config/myFit.config"
                 myMultiFit->CompareNormFactors("");
             }
             if(myMultiFit->fPlotCombCorrMatrix) myMultiFit->PlotCombinedCorrelationMatrix();
-            if(myMultiFit->fComparePOI)    myMultiFit->ComparePOI(myMultiFit->fPOI);
+            if(myMultiFit->fComparePOI) {
+                for (std::size_t i = 0; i < myMultiFit->fPOIs.size(); ++i) {
+                    myMultiFit->ComparePOI(myMultiFit->fPOIs.at(i), i);
+                }
+            }
             if(myMultiFit->fCompareLimits) myMultiFit->CompareLimit();
         }
         //

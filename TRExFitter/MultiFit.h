@@ -7,6 +7,7 @@
 /// c++ includes
 #include <map>
 #include <memory>
+#include <vector>
 
 /// Forwards declaration
 class ConfigParser;
@@ -36,13 +37,16 @@ public:
                           const std::string& wsFile,
                           const bool useInComparison,
                           const bool useInFit);
+
+    inline void AddPOI(const std::string& name){fPOIs.emplace_back(name);}
+
     RooWorkspace* CombineWS() const;
     void SaveCombinedWS() const;
     std::map < std::string, double > FitCombinedWS( int fitType, const std::string& inputData, bool doLHscanOnly ) const;
-    void GetCombinedLimit(std::string inputData="obsData") const; // or asimovData
-    void GetCombinedSignificance(std::string inputData="obsData") const; // or asimovData
+    void GetCombinedLimit(std::string inputData="obsData"); // or asimovData
+    void GetCombinedSignificance(std::string inputData="obsData"); // or asimovData
 
-    void ComparePOI(const std::string& POI) const;
+    void ComparePOI(const std::string& POI, const std::size_t index) const;
     void CompareLimit();
     void ComparePulls(std::string category="") const;
     void CompareNormFactors(std::string category="") const;
@@ -112,10 +116,12 @@ public:
     std::string fRankingOnly;
     std::string fGroupedImpactCategory;
 
-    std::string fPOI;
-    double fPOIMin;
-    double fPOIMax;
-    std::string fPOIPrecision;
+    std::vector<std::string> fPOIs;
+    std::string fPOIforLimit;
+    std::string fPOIforSig;
+    std::vector<double> fPOIMin;
+    std::vector<double> fPOIMax;
+    std::vector<std::string> fPOIPrecision;
     double fLimitMax;
 
     bool fUseRnd;
@@ -195,6 +201,7 @@ public:
     int fFitStrategy;
     int fCPU;
     bool fBinnedLikelihood;
+    bool fUsePOISinRanking;
 };
 
 #endif

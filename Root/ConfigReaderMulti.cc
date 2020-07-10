@@ -230,7 +230,12 @@ int ConfigReaderMulti::ReadJobOptions() {
 
     // Set POIName
     param = confSet->Get("POIName");
-    if( param != "" ) fMultiFitter->fPOI = RemoveQuotes(param);
+    if( param != "" ) {
+        const auto tmp =  Vectorize(param, ',');
+        for (const auto& i : tmp) {
+            fMultiFitter->AddPOI(i);
+        }
+    }
 
     // Set POILabel
     param = confSet->Get("POILabel");
@@ -241,15 +246,22 @@ int ConfigReaderMulti::ReadJobOptions() {
     if( param != "" ) fMultiFitter->fPOINominal = std::stof(param);
 
     // Set POIRange
-    // Set POIRange
     param = confSet->Get("POIRange");
     if( param != ""){
-        if (Vectorize(param,',').size()==2 ) {
-            fMultiFitter->fPOIMin = atof( Vectorize(param,',')[0].c_str() );
-            fMultiFitter->fPOIMax = atof( Vectorize(param,',')[1].c_str() );
-        } else {
-            WriteErrorStatus("ConfigReaderMulti::ReadJobOptions", "You specified 'POIRange' option but you didn't provide valid setting. Please check this!");
+        const auto tmp = Vectorize(param, ',');   
+        if (tmp.size() != fMultiFitter->fPOIs.size()) {
+            WriteErrorStatus("ConfigReaderMulti::ReadJobOptions", "You specified 'POIRange' option but you didn't pass the same number of parametrs as the number of POIs. Please check this!");
             return 1;
+        }
+        for (const auto& irange : tmp) {
+            const auto vec = Vectorize(irange,':');
+            if (vec.size()==2 ) {
+                fMultiFitter->fPOIMin.emplace_back(atof( vec[0].c_str() ));
+                fMultiFitter->fPOIMax.emplace_back(atof( vec[1].c_str() ));
+            } else {
+                WriteErrorStatus("ConfigReaderMulti::ReadJobOptions", "You specified 'POIRange' option but you didn't provide valid setting. Please check this!");
+                return 1;
+            }
         }
     }
 
@@ -261,7 +273,16 @@ int ConfigReaderMulti::ReadJobOptions() {
 
     // Set POIPrecision
     param = confSet->Get("POIPrecision");
-    if( param != "" ) fMultiFitter->fPOIPrecision = RemoveQuotes(param).c_str();
+    if( param != "" ) {
+        const auto tmp = Vectorize(param, ',');
+        if (tmp.size() != fMultiFitter->fPOIs.size()) {
+            WriteErrorStatus("ConfigReaderMulti::ReadJobOptions", "You specified 'POIPrecision' option but you didn't pass the same number of parametrs as the number of POIs. Please check this!");
+            return 1;
+        }
+        for (const auto& i : tmp) { 
+            fMultiFitter->fPOIPrecision.emplace_back(RemoveQuotes(i).c_str());
+        }
+    }
 
     //Set DataName
     param = confSet->Get("DataName");
@@ -519,6 +540,12 @@ int ConfigReaderMulti::ReadJobOptions() {
     if (param != "") {
         fMultiFitter->fBinnedLikelihood = Common::StringToBoolean(param);
     }
+    
+    // Set UsePOISinRanking
+    param = confSet->Get("UsePOISinRanking");
+    if (param != "") {
+        fMultiFitter->fUsePOISinRanking = Common::StringToBoolean(param);
+    }
 
     return 0;
 }
@@ -534,6 +561,13 @@ int ConfigReaderMulti::ReadLimitOptions(){
         return 0; // it is ok to not have Fit set up
     }
 
+    // Set POI
+    param = confSet->Get("POI");
+    if( param != "" ){
+        fMultiFitter->fPOIforLimit = param;
+        fMultiFitter->AddPOI(param);
+    }
+    
     // Set LimitBlind
     param = confSet->Get("LimitBlind");
     if( param != "" ){
@@ -591,6 +625,13 @@ int ConfigReaderMulti::ReadSignificanceOptions(){
         return 0; // it is ok to not have Fit set up
     }
 
+    // Set POI
+    param = confSet->Get("POI");
+    if( param != "" ){
+        fMultiFitter->fPOIforSig = param;
+        fMultiFitter->AddPOI(param);
+    }
+    
     // Set LimitBlind
     param = confSet->Get("SignificanceBlind");
     if( param != "" ){
