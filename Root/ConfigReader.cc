@@ -3030,11 +3030,11 @@ int ConfigReader::ReadSampleOptions() {
             }
         }
 
-        for(int i_reg=0;i_reg<fFitter->fNRegions;i_reg++){
-            std::string regName = fFitter->fRegions[i_reg]->fName;
+        for(const auto& ireg : fFitter->fRegions) {
+            const std::string regName = ireg->fName;
             if( (regions_str=="" || regions_str=="all" || Common::FindInStringVector(regions,regName)>=0)
                 && Common::FindInStringVector(exclude,regName)<0 ){
-                sample->fRegions.emplace_back( fFitter->fRegions[i_reg]->fName );
+                sample->fRegions.emplace_back(ireg->fName);
             }
         }
 
@@ -3367,7 +3367,7 @@ int ConfigReader::ReadSampleOptions() {
     }
 
     // build new samples if AsimovReplacementFor are specified
-    for(int i_smp=0;i_smp<fFitter->fNSamples;i_smp++){
+    for(std::size_t i_smp = 0; i_smp < fFitter->fSamples.size(); ++i_smp) {
         if(fFitter->fSamples[i_smp]->fAsimovReplacementFor.first!=""){
             if (std::find(fSamples.begin(), fSamples.end(),fFitter->fSamples[i_smp]->fAsimovReplacementFor.second ) == fSamples.end()){
                 if (fAllowWrongRegionSample){
@@ -3535,12 +3535,11 @@ int ConfigReader::ReadNormFactorOptions(){
         }
         if(exclude[0] != "")    nfactor->fExclude = exclude;
         // attach the syst to the proper samples
-        for(int i_smp=0;i_smp<fFitter->fNSamples;i_smp++){
-            sample = fFitter->fSamples[i_smp];
-            if(sample->fType == Sample::DATA) continue;
-            if(   (samples[0]=="all" || Common::FindInStringVector(samples, sample->fName)>=0 )
-               && (exclude[0]==""    || Common::FindInStringVector(exclude, sample->fName)<0 ) ){
-                sample->AddNormFactor(nfactor);
+        for(auto& isample : fFitter->fSamples) {
+            if(isample->fType == Sample::DATA) continue;
+            if(   (samples[0]=="all" || Common::FindInStringVector(samples, isample->fName)>=0 )
+               && (exclude[0]==""    || Common::FindInStringVector(exclude, isample->fName)<0 ) ){
+                isample->AddNormFactor(nfactor);
             }
         }
     }
@@ -3654,12 +3653,11 @@ int ConfigReader::ReadShapeFactorOptions(){
         }
         if(exclude[0]!="")    sfactor->fExclude = exclude;
         // attach the syst to the proper samples
-        for(int i_smp=0;i_smp<fFitter->fNSamples;i_smp++){
-            sample = fFitter->fSamples[i_smp];
-            if(sample->fType == Sample::DATA) continue;
-            if(   (samples[0]=="all" || Common::FindInStringVector(samples, sample->fName)>=0 )
-               && (exclude[0]==""    || Common::FindInStringVector(exclude, sample->fName)<0 ) ){
-                sample->AddShapeFactor(sfactor);
+        for(auto& isample : fFitter->fSamples) {
+            if(isample->fType == Sample::DATA) continue;
+            if(   (samples[0]=="all" || Common::FindInStringVector(samples, isample->fName)>=0 )
+               && (exclude[0]==""    || Common::FindInStringVector(exclude, isample->fName)<0 ) ){
+                isample->AddShapeFactor(sfactor);
             }
         }
     }
@@ -3696,10 +3694,9 @@ int ConfigReader::ReadSystOptions(){
         sysd->fScaleDown   = 1.;
         fFitter->fSystematics.emplace_back( sysd );
         TRExFitter::SYSTMAP[sysd->fName] = "Dummy";
-        for(int i_smp=0;i_smp<fFitter->fNSamples;i_smp++){
-            sample = fFitter->fSamples[i_smp];
-            if(sample->fType == Sample::SIGNAL ) {
-                sample->AddSystematic(sysd);
+        for(auto& isample : fFitter->fSamples) {
+            if(isample->fType == Sample::SIGNAL ) {
+                isample->AddSystematic(sysd);
             }
         }
     }
@@ -4565,19 +4562,18 @@ int ConfigReader::SetSystNoDecorelate(ConfigSet *confSet, std::shared_ptr<System
     if(param!="") TRExFitter::SYSTTEX[sys->fName] = RemoveQuotes(param);
 
     // attach the syst to the proper samples
-    for(int i_smp=0;i_smp<fFitter->fNSamples;i_smp++){
-        sam = fFitter->fSamples[i_smp];
+    for(auto& isample : fFitter->fSamples) {
         // in principle, no syst on DATA, except if this syst has SubtractRefSampleVar: TRUE and this data sample is the ReferenceSample of that syst
-        if(sam->fType == Sample::DATA){
-            if (sys->fSubtractRefSampleVar && sys->fReferenceSample == sam->fName) {
-              sam->AddSystematic(sys);
+        if(isample->fType == Sample::DATA){
+            if (sys->fSubtractRefSampleVar && sys->fReferenceSample == isample->fName) {
+              isample->AddSystematic(sys);
             }
             else continue;
         }
-        if(!sam->fUseSystematics) continue;
-        if((samples[0]=="all" || Common::FindInStringVector(samples, sam->fName)>=0 )
-           && (exclude[0]=="" || Common::FindInStringVector(exclude, sam->fName)<0 ) ){
-            sam->AddSystematic(sys);
+        if(!isample->fUseSystematics) continue;
+        if((samples[0]=="all" || Common::FindInStringVector(samples, isample->fName)>=0 )
+           && (exclude[0]=="" || Common::FindInStringVector(exclude, isample->fName)<0 ) ){
+            isample->AddSystematic(sys);
         }
     }
     if(Common::FindInStringVector(fFitter->fDecorrSysts,sys->fNuisanceParameter)>=0){
@@ -4654,13 +4650,12 @@ int ConfigReader::SetSystRegionDecorelate(ConfigSet *confSet,
                     mySys->fTitle = RemoveQuotes(param)+" ("+reg->fLabel+", bin "+std::to_string(i_bin)+")";
                     TRExFitter::SYSTMAP[mySys->fName] = mySys->fTitle;
                 }
-                for (int i_smp=0;i_smp<fFitter->fNSamples;i_smp++){
-                    sam = fFitter->fSamples[i_smp];
-                    if(sam->fType == Sample::DATA) continue;
-                    if(!sam->fUseSystematics) continue;
-                    if(   (samples[0]=="all" || Common::FindInStringVector(samples, sam->fName)>=0 )
-                       && (exclude[0]==""    || Common::FindInStringVector(exclude, sam->fName)<0 ) ){
-                        sam->AddSystematic(mySys);
+                for (auto& isample : fFitter->fSamples) {
+                    if(isample->fType == Sample::DATA) continue;
+                    if(!isample->fUseSystematics) continue;
+                    if(   (samples[0]=="all" || Common::FindInStringVector(samples, isample->fName)>=0 )
+                       && (exclude[0]==""    || Common::FindInStringVector(exclude, isample->fName)<0 ) ){
+                        isample->AddSystematic(mySys);
                     }
                 }
 
@@ -4696,19 +4691,18 @@ int ConfigReader::SetSystRegionDecorelate(ConfigSet *confSet,
                 TRExFitter::SYSTMAP[mySys->fName] = mySys->fTitle;
             }
             //
-            for(int i_smp=0;i_smp<fFitter->fNSamples;i_smp++){
-                sam = fFitter->fSamples[i_smp];
+            for(auto& isample : fFitter->fSamples) {
                 // in principle, no syst on DATA, except if this syst has SubtractRefSampleVar: TRUE and this data sample is the ReferenceSample of that syst
-                if(sam->fType == Sample::DATA){
-                    if (sys->fSubtractRefSampleVar && sys->fReferenceSample == sam->fName) {
-                        sam->AddSystematic(mySys);
+                if(isample->fType == Sample::DATA){
+                    if (sys->fSubtractRefSampleVar && sys->fReferenceSample == isample->fName) {
+                        isample->AddSystematic(mySys);
                     }
                     else continue;
                 }
-                if(!sam->fUseSystematics) continue;
-                if(   (samples[0]=="all" || Common::FindInStringVector(samples, sam->fName)>=0 )
-                    && (exclude[0]==""    || Common::FindInStringVector(exclude, sam->fName)<0 ) ){
-                    sam->AddSystematic(mySys);
+                if(!isample->fUseSystematics) continue;
+                if(   (samples[0]=="all" || Common::FindInStringVector(samples, isample->fName)>=0 )
+                    && (exclude[0]==""    || Common::FindInStringVector(exclude, isample->fName)<0 ) ){
+                    isample->AddSystematic(mySys);
                 }
             }
             FixReferenceSamples(mySys);
@@ -4721,41 +4715,39 @@ int ConfigReader::SetSystRegionDecorelate(ConfigSet *confSet,
 //__________________________________________________________________________________
 //
 int ConfigReader::SetSystSampleDecorelate(ConfigSet *confSet, std::shared_ptr<Systematic> sys, const std::vector<std::string> &samples, const std::vector<std::string> &exclude){
-    std::shared_ptr<Sample> sam = nullptr;
     std::string param = "";
 
     // (this is really messy)
-    for(int i_smp=0;i_smp<fFitter->fNSamples;i_smp++){
-        sam = fFitter->fSamples[i_smp];
+    for(auto& isam : fFitter->fSamples) {
         // in principle, no syst on DATA, except if this syst has SubtractRefSampleVar: TRUE and this data sample is the ReferenceSample of that syst
-        if(sam->fType == Sample::DATA){
-          if (sys->fSubtractRefSampleVar && sys->fReferenceSample == sam->fName) {
-            sam->AddSystematic(sys);
+        if(isam->fType == Sample::DATA){
+          if (sys->fSubtractRefSampleVar && sys->fReferenceSample == isam->fName) {
+            isam->AddSystematic(sys);
           }
           else continue;
         }
-        if(sam->fType == Sample::GHOST) continue;
+        if(isam->fType == Sample::GHOST) continue;
         bool keepSam=false;
         if ( samples[0]=="all" ) keepSam=true;
         else {
-            if ( find(samples.begin(), samples.end(), sam->fName)!=samples.end() ) keepSam=true;
+            if ( std::find(samples.begin(), samples.end(), isam->fName)!=samples.end() ) keepSam=true;
         }
-        if ( find(exclude.begin(), exclude.end(), sam->fName)!=exclude.end() ) keepSam=false;
+        if ( find(exclude.begin(), exclude.end(), isam->fName)!=exclude.end() ) keepSam=false;
         if (!keepSam) {
-            WriteInfoStatus("ConfigReader::SetSystSampleDecorelate", " IGNORING SAMPLE: " + sam->fName);
+            WriteInfoStatus("ConfigReader::SetSystSampleDecorelate", " IGNORING SAMPLE: " + isam->fName);
             continue;
         }
-        WriteInfoStatus("ConfigReader::SetSystSampleDecorelate", " --> KEEPING SAMPLE: " + sam->fName);
+        WriteInfoStatus("ConfigReader::SetSystSampleDecorelate", " --> KEEPING SAMPLE: " + isam->fName);
         //
         // cloning the sys for each sample
         std::shared_ptr<Systematic> mySys = std::make_shared<Systematic>(*sys);
-        mySys->fName=(mySys->fName)+"_"+sam->fName;
+        mySys->fName=(mySys->fName)+"_"+isam->fName;
         fFitter->fSystematics.emplace_back( mySys );
 
         // Set NuisanceParameter
         param = confSet->Get("NuisanceParameter");
         if(param != ""){
-            mySys->fNuisanceParameter = (sys->fNuisanceParameter)+"_"+sam->fName;
+            mySys->fNuisanceParameter = (sys->fNuisanceParameter)+"_"+isam->fName;
             TRExFitter::NPMAP[mySys->fName] = mySys->fNuisanceParameter;
         }
         else{
@@ -4768,13 +4760,13 @@ int ConfigReader::SetSystSampleDecorelate(ConfigSet *confSet, std::shared_ptr<Sy
         // Set Title
         param = confSet->Get("Title");
         if(param != ""){
-            mySys->fTitle = RemoveQuotes(param)+" "+sam->fTitle;
+            mySys->fTitle = RemoveQuotes(param)+" "+isam->fTitle;
             TRExFitter::SYSTMAP[mySys->fName] = mySys->fTitle;
         }
 
         // Add sample/syst cross-reference
-        sam->AddSystematic(mySys);
-        mySys->fSamples = { sam->fName };
+        isam->AddSystematic(mySys);
+        mySys->fSamples = { isam->fName };
 
         FixReferenceSamples(mySys);
     }
@@ -4815,19 +4807,18 @@ int ConfigReader::SetSystShapeDecorelate(ConfigSet *confSet, std::shared_ptr<Sys
         TRExFitter::SYSTMAP[mySys1->fName] = mySys1->fTitle;
     }
 
-    for(int i_smp=0;i_smp<fFitter->fNSamples;i_smp++){
-        sam = fFitter->fSamples[i_smp];
+    for(auto& isam : fFitter->fSamples) {
         // in principle, no syst on DATA, except if this syst has SubtractRefSampleVar: TRUE and this data sample is the ReferenceSample of that syst
-        if(sam->fType == Sample::DATA){
-            if (sys->fSubtractRefSampleVar && sys->fReferenceSample == sam->fName) {
-                sam->AddSystematic(mySys1);
+        if(isam->fType == Sample::DATA){
+            if (sys->fSubtractRefSampleVar && sys->fReferenceSample == isam->fName) {
+                isam->AddSystematic(mySys1);
             }
             else continue;
         }
-        if(!sam->fUseSystematics) continue;
-        if(   (samples[0]=="all" || Common::FindInStringVector(samples, sam->fName)>=0 )
-           && (exclude[0]==""    || Common::FindInStringVector(exclude, sam->fName)<0 ) ){
-            sam->AddSystematic(mySys1);
+        if(!isam->fUseSystematics) continue;
+        if(   (samples[0]=="all" || Common::FindInStringVector(samples, isam->fName)>=0 )
+           && (exclude[0]==""    || Common::FindInStringVector(exclude, isam->fName)<0 ) ){
+            isam->AddSystematic(mySys1);
         }
     }
     FixReferenceSamples(mySys1);
@@ -4861,13 +4852,12 @@ int ConfigReader::SetSystShapeDecorelate(ConfigSet *confSet, std::shared_ptr<Sys
             TRExFitter::SYSTMAP[mySys2->fName] = mySys2->fTitle;
         }
 
-        for(int i_smp=0;i_smp<fFitter->fNSamples;i_smp++){
-            sam = fFitter->fSamples[i_smp];
-            if(sam->fType == Sample::DATA) continue;
-            if(!sam->fUseSystematics) continue;
-            if(   (samples[0]=="all" || Common::FindInStringVector(samples, sam->fName)>=0 )
-               && (exclude[0]==""    || Common::FindInStringVector(exclude, sam->fName)<0 ) ){
-                sam->AddSystematic(mySys2);
+        for(auto& isam : fFitter->fSamples) {
+            if(isam->fType == Sample::DATA) continue;
+            if(!isam->fUseSystematics) continue;
+            if(   (samples[0]=="all" || Common::FindInStringVector(samples, isam->fName)>=0 )
+               && (exclude[0]==""    || Common::FindInStringVector(exclude, isam->fName)<0 ) ){
+                isam->AddSystematic(mySys2);
             }
         }
         FixReferenceSamples(mySys2);
@@ -6621,7 +6611,6 @@ int ConfigReader::ProcessUnfoldingSamples() {
             // Convert the UnfoldingSample to sample and adjust the paths
             const std::vector<std::shared_ptr<Sample> > samples = isample->ConvertToSample(ireg, fFitter->fNumberUnfoldingTruthBins, fFitter->fName);
             fFitter->fSamples.insert(fFitter->fSamples.end(), samples.begin(), samples.end());
-            fFitter->fNSamples += fFitter->fNumberUnfoldingTruthBins;
         }
 
         // add custom asimov sample
@@ -6633,7 +6622,6 @@ int ConfigReader::ProcessUnfoldingSamples() {
             const std::string histoName = ireg->fName + "_AlternativeAsimov";
             sample->fHistoNames = Common::ToVec(histoName);
             fFitter->fSamples.emplace_back(std::move(sample));
-            ++fFitter->fNSamples;
         }
     }
 

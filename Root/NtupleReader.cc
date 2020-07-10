@@ -42,7 +42,7 @@ void NtupleReader::ReadNtuples(){
     //
     // Loop on regions
     //
-    for(int i_ch=0;i_ch<fFitter->fNRegions;i_ch++){
+    for(std::size_t i_ch = 0; i_ch < fFitter->fRegions.size(); ++i_ch) {
         WriteInfoStatus("NtupleReader::ReadNtuples", "  Region region " + fFitter->fRegions[i_ch]->fName + " ...");
         //
         if(TRExFitter::SPLITHISTOFILES) fFitter->fFiles[i_ch]->cd();
@@ -63,7 +63,7 @@ void NtupleReader::ReadNtuples(){
         //
         // Loop on samples
         //
-        for(int i_smp=0;i_smp<fFitter->fNSamples;i_smp++){
+        for(std::size_t i_smp = 0; i_smp < fFitter->fSamples.size(); ++i_smp) {
             WriteInfoStatus("NtupleReader::ReadNtuples","    Reading sample " + fFitter->fSamples[i_smp]->fName);
             //
             // eventually skip sample / region combination
@@ -447,7 +447,7 @@ void NtupleReader::DefineVariable(int regIter){
     std::vector<std::string> fullPaths;
 
     // copy of NtupleReading function.
-    for(int i_smp=0;i_smp<fFitter->fNSamples;i_smp++){
+    for(std::size_t i_smp = 0; i_smp < fFitter->fSamples.size(); ++i_smp) {
         WriteDebugStatus("NtupleReader::DefineVariable", "Processing sample : " + fFitter->fSamples[i_smp]->fName);
         if(fFitter->fSamples[i_smp]->fType==Sample::DATA) continue;
         if(Common::FindInStringVector(fFitter->fSamples[i_smp]->fRegions,fFitter->fRegions[regIter]->fName)<0 ) continue;

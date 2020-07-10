@@ -389,13 +389,13 @@ void FitExample(std::string opt="h",std::string configFile="config/myFit.config"
             }
             myFit->PrintSystTables();
         }
-        int nCols = 2;
-        int nRows = 2;
-        if(myFit->fNRegions>4){
-            nCols = (int)sqrt(myFit->fNRegions);
-            if(sqrt(myFit->fNRegions)>nCols) nCols++;
-            nRows = (int)sqrt(myFit->fNRegions);
-            if(nCols*nRows < myFit->fNRegions) nRows++;
+        std::size_t nCols = 2;
+        std::size_t nRows = 2;
+        if(myFit->fRegions.size() > 4){
+            nCols = static_cast<int>(std::sqrt(myFit->fRegions.size()));
+            if(std::sqrt(myFit->fRegions.size()) > nCols) nCols++;
+            nRows = static_cast<int>(std::sqrt(myFit->fRegions.size()));
+            if(nCols*nRows < myFit->fRegions.size()) nRows++;
         }
         if(myFit->fDoSignalRegionsPlot) myFit->DrawSignalRegionsPlot(nCols,nRows);
         if(myFit->fDoPieChartPlot)      myFit->DrawPieChartPlot("pre",nCols,nRows);
@@ -422,15 +422,15 @@ void FitExample(std::string opt="h",std::string configFile="config/myFit.config"
             }
             myFit->PrintSystTables("post");
         }
-        int nCols = 2;
-        int nRows = 2;
-        if(myFit->fNRegions>4){
-            nCols = (int)sqrt(myFit->fNRegions);
-            if(sqrt(myFit->fNRegions)>nCols) nCols++;
-            nRows = (int)sqrt(myFit->fNRegions);
-            if(nCols*nRows < myFit->fNRegions) nRows++;
+        std::size_t nCols = 2;
+        std::size_t nRows = 2;
+        if(myFit->fRegions.size() > 4){
+            nCols = static_cast<int>(std::sqrt(myFit->fRegions.size()));
+            if(std::sqrt(myFit->fRegions.size()) > nCols) nCols++;
+            nRows = static_cast<int>(std::sqrt(myFit->fRegions.size()));
+            if(nCols*nRows < myFit->fRegions.size()) nRows++;
         }
-        if(myFit->fDoPieChartPlot)      myFit->DrawPieChartPlot("post",nCols,nRows);
+        if(myFit->fDoPieChartPlot) myFit->DrawPieChartPlot("post",nCols,nRows);
     }
 
     if(drawSeparation){
