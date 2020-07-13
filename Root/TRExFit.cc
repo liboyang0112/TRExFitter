@@ -3502,11 +3502,11 @@ RooStats::HistFactory::Sample TRExFit::OneSampleToRooStats(RooStats::HistFactory
             }
         }
     }
-    // systematics
-    if(fStatOnly) {
-        sample.AddOverallSys( "Dummy",1,1 );
+
+    if (fStatOnly) {
         return sample;
     }
+    // systematics
     for(std::size_t i_syst = 0; i_syst < h->fSyst.size(); ++i_syst) {
         // add normalization part
         WriteDebugStatus("TRExFit::OneSampleToRooStats", "    Adding Systematic: " + h->fSyst[i_syst]->fName);
@@ -4113,7 +4113,9 @@ void TRExFit::Fit(bool isLHscanOnly){
         // nominal fit on Asimov
         RooStats::ModelConfig *mc = (RooStats::ModelConfig*)ws -> obj("ModelConfig");
         ws->saveSnapshot("InitialStateModelGlob",   *mc->GetGlobalObservables());
-        ws->saveSnapshot("InitialStateModelNuis",   *mc->GetNuisanceParameters());
+        if (mc->GetNuisanceParameters()) {
+            ws->saveSnapshot("InitialStateModelNuis",   *mc->GetNuisanceParameters());
+        }
         WriteInfoStatus("TRExFit::Fit","Fitting nominal Asimov...");
         data = std::unique_ptr<RooDataSet>(DumpData( ws.get(), regionDataType, fFitNPValues, fFitPOIAsimov ));
         npValues = PerformFit( ws.get(), data.get(), fFitType, false, TRExFitter::DEBUGLEVEL<2 ? 0 : TRExFitter::DEBUGLEVEL);
@@ -4166,7 +4168,9 @@ void TRExFit::Fit(bool isLHscanOnly){
                     data = std::unique_ptr<RooDataSet>(DumpData( ws.get(), regionDataType, npVal, fFitPOIAsimov ));
                     npVal[gammaName] = 1;
                     ws->loadSnapshot("InitialStateModelGlob");
-                    ws->loadSnapshot("InitialStateModelNuis");
+                    if (mc->GetNuisanceParameters()) {
+                        ws->loadSnapshot("InitialStateModelNuis");
+                    }
                     npValues = PerformFit( ws.get(), data.get(), fFitType, false, TRExFitter::DEBUGLEVEL<2 ? 0 : TRExFitter::DEBUGLEVEL);
                     MCstatUp = std::hypot(MCstatUp, (npValues[fPOIs[0]]-nominalPOIval));
                     // down
@@ -4176,7 +4180,9 @@ void TRExFit::Fit(bool isLHscanOnly){
                     data = std::unique_ptr<RooDataSet>(DumpData( ws.get(), regionDataType, npVal, fFitPOIAsimov ));
                     npVal[gammaName] = 1;
                     ws->loadSnapshot("InitialStateModelGlob");
-                    ws->loadSnapshot("InitialStateModelNuis");
+                    if (mc->GetNuisanceParameters()) {
+                        ws->loadSnapshot("InitialStateModelNuis");
+                    }
                     npValues = PerformFit( ws.get(), data.get(), fFitType, false, TRExFitter::DEBUGLEVEL<2 ? 0 : TRExFitter::DEBUGLEVEL);
                     MCstatDo = -std::hypot(MCstatDo,(npValues[fPOIs[0]]-nominalPOIval));
                 }
@@ -4220,7 +4226,9 @@ void TRExFit::Fit(bool isLHscanOnly){
                         data = std::unique_ptr<RooDataSet>(DumpData( ws.get(), regionDataType, npVal, fFitPOIAsimov ));
                         npVal[gammaName] = 1;
                         ws->loadSnapshot("InitialStateModelGlob");
-                        ws->loadSnapshot("InitialStateModelNuis");
+                        if (mc->GetNuisanceParameters()) {
+                            ws->loadSnapshot("InitialStateModelNuis");
+                        }
                         npValues = PerformFit( ws.get(), data.get(), fFitType, false, TRExFitter::DEBUGLEVEL<2 ? 0 : TRExFitter::DEBUGLEVEL);
                         MCstatUpSample[sh->fSample->fName] = std::hypot(MCstatUpSample[sh->fSample->fName], (npValues[fPOIs[0]]-nominalPOIval));
                         npVal = fFitNPValues;
@@ -4229,7 +4237,9 @@ void TRExFit::Fit(bool isLHscanOnly){
                         data = std::unique_ptr<RooDataSet>(DumpData( ws.get(), regionDataType, npVal, fFitPOIAsimov ));
                         npVal[gammaName] = 1;
                         ws->loadSnapshot("InitialStateModelGlob");
-                        ws->loadSnapshot("InitialStateModelNuis");
+                        if (mc->GetNuisanceParameters()) {
+                            ws->loadSnapshot("InitialStateModelNuis");
+                        }
                         npValues = PerformFit( ws.get(), data.get(), fFitType, false, TRExFitter::DEBUGLEVEL<2 ? 0 : TRExFitter::DEBUGLEVEL);
                         MCstatDoSample[sh->fSample->fName] = -std::hypot(MCstatDoSample[sh->fSample->fName],(npValues[fPOIs[0]]-nominalPOIval));
                         smpTexTitle[sh->fSample->fName] = sh->fSample->fTexTitle;
@@ -4247,7 +4257,9 @@ void TRExFit::Fit(bool isLHscanOnly){
                 for(int ud=0;ud<2;ud++){
                     //Be sure to take the initial values of the NP
                     ws->loadSnapshot("InitialStateModelGlob");
-                    ws->loadSnapshot("InitialStateModelNuis");
+                    if (mc->GetNuisanceParameters()) {
+                        ws->loadSnapshot("InitialStateModelNuis");
+                    }
                     // - create Asimov with that NP fixed to +/-1sigma
                     std::map < std::string, double > npVal;
                     npVal = fFitNPValues;
@@ -4487,7 +4499,7 @@ RooDataSet* TRExFit::DumpData( RooWorkspace *ws,  std::map < std::string, int > 
     //Save the initial values of the NP
     ws->saveSnapshot("InitialStateModelGlob",   *mc->GetGlobalObservables());
     if (!(fStatOnly && fFitIsBlind)){
-        ws->saveSnapshot("InitialStateModelNuis",   *mc->GetNuisanceParameters());
+        if (mc->GetNuisanceParameters()) ws->saveSnapshot("InitialStateModelNuis",   *mc->GetNuisanceParameters());
     }
 
     //Be sure to take the initial values of the NP
@@ -4535,12 +4547,14 @@ RooDataSet* TRExFit::DumpData( RooWorkspace *ws,  std::map < std::string, int > 
     }
 
     //-- Nuisance parameters
-    RooRealVar* var(nullptr);
-    std::unique_ptr<TIterator> npIterator(mc->GetNuisanceParameters()->createIterator());
-    while( (var = static_cast<RooRealVar*>(npIterator->Next()))) {
-        std::map < std::string, double >::const_iterator it_npValue = npValues.find( var -> GetName() );
-        if( it_npValue != npValues.end() ){
-            var -> setVal(it_npValue -> second);
+    if (mc->GetNuisanceParameters()) {
+        RooRealVar* var(nullptr);
+        std::unique_ptr<TIterator> npIterator(mc->GetNuisanceParameters()->createIterator());
+        while( (var = static_cast<RooRealVar*>(npIterator->Next()))) {
+            std::map < std::string, double >::const_iterator it_npValue = npValues.find( var -> GetName() );
+            if( it_npValue != npValues.end() ){
+                var -> setVal(it_npValue -> second);
+            }
         }
     }
 
@@ -4749,7 +4763,7 @@ std::map < std::string, double > TRExFit::PerformFit( RooWorkspace *ws, RooDataS
 
     // save snapshot before fit
     ws->saveSnapshot("snapshot_BeforeFit_POI", *(mc->GetParametersOfInterest()) );
-    ws->saveSnapshot("snapshot_BeforeFit_NP" , *(mc->GetNuisanceParameters())   );
+    if (mc->GetNuisanceParameters()) ws->saveSnapshot("snapshot_BeforeFit_NP" , *(mc->GetNuisanceParameters())   );
     ws->saveSnapshot("snapshot_BeforeFit_GO" , *(mc->GetGlobalObservables())    );
 
     //
@@ -4760,7 +4774,7 @@ std::map < std::string, double > TRExFit::PerformFit( RooWorkspace *ws, RooDataS
 
     // save snapshot after fit
     ws->saveSnapshot("snapshot_AfterFit_POI", *(mc->GetParametersOfInterest()) );
-    ws->saveSnapshot("snapshot_AfterFit_NP" , *(mc->GetNuisanceParameters())   );
+    if (mc->GetNuisanceParameters()) ws->saveSnapshot("snapshot_AfterFit_NP" , *(mc->GetNuisanceParameters())   );
     ws->saveSnapshot("snapshot_AfterFit_GO" , *(mc->GetGlobalObservables())    );
 
     //
@@ -4804,7 +4818,9 @@ std::map < std::string, double > TRExFit::PerformFit( RooWorkspace *ws, RooDataS
     if(fSaturatedModel && fGetGoodnessOfFit && !fDoGroupedSystImpactTable){
         ws->loadSnapshot("snapshot_BeforeFit_POI");
         ws->loadSnapshot("snapshot_BeforeFit_GO");
-        ws->loadSnapshot("snapshot_BeforeFit_NP");
+        if (mc->GetNuisanceParameters()) {
+            ws->loadSnapshot("snapshot_BeforeFit_NP");
+        }
         //
         // perform fit to saturated model and store resulting nll as nll0
         nll0 = fitTool.FitPDF( mc, simPdf, data, false, false, true );
@@ -4837,7 +4853,9 @@ std::map < std::string, double > TRExFit::PerformFit( RooWorkspace *ws, RooDataS
     if(fSaturatedModel && fGetGoodnessOfFit && !fDoGroupedSystImpactTable){
         ws->loadSnapshot("snapshot_AfterFit_POI");
         ws->loadSnapshot("snapshot_AfterFit_GO");
-        ws->loadSnapshot("snapshot_AfterFit_NP");
+        if (mc->GetNuisanceParameters()) {
+            ws->loadSnapshot("snapshot_AfterFit_NP");
+        }
     }
 
     //
@@ -7020,13 +7038,24 @@ void TRExFit::RunToys(){
 
 
         const RooArgSet* glbObs = mc.GetGlobalObservables();
-        std::unique_ptr<RooAbsReal> nll(simPdf.createNLL(*dummy,
-                                                         RooFit::Constrain(*mc.GetNuisanceParameters()),
-                                                         RooFit::GlobalObservables(*glbObs),
-                                                         RooFit::Offset(1),
-                                                         RooFit::NumCPU(fCPU, RooFit::Hybrid),
-                                                         RooFit::Optimize(kTRUE),
-                                                         RooFit::ExternalConstraints(*externalConstraints)));
+        std::unique_ptr<RooAbsReal> nll(nullptr);
+        
+        if (mc.GetNuisanceParameters()) {
+             nll.reset(simPdf.createNLL(*dummy,
+                                         RooFit::Constrain(*mc.GetNuisanceParameters()),
+                                         RooFit::GlobalObservables(*glbObs),
+                                         RooFit::Offset(1),
+                                         RooFit::NumCPU(fCPU, RooFit::Hybrid),
+                                         RooFit::Optimize(kTRUE),
+                                         RooFit::ExternalConstraints(*externalConstraints)));
+        } else {
+             nll.reset(simPdf.createNLL(*dummy,
+                                         RooFit::GlobalObservables(*glbObs),
+                                         RooFit::Offset(1),
+                                         RooFit::NumCPU(fCPU, RooFit::Hybrid),
+                                         RooFit::Optimize(kTRUE),
+                                         RooFit::ExternalConstraints(*externalConstraints)));
+        }
 
         auto isUnfolding = [&](std::size_t index) {
             if (fNormFactors.at(index)->fName.find("Bin_") != std::string::npos) {
@@ -7980,7 +8009,6 @@ void TRExFit::PrepareUnfolding() {
             // Process systematics
             for (const auto& isyst : fUnfoldingSystematics) {
                 if (!isyst) continue;
-                if (isyst->GetName() == "Dummy") continue; // wtf?
 
                 if(isyst->fRegions.at(0) != "all" &&
                      Common::FindInStringVector(isyst->fRegions, ireg->fName) < 0) continue;

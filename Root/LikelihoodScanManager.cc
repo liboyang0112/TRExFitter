@@ -94,13 +94,15 @@ LikelihoodScanManager::scanResult1D LikelihoodScanManager::Run1DScan(const RooWo
     }
 
     if (!found) {
-        std::unique_ptr<TIterator> it(mc->GetNuisanceParameters()->createIterator());
-        while( (var = static_cast<RooRealVar*>(it->Next()))){
-            const std::string vname = var->GetName();
-            if (vname == varName || vname == "alpha_"+varName) {
-                WriteInfoStatus("LikelihoodScanManager::Run1DScan", "GetLikelihoodScan for NP = " + vname);
-                found=true;
-                break;
+        if (mc->GetNuisanceParameters()) {
+            std::unique_ptr<TIterator> it(mc->GetNuisanceParameters()->createIterator());
+            while( (var = static_cast<RooRealVar*>(it->Next()))){
+                const std::string vname = var->GetName();
+                if (vname == varName || vname == "alpha_"+varName) {
+                    WriteInfoStatus("LikelihoodScanManager::Run1DScan", "GetLikelihoodScan for NP = " + vname);
+                    found=true;
+                    break;
+                }
             }
         }
     }
@@ -122,11 +124,19 @@ LikelihoodScanManager::scanResult1D LikelihoodScanManager::Run1DScan(const RooWo
     result.first.resize(fStepsX);
     result.second.resize(fStepsX);
 
-    std::unique_ptr<RooAbsReal> nll(simPdf->createNLL(*data,
-                                                      RooFit::Constrain(*mc->GetNuisanceParameters()),
-                                                      RooFit::Offset(fUseOffset),
-                                                      NumCPU(fCPU, RooFit::Hybrid),
-                                                      RooFit::Optimize(kTRUE)));
+    std::unique_ptr<RooAbsReal> nll(nullptr);
+    if (mc->GetNuisanceParameters()) {
+        nll.reset(simPdf->createNLL(*data,
+                                    RooFit::Constrain(*mc->GetNuisanceParameters()),
+                                    RooFit::Offset(fUseOffset),
+                                    NumCPU(fCPU, RooFit::Hybrid),
+                                    RooFit::Optimize(kTRUE)));
+    } else {
+        nll.reset(simPdf->createNLL(*data,
+                                    RooFit::Offset(fUseOffset),
+                                    NumCPU(fCPU, RooFit::Hybrid),
+                                    RooFit::Optimize(kTRUE)));
+    }
     
     ROOT::Math::MinimizerOptions::SetDefaultMinimizer("Minuit2");
     ROOT::Math::MinimizerOptions::SetDefaultStrategy(1);
@@ -188,7 +198,7 @@ LikelihoodScanManager::Result2D LikelihoodScanManager::Run2DScan(const RooWorksp
     int count = 0;
     RooRealVar* varX = nullptr;
     RooRealVar* varY = nullptr;
-    {
+    if (mc->GetNuisanceParameters()) {
         std::unique_ptr<TIterator> it(mc->GetNuisanceParameters()->createIterator());
         RooRealVar* var_tmp(nullptr);
         while ( (var_tmp = static_cast<RooRealVar*>(it->Next())) ){
@@ -247,11 +257,19 @@ LikelihoodScanManager::Result2D LikelihoodScanManager::Run2DScan(const RooWorksp
         maxValY = fScanMaxY;
     }
     
-    std::unique_ptr<RooAbsReal> nll(simPdf->createNLL(*data,
-                                                      RooFit::Constrain(*mc->GetNuisanceParameters()),
-                                                      RooFit::Offset(fUseOffset),
-                                                      NumCPU(fCPU, RooFit::Hybrid),
-                                                      RooFit::Optimize(kTRUE)));
+    std::unique_ptr<RooAbsReal> nll(nullptr);
+    if (mc->GetNuisanceParameters()) {
+        nll.reset(simPdf->createNLL(*data,
+                                    RooFit::Constrain(*mc->GetNuisanceParameters()),
+                                    RooFit::Offset(fUseOffset),
+                                    NumCPU(fCPU, RooFit::Hybrid),
+                                    RooFit::Optimize(kTRUE)));
+    } else {
+        nll.reset(simPdf->createNLL(*data,
+                                    RooFit::Offset(fUseOffset),
+                                    NumCPU(fCPU, RooFit::Hybrid),
+                                    RooFit::Optimize(kTRUE)));
+    }
     
     ROOT::Math::MinimizerOptions::SetDefaultMinimizer("Minuit2");
     ROOT::Math::MinimizerOptions::SetDefaultStrategy(1);

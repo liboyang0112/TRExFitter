@@ -331,37 +331,38 @@ double FittingTool::FitPDF( RooStats::ModelConfig* model, RooAbsPdf* fitpdf, Roo
     }
 
     if(m_useMinos){
-        std::unique_ptr<TIterator> it3(model->GetNuisanceParameters()->createIterator());
-        std::unique_ptr<TIterator> it4(model->GetParametersOfInterest()->createIterator());
-        std::unique_ptr<RooArgSet> SliceNPs(new RooArgSet( *(model->GetNuisanceParameters()) ));
-        SliceNPs->add(*(model->GetParametersOfInterest()));
-        RooRealVar* var_tmp = nullptr;
-        RooRealVar* var2 = nullptr;
-        WriteDebugStatus("FittingTool::FitPDF", "Size of variables for MINOS: " + std::to_string(m_varMinos.size()));
+        if (model->GetNuisanceParameters()) {
+            std::unique_ptr<TIterator> it3(model->GetNuisanceParameters()->createIterator());
+            std::unique_ptr<TIterator> it4(model->GetParametersOfInterest()->createIterator());
+            std::unique_ptr<RooArgSet> SliceNPs(new RooArgSet( *(model->GetNuisanceParameters()) ));
+            SliceNPs->add(*(model->GetParametersOfInterest()));
+            RooRealVar* var_tmp = nullptr;
+            RooRealVar* var2 = nullptr;
+            WriteDebugStatus("FittingTool::FitPDF", "Size of variables for MINOS: " + std::to_string(m_varMinos.size()));
 
-        if (m_varMinos.at(0)!="all"){
-            while( (var_tmp = static_cast<RooRealVar*>(it3->Next())) ){
-                TString vname=var_tmp->GetName();
-                bool isthere=false;
-                for (unsigned int m=0;m<m_varMinos.size();++m){
-                    if(vname.Contains(m_varMinos.at(m))) {isthere=true; break;}
+            if (m_varMinos.at(0)!="all"){
+                while( (var_tmp = static_cast<RooRealVar*>(it3->Next())) ){
+                    TString vname=var_tmp->GetName();
+                    bool isthere=false;
+                    for (unsigned int m=0;m<m_varMinos.size();++m){
+                        if(vname.Contains(m_varMinos.at(m))) {isthere=true; break;}
+                    }
+                    if (!isthere) SliceNPs->remove(*var_tmp, true, true);
                 }
-                if (!isthere) SliceNPs->remove(*var_tmp, true, true);
-            }
-            while( (var2 = static_cast<RooRealVar*>(it4->Next())) ){
-                TString vname=var2->GetName();
-                bool isthere=false;
-                for (unsigned int m=0;m<m_varMinos.size();++m){
-                    if(vname.Contains(m_varMinos.at(m))) {isthere=true; break;}
+                while( (var2 = static_cast<RooRealVar*>(it4->Next())) ){
+                    TString vname=var2->GetName();
+                    bool isthere=false;
+                    for (unsigned int m=0;m<m_varMinos.size();++m){
+                        if(vname.Contains(m_varMinos.at(m))) {isthere=true; break;}
+                    }
+                    if (!isthere) SliceNPs->remove(*var2, true, true);
                 }
-                if (!isthere) SliceNPs->remove(*var2, true, true);
+                minim.minos(*SliceNPs);
             }
-            minim.minos(*SliceNPs);
+            else {
+                minim.minos();
+            }
         }
-        else {
-            minim.minos();
-        }
-
     }//end useMinos
 
     r.reset(minim.save());
@@ -546,7 +547,7 @@ int FittingTool::GetGroupedImpact( RooStats::ModelConfig* model, RooAbsPdf* fitp
 
     // save snapshot of original workspace
     ws->saveSnapshot("snapshot_AfterFit_POI", *(model->GetParametersOfInterest()) );
-    ws->saveSnapshot("snapshot_AfterFit_NP" , *(model->GetNuisanceParameters())   );
+    if (model->GetNuisanceParameters()) ws->saveSnapshot("snapshot_AfterFit_NP" , *(model->GetNuisanceParameters())   );
     ws->saveSnapshot("snapshot_AfterFit_GO" , *(model->GetGlobalObservables())    );
 
     std::vector<std::string> associatedParams; // parameters associated to a SubCategory
@@ -559,7 +560,7 @@ int FittingTool::GetGroupedImpact( RooStats::ModelConfig* model, RooAbsPdf* fitp
     // eventually do it once more
     if(TRExFitter::OPTION["GroupedImpactMoreFit"]>0){
         ws->saveSnapshot("snapshot_AfterFit_POI", *(model->GetParametersOfInterest()) );
-        ws->saveSnapshot("snapshot_AfterFit_NP" , *(model->GetNuisanceParameters())   );
+        if (model->GetNuisanceParameters()) ws->saveSnapshot("snapshot_AfterFit_NP" , *(model->GetNuisanceParameters())   );
         ws->saveSnapshot("snapshot_AfterFit_GO" , *(model->GetGlobalObservables())    );
         FitExcludingGroup(false, false, fitdata, fitpdf, constrainedParams, model, ws, "Nominal", associatedParams);  // nothing held constant -> "snapshot_AfterFit_POI_Nominal"
     }
@@ -599,7 +600,9 @@ int FittingTool::GetGroupedImpact( RooStats::ModelConfig* model, RooAbsPdf* fitp
     // load original workspace again
     ws->loadSnapshot("snapshot_AfterFit_GO");
     ws->loadSnapshot("snapshot_AfterFit_POI");
-    ws->loadSnapshot("snapshot_AfterFit_NP");
+    if (model->GetNuisanceParameters()) {
+        ws->loadSnapshot("snapshot_AfterFit_NP");
+    }
 
     WriteInfoStatus("FittingTool::GetGroupedImpact","-----------------------------------------------------");
 
@@ -638,7 +641,9 @@ int FittingTool::GetGroupedImpact( RooStats::ModelConfig* model, RooAbsPdf* fitp
     // load original workspace again
     ws->loadSnapshot("snapshot_AfterFit_GO");
     ws->loadSnapshot("snapshot_AfterFit_POI");
-    ws->loadSnapshot("snapshot_AfterFit_NP");
+    if (model->GetNuisanceParameters()) {
+        ws->loadSnapshot("snapshot_AfterFit_NP");
+    }
 
     return 0;
 }
@@ -650,6 +655,7 @@ int FittingTool::GetGroupedImpact( RooStats::ModelConfig* model, RooAbsPdf* fitp
 void FittingTool::FitExcludingGroup(bool excludeGammas, bool statOnly, RooAbsData*& fitdata, RooAbsPdf*& fitpdf, RooArgSet*& constrainedParams,
                                     RooStats::ModelConfig* mc, RooWorkspace* ws, const std::string& category, const std::vector<std::string>& affectedParams) const {
 
+    if (!mc->GetNuisanceParameters()) return;
     // (VD): use this to fix nuisance parameter before the fit
     const RooArgSet* glbObs = mc->GetGlobalObservables();
     ws->loadSnapshot("snapshot_AfterFit_GO");

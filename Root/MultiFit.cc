@@ -436,7 +436,7 @@ std::map < std::string, double > MultiFit::FitCombinedWS(int fitType, const std:
     
     // save snapshot before fit
     ws->saveSnapshot("snapshot_BeforeFit_POI", *(mc->GetParametersOfInterest()) );
-    ws->saveSnapshot("snapshot_BeforeFit_NP" , *(mc->GetNuisanceParameters())   );
+    if (mc->GetNuisanceParameters()) ws->saveSnapshot("snapshot_BeforeFit_NP" , *(mc->GetNuisanceParameters())   );
     ws->saveSnapshot("snapshot_BeforeFit_GO" , *(mc->GetGlobalObservables())    );
     
     double nll0 = 0.;
@@ -444,7 +444,7 @@ std::map < std::string, double > MultiFit::FitCombinedWS(int fitType, const std:
     
     // save snapshot after fit
     ws->saveSnapshot("snapshot_AfterFit_POI", *(mc->GetParametersOfInterest()) );
-    ws->saveSnapshot("snapshot_AfterFit_NP" , *(mc->GetNuisanceParameters())   );
+    if (mc->GetNuisanceParameters()) ws->saveSnapshot("snapshot_AfterFit_NP" , *(mc->GetNuisanceParameters())   );
     ws->saveSnapshot("snapshot_AfterFit_GO" , *(mc->GetGlobalObservables())    );
     
     //
@@ -479,7 +479,7 @@ std::map < std::string, double > MultiFit::FitCombinedWS(int fitType, const std:
     if(fGetGoodnessOfFit) {
         ws->loadSnapshot("snapshot_BeforeFit_POI");
         ws->loadSnapshot("snapshot_BeforeFit_GO");
-        ws->loadSnapshot("snapshot_BeforeFit_NP");
+        if (mc->GetNuisanceParameters()) ws->loadSnapshot("snapshot_BeforeFit_NP");
         
         nll0 = fitTool.FitPDF( mc, simPdf, data, false, false, true);
     }
@@ -504,7 +504,7 @@ std::map < std::string, double > MultiFit::FitCombinedWS(int fitType, const std:
     if (fGetGoodnessOfFit && !fDoGroupedSystImpactTable) {
         ws->loadSnapshot("snapshot_AfterFit_POI");
         ws->loadSnapshot("snapshot_AfterFit_GO");
-        ws->loadSnapshot("snapshot_AfterFit_NP");
+        if (mc->GetNuisanceParameters()) ws->loadSnapshot("snapshot_AfterFit_NP");
     }
 
     //
