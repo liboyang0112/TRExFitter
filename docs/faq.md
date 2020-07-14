@@ -57,3 +57,14 @@
     The algorithms for `TransfoD` and `TransfoF` can be found in [these slides](https://indico.cern.ch/event/455289/contributions/1953694), `TransfoJ` is found in [slides here](https://indico.cern.ch/event/472696/contributions/1992693/). See also [this thesis](https://cds.cern.ch/record/2296985/), section 5.3.1.
     In practice, the `TransfoD` algorithm was found to work well, and a popular setting for the two parameters is to have both equal to the same integer.
     The amount of bins in the distribution is then equal to the sum, i.e. `"AutoBin","TransfoD",4,4` will create a distribution with 8 bins.
+
+
+## Docker image
+
+???+ question "How do I access files on EOS via the TRExFitter image?"
+    You need to install `xrootd`, which is not available by default within the image.
+    See [this question in the RECAST forum](https://atlas-talk.web.cern.ch/t/how-do-i-use-xrootd-with-the-trexfitter-image/104).
+
+???+ question "Where can I learn more about docker?"
+    There are many resources available online.
+    See for example [this tutorial](https://www.docker.com/101-tutorial), the [official documentation](https://docs.docker.com/get-started/), and [an introduction that also uses gitlab CI](https://matthewfeickert.github.io/intro-to-docker/).
