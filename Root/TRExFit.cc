@@ -5046,7 +5046,7 @@ void TRExFit::PlotUnfoldedData() const {
         exit(EXIT_FAILURE);
     }
 
-    std::unique_ptr<TH1D> truth(dynamic_cast<TH1D*>(input->Get("truth_distribution")));
+    std::unique_ptr<TH1> truth(dynamic_cast<TH1*>(input->Get("truth_distribution")));
     if (!truth) {
         WriteErrorStatus("TRExFit::PlotUnfoldedData", "Cannot read the truth distribution");
         exit(EXIT_FAILURE);
