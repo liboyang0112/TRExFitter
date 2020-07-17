@@ -448,7 +448,7 @@ bool SampleHist::HasShapeFactor(const std::string& name) const{
 
 //_____________________________________________________________________________
 //
-void SampleHist::WriteToFile(std::shared_ptr<TFile> f,bool reWriteOrig){
+void SampleHist::WriteToFile(const std::vector<int>& blindedBins, std::shared_ptr<TFile> f,bool reWriteOrig){
     if(f==nullptr){
         if(fHist_orig!=nullptr && reWriteOrig)   Common::WriteHistToFile(fHist_orig.get(), fFileName);
         if(fHist!=nullptr)        Common::WriteHistToFile(fHist.get(), fFileName);
@@ -458,7 +458,7 @@ void SampleHist::WriteToFile(std::shared_ptr<TFile> f,bool reWriteOrig){
         if(fHist!=nullptr)        Common::WriteHistToFile(fHist.get(), f);
     }
     // create the regular binning histogram
-    fHist_regBin = HistoTools::TranformHistogramBinning(fHist.get());
+    fHist_regBin = HistoTools::TranformHistogramBinning(fHist.get(), blindedBins);
     if(fHist_regBin!=nullptr) Common::WriteHistToFile(fHist_regBin.get(),f);
     //
     // save separate gammas as histograms
@@ -503,12 +503,12 @@ void SampleHist::WriteToFile(std::shared_ptr<TFile> f,bool reWriteOrig){
         isyst->fHistDown->SetName( Form("%s_%s_%s_Down",fRegionName.c_str(),fSample->fName.c_str(),isyst->fSystematic->fStoredName.c_str()) );
         isyst->fHistUp_orig  ->SetName( Form("%s_%s_%s_Up_orig",  fRegionName.c_str(),fSample->fName.c_str(),isyst->fSystematic->fStoredName.c_str()) );
         isyst->fHistDown_orig->SetName( Form("%s_%s_%s_Down_orig",fRegionName.c_str(),fSample->fName.c_str(),isyst->fSystematic->fStoredName.c_str()) );
-        if(f==nullptr) isyst->WriteToFile(nullptr,reWriteOrig);
-        else           isyst->WriteToFile(f,      reWriteOrig);
+        if(f==nullptr) isyst->WriteToFile(blindedBins, nullptr,reWriteOrig);
+        else           isyst->WriteToFile(blindedBins, f,      reWriteOrig);
         // for shape hist, save also the syst(up)-nominal (to feed HistFactory)
         if(isyst->fSystematic->fType==Systematic::SHAPE){
             std::unique_ptr<TH1> tmp(static_cast<TH1*>(isyst->fHistUp->Clone(Form("%s_%s_%s_Up_Var",  fRegionName.c_str(),fSample->fName.c_str(),isyst->fSystematic->fStoredName.c_str()))));
-            std::unique_ptr<TH1> hVar = HistoTools::TranformHistogramBinning(tmp.get());
+            std::unique_ptr<TH1> hVar = HistoTools::TranformHistogramBinning(tmp.get(), blindedBins);
             hVar->Add(fHist_regBin.get(),-1);
             hVar->Divide(fHist_regBin.get());
             // no negative bins here!

@@ -651,8 +651,10 @@ void TRExFit::WriteHistos(bool reWriteOrig) const{
                     sh->fSyst[i_syst]->fHistoNameShapeDown = sh->fSyst[i_syst]->fHistShapeDown->GetName();
                 }
             }
-            if(singleOutputFile) sh->WriteToFile(fFiles[0]   ,reWriteOrig);
-            else                 sh->WriteToFile(fFiles[i_ch],reWriteOrig);
+            const std::vector<int>& blindedBins = fRegions[i_ch]->GetAutomaticDropBins() ?
+                    Common::GetBlindedBins(fRegions[i_ch],fBlindingType,fBlindingThreshold) : fRegions[i_ch]->fDropBins;
+            if(singleOutputFile) sh->WriteToFile(blindedBins, fFiles[0]   ,reWriteOrig);
+            else                 sh->WriteToFile(blindedBins, fFiles[i_ch],reWriteOrig);
         }
     }
     WriteInfoStatus("TRExFit::WriteHistos","-------------------------------------------");

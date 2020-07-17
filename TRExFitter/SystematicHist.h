@@ -24,7 +24,7 @@ public:
     SystematicHist& operator=(const SystematicHist& s) = delete;
     SystematicHist& operator=(SystematicHist&& s) = delete;
 
-    void WriteToFile(std::shared_ptr<TFile> f=nullptr,bool reWriteOrig=true) const;
+    void WriteToFile(const std::vector<int>& blindedBins, std::shared_ptr<TFile> f=nullptr,bool reWriteOrig=true) const;
     void ReadFromFile();
     bool IsShape() const;
 
