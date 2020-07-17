@@ -56,7 +56,7 @@ public:
     bool HasNorm(const std::string& name) const;
     bool HasShapeFactor(const std::string& name) const;
 
-    void WriteToFile(std::shared_ptr<TFile> f=nullptr,bool reWriteOrig=true);
+    void WriteToFile(const std::vector<int>& blindedBins, std::shared_ptr<TFile> f=nullptr,bool reWriteOrig=true);
     void ReadFromFile();
 
     void FixEmptyBins(const bool suppress);

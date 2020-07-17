@@ -52,9 +52,10 @@ namespace HistoTools {
     * by creating an histogram with the same number of bins but with constant binning between 0 and 1
     * - now in case some bins are < 0 (due to bin drop functionality), they are ignored for the regBin histos
     * @param Original histogram
+    * @param List of blinded bins
     * @return Trasformed histogram
     */
-    std::unique_ptr<TH1D> TranformHistogramBinning(const TH1* originalHist);
+    std::unique_ptr<TH1D> TranformHistogramBinning(const TH1* originalHist, const std::vector<int>& blindedBins);
 
     /**
      * A helper function to smooth and symmetrize histograms

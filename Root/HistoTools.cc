@@ -39,20 +39,22 @@ using namespace std;
 
 //_________________________________________________________________________
 //
-std::unique_ptr<TH1D> HistoTools::TranformHistogramBinning(const TH1* originalHist){
+std::unique_ptr<TH1D> HistoTools::TranformHistogramBinning(const TH1* originalHist, const std::vector<int>& blindedBins) {
 
-    const unsigned int nBins = originalHist -> GetNbinsX();
-    unsigned int nBinsNew = 0;
-    for(unsigned int iBin = 1; iBin <= nBins; ++iBin){
-        if(originalHist->GetBinContent(iBin)>=0) nBinsNew++;
-    }
-    std::unique_ptr<TH1D> hFinal = std::make_unique<TH1D>(originalHist->GetName()+(TString)"_regBin",originalHist->GetTitle(),nBinsNew,0,1);
-    hFinal -> SetDirectory(nullptr);
-    unsigned int iBinNew = 1;
-    for(unsigned int iBin = 1; iBin <= nBins; ++iBin){
-        if(originalHist->GetBinContent(iBin)<0) continue;
-        hFinal -> SetBinContent(iBinNew,originalHist->GetBinContent(iBin));
-        hFinal -> SetBinError(iBinNew,originalHist->GetBinError(iBin));
+    const int bins = originalHist->GetNbinsX() - blindedBins.size();
+        
+    std::unique_ptr<TH1D> hFinal = std::make_unique<TH1D>(originalHist->GetName()+static_cast<TString>("_regBin"),originalHist->GetTitle(),bins,0,1);
+    hFinal->SetDirectory(nullptr);
+    int iBinNew = 1;
+    for(int iBin = 1; iBin <= originalHist->GetNbinsX(); ++iBin){
+        if (std::find(blindedBins.begin(), blindedBins.end(), iBin) != blindedBins.end()) continue;
+        if (originalHist->GetBinContent(iBin) < 0) {
+            hFinal->SetBinContent(iBinNew,1e-6);
+            hFinal->SetBinError(iBinNew,1e-6);
+        } else {
+            hFinal->SetBinContent(iBinNew,originalHist->GetBinContent(iBin));
+            hFinal->SetBinError(iBinNew,originalHist->GetBinError(iBin));
+        }
         iBinNew++;
     }
 
