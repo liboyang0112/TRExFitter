@@ -133,13 +133,10 @@ public:
 
     void SetBinBlinding(const std::vector<int>& bins);
     
-    const std::vector<int>& GetBlindedBins() const;
-
-    const TH1D* GetBlindingHisto() const;
-    
-    void SetBlindingHisto(const TH1* h);
+    void SetDropBins(const std::vector<int>& bins){fDropBins = bins;}
 
 private:
+    std::vector<int> fDropBins;
     std::unique_ptr<TH1D> fBlinding;
 
 };

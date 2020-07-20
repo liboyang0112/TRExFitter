@@ -179,7 +179,6 @@ TRExFit::TRExFit(std::string name) :
     fCleanTables(false),
     fSystCategoryTables(false),
     fKeepPrefitBlindedBins(false),
-    fBlindedBins(nullptr),
     fCustomAsimov(""),
     fTableOptions("STANDALONE"),
     fGetGoodnessOfFit(false),
@@ -1389,6 +1388,7 @@ void TRExFit::DrawAndSaveAll(std::string opt){
             iregion->fHEPDataFormat = fHEPDataFormat;
         }
         //
+        ireg->fBlindedBins = Common::GetBlindedBins(ireg,fBlindingType,fBlindingThreshold); 
         if(isPostFit){
             std::ofstream pullTex;
             if(fWithPullTables){
@@ -1681,7 +1681,7 @@ std::shared_ptr<TRExPlot> TRExFit::DrawSummary(std::string opt, std::shared_ptr<
                                                                          fBlindingType,
                                                                          fBlindingThreshold);
         p->SetBinBlinding(blindedBins);
-        if(isPostFit && fKeepPrefitBlindedBins && fBlindedBins) p->SetBlindingHisto(fBlindedBins.get());
+        if(isPostFit && fKeepPrefitBlindedBins) p->BlindData();
     }
     //
     if(h_data) p->SetData(h_data.get(), h_data->GetTitle());
@@ -1925,10 +1925,6 @@ std::shared_ptr<TRExPlot> TRExFit::DrawSummary(std::string opt, std::shared_ptr<
         p->SetBinLabel(i_bin,fRegions[regionVec[i_bin-1]]->fShortLabel.c_str());
     }
     p->Draw(opt);
-    if(!isPostFit && p->GetBlindingHisto()) {
-        fBlindedBins.reset(static_cast<TH1D*>(p->GetBlindingHisto()->Clone("blinding_trexfit")));
-        fBlindedBins->SetDirectory(nullptr);
-    }
     //
     if(divisionVec.size()>0){
         p->pad0->cd();
