@@ -323,7 +323,11 @@ void TRExPlot::BlindData(){
         if(fBlinding) {
             Common::BlindDataHisto(h_data.get(),fBlinding.get());
         } else{
-            fBlinding = Common::BlindDataHisto(h_data.get(), fBlindedBins);
+            if (fBlindedBins.size() >= fDropBins.size()) {
+                fBlinding = Common::BlindDataHisto(h_data.get(), fBlindedBins);
+            } else {
+                fBlinding = Common::BlindDataHisto(h_data.get(), fDropBins);
+            }
             // if more than one signal:
             if(fSigNames.size() > 1) {
                 for(std::size_t i_sig = 1; i_sig < fSigNames.size(); ++i_sig) {
@@ -1001,25 +1005,6 @@ void TRExPlot::WriteToFile(const std::string& name) const{
 //
 void TRExPlot::SetBinBlinding(const std::vector<int>& bins){
     fBlindedBins = bins;
-}
-
-//_____________________________________________________________________________
-//
-const TH1D* TRExPlot::GetBlindingHisto() const {
-    return fBlinding.get();
-}
-
-//_____________________________________________________________________________
-//
-const std::vector<int>& TRExPlot::GetBlindedBins() const {
-    return fBlindedBins;
-}
-
-//_____________________________________________________________________________
-//
-void TRExPlot::SetBlindingHisto(const TH1* h) {
-    fBlinding.reset(static_cast<TH1D*>(h->Clone()));
-    if (fBlinding) fBlinding->SetDirectory(nullptr);
 }
 
 //_____________________________________________________________________________

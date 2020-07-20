@@ -265,11 +265,11 @@ public:
 
     std::string fGroup; // used to split yield tables
 
-    std::unique_ptr<TH1D> fBlindedBins;
     bool fKeepPrefitBlindedBins;
     int fGetChi2;
 
     std::vector<int> fDropBins;
+    std::vector<int> fBlindedBins;
 
     std::vector<std::string> fBinLabels;
 
