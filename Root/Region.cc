@@ -1613,9 +1613,9 @@ std::shared_ptr<TRExPlot> Region::DrawPostFit(FitResults* fitRes,
     //
     // 3) Add the new Sig and Bkg to plot
     //
+    std::vector<std::shared_ptr<TH1> > hBkgNew;
+    std::vector<std::shared_ptr<TH1> > hSigNew;
     {
-        std::vector<std::shared_ptr<TH1> > hBkgNew;
-        std::vector<std::shared_ptr<TH1> > hSigNew;
         for(std::size_t i = 0; i < fSampleHists.size(); ++i){
             if(fSampleHists[i]->fSample->fType==Sample::SIGNAL){
                 std::vector<double> tmp;
@@ -1697,8 +1697,35 @@ std::shared_ptr<TRExPlot> Region::DrawPostFit(FitResults* fitRes,
     // blinding bins
     //
     if(fBlindingThreshold>=0){
-        container.blindedBins = fBlindedBins;
-        p->SetBinBlinding(fBlindedBins);
+
+        if (fKeepPrefitBlindedBins) {
+            container.blindedBins = fBlindedBins;
+            p->SetBinBlinding(fBlindedBins);
+        } else {
+            auto CombineHistos = [](const std::vector<std::shared_ptr<TH1> >& vec) {
+                std::unique_ptr<TH1D> result(nullptr);
+                for (const auto& ihist : vec) {
+                    if (!ihist) continue;
+                    if (result) {
+                        result->Add(ihist.get());
+                    } else {
+                        result.reset(static_cast<TH1D*>(ihist->Clone()));
+                        result->SetDirectory(nullptr);
+                    }
+                }
+                return result;
+            };
+
+            std::unique_ptr<TH1D> signal = CombineHistos(hSigNew);
+            std::unique_ptr<TH1D> bkg = CombineHistos(hBkgNew);
+
+            const std::vector<int>& blindPost = Common::ComputeBlindedBins(signal.get(),
+                                                                           bkg.get(),
+                                                                           fBlindingType,
+                                                                           fBlindingThreshold);
+            container.blindedBins = blindPost;
+            p->SetBinBlinding(blindPost);
+        }
     }
     p->SetDropBins(fDropBins);
     p->BlindData();
