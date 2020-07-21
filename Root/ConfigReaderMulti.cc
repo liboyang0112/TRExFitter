@@ -68,17 +68,19 @@ int ConfigReaderMulti::ReadCommandLineOptions(const std::string &option){
     // Read options (to skip stuff, or include only some regions, samples, systs...)
     // Syntax: .. .. Regions=ge4jge2b:Exclude=singleTop,wjets
     std::map< std::string,std::string > optMap;
-    std::vector< std::string > optVec;
 
-    optVec = Vectorize(option,':');
+    int sc(0);
+
+    std::vector< std::string > optVec = Vectorize(option,':');
     for(const std::string& iopt : optVec){
         std::vector< std::string > optPair;
         optPair = Vectorize(iopt,'=');
         if (optPair.size() < 2){
             WriteErrorStatus("ConfigReaderMulti::ReadCommandLineOptions", "Cannot read your command line option, please check this!");
-            return 1;
+            ++sc;
+        } else {
+            optMap[optPair[0]] = optPair[1];
         }
-        optMap[optPair[0]] = optPair[1];
     }
 
     if(optMap["Ranking"]!=""){
@@ -101,17 +103,20 @@ int ConfigReaderMulti::ReadCommandLineOptions(const std::string &option){
         fMultiFitter->fParal2Dstep = atoi(optMap["Parallel2DscanStep"].c_str());
     }
 
-    return 0;
+    return sc;
 }
 
 //_______________________________________________________________________________________
 //
 int ConfigReaderMulti::ReadJobOptions() {
+
+    int sc(0);
+
     std::string param = "";
     ConfigSet *confSet = fParser.GetConfigSet("MultiFit");
     if (confSet == nullptr){
         WriteErrorStatus("ConfigReaderMulti::ReadJobOptions", "Cannot find 'MultiFit' in your config which is required. Please check this!");
-        return 1;
+        ++sc;
     }
 
     fMultiFitter->fName = CheckName(confSet->GetValue());
@@ -251,7 +256,7 @@ int ConfigReaderMulti::ReadJobOptions() {
         const auto tmp = Vectorize(param, ',');   
         if (tmp.size() != fMultiFitter->fPOIs.size()) {
             WriteErrorStatus("ConfigReaderMulti::ReadJobOptions", "You specified 'POIRange' option but you didn't pass the same number of parametrs as the number of POIs. Please check this!");
-            return 1;
+            ++sc;
         }
         for (const auto& irange : tmp) {
             const auto vec = Vectorize(irange,':');
@@ -260,7 +265,7 @@ int ConfigReaderMulti::ReadJobOptions() {
                 fMultiFitter->fPOIMax.emplace_back(atof( vec[1].c_str() ));
             } else {
                 WriteErrorStatus("ConfigReaderMulti::ReadJobOptions", "You specified 'POIRange' option but you didn't provide valid setting. Please check this!");
-                return 1;
+                ++sc;
             }
         }
     }
@@ -277,7 +282,7 @@ int ConfigReaderMulti::ReadJobOptions() {
         const auto tmp = Vectorize(param, ',');
         if (tmp.size() != fMultiFitter->fPOIs.size()) {
             WriteErrorStatus("ConfigReaderMulti::ReadJobOptions", "You specified 'POIPrecision' option but you didn't pass the same number of parametrs as the number of POIs. Please check this!");
-            return 1;
+            ++sc;
         }
         for (const auto& i : tmp) { 
             fMultiFitter->fPOIPrecision.emplace_back(RemoveQuotes(i).c_str());
@@ -476,7 +481,7 @@ int ConfigReaderMulti::ReadJobOptions() {
         fMultiFitter->fParal2Dstep = std::atoi( param.c_str());
         if (fMultiFitter->fParal2Dstep < 1 || fMultiFitter->fParal2Dstep>=fMultiFitter->fLHscanSteps ){
             WriteErrorStatus("ConfigReaderMulti::ReadJobOptions", "You specified a step for 2D LHscan outside the allowed range.");
-            return 1;
+            ++sc;
         }
     }
 
@@ -547,12 +552,15 @@ int ConfigReaderMulti::ReadJobOptions() {
         fMultiFitter->fUsePOISinRanking = Common::StringToBoolean(param);
     }
 
-    return 0;
+    return sc;
 }
 
 //__________________________________________________________________________________
 //
 int ConfigReaderMulti::ReadLimitOptions(){
+
+    int sc(0);
+
     std::string param = "";
 
     ConfigSet* confSet = fParser.GetConfigSet("Limit");
@@ -611,12 +619,15 @@ int ConfigReaderMulti::ReadLimitOptions(){
         fMultiFitter->fLimitsConfidence = conf;
     }
 
-    return 0;
+    return sc;
 }
 
 //__________________________________________________________________________________
 //
 int ConfigReaderMulti::ReadSignificanceOptions(){
+
+    int sc(0);
+
     std::string param = "";
 
     ConfigSet* confSet = fParser.GetConfigSet("Significance");
@@ -659,12 +670,15 @@ int ConfigReaderMulti::ReadSignificanceOptions(){
         fMultiFitter->fSignificanceOutputPrefixName = param;
     }
 
-    return 0;
+    return sc;
 }
 
 //_______________________________________________________________________________________
 //
 int ConfigReaderMulti::ReadFitOptions(const std::string& opt, const std::string& options){
+
+    int sc(0);
+
     int nFit = 0;
 
     while(true){
@@ -747,10 +761,10 @@ int ConfigReaderMulti::ReadFitOptions(const std::string& opt, const std::string&
 
     if (nFit == 0){
         WriteErrorStatus("ConfigReaderMulti::ReadFitOptions", "You need to provide at least one 'Fit' option. Please check this!");
-        return 1;
+        ++sc;
     }
 
-    return 0;
+    return sc;
 }
 
 //__________________________________________________________________________________
@@ -760,7 +774,7 @@ std::string ConfigReaderMulti::CheckName( const std::string &name ){
         WriteErrorStatus("ConfigReaderMulti::CheckName", "Failed to browse name: " + name + ". A number has been detected at the first position of the name.");
         WriteErrorStatus("ConfigReaderMulti::CheckName", "           This can lead to unexpected behaviour in HistFactory. Please change the name. ");
         WriteErrorStatus("ConfigReaderMulti::CheckName", "           The code is about to crash.");
-        std::abort();
+        exit(EXIT_FAILURE);
     } else {
         return RemoveQuotes(name);
     }
