@@ -1158,7 +1158,7 @@ void TRExFit::CorrectHistograms(){
         for(auto syst : fSystematics){
             if(syst->fKeepNormForSamples.size()==0) continue;
             for(unsigned int ii=0;ii<syst->fKeepNormForSamples.size();ii++){
-                std::vector<std::string> subSamples = Vectorize(syst->fKeepNormForSamples[ii],'+');
+                std::vector<std::string> subSamples = Common::Vectorize(syst->fKeepNormForSamples[ii],'+');
                 // get nominal yield and syst yields for this sum of samples
                 double yieldNominal = 0.;
                 double yieldUp = 0.;

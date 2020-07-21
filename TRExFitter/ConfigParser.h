@@ -7,11 +7,7 @@
 #include <vector>
 
 // Functions
-std::string RemoveSpaces(const std::string& s);
-std::string RemoveComments(const std::string& s);
-std::string RemoveQuotes(const std::string& s);
 std::string Fix(const std::string& s);
-std::vector<std::string> Vectorize(const std::string& s,char c,bool removeQuotes=true);
 std::string First(const std::string& s);
 std::string Second(const std::string& s);
 std::string ReadValueFromConfig(const std::string& fileName,const std::string& option);

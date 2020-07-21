@@ -2,6 +2,7 @@
 #include "TRExFitter/ConfigParser.h"
 
 // Framework includes
+#include "TRExFitter/Common.h"
 #include "TRExFitter/StatusLogbook.h"
 
 // c++ includes
@@ -19,48 +20,6 @@
 //----------------------------------------------------------------------------------
 //----------------------------------------------------------------------------------
 
-//__________________________________________________________________________________
-// Removes leading and trailing white spaces
-std::string RemoveSpaces(const std::string& s){
-    if(s=="") return "";
-    std::string ss = s;
-    if (ss.find_first_not_of(' ')>=std::string::npos){
-        ss = "";
-    }
-    else if (ss.find_first_not_of(' ')>0){
-        ss=ss.substr(ss.find_first_not_of(' '),ss.find_last_not_of(' '));
-    }
-    else{
-        ss=ss.substr(ss.find_first_not_of(' '),ss.find_last_not_of(' ')+1);
-    }
-    return ss;
-}
-
-//__________________________________________________________________________________
-// Removes everything after '%' or '#', but only if not inside quotation marks!!
-std::string RemoveComments(const std::string& s){
-    if(s=="") return "";
-    std::string ss = "";
-    bool insideQuotes = false;
-    for(unsigned long i=0;i<s.size();i++){
-        if(s[i]=='"'){
-            if(!insideQuotes) insideQuotes = true;
-            else              insideQuotes = false;
-        }
-        if((s[i]=='%' || s[i]=='#') && !insideQuotes) break;
-        ss += s[i];
-    }
-    return RemoveSpaces(ss);
-}
-
-//__________________________________________________________________________________
-// Removes '"'
-std::string RemoveQuotes(const std::string& s){
-    if(s=="") return "";
-    std::string ss = s;
-    replace( ss.begin(), ss.end(), '"', ' ');
-    return RemoveSpaces(ss);
-}
 
 //__________________________________________________________________________________
 // Removes leading and trailing white spaces, removes everything after "%", removes '"'
@@ -82,43 +41,6 @@ std::string Fix(const std::string& s){
 
 //__________________________________________________________________________________
 //
-std::vector<std::string> Vectorize(const std::string& s,char c,bool removeQuotes){
-    std::vector<std::string> v;
-    v.clear();
-    std::string ss = RemoveComments(s);
-    if(ss==""){
-        v.push_back("");
-        return v;
-    }
-    std::string t;
-    bool insideQuotes = false;
-    for(unsigned long i=0;i<ss.size();i++){
-        if(!insideQuotes && ss[i]==c){
-            if(removeQuotes) v.push_back(RemoveQuotes(t));
-            else             v.push_back(RemoveSpaces(t));
-            t = "";
-        }
-        else if(!insideQuotes && ss[i]=='"'){
-            insideQuotes = true;
-            t += ss[i];
-        }
-        else if(insideQuotes && ss[i]=='"'){
-            insideQuotes = false;
-            t += ss[i];
-        }
-        else{
-            t += ss[i];
-        }
-    }
-    if(RemoveQuotes(t)!=""){
-        if(removeQuotes) v.push_back(RemoveQuotes(t));
-        else             v.push_back(RemoveSpaces(t));
-    }
-    return v;
-}
-
-//__________________________________________________________________________________
-//
 std::string First(const std::string& s){
     std::string first;
     first = s.substr( 0, s.find_first_of(':') );
@@ -130,7 +52,7 @@ std::string First(const std::string& s){
 std::string Second(const std::string& s){
     std::string second;
     second = s.substr( s.find_first_of(':')+1,std::string::npos );
-    second = RemoveComments(second);
+    second = Common::RemoveComments(second);
     if(second==""){
         WriteErrorStatus("ConfigParser","No value set for parameter "+First(s)+" in the config.");
         exit(EXIT_FAILURE);
@@ -374,12 +296,12 @@ void ConfigParser::ReadFile(const std::string& fileName){
             reading = false;
         }
         else{
-            valVec = Vectorize(Second(str),';',false);
+            valVec = Common::Vectorize(Second(str),';',false);
             if(!reading){
                 n = valVec.size();
                 for(k=0;k<n;k++){
                     fConfSets.emplace_back(std::make_unique<ConfigSet>());
-                    fConfSets[fN]->Set( First(str),RemoveSpaces(valVec[k]) );
+                    fConfSets[fN]->Set( First(str),Common::RemoveSpaces(valVec[k]) );
                     fN++;
                 }
                 reading = true;
@@ -388,7 +310,7 @@ void ConfigParser::ReadFile(const std::string& fileName){
                 for(k=0;k<n;k++){
                     if(k>=(int)valVec.size()) val = valVec[valVec.size()-1];
                     else                      val = valVec[k];
-                    fConfSets[fN-n+k]->SetConfig(First(str),RemoveSpaces(val) );
+                    fConfSets[fN-n+k]->SetConfig(First(str),Common::RemoveSpaces(val) );
                 }
             }
         }
@@ -481,12 +403,12 @@ int ConfigParser::CheckSingleSetting(ConfigSet *cs, ConfigSet *cs_ref, const std
     //
     // need to check the consistency of the provided settings
     // first check the number of provided parameters
-    std::vector<std::string> current_settings = Vectorize(param,',');
-    std::vector<std::string> possible_settings = Vectorize(ref_param,'/');
+    std::vector<std::string> current_settings = Common::Vectorize(param,',');
+    std::vector<std::string> possible_settings = Common::Vectorize(ref_param,'/');
     std::vector<unsigned int> possible_sizes;
     //
     for (const std::string &ioption : possible_settings){
-        possible_sizes.push_back( Vectorize(ioption,',').size() );
+        possible_sizes.push_back( Common::Vectorize(ioption,',').size() );
     }
     unsigned int current_setting_size = current_settings.size();
     //
@@ -542,8 +464,8 @@ int ConfigParser::CheckParameters(std::string current, const std::vector<std::st
 //_______________________________________________________________________________________
 //
 bool ConfigParser::SettingMultipleParamIsOK(const std::string& setting_set, const std::string& setting, const std::string& current, const std::string& possible, const char delimiter) const{
-    const std::vector<std::string> current_vec = Vectorize(current, delimiter);
-    const std::vector<std::string> possible_vec = Vectorize(possible, delimiter);
+    const std::vector<std::string> current_vec = Common::Vectorize(current, delimiter);
+    const std::vector<std::string> possible_vec = Common::Vectorize(possible, delimiter);
     if (current_vec.size() != possible_vec.size()) return false;
     //
     // check setting by setting

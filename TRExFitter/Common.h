@@ -296,6 +296,43 @@ std::vector<std::string> GetFilesMatchingString(const std::string& folder, const
   * @return outputfile path
   */  
 void MergeTxTFiles(const std::vector<std::string>& input, const std::string& out);
+
+/**
+  * A helper function to check the validity of a string
+  * @param
+  * return name
+  */
+std::string CheckName(const std::string& name);
+
+/**
+  * A helper function to remove quotes
+  * @param
+  * return name
+  */
+std::string RemoveQuotes(const std::string& name);
+
+/**
+  * A helper function to remove spaces
+  * @param
+  * return name
+  */
+std::string RemoveSpaces(const std::string& name);
+
+/**
+  * A helper function to remove comments
+  * @param
+  * return name
+  */
+std::string RemoveComments(const std::string& s);
+
+/**
+  * A helper function to vectorise string
+  * @param
+  * @param splitter
+  * @param remove Quotes
+  * return splitted string
+  */
+std::vector<std::string> Vectorize(const std::string& s,char c,bool removeQuotes=true);
 }
 
 #endif
