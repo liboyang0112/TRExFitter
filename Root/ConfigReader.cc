@@ -104,12 +104,14 @@ int ConfigReader::ReadCommandLineOptions(const std::string& option){
     std::vector< std::string > optVec = Vectorize(option,':');
     std::map< std::string,std::string > optMap;
 
+    int sc(0);
+
     for(const std::string& iopt : optVec){
         std::vector< std::string > optPair;
         optPair = Vectorize(iopt,'=');
         if (optPair.size() < 2){
             WriteErrorStatus("ConfigReader::ReadCommandLineOptions", "Cannot read your command line option, please check this!");
-            return 1;
+            ++sc;
         }
         optMap[optPair[0]] = optPair[1];
     }
@@ -171,8 +173,8 @@ int ConfigReader::ReadCommandLineOptions(const std::string& option){
         fFitter->fBootstrapSample = optMap["BootstrapSample"];
     }        
     if( fFitter->fBootstrapSyst!="" && fFitter->fBootstrapSample!=""  ){
-            WriteErrorStatus("ConfigReader::ReadCommandLineOptions", "Cannot do bootstrap on both Sample and Syst!");
-            return 1;
+        WriteErrorStatus("ConfigReader::ReadCommandLineOptions", "Cannot do bootstrap on both Sample and Syst!");
+        ++sc;
     }
     if(optMap["GroupedImpact"]!=""){
         fFitter->fGroupedImpactCategory = optMap["GroupedImpact"];
@@ -236,7 +238,7 @@ int ConfigReader::ReadCommandLineOptions(const std::string& option){
         for(const auto& s : fOnlySignals) toPrint += " " + s;
         WriteInfoStatus("ConfigReader::ReadCommandLineOptions", "    " + toPrint);
     }
-    return 0;
+    return sc;
 }
 
 //__________________________________________________________________________________
@@ -244,10 +246,12 @@ int ConfigReader::ReadCommandLineOptions(const std::string& option){
 int ConfigReader::ReadJobOptions(){
     std::string param = ""; // helper string
 
+    int sc(0);
+
     ConfigSet *confSet = fParser->GetConfigSet("Job");
     if (confSet == nullptr){
         WriteErrorStatus("ConfigReader::ReadJobOptions", "You need to provide JOB settings!");
-        return 1;
+        ++sc;
     }
 
     if (fFitter->fDir == "") {
@@ -314,7 +318,7 @@ int ConfigReader::ReadJobOptions(){
     else if( param=="NTUP" || param=="NTUPLES" )    fFitter->fInputType = 1;
     else{
         WriteErrorStatus("ConfigReader::ReadJobOptions", "Invalid \"ReadFrom\" argument. Options: \"HIST\", \"NTUP\"");
-        return 1;
+        ++sc;
     }
 
     // set default MERGEUNDEROVERFLOW
@@ -746,6 +750,7 @@ int ConfigReader::ReadJobOptions(){
         if (tmp.size() > 0) fFitter->fImageFormat = tmp.at(0);
         else {
             WriteErrorStatus("ConfigReader::ReadJobOptions", "You specified 'ImageFormat' option but we cannot split the setting. Please check");
+            ++sc;
         }
         TRExFitter::IMAGEFORMAT = tmp;
     }
@@ -855,7 +860,7 @@ int ConfigReader::ReadJobOptions(){
             fFitter->fGetChi2 = 1;
         } else {
             WriteErrorStatus("ConfigReader::ReadJobOptions", "You specified 'GetChi2' option but you did not provide valid option. Check this!");
-            return 1;
+            ++sc;
         }
     }
 
@@ -1105,12 +1110,14 @@ int ConfigReader::ReadJobOptions(){
     }
 
     // success
-    return 0;
+    return sc;
 }
 
 //__________________________________________________________________________________
 //
 int ConfigReader::SetJobPlot(ConfigSet *confSet){
+
+    int sc(0);
 
     // Plot option
     std::string param = confSet->Get("PlotOptions");
@@ -1357,12 +1364,13 @@ int ConfigReader::SetJobPlot(ConfigSet *confSet){
         }
     }
 
-    return 0;
+    return sc;
 }
 
 //__________________________________________________________________________________
 //
 int ConfigReader::ReadGeneralOptions(){
+    int sc(0);
     ConfigSet* confSet = fParser->GetConfigSet("Options");
     if (confSet != nullptr){
         for(int i=0; i < confSet->GetN(); i++){
@@ -1374,12 +1382,13 @@ int ConfigReader::ReadGeneralOptions(){
         WriteDebugStatus("ConfigReader::ReadGeneralOptions", "You do not have 'Options' option in the config. It is ok, we just want to let you know.");
     }
 
-    return 0;
+    return sc;
 }
 
 //__________________________________________________________________________________
 //
 int ConfigReader::ReadFitOptions(){
+    int sc(0);
     std::string param = "";
 
     ConfigSet *confSet = fParser->GetConfigSet("Fit");
@@ -1403,7 +1412,7 @@ int ConfigReader::ReadFitOptions(){
         }
         else{
             WriteErrorStatus("ConfigReader::ReadFitOptions", "Unknown FitType argument : " + confSet->Get("FitType"));
-            return 1;
+            ++sc;
         }
     }
     else if( fFitter->fFitType == TRExFit::UNDEFINED ){
@@ -1426,7 +1435,7 @@ int ConfigReader::ReadFitOptions(){
             fFitter->fFitRegionsToFit = Vectorize(param,',');
             if(fFitter->fFitRegionsToFit.size()==0){
                 WriteErrorStatus("ConfigReader::ReadFitOptions", "Unknown FitRegion argument : " + confSet->Get("FitRegion"));
-                return 1;
+                ++sc;
             }
         }
     }
@@ -1442,7 +1451,7 @@ int ConfigReader::ReadFitOptions(){
     if( param != "" ){
         if (fFitter->fPOIs.empty()) {
             WriteErrorStatus("ConfigReader::ReadFitOptions", "POI is not set, you cannot ask for POIAsimov");
-            return 1;
+            ++sc;
         }
         std::vector < std::string > temp_vec = Vectorize(param,',',false);
         for(std::string iPOI : temp_vec){
@@ -1604,7 +1613,7 @@ int ConfigReader::ReadFitOptions(){
         fFitter->fParal2Dstep = std::atoi( param.c_str());
         if (fFitter->fParal2Dstep < 1 || fFitter->fParal2Dstep>=fFitter->fLHscanSteps ){
             WriteErrorStatus("ConfigReader::ReadFitOptions", "You specified a step for 2D LHscan outside the allowed range.");
-            return 1;
+            ++sc;
         }
     }
 
@@ -1677,7 +1686,7 @@ int ConfigReader::ReadFitOptions(){
 
         if (fFitter->fToysHistoMin > fFitter->fToysHistoMax){
             WriteErrorStatus("ConfigReader::ReadFitOptions", "Minimum for toys is larger than maximum for toys");
-            return 1;
+            ++sc;
         }
     }
 
@@ -1687,7 +1696,7 @@ int ConfigReader::ReadFitOptions(){
         fFitter->fToysHistoNbins = std::atoi( param.c_str());
         if (fFitter->fToysHistoNbins < 2){
             WriteErrorStatus("ConfigReader::ReadFitOptions", "Number of bins for toys is < 2");
-            return 1;
+            ++sc;
         }
     }
 
@@ -1763,12 +1772,14 @@ int ConfigReader::ReadFitOptions(){
         fFitter->fUsePOISinRanking = Common::StringToBoolean(param);
     }
 
-    return 0;
+    return sc;
 }
 
 //__________________________________________________________________________________
 //
 int ConfigReader::ReadLimitOptions(){
+
+    int sc(0);
     std::string param = "";
 
     ConfigSet* confSet = fParser->GetConfigSet("Limit");
@@ -1797,7 +1808,7 @@ int ConfigReader::ReadLimitOptions(){
         }
         else{
             WriteErrorStatus("ConfigReader::ReadLimitOptions", "Unknown LimitType argument : " + confSet->Get("LimitType"));
-            return 1;
+            ++sc;
         }
     }
 
@@ -1844,12 +1855,13 @@ int ConfigReader::ReadLimitOptions(){
         fFitter->fLimitsConfidence = conf;
     }
 
-    return 0;
+    return sc;
 }
 
 //__________________________________________________________________________________
 //
 int ConfigReader::ReadSignificanceOptions(){
+    int sc(0);
     std::string param = "";
 
     ConfigSet* confSet = fParser->GetConfigSet("Significance");
@@ -1893,13 +1905,14 @@ int ConfigReader::ReadSignificanceOptions(){
         fFitter->fSignificanceOutputPrefixName = param;
     }
 
-
-    return 0;
+    return sc;
 }
 
 //__________________________________________________________________________________
 //
 int ConfigReader::ReadRegionOptions(const std::string& opt){
+
+    int sc(0);
 
     fAvailableRegions = GetAvailableRegions();
 
@@ -1910,7 +1923,7 @@ int ConfigReader::ReadRegionOptions(const std::string& opt){
                 WriteWarningStatus("ConfigReader::ReadRegionOptions", "You set regions that do not exist in your command line options");
             } else {
                 WriteErrorStatus("ConfigReader::ReadRegionOptions", "You set regions that do not exist in your command line options");
-                return 1;
+                ++sc;
             }
         }
     }
@@ -1944,7 +1957,7 @@ int ConfigReader::ReadRegionOptions(const std::string& opt){
             else if( param=="SIGNAL" )      reg -> SetRegionType(Region::SIGNAL);
             else {
                 WriteErrorStatus("ConfigReader::ReadRegionOptions", "You specified 'Type' option in region but did not provide valid parameter. Please check this!");
-                return 1;
+                ++sc;
             }
         }
         if(reg -> fRegionType != Region::VALIDATION){
@@ -2266,13 +2279,13 @@ int ConfigReader::ReadRegionOptions(const std::string& opt){
             const int bins = std::stoi(param);
             if (bins < 2 || bins > 100) {
                 WriteErrorStatus("ConfigReader::ReadRegionOptions", "Number of reco bins is < 2 or > 100. This does not seem correct");
-                return 1;
+                ++sc;
             }
             reg->fNumberUnfoldingRecoBins = bins;
         } else {
             if (fFitter->fFitType == TRExFit::UNFOLDING && reg->fRegionType == Region::SIGNAL) {
                 WriteErrorStatus("ConfigReader::ReadRegionOptions", "You need to provide the number of reco bins (NumberOfRecoBins) in each Region.");
-                return 1;
+                ++sc;
             }
         }
 
@@ -2288,7 +2301,7 @@ int ConfigReader::ReadRegionOptions(const std::string& opt){
             if (SetRegionNTUP(reg, confSet) != 0) return 1;
         } else {
             WriteErrorStatus("ConfigReader::ReadRegionOptions", "Unknown input type: " +std::to_string(fFitter->fInputType));
-            return 1;
+            ++sc;
         }
 
         // Set Rebin
@@ -2301,7 +2314,7 @@ int ConfigReader::ReadRegionOptions(const std::string& opt){
             std::vector < std::string > vec_bins = Vectorize(param, ',');
             if (vec_bins.size() == 0){
                 WriteErrorStatus("ConfigReader::ReadRegionOptions", "You specified `Rebinning` option, but you did not provide any reasonable option. Check this!");
-                return 1;
+                ++sc;
             }
             // eventually add auto-binning
             const unsigned int nBounds = vec_bins.size();
@@ -2319,18 +2332,18 @@ int ConfigReader::ReadRegionOptions(const std::string& opt){
             std::vector < std::string > vec_bins = Vectorize(param, ',');
             if (vec_bins.size() == 0){
                 WriteErrorStatus("ConfigReader::ReadRegionOptions", "You specified `Binning` option, but you did not provide any reasonable option. Check this!");
-                return 1;
+                ++sc;
             }
             if(vec_bins[0]=="AutoBin"){
                 if (vec_bins.size() < 2){
                     WriteErrorStatus("ConfigReader::ReadRegionOptions", "You specified `Binning` option with Autobin, but you did not provide any reasonable option. Check this!");
-                    return 1;
+                    ++sc;
                 }
                 reg -> fBinTransfo = vec_bins[1];
                 if(vec_bins[1]=="TransfoD"){
                     if (vec_bins.size() < 4){
                         WriteErrorStatus("ConfigReader::ReadRegionOptions", "You specified `Binning` option with TransfoD, but you did not provide any reasonable option. Check this!");
-                        return 1;
+                        ++sc;
                     }
                     reg -> fTransfoDzSig=Common::convertStoD(vec_bins[2]);
                     reg -> fTransfoDzBkg=Common::convertStoD(vec_bins[3]);
@@ -2343,7 +2356,7 @@ int ConfigReader::ReadRegionOptions(const std::string& opt){
                 else if(vec_bins[1]=="TransfoF"){
                     if (vec_bins.size() < 4){
                         WriteErrorStatus("ConfigReader::ReadRegionOptions", "You specified `Binning` option with TransfoF, but you did not provide any reasonable option. Check this!");
-                        return 1;
+                        ++sc;
                     }
                     reg -> fTransfoFzSig=Common::convertStoD(vec_bins[2]);
                     reg -> fTransfoFzBkg=Common::convertStoD(vec_bins[3]);
@@ -2368,7 +2381,7 @@ int ConfigReader::ReadRegionOptions(const std::string& opt){
                 }
                 else{
                     WriteErrorStatus("ConfigReader::ReadRegionOptions", "Unknown transformation: " + vec_bins[1] + ", try again");
-                    return 1;
+                    ++sc;
                 }
             }
             else{
@@ -2394,7 +2407,7 @@ int ConfigReader::ReadRegionOptions(const std::string& opt){
             else if( param=="ASIMOV" )  reg -> SetRegionDataType(Region::ASIMOVDATA);
             else{
                 WriteErrorStatus("ConfigReader::ReadRegionOptions", "DataType is not recognised: " + param);
-                return 1;
+                ++sc;
             }
         }
 
@@ -2474,15 +2487,16 @@ int ConfigReader::ReadRegionOptions(const std::string& opt){
 
     if (!fHasAtLeastOneValidRegion && Common::OptionRunsFit(opt)){
         WriteErrorStatus("ConfigReader::ReadRegionOptions","You need to provide at least one region that is not Validation otherwise the fit will crash.");
-        return 1;
+        ++sc;
     }
 
-    return 0;
+    return sc;
 }
 
 //__________________________________________________________________________________
 //
 int ConfigReader::SetRegionHIST(Region* reg, ConfigSet *confSet){
+    int sc(0);
     std::string param = "";
 
     // Set HistoFile
@@ -2568,20 +2582,20 @@ int ConfigReader::SetRegionHIST(Region* reg, ConfigSet *confSet){
         WriteWarningStatus("ConfigReader::SetRegionHIST", "Found some NTUP settings in Region, while input option is HIST. Ignoring them.");
     }
 
-    return 0;
+    return sc;
 }
 
 //__________________________________________________________________________________
 //
 int ConfigReader::SetRegionNTUP(Region* reg, ConfigSet *confSet){
+    int sc(0);
     std::string param = "";
 
     // Set Variable
     std::vector<std::string> variable = Vectorize(confSet->Get("Variable"),',');
     if (variable.size() == 0){
         WriteErrorStatus("ConfigReader::SetRegionNTUP", "Variable option is required but not present. Please check it!");
-        return 1;
-
+        ++sc;
     }
     // fix variable vector if special functions are used
     if(variable[0].find("Alt$")!=std::string::npos || variable[0].find("MaxIf$")!=std::string::npos ||variable[0].find("MinIf$")!=std::string::npos ){
@@ -2595,7 +2609,7 @@ int ConfigReader::SetRegionNTUP(Region* reg, ConfigSet *confSet){
             variable.erase(variable.begin()+1);
         } else {
             WriteErrorStatus("ConfigReader::SetRegionNTUP", "Variable option has weird input. Please check it!");
-            return 1;
+            ++sc;
         }
     }
 
@@ -2603,7 +2617,7 @@ int ConfigReader::SetRegionNTUP(Region* reg, ConfigSet *confSet){
     if(corrVar.size()==2){
         if (variable.size() < 3){
             WriteErrorStatus("ConfigReader::SetRegionNTUP", "Corr size == 2 but variable size < 3. Check this!");
-            return 1;
+            ++sc;
         }
         WriteDebugStatus("ConfigReader::SetRegionNTUP", "Have a correlation variable in reg " + fRegNames.back() + " : ");
         WriteDebugStatus("ConfigReader::SetRegionNTUP", corrVar[0] + " and " + corrVar[1]);
@@ -2612,7 +2626,7 @@ int ConfigReader::SetRegionNTUP(Region* reg, ConfigSet *confSet){
     else {
         if (variable.size() < 4){
             WriteErrorStatus("ConfigReader::SetRegionNTUP", "Corr size != 2 but variable size < 4. Check this!");
-            return 1;
+            ++sc;
         }
         WriteDebugStatus("ConfigReader::SetRegionNTUP", "Have a usual variable in reg " + fRegNames.back() + " : ");
         WriteDebugStatus("ConfigReader::SetRegionNTUP", variable[0] + " and size of corrVar=" + std::to_string(corrVar.size()));
@@ -2725,12 +2739,13 @@ int ConfigReader::SetRegionNTUP(Region* reg, ConfigSet *confSet){
         WriteWarningStatus("ConfigReader::SetRegionNTUP", "Found some HIST settings in Region, while input option is NTUP. Ignoring them.");
     }
 
-    return 0;
+    return sc;
 }
 
 //__________________________________________________________________________________
 //
 int ConfigReader::ReadSampleOptions() {
+    int sc(0);
 
     fAvailableSamples = GetAvailableSamples();
 
@@ -2741,7 +2756,7 @@ int ConfigReader::ReadSampleOptions() {
                 WriteWarningStatus("ConfigReader::ReadSampleOptions", "You set samples that do not exist in your command line options");
             } else {
                 WriteErrorStatus("ConfigReader::ReadSampleOptions", "You set samples that do not exist in your command line options");
-                return 1;
+                ++sc;
             }
         }
     }
@@ -2780,7 +2795,7 @@ int ConfigReader::ReadSampleOptions() {
             else if(param == "GHOST"){
                 if (fNonGhostIsSet){
                     WriteErrorStatus("ConfigReader::ReadSampleOptions", "Please define GHOST samples first and then other samples");
-                    return 1;
+                    ++sc;
                 }
                 type = Sample::GHOST;
             }
@@ -2928,7 +2943,7 @@ int ConfigReader::ReadSampleOptions() {
             }
         } else {
             WriteErrorStatus("ConfigReader::ReadSampleOptions", "No valid input type provided. Please check this!");
-            return 1;
+            ++sc;
         }
 
         // Set FillColor
@@ -2962,7 +2977,7 @@ int ConfigReader::ReadSampleOptions() {
           std::vector<std::string> rgb_strings = Vectorize(param, ',');
           if (rgb_strings.size() != 3) {
             WriteErrorStatus("ConfigReader::ReadSampleOptions", "No valid input for 'FillColorRGB' provided. Please check this!");
-            return 1;
+            ++sc;
           } else {
             auto col_arr = create_RGB_array(rgb_strings);
             TColor* tcol = new TColor{TColor::GetFreeColorIndex(),
@@ -2979,7 +2994,7 @@ int ConfigReader::ReadSampleOptions() {
           std::vector<std::string> rgb_strings = Vectorize(param, ',');
           if (rgb_strings.size() != 3) {
             WriteErrorStatus("ConfigReader::ReadSampleOptions", "No valid input for 'LineColorRGB' provided. Please check this!");
-            return 1;
+            ++sc;
           } else {
             auto col_arr = create_RGB_array(rgb_strings);
             TColor* tcol = new TColor{TColor::GetFreeColorIndex(),
@@ -3017,7 +3032,7 @@ int ConfigReader::ReadSampleOptions() {
                 WriteWarningStatus("ConfigReader::ReadSampleOptions", "Sample: " + CheckName(confSet->GetValue()) + " has regions set up that do not exist");
             } else {
                 WriteErrorStatus("ConfigReader::ReadSampleOptions", "Sample: " + CheckName(confSet->GetValue()) + " has regions set up that do not exist");
-                return 1;
+                ++sc;
             }
         }
 
@@ -3026,7 +3041,7 @@ int ConfigReader::ReadSampleOptions() {
                 WriteWarningStatus("ConfigReader::ReadSampleOptions", "Sample: " + CheckName(confSet->GetValue()) + " has regions to exclude set up that do not exist");
             } else {
                 WriteErrorStatus("ConfigReader::ReadSampleOptions", "Sample: " + CheckName(confSet->GetValue()) + " has regions to exclude set up that do not exist");
-                return 1;
+                ++sc;
             }
         }
 
@@ -3045,7 +3060,7 @@ int ConfigReader::ReadSampleOptions() {
             const unsigned int sz = Vectorize(param,',').size();
             if (sz != 1 && sz != 4 && sz != 5){
                 WriteErrorStatus("ConfigReader::ReadSampleOptions", "No valid input for 'NormFactor' provided. Please check this!");
-                return 1;
+                ++sc;
             }
             if( sz > 1 ){
                 bool isConst = false;
@@ -3085,7 +3100,7 @@ int ConfigReader::ReadSampleOptions() {
             const unsigned int sz = Vectorize(param,',').size();
             if (sz != 1 && sz != 4 && sz != 5){
                 WriteErrorStatus("ConfigReader::ReadSampleOptions", "No valid input for 'ShapeFactor' provided. Please check this!");
-                return 1;
+                ++sc;
             }
             if( sz > 1 ){
                 bool isConst = false;
@@ -3167,7 +3182,7 @@ int ConfigReader::ReadSampleOptions() {
                     WriteWarningStatus("ConfigReader::ReadSampleOptions", "Sample: " + CheckName(confSet->GetValue()) + " has samples set up for DivideBy that do not exist");
                 } else {
                     WriteErrorStatus("ConfigReader::ReadSampleOptions", "Sample: " + CheckName(confSet->GetValue()) + " has samples set up for DivideBy that do not exist");
-                    return 1;
+                    ++sc;
                 }
             }
             sample->fDivideBy = RemoveQuotes(param);
@@ -3181,7 +3196,7 @@ int ConfigReader::ReadSampleOptions() {
                     WriteWarningStatus("ConfigReader::ReadSampleOptions", "Sample: " + CheckName(confSet->GetValue()) + " has samples set up for MultiplyBy that do not exist");
                 } else {
                     WriteErrorStatus("ConfigReader::ReadSampleOptions", "Sample: " + CheckName(confSet->GetValue()) + " has samples set up for MultiplyBy that do not exist");
-                    return 1;
+                    ++sc;
                 }
             }
             sample->fMultiplyBy = RemoveQuotes(param);
@@ -3195,7 +3210,7 @@ int ConfigReader::ReadSampleOptions() {
                     WriteWarningStatus("ConfigReader::ReadSampleOptions", "Sample: " + CheckName(confSet->GetValue()) + " has samples set up for SubtractSample that do not exist");
                 } else {
                     WriteErrorStatus("ConfigReader::ReadSampleOptions", "Sample: " + CheckName(confSet->GetValue()) + " has samples set up for SubtractSample that do not exist");
-                    return 1;
+                    ++sc;
                 }
             }
             sample->fSubtractSamples.emplace_back( RemoveQuotes(param) );
@@ -3210,7 +3225,7 @@ int ConfigReader::ReadSampleOptions() {
                     WriteWarningStatus("ConfigReader::ReadSampleOptions", "Sample: " + CheckName(confSet->GetValue()) + " has samples set up for SubtractSamples that do not exist");
                 } else {
                     WriteErrorStatus("ConfigReader::ReadSampleOptions", "Sample: " + CheckName(confSet->GetValue()) + " has samples set up for SubtractSamples that do not exist");
-                    return 1;
+                    ++sc;
                 }
             }
             sample->fSubtractSamples = Vectorize(param,',');
@@ -3224,7 +3239,7 @@ int ConfigReader::ReadSampleOptions() {
                     WriteWarningStatus("ConfigReader::ReadSampleOptions", "Sample: " + CheckName(confSet->GetValue()) + " has samples set up for AddSample that do not exist");
                 } else {
                     WriteErrorStatus("ConfigReader::ReadSampleOptions", "Sample: " + CheckName(confSet->GetValue()) + " has samples set up for AddSample that do not exist");
-                    return 1;
+                    ++sc;
                 }
             }
             sample->fAddSamples.emplace_back( RemoveQuotes(param) );
@@ -3239,7 +3254,7 @@ int ConfigReader::ReadSampleOptions() {
                     WriteWarningStatus("ConfigReader::ReadSampleOptions", "Sample: " + CheckName(confSet->GetValue()) + " has samples set up for AddSamples that do not exist");
                 } else {
                     WriteErrorStatus("ConfigReader::ReadSampleOptions", "Sample: " + CheckName(confSet->GetValue()) + " has samples set up for AddSamples that do not exist");
-                    return 1;
+                    ++sc;
                 }
             }
             sample->fAddSamples = Vectorize(param,',');
@@ -3253,7 +3268,7 @@ int ConfigReader::ReadSampleOptions() {
                     WriteWarningStatus("ConfigReader::ReadSampleOptions", "Sample: " + CheckName(confSet->GetValue()) + " has samples set up for NormToSample that do not exist");
                 } else {
                     WriteErrorStatus("ConfigReader::ReadSampleOptions", "Sample: " + CheckName(confSet->GetValue()) + " has samples set up for NormToSample that do not exist");
-                    return 1;
+                    ++sc;
                 }
             }
             sample->fNormToSample = RemoveQuotes(param);
@@ -3295,7 +3310,7 @@ int ConfigReader::ReadSampleOptions() {
                 sample->fAsimovReplacementFor.second = tmp;
             } else {
                 WriteErrorStatus("ConfigReader::ReadSampleOptions", "You specified 'AsimovReplacementFor' option but did not provide 2 parameters. Please check this");
-                return 1;
+                ++sc;
             }
         }
 
@@ -3347,7 +3362,7 @@ int ConfigReader::ReadSampleOptions() {
                 std::vector<std::string> morph_par = Vectorize(param,',');
                 if (morph_par.size() != 2){
                     WriteErrorStatus("ConfigReader::ReadSampleOptions", "Morphing requires exactly 2 parameters, but " + std::to_string(morph_par.size()) + " provided");
-                    return 1;
+                    ++sc;
                 }
                 std::string name      = morph_par.at(0);
                 double value = std::stod(morph_par.at(1));
@@ -3374,7 +3389,7 @@ int ConfigReader::ReadSampleOptions() {
                     WriteWarningStatus("ConfigReader::ReadSampleOptions", "Sample: " + fSamples[i_smp] + " has sample set up for AsimovReplacementFor that does not exist");
                 } else {
                     WriteErrorStatus("ConfigReader::ReadSampleOptions", "Sample: " + fSamples[i_smp] + " has sample set up for AsimovReplacementFor that does not exist");
-                    return 1;
+                    ++sc;
                 }
             }
             WriteDebugStatus("ConfigReader::ReadSampleOptions", "Creating sample " + fFitter->fSamples[i_smp]->fAsimovReplacementFor.first);
@@ -3384,12 +3399,13 @@ int ConfigReader::ReadSampleOptions() {
         }
     }
 
-    return 0;
+    return sc;
 }
 
 //__________________________________________________________________________________
 //
 int ConfigReader::ReadNormFactorOptions(){
+    int sc(0);
     std::string param = "";
 
     int nNorm = 0;
@@ -3416,7 +3432,7 @@ int ConfigReader::ReadNormFactorOptions(){
                 WriteWarningStatus("ConfigReader::ReadNormFactorOptions", "NormFactor: " + CheckName(confSet->GetValue()) + " has regions set up that do not exist");
             } else {
                 WriteErrorStatus("ConfigReader::ReadNormFactorOptions", "NormFactor: " + CheckName(confSet->GetValue()) + " has regions set up that do not exist");
-                return 1;
+                ++sc;
             }
         }
 
@@ -3425,7 +3441,7 @@ int ConfigReader::ReadNormFactorOptions(){
                 WriteWarningStatus("ConfigReader::ReadNormFactorOptions", "NormFactor: " + CheckName(confSet->GetValue()) + " has regions set up for excluding that do not exist");
             } else {
                 WriteErrorStatus("ConfigReader::ReadNormFactorOptions", "NormFactor: " + CheckName(confSet->GetValue()) + " has regions set up for excluding that do not exist");
-                return 1;
+                ++sc;
             }
         }
 
@@ -3434,7 +3450,7 @@ int ConfigReader::ReadNormFactorOptions(){
                 WriteWarningStatus("ConfigReader::ReadNormFactorOptions", "NormFactor: " + CheckName(confSet->GetValue()) + " has samples set up that do not exist");
             } else {
                 WriteErrorStatus("ConfigReader::ReadNormFactorOptions", "NormFactor: " + CheckName(confSet->GetValue()) + " has samples set up that do not exist");
-                return 1;
+                ++sc;
             }
         }
 
@@ -3498,7 +3514,7 @@ int ConfigReader::ReadNormFactorOptions(){
             std::vector<std::string> v = Vectorize(param,':');
             if (v.size() < 2){
                 WriteErrorStatus("ConfigReader::ReadNormFactorOptions", "You specified 'Expression' option but did not provide 2 parameters. Please check this");
-                return 1;
+                ++sc;
             }
             nfactor->fExpression = std::make_pair(v[0],v[1]);
             // title will contain the expression FIXME
@@ -3525,8 +3541,8 @@ int ConfigReader::ReadNormFactorOptions(){
 
         // save list of
         if (regions.size() == 0 || exclude.size() == 0){
-                WriteErrorStatus("ConfigReader::ReadNormFactorOptions", "Region or exclude region size is equal to zero. Please check this");
-                return 1;
+            WriteErrorStatus("ConfigReader::ReadNormFactorOptions", "Region or exclude region size is equal to zero. Please check this");
+            ++sc;
         }
         if(regions[0] == "all") {
             nfactor->fRegions = GetAvailableRegions();
@@ -3543,12 +3559,13 @@ int ConfigReader::ReadNormFactorOptions(){
             }
         }
     }
-    return 0;
+    return sc;
 }
 
 //__________________________________________________________________________________
 //
 int ConfigReader::ReadShapeFactorOptions(){
+    int sc(0);
     std::string param = "";
     int nShape = 0;
     std::shared_ptr<Sample> sample = nullptr;
@@ -3573,7 +3590,7 @@ int ConfigReader::ReadShapeFactorOptions(){
                 WriteWarningStatus("ConfigReader::ReadShapeFactorOptions", "ShapeFactor: " + CheckName(confSet->GetValue()) + " has regions set up that do not exist");
             } else {
                 WriteErrorStatus("ConfigReader::ReadShapeFactorOptions", "ShapeFactor: " + CheckName(confSet->GetValue()) + " has regions set up that do not exist");
-                return 1;
+                ++sc;
             }
         }
 
@@ -3582,7 +3599,7 @@ int ConfigReader::ReadShapeFactorOptions(){
                 WriteWarningStatus("ConfigReader::ReadShapeFactorOptions", "ShapeFactor: " + CheckName(confSet->GetValue()) + " has regions set up for excluding that do not exist");
             } else {
                 WriteErrorStatus("ConfigReader::ReadShapeFactorOptions", "ShapeFactor: " + CheckName(confSet->GetValue()) + " has regions set up for excluding that do not exist");
-                return 1;
+                ++sc;
             }
         }
 
@@ -3591,7 +3608,7 @@ int ConfigReader::ReadShapeFactorOptions(){
                 WriteWarningStatus("ConfigReader::ReadShapeFactorOptions", "ShapeFactor: " + CheckName(confSet->GetValue()) + " has samples set up that do not exist");
             } else {
                 WriteErrorStatus("ConfigReader::ReadShapeFactorOptions", "ShapeFactor: " + CheckName(confSet->GetValue()) + " has samples set up that do not exist");
-                return 1;
+                ++sc;
             }
         }
 
@@ -3643,7 +3660,7 @@ int ConfigReader::ReadShapeFactorOptions(){
 
         if (regions.size() == 0 || exclude.size() == 0){
             WriteErrorStatus("ConfigReader::ReadShapeFactorOptions", "Region or exclude region size is equal to zero. Please check this");
-            return 1;
+            ++sc;
         }
         // save list of
         if(regions[0] == "all") {
@@ -3662,12 +3679,13 @@ int ConfigReader::ReadShapeFactorOptions(){
         }
     }
 
-    return 0;
+    return sc;
 }
 
 //__________________________________________________________________________________
 //
 int ConfigReader::ReadSystOptions(){
+    int sc(0);
 
     if (fOnlySystematics.size() > 0){
         std::vector<std::string> availableSysts = GetAvailableSysts();
@@ -3676,7 +3694,7 @@ int ConfigReader::ReadSystOptions(){
                 WriteWarningStatus("ConfigReader::ReadSampleOptions", "You set systematics that do not exist in your command line options");
             } else {
                 WriteErrorStatus("ConfigReader::ReadSampleOptions", "You set systematics that do not exist in your command line options");
-                return 1;
+                ++sc;
             }
         }
     }
@@ -3717,7 +3735,7 @@ int ConfigReader::ReadSystOptions(){
                 WriteWarningStatus("ConfigReader::ReadSystOptions", "Systematic: " + CheckName(confSet->GetValue()) + " has regions set up that do not exist");
             } else {
                 WriteErrorStatus("ConfigReader::ReadSystOptions", "Systematic: " + CheckName(confSet->GetValue()) + " has regions set up that do not exist");
-                return 1;
+                ++sc;
             }
         }
 
@@ -3726,7 +3744,7 @@ int ConfigReader::ReadSystOptions(){
                 WriteWarningStatus("ConfigReader::ReadSystOptions", "Systematic: " + CheckName(confSet->GetValue()) + " has samples/regions set up for excluding that do not exist");
             } else {
                 WriteErrorStatus("ConfigReader::ReadSystOptions", "Systematic: " + CheckName(confSet->GetValue()) + " has samples/regions set up for excluding that do not exist");
-                return 1;
+                ++sc;
             }
         }
 
@@ -3735,7 +3753,7 @@ int ConfigReader::ReadSystOptions(){
                 WriteWarningStatus("ConfigReader::ReadSystOptions", "Systematic: " + CheckName(confSet->GetValue()) + " has samples set up that do not exist");
             } else {
                 WriteErrorStatus("ConfigReader::ReadSystOptions", "Systematic: " + CheckName(confSet->GetValue()) + " has samples set up that do not exist");
-                return 1;
+                ++sc;
             }
         }
 
@@ -4216,7 +4234,7 @@ int ConfigReader::ReadSystOptions(){
                 }
                 else {
                     WriteErrorStatus("ConfigReader::ReadSystOptions", "Symetrisation scheme is not recognized ... ");
-                    return 1;
+                    ++sc;
                 }
             }
 
@@ -4300,7 +4318,7 @@ int ConfigReader::ReadSystOptions(){
                     WriteWarningStatus("ConfigReader::ReadSystOptions", "Systematic: " + CheckName(confSet->GetValue()) + " has samples set up in SampleUp that do not exist");
                 } else {
                     WriteErrorStatus("ConfigReader::ReadSystOptions", "Systematic: " + CheckName(confSet->GetValue()) + " has samples set up in SampleUp that do not exist");
-                    return 1;
+                    ++sc;
                 }
             }
             sys->fSampleUp = RemoveQuotes(param);
@@ -4314,7 +4332,7 @@ int ConfigReader::ReadSystOptions(){
                     WriteWarningStatus("ConfigReader::ReadSystOptions", "Systematic: " + CheckName(confSet->GetValue()) + " has samples set up in SampleDown that do not exist");
                 } else {
                     WriteErrorStatus("ConfigReader::ReadSystOptions", "Systematic: " + CheckName(confSet->GetValue()) + " has samples set up in SampleDown that do not exist");
-                    return 1;
+                    ++sc;
                 }
             }
             sys->fSampleDown = RemoveQuotes(param);
@@ -4329,7 +4347,7 @@ int ConfigReader::ReadSystOptions(){
                     WriteWarningStatus("ConfigReader::ReadSystOptions", "Systematic: " + CheckName(confSet->GetValue()) + " has samples set up in ReferenceSample that do not exist");
                 } else {
                     WriteErrorStatus("ConfigReader::ReadSystOptions", "Systematic: " + CheckName(confSet->GetValue()) + " has samples set up in ReferenceSample that do not exist");
-                    return 1;
+                    ++sc;
                 }
             }
             sys->fReferenceSample = RemoveQuotes(param);
@@ -4350,12 +4368,12 @@ int ConfigReader::ReadSystOptions(){
                     WriteWarningStatus("ConfigReader::ReadSystOptions", "Systematic: " + CheckName(confSet->GetValue()) + " has samples set up in ReferenceSmoothing that do not exist");
                 } else {
                     WriteErrorStatus("ConfigReader::ReadSystOptions", "Systematic: " + CheckName(confSet->GetValue()) + " has samples set up in ReferenceSmoothing that do not exist");
-                    return 1;
+                    ++sc;
                 }
             }
             if (std::find(samples.begin(), samples.end(), RemoveQuotes(param)) == samples.end()){
                 WriteErrorStatus("ConfigReader::ReadSystOptions", "Systematic: " + CheckName(confSet->GetValue()) + " requires that the ReferenceSample appears in Samples for this systematic");
-                return 1;
+                ++sc;
             }
             sys->fReferenceSmoothing = RemoveQuotes(param);
         }
@@ -4369,12 +4387,12 @@ int ConfigReader::ReadSystOptions(){
                     WriteWarningStatus("ConfigReader::ReadSystOptions", "Systematic: " + CheckName(confSet->GetValue()) + " has samples set up in ReferencePruning that do not exist");
                 } else {
                     WriteErrorStatus("ConfigReader::ReadSystOptions", "Systematic: " + CheckName(confSet->GetValue()) + " has samples set up in ReferencePruning that do not exist");
-                    return 1;
+                    ++sc;
                 }
             }
             if (std::find(samples.begin(), samples.end(), RemoveQuotes(param)) == samples.end()){
                 WriteErrorStatus("ConfigReader::ReadSystOptions", "Systematic: " + CheckName(confSet->GetValue()) + " requires that the ReferencePruning appears in Samples for this systematic");
-                return 1;
+                ++sc;
             }
             sys->fReferencePruning = RemoveQuotes(param);
         }
@@ -4388,7 +4406,7 @@ int ConfigReader::ReadSystOptions(){
                     WriteWarningStatus("ConfigReader::ReadSystOptions", "Systematic: " + CheckName(confSet->GetValue()) + " has regions set up in DropShapeIn that do not exist");
                 } else {
                     WriteErrorStatus("ConfigReader::ReadSystOptions", "Systematic: " + CheckName(confSet->GetValue()) + " has regions set up in DropShapeIn that do not exist");
-                    return 1;
+                    ++sc;
                 }
             }
             sys->fDropShapeIn = tmp;
@@ -4409,7 +4427,7 @@ int ConfigReader::ReadSystOptions(){
                     WriteWarningStatus("ConfigReader::ReadSystOptions", "Systematic: " + CheckName(confSet->GetValue()) + " has regions set up in DropNorm that do not exist");
                 } else {
                     WriteErrorStatus("ConfigReader::ReadSystOptions", "Systematic: " + CheckName(confSet->GetValue()) + " has regions set up in DropNorm that do not exist");
-                    return 1;
+                    ++sc;
                 }
             }
             sys->fDropNormIn = tmp;
@@ -4424,7 +4442,7 @@ int ConfigReader::ReadSystOptions(){
                     WriteWarningStatus("ConfigReader::ReadSystOptions", "Systematic: " + CheckName(confSet->GetValue()) + " has regions set up in DropNorm that do not exist");
                 } else {
                     WriteErrorStatus("ConfigReader::ReadSystOptions", "Systematic: " + CheckName(confSet->GetValue()) + " has regions set up in DropNorm that do not exist");
-                    return 1;
+                    ++sc;
                 }
             }
             sys->fDropNormSpecialIn = tmp;
@@ -4439,7 +4457,7 @@ int ConfigReader::ReadSystOptions(){
                     WriteWarningStatus("ConfigReader::ReadSystOptions", "Systematic: " + CheckName(confSet->GetValue()) + " has samples set up in KeepNormForSamples that do not exist");
                 } else {
                     WriteErrorStatus("ConfigReader::ReadSystOptions", "Systematic: " + CheckName(confSet->GetValue()) + " has samples set up in KeepNormForSamples that do not exist");
-                    return 1;
+                    ++sc;
                 }
             }
             sys->fKeepNormForSamples = tmp;
@@ -4447,7 +4465,7 @@ int ConfigReader::ReadSystOptions(){
 
         if (regions.size() == 0 || exclude.size() == 0){
             WriteErrorStatus("ConfigReader::ReadSystOptions", "Region or exclude region size is equal to zero. Please check this");
-            return 1;
+            ++sc;
         }
 
         // Set DummyForSamples
@@ -4505,18 +4523,17 @@ int ConfigReader::ReadSystOptions(){
         else {
             WriteErrorStatus("ConfigReader::ReadSystOptions", "decorrelate option: " + decorrelate  + "  not supported ...");
             WriteErrorStatus("ConfigReader::ReadSystOptions", "       PLEASE USE ONLY: REGION, SAMPLE, SHAPEACC");
-            return 1;
+            ++sc;
         }
-
-
     }
 
-    return 0;
+    return sc;
 }
 
 //__________________________________________________________________________________
 //
 int ConfigReader::SetSystNoDecorelate(ConfigSet *confSet, std::shared_ptr<Systematic> sys, const std::vector<std::string>& samples, const std::vector<std::string>& exclude){
+    int sc(0);
     std::shared_ptr<Sample> sam = nullptr;
 
     fFitter->fSystematics.emplace_back( sys );
@@ -4567,7 +4584,7 @@ int ConfigReader::SetSystNoDecorelate(ConfigSet *confSet, std::shared_ptr<System
 
     FixReferenceSamples(sys);
 
-    return 0;
+    return sc;
 }
 
 //__________________________________________________________________________________
@@ -4578,6 +4595,8 @@ int ConfigReader::SetSystRegionDecorelate(ConfigSet *confSet,
                                           const std::vector<std::string>& exclude,
                                           const std::vector<std::string>& regions,
                                           int type) {
+
+    int sc(0);
     std::shared_ptr<Sample> sam = nullptr;
     std::string param = "";
 
@@ -4693,12 +4712,15 @@ int ConfigReader::SetSystRegionDecorelate(ConfigSet *confSet,
         }
     }
 
-    return 0;
+    return sc;
 }
 
 //__________________________________________________________________________________
 //
 int ConfigReader::SetSystSampleDecorelate(ConfigSet *confSet, std::shared_ptr<Systematic> sys, const std::vector<std::string> &samples, const std::vector<std::string> &exclude){
+
+    int sc(0);
+
     std::string param = "";
 
     // (this is really messy)
@@ -4755,12 +4777,14 @@ int ConfigReader::SetSystSampleDecorelate(ConfigSet *confSet, std::shared_ptr<Sy
         FixReferenceSamples(mySys);
     }
 
-    return 0;
+    return sc;
 }
 
 //__________________________________________________________________________________
 //
 int ConfigReader::SetSystShapeDecorelate(ConfigSet *confSet, std::shared_ptr<Systematic> sys, const std::vector<std::string> &samples, const std::vector<std::string> &exclude){
+    int sc(0);
+
     std::shared_ptr<Sample> sam = nullptr;
     std::string param = "";
 
@@ -4847,16 +4871,18 @@ int ConfigReader::SetSystShapeDecorelate(ConfigSet *confSet, std::shared_ptr<Sys
         FixReferenceSamples(mySys2);
     }
 
-    return 0;
+    return sc;
 }
 
 //__________________________________________________________________________________
 //
 int ConfigReader::PostConfig(const std::string& opt){
 
+    int sc(0);
+
     if (!fHasAtLeastOneValidSample && Common::OptionRunsFit(opt)){
         WriteErrorStatus("ConfigReader::ReadSampleOptions","You need to provide at least one sample that is either SIGNAL or BACKGROUND, otherwise the fit will crash.");
-        return 1;
+        ++sc;
     }
 
     // if StatOnly, also sets to OFF the MC stat
@@ -4907,7 +4933,7 @@ int ConfigReader::PostConfig(const std::string& opt){
                         WriteErrorStatus("ConfigReader::PostConfig", "    Min: <the min value for which you have provided template>");
                         WriteErrorStatus("ConfigReader::PostConfig", "    Max: <the min value for which you have provided template>");
                         WriteErrorStatus("ConfigReader::PostConfig", "    Samples: none");
-                        return 1;
+                        ++sc;
                     }
                 }
             }
@@ -4925,7 +4951,7 @@ int ConfigReader::PostConfig(const std::string& opt){
             else{
                 if(nbins!=reg->fNbins){
                     WriteErrorStatus("ConfigReader::PostConfig","Shape factor " + sfactor->fName + " assigned to regions with different number of bins. Please check.");
-                    return 1;
+                    ++sc;
                 }
             }
         }
@@ -4951,7 +4977,6 @@ int ConfigReader::PostConfig(const std::string& opt){
             TRExFitter::SYSTMAP[sfactor->fName] = sfactor->fTitle;
             if (SystHasProblematicName(sfactor->fNuisanceParameter)) return 1;
             // Set it to constant by default (will be made non-constant later when fitting)
-//             sfactor->fConst = true;
             // needed? FIXME
             sfactor->fMin = 0;
             sfactor->fMax = 10;
@@ -4991,17 +5016,20 @@ int ConfigReader::PostConfig(const std::string& opt){
         }
     }
 
-    return 0;
+    return sc;
 }
 
 //__________________________________________________________________________________
 //
 int ConfigReader::ReadUnfoldingOptions() {
+
+    int sc(0);
+
     ConfigSet *confSet = fParser->GetConfigSet("Unfolding");
 
     if (fFitter->fFitType == TRExFit::UNFOLDING && !confSet) {
         WriteErrorStatus("ConfigReader::ReadUnfoldingOptions", "You set FitType == UNFOLDING, but didnt provide Unfolding block!");
-        return 1;
+        ++sc;
     }
 
     if (!confSet) {
@@ -5039,12 +5067,12 @@ int ConfigReader::ReadUnfoldingOptions() {
     param = confSet->Get("NumberOfTruthBins");
     if (param == "") {
         WriteErrorStatus("ConfigReader::ReadUnfoldingOptions", "You need to set the number of truth bins!");
-        return 1;
+        ++sc;
     } else {
         const int bins = std::stoi(param);
         if (bins < 2 || bins > 100) {
             WriteErrorStatus("ConfigReader::ReadUnfoldingOptions", "You set the number of truth bins which is < 2 or > 100, that loooks wrong");
-            return 1;
+            ++sc;
         }
         fFitter->fNumberUnfoldingTruthBins = bins;
     }
@@ -5054,7 +5082,7 @@ int ConfigReader::ReadUnfoldingOptions() {
         const int bins = std::stoi(param);
         if (bins < 2 || bins > 100) {
             WriteErrorStatus("ConfigReader::ReadUnfoldingOptions", "You set the number of reco bins which is < 2 or > 100, that loooks wrong");
-            return 1;
+            ++sc;
         }
         fFitter->fNumberUnfoldingRecoBins = bins;
     }
@@ -5070,7 +5098,7 @@ int ConfigReader::ReadUnfoldingOptions() {
                 const std::vector<std::string>& oneTau = Vectorize(i, ':');
                 if (oneTau.size() != 2) {
                     WriteErrorStatus("ConfigReader::ReadUnfoldingOptions", "Wrong format for Tau!");
-                    return 1;
+                    ++sc;
                 }
 
                 int bin = std::stoi(oneTau.at(0));
@@ -5198,7 +5226,7 @@ int ConfigReader::ReadUnfoldingOptions() {
     param = confSet->Get("NominalTruthSample");
     if (param == "") {
         WriteErrorStatus("ConfigReader::ReadUnfoldingOptions", "You need to set NominalTruthSample option!");
-        return 1;
+        ++sc;
     } else {
         fFitter->fNominalTruthSample = RemoveQuotes(param);
     }
@@ -5224,12 +5252,14 @@ int ConfigReader::ReadUnfoldingOptions() {
         fFitter->fUnfoldingDivideByBinWidth = Common::StringToBoolean(param);
     }
 
-    return 0;
+    return sc;
 }
 
 //__________________________________________________________________________________
 //
 int ConfigReader::ReadTruthSamples() {
+
+    int sc(0);
 
     int isample(0);
 
@@ -5255,7 +5285,7 @@ int ConfigReader::ReadTruthSamples() {
             names.emplace_back(RemoveQuotes(confSet->GetValue()));
         } else {
             WriteErrorStatus("ConfigReader::ReadTruthSamples", "Multiply defined TruthSample: " + RemoveQuotes(confSet->GetValue()));
-            return 1;
+            ++sc;
         }
 
         std::string param = confSet->Get("Title");
@@ -5298,20 +5328,22 @@ int ConfigReader::ReadTruthSamples() {
 
     if (isample != 0 && !found) {
         WriteErrorStatus("ConfigReader::ReadTruthSamples", "The NominalTruthSample not found in any of the TruthSample");
-        return 1;
+        ++sc;
     }
 
     if (fFitter->fAlternativeAsimovTruthSample != "" && !foundAlternative) {
         WriteErrorStatus("ConfigReader::ReadTruthSamples", "The AlternativeAsimovTruthSample is set but doesnt match any of the TruthSamples");
-        return 1;
+        ++sc;
     }
 
-    return 0;
+    return sc;
 }
 
 //__________________________________________________________________________________
 //
 int ConfigReader::ReadUnfoldingSampleOptions() {
+
+    int sc(0);
 
     int isample = 0;
     while(true) {
@@ -5636,12 +5668,14 @@ int ConfigReader::ReadUnfoldingSampleOptions() {
 
     }
 
-    return 0;
+    return sc;
 }
 
 //__________________________________________________________________________________
 //
 int ConfigReader::ReadUnfoldingSystematicOptions() {
+
+    int sc(0);
 
     int isyst(0);
 
@@ -6407,7 +6441,7 @@ int ConfigReader::ReadUnfoldingSystematicOptions() {
             }
             else {
                 WriteErrorStatus("ConfigReader::ReadUnfoldingSystematicOptions", "Symetrisation scheme is not recognized ... ");
-                return 1;
+                ++sc;
             }
         }
 
@@ -6431,7 +6465,7 @@ int ConfigReader::ReadUnfoldingSystematicOptions() {
         fFitter->fUnfoldingSystematics.emplace_back(std::move(syst));
     }
 
-    return 0;
+    return sc;
 }
 
 //__________________________________________________________________________________
@@ -6585,6 +6619,8 @@ bool ConfigReader::SystHasProblematicName(const std::string& name){
 //
 int ConfigReader::ProcessUnfoldingSamples() {
 
+    int sc(0);
+
     for (const auto& ireg : fFitter->fRegions) {
         if (ireg->fRegionType != Region::RegionType::SIGNAL) continue;
 
@@ -6609,12 +6645,15 @@ int ConfigReader::ProcessUnfoldingSamples() {
         }
     }
 
-    return 0;
+    return sc;
 }
 
 //__________________________________________________________________________________
 //
 int ConfigReader::ProcessUnfoldingSystematics() {
+
+    int sc(0);
+
     for (const auto& ireg : fFitter->fRegions) {
         if (ireg->fRegionType != Region::RegionType::SIGNAL) continue;
 
@@ -6624,7 +6663,7 @@ int ConfigReader::ProcessUnfoldingSystematics() {
 
             if (fFitter->fUnfoldingSamples.size() == 0) {
                 WriteErrorStatus("ConfigReader::ProcessUnfoldingSystematics", "No UnfoldingSamples set!");
-                return 1;
+                ++sc;
             }
             std::string unfoldingSampleName("");
             for (const auto& isample : fFitter->fUnfoldingSamples) {
@@ -6636,7 +6675,7 @@ int ConfigReader::ProcessUnfoldingSystematics() {
 
             if (unfoldingSampleName == "") {
                 WriteErrorStatus("ConfigReader::ProcessUnfoldingSystematics", "Sample name not set!");
-                exit(EXIT_FAILURE);
+                ++sc;
             }
 
             const std::vector<std::shared_ptr<Systematic> > systs = isyst->ConvertToSystematic(ireg,
@@ -6649,12 +6688,14 @@ int ConfigReader::ProcessUnfoldingSystematics() {
         }
     }
 
-    return 0;
+    return sc;
 }
 
 //__________________________________________________________________________________
 //
 int ConfigReader::AddUnfoldingNormFactors() {
+
+    int sc(0);
     
     // Add overall norm factor, for normalized xsec:
     std::shared_ptr<NormFactor> nfTot = nullptr;
@@ -6769,7 +6810,7 @@ int ConfigReader::AddUnfoldingNormFactors() {
         }
     }
 
-    return 0;
+    return sc;
 }
 
 //__________________________________________________________________________________
