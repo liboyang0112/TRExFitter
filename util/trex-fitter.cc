@@ -107,6 +107,7 @@ void FitExample(std::string opt="h",std::string configFile="config/myFit.config"
 
         if (sc != 0){
             WriteErrorStatus("trex-fitter::FitExample", "Failed to read the config file for multifit.");
+            WriteErrorStatus("trex-fitter::FitExample", "Found " + std::to_string(sc) + " errors in the config.");
             WriteErrorStatus("trex-fitter::FitExample", "Please check all reported errors.");
             exit(EXIT_FAILURE);
         }
@@ -182,6 +183,7 @@ void FitExample(std::string opt="h",std::string configFile="config/myFit.config"
         int sc = reader.ReadFullConfig(configFile,opt,options);
         if(sc!=0){
             WriteErrorStatus("trex-fitter::FitExample", "Failed to read the config file.");
+            WriteErrorStatus("trex-fitter::FitExample", "Found " + std::to_string(sc) + " errors in the config.");
             WriteErrorStatus("trex-fitter::FitExample", "Please check all reported errors.");
             exit(EXIT_FAILURE);
         }
