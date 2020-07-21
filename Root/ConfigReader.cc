@@ -112,8 +112,9 @@ int ConfigReader::ReadCommandLineOptions(const std::string& option){
         if (optPair.size() < 2){
             WriteErrorStatus("ConfigReader::ReadCommandLineOptions", "Cannot read your command line option, please check this!");
             ++sc;
+        } else {
+            optMap[optPair[0]] = optPair[1];
         }
-        optMap[optPair[0]] = optPair[1];
     }
     if(optMap["Regions"]!=""){
         fOnlyRegions = Vectorize(optMap["Regions"],',');
@@ -2337,7 +2338,7 @@ int ConfigReader::ReadRegionOptions(const std::string& opt){
             if(vec_bins[0]=="AutoBin"){
                 if (vec_bins.size() < 2){
                     WriteErrorStatus("ConfigReader::ReadRegionOptions", "You specified `Binning` option with Autobin, but you did not provide any reasonable option. Check this!");
-                    ++sc;
+                    return 1;
                 }
                 reg -> fBinTransfo = vec_bins[1];
                 if(vec_bins[1]=="TransfoD"){
@@ -2596,20 +2597,21 @@ int ConfigReader::SetRegionNTUP(Region* reg, ConfigSet *confSet){
     if (variable.size() == 0){
         WriteErrorStatus("ConfigReader::SetRegionNTUP", "Variable option is required but not present. Please check it!");
         ++sc;
-    }
-    // fix variable vector if special functions are used
-    if(variable[0].find("Alt$")!=std::string::npos || variable[0].find("MaxIf$")!=std::string::npos ||variable[0].find("MinIf$")!=std::string::npos ){
-        if (variable.size() > 1){
-            do{
-            variable[0]+=","+variable[1];
-            variable.erase(variable.begin()+1);
+    } else {
+        // fix variable vector if special functions are used
+        if(variable[0].find("Alt$")!=std::string::npos || variable[0].find("MaxIf$")!=std::string::npos ||variable[0].find("MinIf$")!=std::string::npos ){
+            if (variable.size() > 1){
+                do{
+                    variable[0]+=","+variable[1];
+                    variable.erase(variable.begin()+1);
+                }
+                while(variable[1].find("Alt$")!=std::string::npos);
+                    variable[0]+=","+variable[1];
+                    variable.erase(variable.begin()+1);
+            } else {
+                WriteErrorStatus("ConfigReader::SetRegionNTUP", "Variable option has weird input. Please check it!");
+                ++sc;
             }
-            while(variable[1].find("Alt$")!=std::string::npos);
-            variable[0]+=","+variable[1];
-            variable.erase(variable.begin()+1);
-        } else {
-            WriteErrorStatus("ConfigReader::SetRegionNTUP", "Variable option has weird input. Please check it!");
-            ++sc;
         }
     }
 
@@ -3515,20 +3517,21 @@ int ConfigReader::ReadNormFactorOptions(){
             if (v.size() < 2){
                 WriteErrorStatus("ConfigReader::ReadNormFactorOptions", "You specified 'Expression' option but did not provide 2 parameters. Please check this");
                 ++sc;
-            }
-            nfactor->fExpression = std::make_pair(v[0],v[1]);
-            // title will contain the expression FIXME
-            nfactor->fTitle = v[0];
-            TRExFitter::SYSTMAP[nfactor->fName] = v[0];
-            // nuis-par will contain the nuis-par of the norm factor the expression depends on FIXME
-            nfactor->fNuisanceParameter = v[1];
-            TRExFitter::NPMAP[nfactor->fName] = v[1];
-            // set nominal, min and max according to the norm factor the expression depends on FIXME
-            for(const auto& nf : fFitter->fNormFactors){
-                if(nf->fNuisanceParameter == v[1]){
-                    nfactor->fNominal = nf->fNominal;
-                    nfactor->fMin = nf->fMin;
-                    nfactor->fMax = nf->fMax;
+            } else {
+                nfactor->fExpression = std::make_pair(v[0],v[1]);
+                // title will contain the expression FIXME
+                nfactor->fTitle = v[0];
+                TRExFitter::SYSTMAP[nfactor->fName] = v[0];
+                // nuis-par will contain the nuis-par of the norm factor the expression depends on FIXME
+                nfactor->fNuisanceParameter = v[1];
+                TRExFitter::NPMAP[nfactor->fName] = v[1];
+                // set nominal, min and max according to the norm factor the expression depends on FIXME
+                for(const auto& nf : fFitter->fNormFactors){
+                    if(nf->fNuisanceParameter == v[1]){
+                        nfactor->fNominal = nf->fNominal;
+                        nfactor->fMin = nf->fMin;
+                        nfactor->fMax = nf->fMax;
+                    }
                 }
             }
         }

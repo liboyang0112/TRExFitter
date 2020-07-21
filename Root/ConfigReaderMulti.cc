@@ -78,8 +78,9 @@ int ConfigReaderMulti::ReadCommandLineOptions(const std::string &option){
         if (optPair.size() < 2){
             WriteErrorStatus("ConfigReaderMulti::ReadCommandLineOptions", "Cannot read your command line option, please check this!");
             ++sc;
+        } else {
+            optMap[optPair[0]] = optPair[1];
         }
-        optMap[optPair[0]] = optPair[1];
     }
 
     if(optMap["Ranking"]!=""){
