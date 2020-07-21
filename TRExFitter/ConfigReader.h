@@ -239,13 +239,6 @@ class ConfigReader {
         int PostConfig(const std::string& opt);
 
         /**
-          * Helper function to check the consistency of the input
-          * @param string Input parameter
-          * @return string Corrected parameter
-          */
-        std::string CheckName(std::string name);
-
-        /**
           * Helper function to check if elements of one vector are present in another
           * @param vector of parameters to check
           * @param vector of paramaeters to check to

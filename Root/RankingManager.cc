@@ -463,7 +463,7 @@ void RankingManager::PlotRanking(const std::vector<Region*>& regions,
 
         if(parname[i].find("gamma")!=std::string::npos){
             // get name of the region
-            std::vector<std::string> tmpVec = Vectorize(parname[i],'_');
+            std::vector<std::string> tmpVec = Common::Vectorize(parname[i],'_');
             int nWords = tmpVec.size();
             std::string regName = tmpVec[2];
             for(int i_word=3;i_word<nWords-2;i_word++){

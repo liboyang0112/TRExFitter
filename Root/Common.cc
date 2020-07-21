@@ -1466,3 +1466,95 @@ void Common::MergeTxTFiles(const std::vector<std::string>& input, const std::str
 
     outFile.close();
 }
+//__________________________________________________________________________________
+//
+std::string Common::CheckName(const std::string& name) {
+    const std::string result = RemoveQuotes(name);
+    if((result.size() > 0) && (std::isdigit(result.at(0))) ){
+        WriteErrorStatus("Common::CheckName", "Failed to browse name: " + name + ". A number has been detected at the first position of the name.");
+        WriteErrorStatus("Common::CheckName", "           This can lead to unexpected behaviour in HistFactory. Please change the name. ");
+        exit(EXIT_FAILURE);
+    } else {
+        return result;
+    }
+}
+
+//__________________________________________________________________________________
+// Removes '"'
+std::string Common::RemoveQuotes(const std::string& s){
+    if(s=="") return "";
+    std::string ss = s;
+    replace(ss.begin(), ss.end(), '"', ' ');
+    return Common::RemoveSpaces(ss);
+}
+
+//__________________________________________________________________________________
+// Removes leading and trailing white spaces
+std::string Common::RemoveSpaces(const std::string& s){
+    if(s=="") return "";
+    std::string ss = s;
+    if (ss.find_first_not_of(' ')>=std::string::npos){
+        ss = "";
+    }
+    else if (ss.find_first_not_of(' ')>0){
+        ss=ss.substr(ss.find_first_not_of(' '),ss.find_last_not_of(' '));
+    }
+    else{
+        ss=ss.substr(ss.find_first_not_of(' '),ss.find_last_not_of(' ')+1);
+    }
+    return ss;
+}
+
+//__________________________________________________________________________________
+// Removes everything after '%' or '#', but only if not inside quotation marks!!
+std::string Common::RemoveComments(const std::string& s){
+    if(s=="") return "";
+    std::string ss = "";
+    bool insideQuotes = false;
+    for(unsigned long i=0;i<s.size();i++){
+        if(s[i]=='"'){
+            if(!insideQuotes) insideQuotes = true;
+            else              insideQuotes = false;
+        }
+        if((s[i]=='%' || s[i]=='#') && !insideQuotes) break;
+        ss += s[i];
+    }
+    return Common::RemoveSpaces(ss);
+}
+
+//__________________________________________________________________________________
+//
+std::vector<std::string> Common::Vectorize(const std::string& s, char c, bool removeQuotes) {
+    std::vector<std::string> v;
+    std::string ss = Common::RemoveComments(s);
+    if(ss==""){
+        v.emplace_back("");
+        return v;
+    }
+    std::string t;
+    bool insideQuotes = false;
+    for(unsigned long i=0;i<ss.size();i++){
+        if(!insideQuotes && ss[i]==c){
+            if(removeQuotes) v.emplace_back(Common::RemoveQuotes(t));
+            else             v.emplace_back(Common::RemoveSpaces(t));
+            t = "";
+        }
+        else if(!insideQuotes && ss[i]=='"'){
+            insideQuotes = true;
+            t += ss[i];
+        }
+        else if(insideQuotes && ss[i]=='"'){
+            insideQuotes = false;
+            t += ss[i];
+        }
+        else{
+            t += ss[i];
+        }
+    }
+    if(Common::RemoveQuotes(t)!=""){
+        if(removeQuotes) v.emplace_back(Common::RemoveQuotes(t));
+        else             v.emplace_back(Common::RemoveSpaces(t));
+    }
+    return v;
+}
+

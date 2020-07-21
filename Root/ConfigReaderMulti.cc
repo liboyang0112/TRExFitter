@@ -71,10 +71,10 @@ int ConfigReaderMulti::ReadCommandLineOptions(const std::string &option){
 
     int sc(0);
 
-    std::vector< std::string > optVec = Vectorize(option,':');
+    std::vector< std::string > optVec = Common::Vectorize(option,':');
     for(const std::string& iopt : optVec){
         std::vector< std::string > optPair;
-        optPair = Vectorize(iopt,'=');
+        optPair = Common::Vectorize(iopt,'=');
         if (optPair.size() < 2){
             WriteErrorStatus("ConfigReaderMulti::ReadCommandLineOptions", "Cannot read your command line option, please check this!");
             ++sc;
@@ -119,12 +119,12 @@ int ConfigReaderMulti::ReadJobOptions() {
         ++sc;
     }
 
-    fMultiFitter->fName = CheckName(confSet->GetValue());
+    fMultiFitter->fName = Common::CheckName(confSet->GetValue());
 
     // Set OutputDir
     param = confSet->Get("OutputDir");
     if(param !=""){
-        fMultiFitter->fDir = CheckName(param);
+        fMultiFitter->fDir = Common::CheckName(param);
         if(fMultiFitter->fDir.back() != '/') fMultiFitter->fDir += '/';
         fMultiFitter->fOutDir = fMultiFitter->fDir + fMultiFitter->fName;
         gSystem->mkdir((fMultiFitter->fOutDir).c_str(), true);
@@ -135,23 +135,23 @@ int ConfigReaderMulti::ReadJobOptions() {
 
     // Set Label
     param = confSet->Get("Label");
-    if( param != "") fMultiFitter->fLabel = RemoveQuotes(param);
+    if( param != "") fMultiFitter->fLabel = Common::RemoveQuotes(param);
 
     // Set LumiLabel
     param = confSet->Get("LumiLabel");
-    if( param != "") fMultiFitter->fLumiLabel = RemoveQuotes(param);
+    if( param != "") fMultiFitter->fLumiLabel = Common::RemoveQuotes(param);
 
     // Set CmeLabel
     param = confSet->Get("CmeLabel");
-    if( param != "") fMultiFitter->fCmeLabel = RemoveQuotes(param);
+    if( param != "") fMultiFitter->fCmeLabel = Common::RemoveQuotes(param);
 
     // Set Label of combination
     param = confSet->Get("CombiLabel");
-    if( param != "") fMultiFitter->fCombiLabel = RemoveQuotes(param);
+    if( param != "") fMultiFitter->fCombiLabel = Common::RemoveQuotes(param);
 
     // Set SaveSuf
     param = confSet->Get("SaveSuf");
-    if( param != "") fMultiFitter->fSaveSuf = RemoveQuotes(param);
+    if( param != "") fMultiFitter->fSaveSuf = Common::RemoveQuotes(param);
     else fMultiFitter->fSaveSuf             = fGlobalSuffix;
 
     // Set ShowObserved
@@ -162,7 +162,7 @@ int ConfigReaderMulti::ReadJobOptions() {
 
     // Set LimitTitle
     param = confSet->Get("LimitTitle");
-    if( param != "") fMultiFitter->fLimitTitle = RemoveQuotes(param);
+    if( param != "") fMultiFitter->fLimitTitle = Common::RemoveQuotes(param);
     // --- these lines should be removed at some point, since now we protect the text inside ""
     if(fMultiFitter->fLimitTitle.find("95CL")!=std::string::npos){
          fMultiFitter->fLimitTitle.replace(fMultiFitter->fLimitTitle.find("95CL"),4,"95% CL");
@@ -171,7 +171,7 @@ int ConfigReaderMulti::ReadJobOptions() {
 
     // Ser POITitle
     param = confSet->Get("POITitle");
-    if( param != "") fMultiFitter->fPOITitle = RemoveQuotes(param);
+    if( param != "") fMultiFitter->fPOITitle = Common::RemoveQuotes(param);
 
     // Set CompareLimits
     param = confSet->Get("CompareLimits");
@@ -236,7 +236,7 @@ int ConfigReaderMulti::ReadJobOptions() {
     // Set POIName
     param = confSet->Get("POIName");
     if( param != "" ) {
-        const auto tmp =  Vectorize(param, ',');
+        const auto tmp =  Common::Vectorize(param, ',');
         for (const auto& i : tmp) {
             fMultiFitter->AddPOI(i);
         }
@@ -244,7 +244,7 @@ int ConfigReaderMulti::ReadJobOptions() {
 
     // Set POILabel
     param = confSet->Get("POILabel");
-    if( param != "" ) fMultiFitter->fPOIName = RemoveQuotes(param);
+    if( param != "" ) fMultiFitter->fPOIName = Common::RemoveQuotes(param);
 
     // Set POINominal
     param = confSet->Get("POINominal");
@@ -253,13 +253,13 @@ int ConfigReaderMulti::ReadJobOptions() {
     // Set POIRange
     param = confSet->Get("POIRange");
     if( param != ""){
-        const auto tmp = Vectorize(param, ',');   
+        const auto tmp = Common::Vectorize(param, ',');   
         if (tmp.size() != fMultiFitter->fPOIs.size()) {
             WriteErrorStatus("ConfigReaderMulti::ReadJobOptions", "You specified 'POIRange' option but you didn't pass the same number of parametrs as the number of POIs. Please check this!");
             ++sc;
         }
         for (const auto& irange : tmp) {
-            const auto vec = Vectorize(irange,':');
+            const auto vec = Common::Vectorize(irange,':');
             if (vec.size()==2 ) {
                 fMultiFitter->fPOIMin.emplace_back(atof( vec[0].c_str() ));
                 fMultiFitter->fPOIMax.emplace_back(atof( vec[1].c_str() ));
@@ -279,19 +279,19 @@ int ConfigReaderMulti::ReadJobOptions() {
     // Set POIPrecision
     param = confSet->Get("POIPrecision");
     if( param != "" ) {
-        const auto tmp = Vectorize(param, ',');
+        const auto tmp = Common::Vectorize(param, ',');
         if (tmp.size() != fMultiFitter->fPOIs.size()) {
             WriteErrorStatus("ConfigReaderMulti::ReadJobOptions", "You specified 'POIPrecision' option but you didn't pass the same number of parametrs as the number of POIs. Please check this!");
             ++sc;
         }
         for (const auto& i : tmp) { 
-            fMultiFitter->fPOIPrecision.emplace_back(RemoveQuotes(i).c_str());
+            fMultiFitter->fPOIPrecision.emplace_back(Common::RemoveQuotes(i).c_str());
         }
     }
 
     //Set DataName
     param = confSet->Get("DataName");
-    if( param != "" ) fMultiFitter->fDataName = RemoveQuotes(param);
+    if( param != "" ) fMultiFitter->fDataName = Common::RemoveQuotes(param);
 
     // Set FitType
     param = confSet->Get("FitType");
@@ -315,7 +315,7 @@ int ConfigReaderMulti::ReadJobOptions() {
     // Set NPCategories
     param = confSet->Get("NPCategories");
     if( param != "" ) {
-        std::vector<std::string> categ = Vectorize(param,',');
+        std::vector<std::string> categ = Common::Vectorize(param,',');
         for(const std::string &icat : categ)
             fMultiFitter->fNPCategories.push_back(icat);
     }
@@ -353,7 +353,7 @@ int ConfigReaderMulti::ReadJobOptions() {
 
     // Set NuisParListFile
     param = confSet->Get("NuisParListFile");
-    if( param != "" ) fMultiFitter->fNuisParListFile = RemoveQuotes(param);
+    if( param != "" ) fMultiFitter->fNuisParListFile = Common::RemoveQuotes(param);
 
     // Set PlotSoverB
     param = confSet->Get("PlotSoverB");
@@ -363,19 +363,19 @@ int ConfigReaderMulti::ReadJobOptions() {
 
     // Set SignalTitle
     param = confSet->Get("SignalTitle");
-    if( param != "" ) fMultiFitter->fSignalTitle = RemoveQuotes(param);
+    if( param != "" ) fMultiFitter->fSignalTitle = Common::RemoveQuotes(param);
 
     // Set FitResultsFile
     param = confSet->Get("FitResultsFile");
-    if( param != "" ) fMultiFitter->fFitResultsFile = RemoveQuotes(param);
+    if( param != "" ) fMultiFitter->fFitResultsFile = Common::RemoveQuotes(param);
 
     // Set LimitsFile
     param = confSet->Get("LimitsFile");
-    if( param != "" ) fMultiFitter->fLimitsFile = RemoveQuotes(param);
+    if( param != "" ) fMultiFitter->fLimitsFile = Common::RemoveQuotes(param);
 
     // Set BonlySuffix
     param = confSet->Get("BonlySuffix");
-    if( param != "" ) fMultiFitter->fBonlySuffix = RemoveQuotes(param);
+    if( param != "" ) fMultiFitter->fBonlySuffix = Common::RemoveQuotes(param);
 
     // Set ShowSystForPOI
     param = confSet->Get("ShowSystForPOI");
@@ -393,7 +393,7 @@ int ConfigReaderMulti::ReadJobOptions() {
     param = confSet->Get("doLHscan");
     if( param != "" ){
         if (fOnlyLHscan==""){
-            fMultiFitter->fVarNameLH = Vectorize(param,',');
+            fMultiFitter->fVarNameLH = Common::Vectorize(param,',');
         } else {
             fMultiFitter->fVarNameLH.emplace_back(fOnlyLHscan);
         }
@@ -402,9 +402,9 @@ int ConfigReaderMulti::ReadJobOptions() {
     // Set do2DLHscan
     param = confSet->Get("do2DLHscan");
     if( param != "" ){
-        const std::vector<std::string> tmp = Vectorize(param,':');
+        const std::vector<std::string> tmp = Common::Vectorize(param,':');
         for (const auto& ivec : tmp){
-            const std::vector<std::string> v = Vectorize(ivec,',');
+            const std::vector<std::string> v = Common::Vectorize(ivec,',');
             if (v.size() == 2){
                 fMultiFitter->fVarName2DLH.emplace_back(v);
             } else {
@@ -508,7 +508,7 @@ int ConfigReaderMulti::ReadJobOptions() {
     // Set PlotOptions
     param = confSet->Get("PlotOptions");
     if( param != ""){
-        std::vector<std::string> vec = Vectorize(param,',');
+        std::vector<std::string> vec = Common::Vectorize(param,',');
         if( std::find(vec.begin(), vec.end(), "PREFITONPOSTFIT")   !=vec.end() )  TRExFitter::PREFITONPOSTFIT= true;
     }
 
@@ -689,33 +689,33 @@ int ConfigReaderMulti::ReadFitOptions(const std::string& opt, const std::string&
         // Set Options
         std::string fullOptions;
         std::string param = confSet->Get("Options");
-        if(param!="" && options!="") fullOptions = options+";"+RemoveQuotes(param);
-        else if(param!="") fullOptions = RemoveQuotes(param);
+        if(param!="" && options!="") fullOptions = options+";"+Common::RemoveQuotes(param);
+        else if(param!="") fullOptions = Common::RemoveQuotes(param);
         else fullOptions = options;
 
         // name
-        fMultiFitter->fFitNames.push_back(CheckName(confSet->GetValue()));
+        fMultiFitter->fFitNames.push_back(Common::CheckName(confSet->GetValue()));
 
         // Set Label
         param = confSet->Get("Label");
-        std::string label = CheckName(confSet->GetValue());
-        if(param!="") label = RemoveQuotes(param);
+        std::string label = Common::CheckName(confSet->GetValue());
+        if(param!="") label = Common::RemoveQuotes(param);
 
         // Set suf
         param = confSet->Get("LoadSuf");
         std::string loadSuf = "";
-        if(param!="") loadSuf = RemoveQuotes(param);
+        if(param!="") loadSuf = Common::RemoveQuotes(param);
         else          loadSuf = fGlobalSuffix;
 
         // config file
         std::string confFile = "";
         param = confSet->Get("ConfigFile");
-        if(param!="") confFile = RemoveQuotes(param);
+        if(param!="") confFile = Common::RemoveQuotes(param);
 
         // workspace
         std::string wsFile = "";
         param = confSet->Get("Workspace");
-        if(param!="") wsFile = RemoveQuotes(param);
+        if(param!="") wsFile = Common::RemoveQuotes(param);
 
         bool useInFit(true);
         param = confSet->Get("UseInFit");
@@ -739,24 +739,24 @@ int ConfigReaderMulti::ReadFitOptions(const std::string& opt, const std::string&
 
         // Set FitResultsFile
         param = confSet->Get("FitResultsFile");
-        if( param != "" ) fMultiFitter->fFitList[fMultiFitter->fFitList.size()-1]->fFitResultsFile = RemoveQuotes(param);
+        if( param != "" ) fMultiFitter->fFitList[fMultiFitter->fFitList.size()-1]->fFitResultsFile = Common::RemoveQuotes(param);
         fMultiFitter->fLimitsFiles.push_back("");
 
         // Set LimitsFile
         param = confSet->Get("LimitsFile");
-        if( param != "" ) fMultiFitter->fLimitsFiles[fMultiFitter->fFitList.size()-1] = RemoveQuotes(param);
+        if( param != "" ) fMultiFitter->fLimitsFiles[fMultiFitter->fFitList.size()-1] = Common::RemoveQuotes(param);
 
         // Set POIName
         param = confSet->Get("POIName");
-        if( param != "" ) fMultiFitter->fFitList[fMultiFitter->fFitList.size()-1]->fPOIs[0] = RemoveQuotes(param);
+        if( param != "" ) fMultiFitter->fFitList[fMultiFitter->fFitList.size()-1]->fPOIs[0] = Common::RemoveQuotes(param);
 
         // Set Directory
         param = confSet->Get("Directory");
-        if( param != "" ) fMultiFitter->fFitList[fMultiFitter->fFitList.size()-1]->fName = RemoveQuotes(param);
+        if( param != "" ) fMultiFitter->fFitList[fMultiFitter->fFitList.size()-1]->fName = Common::RemoveQuotes(param);
 
         // Set InputName
         param = confSet->Get("InputName");
-        if( param != "" ) fMultiFitter->fFitList[fMultiFitter->fFitList.size()-1]->fInputName = RemoveQuotes(param);
+        if( param != "" ) fMultiFitter->fFitList[fMultiFitter->fFitList.size()-1]->fInputName = Common::RemoveQuotes(param);
     }
 
     if (nFit == 0){
@@ -765,17 +765,4 @@ int ConfigReaderMulti::ReadFitOptions(const std::string& opt, const std::string&
     }
 
     return sc;
-}
-
-//__________________________________________________________________________________
-//
-std::string ConfigReaderMulti::CheckName( const std::string &name ){
-    if( std::isdigit( name.at(0) ) ){
-        WriteErrorStatus("ConfigReaderMulti::CheckName", "Failed to browse name: " + name + ". A number has been detected at the first position of the name.");
-        WriteErrorStatus("ConfigReaderMulti::CheckName", "           This can lead to unexpected behaviour in HistFactory. Please change the name. ");
-        WriteErrorStatus("ConfigReaderMulti::CheckName", "           The code is about to crash.");
-        exit(EXIT_FAILURE);
-    } else {
-        return RemoveQuotes(name);
-    }
 }

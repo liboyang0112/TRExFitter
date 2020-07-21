@@ -101,14 +101,14 @@ int ConfigReader::ReadFullConfig(const std::string& fileName, const std::string&
 //__________________________________________________________________________________
 //
 int ConfigReader::ReadCommandLineOptions(const std::string& option){
-    std::vector< std::string > optVec = Vectorize(option,':');
+    std::vector< std::string > optVec = Common::Vectorize(option,':');
     std::map< std::string,std::string > optMap;
 
     int sc(0);
 
     for(const std::string& iopt : optVec){
         std::vector< std::string > optPair;
-        optPair = Vectorize(iopt,'=');
+        optPair = Common::Vectorize(iopt,'=');
         if (optPair.size() < 2){
             WriteErrorStatus("ConfigReader::ReadCommandLineOptions", "Cannot read your command line option, please check this!");
             ++sc;
@@ -117,16 +117,16 @@ int ConfigReader::ReadCommandLineOptions(const std::string& option){
         }
     }
     if(optMap["Regions"]!=""){
-        fOnlyRegions = Vectorize(optMap["Regions"],',');
+        fOnlyRegions = Common::Vectorize(optMap["Regions"],',');
     }
     if(optMap["Samples"]!=""){
-        fOnlySamples = Vectorize(optMap["Samples"],',');
+        fOnlySamples = Common::Vectorize(optMap["Samples"],',');
     }
     if(optMap["Systematics"]!=""){
-        fOnlySystematics = Vectorize(optMap["Systematics"],',');
+        fOnlySystematics = Common::Vectorize(optMap["Systematics"],',');
     }
     if(optMap["Exclude"]!=""){
-        fToExclude = Vectorize(optMap["Exclude"],',');
+        fToExclude = Common::Vectorize(optMap["Exclude"],',');
     }
     if(optMap["Suffix"]!=""){
         fFitter->fSuffix = optMap["Suffix"]; // used for input & output  plots, txt files & workspaces - NOT for histograms file
@@ -151,7 +151,7 @@ int ConfigReader::ReadCommandLineOptions(const std::string& option){
         fOnlySignals.emplace_back(optMap["Signal"]);
     }
     if(optMap["Signals"]!=""){
-        fOnlySignals = Vectorize(optMap["Signals"],',');
+        fOnlySignals = Common::Vectorize(optMap["Signals"],',');
     }
     if(optMap["FitResults"]!=""){
         fFitter->fFitResultsFile = optMap["FitResults"];
@@ -181,12 +181,12 @@ int ConfigReader::ReadCommandLineOptions(const std::string& option){
         fFitter->fGroupedImpactCategory = optMap["GroupedImpact"];
     }
     if(optMap["OutputDir"]!=""){
-        fFitter->fDir = RemoveQuotes(optMap["OutputDir"]);
+        fFitter->fDir = Common::RemoveQuotes(optMap["OutputDir"]);
         if(fFitter->fDir.back() != '/') fFitter->fDir += '/';
         gSystem->mkdir(fFitter->fDir.c_str());
     }
     if(optMap["Job"]!=""){
-        fFitter->fName = RemoveQuotes(optMap["Job"]);
+        fFitter->fName = Common::RemoveQuotes(optMap["Job"]);
     }
     if(optMap["LimitParamValue"]!=""){
         fFitter->fLimitParamValue = atof(optMap["LimitParamValue"].c_str());
@@ -204,7 +204,7 @@ int ConfigReader::ReadCommandLineOptions(const std::string& option){
         fFitter->fFitIsBlind = true;
     }
     if(optMap["BlindedParameters"]!=""){
-        fFitter->fBlindedParameters = Vectorize(optMap["BlindedParameters"],',');
+        fFitter->fBlindedParameters = Common::Vectorize(optMap["BlindedParameters"],',');
     }
     //
     WriteInfoStatus("ConfigReader::ReadCommandLineOptions", "-------------------------------------------");
@@ -257,12 +257,12 @@ int ConfigReader::ReadJobOptions(){
 
     if (fFitter->fDir == "") {
         // default
-        if (fFitter->fName == "MyMeasurement") fFitter->fName = CheckName(confSet->GetValue());
+        if (fFitter->fName == "MyMeasurement") fFitter->fName = Common::CheckName(confSet->GetValue());
     } else {
-        if (fFitter->fName == "MyMeasurement") fFitter->fName = fFitter->fDir + CheckName(confSet->GetValue());
+        if (fFitter->fName == "MyMeasurement") fFitter->fName = fFitter->fDir + Common::CheckName(confSet->GetValue());
         else fFitter->fName = fFitter->fDir + fFitter->fName;
     }
-    fFitter->fInputName = CheckName(confSet->GetValue());
+    fFitter->fInputName = Common::CheckName(confSet->GetValue());
 
     //Set DebugLevel
     param = confSet->Get("DebugLevel");
@@ -277,7 +277,7 @@ int ConfigReader::ReadJobOptions(){
     param = confSet->Get("OutputDir");
     if(param != ""){
         if (fFitter->fDir.size() == 0){
-            fFitter->fDir = RemoveQuotes(param);
+            fFitter->fDir = Common::RemoveQuotes(param);
             if(fFitter->fDir.back() != '/') fFitter->fDir += '/';
             fFitter->fName = fFitter->fDir + fFitter->fName;
             gSystem->mkdir((fFitter->fName).c_str(), true);
@@ -286,17 +286,17 @@ int ConfigReader::ReadJobOptions(){
 
     // Set Label
     param = confSet->Get("Label");
-    if(param!="") fFitter->fLabel = RemoveQuotes(param);
+    if(param!="") fFitter->fLabel = Common::RemoveQuotes(param);
     else          fFitter->fLabel = fFitter->fName;
 
     // Set POI and unit
     param = confSet->Get("POI");
     if(param!=""){
-        std::vector<std::string> pois = Vectorize(param, ',');
+        std::vector<std::string> pois = Common::Vectorize(param, ',');
         std::vector<std::string> units;
         std::string unit = confSet->Get("POIUnit");
         if(unit!=""){
-            units = Vectorize(unit, ',');
+            units = Common::Vectorize(unit, ',');
             if(pois.size()!=units.size()){
                 WriteWarningStatus("ConfigReader::ReadJobOptions","Number of POI units set different from number of actual POI. Ignoring units.");
                 units.clear();
@@ -304,10 +304,10 @@ int ConfigReader::ReadJobOptions(){
         }
         for(unsigned int i_poi=0;i_poi<pois.size();i_poi++){
             if(units.size()>i_poi){
-                fFitter->AddPOI(CheckName(pois[i_poi]),RemoveQuotes(units[i_poi]));
+                fFitter->AddPOI(Common::CheckName(pois[i_poi]),Common::RemoveQuotes(units[i_poi]));
             }
             else{
-                fFitter->AddPOI(CheckName(pois[i_poi]));
+                fFitter->AddPOI(Common::CheckName(pois[i_poi]));
             }
         }
     }
@@ -336,164 +336,164 @@ int ConfigReader::ReadJobOptions(){
     param = confSet->Get("ResponseMatrixName");
     if (param != "") {
         fFitter->fResponseMatrixNames.clear();
-        fFitter->fResponseMatrixNames.emplace_back(RemoveQuotes(param));
+        fFitter->fResponseMatrixNames.emplace_back(Common::RemoveQuotes(param));
     }
 
     param = confSet->Get("ResponseMatrixNames");
     if (param != "") {
-        fFitter->fResponseMatrixNames = Vectorize(param, ',');
+        fFitter->fResponseMatrixNames = Common::Vectorize(param, ',');
     }
 
     param = confSet->Get("ResponseMatrixFile");
     if (param != "") {
         fFitter->fResponseMatrixFiles.clear();
-        fFitter->fResponseMatrixFiles.emplace_back(RemoveQuotes(param));
+        fFitter->fResponseMatrixFiles.emplace_back(Common::RemoveQuotes(param));
     }
 
     param = confSet->Get("ResponseMatrixFiles");
     if (param != "") {
-        fFitter->fResponseMatrixFiles = Vectorize(param, ',');
+        fFitter->fResponseMatrixFiles = Common::Vectorize(param, ',');
     }
 
     param = confSet->Get("ResponseMatrixPath");
     if (param != "") {
         fFitter->fResponseMatrixPaths.clear();
-        fFitter->fResponseMatrixPaths.emplace_back(RemoveQuotes(param));
+        fFitter->fResponseMatrixPaths.emplace_back(Common::RemoveQuotes(param));
     }
 
     param = confSet->Get("ResponseMatrixPaths");
     if (param != "") {
-        fFitter->fResponseMatrixPaths = Vectorize(param, ',');
+        fFitter->fResponseMatrixPaths = Common::Vectorize(param, ',');
     }
 
     param = confSet->Get("ResponseMatrixNameNominal");
     if(param!=""){
       fFitter->fResponseMatrixNamesNominal.clear();
-      fFitter->fResponseMatrixNamesNominal.emplace_back(RemoveQuotes(param));
+      fFitter->fResponseMatrixNamesNominal.emplace_back(Common::RemoveQuotes(param));
     }
 
     param = confSet->Get("AcceptanceName");
     if (param != "") {
         fFitter->fAcceptanceNames.clear();
-        fFitter->fAcceptanceNames.emplace_back(RemoveQuotes(param));
+        fFitter->fAcceptanceNames.emplace_back(Common::RemoveQuotes(param));
         fFitter->fHasAcceptance = true;
     }
 
     param = confSet->Get("AcceptanceNames");
     if (param != "") {
-        fFitter->fAcceptanceNames = Vectorize(param, ',');
+        fFitter->fAcceptanceNames = Common::Vectorize(param, ',');
         fFitter->fHasAcceptance = true;
     }
 
     param = confSet->Get("AcceptanceFile");
     if (param != "") {
         fFitter->fAcceptanceFiles.clear();
-        fFitter->fAcceptanceFiles.emplace_back(RemoveQuotes(param));
+        fFitter->fAcceptanceFiles.emplace_back(Common::RemoveQuotes(param));
         fFitter->fHasAcceptance = true;
     }
 
     param = confSet->Get("AcceptanceFiles");
     if (param != "") {
-        fFitter->fAcceptanceFiles = Vectorize(param, ',');
+        fFitter->fAcceptanceFiles = Common::Vectorize(param, ',');
         fFitter->fHasAcceptance = true;
     }
 
     param = confSet->Get("AcceptancePath");
     if (param != "") {
         fFitter->fAcceptancePaths.clear();
-        fFitter->fAcceptancePaths.emplace_back(RemoveQuotes(param));
+        fFitter->fAcceptancePaths.emplace_back(Common::RemoveQuotes(param));
         fFitter->fHasAcceptance = true;
     }
 
     param = confSet->Get("AcceptancePaths");
     if (param != "") {
-        fFitter->fAcceptancePaths = Vectorize(param, ',');
+        fFitter->fAcceptancePaths = Common::Vectorize(param, ',');
         fFitter->fHasAcceptance = true;
     }
 
     param = confSet->Get("AcceptanceNameNominal");
     if(param!=""){
         fFitter->fAcceptanceNamesNominal.clear();
-        fFitter->fAcceptanceNamesNominal.emplace_back(RemoveQuotes(param));
+        fFitter->fAcceptanceNamesNominal.emplace_back(Common::RemoveQuotes(param));
         fFitter->fHasAcceptance = true;
     }
 
     param = confSet->Get("SelectionEffName");
     if (param != "") {
         fFitter->fSelectionEffNames.clear();
-        fFitter->fSelectionEffNames.emplace_back(RemoveQuotes(param));
+        fFitter->fSelectionEffNames.emplace_back(Common::RemoveQuotes(param));
     }
 
     param = confSet->Get("SelectionEffNames");
     if (param != "") {
-        fFitter->fSelectionEffNames = Vectorize(param, ',');
+        fFitter->fSelectionEffNames = Common::Vectorize(param, ',');
     }
 
     param = confSet->Get("SelectionEffFile");
     if (param != "") {
         fFitter->fSelectionEffFiles.clear();
-        fFitter->fSelectionEffFiles.emplace_back(RemoveQuotes(param));
+        fFitter->fSelectionEffFiles.emplace_back(Common::RemoveQuotes(param));
     }
 
     param = confSet->Get("SelectionEffFiles");
     if (param != "") {
-        fFitter->fSelectionEffFiles = Vectorize(param, ',');
+        fFitter->fSelectionEffFiles = Common::Vectorize(param, ',');
     }
 
     param = confSet->Get("SelectionEffPath");
     if (param != "") {
         fFitter->fSelectionEffPaths.clear();
-        fFitter->fSelectionEffPaths.emplace_back(RemoveQuotes(param));
+        fFitter->fSelectionEffPaths.emplace_back(Common::RemoveQuotes(param));
     }
 
     param = confSet->Get("SelectionEffPaths");
     if (param != "") {
-        fFitter->fSelectionEffPaths = Vectorize(param, ',');
+        fFitter->fSelectionEffPaths = Common::Vectorize(param, ',');
     }
 
     param = confSet->Get("SelectionEffNameNominal");
     if(param!=""){
       fFitter->fSelectionEffNamesNominal.clear();
-      fFitter->fSelectionEffNamesNominal.emplace_back(RemoveQuotes(param));
+      fFitter->fSelectionEffNamesNominal.emplace_back(Common::RemoveQuotes(param));
     }
 
     param = confSet->Get("MigrationName");
     if (param != "") {
         fFitter->fMigrationNames.clear();
-        fFitter->fMigrationNames.emplace_back(RemoveQuotes(param));
+        fFitter->fMigrationNames.emplace_back(Common::RemoveQuotes(param));
     }
 
     param = confSet->Get("MigrationNames");
     if (param != "") {
-        fFitter->fMigrationNames = Vectorize(param, ',');
+        fFitter->fMigrationNames = Common::Vectorize(param, ',');
     }
 
     param = confSet->Get("MigrationFile");
     if (param != "") {
         fFitter->fMigrationFiles.clear();
-        fFitter->fMigrationFiles.emplace_back(RemoveQuotes(param));
+        fFitter->fMigrationFiles.emplace_back(Common::RemoveQuotes(param));
     }
 
     param = confSet->Get("MigrationFiles");
     if (param != "") {
-        fFitter->fMigrationFiles = Vectorize(param, ',');
+        fFitter->fMigrationFiles = Common::Vectorize(param, ',');
     }
 
     param = confSet->Get("MigrationPath");
     if (param != "") {
         fFitter->fMigrationPaths.clear();
-        fFitter->fMigrationPaths.emplace_back(RemoveQuotes(param));
+        fFitter->fMigrationPaths.emplace_back(Common::RemoveQuotes(param));
     }
 
     param = confSet->Get("MigrationPaths");
     if (param != "") {
-        fFitter->fMigrationPaths = Vectorize(param, ',');
+        fFitter->fMigrationPaths = Common::Vectorize(param, ',');
     }
 
     param = confSet->Get("MigrationNameNominal");
     if(param!=""){
       fFitter->fMigrationNamesNominal.clear();
-      fFitter->fMigrationNamesNominal.emplace_back(RemoveQuotes(param));
+      fFitter->fMigrationNamesNominal.emplace_back(Common::RemoveQuotes(param));
     }
 
     // Set paths
@@ -521,33 +521,33 @@ int ConfigReader::ReadJobOptions(){
         param = confSet->Get("HistoName");
         if(param!=""){
             fFitter->fHistoNames.clear();
-            fFitter->fHistoNames.emplace_back( RemoveQuotes(param) );
+            fFitter->fHistoNames.emplace_back( Common::RemoveQuotes(param) );
         }
         param = confSet->Get("HistoNames");
         if(param!=""){
-            fFitter->fHistoNames = Vectorize( param,',' );
+            fFitter->fHistoNames = Common::Vectorize( param,',' );
         }
         param = confSet->Get("HistoNameNominal");
         if(param!=""){
           fFitter->fHistoNamesNominal.clear();
-          fFitter->fHistoNamesNominal.emplace_back( RemoveQuotes(param) );
+          fFitter->fHistoNamesNominal.emplace_back( Common::RemoveQuotes(param) );
         }
         param = confSet->Get("HistoFile");
         if(param!=""){
             fFitter->fHistoFiles.clear();
-            fFitter->fHistoFiles.emplace_back( RemoveQuotes(param) );
+            fFitter->fHistoFiles.emplace_back( Common::RemoveQuotes(param) );
         }
         param = confSet->Get("HistoFiles");
         if(param!=""){
-            fFitter->fHistoFiles = Vectorize( param,',' );
+            fFitter->fHistoFiles = Common::Vectorize( param,',' );
         }
         param = confSet->Get("HistoPath");
         if(param!=""){
-            fFitter->AddHistoPath( RemoveQuotes(param) );
+            fFitter->AddHistoPath( Common::RemoveQuotes(param) );
         }
         param = confSet->Get("HistoPaths");
         if(param!=""){
-            fFitter->fHistoPaths = Vectorize( param,',' );
+            fFitter->fHistoPaths = Common::Vectorize( param,',' );
         }
     }
     // Setting for NTUP only
@@ -567,38 +567,38 @@ int ConfigReader::ReadJobOptions(){
         //
         param = confSet->Get("NtupleName");
         if(param!=""){
-            fFitter->SetNtupleName( RemoveQuotes(param) );
+            fFitter->SetNtupleName( Common::RemoveQuotes(param) );
         }
         param = confSet->Get("NtupleNames");
         if(param!=""){
-            fFitter->fNtupleNames = Vectorize( param,',' );
+            fFitter->fNtupleNames = Common::Vectorize( param,',' );
         }
         param = confSet->Get("NtupleFile");
         if( param != "" ){
-            fFitter->SetNtupleFile( RemoveQuotes(param) );
+            fFitter->SetNtupleFile( Common::RemoveQuotes(param) );
         }
         param = confSet->Get("NtupleFiles");
         if(param!=""){
-            fFitter->fNtupleFiles = Vectorize( param,',' );
+            fFitter->fNtupleFiles = Common::Vectorize( param,',' );
         }
         param = confSet->Get("NtuplePath");
         if( param != "" ) {
-            fFitter->AddNtuplePath( RemoveQuotes(param) );
+            fFitter->AddNtuplePath( Common::RemoveQuotes(param) );
         }
         param = confSet->Get("NtuplePaths");
         if( param != "" ){
-            std::vector<std::string> paths = Vectorize( param,',' );
+            std::vector<std::string> paths = Common::Vectorize( param,',' );
             for(const std::string& ipath : paths){
                 fFitter->AddNtuplePath( ipath );
             }
         }
         param = confSet->Get("MCweight");
         if(param!=""){
-            fFitter->SetMCweight( RemoveQuotes(param) );
+            fFitter->SetMCweight( Common::RemoveQuotes(param) );
         }
         param = confSet->Get("Selection");
         if(param!=""){
-            fFitter->SetSelection( RemoveQuotes(param) );
+            fFitter->SetSelection( Common::RemoveQuotes(param) );
         }
     }
 
@@ -666,7 +666,7 @@ int ConfigReader::ReadJobOptions(){
 
     //Set MCstatConstraint
     param = confSet->Get("MCstatConstraint");
-    if( param != "") fFitter->fStatErrCons = RemoveQuotes(param);
+    if( param != "") fFitter->fStatErrCons = Common::RemoveQuotes(param);
 
     // Set UseGammaPulls
     param = confSet->Get("UseGammaPulls");
@@ -681,7 +681,7 @@ int ConfigReader::ReadJobOptions(){
     param = confSet->Get("TableOptions");
     if( param != ""){
         std::transform(param.begin(), param.end(), param.begin(), ::toupper);
-        fFitter->fTableOptions = RemoveQuotes(param);
+        fFitter->fTableOptions = Common::RemoveQuotes(param);
     }
 
     // Set CorrelationThreshold
@@ -706,11 +706,11 @@ int ConfigReader::ReadJobOptions(){
 
     // Set LumiLabel
     param = confSet->Get("LumiLabel");
-    if( param != "") fFitter->fLumiLabel = RemoveQuotes(param);
+    if( param != "") fFitter->fLumiLabel = Common::RemoveQuotes(param);
 
     // Set CmeLabel
     param = confSet->Get("CmeLabel");
-    if( param != "") fFitter->fCmeLabel = RemoveQuotes(param);
+    if( param != "") fFitter->fCmeLabel = Common::RemoveQuotes(param);
 
     // Set SplitHistoFiles
     param = confSet->Get("SplitHistoFiles");
@@ -747,7 +747,7 @@ int ConfigReader::ReadJobOptions(){
     // Set ImageFormat
     param = confSet->Get("ImageFormat");
     if( param != ""){
-        std::vector<std::string> tmp = Vectorize(param,',');
+        std::vector<std::string> tmp = Common::Vectorize(param,',');
         if (tmp.size() > 0) fFitter->fImageFormat = tmp.at(0);
         else {
             WriteErrorStatus("ConfigReader::ReadJobOptions", "You specified 'ImageFormat' option but we cannot split the setting. Please check");
@@ -771,19 +771,19 @@ int ConfigReader::ReadJobOptions(){
     // Set InputFolder
     param = confSet->Get("InputFolder");
     if( param != "" ){
-        fFitter->fInputFolder = RemoveQuotes(param);
+        fFitter->fInputFolder = Common::RemoveQuotes(param);
     }
 
     // Set InputName
     param = confSet->Get("InputName");
     if( param != "" ){
-        fFitter->fInputName = RemoveQuotes(param);
+        fFitter->fInputName = Common::RemoveQuotes(param);
     }
 
     // Set WorkspaceFileName
     param = confSet->Get("WorkspaceFileName");
     if( param != "" ){
-        fFitter->fWorkspaceFileName = RemoveQuotes(param);
+        fFitter->fWorkspaceFileName = Common::RemoveQuotes(param);
     }
 
     // Set KeepPruning
@@ -795,7 +795,7 @@ int ConfigReader::ReadJobOptions(){
     // Set AtlasLabel
     param = confSet->Get("AtlasLabel");
     if( param != "" ){
-        fFitter->fAtlasLabel = RemoveQuotes(param);
+        fFitter->fAtlasLabel = Common::RemoveQuotes(param);
     }
 
     // Set CleanTables
@@ -813,25 +813,25 @@ int ConfigReader::ReadJobOptions(){
     // Set Suffix
     param = confSet->Get("Suffix");
     if( param != "" ){
-        fFitter->fSuffix = RemoveQuotes(param);
+        fFitter->fSuffix = Common::RemoveQuotes(param);
     }
 
     // Set SaveSuffix
     param = confSet->Get("SaveSuffix");
     if( param != "" ){
-        fFitter->fSaveSuffix = RemoveQuotes(param);
+        fFitter->fSaveSuffix = Common::RemoveQuotes(param);
     }
 
     // Set HideNP
     param = confSet->Get("HideNP");
     if( param != "" ){
-        fFitter->fVarNameHide = Vectorize(param,',');
+        fFitter->fVarNameHide = Common::Vectorize(param,',');
     }
 
     // Set RegionGroups
     param = confSet->Get("RegionGroups");
     if( param != "" ) {
-        std::vector<std::string> groups = Vectorize(param,',');
+        std::vector<std::string> groups = Common::Vectorize(param,',');
         for(const std::string& igroup : groups) fFitter->fRegionGroups.emplace_back(igroup);
     }
 
@@ -844,7 +844,7 @@ int ConfigReader::ReadJobOptions(){
     // Set CustomAsimov
     param = confSet->Get("CustomAsimov");
     if( param != "" ){
-        fFitter->fCustomAsimov = RemoveQuotes(param);
+        fFitter->fCustomAsimov = Common::RemoveQuotes(param);
     }
 
     // Set GetChi2
@@ -874,43 +874,43 @@ int ConfigReader::ReadJobOptions(){
     // Set CustomFunctions
     param = confSet->Get("CustomFunctions");
     if( param != "" ) {
-        fFitter->fCustomFunctions = Vectorize(param,',');
+        fFitter->fCustomFunctions = Common::Vectorize(param,',');
     }
 
     // Set CustomIncludePaths
     param = confSet->Get("CustomIncludePaths");
     if( param != "" ) {
-        fFitter->fCustomIncludePaths = Vectorize(param,',');
+        fFitter->fCustomIncludePaths = Common::Vectorize(param,',');
     }
 
     // Set Bootstrap
     param = confSet->Get("Bootstrap");
     if( param != "" ){
-        fFitter->fBootstrap = RemoveQuotes(param);
+        fFitter->fBootstrap = Common::RemoveQuotes(param);
     }
 
     // Set Bootstrap systematic
     param = confSet->Get("BootstrapSyst");
     if( param != "" ){
-        fFitter->fBootstrapSyst = RemoveQuotes(param);
+        fFitter->fBootstrapSyst = Common::RemoveQuotes(param);
     }
 
     // Set Bootstrap sample
     param = confSet->Get("BootstrapSample");
     if( param != "" ){
-        fFitter->fBootstrapSample = RemoveQuotes(param);
+        fFitter->fBootstrapSample = Common::RemoveQuotes(param);
     }
 
     // Set DecorrSuff
     param = confSet->Get("DecorrSuff");
     if( param != ""){
-        fFitter->fDecorrSuff = RemoveQuotes(param);
+        fFitter->fDecorrSuff = Common::RemoveQuotes(param);
     }
 
     // Set DecorrSysts
     param = confSet->Get("DecorrSysts");
     if( param != ""){
-        fFitter->fDecorrSysts = Vectorize(param,',');
+        fFitter->fDecorrSysts = Common::Vectorize(param,',');
     }
 
     // Set SmoothMorphingTemplates
@@ -959,7 +959,7 @@ int ConfigReader::ReadJobOptions(){
     // Set RankingPOIName
     param = confSet->Get("RankingPOIName");
     if( param != ""){
-        fFitter->fRankingPOIName = RemoveQuotes(param);
+        fFitter->fRankingPOIName = Common::RemoveQuotes(param);
     }
 
     // Set PruningType
@@ -986,7 +986,7 @@ int ConfigReader::ReadJobOptions(){
     // Set PrePostFitCanvasSize
     param = confSet->Get("PrePostFitCanvasSize");
     if( param != ""){
-        std::vector<std::string> tmp = Vectorize(param, ',');
+        std::vector<std::string> tmp = Common::Vectorize(param, ',');
         if (tmp.size() != 2){
             WriteWarningStatus("ConfigReader::ReadJobOptions", "You specified PrePostFitCanvasSize option but did not provide 2 parameters. Ignoring.");
         }
@@ -1003,7 +1003,7 @@ int ConfigReader::ReadJobOptions(){
     // Set SummaryCanvasSize
     param = confSet->Get("SummaryCanvasSize");
     if( param != ""){
-        std::vector<std::string> tmp = Vectorize(param, ',');
+        std::vector<std::string> tmp = Common::Vectorize(param, ',');
         if (tmp.size() != 2){
             WriteWarningStatus("ConfigReader::ReadJobOptions", "You specified SummaryCanvasSize option but did not provide 2 parameters. Ignoring.");
         }
@@ -1020,7 +1020,7 @@ int ConfigReader::ReadJobOptions(){
     // Set MergeCanvasSize
     param = confSet->Get("MergeCanvasSize");
     if( param != ""){
-        std::vector<std::string> tmp = Vectorize(param, ',');
+        std::vector<std::string> tmp = Common::Vectorize(param, ',');
         if (tmp.size() != 2){
             WriteWarningStatus("ConfigReader::ReadJobOptions", "You specified MergeCanvasSize option but did not provide 2 parameters. Ignoring.");
         }
@@ -1037,7 +1037,7 @@ int ConfigReader::ReadJobOptions(){
     // Set PieChartCanvasSize
     param = confSet->Get("PieChartCanvasSize");
     if( param != ""){
-        std::vector<std::string> tmp = Vectorize(param, ',');
+        std::vector<std::string> tmp = Common::Vectorize(param, ',');
         if (tmp.size() != 2){
             WriteWarningStatus("ConfigReader::ReadJobOptions", "You specified PieChartCanvasSize option but did not provide 2 parameters. Ignoring.");
         }
@@ -1054,7 +1054,7 @@ int ConfigReader::ReadJobOptions(){
     // Set NPRankingCanvasSize
     param = confSet->Get("NPRankingCanvasSize");
     if( param != ""){
-        std::vector<std::string> tmp = Vectorize(param, ',');
+        std::vector<std::string> tmp = Common::Vectorize(param, ',');
         if (tmp.size() != 2){
             WriteWarningStatus("ConfigReader::ReadJobOptions", "You specified NPRankingCanvasSize option but did not provide 2 parameters. Ignoring.");
         }
@@ -1124,7 +1124,7 @@ int ConfigReader::SetJobPlot(ConfigSet *confSet){
     std::string param = confSet->Get("PlotOptions");
     std::vector<std::string> vec;
     if( param != ""){
-        vec = Vectorize(RemoveQuotes(param),',');
+        vec = Common::Vectorize(Common::RemoveQuotes(param),',');
         if( std::find(vec.begin(), vec.end(), "YIELDS") !=vec.end() )  TRExFitter::SHOWYIELDS     = true;
         if( std::find(vec.begin(), vec.end(), "NOSIG")  !=vec.end() )  TRExFitter::SHOWSTACKSIG   = false;
         if( std::find(vec.begin(), vec.end(), "SKIPSIG")!=vec.end() )  TRExFitter::ADDSTACKSIG    = false;
@@ -1143,7 +1143,7 @@ int ConfigReader::SetJobPlot(ConfigSet *confSet){
     // Set PlotOptionsSummary
     param = confSet->Get("PlotOptionsSummary");
     if( param != ""){
-        vec = Vectorize(RemoveQuotes(param),',');
+        vec = Common::Vectorize(Common::RemoveQuotes(param),',');
         if( std::find(vec.begin(), vec.end(), "NOSIG")  !=vec.end() )  TRExFitter::SHOWSTACKSIG_SUMMARY   = false;
         if( std::find(vec.begin(), vec.end(), "NORMSIG")!=vec.end() )  TRExFitter::SHOWNORMSIG_SUMMARY    = true;
         if( std::find(vec.begin(), vec.end(), "OVERSIG")!=vec.end() )  TRExFitter::SHOWOVERLAYSIG_SUMMARY = true;
@@ -1195,31 +1195,31 @@ int ConfigReader::SetJobPlot(ConfigSet *confSet){
     // Set SignalRegionsPlot
     param = confSet->Get("SignalRegionsPlot");
     if(param != ""){
-        fFitter->fRegionsToPlot = Vectorize(param,',');
+        fFitter->fRegionsToPlot = Common::Vectorize(param,',');
     }
 
     // Set SummaryPlotRegions
     param = confSet->Get("SummaryPlotRegions");
     if(param != ""){
-        fFitter->fSummaryPlotRegions = Vectorize(param,',');
+        fFitter->fSummaryPlotRegions = Common::Vectorize(param,',');
     }
 
     // Set SummaryPlotLabels
     param = confSet->Get("SummaryPlotLabels");
     if(param != ""){
-        fFitter->fSummaryPlotLabels = Vectorize(param,',');
+        fFitter->fSummaryPlotLabels = Common::Vectorize(param,',');
     }
 
     // Set SummaryPlotValidationRegions
     param = confSet->Get("SummaryPlotValidationRegions");
     if(param != ""){
-        fFitter->fSummaryPlotValidationRegions = Vectorize(param,',');
+        fFitter->fSummaryPlotValidationRegions = Common::Vectorize(param,',');
     }
 
     // Set SummaryPlotValidationLabels
     param = confSet->Get("SummaryPlotValidationLabels");
     if(param != ""){
-        fFitter->fSummaryPlotValidationLabels = Vectorize(param,',');
+        fFitter->fSummaryPlotValidationLabels = Common::Vectorize(param,',');
     }
 
     // Set SummaryPlotYmin
@@ -1260,11 +1260,11 @@ int ConfigReader::SetJobPlot(ConfigSet *confSet){
 
     // Set RatioTitle
     param = confSet->Get("RatioYtitle");
-    if(param != "") fFitter->fRatioYtitle = RemoveQuotes(param.c_str());
+    if(param != "") fFitter->fRatioYtitle = Common::RemoveQuotes(param.c_str());
 
     // Set RatioTitle
     param = confSet->Get("RatioType");
-    if(param != "") fFitter->fRatioType = RemoveQuotes(param.c_str());
+    if(param != "") fFitter->fRatioType = Common::RemoveQuotes(param.c_str());
 
     // Set Label and Legend position
     param = confSet->Get("LabelX");
@@ -1335,18 +1335,18 @@ int ConfigReader::SetJobPlot(ConfigSet *confSet){
     // Set RankingPlot
     param = confSet->Get("RankingPlot");
     if( param != ""){
-        fFitter->fRankingPlot = RemoveQuotes(param);
+        fFitter->fRankingPlot = Common::RemoveQuotes(param);
     }
 
     // exclude a template from morphing
     param = confSet->Get("ExcludeFromMorphing");
     if( param != ""){
-        fFitter->fExcludeFromMorphing = CheckName(param);
+        fFitter->fExcludeFromMorphing = Common::CheckName(param);
     }
 
     param = confSet->Get("ScaleSamplesToData");
     if( param != ""){
-        fFitter->fScaleSamplesToData = Vectorize(param,',');
+        fFitter->fScaleSamplesToData = Common::Vectorize(param,',');
     }
 
     param = confSet->Get("MaxNtupleEvents");
@@ -1433,7 +1433,7 @@ int ConfigReader::ReadFitOptions(){
         }
         else{
             fFitter->SetFitRegion(TRExFit::USERSPECIFIC);
-            fFitter->fFitRegionsToFit = Vectorize(param,',');
+            fFitter->fFitRegionsToFit = Common::Vectorize(param,',');
             if(fFitter->fFitRegionsToFit.size()==0){
                 WriteErrorStatus("ConfigReader::ReadFitOptions", "Unknown FitRegion argument : " + confSet->Get("FitRegion"));
                 ++sc;
@@ -1454,9 +1454,9 @@ int ConfigReader::ReadFitOptions(){
             WriteErrorStatus("ConfigReader::ReadFitOptions", "POI is not set, you cannot ask for POIAsimov");
             ++sc;
         }
-        std::vector < std::string > temp_vec = Vectorize(param,',',false);
+        std::vector < std::string > temp_vec = Common::Vectorize(param,',',false);
         for(std::string iPOI : temp_vec){
-            std::vector < std::string > poi_value = Vectorize(iPOI,':');
+            std::vector < std::string > poi_value = Common::Vectorize(iPOI,':');
             // single POIAsimov defined
             if(poi_value.size()==1 && temp_vec.size()==1){
                 fFitter->fFitPOIAsimov[fFitter->fPOIs[0]] = atof(poi_value[0].c_str());
@@ -1475,9 +1475,9 @@ int ConfigReader::ReadFitOptions(){
     // Set NPValues
     param = confSet->Get("NPValues");
     if( param != "" ){
-        std::vector < std::string > temp_vec = Vectorize(param,',',false);
+        std::vector < std::string > temp_vec = Common::Vectorize(param,',',false);
         for(std::string iNP : temp_vec){
-            std::vector < std::string > np_value = Vectorize(iNP,':');
+            std::vector < std::string > np_value = Common::Vectorize(iNP,':');
             if(np_value.size()==2){
                 fFitter->fFitNPValues.insert( std::pair < std::string, double >( np_value[0], atof(np_value[1].c_str()) ) );
             } else {
@@ -1489,7 +1489,7 @@ int ConfigReader::ReadFitOptions(){
     // Get NPValues from fit reults (txt file)
     param = confSet->Get("NPValuesFromFitResults");
     if( param != "" ){
-        fFitter->fFitNPValuesFromFitResults = RemoveQuotes(param);
+        fFitter->fFitNPValuesFromFitResults = Common::RemoveQuotes(param);
     }
 
     // Set InjectGlobalObservables
@@ -1501,9 +1501,9 @@ int ConfigReader::ReadFitOptions(){
     // Set FixNPs
     param = confSet->Get("FixNPs");
     if( param != "" ){
-        std::vector < std::string > temp_fixedNPs = Vectorize(param,',',false);
+        std::vector < std::string > temp_fixedNPs = Common::Vectorize(param,',',false);
         for(std::string iNP : temp_fixedNPs){
-            std::vector < std::string > fixed_nps = Vectorize(iNP,':');
+            std::vector < std::string > fixed_nps = Common::Vectorize(iNP,':');
             if(fixed_nps.size()==2){
                 fFitter->fFitFixedNPs.insert( std::pair < std::string, double >( fixed_nps[0], atof(fixed_nps[1].c_str()) ) );
             } else {
@@ -1516,7 +1516,7 @@ int ConfigReader::ReadFitOptions(){
     param = confSet->Get("doLHscan");
     if( param != "" ){
         if (fOnlyLHscan==""){
-            fFitter->fVarNameLH = Vectorize(param,',');
+            fFitter->fVarNameLH = Common::Vectorize(param,',');
         } else {
             fFitter->fVarNameLH.emplace_back(fOnlyLHscan);
         }
@@ -1525,9 +1525,9 @@ int ConfigReader::ReadFitOptions(){
     // Set do2DLHscan
     param = confSet->Get("do2DLHscan");
     if( param != "" ){
-        const std::vector<std::string> tmp = Vectorize(param,':');
+        const std::vector<std::string> tmp = Common::Vectorize(param,':');
         for (const auto& ivec : tmp){
-            const std::vector<std::string> v = Vectorize(ivec,',');
+            const std::vector<std::string> v = Common::Vectorize(ivec,',');
             if (v.size() == 2){
                 fFitter->fVarName2DLH.emplace_back(v);
             } else {
@@ -1621,7 +1621,7 @@ int ConfigReader::ReadFitOptions(){
     // Set UseMinos
     param = confSet->Get("UseMinos");
     if( param != "" ){
-        fFitter->fVarNameMinos = Vectorize(param,',');
+        fFitter->fVarNameMinos = Common::Vectorize(param,',');
     }
 
     // Set SetRandomInitialNPval
@@ -1735,9 +1735,9 @@ int ConfigReader::ReadFitOptions(){
     // Set BlindedParameters
     param = confSet->Get("BlindedParameters");
     if( param != "" ){
-        std::vector<std::string> tmp = Vectorize( param.c_str(),',');
+        std::vector<std::string> tmp = Common::Vectorize( param.c_str(),',');
         for (auto itmp : tmp){
-            itmp = RemoveQuotes(itmp);
+            itmp = Common::RemoveQuotes(itmp);
         }
         fFitter->fBlindedParameters = tmp;
         if (fFitter->fBlindedParameters.size() ==  0){
@@ -1792,7 +1792,7 @@ int ConfigReader::ReadLimitOptions(){
     // Set POI to be used for limit
     param = confSet->Get("POI");
     if( param != "" ){
-        fFitter->fPOIforLimit = CheckName(param);
+        fFitter->fPOIforLimit = Common::CheckName(param);
         // add this to the list of POIs
         fFitter->AddPOI(fFitter->fPOIforLimit);
     }
@@ -1874,7 +1874,7 @@ int ConfigReader::ReadSignificanceOptions(){
     // Set POI to be used for sig
     param = confSet->Get("POI");
     if( param != "" ){
-        fFitter->fPOIforSig = CheckName(param);
+        fFitter->fPOIforSig = Common::CheckName(param);
         // add this to the list of POIs
         fFitter->AddPOI(fFitter->fPOIforSig);
     }
@@ -1937,15 +1937,15 @@ int ConfigReader::ReadRegionOptions(const std::string& opt){
         if (confSet == nullptr) break;
 
         nReg++;
-        if(fOnlyRegions.size()>0 && Common::FindInStringVector(fOnlyRegions,RemoveQuotes(confSet->GetValue()))<0) continue;
-        if(fToExclude.size()>0 && Common::FindInStringVector(fToExclude,RemoveQuotes(confSet->GetValue()))>=0) continue;
-        fRegNames.emplace_back( CheckName(confSet->GetValue()) );
-        fRegions.emplace_back( CheckName(confSet->GetValue()) );
+        if(fOnlyRegions.size()>0 && Common::FindInStringVector(fOnlyRegions,Common::RemoveQuotes(confSet->GetValue()))<0) continue;
+        if(fToExclude.size()>0 && Common::FindInStringVector(fToExclude,Common::RemoveQuotes(confSet->GetValue()))>=0) continue;
+        fRegNames.emplace_back( Common::CheckName(confSet->GetValue()) );
+        fRegions.emplace_back( Common::CheckName(confSet->GetValue()) );
         Region *reg;
-        reg = fFitter->NewRegion(CheckName(confSet->GetValue()));
+        reg = fFitter->NewRegion(Common::CheckName(confSet->GetValue()));
         reg->fGetChi2 = fFitter->fGetChi2;
-        reg->SetVariableTitle(RemoveQuotes(confSet->Get("VariableTitle")));
-        reg->SetLabel(RemoveQuotes(confSet->Get("Label")),RemoveQuotes(confSet->Get("ShortLabel")));
+        reg->SetVariableTitle(Common::RemoveQuotes(confSet->Get("VariableTitle")));
+        reg->SetLabel(Common::RemoveQuotes(confSet->Get("Label")),Common::RemoveQuotes(confSet->Get("ShortLabel")));
 
         std::string param = "";
         
@@ -1968,7 +1968,7 @@ int ConfigReader::ReadRegionOptions(const std::string& opt){
 
         // Set axisTitle
         param = confSet->Get("YaxisTitle");
-        if( param != "") reg->fYTitle = RemoveQuotes(param);
+        if( param != "") reg->fYTitle = Common::RemoveQuotes(param);
 
         // Set YmaxScale
         param = confSet->Get("YmaxScale");
@@ -2006,16 +2006,16 @@ int ConfigReader::ReadRegionOptions(const std::string& opt){
 
         // Set TexLabel
         param = confSet->Get("TexLabel");
-        if( param != "") reg->fTexLabel = RemoveQuotes(param);
+        if( param != "") reg->fTexLabel = Common::RemoveQuotes(param);
 
         // Set LumiLabel
         param = confSet->Get("LumiLabel");
-        if( param != "") reg->fLumiLabel = RemoveQuotes(param);
+        if( param != "") reg->fLumiLabel = Common::RemoveQuotes(param);
         else reg->fLumiLabel = fFitter->fLumiLabel;
 
         // Set CmeLabel
         param = confSet->Get("CmeLabel");
-        if( param != "") reg->fCmeLabel = RemoveQuotes(param);
+        if( param != "") reg->fCmeLabel = Common::RemoveQuotes(param);
         else reg->fCmeLabel = fFitter->fCmeLabel;
 
         // Set LogScale
@@ -2026,87 +2026,87 @@ int ConfigReader::ReadRegionOptions(const std::string& opt){
 
         // Set Group
         param = confSet->Get("Group");
-        if( param != "") reg->fGroup = RemoveQuotes(param);
+        if( param != "") reg->fGroup = Common::RemoveQuotes(param);
 
         // Paths for the unfolding code
         param = confSet->Get("ResponseMatrixFile");
         if (param != "") {
             reg->fResponseMatrixFiles.clear();
-            reg->fResponseMatrixFiles.emplace_back(RemoveQuotes(param));
+            reg->fResponseMatrixFiles.emplace_back(Common::RemoveQuotes(param));
         }
 
         param = confSet->Get("ResponseMatrixFiles");
         if (param != "") {
-            reg->fResponseMatrixFiles = Vectorize(param, ',');
+            reg->fResponseMatrixFiles = Common::Vectorize(param, ',');
         }
 
         // Paths for the unfolding code
         param = confSet->Get("ResponseMatrixName");
         if (param != "") {
             reg->fResponseMatrixNames.clear();
-            reg->fResponseMatrixNames.emplace_back(RemoveQuotes(param));
+            reg->fResponseMatrixNames.emplace_back(Common::RemoveQuotes(param));
         }
 
         param = confSet->Get("ResponseMatrixNames");
         if (param != "") {
-            reg->fResponseMatrixNames = Vectorize(param, ',');
+            reg->fResponseMatrixNames = Common::Vectorize(param, ',');
         }
 
         // Paths for the unfolding code
         param = confSet->Get("ResponseMatrixPath");
         if (param != "") {
             reg->fResponseMatrixPaths.clear();
-            reg->fResponseMatrixPaths.emplace_back(RemoveQuotes(param));
+            reg->fResponseMatrixPaths.emplace_back(Common::RemoveQuotes(param));
         }
 
         param = confSet->Get("ResponseMatrixPaths");
         if (param != "") {
-            reg->fResponseMatrixPaths = Vectorize(param, ',');
+            reg->fResponseMatrixPaths = Common::Vectorize(param, ',');
         }
 
         param = confSet->Get("ResponseMatrixFileSuff");
         if (param != "") {
             reg->fResponseMatrixFileSuffs.clear();
-            reg->fResponseMatrixFileSuffs.emplace_back(RemoveQuotes(param));
+            reg->fResponseMatrixFileSuffs.emplace_back(Common::RemoveQuotes(param));
         }
 
         param = confSet->Get("ResponseMatrixFileSuffs");
         if (param != "") {
-            reg->fResponseMatrixFileSuffs = Vectorize(param, ',');
+            reg->fResponseMatrixFileSuffs = Common::Vectorize(param, ',');
         }
 
         param = confSet->Get("ResponseMatrixNameSuff");
         if (param != "") {
             reg->fResponseMatrixNameSuffs.clear();
-            reg->fResponseMatrixNameSuffs.emplace_back(RemoveQuotes(param));
+            reg->fResponseMatrixNameSuffs.emplace_back(Common::RemoveQuotes(param));
         }
 
         param = confSet->Get("ResponseMatrixNameSuffs");
         if (param != "") {
-            reg->fResponseMatrixNameSuffs = Vectorize(param, ',');
+            reg->fResponseMatrixNameSuffs = Common::Vectorize(param, ',');
         }
 
         param = confSet->Get("ResponseMatrixPathSuff");
         if (param != "") {
             reg->fResponseMatrixPathSuffs.clear();
-            reg->fResponseMatrixPathSuffs.emplace_back(RemoveQuotes(param));
+            reg->fResponseMatrixPathSuffs.emplace_back(Common::RemoveQuotes(param));
         }
 
         param = confSet->Get("ResponseMatrixPathSuffs");
         if (param != "") {
-            reg->fResponseMatrixPathSuffs = Vectorize(param, ',');
+            reg->fResponseMatrixPathSuffs = Common::Vectorize(param, ',');
         }
 
         param = confSet->Get("AcceptanceName");
         if (param != "") {
             reg->fAcceptanceNames.clear();
-            reg->fAcceptanceNames.emplace_back(RemoveQuotes(param));
+            reg->fAcceptanceNames.emplace_back(Common::RemoveQuotes(param));
             reg->fHasAcceptance = true;
         }
 
         param = confSet->Get("AcceptanceNames");
         if (param != "") {
-            reg->fAcceptanceNames = Vectorize(param, ',');
+            reg->fAcceptanceNames = Common::Vectorize(param, ',');
             reg->fHasAcceptance = true;
         }
 
@@ -2114,165 +2114,165 @@ int ConfigReader::ReadRegionOptions(const std::string& opt){
         param = confSet->Get("AcceptancePath");
         if (param != "") {
             reg->fAcceptancePaths.clear();
-            reg->fAcceptancePaths.emplace_back(RemoveQuotes(param));
+            reg->fAcceptancePaths.emplace_back(Common::RemoveQuotes(param));
             reg->fHasAcceptance = true;
         }
 
         param = confSet->Get("AcceptancePaths");
         if (param != "") {
-            reg->fAcceptancePaths = Vectorize(param, ',');
+            reg->fAcceptancePaths = Common::Vectorize(param, ',');
             reg->fHasAcceptance = true;
         }
 
         param = confSet->Get("AcceptanceFileSuff");
         if (param != "") {
             reg->fAcceptanceFileSuffs.clear();
-            reg->fAcceptanceFileSuffs.emplace_back(RemoveQuotes(param));
+            reg->fAcceptanceFileSuffs.emplace_back(Common::RemoveQuotes(param));
             reg->fHasAcceptance = true;
         }
 
         param = confSet->Get("AcceptanceFileSuffs");
         if (param != "") {
-            reg->fAcceptanceFileSuffs = Vectorize(param, ',');
+            reg->fAcceptanceFileSuffs = Common::Vectorize(param, ',');
             reg->fHasAcceptance = true;
         }
 
         param = confSet->Get("AcceptanceNameSuff");
         if (param != "") {
             reg->fAcceptanceNameSuffs.clear();
-            reg->fAcceptanceNameSuffs.emplace_back(RemoveQuotes(param));
+            reg->fAcceptanceNameSuffs.emplace_back(Common::RemoveQuotes(param));
             reg->fHasAcceptance = true;
         }
 
         param = confSet->Get("AcceptanceNameSuffs");
         if (param != "") {
-            reg->fAcceptanceNameSuffs = Vectorize(param, ',');
+            reg->fAcceptanceNameSuffs = Common::Vectorize(param, ',');
             reg->fHasAcceptance = true;
         }
 
         param = confSet->Get("AcceptancePathSuff");
         if (param != "") {
             reg->fAcceptancePathSuffs.clear();
-            reg->fAcceptancePathSuffs.emplace_back(RemoveQuotes(param));
+            reg->fAcceptancePathSuffs.emplace_back(Common::RemoveQuotes(param));
             reg->fHasAcceptance = true;
         }
 
         param = confSet->Get("AcceptancePathSuffs");
         if (param != "") {
-            reg->fAcceptancePathSuffs = Vectorize(param, ',');
+            reg->fAcceptancePathSuffs = Common::Vectorize(param, ',');
             reg->fHasAcceptance = true;
         }
 
         param = confSet->Get("SelectionEffName");
         if (param != "") {
             reg->fSelectionEffNames.clear();
-            reg->fSelectionEffNames.emplace_back(RemoveQuotes(param));
+            reg->fSelectionEffNames.emplace_back(Common::RemoveQuotes(param));
         }
 
         param = confSet->Get("SelectionEffNames");
         if (param != "") {
-            reg->fSelectionEffNames = Vectorize(param, ',');
+            reg->fSelectionEffNames = Common::Vectorize(param, ',');
         }
 
         // Paths for the unfolding code
         param = confSet->Get("SelectionEffPath");
         if (param != "") {
             reg->fSelectionEffPaths.clear();
-            reg->fSelectionEffPaths.emplace_back(RemoveQuotes(param));
+            reg->fSelectionEffPaths.emplace_back(Common::RemoveQuotes(param));
         }
 
         param = confSet->Get("SelectionEffPaths");
         if (param != "") {
-            reg->fSelectionEffPaths = Vectorize(param, ',');
+            reg->fSelectionEffPaths = Common::Vectorize(param, ',');
         }
 
         param = confSet->Get("SelectionEffFileSuff");
         if (param != "") {
             reg->fSelectionEffFileSuffs.clear();
-            reg->fSelectionEffFileSuffs.emplace_back(RemoveQuotes(param));
+            reg->fSelectionEffFileSuffs.emplace_back(Common::RemoveQuotes(param));
         }
 
         param = confSet->Get("SelectionEffFileSuffs");
         if (param != "") {
-            reg->fSelectionEffFileSuffs = Vectorize(param, ',');
+            reg->fSelectionEffFileSuffs = Common::Vectorize(param, ',');
         }
 
         param = confSet->Get("SelectionEffNameSuff");
         if (param != "") {
             reg->fSelectionEffNameSuffs.clear();
-            reg->fSelectionEffNameSuffs.emplace_back(RemoveQuotes(param));
+            reg->fSelectionEffNameSuffs.emplace_back(Common::RemoveQuotes(param));
         }
 
         param = confSet->Get("SelectionEffNameSuffs");
         if (param != "") {
-            reg->fSelectionEffNameSuffs = Vectorize(param, ',');
+            reg->fSelectionEffNameSuffs = Common::Vectorize(param, ',');
         }
 
         param = confSet->Get("SelectionEffPathSuff");
         if (param != "") {
             reg->fSelectionEffPathSuffs.clear();
-            reg->fSelectionEffPathSuffs.emplace_back(RemoveQuotes(param));
+            reg->fSelectionEffPathSuffs.emplace_back(Common::RemoveQuotes(param));
         }
 
         param = confSet->Get("SelectionEffPathSuffs");
         if (param != "") {
-            reg->fSelectionEffPathSuffs = Vectorize(param, ',');
+            reg->fSelectionEffPathSuffs = Common::Vectorize(param, ',');
         }
 
         param = confSet->Get("MigrationName");
         if (param != "") {
             reg->fMigrationNames.clear();
-            reg->fMigrationNames.emplace_back(RemoveQuotes(param));
+            reg->fMigrationNames.emplace_back(Common::RemoveQuotes(param));
         }
 
         param = confSet->Get("MigrationNames");
         if (param != "") {
-            reg->fMigrationNames = Vectorize(param, ',');
+            reg->fMigrationNames = Common::Vectorize(param, ',');
         }
 
         // Paths for the unfolding code
         param = confSet->Get("MigrationPath");
         if (param != "") {
             reg->fMigrationPaths.clear();
-            reg->fMigrationPaths.emplace_back(RemoveQuotes(param));
+            reg->fMigrationPaths.emplace_back(Common::RemoveQuotes(param));
         }
 
         param = confSet->Get("MigrationPaths");
         if (param != "") {
-            reg->fMigrationPaths = Vectorize(param, ',');
+            reg->fMigrationPaths = Common::Vectorize(param, ',');
         }
 
         param = confSet->Get("MigrationFileSuff");
         if (param != "") {
             reg->fMigrationFileSuffs.clear();
-            reg->fMigrationFileSuffs.emplace_back(RemoveQuotes(param));
+            reg->fMigrationFileSuffs.emplace_back(Common::RemoveQuotes(param));
         }
 
         param = confSet->Get("MigrationFileSuffs");
         if (param != "") {
-            reg->fMigrationFileSuffs = Vectorize(param, ',');
+            reg->fMigrationFileSuffs = Common::Vectorize(param, ',');
         }
 
         param = confSet->Get("MigrationNameSuff");
         if (param != "") {
             reg->fMigrationNameSuffs.clear();
-            reg->fMigrationNameSuffs.emplace_back(RemoveQuotes(param));
+            reg->fMigrationNameSuffs.emplace_back(Common::RemoveQuotes(param));
         }
 
         param = confSet->Get("MigrationNameSuffs");
         if (param != "") {
-            reg->fMigrationNameSuffs = Vectorize(param, ',');
+            reg->fMigrationNameSuffs = Common::Vectorize(param, ',');
         }
 
         param = confSet->Get("MigrationPathSuff");
         if (param != "") {
             reg->fMigrationPathSuffs.clear();
-            reg->fMigrationPathSuffs.emplace_back(RemoveQuotes(param));
+            reg->fMigrationPathSuffs.emplace_back(Common::RemoveQuotes(param));
         }
 
         param = confSet->Get("MigrationPathSuffs");
         if (param != "") {
-            reg->fMigrationPathSuffs = Vectorize(param, ',');
+            reg->fMigrationPathSuffs = Common::Vectorize(param, ',');
         }
 
         param = confSet->Get("NumberOfRecoBins");
@@ -2312,7 +2312,7 @@ int ConfigReader::ReadRegionOptions(const std::string& opt){
         // Set post-process rebin ("Rebinning")
         param = confSet->Get("Rebinning");
         if(param != ""){
-            std::vector < std::string > vec_bins = Vectorize(param, ',');
+            std::vector < std::string > vec_bins = Common::Vectorize(param, ',');
             if (vec_bins.size() == 0){
                 WriteErrorStatus("ConfigReader::ReadRegionOptions", "You specified `Rebinning` option, but you did not provide any reasonable option. Check this!");
                 ++sc;
@@ -2330,7 +2330,7 @@ int ConfigReader::ReadRegionOptions(const std::string& opt){
         // Set Binning
         param = confSet->Get("Binning");
         if(param != "" && param !="-"){
-            std::vector < std::string > vec_bins = Vectorize(param, ',');
+            std::vector < std::string > vec_bins = Common::Vectorize(param, ',');
             if (vec_bins.size() == 0){
                 WriteErrorStatus("ConfigReader::ReadRegionOptions", "You specified `Binning` option, but you did not provide any reasonable option. Check this!");
                 return sc;
@@ -2439,7 +2439,7 @@ int ConfigReader::ReadRegionOptions(const std::string& opt){
             }
             reg->SetAutomaticDropBins(false);
             reg->fDropBins.clear();
-            const std::vector<std::string>& s = Vectorize( param,',' );
+            const std::vector<std::string>& s = Common::Vectorize( param,',' );
             for(const std::string& is : s){
                 reg->fDropBins.emplace_back(atoi(is.c_str()));
             }
@@ -2448,14 +2448,14 @@ int ConfigReader::ReadRegionOptions(const std::string& opt){
         // Set BinLabels
         param = confSet->Get("BinLabels");
         if( param != "" ){
-            std::vector<std::string> vec_string = Vectorize( param,',' );
+            std::vector<std::string> vec_string = Common::Vectorize( param,',' );
             reg->fBinLabels = vec_string;
         }
 
         // Set XaxisRange
         param = confSet->Get("XaxisRange");
         if( param != "" ){
-            std::vector<std::string> vec_string = Vectorize( param,',' );
+            std::vector<std::string> vec_string = Common::Vectorize( param,',' );
             if (vec_string.size() != 2){
                 WriteWarningStatus("ConfigReader::ReadRegionOptions", "Setting 'XaxisRange' needs exactly two parameters (floats). Ignoring.");
             }
@@ -2475,7 +2475,7 @@ int ConfigReader::ReadRegionOptions(const std::string& opt){
         // Inter-region smoothing
         param = confSet->Get("IsBinOfRegion");
         if( param != "" ){
-            std::vector<std::string> vec_string = Vectorize( param,':' );
+            std::vector<std::string> vec_string = Common::Vectorize( param,':' );
             if (vec_string.size() != 2){
                 WriteWarningStatus("ConfigReader::IsBinOfRegion", "Setting 'IsBinOfRegion' needs exactly two parameters (in the form string:int). Ignoring.");
             }
@@ -2504,45 +2504,45 @@ int ConfigReader::SetRegionHIST(Region* reg, ConfigSet *confSet){
     param = confSet->Get("HistoFile");
     if(param!=""){
         reg->fHistoFiles.clear();
-        reg->fHistoFiles.emplace_back( RemoveQuotes(param) );
+        reg->fHistoFiles.emplace_back( Common::RemoveQuotes(param) );
     }
     // Set HistoFiles
     param = confSet->Get("HistoFiles");
-    if(param!="") reg->fHistoFiles = Vectorize( param,',' );
+    if(param!="") reg->fHistoFiles = Common::Vectorize( param,',' );
 
     // Set HistoName
     param = confSet->Get("HistoName");
     if(param!=""){
         reg->fHistoNames.clear();
-        reg->fHistoNames.emplace_back( RemoveQuotes(param) );
+        reg->fHistoNames.emplace_back( Common::RemoveQuotes(param) );
     }
     // Set HistoNames
     param = confSet->Get("HistoNames");
-    if(param!="") reg->fHistoNames = Vectorize( param,',' );
+    if(param!="") reg->fHistoNames = Common::Vectorize( param,',' );
 
     // Set HistoPath
     param = confSet->Get("HistoPath");
     if(param!=""){
         reg->fHistoPaths.clear();
-        reg->fHistoPaths.emplace_back( RemoveQuotes(param) );
+        reg->fHistoPaths.emplace_back( Common::RemoveQuotes(param) );
     }
     // Set HistoFiles
     param = confSet->Get("HistoPaths");
-    if(param!="") reg->fHistoPaths = Vectorize( param,',' );
+    if(param!="") reg->fHistoPaths = Common::Vectorize( param,',' );
 
     // Set HistoFileSuff
     param = confSet->Get("HistoFileSuff");
     if(param !=""){
         reg->fHistoFileSuffs.clear();
-        reg->fHistoFileSuffs.emplace_back( RemoveQuotes(param) );
+        reg->fHistoFileSuffs.emplace_back( Common::RemoveQuotes(param) );
     }
     // Set HistoPathSuffs
     param = confSet->Get("HistoFileSuffs");
     if(param!=""){
         reg->fHistoFileSuffs.clear();
-        std::vector<std::string> paths = Vectorize( param,',' );
+        std::vector<std::string> paths = Common::Vectorize( param,',' );
         for(std::string ipath : paths){
-            reg->fHistoFileSuffs.emplace_back( RemoveQuotes(ipath) );
+            reg->fHistoFileSuffs.emplace_back( Common::RemoveQuotes(ipath) );
         }
     }
 
@@ -2550,15 +2550,15 @@ int ConfigReader::SetRegionHIST(Region* reg, ConfigSet *confSet){
     param = confSet->Get("HistoNameSuff");
     if(param !=""){
         reg->fHistoNameSuffs.clear();
-        reg->fHistoNameSuffs.emplace_back( RemoveQuotes(param) );
+        reg->fHistoNameSuffs.emplace_back( Common::RemoveQuotes(param) );
     }
     // Set HistoNameSuffs
     param = confSet->Get("HistoNameSuffs");
     if(param!=""){
         reg->fHistoNameSuffs.clear();
-        std::vector<std::string> paths = Vectorize( param,',' );
+        std::vector<std::string> paths = Common::Vectorize( param,',' );
         for(std::string ipath : paths){
-            reg->fHistoNameSuffs.emplace_back( RemoveQuotes(ipath) );
+            reg->fHistoNameSuffs.emplace_back( Common::RemoveQuotes(ipath) );
         }
     }
 
@@ -2566,15 +2566,15 @@ int ConfigReader::SetRegionHIST(Region* reg, ConfigSet *confSet){
     param = confSet->Get("HistoPathSuff");
     if(param !=""){
         reg->fHistoPathSuffs.clear();
-        reg->fHistoPathSuffs.emplace_back( RemoveQuotes(param) );
+        reg->fHistoPathSuffs.emplace_back( Common::RemoveQuotes(param) );
     }
     // Set HistoPathSuffs
     param = confSet->Get("HistoPathSuffs");
     if(param!=""){
         reg->fHistoPathSuffs.clear();
-        std::vector<std::string> paths = Vectorize( param,',' );
+        std::vector<std::string> paths = Common::Vectorize( param,',' );
         for(std::string ipath : paths){
-            reg->fHistoPathSuffs.emplace_back( RemoveQuotes(ipath) );
+            reg->fHistoPathSuffs.emplace_back( Common::RemoveQuotes(ipath) );
         }
     }
 
@@ -2593,7 +2593,7 @@ int ConfigReader::SetRegionNTUP(Region* reg, ConfigSet *confSet){
     std::string param = "";
 
     // Set Variable
-    std::vector<std::string> variable = Vectorize(confSet->Get("Variable"),',');
+    std::vector<std::string> variable = Common::Vectorize(confSet->Get("Variable"),',');
     if (variable.size() == 0){
         WriteErrorStatus("ConfigReader::SetRegionNTUP", "Variable option is required but not present. Please check it!");
         ++sc;
@@ -2615,7 +2615,7 @@ int ConfigReader::SetRegionNTUP(Region* reg, ConfigSet *confSet){
         }
     }
 
-    std::vector<std::string> corrVar  = Vectorize(variable[0],'|');
+    std::vector<std::string> corrVar  = Common::Vectorize(variable[0],'|');
     if(corrVar.size()==2){
         if (variable.size() < 3){
             WriteErrorStatus("ConfigReader::SetRegionNTUP", "Corr size == 2 but variable size < 3. Check this!");
@@ -2640,9 +2640,9 @@ int ConfigReader::SetRegionNTUP(Region* reg, ConfigSet *confSet){
     // Set VariableForSample
     param = confSet->Get("VariableForSample");
     if( param != "" ){
-        std::vector < std::string > temp_samplesAndVars = Vectorize(param,',',false);
+        std::vector < std::string > temp_samplesAndVars = Common::Vectorize(param,',',false);
         for(std::string ivar : temp_samplesAndVars){
-          std::vector < std::string > vars = Vectorize(ivar,':');
+          std::vector < std::string > vars = Common::Vectorize(ivar,':');
             if(vars.size()==2){
                 reg->SetAlternativeVariable(vars[1], vars[0]);
             }
@@ -2651,14 +2651,14 @@ int ConfigReader::SetRegionNTUP(Region* reg, ConfigSet *confSet){
 
     // Set Selection
     param = confSet->Get("Selection");
-    if(param != "") reg->AddSelection( RemoveQuotes(param) );
+    if(param != "") reg->AddSelection( Common::RemoveQuotes(param) );
 
     // Set SelectionForSample
     param = confSet->Get("SelectionForSample");
     if( param != "" ){
-        std::vector < std::string > temp_samplesAndSels = Vectorize(param,',',false);
+        std::vector < std::string > temp_samplesAndSels = Common::Vectorize(param,',',false);
         for(std::string ivar : temp_samplesAndSels){
-          std::vector < std::string > vars = Vectorize(ivar,':');
+          std::vector < std::string > vars = Common::Vectorize(ivar,':');
             if(vars.size()==2){
                 reg->SetAlternativeSelection(vars[1], vars[0]);
             }
@@ -2667,28 +2667,28 @@ int ConfigReader::SetRegionNTUP(Region* reg, ConfigSet *confSet){
 
     // Set MCweight
     param = confSet->Get("MCweight");
-    if (param != "") reg->fMCweight = RemoveQuotes(param); // this will override the global MCweight, if any
+    if (param != "") reg->fMCweight = Common::RemoveQuotes(param); // this will override the global MCweight, if any
 
     // Set NtupleFile
     param = confSet->Get("NtupleFile");
     if(param!=""){
         reg->fNtupleFiles.clear();
-        reg->fNtupleFiles.emplace_back( RemoveQuotes(param) );
+        reg->fNtupleFiles.emplace_back( Common::RemoveQuotes(param) );
     }
     // Set NtupleFiles
     param = confSet->Get("NtupleFiles");
-    if(param!="") reg->fNtupleFiles = Vectorize( param,',' );
+    if(param!="") reg->fNtupleFiles = Common::Vectorize( param,',' );
 
     // Set NtupleFileSuff
     param = confSet->Get("NtupleFileSuff");
     if(param!="") {
         reg->fNtupleFileSuffs.clear();
-        reg->fNtupleFileSuffs.emplace_back( RemoveQuotes(param) );
+        reg->fNtupleFileSuffs.emplace_back( Common::RemoveQuotes(param) );
     }
     // Set NtupleFileSuffs
     param = confSet->Get("NtupleFileSuffs");
     if( param != "" ){
-        std::vector<std::string> paths = Vectorize( param,',' );
+        std::vector<std::string> paths = Common::Vectorize( param,',' );
         reg->fNtupleFileSuffs = paths;
     }
 
@@ -2696,22 +2696,22 @@ int ConfigReader::SetRegionNTUP(Region* reg, ConfigSet *confSet){
     param = confSet->Get("NtupleName");
     if(param!="") {
         reg->fNtupleNames.clear();
-        reg->fNtupleNames.emplace_back( RemoveQuotes(param) );
+        reg->fNtupleNames.emplace_back( Common::RemoveQuotes(param) );
     }
     // Set NtupleNames
     param = confSet->Get("NtupleNames");
-    if(param!="") reg->fNtupleNames = Vectorize( param,',' );
+    if(param!="") reg->fNtupleNames = Common::Vectorize( param,',' );
 
     // Set NtupleNameSuff
     param = confSet->Get("NtupleNameSuff");
     if(param!="") {
         reg->fNtupleNameSuffs.clear();
-        reg->fNtupleNameSuffs.emplace_back( RemoveQuotes(param) );
+        reg->fNtupleNameSuffs.emplace_back( Common::RemoveQuotes(param) );
     }
     // Set NtupleNameSuffs
     param = confSet->Get("NtupleNameSuffs");
     if( param != "" ){
-        std::vector<std::string> paths = Vectorize( param,',' );
+        std::vector<std::string> paths = Common::Vectorize( param,',' );
         reg->fNtupleNameSuffs = paths;
     }
 
@@ -2719,22 +2719,22 @@ int ConfigReader::SetRegionNTUP(Region* reg, ConfigSet *confSet){
     param = confSet->Get("NtuplePath");
     if(param!="") {
         reg->fNtuplePaths.clear();
-        reg->fNtuplePaths.emplace_back( RemoveQuotes(param) );
+        reg->fNtuplePaths.emplace_back( Common::RemoveQuotes(param) );
     }
     // Set NtuplePaths
     param = confSet->Get("NtuplePaths");
-    if(param!="") reg->fNtuplePaths = Vectorize( param,',' );
+    if(param!="") reg->fNtuplePaths = Common::Vectorize( param,',' );
 
     // Set NtuplePathSuff
     param = confSet->Get("NtuplePathSuff");
     if(param != "") {
         reg->fNtuplePathSuffs.clear();
-        reg->fNtuplePathSuffs.emplace_back( RemoveQuotes(param) );
+        reg->fNtuplePathSuffs.emplace_back( Common::RemoveQuotes(param) );
     }
     // Set NtuplePathSuffs
     param = confSet->Get("NtuplePathSuffs");
     if( param != "" ){
-        std::vector<std::string> paths = Vectorize( param,',' );
+        std::vector<std::string> paths = Common::Vectorize( param,',' );
         reg->fNtuplePathSuffs = paths;
     }
 
@@ -2779,8 +2779,8 @@ int ConfigReader::ReadSampleOptions() {
         int type = 0;
         std::string param = "";
 
-        if(fOnlySamples.size()>0 && Common::FindInStringVector(fOnlySamples,RemoveQuotes(confSet->GetValue()))<0) continue;
-        if(fToExclude.size()>0 && Common::FindInStringVector(fToExclude,RemoveQuotes(confSet->GetValue()))>=0) continue;
+        if(fOnlySamples.size()>0 && Common::FindInStringVector(fOnlySamples,Common::RemoveQuotes(confSet->GetValue()))<0) continue;
+        if(fToExclude.size()>0 && Common::FindInStringVector(fToExclude,Common::RemoveQuotes(confSet->GetValue()))>=0) continue;
         type = Sample::BACKGROUND;
 
         // Set Type
@@ -2815,81 +2815,81 @@ int ConfigReader::ReadSampleOptions() {
                 if(type==Sample::SIGNAL){
                     bool skip = true;
                     for(const auto& s : fOnlySignals){
-                        if(CheckName(confSet->GetValue())==s) skip = false;
+                        if(Common::CheckName(confSet->GetValue())==s) skip = false;
                     }
                     if(skip) continue;
                 }
                 else if(type==Sample::GHOST){
                     for(const auto& s : fOnlySignals){
-                        if(CheckName(confSet->GetValue())==s) type = Sample::SIGNAL;
+                        if(Common::CheckName(confSet->GetValue())==s) type = Sample::SIGNAL;
                     }
                 }
             }
         }
-        sample = fFitter->NewSample(CheckName(confSet->GetValue()),type);
-        fSamples.emplace_back(CheckName(confSet->GetValue()));
+        sample = fFitter->NewSample(Common::CheckName(confSet->GetValue()),type);
+        fSamples.emplace_back(Common::CheckName(confSet->GetValue()));
 
         // Set Title
         param = confSet->Get("Title");
-        if (param != "") sample->SetTitle(RemoveQuotes(param));
+        if (param != "") sample->SetTitle(Common::RemoveQuotes(param));
 
         // Set TexTitle
         param = confSet->Get("TexTitle");
-        if(param!="") sample->fTexTitle = RemoveQuotes(param);
+        if(param!="") sample->fTexTitle = Common::RemoveQuotes(param);
 
         // Set Group
         param = confSet->Get("Group");
-        if(param!="") sample->fGroup = RemoveQuotes(param);
+        if(param!="") sample->fGroup = Common::RemoveQuotes(param);
 
         // HIST input
         if (fFitter->fInputType == 0){
             // Set HistoFile
             param = confSet->Get("HistoFile");
-            if(param!="") sample->fHistoFiles.emplace_back( RemoveQuotes(param) );
+            if(param!="") sample->fHistoFiles.emplace_back( Common::RemoveQuotes(param) );
 
             // Set HistoFiles
             param = confSet->Get("HistoFiles");
-            if(param!="") sample->fHistoFiles = Vectorize( param, ',' );
+            if(param!="") sample->fHistoFiles = Common::Vectorize( param, ',' );
 
             // Set HistoFileSuff
             param = confSet->Get("HistoFileSuff");
-            if(param!="") sample->fHistoFileSuffs.emplace_back( RemoveQuotes(param) );
+            if(param!="") sample->fHistoFileSuffs.emplace_back( Common::RemoveQuotes(param) );
 
             // Set HistoFileSuffs
             param = confSet->Get("HistoFileSuffs");
-            if(param!="") sample->fHistoFileSuffs = Vectorize( param, ',' );
+            if(param!="") sample->fHistoFileSuffs = Common::Vectorize( param, ',' );
 
             // Set HistoName
             param = confSet->Get("HistoName");
-            if(param!="") sample->fHistoNames.emplace_back( RemoveQuotes(param) );
+            if(param!="") sample->fHistoNames.emplace_back( Common::RemoveQuotes(param) );
 
             // Set HistoNames
             param = confSet->Get("HistoNames");
-            if(param!="") sample->fHistoNames = Vectorize( param, ',' );
+            if(param!="") sample->fHistoNames = Common::Vectorize( param, ',' );
 
             // Set HistoNameSuff
             param = confSet->Get("HistoNameSuff");
-            if(param!="") sample->fHistoNameSuffs.emplace_back( RemoveQuotes(param) );
+            if(param!="") sample->fHistoNameSuffs.emplace_back( Common::RemoveQuotes(param) );
 
             // Set HistoNameSuffs
             param = confSet->Get("HistoNameSuffs");
-            if(param!="") sample->fHistoNameSuffs = Vectorize( param, ',' );
+            if(param!="") sample->fHistoNameSuffs = Common::Vectorize( param, ',' );
 
             // Set HistoPath
             param = confSet->Get("HistoPath");
-            if(param!="") sample->fHistoPaths.emplace_back( RemoveQuotes(param) );
+            if(param!="") sample->fHistoPaths.emplace_back( Common::RemoveQuotes(param) );
 
             // Set HistoPaths
             param = confSet->Get("HistoPaths");
-            if(param!="") sample->fHistoPaths = Vectorize( param, ',' );
+            if(param!="") sample->fHistoPaths = Common::Vectorize( param, ',' );
 
             // Set HistoPathSuff
             param = confSet->Get("HistoPathSuff");
-            if(param!="") sample->fHistoPathSuffs.emplace_back( RemoveQuotes(param) );
+            if(param!="") sample->fHistoPathSuffs.emplace_back( Common::RemoveQuotes(param) );
 
             // Set HistoPathSuffs
             param = confSet->Get("HistoPathSuffs");
-            if(param!="") sample->fHistoPathSuffs = Vectorize( param, ',' );
+            if(param!="") sample->fHistoPathSuffs = Common::Vectorize( param, ',' );
 
             if (ConfigHasNTUP(confSet)){
                 WriteWarningStatus("ConfigReader::ReadSampleOptions", "You provided some NTUP options but your input type is HIST. Options will be ignored");
@@ -2897,50 +2897,50 @@ int ConfigReader::ReadSampleOptions() {
         } else if (fFitter->fInputType == 1){ // NTUP input
             // Set NtupleFile
             param = confSet->Get("NtupleFile");
-            if(param!="") sample->fNtupleFiles.emplace_back( RemoveQuotes(param) );
+            if(param!="") sample->fNtupleFiles.emplace_back( Common::RemoveQuotes(param) );
 
             // Set NtupleFiles
             param = confSet->Get("NtupleFiles");
-            if(param!="") sample->fNtupleFiles = Vectorize( param ,',' );
+            if(param!="") sample->fNtupleFiles = Common::Vectorize( param ,',' );
 
             param = confSet->Get("NtupleFileSuff");
-            if(param!="") sample->fNtupleFileSuffs.emplace_back( RemoveQuotes(param) );
+            if(param!="") sample->fNtupleFileSuffs.emplace_back( Common::RemoveQuotes(param) );
 
             // Set NtupleFileSuffs
             param = confSet->Get("NtupleFileSuffs");
-            if(param!="") sample->fNtupleFileSuffs = Vectorize( param ,',' );
+            if(param!="") sample->fNtupleFileSuffs = Common::Vectorize( param ,',' );
 
             // Set NtupleName
             param = confSet->Get("NtupleName");
-            if(param!="") sample->fNtupleNames.emplace_back( RemoveQuotes(param) );
+            if(param!="") sample->fNtupleNames.emplace_back( Common::RemoveQuotes(param) );
 
             // Set NtupleNames
             param = confSet->Get("NtupleNames");
-            if(param!="") sample->fNtupleNames = Vectorize( param ,',' );
+            if(param!="") sample->fNtupleNames = Common::Vectorize( param ,',' );
 
             // Set NtupleNameSuff
             param = confSet->Get("NtupleNameSuff");
-            if(param!="") sample->fNtupleNameSuffs.emplace_back( RemoveQuotes(param) );
+            if(param!="") sample->fNtupleNameSuffs.emplace_back( Common::RemoveQuotes(param) );
 
             // Set NtupleNameSuffs
             param = confSet->Get("NtupleNameSuffs");
-            if( param != "" ) sample->fNtupleNameSuffs = Vectorize( param,',' );
+            if( param != "" ) sample->fNtupleNameSuffs = Common::Vectorize( param,',' );
 
             // Set NtuplePath
             param = confSet->Get("NtuplePath");
-            if(param!="") sample->fNtuplePaths.emplace_back( RemoveQuotes(param) );
+            if(param!="") sample->fNtuplePaths.emplace_back( Common::RemoveQuotes(param) );
 
             // Set NtuplePaths
             param = confSet->Get("NtuplePaths");
-            if(param != "") sample->fNtuplePaths = Vectorize( param ,',' );
+            if(param != "") sample->fNtuplePaths = Common::Vectorize( param ,',' );
 
             // Set NtuplePathSuff
             param = confSet->Get("NtuplePathSuff");
-            if(param!="") sample->fNtuplePathSuffs.emplace_back( RemoveQuotes(param) );
+            if(param!="") sample->fNtuplePathSuffs.emplace_back( Common::RemoveQuotes(param) );
 
             // Set NtuplePathSuffs
             param = confSet->Get("NtuplePathSuffs");
-            if(param != "") sample->fNtuplePathSuffs = Vectorize( param ,',' );
+            if(param != "") sample->fNtuplePathSuffs = Common::Vectorize( param ,',' );
 
             if (ConfigHasHIST(confSet)){
                 WriteWarningStatus("ConfigReader::ReadSampleOptions", "You provided some HIST options but your input type is NTUP. Options will be ignored");
@@ -2978,7 +2978,7 @@ int ConfigReader::ReadSampleOptions() {
         // Set FillColor from RGB values if given
         param = confSet->Get("FillColorRGB");
         if (param != "") {
-          std::vector<std::string> rgb_strings = Vectorize(param, ',');
+          std::vector<std::string> rgb_strings = Common::Vectorize(param, ',');
           if (rgb_strings.size() != 3) {
             WriteErrorStatus("ConfigReader::ReadSampleOptions", "No valid input for 'FillColorRGB' provided. Please check this!");
             ++sc;
@@ -2995,7 +2995,7 @@ int ConfigReader::ReadSampleOptions() {
         // Set LineColor from RGB values if given
         param = confSet->Get("LineColorRGB");
         if (param != "") {
-          std::vector<std::string> rgb_strings = Vectorize(param, ',');
+          std::vector<std::string> rgb_strings = Common::Vectorize(param, ',');
           if (rgb_strings.size() != 3) {
             WriteErrorStatus("ConfigReader::ReadSampleOptions", "No valid input for 'LineColorRGB' provided. Please check this!");
             ++sc;
@@ -3018,33 +3018,33 @@ int ConfigReader::ReadSampleOptions() {
         // Set MCweight and Selection
         if(fFitter->fInputType==1){
             param = confSet->Get("MCweight");
-            if(param != "") sample->SetMCweight( RemoveQuotes(param) );
+            if(param != "") sample->SetMCweight( Common::RemoveQuotes(param) );
 
             param = confSet->Get("Selection");
-            if(param!="") sample->SetSelection( RemoveQuotes(param) );
+            if(param!="") sample->SetSelection( Common::RemoveQuotes(param) );
         }
 
         // to specify only certain regions
         std::string regions_str = confSet->Get("Regions");
         std::string exclude_str = confSet->Get("Exclude");
-        std::vector<std::string> regions = Vectorize(regions_str,',');
-        std::vector<std::string> exclude = Vectorize(exclude_str,',');
+        std::vector<std::string> regions = Common::Vectorize(regions_str,',');
+        std::vector<std::string> exclude = Common::Vectorize(exclude_str,',');
         sample->fRegions.clear();
 
         if (regions.size() > 0 && !CheckPresence(regions, fAvailableRegions)){
             if (fAllowWrongRegionSample){
-                WriteWarningStatus("ConfigReader::ReadSampleOptions", "Sample: " + CheckName(confSet->GetValue()) + " has regions set up that do not exist");
+                WriteWarningStatus("ConfigReader::ReadSampleOptions", "Sample: " + Common::CheckName(confSet->GetValue()) + " has regions set up that do not exist");
             } else {
-                WriteErrorStatus("ConfigReader::ReadSampleOptions", "Sample: " + CheckName(confSet->GetValue()) + " has regions set up that do not exist");
+                WriteErrorStatus("ConfigReader::ReadSampleOptions", "Sample: " + Common::CheckName(confSet->GetValue()) + " has regions set up that do not exist");
                 ++sc;
             }
         }
 
         if (exclude.size() > 0 && !CheckPresence(exclude, fAvailableRegions)){
             if (fAllowWrongRegionSample){
-                WriteWarningStatus("ConfigReader::ReadSampleOptions", "Sample: " + CheckName(confSet->GetValue()) + " has regions to exclude set up that do not exist");
+                WriteWarningStatus("ConfigReader::ReadSampleOptions", "Sample: " + Common::CheckName(confSet->GetValue()) + " has regions to exclude set up that do not exist");
             } else {
-                WriteErrorStatus("ConfigReader::ReadSampleOptions", "Sample: " + CheckName(confSet->GetValue()) + " has regions to exclude set up that do not exist");
+                WriteErrorStatus("ConfigReader::ReadSampleOptions", "Sample: " + Common::CheckName(confSet->GetValue()) + " has regions to exclude set up that do not exist");
                 ++sc;
             }
         }
@@ -3061,15 +3061,15 @@ int ConfigReader::ReadSampleOptions() {
         param = confSet->Get("NormFactor");
         if(param!=""){
             // check if the normfactor is called just with the name or with full definition
-            const unsigned int sz = Vectorize(param,',').size();
+            const unsigned int sz = Common::Vectorize(param,',').size();
             if (sz != 1 && sz != 4 && sz != 5){
                 WriteErrorStatus("ConfigReader::ReadSampleOptions", "No valid input for 'NormFactor' provided. Please check this!");
                 ++sc;
             }
             if( sz > 1 ){
                 bool isConst = false;
-                if( Vectorize(param,',').size()>4){
-                    std::string tmp = Vectorize(param,',')[4];
+                if( Common::Vectorize(param,',').size()>4){
+                    std::string tmp = Common::Vectorize(param,',')[4];
                     std::transform(tmp.begin(), tmp.end(), tmp.begin(), ::toupper);
                     if (tmp == "TRUE"){
                         isConst = true;
@@ -3077,15 +3077,15 @@ int ConfigReader::ReadSampleOptions() {
                 }
                 if (sz > 3)
                     nfactor = sample->AddNormFactor(
-                    Vectorize(param,',')[0],
-                    atof(Vectorize(param,',')[1].c_str()),
-                    atof(Vectorize(param,',')[2].c_str()),
-                    atof(Vectorize(param,',')[3].c_str()),
+                    Common::Vectorize(param,',')[0],
+                    atof(Common::Vectorize(param,',')[1].c_str()),
+                    atof(Common::Vectorize(param,',')[2].c_str()),
+                    atof(Common::Vectorize(param,',')[3].c_str()),
                     isConst
                 );
             }
             else{
-                nfactor = sample->AddNormFactor( Vectorize(param,',')[0] );
+                nfactor = sample->AddNormFactor( Common::Vectorize(param,',')[0] );
             }
             nfactor->fRegions = sample->fRegions;
             TRExFitter::SYSTMAP[nfactor->fName] = nfactor->fName;
@@ -3101,15 +3101,15 @@ int ConfigReader::ReadSampleOptions() {
         param = confSet->Get("ShapeFactor");
         if(param!=""){
             // check if the normfactor is called just with the name or with full definition
-            const unsigned int sz = Vectorize(param,',').size();
+            const unsigned int sz = Common::Vectorize(param,',').size();
             if (sz != 1 && sz != 4 && sz != 5){
                 WriteErrorStatus("ConfigReader::ReadSampleOptions", "No valid input for 'ShapeFactor' provided. Please check this!");
                 ++sc;
             }
             if( sz > 1 ){
                 bool isConst = false;
-                if( Vectorize(param,',').size()>4){
-                    std::string tmp = Vectorize(param,',')[4];
+                if( Common::Vectorize(param,',').size()>4){
+                    std::string tmp = Common::Vectorize(param,',')[4];
                     std::transform(tmp.begin(), tmp.end(), tmp.begin(), ::toupper);
                     if (tmp == "TRUE"){
                         isConst = true;
@@ -3117,15 +3117,15 @@ int ConfigReader::ReadSampleOptions() {
                 }
                 if (sz > 3)
                     sfactor = sample->AddShapeFactor(
-                    Vectorize(param,',')[0],
-                    atof(Vectorize(param,',')[1].c_str()),
-                    atof(Vectorize(param,',')[2].c_str()),
-                    atof(Vectorize(param,',')[3].c_str()),
+                    Common::Vectorize(param,',')[0],
+                    atof(Common::Vectorize(param,',')[1].c_str()),
+                    atof(Common::Vectorize(param,',')[2].c_str()),
+                    atof(Common::Vectorize(param,',')[3].c_str()),
                     isConst
                 );
             }
             else{
-                sfactor = sample->AddShapeFactor( Vectorize(param,',')[0] );
+                sfactor = sample->AddShapeFactor( Common::Vectorize(param,',')[0] );
             }
             sfactor->fRegions = sample->fRegions;
             if( Common::FindInStringVector(fFitter->fShapeFactorNames,sfactor->fName)<0 ){
@@ -3141,7 +3141,7 @@ int ConfigReader::ReadSampleOptions() {
         // Set LumiScales
         param = confSet->Get("LumiScales");
         if(param!=""){
-            std::vector<std::string> lumiScales_str = Vectorize( param ,',' );
+            std::vector<std::string> lumiScales_str = Common::Vectorize( param ,',' );
             for(const std::string& ilumiscale : lumiScales_str){
                 sample->fLumiScales.emplace_back( atof(ilumiscale.c_str()) );
             }
@@ -3158,7 +3158,7 @@ int ConfigReader::ReadSampleOptions() {
         // to skip global & region weights for this sample
         param = confSet->Get("IgnoreWeight");
         if(param!=""){
-            sample->fIgnoreWeight = RemoveQuotes(param);
+            sample->fIgnoreWeight = Common::RemoveQuotes(param);
         }
 
         // Set UseMCstat
@@ -3181,101 +3181,101 @@ int ConfigReader::ReadSampleOptions() {
         // Set DivideBy
         param = confSet->Get("DivideBy");;
         if (param != ""){
-            if (std::find(fSamples.begin(), fSamples.end(), RemoveQuotes(param)) == fSamples.end()){
+            if (std::find(fSamples.begin(), fSamples.end(), Common::RemoveQuotes(param)) == fSamples.end()){
                 if (fAllowWrongRegionSample){
-                    WriteWarningStatus("ConfigReader::ReadSampleOptions", "Sample: " + CheckName(confSet->GetValue()) + " has samples set up for DivideBy that do not exist");
+                    WriteWarningStatus("ConfigReader::ReadSampleOptions", "Sample: " + Common::CheckName(confSet->GetValue()) + " has samples set up for DivideBy that do not exist");
                 } else {
-                    WriteErrorStatus("ConfigReader::ReadSampleOptions", "Sample: " + CheckName(confSet->GetValue()) + " has samples set up for DivideBy that do not exist");
+                    WriteErrorStatus("ConfigReader::ReadSampleOptions", "Sample: " + Common::CheckName(confSet->GetValue()) + " has samples set up for DivideBy that do not exist");
                     ++sc;
                 }
             }
-            sample->fDivideBy = RemoveQuotes(param);
+            sample->fDivideBy = Common::RemoveQuotes(param);
         }
 
         // Set MultiplyBy
         param = confSet->Get("MultiplyBy");
         if (param != ""){
-            if (std::find(fSamples.begin(), fSamples.end(), RemoveQuotes(param)) == fSamples.end()){
+            if (std::find(fSamples.begin(), fSamples.end(), Common::RemoveQuotes(param)) == fSamples.end()){
                 if (fAllowWrongRegionSample){
-                    WriteWarningStatus("ConfigReader::ReadSampleOptions", "Sample: " + CheckName(confSet->GetValue()) + " has samples set up for MultiplyBy that do not exist");
+                    WriteWarningStatus("ConfigReader::ReadSampleOptions", "Sample: " + Common::CheckName(confSet->GetValue()) + " has samples set up for MultiplyBy that do not exist");
                 } else {
-                    WriteErrorStatus("ConfigReader::ReadSampleOptions", "Sample: " + CheckName(confSet->GetValue()) + " has samples set up for MultiplyBy that do not exist");
+                    WriteErrorStatus("ConfigReader::ReadSampleOptions", "Sample: " + Common::CheckName(confSet->GetValue()) + " has samples set up for MultiplyBy that do not exist");
                     ++sc;
                 }
             }
-            sample->fMultiplyBy = RemoveQuotes(param);
+            sample->fMultiplyBy = Common::RemoveQuotes(param);
         }
 
         // Set SubtractSample
         param = confSet->Get("SubtractSample");
         if(param!=""){
-            if (std::find(fSamples.begin(), fSamples.end(), RemoveQuotes(param)) == fSamples.end()){
+            if (std::find(fSamples.begin(), fSamples.end(), Common::RemoveQuotes(param)) == fSamples.end()){
                 if (fAllowWrongRegionSample){
-                    WriteWarningStatus("ConfigReader::ReadSampleOptions", "Sample: " + CheckName(confSet->GetValue()) + " has samples set up for SubtractSample that do not exist");
+                    WriteWarningStatus("ConfigReader::ReadSampleOptions", "Sample: " + Common::CheckName(confSet->GetValue()) + " has samples set up for SubtractSample that do not exist");
                 } else {
-                    WriteErrorStatus("ConfigReader::ReadSampleOptions", "Sample: " + CheckName(confSet->GetValue()) + " has samples set up for SubtractSample that do not exist");
+                    WriteErrorStatus("ConfigReader::ReadSampleOptions", "Sample: " + Common::CheckName(confSet->GetValue()) + " has samples set up for SubtractSample that do not exist");
                     ++sc;
                 }
             }
-            sample->fSubtractSamples.emplace_back( RemoveQuotes(param) );
+            sample->fSubtractSamples.emplace_back( Common::RemoveQuotes(param) );
         }
 
         // Set SubtractSamples
         param = confSet->Get("SubtractSamples");
         if(param != ""){
-            std::vector<std::string> tmp = Vectorize(param,',');
+            std::vector<std::string> tmp = Common::Vectorize(param,',');
             if (tmp.size() > 0 && !CheckPresence(tmp, fAvailableSamples)){
                 if (fAllowWrongRegionSample){
-                    WriteWarningStatus("ConfigReader::ReadSampleOptions", "Sample: " + CheckName(confSet->GetValue()) + " has samples set up for SubtractSamples that do not exist");
+                    WriteWarningStatus("ConfigReader::ReadSampleOptions", "Sample: " + Common::CheckName(confSet->GetValue()) + " has samples set up for SubtractSamples that do not exist");
                 } else {
-                    WriteErrorStatus("ConfigReader::ReadSampleOptions", "Sample: " + CheckName(confSet->GetValue()) + " has samples set up for SubtractSamples that do not exist");
+                    WriteErrorStatus("ConfigReader::ReadSampleOptions", "Sample: " + Common::CheckName(confSet->GetValue()) + " has samples set up for SubtractSamples that do not exist");
                     ++sc;
                 }
             }
-            sample->fSubtractSamples = Vectorize(param,',');
+            sample->fSubtractSamples = Common::Vectorize(param,',');
         }
 
         // Set AddSample
         param = confSet->Get("AddSample");
         if(param != ""){
-            if (std::find(fSamples.begin(), fSamples.end(), RemoveQuotes(param)) == fSamples.end()){
+            if (std::find(fSamples.begin(), fSamples.end(), Common::RemoveQuotes(param)) == fSamples.end()){
                 if (fAllowWrongRegionSample){
-                    WriteWarningStatus("ConfigReader::ReadSampleOptions", "Sample: " + CheckName(confSet->GetValue()) + " has samples set up for AddSample that do not exist");
+                    WriteWarningStatus("ConfigReader::ReadSampleOptions", "Sample: " + Common::CheckName(confSet->GetValue()) + " has samples set up for AddSample that do not exist");
                 } else {
-                    WriteErrorStatus("ConfigReader::ReadSampleOptions", "Sample: " + CheckName(confSet->GetValue()) + " has samples set up for AddSample that do not exist");
+                    WriteErrorStatus("ConfigReader::ReadSampleOptions", "Sample: " + Common::CheckName(confSet->GetValue()) + " has samples set up for AddSample that do not exist");
                     ++sc;
                 }
             }
-            sample->fAddSamples.emplace_back( RemoveQuotes(param) );
+            sample->fAddSamples.emplace_back( Common::RemoveQuotes(param) );
         }
 
         // Set AddSamples
         param = confSet->Get("AddSamples");
         if(param!=""){
-            std::vector<std::string> tmp = Vectorize(param,',');
+            std::vector<std::string> tmp = Common::Vectorize(param,',');
             if (tmp.size() > 0 && !CheckPresence(tmp, fAvailableSamples)){
                 if (fAllowWrongRegionSample){
-                    WriteWarningStatus("ConfigReader::ReadSampleOptions", "Sample: " + CheckName(confSet->GetValue()) + " has samples set up for AddSamples that do not exist");
+                    WriteWarningStatus("ConfigReader::ReadSampleOptions", "Sample: " + Common::CheckName(confSet->GetValue()) + " has samples set up for AddSamples that do not exist");
                 } else {
-                    WriteErrorStatus("ConfigReader::ReadSampleOptions", "Sample: " + CheckName(confSet->GetValue()) + " has samples set up for AddSamples that do not exist");
+                    WriteErrorStatus("ConfigReader::ReadSampleOptions", "Sample: " + Common::CheckName(confSet->GetValue()) + " has samples set up for AddSamples that do not exist");
                     ++sc;
                 }
             }
-            sample->fAddSamples = Vectorize(param,',');
+            sample->fAddSamples = Common::Vectorize(param,',');
         }
 
         // Set NormToSample
         param = confSet->Get("NormToSample");
         if(param != ""){
-            if (std::find(fSamples.begin(), fSamples.end(), RemoveQuotes(param)) == fSamples.end()){
+            if (std::find(fSamples.begin(), fSamples.end(), Common::RemoveQuotes(param)) == fSamples.end()){
                 if (fAllowWrongRegionSample){
-                    WriteWarningStatus("ConfigReader::ReadSampleOptions", "Sample: " + CheckName(confSet->GetValue()) + " has samples set up for NormToSample that do not exist");
+                    WriteWarningStatus("ConfigReader::ReadSampleOptions", "Sample: " + Common::CheckName(confSet->GetValue()) + " has samples set up for NormToSample that do not exist");
                 } else {
-                    WriteErrorStatus("ConfigReader::ReadSampleOptions", "Sample: " + CheckName(confSet->GetValue()) + " has samples set up for NormToSample that do not exist");
+                    WriteErrorStatus("ConfigReader::ReadSampleOptions", "Sample: " + Common::CheckName(confSet->GetValue()) + " has samples set up for NormToSample that do not exist");
                     ++sc;
                 }
             }
-            sample->fNormToSample = RemoveQuotes(param);
+            sample->fNormToSample = Common::RemoveQuotes(param);
         }
 
         // Set BuildPullTable
@@ -3307,10 +3307,10 @@ int ConfigReader::ReadSampleOptions() {
         // Set AsimovReplacementFor
         // AsimovReplacementFor
         param = confSet->Get("AsimovReplacementFor");
-        if(RemoveQuotes(param) != ""){
-            if(Vectorize(param,',').size() == 2){
-                sample->fAsimovReplacementFor.first  = Vectorize(param,',')[0];
-                std::string tmp = Vectorize(param,',')[1];
+        if(Common::RemoveQuotes(param) != ""){
+            if(Common::Vectorize(param,',').size() == 2){
+                sample->fAsimovReplacementFor.first  = Common::Vectorize(param,',')[0];
+                std::string tmp = Common::Vectorize(param,',')[1];
                 sample->fAsimovReplacementFor.second = tmp;
             } else {
                 WriteErrorStatus("ConfigReader::ReadSampleOptions", "You specified 'AsimovReplacementFor' option but did not provide 2 parameters. Please check this");
@@ -3339,9 +3339,9 @@ int ConfigReader::ReadSampleOptions() {
         // in the form    CorrelateGammasInRegions: SR1:SR2,CR1:CR2:CR3
         param = confSet->Get("CorrelateGammasInRegions");
         if(param != ""){
-            std::vector<std::string> sets = Vectorize(param,',',false);
+            std::vector<std::string> sets = Common::Vectorize(param,',',false);
             for(std::string set : sets){
-                std::vector<std::string> regions_corr = Vectorize(set,':');
+                std::vector<std::string> regions_corr = Common::Vectorize(set,':');
                 WriteDebugStatus("ConfigReader::ReadSampleOptions", "Correlating gammas for this sample in regions " + set);
                 sample->fCorrelateGammasInRegions.emplace_back(regions_corr);
             }
@@ -3350,20 +3350,20 @@ int ConfigReader::ReadSampleOptions() {
         // Set CorrelateGammasWithSample
         param = confSet->Get("CorrelateGammasWithSample");
         if(param != ""){
-            sample->fCorrelateGammasWithSample = RemoveQuotes(param);
+            sample->fCorrelateGammasWithSample = Common::RemoveQuotes(param);
         }
 
         // Set SystFromSample
         param = confSet->Get("SystFromSample");
         if(param != ""){
-            sample->fSystFromSample = RemoveQuotes(param);
+            sample->fSystFromSample = Common::RemoveQuotes(param);
         }
 
         // Set Morphing
         param = confSet->Get("Morphing");
         if(param != ""){
             if(fFitter->fExcludeFromMorphing!=sample->fName){
-                std::vector<std::string> morph_par = Vectorize(param,',');
+                std::vector<std::string> morph_par = Common::Vectorize(param,',');
                 if (morph_par.size() != 2){
                     WriteErrorStatus("ConfigReader::ReadSampleOptions", "Morphing requires exactly 2 parameters, but " + std::to_string(morph_par.size()) + " provided");
                     ++sc;
@@ -3420,45 +3420,45 @@ int ConfigReader::ReadNormFactorOptions(){
         if (confSet == nullptr) break;
         nNorm++;
 
-        if(fToExclude.size()>0 && Common::FindInStringVector(fToExclude,CheckName(confSet->GetValue()))>=0) continue;
+        if(fToExclude.size()>0 && Common::FindInStringVector(fToExclude,Common::CheckName(confSet->GetValue()))>=0) continue;
 
         std::string samples_str = confSet->Get("Samples");
         std::string regions_str = confSet->Get("Regions");
         std::string exclude_str = confSet->Get("Exclude");
         if(samples_str=="") samples_str = "all";
         if(regions_str=="") regions_str = "all";
-        std::vector<std::string> samples = Vectorize(samples_str,',');
-        std::vector<std::string> regions = Vectorize(regions_str,',');
-        std::vector<std::string> exclude = Vectorize(exclude_str,',');
+        std::vector<std::string> samples = Common::Vectorize(samples_str,',');
+        std::vector<std::string> regions = Common::Vectorize(regions_str,',');
+        std::vector<std::string> exclude = Common::Vectorize(exclude_str,',');
 
         if (regions.size() > 0 && !CheckPresence(regions, fAvailableRegions)){
             if (fAllowWrongRegionSample){
-                WriteWarningStatus("ConfigReader::ReadNormFactorOptions", "NormFactor: " + CheckName(confSet->GetValue()) + " has regions set up that do not exist");
+                WriteWarningStatus("ConfigReader::ReadNormFactorOptions", "NormFactor: " + Common::CheckName(confSet->GetValue()) + " has regions set up that do not exist");
             } else {
-                WriteErrorStatus("ConfigReader::ReadNormFactorOptions", "NormFactor: " + CheckName(confSet->GetValue()) + " has regions set up that do not exist");
+                WriteErrorStatus("ConfigReader::ReadNormFactorOptions", "NormFactor: " + Common::CheckName(confSet->GetValue()) + " has regions set up that do not exist");
                 ++sc;
             }
         }
 
         if (exclude.size() > 0 && !CheckPresence(exclude, fAvailableRegions)){
             if (fAllowWrongRegionSample){
-                WriteWarningStatus("ConfigReader::ReadNormFactorOptions", "NormFactor: " + CheckName(confSet->GetValue()) + " has regions set up for excluding that do not exist");
+                WriteWarningStatus("ConfigReader::ReadNormFactorOptions", "NormFactor: " + Common::CheckName(confSet->GetValue()) + " has regions set up for excluding that do not exist");
             } else {
-                WriteErrorStatus("ConfigReader::ReadNormFactorOptions", "NormFactor: " + CheckName(confSet->GetValue()) + " has regions set up for excluding that do not exist");
+                WriteErrorStatus("ConfigReader::ReadNormFactorOptions", "NormFactor: " + Common::CheckName(confSet->GetValue()) + " has regions set up for excluding that do not exist");
                 ++sc;
             }
         }
 
         if (samples.size() > 0 && !CheckPresence(samples, fAvailableSamples)){
             if (fAllowWrongRegionSample){
-                WriteWarningStatus("ConfigReader::ReadNormFactorOptions", "NormFactor: " + CheckName(confSet->GetValue()) + " has samples set up that do not exist");
+                WriteWarningStatus("ConfigReader::ReadNormFactorOptions", "NormFactor: " + Common::CheckName(confSet->GetValue()) + " has samples set up that do not exist");
             } else {
-                WriteErrorStatus("ConfigReader::ReadNormFactorOptions", "NormFactor: " + CheckName(confSet->GetValue()) + " has samples set up that do not exist");
+                WriteErrorStatus("ConfigReader::ReadNormFactorOptions", "NormFactor: " + Common::CheckName(confSet->GetValue()) + " has samples set up that do not exist");
                 ++sc;
             }
         }
 
-        std::shared_ptr<NormFactor> nfactor = std::make_shared<NormFactor>(CheckName(confSet->GetValue()));
+        std::shared_ptr<NormFactor> nfactor = std::make_shared<NormFactor>(Common::CheckName(confSet->GetValue()));
 
         TRExFitter::SYSTMAP[nfactor->fName] = nfactor->fName;
         if( Common::FindInStringVector(fFitter->fNormFactorNames,nfactor->fName)<0 ){
@@ -3474,7 +3474,7 @@ int ConfigReader::ReadNormFactorOptions(){
         TRExFitter::NPMAP[nfactor->fName] = nfactor->fName;
 
         if (SystHasProblematicName(nfactor->fNuisanceParameter)) {
-            WriteErrorStatus("ConfigReader::ReadNormFactorOptions", "NormFactor: + " + CheckName(confSet->GetValue()) + " has a problematic NuisanceParameterName");
+            WriteErrorStatus("ConfigReader::ReadNormFactorOptions", "NormFactor: + " + Common::CheckName(confSet->GetValue()) + " has a problematic NuisanceParameterName");
             ++sc;
         }
 
@@ -3486,22 +3486,22 @@ int ConfigReader::ReadNormFactorOptions(){
 
         // Set Category
         param = confSet->Get("Category");
-        if(param != "") nfactor->fCategory = RemoveQuotes(param);
+        if(param != "") nfactor->fCategory = Common::RemoveQuotes(param);
 
         // Set SubCategory
         param = confSet->Get("SubCategory");
-        if(param != "") nfactor->fSubCategory = RemoveQuotes(param);
+        if(param != "") nfactor->fSubCategory = Common::RemoveQuotes(param);
 
         // Set Title
         param = confSet->Get("Title");
         if(param != ""){
-            nfactor->fTitle = RemoveQuotes(param);
+            nfactor->fTitle = Common::RemoveQuotes(param);
             TRExFitter::SYSTMAP[nfactor->fName] = nfactor->fTitle;
         }
 
         // Set TexTitle
         param = confSet->Get("TexTitle");
-        if(param != "") TRExFitter::SYSTTEX[nfactor->fName] = RemoveQuotes(param);
+        if(param != "") TRExFitter::SYSTTEX[nfactor->fName] = Common::RemoveQuotes(param);
 
         // Set Min
         param = confSet->Get("Min");
@@ -3518,7 +3518,7 @@ int ConfigReader::ReadNormFactorOptions(){
         // Set Expression
         param = confSet->Get("Expression");
         if(param!=""){
-            std::vector<std::string> v = Vectorize(param,':');
+            std::vector<std::string> v = Common::Vectorize(param,':');
             if (v.size() < 2){
                 WriteErrorStatus("ConfigReader::ReadNormFactorOptions", "You specified 'Expression' option but did not provide 2 parameters. Please check this");
                 ++sc;
@@ -3583,44 +3583,44 @@ int ConfigReader::ReadShapeFactorOptions(){
         if (confSet == nullptr) break;
         nShape++;
 
-        if(fToExclude.size()>0 && Common::FindInStringVector(fToExclude,CheckName(confSet->GetValue()))>=0) continue;
+        if(fToExclude.size()>0 && Common::FindInStringVector(fToExclude,Common::CheckName(confSet->GetValue()))>=0) continue;
         std::string samples_str = confSet->Get("Samples");
         std::string regions_str = confSet->Get("Regions");
         std::string exclude_str = confSet->Get("Exclude");
         if(samples_str=="") samples_str = "all";
         if(regions_str=="") regions_str = "all";
-        std::vector<std::string> samples = Vectorize(samples_str,',');
-        std::vector<std::string> regions = Vectorize(regions_str,',');
-        std::vector<std::string> exclude = Vectorize(exclude_str,',');
+        std::vector<std::string> samples = Common::Vectorize(samples_str,',');
+        std::vector<std::string> regions = Common::Vectorize(regions_str,',');
+        std::vector<std::string> exclude = Common::Vectorize(exclude_str,',');
 
         if (regions.size() > 0 && !CheckPresence(regions, fAvailableRegions)){
             if (fAllowWrongRegionSample){
-                WriteWarningStatus("ConfigReader::ReadShapeFactorOptions", "ShapeFactor: " + CheckName(confSet->GetValue()) + " has regions set up that do not exist");
+                WriteWarningStatus("ConfigReader::ReadShapeFactorOptions", "ShapeFactor: " + Common::CheckName(confSet->GetValue()) + " has regions set up that do not exist");
             } else {
-                WriteErrorStatus("ConfigReader::ReadShapeFactorOptions", "ShapeFactor: " + CheckName(confSet->GetValue()) + " has regions set up that do not exist");
+                WriteErrorStatus("ConfigReader::ReadShapeFactorOptions", "ShapeFactor: " + Common::CheckName(confSet->GetValue()) + " has regions set up that do not exist");
                 ++sc;
             }
         }
 
         if (exclude.size() > 0 && !CheckPresence(exclude, fAvailableRegions)){
             if (fAllowWrongRegionSample){
-                WriteWarningStatus("ConfigReader::ReadShapeFactorOptions", "ShapeFactor: " + CheckName(confSet->GetValue()) + " has regions set up for excluding that do not exist");
+                WriteWarningStatus("ConfigReader::ReadShapeFactorOptions", "ShapeFactor: " + Common::CheckName(confSet->GetValue()) + " has regions set up for excluding that do not exist");
             } else {
-                WriteErrorStatus("ConfigReader::ReadShapeFactorOptions", "ShapeFactor: " + CheckName(confSet->GetValue()) + " has regions set up for excluding that do not exist");
+                WriteErrorStatus("ConfigReader::ReadShapeFactorOptions", "ShapeFactor: " + Common::CheckName(confSet->GetValue()) + " has regions set up for excluding that do not exist");
                 ++sc;
             }
         }
 
         if (samples.size() > 0 && !CheckPresence(samples, fAvailableSamples)){
             if (fAllowWrongRegionSample){
-                WriteWarningStatus("ConfigReader::ReadShapeFactorOptions", "ShapeFactor: " + CheckName(confSet->GetValue()) + " has samples set up that do not exist");
+                WriteWarningStatus("ConfigReader::ReadShapeFactorOptions", "ShapeFactor: " + Common::CheckName(confSet->GetValue()) + " has samples set up that do not exist");
             } else {
-                WriteErrorStatus("ConfigReader::ReadShapeFactorOptions", "ShapeFactor: " + CheckName(confSet->GetValue()) + " has samples set up that do not exist");
+                WriteErrorStatus("ConfigReader::ReadShapeFactorOptions", "ShapeFactor: " + Common::CheckName(confSet->GetValue()) + " has samples set up that do not exist");
                 ++sc;
             }
         }
 
-        std::shared_ptr<ShapeFactor> sfactor = std::make_shared<ShapeFactor>(CheckName(confSet->GetValue()));
+        std::shared_ptr<ShapeFactor> sfactor = std::make_shared<ShapeFactor>(Common::CheckName(confSet->GetValue()));
         if( Common::FindInStringVector(fFitter->fShapeFactorNames,sfactor->fName)<0 ){
             fFitter->fShapeFactors.emplace_back( sfactor );
             fFitter->fShapeFactorNames.emplace_back( sfactor->fName );
@@ -3634,7 +3634,7 @@ int ConfigReader::ReadShapeFactorOptions(){
         TRExFitter::NPMAP[sfactor->fName] = sfactor->fName;
 
         if (SystHasProblematicName(sfactor->fNuisanceParameter)) {
-            WriteErrorStatus("ConfigReader::ReaShapeFactorOptions", "ShapeFactor: + " + CheckName(confSet->GetValue()) + " has a problematic NuisanceParameterName");
+            WriteErrorStatus("ConfigReader::ReaShapeFactorOptions", "ShapeFactor: + " + Common::CheckName(confSet->GetValue()) + " has a problematic NuisanceParameterName");
             ++sc;
         }
 
@@ -3646,16 +3646,16 @@ int ConfigReader::ReadShapeFactorOptions(){
 
         // Set Category
         param = confSet->Get("Category");
-        if(param!="") sfactor->fCategory = RemoveQuotes(param);
+        if(param!="") sfactor->fCategory = Common::RemoveQuotes(param);
 
         // Set Title
         param = confSet->Get("Title");
         if(param != ""){
-            sfactor->fTitle = RemoveQuotes(param);
+            sfactor->fTitle = Common::RemoveQuotes(param);
             TRExFitter::SYSTMAP[sfactor->fName] = sfactor->fTitle;
         }
         param = confSet->Get("TexTitle");
-        if(param != "") TRExFitter::SYSTTEX[sfactor->fName] = RemoveQuotes(param);
+        if(param != "") TRExFitter::SYSTTEX[sfactor->fName] = Common::RemoveQuotes(param);
 
         // Set Min
         param = confSet->Get("Min");
@@ -3720,20 +3720,20 @@ int ConfigReader::ReadSystOptions(){
         nSys++;
 
         std::string param = "";
-        if(fOnlySystematics.size()>0 && Common::FindInStringVector(fOnlySystematics,CheckName(confSet->GetValue()))<0) continue;
-        if(fToExclude.size()>0 && Common::FindInStringVector(fToExclude,CheckName(confSet->GetValue()))>=0) continue;
+        if(fOnlySystematics.size()>0 && Common::FindInStringVector(fOnlySystematics,Common::CheckName(confSet->GetValue()))<0) continue;
+        if(fToExclude.size()>0 && Common::FindInStringVector(fToExclude,Common::CheckName(confSet->GetValue()))>=0) continue;
         std::string samples_str = confSet->Get("Samples");
         std::string regions_str = confSet->Get("Regions");
         std::string exclude_str = confSet->Get("Exclude");
         std::string excludeRegionSample_str = confSet->Get("ExcludeRegionSample");
         if(samples_str=="") samples_str = "all";
         if(regions_str=="") regions_str = "all";
-        std::vector<std::string> samples = Vectorize(samples_str,',');
-        std::vector<std::string> regions = Vectorize(regions_str,',');
-        std::vector<std::string> exclude = Vectorize(exclude_str,',');
+        std::vector<std::string> samples = Common::Vectorize(samples_str,',');
+        std::vector<std::string> regions = Common::Vectorize(regions_str,',');
+        std::vector<std::string> exclude = Common::Vectorize(exclude_str,',');
 
         if(samples_str!="all" && confSet->Get("DummyForSamples")!=""){
-            std::vector<std::string> addSamples = Vectorize(confSet->Get("DummyForSamples"),',');
+            std::vector<std::string> addSamples = Common::Vectorize(confSet->Get("DummyForSamples"),',');
             for(const auto& addSmp : addSamples){
                 if(Common::FindInStringVector(samples,addSmp)<0){
                     samples.emplace_back(addSmp);
@@ -3743,32 +3743,32 @@ int ConfigReader::ReadSystOptions(){
 
         if (regions.size() > 0 && !CheckPresence(regions, fAvailableRegions)){
             if (fAllowWrongRegionSample){
-                WriteWarningStatus("ConfigReader::ReadSystOptions", "Systematic: " + CheckName(confSet->GetValue()) + " has regions set up that do not exist");
+                WriteWarningStatus("ConfigReader::ReadSystOptions", "Systematic: " + Common::CheckName(confSet->GetValue()) + " has regions set up that do not exist");
             } else {
-                WriteErrorStatus("ConfigReader::ReadSystOptions", "Systematic: " + CheckName(confSet->GetValue()) + " has regions set up that do not exist");
+                WriteErrorStatus("ConfigReader::ReadSystOptions", "Systematic: " + Common::CheckName(confSet->GetValue()) + " has regions set up that do not exist");
                 ++sc;
             }
         }
 
         if (exclude.size() > 0 && !CheckPresence(exclude, fAvailableRegions, fAvailableSamples)){
             if (fAllowWrongRegionSample){
-                WriteWarningStatus("ConfigReader::ReadSystOptions", "Systematic: " + CheckName(confSet->GetValue()) + " has samples/regions set up for excluding that do not exist");
+                WriteWarningStatus("ConfigReader::ReadSystOptions", "Systematic: " + Common::CheckName(confSet->GetValue()) + " has samples/regions set up for excluding that do not exist");
             } else {
-                WriteErrorStatus("ConfigReader::ReadSystOptions", "Systematic: " + CheckName(confSet->GetValue()) + " has samples/regions set up for excluding that do not exist");
+                WriteErrorStatus("ConfigReader::ReadSystOptions", "Systematic: " + Common::CheckName(confSet->GetValue()) + " has samples/regions set up for excluding that do not exist");
                 ++sc;
             }
         }
 
         if (samples.size() > 0 && !CheckPresence(samples, fAvailableSamples)){
             if (fAllowWrongRegionSample){
-                WriteWarningStatus("ConfigReader::ReadSystOptions", "Systematic: " + CheckName(confSet->GetValue()) + " has samples set up that do not exist");
+                WriteWarningStatus("ConfigReader::ReadSystOptions", "Systematic: " + Common::CheckName(confSet->GetValue()) + " has samples set up that do not exist");
             } else {
-                WriteErrorStatus("ConfigReader::ReadSystOptions", "Systematic: " + CheckName(confSet->GetValue()) + " has samples set up that do not exist");
+                WriteErrorStatus("ConfigReader::ReadSystOptions", "Systematic: " + Common::CheckName(confSet->GetValue()) + " has samples set up that do not exist");
                 ++sc;
             }
         }
 
-        fExcludeRegionSample = Vectorize(excludeRegionSample_str,',');
+        fExcludeRegionSample = Common::Vectorize(excludeRegionSample_str,',');
         int type = Systematic::HISTO;
 
         // Set type
@@ -3781,7 +3781,7 @@ int ConfigReader::ReadSystOptions(){
 
         std::string decorrelate = confSet->Get("Decorrelate");
 
-        std::shared_ptr<Systematic> sys = std::make_shared<Systematic>(CheckName(confSet->GetValue()),type);
+        std::shared_ptr<Systematic> sys = std::make_shared<Systematic>(Common::CheckName(confSet->GetValue()),type);
         TRExFitter::SYSTMAP[sys->fName] = sys->fTitle;
         if(param == "OVERALL") sys->fIsNormOnly=true;
 
@@ -3790,21 +3790,21 @@ int ConfigReader::ReadSystOptions(){
         // SetCategory
         param = confSet->Get("Category");
         if(param != ""){
-            sys->fCategory = RemoveQuotes(param);
-            sys->fSubCategory = RemoveQuotes(param); //SubCategory defaults to the Category setting, if the Category is explicitly set
+            sys->fCategory = Common::RemoveQuotes(param);
+            sys->fSubCategory = Common::RemoveQuotes(param); //SubCategory defaults to the Category setting, if the Category is explicitly set
         }
 
         // CombineName
         param = confSet->Get("CombineName");
         if(param != ""){
-            sys->fCombineName = RemoveQuotes(param);
+            sys->fCombineName = Common::RemoveQuotes(param);
         }
 
         // CombineType
         param = confSet->Get("CombineType");
         if(param != ""){
             std::transform(param.begin(), param.end(), param.begin(), ::toupper);
-            const std::string tmp = RemoveQuotes(param);
+            const std::string tmp = Common::RemoveQuotes(param);
 
             if (tmp == "STANDARDDEVIATION") {
                 sys->fCombineType = Systematic::COMBINATIONTYPE::STANDARDDEVIATION;
@@ -3819,7 +3819,7 @@ int ConfigReader::ReadSystOptions(){
         // SetSubCategory
         param = confSet->Get("SubCategory");
         if (param != ""){
-            sys->fSubCategory = RemoveQuotes(param); // note this needs to happen after Category was set, in order to overwrite the default if required
+            sys->fSubCategory = Common::RemoveQuotes(param); // note this needs to happen after Category was set, in order to overwrite the default if required
         }
 
         // Set IsFreeParameter
@@ -3838,7 +3838,7 @@ int ConfigReader::ReadSystOptions(){
         // Set StoredName
         // New: name to use when writing / reading the Histograms file
         param = confSet->Get("StoredName");
-        if(param != "") sys->fStoredName = RemoveQuotes(param);
+        if(param != "") sys->fStoredName = Common::RemoveQuotes(param);
 
         if(type==Systematic::HISTO || type==Systematic::SHAPE){
             bool hasUp(false);
@@ -3847,380 +3847,380 @@ int ConfigReader::ReadSystOptions(){
             if(fFitter->fInputType==0){ // HIST input
                 param = confSet->Get("HistoPathUp");
                 if(param!=""){
-                    sys->fHistoPathsUp.emplace_back(RemoveQuotes(param));
+                    sys->fHistoPathsUp.emplace_back(Common::RemoveQuotes(param));
                     hasUp   = true;
                 }
                 param = confSet->Get("HistoPathDown");
                 if(param!=""){
-                    sys->fHistoPathsDown.emplace_back(RemoveQuotes(param));
+                    sys->fHistoPathsDown.emplace_back(Common::RemoveQuotes(param));
                     hasDown = true;
                 }
                 param = confSet->Get("HistoPathSufUp");
                 if(param!=""){
-                    sys->fHistoPathSufUp = RemoveQuotes(param);
+                    sys->fHistoPathSufUp = Common::RemoveQuotes(param);
                     hasUp   = true;
                 }
                 param = confSet->Get("HistoPathSufDown");
                 if(param!=""){
-                    sys->fHistoPathSufDown = RemoveQuotes(param);
+                    sys->fHistoPathSufDown = Common::RemoveQuotes(param);
                     hasDown = true;
                 }
                 param = confSet->Get("HistoFileUp");
                 if(param!=""){
-                    sys->fHistoFilesUp.emplace_back(RemoveQuotes(param));
+                    sys->fHistoFilesUp.emplace_back(Common::RemoveQuotes(param));
                     hasUp   = true;
                 }
                 param = confSet->Get("HistoFileDown");
                 if(param!=""){
-                    sys->fHistoFilesDown.emplace_back(RemoveQuotes(param));
+                    sys->fHistoFilesDown.emplace_back(Common::RemoveQuotes(param));
                     hasDown = true;
                 }
                 param = confSet->Get("HistoFilesUp");
                 if(param!=""){
-                    sys->fHistoFilesUp = Vectorize(param, ',');
+                    sys->fHistoFilesUp = Common::Vectorize(param, ',');
                     hasUp   = true;
                 }
                 param = confSet->Get("HistoFilesDown");
                 if(param!=""){
-                    sys->fHistoFilesDown = Vectorize(param, ',');
+                    sys->fHistoFilesDown = Common::Vectorize(param, ',');
                     hasDown = true;
                 }
                 param = confSet->Get("HistoFileSufUp");
                 if(param!=""){
-                    sys->fHistoFileSufUp = RemoveQuotes(param);
+                    sys->fHistoFileSufUp = Common::RemoveQuotes(param);
                     hasUp   = true;
                 }
                 param = confSet->Get("HistoFileSufDown");
                 if(param!=""){
-                    sys->fHistoFileSufDown = RemoveQuotes(param);
+                    sys->fHistoFileSufDown = Common::RemoveQuotes(param);
                     hasDown = true;
                 }
                 param = confSet->Get("HistoNameUp");
                 if(param!=""){
-                    sys->fHistoNamesUp.emplace_back(RemoveQuotes(param));
+                    sys->fHistoNamesUp.emplace_back(Common::RemoveQuotes(param));
                     hasUp   = true;
                 }
                 param = confSet->Get("HistoNameDown");
                 if(param!=""){
-                    sys->fHistoNamesDown.emplace_back(RemoveQuotes(param));
+                    sys->fHistoNamesDown.emplace_back(Common::RemoveQuotes(param));
                     hasDown = true;
                 }
                 param = confSet->Get("HistoNameSufUp");
                 if(param!=""){
-                    sys->fHistoNameSufUp = RemoveQuotes(param);
+                    sys->fHistoNameSufUp = Common::RemoveQuotes(param);
                     hasUp   = true;
                 }
                 param = confSet->Get("HistoNameSufDown");
                 if(param!=""){
-                    sys->fHistoNameSufDown = RemoveQuotes(param);
+                    sys->fHistoNameSufDown = Common::RemoveQuotes(param);
                     hasDown = true;
                 }
                 // For reference file when using systematics on it - like JER on data
                 param = confSet->Get("HistoPathUpRefSample");
                 if(param!=""){
-                    sys->fHistoPathsUpRefSample.emplace_back(RemoveQuotes(param));
+                    sys->fHistoPathsUpRefSample.emplace_back(Common::RemoveQuotes(param));
                     hasUp   = true;
                 }
                 param = confSet->Get("HistoPathDownRefSample");
                 if(param!=""){
-                    sys->fHistoPathsDownRefSample.emplace_back(RemoveQuotes(param));
+                    sys->fHistoPathsDownRefSample.emplace_back(Common::RemoveQuotes(param));
                     hasDown   = true;
                 }
                 param = confSet->Get("HistoPathsUpRefSample");
                 if(param!=""){
-                    sys->fHistoPathsUpRefSample = Vectorize(param,',');
+                    sys->fHistoPathsUpRefSample = Common::Vectorize(param,',');
                     hasUp   = true;
                 }
                 param = confSet->Get("HistoPathsDownRefSample");
                 if(param!=""){
-                    sys->fHistoPathsDownRefSample = Vectorize(param,',');
+                    sys->fHistoPathsDownRefSample = Common::Vectorize(param,',');
                     hasDown = true;
                 }
                 param = confSet->Get("HistoPathSufUpRefSample");
                 if(param!=""){
-                    sys->fHistoPathSufUpRefSample = RemoveQuotes(param);
+                    sys->fHistoPathSufUpRefSample = Common::RemoveQuotes(param);
                     hasUp   = true;
                 }
                 param = confSet->Get("HistoPathSufDownRefSample");
                 if(param!=""){
-                    sys->fHistoPathSufDownRefSample = RemoveQuotes(param);
+                    sys->fHistoPathSufDownRefSample = Common::RemoveQuotes(param);
                     hasDown = true;
                 }
                 param = confSet->Get("HistoFileUpRefSample");
                 if(param!=""){
-                    sys->fHistoFilesUpRefSample.emplace_back(RemoveQuotes(param));
+                    sys->fHistoFilesUpRefSample.emplace_back(Common::RemoveQuotes(param));
                     hasUp   = true;
                 }
                 param = confSet->Get("HistoFileDownRefSample");
                 if(param!=""){
-                    sys->fHistoFilesDownRefSample.emplace_back(RemoveQuotes(param));
+                    sys->fHistoFilesDownRefSample.emplace_back(Common::RemoveQuotes(param));
                     hasDown = true;
                 }
                 param = confSet->Get("HistoFilesUpRefSample");
                 if(param!=""){
-                    sys->fHistoFilesUpRefSample = Vectorize(param, ',');
+                    sys->fHistoFilesUpRefSample = Common::Vectorize(param, ',');
                     hasUp   = true;
                 }
                 param = confSet->Get("HistoFilesDownRefSample");
                 if(param!=""){
-                    sys->fHistoFilesDownRefSample = Vectorize(param, ',');
+                    sys->fHistoFilesDownRefSample = Common::Vectorize(param, ',');
                     hasDown = true;
                 }
                 param = confSet->Get("HistoFilesUpRefSample");
                 if(param!=""){
-                    sys->fHistoFilesUpRefSample = Vectorize(param,',');
+                    sys->fHistoFilesUpRefSample = Common::Vectorize(param,',');
                     hasUp   = true;
                 }
                 param = confSet->Get("HistoFilesDownRefSample");
                 if(param!=""){
-                    sys->fHistoFilesDownRefSample = Vectorize(param,',');
+                    sys->fHistoFilesDownRefSample = Common::Vectorize(param,',');
                     hasDown = true;
                 }
                 param = confSet->Get("HistoFileSufUpRefSample");
                 if(param!=""){
-                    sys->fHistoFileSufUpRefSample = RemoveQuotes(param);
+                    sys->fHistoFileSufUpRefSample = Common::RemoveQuotes(param);
                     hasUp   = true;
                 }
                 param = confSet->Get("HistoFileSufDownRefSample");
                 if(param!=""){
-                    sys->fHistoFileSufDownRefSample = RemoveQuotes(param);
+                    sys->fHistoFileSufDownRefSample = Common::RemoveQuotes(param);
                     hasDown = true;
                 }
                 param = confSet->Get("HistoNameUpRefSample");
                 if(param!=""){
-                    sys->fHistoNamesUpRefSample.emplace_back(RemoveQuotes(param));
+                    sys->fHistoNamesUpRefSample.emplace_back(Common::RemoveQuotes(param));
                     hasUp   = true;
                 }
                 param = confSet->Get("HistoNameDownRefSample");
                 if(param!=""){
-                    sys->fHistoNamesDown.emplace_back(RemoveQuotes(param));
+                    sys->fHistoNamesDown.emplace_back(Common::RemoveQuotes(param));
                     hasDown = true;
                 }
                 param = confSet->Get("HistoNamesUpRefSample");
                 if(param!=""){
-                    sys->fHistoNamesUpRefSample = Vectorize(param,',');
+                    sys->fHistoNamesUpRefSample = Common::Vectorize(param,',');
                     hasUp   = true;
                 }
                 param = confSet->Get("HistoNamesDownRefSample");
                 if(param!=""){
-                    sys->fHistoNamesDownRefSample = Vectorize(param,',');
+                    sys->fHistoNamesDownRefSample = Common::Vectorize(param,',');
                     hasDown = true;
                 }
                 param = confSet->Get("HistoNameSufUpRefSample");
                 if(param!=""){
-                    sys->fHistoNameSufUpRefSample = RemoveQuotes(param);
+                    sys->fHistoNameSufUpRefSample = Common::RemoveQuotes(param);
                     hasUp   = true;
                 }
                 param = confSet->Get("HistoNameSufDownRefSample");
                 if(param!=""){
-                    sys->fHistoNameSufDownRefSample = RemoveQuotes(param);
+                    sys->fHistoNameSufDownRefSample = Common::RemoveQuotes(param);
                     hasDown = true;
                 }
             }
             else if(fFitter->fInputType==1){ // NTUP option
                 param = confSet->Get("NtuplePathUp");
                 if(param!=""){
-                    sys->fNtuplePathsUp.emplace_back(RemoveQuotes(param));
+                    sys->fNtuplePathsUp.emplace_back(Common::RemoveQuotes(param));
                     hasUp   = true;
                 }
                 param = confSet->Get("NtuplePathDown");
                 if(param!=""){
-                    sys->fNtuplePathsDown.emplace_back(RemoveQuotes(param));
+                    sys->fNtuplePathsDown.emplace_back(Common::RemoveQuotes(param));
                     hasDown = true;
                 }
                 param = confSet->Get("NtuplePathsUp");
                 if(param!=""){
-                    sys->fNtuplePathsUp = Vectorize(param,',');
+                    sys->fNtuplePathsUp = Common::Vectorize(param,',');
                     hasUp   = true;
                 }
                 param = confSet->Get("NtuplePathsDown");
                 if(param!=""){
-                    sys->fNtuplePathsDown = Vectorize(param,',');
+                    sys->fNtuplePathsDown = Common::Vectorize(param,',');
                     hasDown = true;
                 }
                 param = confSet->Get("NtuplePathSufUp");
                 if(param!=""){
-                    sys->fNtuplePathSufUp = RemoveQuotes(param);
+                    sys->fNtuplePathSufUp = Common::RemoveQuotes(param);
                     hasUp   = true;
                 }
                 param = confSet->Get("NtuplePathSufDown");
                 if(param!=""){
-                    sys->fNtuplePathSufDown = RemoveQuotes(param);
+                    sys->fNtuplePathSufDown = Common::RemoveQuotes(param);
                     hasDown = true;
                 }
                 param = confSet->Get("NtupleFileUp");
                 if(param!=""){
-                    sys->fNtupleFilesUp.emplace_back(RemoveQuotes(param));
+                    sys->fNtupleFilesUp.emplace_back(Common::RemoveQuotes(param));
                     hasUp   = true;
                 }
                 param = confSet->Get("NtupleFileDown");
                 if(param!=""){
-                    sys->fNtupleFilesDown.emplace_back(RemoveQuotes(param));
+                    sys->fNtupleFilesDown.emplace_back(Common::RemoveQuotes(param));
                     hasDown = true;
                 }
                 param = confSet->Get("NtupleFilesUp");
                 if(param!=""){
-                    sys->fNtupleFilesUp = Vectorize(param,',');
+                    sys->fNtupleFilesUp = Common::Vectorize(param,',');
                     hasUp   = true;
                 }
                 param = confSet->Get("NtupleFilesDown");
                 if(param!=""){
-                    sys->fNtupleFilesDown = Vectorize(param,',');
+                    sys->fNtupleFilesDown = Common::Vectorize(param,',');
                     hasDown = true;
                 }
                 param = confSet->Get("NtupleFileSufUp");
                 if(param!=""){
-                    sys->fNtupleFileSufUp = RemoveQuotes(param);
+                    sys->fNtupleFileSufUp = Common::RemoveQuotes(param);
                     hasUp   = true;
                 }
                 param = confSet->Get("NtupleFileSufDown");
                 if(param!=""){
-                    sys->fNtupleFileSufDown = RemoveQuotes(param);
+                    sys->fNtupleFileSufDown = Common::RemoveQuotes(param);
                     hasDown = true;
                 }
                 param = confSet->Get("NtupleNameUp");
                 if(param!=""){
-                    sys->fNtupleNamesUp.emplace_back(RemoveQuotes(param));
+                    sys->fNtupleNamesUp.emplace_back(Common::RemoveQuotes(param));
                     hasUp   = true;
                 }
                 param = confSet->Get("NtupleNameDown");
                 if(param!=""){
-                    sys->fNtupleNamesDown.emplace_back(RemoveQuotes(param));
+                    sys->fNtupleNamesDown.emplace_back(Common::RemoveQuotes(param));
                     hasDown = true;
                 }
                 param = confSet->Get("NtupleNamesUp");
                 if(param!=""){
-                    sys->fNtupleNamesUp = Vectorize(param,',');
+                    sys->fNtupleNamesUp = Common::Vectorize(param,',');
                     hasUp   = true;
                 }
                 param = confSet->Get("NtupleNamesDown");
                 if(param!=""){
-                    sys->fNtupleNamesDown = Vectorize(param,',');
+                    sys->fNtupleNamesDown = Common::Vectorize(param,',');
                     hasDown = true;
                 }
                 param = confSet->Get("NtupleNameSufUp");
                 if(param!=""){
-                    sys->fNtupleNameSufUp = RemoveQuotes(param);
+                    sys->fNtupleNameSufUp = Common::RemoveQuotes(param);
                     hasUp   = true;
                 }
                 param = confSet->Get("NtupleNameSufDown");
                 if(param!=""){
-                    sys->fNtupleNameSufDown = RemoveQuotes(param);
+                    sys->fNtupleNameSufDown = Common::RemoveQuotes(param);
                     hasDown = true;
                 }
                 param = confSet->Get("WeightUp");
                 if(param!=""){
-                    sys->fWeightUp = RemoveQuotes(param);
+                    sys->fWeightUp = Common::RemoveQuotes(param);
                     hasUp   = true;
                 }
                 param = confSet->Get("WeightDown");
                 if(param!=""){
-                    sys->fWeightDown = RemoveQuotes(param);
+                    sys->fWeightDown = Common::RemoveQuotes(param);
                     hasDown = true;
                 }
                 param = confSet->Get("WeightSufUp");
                 if(param!=""){
-                    sys->fWeightSufUp = RemoveQuotes(param);
+                    sys->fWeightSufUp = Common::RemoveQuotes(param);
                     hasUp   = true;
                 }
                 param = confSet->Get("WeightSufDown");
                 if(param!=""){
-                    sys->fWeightSufDown = RemoveQuotes(param);
+                    sys->fWeightSufDown = Common::RemoveQuotes(param);
                     hasDown = true;
                 }
                 param = confSet->Get("IgnoreWeight");
                 if(param!=""){
-                    sys->fIgnoreWeight = RemoveQuotes(param);
+                    sys->fIgnoreWeight = Common::RemoveQuotes(param);
                 }
                 // For reference file when using systematics on it - like JER on data
                 param = confSet->Get("NtuplePathUpRefSample");
                 if(param!=""){
-                    sys->fNtuplePathsUpRefSample.emplace_back( RemoveQuotes(param) );
+                    sys->fNtuplePathsUpRefSample.emplace_back( Common::RemoveQuotes(param) );
                     hasUp   = true;
                 }
                 param = confSet->Get("NtuplePathDownRefSample");
                 if(param!=""){
-                    sys->fNtuplePathsDownRefSample.emplace_back( RemoveQuotes(param) );
+                    sys->fNtuplePathsDownRefSample.emplace_back( Common::RemoveQuotes(param) );
                     hasDown = true;
                 }
                 param = confSet->Get("NtuplePathsUpRefSample");
                 if(param!=""){
-                    sys->fNtuplePathsUpRefSample = Vectorize(param,',');
+                    sys->fNtuplePathsUpRefSample = Common::Vectorize(param,',');
                     hasUp   = true;
                 }
                 param = confSet->Get("NtuplePathsDownRefSample");
                 if(param!=""){
-                    sys->fNtuplePathsDownRefSample = Vectorize(param,',');
+                    sys->fNtuplePathsDownRefSample = Common::Vectorize(param,',');
                     hasDown = true;
                 }
                 param = confSet->Get("NtuplePathSufUpRefSample");
                 if(param!=""){
-                    sys->fNtuplePathSufUpRefSample = RemoveQuotes(param);
+                    sys->fNtuplePathSufUpRefSample = Common::RemoveQuotes(param);
                     hasUp   = true;
                 }
                 param = confSet->Get("NtuplePathSufDownRefSample");
                 if(param!=""){
-                    sys->fNtuplePathSufDownRefSample = RemoveQuotes(param);
+                    sys->fNtuplePathSufDownRefSample = Common::RemoveQuotes(param);
                     hasDown = true;
                 }
                 param = confSet->Get("NtupleFileUpRefSample");
                 if(param!=""){
-                    sys->fNtupleFilesUpRefSample.emplace_back( RemoveQuotes(param) );
+                    sys->fNtupleFilesUpRefSample.emplace_back( Common::RemoveQuotes(param) );
                     hasUp   = true;
                 }
                 param = confSet->Get("NtupleFileDownRefSample");
                 if(param!=""){
-                    sys->fNtupleFilesDownRefSample.emplace_back( RemoveQuotes(param) );
+                    sys->fNtupleFilesDownRefSample.emplace_back( Common::RemoveQuotes(param) );
                     hasDown = true;
                 }
                 param = confSet->Get("NtupleFilesUpRefSample");
                 if(param!=""){
-                    sys->fNtupleFilesUpRefSample = Vectorize(param,',');
+                    sys->fNtupleFilesUpRefSample = Common::Vectorize(param,',');
                     hasUp   = true;
                 }
                 param = confSet->Get("NtupleFilesDownRefSample");
                 if(param!=""){
-                    sys->fNtupleFilesDownRefSample = Vectorize(param,',');
+                    sys->fNtupleFilesDownRefSample = Common::Vectorize(param,',');
                     hasDown = true;
                 }
                 param = confSet->Get("NtupleFileSufUpRefSample");
                 if(param!=""){
-                    sys->fNtupleFileSufUpRefSample = RemoveQuotes(param);
+                    sys->fNtupleFileSufUpRefSample = Common::RemoveQuotes(param);
                     hasUp   = true;
                 }
                 param = confSet->Get("NtupleFileSufDownRefSample");
                 if(param!=""){
-                    sys->fNtupleFileSufDownRefSample = RemoveQuotes(param);
+                    sys->fNtupleFileSufDownRefSample = Common::RemoveQuotes(param);
                     hasDown = true;
                 }
                 param = confSet->Get("NtupleNameUpRefSample");
                 if(param!=""){
-                    sys->fNtupleNamesUpRefSample.emplace_back( RemoveQuotes(param) );
+                    sys->fNtupleNamesUpRefSample.emplace_back( Common::RemoveQuotes(param) );
                     hasUp   = true;
                 }
                 param = confSet->Get("NtupleNameDownRefSample");
                 if(param!=""){
-                    sys->fNtupleNamesDownRefSample.emplace_back( RemoveQuotes(param) );
+                    sys->fNtupleNamesDownRefSample.emplace_back( Common::RemoveQuotes(param) );
                     hasDown = true;
                 }
                 param = confSet->Get("NtupleNamesUpRefSample");
                 if(param!=""){
-                    sys->fNtupleNamesUpRefSample = Vectorize(param,',');
+                    sys->fNtupleNamesUpRefSample = Common::Vectorize(param,',');
                     hasUp   = true;
                 }
                 param = confSet->Get("NtupleNamesDownRefSample");
                 if(param!=""){
-                    sys->fNtupleNamesDownRefSample = Vectorize(param,',');
+                    sys->fNtupleNamesDownRefSample = Common::Vectorize(param,',');
                     hasDown = true;
                 }
                 param = confSet->Get("NtupleNameSufUpRefSample");
                 if(param!=""){
-                    sys->fNtupleNameSufUpRefSample = RemoveQuotes(param);
+                    sys->fNtupleNameSufUpRefSample = Common::RemoveQuotes(param);
                     hasUp   = true;
                 }
                 param = confSet->Get("NtupleNameSufDownRefSample");
                 if(param!=""){
-                    sys->fNtupleNameSufDownRefSample = RemoveQuotes(param);
+                    sys->fNtupleNameSufDownRefSample = Common::RemoveQuotes(param);
                     hasDown = true;
                 }
             }
@@ -4288,13 +4288,13 @@ int ConfigReader::ReadSystOptions(){
         // Set ScaleUp
         param = confSet->Get("ScaleUp");
         if(param!=""){
-            std::vector < std::string > temp_vec = Vectorize(param,',',false);
-            if(temp_vec.size()==1 && Vectorize(temp_vec[0],':').size()==1){
+            std::vector < std::string > temp_vec = Common::Vectorize(param,',',false);
+            if(temp_vec.size()==1 && Common::Vectorize(temp_vec[0],':').size()==1){
                 sys->fScaleUp = atof(param.c_str());
             }
             else{
                 for(std::string ireg : temp_vec){
-                    std::vector < std::string > reg_value = Vectorize(ireg,':');
+                    std::vector < std::string > reg_value = Common::Vectorize(ireg,':');
                     if(reg_value.size()==2){
                         sys->fScaleUpRegions.insert( std::pair < std::string, double >( reg_value[0], atof(reg_value[1].c_str()) ) );
                     }
@@ -4305,13 +4305,13 @@ int ConfigReader::ReadSystOptions(){
         // Set ScaleDown
         param = confSet->Get("ScaleDown");
         if(param!=""){
-            std::vector < std::string > temp_vec = Vectorize(param,',',false);
-            if(temp_vec.size()==1 && Vectorize(temp_vec[0],':').size()==1){
+            std::vector < std::string > temp_vec = Common::Vectorize(param,',',false);
+            if(temp_vec.size()==1 && Common::Vectorize(temp_vec[0],':').size()==1){
                 sys->fScaleDown = atof(param.c_str());
             }
             else{
                 for(std::string ireg : temp_vec){
-                    std::vector < std::string > reg_value = Vectorize(ireg,':');
+                    std::vector < std::string > reg_value = Common::Vectorize(ireg,':');
                     if(reg_value.size()==2){
                         sys->fScaleDownRegions.insert( std::pair < std::string, double >( reg_value[0], atof(reg_value[1].c_str()) ) );
                     }
@@ -4324,44 +4324,44 @@ int ConfigReader::ReadSystOptions(){
         // --> this can be used only if this systematic is applied to a single sample
         param = confSet->Get("SampleUp");
         if(param!=""){
-            if (std::find(fSamples.begin(), fSamples.end(), RemoveQuotes(param)) == fSamples.end()){
+            if (std::find(fSamples.begin(), fSamples.end(), Common::RemoveQuotes(param)) == fSamples.end()){
                 if (fAllowWrongRegionSample){
-                    WriteWarningStatus("ConfigReader::ReadSystOptions", "Systematic: " + CheckName(confSet->GetValue()) + " has samples set up in SampleUp that do not exist");
+                    WriteWarningStatus("ConfigReader::ReadSystOptions", "Systematic: " + Common::CheckName(confSet->GetValue()) + " has samples set up in SampleUp that do not exist");
                 } else {
-                    WriteErrorStatus("ConfigReader::ReadSystOptions", "Systematic: " + CheckName(confSet->GetValue()) + " has samples set up in SampleUp that do not exist");
+                    WriteErrorStatus("ConfigReader::ReadSystOptions", "Systematic: " + Common::CheckName(confSet->GetValue()) + " has samples set up in SampleUp that do not exist");
                     ++sc;
                 }
             }
-            sys->fSampleUp = RemoveQuotes(param);
+            sys->fSampleUp = Common::RemoveQuotes(param);
         }
 
         // Set SampleDown
         param = confSet->Get("SampleDown");
         if(param!=""){
-            if (std::find(fSamples.begin(), fSamples.end(), RemoveQuotes(param)) == fSamples.end()){
+            if (std::find(fSamples.begin(), fSamples.end(), Common::RemoveQuotes(param)) == fSamples.end()){
                 if (fAllowWrongRegionSample){
-                    WriteWarningStatus("ConfigReader::ReadSystOptions", "Systematic: " + CheckName(confSet->GetValue()) + " has samples set up in SampleDown that do not exist");
+                    WriteWarningStatus("ConfigReader::ReadSystOptions", "Systematic: " + Common::CheckName(confSet->GetValue()) + " has samples set up in SampleDown that do not exist");
                 } else {
-                    WriteErrorStatus("ConfigReader::ReadSystOptions", "Systematic: " + CheckName(confSet->GetValue()) + " has samples set up in SampleDown that do not exist");
+                    WriteErrorStatus("ConfigReader::ReadSystOptions", "Systematic: " + Common::CheckName(confSet->GetValue()) + " has samples set up in SampleDown that do not exist");
                     ++sc;
                 }
             }
-            sys->fSampleDown = RemoveQuotes(param);
+            sys->fSampleDown = Common::RemoveQuotes(param);
         }
 
         // Set ReferenceSample
         // this to obtain syst variation relatively to given sample
         param = confSet->Get("ReferenceSample");
         if(param!=""){
-            if (std::find(fSamples.begin(), fSamples.end(), RemoveQuotes(param)) == fAvailableSamples.end()){
+            if (std::find(fSamples.begin(), fSamples.end(), Common::RemoveQuotes(param)) == fAvailableSamples.end()){
                 if (fAllowWrongRegionSample){
-                    WriteWarningStatus("ConfigReader::ReadSystOptions", "Systematic: " + CheckName(confSet->GetValue()) + " has samples set up in ReferenceSample that do not exist");
+                    WriteWarningStatus("ConfigReader::ReadSystOptions", "Systematic: " + Common::CheckName(confSet->GetValue()) + " has samples set up in ReferenceSample that do not exist");
                 } else {
-                    WriteErrorStatus("ConfigReader::ReadSystOptions", "Systematic: " + CheckName(confSet->GetValue()) + " has samples set up in ReferenceSample that do not exist");
+                    WriteErrorStatus("ConfigReader::ReadSystOptions", "Systematic: " + Common::CheckName(confSet->GetValue()) + " has samples set up in ReferenceSample that do not exist");
                     ++sc;
                 }
             }
-            sys->fReferenceSample = RemoveQuotes(param);
+            sys->fReferenceSample = Common::RemoveQuotes(param);
         }
 
         // Set KeepReferenceOverallVar
@@ -4374,49 +4374,49 @@ int ConfigReader::ReadSystOptions(){
         // this is to obtain syst variation relatively to given sample
         param = confSet->Get("ReferenceSmoothing");
         if(param!=""){
-            if (std::find(fSamples.begin(), fSamples.end(), RemoveQuotes(param)) == fAvailableSamples.end()){
+            if (std::find(fSamples.begin(), fSamples.end(), Common::RemoveQuotes(param)) == fAvailableSamples.end()){
                 if (fAllowWrongRegionSample){
-                    WriteWarningStatus("ConfigReader::ReadSystOptions", "Systematic: " + CheckName(confSet->GetValue()) + " has samples set up in ReferenceSmoothing that do not exist");
+                    WriteWarningStatus("ConfigReader::ReadSystOptions", "Systematic: " + Common::CheckName(confSet->GetValue()) + " has samples set up in ReferenceSmoothing that do not exist");
                 } else {
-                    WriteErrorStatus("ConfigReader::ReadSystOptions", "Systematic: " + CheckName(confSet->GetValue()) + " has samples set up in ReferenceSmoothing that do not exist");
+                    WriteErrorStatus("ConfigReader::ReadSystOptions", "Systematic: " + Common::CheckName(confSet->GetValue()) + " has samples set up in ReferenceSmoothing that do not exist");
                     ++sc;
                 }
             }
-            if (std::find(samples.begin(), samples.end(), RemoveQuotes(param)) == samples.end()){
-                WriteErrorStatus("ConfigReader::ReadSystOptions", "Systematic: " + CheckName(confSet->GetValue()) + " requires that the ReferenceSample appears in Samples for this systematic");
+            if (std::find(samples.begin(), samples.end(), Common::RemoveQuotes(param)) == samples.end()){
+                WriteErrorStatus("ConfigReader::ReadSystOptions", "Systematic: " + Common::CheckName(confSet->GetValue()) + " requires that the ReferenceSample appears in Samples for this systematic");
                 ++sc;
             }
-            sys->fReferenceSmoothing = RemoveQuotes(param);
+            sys->fReferenceSmoothing = Common::RemoveQuotes(param);
         }
 
         // Set ReferencePruning
         // this allows to prune wrt to a sample and then apply the result to all samples
         param = confSet->Get("ReferencePruning");
         if(param!=""){
-            if (std::find(fSamples.begin(), fSamples.end(), RemoveQuotes(param)) == fAvailableSamples.end()){
+            if (std::find(fSamples.begin(), fSamples.end(), Common::RemoveQuotes(param)) == fAvailableSamples.end()){
                 if (fAllowWrongRegionSample){
-                    WriteWarningStatus("ConfigReader::ReadSystOptions", "Systematic: " + CheckName(confSet->GetValue()) + " has samples set up in ReferencePruning that do not exist");
+                    WriteWarningStatus("ConfigReader::ReadSystOptions", "Systematic: " + Common::CheckName(confSet->GetValue()) + " has samples set up in ReferencePruning that do not exist");
                 } else {
-                    WriteErrorStatus("ConfigReader::ReadSystOptions", "Systematic: " + CheckName(confSet->GetValue()) + " has samples set up in ReferencePruning that do not exist");
+                    WriteErrorStatus("ConfigReader::ReadSystOptions", "Systematic: " + Common::CheckName(confSet->GetValue()) + " has samples set up in ReferencePruning that do not exist");
                     ++sc;
                 }
             }
-            if (std::find(samples.begin(), samples.end(), RemoveQuotes(param)) == samples.end()){
-                WriteErrorStatus("ConfigReader::ReadSystOptions", "Systematic: " + CheckName(confSet->GetValue()) + " requires that the ReferencePruning appears in Samples for this systematic");
+            if (std::find(samples.begin(), samples.end(), Common::RemoveQuotes(param)) == samples.end()){
+                WriteErrorStatus("ConfigReader::ReadSystOptions", "Systematic: " + Common::CheckName(confSet->GetValue()) + " requires that the ReferencePruning appears in Samples for this systematic");
                 ++sc;
             }
-            sys->fReferencePruning = RemoveQuotes(param);
+            sys->fReferencePruning = Common::RemoveQuotes(param);
         }
 
         // Set DropShapeIn
         param = confSet->Get("DropShapeIn");
         if(param!="") {
-            std::vector<std::string> tmp = Vectorize(param,',');
+            std::vector<std::string> tmp = Common::Vectorize(param,',');
             if (tmp.size() > 0 && !CheckPresence(tmp, fAvailableRegions)){
                 if (fAllowWrongRegionSample){
-                    WriteWarningStatus("ConfigReader::ReadSystOptions", "Systematic: " + CheckName(confSet->GetValue()) + " has regions set up in DropShapeIn that do not exist");
+                    WriteWarningStatus("ConfigReader::ReadSystOptions", "Systematic: " + Common::CheckName(confSet->GetValue()) + " has regions set up in DropShapeIn that do not exist");
                 } else {
-                    WriteErrorStatus("ConfigReader::ReadSystOptions", "Systematic: " + CheckName(confSet->GetValue()) + " has regions set up in DropShapeIn that do not exist");
+                    WriteErrorStatus("ConfigReader::ReadSystOptions", "Systematic: " + Common::CheckName(confSet->GetValue()) + " has regions set up in DropShapeIn that do not exist");
                     ++sc;
                 }
             }
@@ -4432,12 +4432,12 @@ int ConfigReader::ReadSystOptions(){
         // Set DropNorm
         param = confSet->Get("DropNorm");
         if(param!=""){
-            std::vector<std::string> tmp = Vectorize(param,',');
+            std::vector<std::string> tmp = Common::Vectorize(param,',');
             if (tmp.size() > 0 && !CheckPresence(tmp, fAvailableRegions, fAvailableSamples)){
                 if (fAllowWrongRegionSample){
-                    WriteWarningStatus("ConfigReader::ReadSystOptions", "Systematic: " + CheckName(confSet->GetValue()) + " has regions set up in DropNorm that do not exist");
+                    WriteWarningStatus("ConfigReader::ReadSystOptions", "Systematic: " + Common::CheckName(confSet->GetValue()) + " has regions set up in DropNorm that do not exist");
                 } else {
-                    WriteErrorStatus("ConfigReader::ReadSystOptions", "Systematic: " + CheckName(confSet->GetValue()) + " has regions set up in DropNorm that do not exist");
+                    WriteErrorStatus("ConfigReader::ReadSystOptions", "Systematic: " + Common::CheckName(confSet->GetValue()) + " has regions set up in DropNorm that do not exist");
                     ++sc;
                 }
             }
@@ -4447,12 +4447,12 @@ int ConfigReader::ReadSystOptions(){
         // Set DropNormSpecial
         param = confSet->Get("DropNormSpecial");
         if(param!=""){
-            std::vector<std::string> tmp = Vectorize(param,',');
+            std::vector<std::string> tmp = Common::Vectorize(param,',');
             if (tmp.size() > 0 && !CheckPresence(tmp, fAvailableRegions, fAvailableSamples)){
                 if (fAllowWrongRegionSample){
-                    WriteWarningStatus("ConfigReader::ReadSystOptions", "Systematic: " + CheckName(confSet->GetValue()) + " has regions set up in DropNorm that do not exist");
+                    WriteWarningStatus("ConfigReader::ReadSystOptions", "Systematic: " + Common::CheckName(confSet->GetValue()) + " has regions set up in DropNorm that do not exist");
                 } else {
-                    WriteErrorStatus("ConfigReader::ReadSystOptions", "Systematic: " + CheckName(confSet->GetValue()) + " has regions set up in DropNorm that do not exist");
+                    WriteErrorStatus("ConfigReader::ReadSystOptions", "Systematic: " + Common::CheckName(confSet->GetValue()) + " has regions set up in DropNorm that do not exist");
                     ++sc;
                 }
             }
@@ -4462,12 +4462,12 @@ int ConfigReader::ReadSystOptions(){
         // Set KeepNormForSamples
         param = confSet->Get("KeepNormForSamples");
         if(param!="") {
-            std::vector<std::string> tmp = Vectorize(param,',');
+            std::vector<std::string> tmp = Common::Vectorize(param,',');
             if (tmp.size() > 0 && !CheckPresence(tmp, fAvailableRegions, fAvailableSamples)){
                 if (fAllowWrongRegionSample){
-                    WriteWarningStatus("ConfigReader::ReadSystOptions", "Systematic: " + CheckName(confSet->GetValue()) + " has samples set up in KeepNormForSamples that do not exist");
+                    WriteWarningStatus("ConfigReader::ReadSystOptions", "Systematic: " + Common::CheckName(confSet->GetValue()) + " has samples set up in KeepNormForSamples that do not exist");
                 } else {
-                    WriteErrorStatus("ConfigReader::ReadSystOptions", "Systematic: " + CheckName(confSet->GetValue()) + " has samples set up in KeepNormForSamples that do not exist");
+                    WriteErrorStatus("ConfigReader::ReadSystOptions", "Systematic: " + Common::CheckName(confSet->GetValue()) + " has samples set up in KeepNormForSamples that do not exist");
                     ++sc;
                 }
             }
@@ -4482,7 +4482,7 @@ int ConfigReader::ReadSystOptions(){
         // Set DummyForSamples
         param = confSet->Get("DummyForSamples");
         if(param!="") {
-            std::vector<std::string> tmp = Vectorize(param,',');
+            std::vector<std::string> tmp = Common::Vectorize(param,',');
             sys->fDummyForSamples = tmp;
         }
 
@@ -4514,7 +4514,7 @@ int ConfigReader::ReadSystOptions(){
         if(exclude[0]!="")    sys->fExclude = exclude;
 
         for (std::string ier : fExcludeRegionSample){
-            std::vector<std::string> pair_ERS = Vectorize(ier,':');
+            std::vector<std::string> pair_ERS = Common::Vectorize(ier,':');
             if (pair_ERS.size()==2){
                 sys->fExcludeRegionSample.emplace_back(pair_ERS);
             }
@@ -4552,7 +4552,7 @@ int ConfigReader::SetSystNoDecorelate(ConfigSet *confSet, std::shared_ptr<System
     // Set NuisanceParameter
     std::string param = confSet->Get("NuisanceParameter");
     if(param!=""){
-        sys->fNuisanceParameter = RemoveQuotes(param);
+        sys->fNuisanceParameter = Common::RemoveQuotes(param);
         TRExFitter::NPMAP[sys->fName] = sys->fNuisanceParameter;
     }
     else{
@@ -4568,13 +4568,13 @@ int ConfigReader::SetSystNoDecorelate(ConfigSet *confSet, std::shared_ptr<System
     // Set Title
     param = confSet->Get("Title");
     if(param != ""){
-        sys->fTitle = RemoveQuotes(param);
+        sys->fTitle = Common::RemoveQuotes(param);
         TRExFitter::SYSTMAP[sys->fName] = sys->fTitle;
     }
 
     // Set TexTitle
     param = confSet->Get("TexTitle");
-    if(param!="") TRExFitter::SYSTTEX[sys->fName] = RemoveQuotes(param);
+    if(param!="") TRExFitter::SYSTTEX[sys->fName] = Common::RemoveQuotes(param);
 
     // attach the syst to the proper samples
     for(auto& isample : fFitter->fSamples) {
@@ -4667,7 +4667,7 @@ int ConfigReader::SetSystRegionDecorelate(ConfigSet *confSet,
                 // Set Title
                 param = confSet->Get("Title");
                 if(param != ""){
-                    mySys->fTitle = RemoveQuotes(param)+" ("+reg->fLabel+", bin "+std::to_string(i_bin)+")";
+                    mySys->fTitle = Common::RemoveQuotes(param)+" ("+reg->fLabel+", bin "+std::to_string(i_bin)+")";
                     TRExFitter::SYSTMAP[mySys->fName] = mySys->fTitle;
                 }
                 for (auto& isample : fFitter->fSamples) {
@@ -4710,7 +4710,7 @@ int ConfigReader::SetSystRegionDecorelate(ConfigSet *confSet,
             // Set Title
             param = confSet->Get("Title");
             if(param != ""){
-                mySys->fTitle = RemoveQuotes(param)+" ("+reg->fLabel+")";
+                mySys->fTitle = Common::RemoveQuotes(param)+" ("+reg->fLabel+")";
                 TRExFitter::SYSTMAP[mySys->fName] = mySys->fTitle;
             }
             //
@@ -4789,7 +4789,7 @@ int ConfigReader::SetSystSampleDecorelate(ConfigSet *confSet, std::shared_ptr<Sy
         // Set Title
         param = confSet->Get("Title");
         if(param != ""){
-            mySys->fTitle = RemoveQuotes(param)+" "+isam->fTitle;
+            mySys->fTitle = Common::RemoveQuotes(param)+" "+isam->fTitle;
             TRExFitter::SYSTMAP[mySys->fName] = mySys->fTitle;
         }
 
@@ -4837,7 +4837,7 @@ int ConfigReader::SetSystShapeDecorelate(ConfigSet *confSet, std::shared_ptr<Sys
     // Set Title
     param = confSet->Get("Title");
     if(param != ""){
-        mySys1->fTitle = RemoveQuotes(param)+" Acc.";
+        mySys1->fTitle = Common::RemoveQuotes(param)+" Acc.";
         TRExFitter::SYSTMAP[mySys1->fName] = mySys1->fTitle;
     }
 
@@ -4885,7 +4885,7 @@ int ConfigReader::SetSystShapeDecorelate(ConfigSet *confSet, std::shared_ptr<Sys
         // Set Title
         param = confSet->Get("Title");
         if(param != ""){
-            mySys2->fTitle = RemoveQuotes(param)+" Shape";
+            mySys2->fTitle = Common::RemoveQuotes(param)+" Shape";
             TRExFitter::SYSTMAP[mySys2->fName] = mySys2->fTitle;
         }
 
@@ -5083,17 +5083,17 @@ int ConfigReader::ReadUnfoldingOptions() {
 
     param = confSet->Get("TruthDistributionPath");
     if (param != "") {
-        fFitter->fTruthDistributionPath = RemoveQuotes(param);
+        fFitter->fTruthDistributionPath = Common::RemoveQuotes(param);
     }
 
     param = confSet->Get("TruthDistributionFile");
     if (param != "") {
-        fFitter->fTruthDistributionFile = RemoveQuotes(param);
+        fFitter->fTruthDistributionFile = Common::RemoveQuotes(param);
     }
 
     param = confSet->Get("TruthDistributionName");
     if (param != "") {
-        fFitter->fTruthDistributionName = RemoveQuotes(param);
+        fFitter->fTruthDistributionName = Common::RemoveQuotes(param);
     }
 
     param = confSet->Get("NumberOfTruthBins");
@@ -5121,13 +5121,13 @@ int ConfigReader::ReadUnfoldingOptions() {
 
     param = confSet->Get("Tau");
     if (param != "") {
-        const std::vector<std::string>& tmp = Vectorize(param, ',');
+        const std::vector<std::string>& tmp = Common::Vectorize(param, ',');
         if (tmp.size()==1) {
             fTaus.emplace_back(-1,std::stof(param));
         }
         else {
             for (auto& i : tmp) {
-                const std::vector<std::string>& oneTau = Vectorize(i, ':');
+                const std::vector<std::string>& oneTau = Common::Vectorize(i, ':');
                 if (oneTau.size() != 2) {
                     WriteErrorStatus("ConfigReader::ReadUnfoldingOptions", "Wrong format for Tau!");
                     ++sc;
@@ -5152,12 +5152,12 @@ int ConfigReader::ReadUnfoldingOptions() {
 
     param = confSet->Get("TitleX");
     if (param != "") {
-        fFitter->fUnfoldingTitleX = RemoveQuotes(param);
+        fFitter->fUnfoldingTitleX = Common::RemoveQuotes(param);
     }
 
     param = confSet->Get("TitleY");
     if (param != "") {
-        fFitter->fUnfoldingTitleY = RemoveQuotes(param);
+        fFitter->fUnfoldingTitleY = Common::RemoveQuotes(param);
     }
 
     param = confSet->Get("ScaleRangeY");
@@ -5197,12 +5197,12 @@ int ConfigReader::ReadUnfoldingOptions() {
 
     param = confSet->Get("MigrationTitleX");
     if (param != "") {
-        fFitter->fMigrationTitleX = RemoveQuotes(param);
+        fFitter->fMigrationTitleX = Common::RemoveQuotes(param);
     }
 
     param = confSet->Get("MigrationTitleY");
     if (param != "") {
-        fFitter->fMigrationTitleY = RemoveQuotes(param);
+        fFitter->fMigrationTitleY = Common::RemoveQuotes(param);
     }
 
     param = confSet->Get("MigrationLogX");
@@ -5260,12 +5260,12 @@ int ConfigReader::ReadUnfoldingOptions() {
         WriteErrorStatus("ConfigReader::ReadUnfoldingOptions", "You need to set NominalTruthSample option!");
         ++sc;
     } else {
-        fFitter->fNominalTruthSample = RemoveQuotes(param);
+        fFitter->fNominalTruthSample = Common::RemoveQuotes(param);
     }
 
     param = confSet->Get("AlternativeAsimovTruthSample");
     if (param != "") {
-        fFitter->fAlternativeAsimovTruthSample = RemoveQuotes(param);
+        fFitter->fAlternativeAsimovTruthSample = Common::RemoveQuotes(param);
         fFitter->fFitIsBlind = false;
     }
     
@@ -5305,7 +5305,7 @@ int ConfigReader::ReadTruthSamples() {
         if (!confSet) break;
         ++isample;
 
-        auto sample = std::make_unique<TruthSample>(RemoveQuotes(confSet->GetValue()));
+        auto sample = std::make_unique<TruthSample>(Common::RemoveQuotes(confSet->GetValue()));
         if (sample->GetName() == fFitter->fNominalTruthSample) {
             found = true;
         }
@@ -5313,16 +5313,16 @@ int ConfigReader::ReadTruthSamples() {
             foundAlternative = true;
         }
 
-        if (std::find(names.begin(), names.end(), RemoveQuotes(confSet->GetValue())) == names.end()) {
-            names.emplace_back(RemoveQuotes(confSet->GetValue()));
+        if (std::find(names.begin(), names.end(), Common::RemoveQuotes(confSet->GetValue())) == names.end()) {
+            names.emplace_back(Common::RemoveQuotes(confSet->GetValue()));
         } else {
-            WriteErrorStatus("ConfigReader::ReadTruthSamples", "Multiply defined TruthSample: " + RemoveQuotes(confSet->GetValue()));
+            WriteErrorStatus("ConfigReader::ReadTruthSamples", "Multiply defined TruthSample: " + Common::RemoveQuotes(confSet->GetValue()));
             ++sc;
         }
 
         std::string param = confSet->Get("Title");
         if (param != "") {
-            sample->SetTitle(RemoveQuotes(param));
+            sample->SetTitle(Common::RemoveQuotes(param));
         }
 
         param = confSet->Get("LineStyle");
@@ -5342,17 +5342,17 @@ int ConfigReader::ReadTruthSamples() {
 
         param = confSet->Get("TruthDistributionPath");
         if (param != "") {
-            sample->SetTruthDistributionPath(RemoveQuotes(param));
+            sample->SetTruthDistributionPath(Common::RemoveQuotes(param));
         }
 
         param = confSet->Get("TruthDistributionFile");
         if (param != "") {
-            sample->SetTruthDistributionFile(RemoveQuotes(param));
+            sample->SetTruthDistributionFile(Common::RemoveQuotes(param));
         }
 
         param = confSet->Get("TruthDistributionName");
         if (param != "") {
-            sample->SetTruthDistributionName(RemoveQuotes(param));
+            sample->SetTruthDistributionName(Common::RemoveQuotes(param));
         }
 
         fFitter->fTruthSamples.emplace_back(std::move(sample));
@@ -5385,299 +5385,299 @@ int ConfigReader::ReadUnfoldingSampleOptions() {
         ++isample;
 
         auto sample = std::make_unique<UnfoldingSample>();
-        sample->SetName(RemoveQuotes(confSet->GetValue()));
+        sample->SetName(Common::RemoveQuotes(confSet->GetValue()));
 
         std::string param = confSet->Get("Title");
         if (param != "") {
-            sample->SetTitle(RemoveQuotes(param));
+            sample->SetTitle(Common::RemoveQuotes(param));
         }
 
         param = confSet->Get("ResponseMatrixFile");
         if (param != "") {
             sample->fResponseMatrixFiles.clear();
-            sample->fResponseMatrixFiles.emplace_back(RemoveQuotes(param));
+            sample->fResponseMatrixFiles.emplace_back(Common::RemoveQuotes(param));
             sample->SetHasResponse(true);
         }
 
         param = confSet->Get("ResponseMatrixFiles");
         if (param != "") {
-            sample->fResponseMatrixFiles = Vectorize(param, ',');
+            sample->fResponseMatrixFiles = Common::Vectorize(param, ',');
             sample->SetHasResponse(true);
         }
 
         param = confSet->Get("ResponseMatrixName");
         if (param != "") {
             sample->fResponseMatrixNames.clear();
-            sample->fResponseMatrixNames.emplace_back(RemoveQuotes(param));
+            sample->fResponseMatrixNames.emplace_back(Common::RemoveQuotes(param));
             sample->SetHasResponse(true);
         }
 
         param = confSet->Get("ResponseMatrixNames");
         if (param != "") {
-            sample->fResponseMatrixNames = Vectorize(param, ',');
+            sample->fResponseMatrixNames = Common::Vectorize(param, ',');
             sample->SetHasResponse(true);
         }
 
         param = confSet->Get("ResponseMatrixPath");
         if (param != "") {
             sample->fResponseMatrixPaths.clear();
-            sample->fResponseMatrixPaths.emplace_back(RemoveQuotes(param));
+            sample->fResponseMatrixPaths.emplace_back(Common::RemoveQuotes(param));
             sample->SetHasResponse(true);
         }
 
         param = confSet->Get("ResponseMatrixPaths");
         if (param != "") {
-            sample->fResponseMatrixPaths = Vectorize(param, ',');
+            sample->fResponseMatrixPaths = Common::Vectorize(param, ',');
             sample->SetHasResponse(true);
         }
 
         param = confSet->Get("ResponseMatrixFileSuff");
         if (param != "") {
             sample->fResponseMatrixFileSuffs.clear();
-            sample->fResponseMatrixFileSuffs.emplace_back(RemoveQuotes(param));
+            sample->fResponseMatrixFileSuffs.emplace_back(Common::RemoveQuotes(param));
             sample->SetHasResponse(true);
         }
 
         param = confSet->Get("ResponseMatrixFileSuffs");
         if (param != "") {
-            sample->fResponseMatrixFileSuffs = Vectorize(param, ',');
+            sample->fResponseMatrixFileSuffs = Common::Vectorize(param, ',');
             sample->SetHasResponse(true);
         }
 
         param = confSet->Get("ResponseMatrixNameSuff");
         if (param != "") {
             sample->fResponseMatrixNameSuffs.clear();
-            sample->fResponseMatrixNameSuffs.emplace_back(RemoveQuotes(param));
+            sample->fResponseMatrixNameSuffs.emplace_back(Common::RemoveQuotes(param));
             sample->SetHasResponse(true);
         }
 
         param = confSet->Get("ResponseMatrixNameSuffs");
         if (param != "") {
-            sample->fResponseMatrixNameSuffs = Vectorize(param, ',');
+            sample->fResponseMatrixNameSuffs = Common::Vectorize(param, ',');
             sample->SetHasResponse(true);
         }
 
         param = confSet->Get("ResponseMatrixPathSuff");
         if (param != "") {
             sample->fResponseMatrixPathSuffs.clear();
-            sample->fResponseMatrixPathSuffs.emplace_back(RemoveQuotes(param));
+            sample->fResponseMatrixPathSuffs.emplace_back(Common::RemoveQuotes(param));
             sample->SetHasResponse(true);
         }
 
         param = confSet->Get("ResponseMatrixPathSuffs");
         if (param != "") {
-            sample->fResponseMatrixPathSuffs = Vectorize(param, ',');
+            sample->fResponseMatrixPathSuffs = Common::Vectorize(param, ',');
             sample->SetHasResponse(true);
         }
 
         param = confSet->Get("AcceptanceFile");
         if (param != "") {
             sample->fAcceptanceFiles.clear();
-            sample->fAcceptanceFiles.emplace_back(RemoveQuotes(param));
+            sample->fAcceptanceFiles.emplace_back(Common::RemoveQuotes(param));
             sample->SetHasAcceptance(true);
         }
 
         param = confSet->Get("AcceptanceFiles");
         if (param != "") {
-            sample->fAcceptanceFiles = Vectorize(param, ',');
+            sample->fAcceptanceFiles = Common::Vectorize(param, ',');
             sample->SetHasAcceptance(true);
         }
 
         param = confSet->Get("AcceptanceName");
         if (param != "") {
             sample->fAcceptanceNames.clear();
-            sample->fAcceptanceNames.emplace_back(RemoveQuotes(param));
+            sample->fAcceptanceNames.emplace_back(Common::RemoveQuotes(param));
             sample->SetHasAcceptance(true);
         }
 
         param = confSet->Get("AcceptanceNames");
         if (param != "") {
-            sample->fAcceptanceNames = Vectorize(param, ',');
+            sample->fAcceptanceNames = Common::Vectorize(param, ',');
             sample->SetHasAcceptance(true);
         }
 
         param = confSet->Get("AcceptancePath");
         if (param != "") {
             sample->fAcceptancePaths.clear();
-            sample->fAcceptancePaths.emplace_back(RemoveQuotes(param));
+            sample->fAcceptancePaths.emplace_back(Common::RemoveQuotes(param));
             sample->SetHasAcceptance(true);
         }
 
         param = confSet->Get("AcceptancePaths");
         if (param != "") {
-            sample->fAcceptancePaths = Vectorize(param, ',');
+            sample->fAcceptancePaths = Common::Vectorize(param, ',');
             sample->SetHasAcceptance(true);
         }
 
         param = confSet->Get("AcceptanceFileSuff");
         if (param != "") {
             sample->fAcceptanceFileSuffs.clear();
-            sample->fAcceptanceFileSuffs.emplace_back(RemoveQuotes(param));
+            sample->fAcceptanceFileSuffs.emplace_back(Common::RemoveQuotes(param));
             sample->SetHasAcceptance(true);
         }
 
         param = confSet->Get("AcceptanceFileSuffs");
         if (param != "") {
-            sample->fAcceptanceFileSuffs = Vectorize(param, ',');
+            sample->fAcceptanceFileSuffs = Common::Vectorize(param, ',');
             sample->SetHasAcceptance(true);
         }
 
         param = confSet->Get("AcceptanceNameSuff");
         if (param != "") {
             sample->fAcceptanceNameSuffs.clear();
-            sample->fAcceptanceNameSuffs.emplace_back(RemoveQuotes(param));
+            sample->fAcceptanceNameSuffs.emplace_back(Common::RemoveQuotes(param));
             sample->SetHasAcceptance(true);
         }
 
         param = confSet->Get("AcceptanceNameSuffs");
         if (param != "") {
-            sample->fAcceptanceNameSuffs = Vectorize(param, ',');
+            sample->fAcceptanceNameSuffs = Common::Vectorize(param, ',');
             sample->SetHasAcceptance(true);
         }
 
         param = confSet->Get("AcceptancePathSuff");
         if (param != "") {
             sample->fAcceptancePathSuffs.clear();
-            sample->fAcceptancePathSuffs.emplace_back(RemoveQuotes(param));
+            sample->fAcceptancePathSuffs.emplace_back(Common::RemoveQuotes(param));
             sample->SetHasAcceptance(true);
         }
 
         param = confSet->Get("AcceptancePathSuffs");
         if (param != "") {
-            sample->fAcceptancePathSuffs = Vectorize(param, ',');
+            sample->fAcceptancePathSuffs = Common::Vectorize(param, ',');
             sample->SetHasAcceptance(true);
         }
 
         param = confSet->Get("SelectionEffFile");
         if (param != "") {
             sample->fSelectionEffFiles.clear();
-            sample->fSelectionEffFiles.emplace_back(RemoveQuotes(param));
+            sample->fSelectionEffFiles.emplace_back(Common::RemoveQuotes(param));
         }
 
         param = confSet->Get("SelectionEffFiles");
         if (param != "") {
-            sample->fSelectionEffFiles = Vectorize(param, ',');
+            sample->fSelectionEffFiles = Common::Vectorize(param, ',');
         }
 
         param = confSet->Get("SelectionEffName");
         if (param != "") {
             sample->fSelectionEffNames.clear();
-            sample->fSelectionEffNames.emplace_back(RemoveQuotes(param));
+            sample->fSelectionEffNames.emplace_back(Common::RemoveQuotes(param));
         }
 
         param = confSet->Get("SelectionEffNames");
         if (param != "") {
-            sample->fSelectionEffNames = Vectorize(param, ',');
+            sample->fSelectionEffNames = Common::Vectorize(param, ',');
         }
 
         param = confSet->Get("SelectionEffPath");
         if (param != "") {
             sample->fSelectionEffPaths.clear();
-            sample->fSelectionEffPaths.emplace_back(RemoveQuotes(param));
+            sample->fSelectionEffPaths.emplace_back(Common::RemoveQuotes(param));
         }
 
         param = confSet->Get("SelectionEffPaths");
         if (param != "") {
-            sample->fSelectionEffPaths = Vectorize(param, ',');
+            sample->fSelectionEffPaths = Common::Vectorize(param, ',');
         }
 
         param = confSet->Get("SelectionEffFileSuff");
         if (param != "") {
             sample->fSelectionEffFileSuffs.clear();
-            sample->fSelectionEffFileSuffs.emplace_back(RemoveQuotes(param));
+            sample->fSelectionEffFileSuffs.emplace_back(Common::RemoveQuotes(param));
         }
 
         param = confSet->Get("SelectionEffFileSuffs");
         if (param != "") {
-            sample->fSelectionEffFileSuffs = Vectorize(param, ',');
+            sample->fSelectionEffFileSuffs = Common::Vectorize(param, ',');
         }
 
         param = confSet->Get("SelectionEffNameSuff");
         if (param != "") {
             sample->fSelectionEffNameSuffs.clear();
-            sample->fSelectionEffNameSuffs.emplace_back(RemoveQuotes(param));
+            sample->fSelectionEffNameSuffs.emplace_back(Common::RemoveQuotes(param));
         }
 
         param = confSet->Get("SelectionEffNameSuffs");
         if (param != "") {
-            sample->fSelectionEffNameSuffs = Vectorize(param, ',');
+            sample->fSelectionEffNameSuffs = Common::Vectorize(param, ',');
         }
 
         param = confSet->Get("SelectionEffPathSuff");
         if (param != "") {
             sample->fSelectionEffPathSuffs.clear();
-            sample->fSelectionEffPathSuffs.emplace_back(RemoveQuotes(param));
+            sample->fSelectionEffPathSuffs.emplace_back(Common::RemoveQuotes(param));
         }
 
         param = confSet->Get("SelectionEffPathSuffs");
         if (param != "") {
-            sample->fSelectionEffPathSuffs = Vectorize(param, ',');
+            sample->fSelectionEffPathSuffs = Common::Vectorize(param, ',');
         }
 
         param = confSet->Get("MigrationFile");
         if (param != "") {
             sample->fMigrationFiles.clear();
-            sample->fMigrationFiles.emplace_back(RemoveQuotes(param));
+            sample->fMigrationFiles.emplace_back(Common::RemoveQuotes(param));
         }
 
         param = confSet->Get("MigrationFiles");
         if (param != "") {
-            sample->fMigrationFiles = Vectorize(param, ',');
+            sample->fMigrationFiles = Common::Vectorize(param, ',');
         }
 
         param = confSet->Get("MigrationName");
         if (param != "") {
             sample->fMigrationNames.clear();
-            sample->fMigrationNames.emplace_back(RemoveQuotes(param));
+            sample->fMigrationNames.emplace_back(Common::RemoveQuotes(param));
         }
 
         param = confSet->Get("MigrationNames");
         if (param != "") {
-            sample->fMigrationNames = Vectorize(param, ',');
+            sample->fMigrationNames = Common::Vectorize(param, ',');
         }
 
         param = confSet->Get("MigrationPath");
         if (param != "") {
             sample->fMigrationPaths.clear();
-            sample->fMigrationPaths.emplace_back(RemoveQuotes(param));
+            sample->fMigrationPaths.emplace_back(Common::RemoveQuotes(param));
         }
 
         param = confSet->Get("MigrationPaths");
         if (param != "") {
-            sample->fMigrationPaths = Vectorize(param, ',');
+            sample->fMigrationPaths = Common::Vectorize(param, ',');
         }
 
         param = confSet->Get("MigrationFileSuff");
         if (param != "") {
             sample->fMigrationFileSuffs.clear();
-            sample->fMigrationFileSuffs.emplace_back(RemoveQuotes(param));
+            sample->fMigrationFileSuffs.emplace_back(Common::RemoveQuotes(param));
         }
 
         param = confSet->Get("MigrationFileSuffs");
         if (param != "") {
-            sample->fMigrationFileSuffs = Vectorize(param, ',');
+            sample->fMigrationFileSuffs = Common::Vectorize(param, ',');
         }
 
         param = confSet->Get("MigrationNameSuff");
         if (param != "") {
             sample->fMigrationNameSuffs.clear();
-            sample->fMigrationNameSuffs.emplace_back(RemoveQuotes(param));
+            sample->fMigrationNameSuffs.emplace_back(Common::RemoveQuotes(param));
         }
 
         param = confSet->Get("MigrationNameSuffs");
         if (param != "") {
-            sample->fMigrationNameSuffs = Vectorize(param, ',');
+            sample->fMigrationNameSuffs = Common::Vectorize(param, ',');
         }
 
         param = confSet->Get("MigrationPathSuff");
         if (param != "") {
             sample->fMigrationPathSuffs.clear();
-            sample->fMigrationPathSuffs.emplace_back(RemoveQuotes(param));
+            sample->fMigrationPathSuffs.emplace_back(Common::RemoveQuotes(param));
         }
 
         param = confSet->Get("MigrationPathSuffs");
         if (param != "") {
-            sample->fMigrationPathSuffs = Vectorize(param, ',');
+            sample->fMigrationPathSuffs = Common::Vectorize(param, ',');
         }
 
         // Set FillColor
@@ -5693,7 +5693,7 @@ int ConfigReader::ReadUnfoldingSampleOptions() {
         if(param == "") {
             sample->fRegions.emplace_back("all");
         } else {
-            sample->fRegions = Vectorize(param, ',');
+            sample->fRegions = Common::Vectorize(param, ',');
         }
 
         fFitter->fUnfoldingSamples.emplace_back(std::move(sample));
@@ -5718,12 +5718,12 @@ int ConfigReader::ReadUnfoldingSystematicOptions() {
         ++isyst;
 
         auto syst = std::make_unique<UnfoldingSystematic>();
-        syst->SetName(RemoveQuotes(confSet->GetValue()));
+        syst->SetName(Common::RemoveQuotes(confSet->GetValue()));
 
         // Set NuisanceParameter
         std::string param = confSet->Get("NuisanceParameter");
         if(param != ""){
-            syst->fNuisanceParameter = RemoveQuotes(param);
+            syst->fNuisanceParameter = Common::RemoveQuotes(param);
             TRExFitter::NPMAP[syst->GetName()] = syst->fNuisanceParameter;
         } else {
             syst->fNuisanceParameter = syst->GetName();
@@ -5746,34 +5746,34 @@ int ConfigReader::ReadUnfoldingSystematicOptions() {
         if (param == "") {
             syst->fSamples.emplace_back("all");
         } else {
-            syst->fSamples = Vectorize(param, ',');
+            syst->fSamples = Common::Vectorize(param, ',');
         }
 
         param = confSet->Get("Regions");
         if (param == "") {
             syst->fRegions.emplace_back("all");
         } else {
-            syst->fRegions = Vectorize(param, ',');
+            syst->fRegions = Common::Vectorize(param, ',');
         }
 
         param = confSet->Get("Title");
         if (param == "") {
-            syst->SetTitle(RemoveQuotes(confSet->GetValue()));
+            syst->SetTitle(Common::RemoveQuotes(confSet->GetValue()));
         } else {
-            syst->SetTitle(RemoveQuotes(param));
+            syst->SetTitle(Common::RemoveQuotes(param));
         }
 
         // SetCategory
         param = confSet->Get("Category");
         if(param != ""){
-            syst->fCategory = RemoveQuotes(param);
-            syst->fCategory = RemoveQuotes(param); //SubCategory defaults to the Category setting, if the Category is explicitly set
+            syst->fCategory = Common::RemoveQuotes(param);
+            syst->fCategory = Common::RemoveQuotes(param); //SubCategory defaults to the Category setting, if the Category is explicitly set
         }
 
         // SetSubCategory
         param = confSet->Get("SubCategory");
         if (param != ""){
-            syst->fSubCategory = RemoveQuotes(param); // note this needs to happen after Category was set, in order to overwrite the default if required
+            syst->fSubCategory = Common::RemoveQuotes(param); // note this needs to happen after Category was set, in order to overwrite the default if required
         }
 
         bool hasUp(false);
@@ -5782,14 +5782,14 @@ int ConfigReader::ReadUnfoldingSystematicOptions() {
         param = confSet->Get("ResponseMatrixPathUp");
         if (param != "") {
             syst->fResponseMatrixPathsUp.clear();
-            syst->fResponseMatrixPathsUp.emplace_back(RemoveQuotes(param));
+            syst->fResponseMatrixPathsUp.emplace_back(Common::RemoveQuotes(param));
             syst->SetHasResponse(true);
             hasUp = true;
         }
 
         param = confSet->Get("ResponseMatrixPathsUp");
         if (param != "") {
-            syst->fResponseMatrixPathsUp = Vectorize(param,',');
+            syst->fResponseMatrixPathsUp = Common::Vectorize(param,',');
             syst->SetHasResponse(true);
             hasUp = true;
         }
@@ -5797,14 +5797,14 @@ int ConfigReader::ReadUnfoldingSystematicOptions() {
         param = confSet->Get("ResponseMatrixPathDown");
         if (param != "") {
             syst->fResponseMatrixPathsDown.clear();
-            syst->fResponseMatrixPathsDown.emplace_back(RemoveQuotes(param));
+            syst->fResponseMatrixPathsDown.emplace_back(Common::RemoveQuotes(param));
             syst->SetHasResponse(true);
             hasDown = true;
         }
 
         param = confSet->Get("ResponseMatrixPathsDown");
         if (param != "") {
-            syst->fResponseMatrixPathsDown = Vectorize(param,',');
+            syst->fResponseMatrixPathsDown = Common::Vectorize(param,',');
             syst->SetHasResponse(true);
             hasDown = true;
         }
@@ -5812,14 +5812,14 @@ int ConfigReader::ReadUnfoldingSystematicOptions() {
         param = confSet->Get("ResponseMatrixPathSuffUp");
         if (param != "") {
             syst->fResponseMatrixPathSuffsUp.clear();
-            syst->fResponseMatrixPathSuffsUp.emplace_back(RemoveQuotes(param));
+            syst->fResponseMatrixPathSuffsUp.emplace_back(Common::RemoveQuotes(param));
             syst->SetHasResponse(true);
             hasUp = true;
         }
 
         param = confSet->Get("ResponseMatrixPathSuffsUp");
         if (param != "") {
-            syst->fResponseMatrixPathSuffsUp = Vectorize(param,',');
+            syst->fResponseMatrixPathSuffsUp = Common::Vectorize(param,',');
             syst->SetHasResponse(true);
             hasUp = true;
         }
@@ -5827,14 +5827,14 @@ int ConfigReader::ReadUnfoldingSystematicOptions() {
         param = confSet->Get("ResponseMatrixPathSuffDown");
         if (param != "") {
             syst->fResponseMatrixPathSuffsDown.clear();
-            syst->fResponseMatrixPathSuffsDown.emplace_back(RemoveQuotes(param));
+            syst->fResponseMatrixPathSuffsDown.emplace_back(Common::RemoveQuotes(param));
             syst->SetHasResponse(true);
             hasDown = true;
         }
 
         param = confSet->Get("ResponseMatrixPathSuffsDown");
         if (param != "") {
-            syst->fResponseMatrixPathSuffsDown = Vectorize(param,',');
+            syst->fResponseMatrixPathSuffsDown = Common::Vectorize(param,',');
             syst->SetHasResponse(true);
             hasDown = true;
         }
@@ -5842,14 +5842,14 @@ int ConfigReader::ReadUnfoldingSystematicOptions() {
         param = confSet->Get("ResponseMatrixNameUp");
         if (param != "") {
             syst->fResponseMatrixNamesUp.clear();
-            syst->fResponseMatrixNamesUp.emplace_back(RemoveQuotes(param));
+            syst->fResponseMatrixNamesUp.emplace_back(Common::RemoveQuotes(param));
             syst->SetHasResponse(true);
             hasUp = true;
         }
 
         param = confSet->Get("ResponseMatrixNamesUp");
         if (param != "") {
-            syst->fResponseMatrixNamesUp = Vectorize(param,',');
+            syst->fResponseMatrixNamesUp = Common::Vectorize(param,',');
             syst->SetHasResponse(true);
             hasUp = true;
         }
@@ -5857,14 +5857,14 @@ int ConfigReader::ReadUnfoldingSystematicOptions() {
         param = confSet->Get("ResponseMatrixNameDown");
         if (param != "") {
             syst->fResponseMatrixNamesDown.clear();
-            syst->fResponseMatrixNamesDown.emplace_back(RemoveQuotes(param));
+            syst->fResponseMatrixNamesDown.emplace_back(Common::RemoveQuotes(param));
             syst->SetHasResponse(true);
             hasDown = true;
         }
 
         param = confSet->Get("ResponseMatrixNamesDown");
         if (param != "") {
-            syst->fResponseMatrixNamesDown = Vectorize(param,',');
+            syst->fResponseMatrixNamesDown = Common::Vectorize(param,',');
             syst->SetHasResponse(true);
             hasDown = true;
         }
@@ -5872,14 +5872,14 @@ int ConfigReader::ReadUnfoldingSystematicOptions() {
         param = confSet->Get("ResponseMatrixNameSuffUp");
         if (param != "") {
             syst->fResponseMatrixNameSuffsUp.clear();
-            syst->fResponseMatrixNameSuffsUp.emplace_back(RemoveQuotes(param));
+            syst->fResponseMatrixNameSuffsUp.emplace_back(Common::RemoveQuotes(param));
             syst->SetHasResponse(true);
             hasUp = true;
         }
 
         param = confSet->Get("ResponseMatrixNameSuffsUp");
         if (param != "") {
-            syst->fResponseMatrixNameSuffsUp = Vectorize(param,',');
+            syst->fResponseMatrixNameSuffsUp = Common::Vectorize(param,',');
             syst->SetHasResponse(true);
             hasUp = true;
         }
@@ -5887,14 +5887,14 @@ int ConfigReader::ReadUnfoldingSystematicOptions() {
         param = confSet->Get("ResponseMatrixNameSuffDown");
         if (param != "") {
             syst->fResponseMatrixNameSuffsDown.clear();
-            syst->fResponseMatrixNameSuffsDown.emplace_back(RemoveQuotes(param));
+            syst->fResponseMatrixNameSuffsDown.emplace_back(Common::RemoveQuotes(param));
             syst->SetHasResponse(true);
             hasDown = true;
         }
 
         param = confSet->Get("ResponseMatrixNameSuffsDown");
         if (param != "") {
-            syst->fResponseMatrixNameSuffsDown = Vectorize(param,',');
+            syst->fResponseMatrixNameSuffsDown = Common::Vectorize(param,',');
             syst->SetHasResponse(true);
             hasDown = true;
         }
@@ -5902,14 +5902,14 @@ int ConfigReader::ReadUnfoldingSystematicOptions() {
         param = confSet->Get("ResponseMatrixFileUp");
         if (param != "") {
             syst->fResponseMatrixFilesUp.clear();
-            syst->fResponseMatrixFilesUp.emplace_back(RemoveQuotes(param));
+            syst->fResponseMatrixFilesUp.emplace_back(Common::RemoveQuotes(param));
             syst->SetHasResponse(true);
             hasUp = true;
         }
 
         param = confSet->Get("ResponseMatrixFilesUp");
         if (param != "") {
-            syst->fResponseMatrixFilesUp = Vectorize(param,',');
+            syst->fResponseMatrixFilesUp = Common::Vectorize(param,',');
             syst->SetHasResponse(true);
             hasUp = true;
         }
@@ -5917,14 +5917,14 @@ int ConfigReader::ReadUnfoldingSystematicOptions() {
         param = confSet->Get("ResponseMatrixFileDown");
         if (param != "") {
             syst->fResponseMatrixFilesDown.clear();
-            syst->fResponseMatrixFilesDown.emplace_back(RemoveQuotes(param));
+            syst->fResponseMatrixFilesDown.emplace_back(Common::RemoveQuotes(param));
             syst->SetHasResponse(true);
             hasDown = true;
         }
 
         param = confSet->Get("ResponseMatrixFilesDown");
         if (param != "") {
-            syst->fResponseMatrixFilesDown = Vectorize(param,',');
+            syst->fResponseMatrixFilesDown = Common::Vectorize(param,',');
             syst->SetHasResponse(true);
             hasDown = true;
         }
@@ -5932,14 +5932,14 @@ int ConfigReader::ReadUnfoldingSystematicOptions() {
         param = confSet->Get("ResponseMatrixFileSuffUp");
         if (param != "") {
             syst->fResponseMatrixFileSuffsUp.clear();
-            syst->fResponseMatrixFileSuffsUp.emplace_back(RemoveQuotes(param));
+            syst->fResponseMatrixFileSuffsUp.emplace_back(Common::RemoveQuotes(param));
             syst->SetHasResponse(true);
             hasUp = true;
         }
 
         param = confSet->Get("ResponseMatrixFileSuffsUp");
         if (param != "") {
-            syst->fResponseMatrixFileSuffsUp = Vectorize(param,',');
+            syst->fResponseMatrixFileSuffsUp = Common::Vectorize(param,',');
             syst->SetHasResponse(true);
             hasUp = true;
         }
@@ -5947,14 +5947,14 @@ int ConfigReader::ReadUnfoldingSystematicOptions() {
         param = confSet->Get("ResponseMatrixFileSuffDown");
         if (param != "") {
             syst->fResponseMatrixFileSuffsDown.clear();
-            syst->fResponseMatrixFileSuffsDown.emplace_back(RemoveQuotes(param));
+            syst->fResponseMatrixFileSuffsDown.emplace_back(Common::RemoveQuotes(param));
             syst->SetHasResponse(true);
             hasDown = true;
         }
 
         param = confSet->Get("ResponseMatrixFileSuffsDown");
         if (param != "") {
-            syst->fResponseMatrixFileSuffsDown = Vectorize(param,',');
+            syst->fResponseMatrixFileSuffsDown = Common::Vectorize(param,',');
             syst->SetHasResponse(true);
             hasDown = true;
         }
@@ -5962,14 +5962,14 @@ int ConfigReader::ReadUnfoldingSystematicOptions() {
         param = confSet->Get("AcceptancePathUp");
         if (param != "") {
             syst->fAcceptancePathsUp.clear();
-            syst->fAcceptancePathsUp.emplace_back(RemoveQuotes(param));
+            syst->fAcceptancePathsUp.emplace_back(Common::RemoveQuotes(param));
             hasUp = true;
             syst->SetHasAcceptance(true);
         }
 
         param = confSet->Get("AcceptancePathsUp");
         if (param != "") {
-            syst->fAcceptancePathsUp = Vectorize(param,',');
+            syst->fAcceptancePathsUp = Common::Vectorize(param,',');
             hasUp = true;
             syst->SetHasAcceptance(true);
         }
@@ -5977,14 +5977,14 @@ int ConfigReader::ReadUnfoldingSystematicOptions() {
         param = confSet->Get("AcceptancePathDown");
         if (param != "") {
             syst->fAcceptancePathsDown.clear();
-            syst->fAcceptancePathsDown.emplace_back(RemoveQuotes(param));
+            syst->fAcceptancePathsDown.emplace_back(Common::RemoveQuotes(param));
             hasDown = true;
             syst->SetHasAcceptance(true);
         }
 
         param = confSet->Get("AcceptancePathsDown");
         if (param != "") {
-            syst->fAcceptancePathsDown = Vectorize(param,',');
+            syst->fAcceptancePathsDown = Common::Vectorize(param,',');
             hasDown = true;
             syst->SetHasAcceptance(true);
         }
@@ -5992,14 +5992,14 @@ int ConfigReader::ReadUnfoldingSystematicOptions() {
         param = confSet->Get("AcceptancePathSuffUp");
         if (param != "") {
             syst->fAcceptancePathSuffsUp.clear();
-            syst->fAcceptancePathSuffsUp.emplace_back(RemoveQuotes(param));
+            syst->fAcceptancePathSuffsUp.emplace_back(Common::RemoveQuotes(param));
             hasUp = true;
             syst->SetHasAcceptance(true);
         }
 
         param = confSet->Get("AcceptancePathSuffsUp");
         if (param != "") {
-            syst->fAcceptancePathSuffsUp = Vectorize(param,',');
+            syst->fAcceptancePathSuffsUp = Common::Vectorize(param,',');
             hasUp = true;
             syst->SetHasAcceptance(true);
         }
@@ -6007,14 +6007,14 @@ int ConfigReader::ReadUnfoldingSystematicOptions() {
         param = confSet->Get("AcceptancePathSuffDown");
         if (param != "") {
             syst->fAcceptancePathSuffsDown.clear();
-            syst->fAcceptancePathSuffsDown.emplace_back(RemoveQuotes(param));
+            syst->fAcceptancePathSuffsDown.emplace_back(Common::RemoveQuotes(param));
             hasDown = true;
             syst->SetHasAcceptance(true);
         }
 
         param = confSet->Get("AcceptancePathSuffsDown");
         if (param != "") {
-            syst->fAcceptancePathSuffsDown = Vectorize(param,',');
+            syst->fAcceptancePathSuffsDown = Common::Vectorize(param,',');
             hasDown = true;
             syst->SetHasAcceptance(true);
         }
@@ -6022,14 +6022,14 @@ int ConfigReader::ReadUnfoldingSystematicOptions() {
         param = confSet->Get("AcceptanceNameUp");
         if (param != "") {
             syst->fAcceptanceNamesUp.clear();
-            syst->fAcceptanceNamesUp.emplace_back(RemoveQuotes(param));
+            syst->fAcceptanceNamesUp.emplace_back(Common::RemoveQuotes(param));
             hasUp = true;
             syst->SetHasAcceptance(true);
         }
 
         param = confSet->Get("AcceptanceNamesUp");
         if (param != "") {
-            syst->fAcceptanceNamesUp = Vectorize(param,',');
+            syst->fAcceptanceNamesUp = Common::Vectorize(param,',');
             hasUp = true;
             syst->SetHasAcceptance(true);
         }
@@ -6037,14 +6037,14 @@ int ConfigReader::ReadUnfoldingSystematicOptions() {
         param = confSet->Get("AcceptanceNameDown");
         if (param != "") {
             syst->fAcceptanceNamesDown.clear();
-            syst->fAcceptanceNamesDown.emplace_back(RemoveQuotes(param));
+            syst->fAcceptanceNamesDown.emplace_back(Common::RemoveQuotes(param));
             hasDown = true;
             syst->SetHasAcceptance(true);
         }
 
         param = confSet->Get("AcceptanceNamesDown");
         if (param != "") {
-            syst->fAcceptanceNamesDown = Vectorize(param,',');
+            syst->fAcceptanceNamesDown = Common::Vectorize(param,',');
             hasDown = true;
             syst->SetHasAcceptance(true);
         }
@@ -6052,14 +6052,14 @@ int ConfigReader::ReadUnfoldingSystematicOptions() {
         param = confSet->Get("AcceptanceNameSuffUp");
         if (param != "") {
             syst->fAcceptanceNameSuffsUp.clear();
-            syst->fAcceptanceNameSuffsUp.emplace_back(RemoveQuotes(param));
+            syst->fAcceptanceNameSuffsUp.emplace_back(Common::RemoveQuotes(param));
             hasUp = true;
             syst->SetHasAcceptance(true);
         }
 
         param = confSet->Get("AcceptanceNameSuffsUp");
         if (param != "") {
-            syst->fAcceptanceNameSuffsUp = Vectorize(param,',');
+            syst->fAcceptanceNameSuffsUp = Common::Vectorize(param,',');
             hasUp = true;
             syst->SetHasAcceptance(true);
         }
@@ -6067,14 +6067,14 @@ int ConfigReader::ReadUnfoldingSystematicOptions() {
         param = confSet->Get("AcceptanceNameSuffDown");
         if (param != "") {
             syst->fAcceptanceNameSuffsDown.clear();
-            syst->fAcceptanceNameSuffsDown.emplace_back(RemoveQuotes(param));
+            syst->fAcceptanceNameSuffsDown.emplace_back(Common::RemoveQuotes(param));
             hasDown = true;
             syst->SetHasAcceptance(true);
         }
 
         param = confSet->Get("AcceptanceNameSuffsDown");
         if (param != "") {
-            syst->fAcceptanceNameSuffsDown = Vectorize(param,',');
+            syst->fAcceptanceNameSuffsDown = Common::Vectorize(param,',');
             hasDown = true;
             syst->SetHasAcceptance(true);
         }
@@ -6082,14 +6082,14 @@ int ConfigReader::ReadUnfoldingSystematicOptions() {
         param = confSet->Get("AcceptanceFileUp");
         if (param != "") {
             syst->fAcceptanceFilesUp.clear();
-            syst->fAcceptanceFilesUp.emplace_back(RemoveQuotes(param));
+            syst->fAcceptanceFilesUp.emplace_back(Common::RemoveQuotes(param));
             hasUp = true;
             syst->SetHasAcceptance(true);
         }
 
         param = confSet->Get("AcceptanceFilesUp");
         if (param != "") {
-            syst->fAcceptanceFilesUp = Vectorize(param,',');
+            syst->fAcceptanceFilesUp = Common::Vectorize(param,',');
             hasUp = true;
             syst->SetHasAcceptance(true);
         }
@@ -6097,14 +6097,14 @@ int ConfigReader::ReadUnfoldingSystematicOptions() {
         param = confSet->Get("AcceptanceFileDown");
         if (param != "") {
             syst->fAcceptanceFilesDown.clear();
-            syst->fAcceptanceFilesDown.emplace_back(RemoveQuotes(param));
+            syst->fAcceptanceFilesDown.emplace_back(Common::RemoveQuotes(param));
             hasDown = true;
             syst->SetHasAcceptance(true);
         }
 
         param = confSet->Get("AcceptanceFilesDown");
         if (param != "") {
-            syst->fAcceptanceFilesDown = Vectorize(param,',');
+            syst->fAcceptanceFilesDown = Common::Vectorize(param,',');
             hasDown = true;
             syst->SetHasAcceptance(true);
         }
@@ -6112,14 +6112,14 @@ int ConfigReader::ReadUnfoldingSystematicOptions() {
         param = confSet->Get("AcceptanceFileSuffUp");
         if (param != "") {
             syst->fAcceptanceFileSuffsUp.clear();
-            syst->fAcceptanceFileSuffsUp.emplace_back(RemoveQuotes(param));
+            syst->fAcceptanceFileSuffsUp.emplace_back(Common::RemoveQuotes(param));
             hasUp = true;
             syst->SetHasAcceptance(true);
         }
 
         param = confSet->Get("AcceptanceFileSuffsUp");
         if (param != "") {
-            syst->fAcceptanceFileSuffsUp = Vectorize(param,',');
+            syst->fAcceptanceFileSuffsUp = Common::Vectorize(param,',');
             hasUp = true;
             syst->SetHasAcceptance(true);
         }
@@ -6127,28 +6127,28 @@ int ConfigReader::ReadUnfoldingSystematicOptions() {
         param = confSet->Get("AcceptanceFileSuffDown");
         if (param != "") {
             syst->fAcceptanceFileSuffsDown.clear();
-            syst->fAcceptanceFileSuffsDown.emplace_back(RemoveQuotes(param));
+            syst->fAcceptanceFileSuffsDown.emplace_back(Common::RemoveQuotes(param));
             hasDown = true;
             syst->SetHasAcceptance(true);
         }
 
         param = confSet->Get("AcceptanceFileSuffsDown");
         if (param != "") {
-            syst->fAcceptanceFileSuffsDown = Vectorize(param,',');
+            syst->fAcceptanceFileSuffsDown = Common::Vectorize(param,',');
             hasDown = true;
             syst->SetHasAcceptance(true);
         }
         param = confSet->Get("SelectionEffPathUp");
         if (param != "") {
             syst->fSelectionEffPathsUp.clear();
-            syst->fSelectionEffPathsUp.emplace_back(RemoveQuotes(param));
+            syst->fSelectionEffPathsUp.emplace_back(Common::RemoveQuotes(param));
             hasUp = true;
             syst->SetHasAcceptance(true);
         }
 
         param = confSet->Get("SelectionEffPathsUp");
         if (param != "") {
-            syst->fSelectionEffPathsUp = Vectorize(param,',');
+            syst->fSelectionEffPathsUp = Common::Vectorize(param,',');
             hasUp = true;
             syst->SetHasAcceptance(true);
         }
@@ -6156,299 +6156,299 @@ int ConfigReader::ReadUnfoldingSystematicOptions() {
         param = confSet->Get("SelectionEffPathDown");
         if (param != "") {
             syst->fSelectionEffPathsDown.clear();
-            syst->fSelectionEffPathsDown.emplace_back(RemoveQuotes(param));
+            syst->fSelectionEffPathsDown.emplace_back(Common::RemoveQuotes(param));
             hasDown = true;
         }
 
         param = confSet->Get("SelectionEffPathsDown");
         if (param != "") {
-            syst->fSelectionEffPathsDown = Vectorize(param,',');
+            syst->fSelectionEffPathsDown = Common::Vectorize(param,',');
             hasDown = true;
         }
 
         param = confSet->Get("SelectionEffPathSuffUp");
         if (param != "") {
             syst->fSelectionEffPathSuffsUp.clear();
-            syst->fSelectionEffPathSuffsUp.emplace_back(RemoveQuotes(param));
+            syst->fSelectionEffPathSuffsUp.emplace_back(Common::RemoveQuotes(param));
             hasUp = true;
         }
 
         param = confSet->Get("SelectionEffPathSuffsUp");
         if (param != "") {
-            syst->fSelectionEffPathSuffsUp = Vectorize(param,',');
+            syst->fSelectionEffPathSuffsUp = Common::Vectorize(param,',');
             hasUp = true;
         }
 
         param = confSet->Get("SelectionEffPathSuffDown");
         if (param != "") {
             syst->fSelectionEffPathSuffsDown.clear();
-            syst->fSelectionEffPathSuffsDown.emplace_back(RemoveQuotes(param));
+            syst->fSelectionEffPathSuffsDown.emplace_back(Common::RemoveQuotes(param));
             hasDown = true;
         }
 
         param = confSet->Get("SelectionEffPathSuffsDown");
         if (param != "") {
-            syst->fSelectionEffPathSuffsDown = Vectorize(param,',');
+            syst->fSelectionEffPathSuffsDown = Common::Vectorize(param,',');
             hasDown = true;
         }
 
         param = confSet->Get("SelectionEffNameUp");
         if (param != "") {
             syst->fSelectionEffNamesUp.clear();
-            syst->fSelectionEffNamesUp.emplace_back(RemoveQuotes(param));
+            syst->fSelectionEffNamesUp.emplace_back(Common::RemoveQuotes(param));
             hasUp = true;
         }
 
         param = confSet->Get("SelectionEffNamesUp");
         if (param != "") {
-            syst->fSelectionEffNamesUp = Vectorize(param,',');
+            syst->fSelectionEffNamesUp = Common::Vectorize(param,',');
             hasUp = true;
         }
 
         param = confSet->Get("SelectionEffNameDown");
         if (param != "") {
             syst->fSelectionEffNamesDown.clear();
-            syst->fSelectionEffNamesDown.emplace_back(RemoveQuotes(param));
+            syst->fSelectionEffNamesDown.emplace_back(Common::RemoveQuotes(param));
             hasDown = true;
         }
 
         param = confSet->Get("SelectionEffNamesDown");
         if (param != "") {
-            syst->fSelectionEffNamesDown = Vectorize(param,',');
+            syst->fSelectionEffNamesDown = Common::Vectorize(param,',');
             hasDown = true;
         }
 
         param = confSet->Get("SelectionEffNameSuffUp");
         if (param != "") {
             syst->fSelectionEffNameSuffsUp.clear();
-            syst->fSelectionEffNameSuffsUp.emplace_back(RemoveQuotes(param));
+            syst->fSelectionEffNameSuffsUp.emplace_back(Common::RemoveQuotes(param));
             hasUp = true;
         }
 
         param = confSet->Get("SelectionEffNameSuffsUp");
         if (param != "") {
-            syst->fSelectionEffNameSuffsUp = Vectorize(param,',');
+            syst->fSelectionEffNameSuffsUp = Common::Vectorize(param,',');
             hasUp = true;
         }
 
         param = confSet->Get("SelectionEffNameSuffDown");
         if (param != "") {
             syst->fSelectionEffNameSuffsDown.clear();
-            syst->fSelectionEffNameSuffsDown.emplace_back(RemoveQuotes(param));
+            syst->fSelectionEffNameSuffsDown.emplace_back(Common::RemoveQuotes(param));
             hasDown = true;
         }
 
         param = confSet->Get("SelectionEffNameSuffsDown");
         if (param != "") {
-            syst->fSelectionEffNameSuffsDown = Vectorize(param,',');
+            syst->fSelectionEffNameSuffsDown = Common::Vectorize(param,',');
             hasDown = true;
         }
 
         param = confSet->Get("SelectionEffFileUp");
         if (param != "") {
             syst->fSelectionEffFilesUp.clear();
-            syst->fSelectionEffFilesUp.emplace_back(RemoveQuotes(param));
+            syst->fSelectionEffFilesUp.emplace_back(Common::RemoveQuotes(param));
             hasUp = true;
         }
 
         param = confSet->Get("SelectionEffFilesUp");
         if (param != "") {
-            syst->fSelectionEffFilesUp = Vectorize(param,',');
+            syst->fSelectionEffFilesUp = Common::Vectorize(param,',');
             hasUp = true;
         }
 
         param = confSet->Get("SelectionEffFileDown");
         if (param != "") {
             syst->fSelectionEffFilesDown.clear();
-            syst->fSelectionEffFilesDown.emplace_back(RemoveQuotes(param));
+            syst->fSelectionEffFilesDown.emplace_back(Common::RemoveQuotes(param));
             hasDown = true;
         }
 
         param = confSet->Get("SelectionEffFilesDown");
         if (param != "") {
-            syst->fSelectionEffFilesDown = Vectorize(param,',');
+            syst->fSelectionEffFilesDown = Common::Vectorize(param,',');
             hasDown = true;
         }
 
         param = confSet->Get("SelectionEffFileSuffUp");
         if (param != "") {
             syst->fSelectionEffFileSuffsUp.clear();
-            syst->fSelectionEffFileSuffsUp.emplace_back(RemoveQuotes(param));
+            syst->fSelectionEffFileSuffsUp.emplace_back(Common::RemoveQuotes(param));
             hasUp = true;
         }
 
         param = confSet->Get("SelectionEffFileSuffsUp");
         if (param != "") {
-            syst->fSelectionEffFileSuffsUp = Vectorize(param,',');
+            syst->fSelectionEffFileSuffsUp = Common::Vectorize(param,',');
             hasUp = true;
         }
 
         param = confSet->Get("SelectionEffFileSuffDown");
         if (param != "") {
             syst->fSelectionEffFileSuffsDown.clear();
-            syst->fSelectionEffFileSuffsDown.emplace_back(RemoveQuotes(param));
+            syst->fSelectionEffFileSuffsDown.emplace_back(Common::RemoveQuotes(param));
             hasDown = true;
         }
 
         param = confSet->Get("SelectionEffFileSuffsDown");
         if (param != "") {
-            syst->fSelectionEffFileSuffsDown = Vectorize(param,',');
+            syst->fSelectionEffFileSuffsDown = Common::Vectorize(param,',');
             hasDown = true;
         }
 
         param = confSet->Get("MigrationPathUp");
         if (param != "") {
             syst->fMigrationPathsUp.clear();
-            syst->fMigrationPathsUp.emplace_back(RemoveQuotes(param));
+            syst->fMigrationPathsUp.emplace_back(Common::RemoveQuotes(param));
             hasUp = true;
         }
 
         param = confSet->Get("MigrationPathsUp");
         if (param != "") {
-            syst->fMigrationPathsUp = Vectorize(param,',');
+            syst->fMigrationPathsUp = Common::Vectorize(param,',');
             hasUp = true;
         }
 
         param = confSet->Get("MigrationPathDown");
         if (param != "") {
             syst->fMigrationPathsDown.clear();
-            syst->fMigrationPathsDown.emplace_back(RemoveQuotes(param));
+            syst->fMigrationPathsDown.emplace_back(Common::RemoveQuotes(param));
             hasDown = true;
         }
 
         param = confSet->Get("MigrationPathsDown");
         if (param != "") {
-            syst->fMigrationPathsDown = Vectorize(param,',');
+            syst->fMigrationPathsDown = Common::Vectorize(param,',');
             hasDown = true;
         }
 
         param = confSet->Get("MigrationPathSuffUp");
         if (param != "") {
             syst->fMigrationPathSuffsUp.clear();
-            syst->fMigrationPathSuffsUp.emplace_back(RemoveQuotes(param));
+            syst->fMigrationPathSuffsUp.emplace_back(Common::RemoveQuotes(param));
             hasUp = true;
         }
 
         param = confSet->Get("MigrationPathSuffsUp");
         if (param != "") {
-            syst->fMigrationPathSuffsUp = Vectorize(param,',');
+            syst->fMigrationPathSuffsUp = Common::Vectorize(param,',');
             hasUp = true;
         }
 
         param = confSet->Get("MigrationPathSuffDown");
         if (param != "") {
             syst->fMigrationPathSuffsDown.clear();
-            syst->fMigrationPathSuffsDown.emplace_back(RemoveQuotes(param));
+            syst->fMigrationPathSuffsDown.emplace_back(Common::RemoveQuotes(param));
             hasDown = true;
         }
 
         param = confSet->Get("MigrationPathSuffsDown");
         if (param != "") {
-            syst->fMigrationPathSuffsDown = Vectorize(param,',');
+            syst->fMigrationPathSuffsDown = Common::Vectorize(param,',');
             hasDown = true;
         }
 
         param = confSet->Get("MigrationNameUp");
         if (param != "") {
             syst->fMigrationNamesUp.clear();
-            syst->fMigrationNamesUp.emplace_back(RemoveQuotes(param));
+            syst->fMigrationNamesUp.emplace_back(Common::RemoveQuotes(param));
             hasUp = true;
         }
 
         param = confSet->Get("MigrationNamesUp");
         if (param != "") {
-            syst->fMigrationNamesUp = Vectorize(param,',');
+            syst->fMigrationNamesUp = Common::Vectorize(param,',');
             hasUp = true;
         }
 
         param = confSet->Get("MigrationNameDown");
         if (param != "") {
             syst->fMigrationNamesDown.clear();
-            syst->fMigrationNamesDown.emplace_back(RemoveQuotes(param));
+            syst->fMigrationNamesDown.emplace_back(Common::RemoveQuotes(param));
             hasDown = true;
         }
 
         param = confSet->Get("MigrationNamesDown");
         if (param != "") {
-            syst->fMigrationNamesDown = Vectorize(param,',');
+            syst->fMigrationNamesDown = Common::Vectorize(param,',');
             hasDown = true;
         }
 
         param = confSet->Get("MigrationNameSuffUp");
         if (param != "") {
             syst->fMigrationNameSuffsUp.clear();
-            syst->fMigrationNameSuffsUp.emplace_back(RemoveQuotes(param));
+            syst->fMigrationNameSuffsUp.emplace_back(Common::RemoveQuotes(param));
             hasUp = true;
         }
 
         param = confSet->Get("MigrationNameSuffsUp");
         if (param != "") {
-            syst->fMigrationNameSuffsUp = Vectorize(param,',');
+            syst->fMigrationNameSuffsUp = Common::Vectorize(param,',');
             hasUp = true;
         }
 
         param = confSet->Get("MigrationNameSuffDown");
         if (param != "") {
             syst->fMigrationNameSuffsDown.clear();
-            syst->fMigrationNameSuffsDown.emplace_back(RemoveQuotes(param));
+            syst->fMigrationNameSuffsDown.emplace_back(Common::RemoveQuotes(param));
             hasDown = true;
         }
 
         param = confSet->Get("MigrationNameSuffsDown");
         if (param != "") {
-            syst->fMigrationNameSuffsDown = Vectorize(param,',');
+            syst->fMigrationNameSuffsDown = Common::Vectorize(param,',');
             hasDown = true;
         }
 
         param = confSet->Get("MigrationFileUp");
         if (param != "") {
             syst->fMigrationFilesUp.clear();
-            syst->fMigrationFilesUp.emplace_back(RemoveQuotes(param));
+            syst->fMigrationFilesUp.emplace_back(Common::RemoveQuotes(param));
             hasUp = true;
         }
 
         param = confSet->Get("MigrationFilesUp");
         if (param != "") {
-            syst->fMigrationFilesUp = Vectorize(param,',');
+            syst->fMigrationFilesUp = Common::Vectorize(param,',');
             hasUp = true;
         }
 
         param = confSet->Get("MigrationFileDown");
         if (param != "") {
             syst->fMigrationFilesDown.clear();
-            syst->fMigrationFilesDown.emplace_back(RemoveQuotes(param));
+            syst->fMigrationFilesDown.emplace_back(Common::RemoveQuotes(param));
             hasDown = true;
         }
 
         param = confSet->Get("MigrationFilesDown");
         if (param != "") {
-            syst->fMigrationFilesDown = Vectorize(param,',');
+            syst->fMigrationFilesDown = Common::Vectorize(param,',');
             hasDown = true;
         }
 
         param = confSet->Get("MigrationFileSuffUp");
         if (param != "") {
             syst->fMigrationFileSuffsUp.clear();
-            syst->fMigrationFileSuffsUp.emplace_back(RemoveQuotes(param));
+            syst->fMigrationFileSuffsUp.emplace_back(Common::RemoveQuotes(param));
             hasUp = true;
         }
 
         param = confSet->Get("MigrationFileSuffsUp");
         if (param != "") {
-            syst->fMigrationFileSuffsUp = Vectorize(param,',');
+            syst->fMigrationFileSuffsUp = Common::Vectorize(param,',');
             hasUp = true;
         }
 
         param = confSet->Get("MigrationFileSuffDown");
         if (param != "") {
             syst->fMigrationFileSuffsDown.clear();
-            syst->fMigrationFileSuffsDown.emplace_back(RemoveQuotes(param));
+            syst->fMigrationFileSuffsDown.emplace_back(Common::RemoveQuotes(param));
             hasDown = true;
         }
 
         param = confSet->Get("MigrationFileSuffsDown");
         if (param != "") {
-            syst->fMigrationFileSuffsDown = Vectorize(param,',');
+            syst->fMigrationFileSuffsDown = Common::Vectorize(param,',');
             hasDown = true;
         }
 
@@ -6521,19 +6521,6 @@ int ConfigReader::UnfoldingCorrections() {
 
 //__________________________________________________________________________________
 //
-std::string ConfigReader::CheckName( std::string name ){
-    name = RemoveQuotes(name);
-    if((name.size() > 0) && (std::isdigit(name.at(0))) ){
-        WriteErrorStatus("ConfigReader::CheckName", "Failed to browse name: " + name + ". A number has been detected at the first position of the name.");
-        WriteErrorStatus("ConfigReader::CheckName", "           This can lead to unexpected behaviour in HistFactory. Please change the name. ");
-        exit(EXIT_FAILURE);
-    } else {
-        return name;
-    }
-}
-
-//__________________________________________________________________________________
-//
 bool ConfigReader::ConfigHasNTUP(ConfigSet* confSet){
     if (confSet->Get("Variable") != "" || confSet->Get("VariableForSample") != "" || confSet->Get("Selection") != "" || confSet->Get("NtupleName") != "" || confSet->Get("NtupleNameSuff") != "" || confSet->Get("MCweight") != "" || confSet->Get("NtuplePathSuff") != "" || confSet->Get("NtupleFile") != "" || confSet->Get("NtupleFiles") != "" || confSet->Get("NtupleNames") != "" || confSet->Get("NtuplePath") != "" || confSet->Get("NtuplePaths") != "" || confSet->Get("NtuplePathSuffs") != "") return true;
     else return false;
@@ -6595,8 +6582,8 @@ std::vector<std::string> ConfigReader::GetAvailableRegions(){
         if (confSet == nullptr) break;
 
         nReg++;
-        std::string tmp = RemoveQuotes(confSet->GetValue());
-        availableRegions.emplace_back(CheckName(tmp));
+        std::string tmp = Common::RemoveQuotes(confSet->GetValue());
+        availableRegions.emplace_back(Common::CheckName(tmp));
     }
     return availableRegions;
 }
@@ -6611,8 +6598,8 @@ std::vector<std::string> ConfigReader::GetAvailableSamples(){
         if (confSet == nullptr) break;
 
         nSample++;
-        std::string tmp = RemoveQuotes(confSet->GetValue());
-        availableSamples.emplace_back(CheckName(tmp));
+        std::string tmp = Common::RemoveQuotes(confSet->GetValue());
+        availableSamples.emplace_back(Common::CheckName(tmp));
     }
     return availableSamples;
 }
@@ -6627,8 +6614,8 @@ std::vector<std::string> ConfigReader::GetAvailableSysts(){
         if (confSet == nullptr) break;
 
         nSyst++;
-        std::string tmp = RemoveQuotes(confSet->GetValue());
-        availableSysts.emplace_back(CheckName(tmp));
+        std::string tmp = Common::RemoveQuotes(confSet->GetValue());
+        availableSysts.emplace_back(Common::CheckName(tmp));
     }
     return availableSysts;
 }
@@ -6816,7 +6803,7 @@ int ConfigReader::AddUnfoldingNormFactors() {
         }
         else{
             // set this NF as POI
-            fFitter->AddPOI(CheckName(name));
+            fFitter->AddPOI(Common::CheckName(name));
             fFitter->fFitPOIAsimov[name] = 1;
         }
         // check if the bin is in the list specified taus

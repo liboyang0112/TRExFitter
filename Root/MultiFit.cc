@@ -1892,7 +1892,7 @@ void MultiFit::GetLikelihoodScan( RooWorkspace *ws, const std::string& varName, 
             if (!fit->fUseInFit) continue;
             TFile* f = nullptr;
             if(fit->fFitResultsFile!=""){
-                std::vector<std::string> v = Vectorize(fit->fFitResultsFile,'/');
+                std::vector<std::string> v = Common::Vectorize(fit->fFitResultsFile,'/');
                 f = TFile::Open(v[0]+"/"+LHDir+"NLLscan_"+varName+"_curve.root");
             }
             else{
