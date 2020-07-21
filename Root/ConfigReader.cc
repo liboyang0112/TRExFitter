@@ -675,7 +675,7 @@ int ConfigReader::ReadJobOptions(){
     }
 
     // plotting options are in special function
-    if (SetJobPlot(confSet) != 0) return 1;
+    sc+= SetJobPlot(confSet);
 
     // Set TableOptions
     param = confSet->Get("TableOptions");
@@ -2297,9 +2297,9 @@ int ConfigReader::ReadRegionOptions(const std::string& opt){
 
         // Setting based on input type
         if (fFitter->fInputType == 0){
-            if (SetRegionHIST(reg, confSet) != 0) return 1;
+            sc+= SetRegionHIST(reg, confSet);
         } else if (fFitter->fInputType == 1){
-            if (SetRegionNTUP(reg, confSet) != 0) return 1;
+            sc+= SetRegionNTUP(reg, confSet) != 0;
         } else {
             WriteErrorStatus("ConfigReader::ReadRegionOptions", "Unknown input type: " +std::to_string(fFitter->fInputType));
             ++sc;
@@ -2333,18 +2333,18 @@ int ConfigReader::ReadRegionOptions(const std::string& opt){
             std::vector < std::string > vec_bins = Vectorize(param, ',');
             if (vec_bins.size() == 0){
                 WriteErrorStatus("ConfigReader::ReadRegionOptions", "You specified `Binning` option, but you did not provide any reasonable option. Check this!");
-                ++sc;
+                return sc;
             }
             if(vec_bins[0]=="AutoBin"){
                 if (vec_bins.size() < 2){
                     WriteErrorStatus("ConfigReader::ReadRegionOptions", "You specified `Binning` option with Autobin, but you did not provide any reasonable option. Check this!");
-                    return 1;
+                    return sc;
                 }
                 reg -> fBinTransfo = vec_bins[1];
                 if(vec_bins[1]=="TransfoD"){
                     if (vec_bins.size() < 4){
                         WriteErrorStatus("ConfigReader::ReadRegionOptions", "You specified `Binning` option with TransfoD, but you did not provide any reasonable option. Check this!");
-                        ++sc;
+                        return sc;
                     }
                     reg -> fTransfoDzSig=Common::convertStoD(vec_bins[2]);
                     reg -> fTransfoDzBkg=Common::convertStoD(vec_bins[3]);
@@ -2357,7 +2357,7 @@ int ConfigReader::ReadRegionOptions(const std::string& opt){
                 else if(vec_bins[1]=="TransfoF"){
                     if (vec_bins.size() < 4){
                         WriteErrorStatus("ConfigReader::ReadRegionOptions", "You specified `Binning` option with TransfoF, but you did not provide any reasonable option. Check this!");
-                        ++sc;
+                        return sc;
                     }
                     reg -> fTransfoFzSig=Common::convertStoD(vec_bins[2]);
                     reg -> fTransfoFzBkg=Common::convertStoD(vec_bins[3]);
@@ -3471,7 +3471,10 @@ int ConfigReader::ReadNormFactorOptions(){
         nfactor->fNuisanceParameter = nfactor->fName;
         TRExFitter::NPMAP[nfactor->fName] = nfactor->fName;
 
-        if (SystHasProblematicName(nfactor->fNuisanceParameter)) return 1;
+        if (SystHasProblematicName(nfactor->fNuisanceParameter)) {
+            WriteErrorStatus("ConfigReader::ReadNormFactorOptions", "NormFactor: + " + CheckName(confSet->GetValue()) + " has a problematic NuisanceParameterName");
+            ++sc;
+        }
 
         // Set Constant
         param = confSet->Get("Constant");
@@ -3628,7 +3631,10 @@ int ConfigReader::ReadShapeFactorOptions(){
         sfactor->fNuisanceParameter = sfactor->fName;
         TRExFitter::NPMAP[sfactor->fName] = sfactor->fName;
 
-        if (SystHasProblematicName(sfactor->fNuisanceParameter)) return 1;
+        if (SystHasProblematicName(sfactor->fNuisanceParameter)) {
+            WriteErrorStatus("ConfigReader::ReaShapeFactorOptions", "ShapeFactor: + " + CheckName(confSet->GetValue()) + " has a problematic NuisanceParameterName");
+            ++sc;
+        }
 
         // Set Constant
         param = confSet->Get("Constant");
@@ -4512,16 +4518,16 @@ int ConfigReader::ReadSystOptions(){
             }
         }
         if ( decorrelate == "" && type != Systematic::STAT) {
-            if (SetSystNoDecorelate(confSet, sys, samples, exclude) != 0) return 1;
+            sc += SetSystNoDecorelate(confSet, sys, samples, exclude);
         }
         else if (decorrelate == "REGION" || type == Systematic::STAT)  {
-            if (SetSystRegionDecorelate(confSet, sys, samples, exclude, regions, type) != 0) return 1;
+            sc+= SetSystRegionDecorelate(confSet, sys, samples, exclude, regions, type);
         }
         else if (decorrelate == "SAMPLE")  {
-            if (SetSystSampleDecorelate(confSet, sys, samples, exclude) != 0) return 1;
+            sc+= SetSystSampleDecorelate(confSet, sys, samples, exclude);
         }
         else if (decorrelate == "SHAPEACC")  {
-            if (SetSystShapeDecorelate(confSet, sys, samples, exclude) != 0) return 1;
+            sc+= SetSystShapeDecorelate(confSet, sys, samples, exclude);
         }
         else {
             WriteErrorStatus("ConfigReader::ReadSystOptions", "decorrelate option: " + decorrelate  + "  not supported ...");
@@ -4552,7 +4558,10 @@ int ConfigReader::SetSystNoDecorelate(ConfigSet *confSet, std::shared_ptr<System
         TRExFitter::NPMAP[sys->fName] = sys->fName;
     }
 
-    if (SystHasProblematicName(sys->fNuisanceParameter)) return 1;
+    if (SystHasProblematicName(sys->fNuisanceParameter)) {
+        WriteErrorStatus("ConfigReader::SetSystNoDecorelate", "Systematic has a problematic nuisanceparemter name: " + sys->fNuisanceParameter);
+        ++sc;
+    }
 
     // Set Title
     param = confSet->Get("Title");
@@ -4648,7 +4657,10 @@ int ConfigReader::SetSystRegionDecorelate(ConfigSet *confSet,
                     TRExFitter::NPMAP[mySys->fName] = mySys->fName;
                 }
 
-                if (SystHasProblematicName(mySys->fNuisanceParameter)) return 1;
+                if (SystHasProblematicName(mySys->fNuisanceParameter)) {
+                    WriteErrorStatus("ConfigReader::SetSystRegionDecorelate", "Systematic has a problematic nuisanceparemter name: " + mySys->fNuisanceParameter);
+                    ++sc;
+                }
 
                 // Set Title
                 param = confSet->Get("Title");
@@ -4688,7 +4700,10 @@ int ConfigReader::SetSystRegionDecorelate(ConfigSet *confSet,
                 TRExFitter::NPMAP[mySys->fName] = mySys->fName;
             }
 
-            if (SystHasProblematicName(mySys->fNuisanceParameter)) return 1;
+            if (SystHasProblematicName(mySys->fNuisanceParameter)) {
+                WriteErrorStatus("ConfigReader::SetSystRegionDecorelate", "Systematic has a problematic nuisanceparemter name: " + mySys->fNuisanceParameter);
+                ++sc;
+            }
 
             // Set Title
             param = confSet->Get("Title");
@@ -4764,7 +4779,10 @@ int ConfigReader::SetSystSampleDecorelate(ConfigSet *confSet, std::shared_ptr<Sy
             TRExFitter::NPMAP[mySys->fName] = mySys->fName;
         }
 
-        if (SystHasProblematicName(mySys->fNuisanceParameter)) return 1;
+        if (SystHasProblematicName(mySys->fNuisanceParameter)) {
+            WriteErrorStatus("SetSystSampleDecorelate", "Systematic has a problematic nuisanceparemter name: " + mySys->fNuisanceParameter);
+            ++sc;
+        }
 
         // Set Title
         param = confSet->Get("Title");
@@ -4809,7 +4827,10 @@ int ConfigReader::SetSystShapeDecorelate(ConfigSet *confSet, std::shared_ptr<Sys
         TRExFitter::NPMAP[mySys1->fName] = mySys1->fName;
     }
 
-    if (SystHasProblematicName(mySys1->fNuisanceParameter)) return 1;
+    if (SystHasProblematicName(mySys1->fNuisanceParameter)) {
+        WriteErrorStatus("ConfigReader::SetSystShapeDecorelate", "Systematic has a problematic nuisanceparemter name: " + mySys1->fNuisanceParameter);
+        ++sc;
+    }
 
     // Set Title
     param = confSet->Get("Title");
@@ -4854,7 +4875,10 @@ int ConfigReader::SetSystShapeDecorelate(ConfigSet *confSet, std::shared_ptr<Sys
             TRExFitter::NPMAP[mySys2->fName] = mySys2->fName;
         }
 
-        if (SystHasProblematicName(mySys2->fNuisanceParameter)) return 1;
+        if (SystHasProblematicName(mySys2->fNuisanceParameter)) {
+            WriteErrorStatus("ConfigReader::SetSystShapeDecorelate", "Systematic has a problematic nuisanceparemter name: " + mySys2->fNuisanceParameter);
+            ++sc;
+        }
 
         // Set Title
         param = confSet->Get("Title");
@@ -4978,7 +5002,10 @@ int ConfigReader::PostConfig(const std::string& opt){
             TRExFitter::NPMAP[sfactor->fName] = sfactor->fName;
             sfactor->fTitle = sfactor->fName;
             TRExFitter::SYSTMAP[sfactor->fName] = sfactor->fTitle;
-            if (SystHasProblematicName(sfactor->fNuisanceParameter)) return 1;
+            if (SystHasProblematicName(sfactor->fNuisanceParameter)) {
+                WriteErrorStatus("ConfigReader::PostConfig", "ShapeFactor has a problematic nuisanceparemter name: " + sfactor->fNuisanceParameter);
+                ++sc;
+            }
             // Set it to constant by default (will be made non-constant later when fitting)
             // needed? FIXME
             sfactor->fMin = 0;
