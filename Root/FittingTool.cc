@@ -123,7 +123,7 @@ double FittingTool::FitPDF( RooStats::ModelConfig* model, RooAbsPdf* fitpdf, Roo
     //
     // Getting the POI
     //
-    RooRealVar * poi = static_cast<RooRealVar*>(model->GetParametersOfInterest()->first());
+    RooRealVar * poi = dynamic_cast<RooRealVar*>(model->GetParametersOfInterest()->first());
     if(!poi){
         if (m_debug < 1) std::cout.clear();
         WriteErrorStatus("FittingTool::FitPDF", "Cannot find the parameter of interest !");
