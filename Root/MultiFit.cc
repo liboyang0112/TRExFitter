@@ -1409,6 +1409,7 @@ void MultiFit::CompareNormFactors(string category) const{
         for(const auto& inorm : fFitList[i_fit]->fNormFactors) {
             const std::string normName = inorm->fName;
             if (Common::FindInStringVector(fPOIs,normName)>=0) continue;
+            if (std::find(Names.begin(), Names.end(), normName) != Names.end()) continue;
             Names.push_back(normName);
             Titles.push_back(inorm->fTitle);
             Categories.push_back(inorm->fCategory);
