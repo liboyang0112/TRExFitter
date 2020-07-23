@@ -168,6 +168,8 @@ Info in <TCanvas::Print>: png file FitExample/Plots/Summary_postFit.png has been
 === DEBUG::TRExFit::DrawSummary: Adding Bkg:    Background
 === DEBUG::TRExFit::DrawSummary: Adding Bkg:    Background
 === DEBUG::TRExFit::DrawSummary: Adding Signal: Signal
+=== DEBUG::TRExFit::DrawSummary: Scaling Signal by 1.000000
+=== DEBUG::TRExFit::DrawSummary: Scaling Signal by 1.000000
 === DEBUG::TRExFit::DrawSummary: 1:	316.645988	+15.591890	-15.591890
 === DEBUG::TRExFit::DrawSummary: 2:	312.261814	+12.771870	-12.771870
 [1;32m=== INFO::TRExFit::DrawSummary: -------------------------------------------[0m
@@ -178,6 +180,7 @@ Info in <TCanvas::Print>: png file FitExample/Plots/Summary_postFit_VR.png has b
 === DEBUG::TRExFit::DrawSummary: Adding Bkg:    Background
 === DEBUG::TRExFit::DrawSummary: Adding Bkg:    Background
 === DEBUG::TRExFit::DrawSummary: Adding Signal: Signal
+=== DEBUG::TRExFit::DrawSummary: Scaling Signal by 1.000000
 === DEBUG::TRExFit::DrawSummary: 1:	845.403683	+44.065043	-44.065043
 [1;32m=== INFO::TRExFit::BuildYieldTable: -------------------------------------------[0m
 [1;32m=== INFO::TRExFit::BuildYieldTable: Building Yields Table...[0m

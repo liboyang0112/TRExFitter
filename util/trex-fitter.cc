@@ -219,13 +219,6 @@ void FitExample(std::string opt="h",std::string configFile="config/myFit.config"
         return;
     }
 
-    // check if pre-fit drawing is used and KeepPrefitBlinding is used
-    if (myFit->fKeepPrefitBlindedBins && drawPostFit && !drawPreFit) {
-        WriteWarningStatus("trex-fitter::FitExample", "You set the KeepPrefitBlindedBins option to TRUE, but you need to run the \"dp\" steps together!");
-        WriteWarningStatus("trex-fitter::FitExample", "Setting KeepPrefitBlindedBins to FALSE");
-        myFit->fKeepPrefitBlindedBins = false;
-    }
-
     // -------------------------------------------------------
     myFit->PrintConfigSummary();
 

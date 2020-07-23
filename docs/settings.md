@@ -158,7 +158,7 @@ The following settings are for normal fits, performed without the action `m`. Th
 | **Blinding** | |
 | BlindingThreshold            | blind bins when S/B is greater than this threshold, use the `BlindingType` option for other definitions than just S/B |
 | BlindingType                 | how to calculate the quantity to determine blinding, options are SOVERB (for S/B), SOVERSPLUSB(for S/(S+B)), SOVERSQRTB (for S/sqrt(B)) and SOVERSQRTSPLUSB (for S/sqrt(S+B)), default is SOVERB |
-| KeepPrefitBlindedBins        | if set to TRUE, and if pre-fit an post-fit plots are produced together ("dp" option) pre-fit blinding is kept in post-fit plots |
+| KeepPrefitBlindedBins        | if set to TRUE pre-fit blinding is kept in post-fit plots |
 | HideNP                       | comma-separated list of nuisance parameters to be excluded from pull plots and correlation matrix |
 | BlindSRs                | If set, all SRs are forced to have DataType = ASIMOV |
 
