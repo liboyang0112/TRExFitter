@@ -1446,8 +1446,10 @@ std::shared_ptr<TRExPlot> TRExFit::DrawSummary(std::string opt, std::shared_ptr<
     if(TRExFitter::POISSONIZE) opt += " poissonize";
     // build one bin per region
     std::unique_ptr<TH1D> h_data = nullptr;
-    std::vector<std::unique_ptr<TH1D> > h_sig;
-    std::vector<std::unique_ptr<TH1D> > h_bkg;
+    std::vector<std::unique_ptr<TH1D> > h_sig_postfit;
+    std::vector<std::unique_ptr<TH1D> > h_bkg_postfit;
+    std::vector<std::unique_ptr<TH1D> > h_sig_prefit;
+    std::vector<std::unique_ptr<TH1D> > h_bkg_prefit;
     std::unique_ptr<TGraphAsymmErrors> g_err(nullptr);
     int Nsig = 0;
     int Nbkg = 0;
@@ -1457,8 +1459,6 @@ std::shared_ptr<TRExPlot> TRExFit::DrawSummary(std::string opt, std::shared_ptr<
     int lineColor;
     int fillColor;
     int lineWidth;
-    double integral;
-    double intErr; // to store the integral error
     //
     // Building region - bin correspondence
     //
@@ -1537,79 +1537,115 @@ std::shared_ptr<TRExPlot> TRExFit::DrawSummary(std::string opt, std::shared_ptr<
         lineWidth = sh->fHist->GetLineWidth();
         //
         if(isample->fType == Sample::SIGNAL){
-            h_sig.emplace_back(new TH1D(name.c_str(),title.c_str(), Nbin,0,Nbin));
-            std::string temp_string = h_sig[Nsig]->GetTitle();
+            h_sig_postfit.emplace_back(new TH1D(name.c_str(),title.c_str(), Nbin,0,Nbin));
+            h_sig_prefit.emplace_back(new TH1D(name.c_str(),title.c_str(), Nbin,0,Nbin));
+            std::string temp_string = h_sig_prefit[Nsig]->GetTitle();
             WriteDebugStatus("TRExFit::DrawSummary", "Adding Signal: " + temp_string);
-            h_sig.back()->SetLineColor(lineColor);
-            h_sig.back()->SetFillColor(fillColor);
-            h_sig.back()->SetLineWidth(lineWidth);
+            h_sig_prefit.back()->SetLineColor(lineColor);
+            h_sig_prefit.back()->SetFillColor(fillColor);
+            h_sig_prefit.back()->SetLineWidth(lineWidth);
+            h_sig_postfit.back()->SetLineColor(lineColor);
+            h_sig_postfit.back()->SetFillColor(fillColor);
+            h_sig_postfit.back()->SetLineWidth(lineWidth);
             for(unsigned int i_bin=1;i_bin<=regionVec.size();i_bin++){
-                std::unique_ptr<TH1D> h;
+                std::unique_ptr<TH1D> h_pre;
+                std::unique_ptr<TH1D> h_post;
                 sh = fRegions[regionVec[i_bin-1]]->GetSampleHist( name );
+                double integral_pre(0);
+                double integral_post(0);
+                double intErr_pre(0);
+                double intErr_post(0);
                 if(sh!=nullptr){
-                    if(isPostFit)  h.reset(static_cast<TH1D*>(sh->fHist_postFit->Clone())); // Michele
-                    else           h.reset(static_cast<TH1D*>(sh->fHist->Clone())); // Michele
+                    if(isPostFit)  h_post.reset(static_cast<TH1D*>(sh->fHist_postFit->Clone())); // Michele
+                    h_pre.reset(static_cast<TH1D*>(sh->fHist->Clone())); // Michele
                     //
-                    if(!isPostFit){
-                        // FIXME SF
-                        // scale it according to NormFactors
-                        for(unsigned int i_nf=0;i_nf<sh->fSample->fNormFactors.size();i_nf++){
-                            h->Scale(sh->fSample->fNormFactors[i_nf]->fNominal);
-                            WriteDebugStatus("TRExFit::DrawSummary", "Scaling " + sh->fSample->fName + " by " + std::to_string(sh->fSample->fNormFactors[i_nf]->fNominal));
-                        }
+                    // FIXME SF
+                    // scale it according to NormFactors
+                    for(unsigned int i_nf=0;i_nf<sh->fSample->fNormFactors.size();i_nf++){
+                        h_pre->Scale(sh->fSample->fNormFactors[i_nf]->fNominal);
+                        WriteDebugStatus("TRExFit::DrawSummary", "Scaling " + sh->fSample->fName + " by " + std::to_string(sh->fSample->fNormFactors[i_nf]->fNominal));
                     }
-                    //
-                    integral = h->IntegralAndError(1,h->GetNbinsX(),intErr);
+
+                    if (isPostFit) {
+                        integral_post = h_post->IntegralAndError(1,h_post->GetNbinsX(),intErr_post);
+                    }
+                    integral_pre = h_pre->IntegralAndError(1,h_pre->GetNbinsX(),intErr_pre);
                     // this becuase MC stat is taken into account by the gammas
-                    if( (isPostFit && fUseGammaPulls) || !fUseStatErr || (!sh->fSample->fUseMCStat && !sh->fSample->fSeparateGammas))
-                        intErr = 0.;
+                    if( (isPostFit && fUseGammaPulls) || !fUseStatErr || (!sh->fSample->fUseMCStat && !sh->fSample->fSeparateGammas)) {
+                        intErr_pre = 0.;
+                        intErr_post = 0.;
+                    }
                 }
                 else{
-                    integral = 0.;
-                    intErr   = 0.;
+                    integral_pre  = 0.;
+                    integral_post = 0.;
+                    intErr_pre    = 0.;
+                    intErr_post   = 0.;
                 }
-                h_sig.back()->SetBinContent( i_bin,integral );
-                h_sig.back()->SetBinError( i_bin,intErr );
+                if (isPostFit) {
+                    h_sig_postfit.back()->SetBinContent( i_bin,integral_post );
+                    h_sig_postfit.back()->SetBinError( i_bin,intErr_post );
+                }
+                h_sig_prefit.back()->SetBinContent( i_bin,integral_pre );
+                h_sig_prefit.back()->SetBinError( i_bin,intErr_pre );
             }
             Nsig++;
         }
         else if(isample->fType == Sample::BACKGROUND){
-            h_bkg.emplace_back(new TH1D(name.c_str(),title.c_str(), Nbin,0,Nbin));
-            std::string temp_string = h_bkg[Nbkg]->GetTitle();
+            h_bkg_prefit.emplace_back(new TH1D(name.c_str(),title.c_str(), Nbin,0,Nbin));
+            h_bkg_postfit.emplace_back(new TH1D(name.c_str(),title.c_str(), Nbin,0,Nbin));
+            std::string temp_string = h_bkg_prefit[Nbkg]->GetTitle();
             WriteDebugStatus("TRExFit::DrawSummary", "Adding Bkg:    " + temp_string);
-            h_bkg.back()->SetLineColor(lineColor);
-            h_bkg.back()->SetFillColor(fillColor);
-            h_bkg.back()->SetLineWidth(lineWidth);
+            h_bkg_prefit.back()->SetLineColor(lineColor);
+            h_bkg_prefit.back()->SetFillColor(fillColor);
+            h_bkg_prefit.back()->SetLineWidth(lineWidth);
+            h_bkg_postfit.back()->SetLineColor(lineColor);
+            h_bkg_postfit.back()->SetFillColor(fillColor);
+            h_bkg_postfit.back()->SetLineWidth(lineWidth);
             for(int i_bin=1;i_bin<=(int)regionVec.size();i_bin++){
-                std::unique_ptr<TH1D> h;
+                std::unique_ptr<TH1D> h_pre;
+                std::unique_ptr<TH1D> h_post;
                 sh = fRegions[regionVec[i_bin-1]]->GetSampleHist( name );
+                double integral_pre(0);
+                double integral_post(0);
+                double intErr_pre(0);
+                double intErr_post(0);
                 if(sh!=nullptr){
-                    if(isPostFit)  h.reset(static_cast<TH1D*>(sh->fHist_postFit->Clone())); // Michele
-                    else           h.reset(static_cast<TH1D*>(sh->fHist->Clone())); // Michele
+                    if(isPostFit)  h_post.reset(static_cast<TH1D*>(sh->fHist_postFit->Clone())); // Michele
+                    h_pre.reset(static_cast<TH1D*>(sh->fHist->Clone())); // Michele
                     //
-                    if(!isPostFit){
-                        // scale it according to NormFactors but only for the correct regions
-                        for(unsigned int i_nf=0; i_nf<sh->fSample->fNormFactors.size(); ++i_nf){
-                            const std::vector<std::string>& regions = sh->fSample->fNormFactors[i_nf]->fRegions;
-                            if (std::find(regions.begin(), regions.end(), fRegions[regionVec[i_bin-1]]->fName) != regions.end() ) {
-                                h->Scale(sh->fSample->fNormFactors[i_nf]->fNominal);
-                                WriteDebugStatus("TRExFit::DrawSummary", "Scaling " + sh->fSample->fName + " by " + std::to_string(sh->fSample->fNormFactors[i_nf]->fNominal));
-                            }
+                    // scale it according to NormFactors but only for the correct regions
+                    for(unsigned int i_nf=0; i_nf<sh->fSample->fNormFactors.size(); ++i_nf){
+                        const std::vector<std::string>& regions = sh->fSample->fNormFactors[i_nf]->fRegions;
+                        if (std::find(regions.begin(), regions.end(), fRegions[regionVec[i_bin-1]]->fName) != regions.end() ) {
+                            h_pre->Scale(sh->fSample->fNormFactors[i_nf]->fNominal);
+                            WriteDebugStatus("TRExFit::DrawSummary", "Scaling " + sh->fSample->fName + " by " + std::to_string(sh->fSample->fNormFactors[i_nf]->fNominal));
                         }
                     }
                     //
-                    integral = h->IntegralAndError(1,h->GetNbinsX(),intErr);
+                    if (isPostFit) {
+                        integral_post = h_post->IntegralAndError(1,h_post->GetNbinsX(),intErr_post);
+                    }
+                    integral_pre = h_pre->IntegralAndError(1,h_pre->GetNbinsX(),intErr_pre);
                     //
                     // this becuase MC stat is taken into account by the gammas
-                    if( (isPostFit && fUseGammaPulls) || !fUseStatErr || (!sh->fSample->fUseMCStat && !sh->fSample->fSeparateGammas))
-                        intErr = 0.;
+                    if( (isPostFit && fUseGammaPulls) || !fUseStatErr || (!sh->fSample->fUseMCStat && !sh->fSample->fSeparateGammas)) {
+                        intErr_pre = 0.;
+                        intErr_post = 0.;
+                    }
                 }
                 else{
-                    integral = 0.;
-                    intErr = 0.;
+                    integral_pre  = 0.;
+                    integral_post = 0.;
+                    intErr_pre    = 0.;
+                    intErr_post   = 0.;
                 }
-                h_bkg.back()->SetBinContent( i_bin,integral );
-                h_bkg.back()->SetBinError( i_bin,intErr );
+                if (isPostFit) {
+                    h_bkg_postfit.back()->SetBinContent( i_bin,integral_post );
+                    h_bkg_postfit.back()->SetBinError( i_bin,intErr_post );
+                }
+                h_bkg_prefit.back()->SetBinContent( i_bin,integral_pre );
+                h_bkg_prefit.back()->SetBinError( i_bin,intErr_pre );
             }
             Nbkg++;
         }
@@ -1667,31 +1703,54 @@ std::shared_ptr<TRExPlot> TRExFit::DrawSummary(std::string opt, std::shared_ptr<
     p->fLegendNColumns = fLegendNColumnsSummary;
     if(fBlindingThreshold >= 0) {
         std::unique_ptr<TH1> signal(nullptr);
-        if (Nsig > 0) {
-            signal.reset(static_cast<TH1*>(h_sig[0]->Clone()));
-        }
         std::unique_ptr<TH1> bkg(nullptr);
-        for (int i = 0; i < Nbkg; ++i) {
-            if (!h_bkg[i]) continue;
-            if (!bkg) bkg.reset(static_cast<TH1*>(h_bkg[i]->Clone()));
-            else      bkg->Add(h_bkg[i].get());
+        if (isPostFit && !fKeepPrefitBlindedBins) {
+            if (Nsig > 0) {
+                signal.reset(static_cast<TH1*>(h_sig_postfit[0]->Clone()));
+            }
+            for (int i = 0; i < Nbkg; ++i) {
+                if (!h_bkg_postfit[i]) continue;
+                if (!bkg) bkg.reset(static_cast<TH1*>(h_bkg_postfit[i]->Clone()));
+                else      bkg->Add(h_bkg_postfit[i].get());
+            }
+        } else {
+            if (Nsig > 0) {
+                signal.reset(static_cast<TH1*>(h_sig_prefit[0]->Clone()));
+            }
+            for (int i = 0; i < Nbkg; ++i) {
+                if (!h_bkg_prefit[i]) continue;
+                if (!bkg) bkg.reset(static_cast<TH1*>(h_bkg_prefit[i]->Clone()));
+                else      bkg->Add(h_bkg_prefit[i].get());
+            }
+
         }
         const std::vector<int>& blindedBins = Common::ComputeBlindedBins(signal.get(),
                                                                          bkg.get(),
                                                                          fBlindingType,
                                                                          fBlindingThreshold);
+
         p->SetBinBlinding(blindedBins);
-        if(isPostFit && fKeepPrefitBlindedBins) p->BlindData();
+        p->BlindData();
     }
     //
     if(h_data) p->SetData(h_data.get(), h_data->GetTitle());
     for(int i=0;i<Nsig;i++){
-        if(TRExFitter::SHOWSTACKSIG_SUMMARY)   p->AddSignal(    h_sig[i].get(),h_sig[i]->GetTitle());
-        if(TRExFitter::SHOWNORMSIG_SUMMARY)    p->AddNormSignal(h_sig[i].get(),h_sig[i]->GetTitle());
-        if(TRExFitter::SHOWOVERLAYSIG_SUMMARY) p->AddOverSignal(h_sig[i].get(),h_sig[i]->GetTitle());
+        if (isPostFit) {
+            if(TRExFitter::SHOWSTACKSIG_SUMMARY)   p->AddSignal(    h_sig_postfit[i].get(),h_sig_postfit[i]->GetTitle());
+            if(TRExFitter::SHOWNORMSIG_SUMMARY)    p->AddNormSignal(h_sig_postfit[i].get(),h_sig_postfit[i]->GetTitle());
+            if(TRExFitter::SHOWOVERLAYSIG_SUMMARY) p->AddOverSignal(h_sig_postfit[i].get(),h_sig_postfit[i]->GetTitle());
+        } else {
+            if(TRExFitter::SHOWSTACKSIG_SUMMARY)   p->AddSignal(    h_sig_prefit[i].get(),h_sig_prefit[i]->GetTitle());
+            if(TRExFitter::SHOWNORMSIG_SUMMARY)    p->AddNormSignal(h_sig_prefit[i].get(),h_sig_prefit[i]->GetTitle());
+            if(TRExFitter::SHOWOVERLAYSIG_SUMMARY) p->AddOverSignal(h_sig_prefit[i].get(),h_sig_prefit[i]->GetTitle());
+        }
     }
     for(int i=0;i<Nbkg;i++){
-        p->AddBackground(h_bkg[i].get(),h_bkg[i]->GetTitle());
+        if (isPostFit) {
+            p->AddBackground(h_bkg_postfit[i].get(),h_bkg_postfit[i]->GetTitle());
+        } else {
+            p->AddBackground(h_bkg_prefit[i].get(),h_bkg_prefit[i]->GetTitle());
+        }
     }
 
     if( TRExFitter::PREFITONPOSTFIT && isPostFit) {

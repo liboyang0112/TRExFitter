@@ -270,6 +270,7 @@ public:
 
     std::vector<int> fDropBins;
     std::vector<int> fBlindedBins;
+    std::vector<int> fBlindedBinsPostFit;
 
     std::vector<std::string> fBinLabels;
 
@@ -304,7 +305,12 @@ private:
 
     bool fAutomaticDropBins;
     
-    std::pair<double,int> GetChi2Test( TH1* h_data, TH1* h_nominal, std::vector< std::shared_ptr<TH1> > h_up, std::vector< std::string > fSystNames, CorrelationMatrix *matrix=nullptr );
+    std::pair<double,int> GetChi2Test(const bool isPostFit,
+                                      const TH1* h_data,
+                                      const TH1* h_nominal,
+                                      const std::vector< std::shared_ptr<TH1> >& h_up,
+                                      const std::vector< std::string >& fSystNames,
+                                      CorrelationMatrix *matrix=nullptr );
 };
 
 

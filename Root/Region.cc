@@ -524,7 +524,7 @@ void Region::BuildPreFitErrorHist(){
         }
         std::unique_ptr<TH1> h_data(static_cast<TH1*>(fData->fHist->Clone()));
         if(fGetChi2==1) fNpNames.clear();
-        std::pair<double,int> res = GetChi2Test( h_data.get(), fTot.get(), h_up, fNpNames );
+        std::pair<double,int> res = GetChi2Test(false, h_data.get(), fTot.get(), h_up, fNpNames );
         fChi2val = res.first;
         fNDF = res.second;
         fChi2prob = ROOT::Math::chisquared_cdf_c( res.first, res.second);
@@ -1344,7 +1344,7 @@ void Region::BuildPostFitErrorHist(FitResults *fitRes, const std::vector<std::st
         // remove blinded bins
         std::unique_ptr<TH1> h_data(static_cast<TH1*>(fData->fHist->Clone()));
         if(fGetChi2==1) fSystNames.clear();
-        std::pair<double,int> res = GetChi2Test( h_data.get(), fTot_postFit.get(), h_up, fSystNames, fitRes->fCorrMatrix.get() );
+        std::pair<double,int> res = GetChi2Test(true, h_data.get(), fTot_postFit.get(), h_up, fSystNames, fitRes->fCorrMatrix.get() );
         fChi2val = res.first;
         fNDF = res.second;
         fChi2prob = ROOT::Math::chisquared_cdf_c( res.first, res.second);
@@ -1719,12 +1719,12 @@ std::shared_ptr<TRExPlot> Region::DrawPostFit(FitResults* fitRes,
             std::unique_ptr<TH1D> signal = CombineHistos(hSigNew);
             std::unique_ptr<TH1D> bkg = CombineHistos(hBkgNew);
 
-            const std::vector<int>& blindPost = Common::ComputeBlindedBins(signal.get(),
-                                                                           bkg.get(),
-                                                                           fBlindingType,
-                                                                           fBlindingThreshold);
-            container.blindedBins = blindPost;
-            p->SetBinBlinding(blindPost);
+            fBlindedBinsPostFit = Common::ComputeBlindedBins(signal.get(),
+                                                             bkg.get(),
+                                                             fBlindingType,
+                                                             fBlindingThreshold);
+            container.blindedBins = fBlindedBinsPostFit;
+            p->SetBinBlinding(fBlindedBinsPostFit);
         }
     }
     p->SetDropBins(fDropBins);
@@ -2300,13 +2300,17 @@ double GetDeltaN(double alpha, double Iz, double Ip, double Imi, int intCode){
 
 //___________________________________________________________
 // function to get pre/post-fit agreement
-std::pair<double,int> Region::GetChi2Test( TH1* h_data, TH1* h_nominal, std::vector< std::shared_ptr<TH1> > h_up, std::vector< string > systNames, CorrelationMatrix *matrix ){
+std::pair<double,int> Region::GetChi2Test(const bool isPostFit,
+                                          const TH1* h_data,
+                                          const TH1* h_nominal,
+                                          const std::vector< std::shared_ptr<TH1> >& h_up,
+                                          const std::vector< string >& systNames,
+                                          CorrelationMatrix *matrix ){
     const unsigned int nbins = h_nominal->GetNbinsX();
     int ndf = 0;
     for(unsigned int i=0;i<nbins;++i){
-        const double ydata_i = h_data->GetBinContent(i+1);
-        if(ydata_i<0) continue; // skip dropped / blinded bins
-        if (std::find(fBlindedBins.begin(), fBlindedBins.end(), i+1) != fBlindedBins.end()) continue;
+        if ((!isPostFit || fKeepPrefitBlindedBins) && std::find(fBlindedBins.begin(), fBlindedBins.end(), i+1) != fBlindedBins.end()) continue;
+        if ((isPostFit && !fKeepPrefitBlindedBins) && std::find(fBlindedBinsPostFit.begin(), fBlindedBinsPostFit.end(), i+1) != fBlindedBinsPostFit.end()) continue;
         if (std::find(fDropBins.begin(), fDropBins.end(), i+1) != fDropBins.end()) continue;
         ndf++;
     }
@@ -2334,13 +2338,15 @@ std::pair<double,int> Region::GetChi2Test( TH1* h_data, TH1* h_nominal, std::vec
     int ibin = 0;
     int jbin = 0;
     for(unsigned int i=0;i<nbins;++i){
-        if (std::find(fBlindedBins.begin(), fBlindedBins.end(), i+1) != fBlindedBins.end()) continue;
+        if ((!isPostFit || fKeepPrefitBlindedBins) && std::find(fBlindedBins.begin(), fBlindedBins.end(), i+1) != fBlindedBins.end()) continue;
+        if ((isPostFit && !fKeepPrefitBlindedBins) && std::find(fBlindedBinsPostFit.begin(), fBlindedBinsPostFit.end(), i+1) != fBlindedBinsPostFit.end()) continue;
         if (std::find(fDropBins.begin(), fDropBins.end(), i+1) != fDropBins.end()) continue;
         const double ynom_i = h_nominal->GetBinContent(i+1);
         jbin = 0;
         for(unsigned int j=0;j<nbins;++j){
             double sum = 0.;
-            if (std::find(fBlindedBins.begin(), fBlindedBins.end(), j+1) != fBlindedBins.end()) continue;
+            if ((!isPostFit || fKeepPrefitBlindedBins) && std::find(fBlindedBins.begin(), fBlindedBins.end(), j+1) != fBlindedBins.end()) continue;
+            if ((isPostFit && !fKeepPrefitBlindedBins) && std::find(fBlindedBinsPostFit.begin(), fBlindedBinsPostFit.end(), j+1) != fBlindedBinsPostFit.end()) continue;
             if (std::find(fDropBins.begin(), fDropBins.end(), j+1) != fDropBins.end()) continue;
             const double ynom_j = h_nominal->GetBinContent(j+1);
             for(unsigned int n=0;n<nsyst;++n){ //n!=m, run only across correlated systs
@@ -2381,13 +2387,15 @@ std::pair<double,int> Region::GetChi2Test( TH1* h_data, TH1* h_nominal, std::vec
     ibin = 0;
     jbin = 0;
     for(unsigned int i=0;i<nbins;++i){
-        if (std::find(fBlindedBins.begin(), fBlindedBins.end(), i+1) != fBlindedBins.end()) continue;
+        if ((!isPostFit || fKeepPrefitBlindedBins) && std::find(fBlindedBins.begin(), fBlindedBins.end(), i+1) != fBlindedBins.end()) continue;
+        if ((isPostFit && !fKeepPrefitBlindedBins) && std::find(fBlindedBinsPostFit.begin(), fBlindedBinsPostFit.end(), i+1) != fBlindedBinsPostFit.end()) continue;
         if (std::find(fDropBins.begin(), fDropBins.end(), i+1) != fDropBins.end()) continue;
         const double ynom_i = h_nominal->GetBinContent(i+1);
         const double ydata_i = h_data->GetBinContent(i+1);
         jbin = 0;
         for(unsigned int j=0;j<nbins;j++){
-            if (std::find(fBlindedBins.begin(), fBlindedBins.end(), j+1) != fBlindedBins.end()) continue;
+            if ((!isPostFit || fKeepPrefitBlindedBins) && std::find(fBlindedBins.begin(), fBlindedBins.end(), j+1) != fBlindedBins.end()) continue;
+            if ((isPostFit && !fKeepPrefitBlindedBins) && std::find(fBlindedBinsPostFit.begin(), fBlindedBinsPostFit.end(), j+1) != fBlindedBinsPostFit.end()) continue;
             if (std::find(fDropBins.begin(), fDropBins.end(), j+1) != fDropBins.end()) continue;
             const double ynom_j = h_nominal->GetBinContent(j+1);
             const double ydata_j = h_data->GetBinContent(j+1);
