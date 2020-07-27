@@ -64,7 +64,7 @@ The following settings are for normal fits, performed without the action `m`. Th
 | MigrationPaths(s)       | Folder path(s) of the histogram for migration matrix |
 | MigrationNameNominal    | Nominal histogram name |
 | **Pruning** | |
-| PruningType                 | Can be set to `BACKGROUNDREFERENCE` or `COMBINEDREFERENCE` (default is `SEPARATESAMPLE`), and pruning (both shape and norm) will be done w.r.t. to total/total-background. |
+| PruningType                 | Can be set to `BACKGROUNDREFERENCE` or `COMBINEDREFERENCE` (default is `SEPARATESAMPLE`), and pruning (both shape and norm) will be done w.r.t. to total-signal/total. |
 | SystPruningShape             | Lower threshold to remove a shape systematic from the fit/limit (suppression is done per sample and per region) (e.g.: 0.02 for 2%) |
 | SystPruningNorm              | Lower threshold to remove a normalisation systematic from the fit/limit (suppression is done per sample and per region) (e.g.: 0.02 for 2%) |
 | SystLarge                    | All systematics above this threshold will be removed, unless `RemoveLargeSyst` is set to `FALSE`, then the systematics will be flagged in the pruning plot) (e.g. 0.4 will flag systematics that are larger than 40%). The default is -1, meaning no pruning. |
@@ -354,7 +354,7 @@ additional options, accepting only float as arguments - useful for adding your f
 | Category                     | major category to which the NormFactor belongs (instrumental, theory, ttbar, ...) |
 | SubCategory                  | minor category for the NormFactor, used to evaluate impact on POI per SubCategory in "i" step, defaults to "NormFactors", do not use "Gammas", "FullSyst", or "combine" as SubCategory names (reserved for special functionality) |
 | Expression                   | a way to correlate this norm factor with other norm factors (using AddPreprocessFunction); two arguments, in the form `<expression>:<dependencies>`, where `<dependencies>` should contain the names of the norm factors the expression depends on, their nominal values and existence ranges [example: `(1.+Pmag*cos(theta))/2.:Pmag[0.9,0,1],theta[0,0,3.14]`] |
-| Tau                          | If set, a constraint term will be added to the likelihood for this NF, in the same way as for the Tikhonov regularization (used in unfolding); the constraint will be of the form exp((1/2) * tau^2 * (NF-µ)^2), where µ is the Nominal value for the NF, so the larger is tau, the stronger the constraint |
+| Tau                          | If set, a constraint term will be added to the likelihood for this NF, in the same way as for the Tikhonov regularization (used in unfolding); the constraint will be of the form exp(-(1/2) * tau^2 * (NF-µ)^2), where µ is the Nominal value for the NF, so the larger is tau, the stronger the constraint |
 
 
 ### `ShapeFactor` block settings
