@@ -11,6 +11,7 @@ class ConfigParser;
 class ConfigSet;
 class TRExFit;
 class Region;
+class Sample;
 class Systematic;
 
 /**
@@ -256,6 +257,13 @@ class ConfigReader {
         bool CheckPresence(const std::vector<std::string> &v1, const std::vector<std::string> &v2, const std::vector<std::string> &v3);
 
         /**
+          * A helper function to check of the same uses ghost samples with the same name
+          * @param Sample
+          * return true if ok
+          */ 
+        bool SampleIsOk(const Sample* sample) const;
+
+        /**
           * Helper function to check if the regions from command line exist
           * @return A verctor of region names
           */
@@ -328,6 +336,11 @@ class ConfigReader {
           * vector of strings, one for each sample, needed for cross-checks
           */
         std::vector< std::string > fSamples;
+
+        /**
+          * vector of strings, one for each sample, needed for cross-checks
+          */
+        std::vector< std::string > fGhostSamples;
 
         /**
           * vector of strings, one for each sample defined in config file
