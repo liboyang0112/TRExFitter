@@ -2802,6 +2802,7 @@ int ConfigReader::ReadSampleOptions() {
                     ++sc;
                 }
                 type = Sample::GHOST;
+                fGhostSamples.emplace_back(Common::RemoveQuotes(confSet->GetValue()));
             }
             else if(param == "BACKGROUND"){
                 type = Sample::BACKGROUND;
@@ -4932,6 +4933,13 @@ int ConfigReader::PostConfig(const std::string& opt){
         if(norm->fNuisanceParameter!=norm->fName) TRExFitter::SYSTMAP[norm->fNuisanceParameter] = norm->fTitle;
     }
 
+    for (const auto& isample : fFitter->fSamples) {
+        if (!SampleIsOk(isample.get())) {
+            WriteErrorStatus("ConfigReader::PostConfig", "Sample: " + isample->fName + " has the same name as one of the ghost samples or it includes itsef in some of the options");
+            ++sc;
+        }
+    }
+
     // morphing
     if (fFitter->fMorphParams.size()!=0){
         // template fitting stuff
@@ -6618,6 +6626,28 @@ std::vector<std::string> ConfigReader::GetAvailableSysts(){
         availableSysts.emplace_back(Common::CheckName(tmp));
     }
     return availableSysts;
+}
+
+//__________________________________________________________________________________
+//
+bool ConfigReader::SampleIsOk(const Sample* sample) const {
+
+    if (sample->fType == Sample::SampleType::GHOST) return true;
+
+    if (std::find(fGhostSamples.begin(), fGhostSamples.end(), sample->fName) != fGhostSamples.end()) return false; 
+    if (sample->fDivideBy == sample->fName) return false;
+    if (sample->fMultiplyBy == sample->fName) return false;
+    if (sample->fNormToSample == sample->fName) return false;
+
+    for (const auto& i : sample->fSubtractSamples) {
+        if (i == sample->fName) return false; 
+    }
+
+    for (const auto& i : sample->fAddSamples) {
+        if (i == sample->fName) return false; 
+    }
+    
+    return true;
 }
 
 //__________________________________________________________________________________
