@@ -647,8 +647,16 @@ void MultiFit::GetCombinedSignificance(string inputData) {
 //__________________________________________________________________________________
 //
 void MultiFit::ComparePOI(const string& POI, const std::size_t index) const {
-    double xmax = fPOIMax.at(index) + (fPOIMax.at(index)-fPOIMin.at(index));
-    double xmin = fPOIMin.at(index);
+    double xmax(0);
+    double xmin(0);
+
+    if (fPOIMax.empty() || fPOIMin.empty()) {
+        xmax = 20;
+        xmin = 0;
+    } else {
+        xmax = fPOIMax.at(index) + (fPOIMax.at(index)-fPOIMin.at(index));
+        xmin = fPOIMin.at(index);
+    }
 
     string process = fLabel;
 
@@ -822,6 +830,8 @@ void MultiFit::ComparePOI(const string& POI, const std::size_t index) const {
 
     TLatex tex{};
 
+    const std::string precision = fPOIPrecision.empty() ? "1" : fPOIPrecision.at(index);
+
     for(int i=0;i<N;i++){
         if(!(fCombine && i==N-1)){
             if (!fFitList.at(i)->fUseInComparison) continue;
@@ -829,27 +839,27 @@ void MultiFit::ComparePOI(const string& POI, const std::size_t index) const {
         h_dummy.GetYaxis()->SetBinLabel(N-i,titles[i].c_str());
         if(fShowSystForPOI){
             tex.SetTextSize(gStyle->GetTextSize()*1.2);
-            tex.DrawLatex(xmin+0.5*(xmax-xmin),N-i-1,Form(("#font[62]{%." + fPOIPrecision.at(index) + "f}").c_str(),g_central.GetX()[N-i-1]));
-            tex.DrawLatex(xmin+0.6*(xmax-xmin),N-i-1,Form(("#font[62]{^{#plus%." + fPOIPrecision.at(index) + "f}}").c_str(),g_tot.GetErrorXhigh(N-i-1)));
-            tex.DrawLatex(xmin+0.6*(xmax-xmin),N-i-1,Form(("#font[62]{_{#minus%." + fPOIPrecision.at(index) + "f}}").c_str(),g_tot.GetErrorXlow(N-i-1)));
+            tex.DrawLatex(xmin+0.5*(xmax-xmin),N-i-1,Form(("#font[62]{%." + precision + "f}").c_str(),g_central.GetX()[N-i-1]));
+            tex.DrawLatex(xmin+0.6*(xmax-xmin),N-i-1,Form(("#font[62]{^{#plus%." + precision + "f}}").c_str(),g_tot.GetErrorXhigh(N-i-1)));
+            tex.DrawLatex(xmin+0.6*(xmax-xmin),N-i-1,Form(("#font[62]{_{#minus%." + precision + "f}}").c_str(),g_tot.GetErrorXlow(N-i-1)));
             tex.DrawLatex(xmin+0.69*(xmax-xmin),N-i-1,"(");
             if (!fShowTotalOnly){
-                tex.DrawLatex(xmin+0.73*(xmax-xmin),N-i-1,Form(("#font[42]{^{#plus%." + fPOIPrecision.at(index) + "f}}").c_str(),g_stat.GetErrorXhigh(N-i-1)));
-                tex.DrawLatex(xmin+0.73*(xmax-xmin),N-i-1,Form(("#font[42]{_{#minus%." + fPOIPrecision.at(index) + "f}}").c_str(),g_stat.GetErrorXlow(N-i-1)));
-                tex.DrawLatex(xmin+0.84*(xmax-xmin),N-i-1,Form(("#font[42]{^{#plus%." + fPOIPrecision.at(index) + "f}}").c_str(),
+                tex.DrawLatex(xmin+0.73*(xmax-xmin),N-i-1,Form(("#font[42]{^{#plus%." + precision + "f}}").c_str(),g_stat.GetErrorXhigh(N-i-1)));
+                tex.DrawLatex(xmin+0.73*(xmax-xmin),N-i-1,Form(("#font[42]{_{#minus%." + precision + "f}}").c_str(),g_stat.GetErrorXlow(N-i-1)));
+                tex.DrawLatex(xmin+0.84*(xmax-xmin),N-i-1,Form(("#font[42]{^{#plus%." + precision + "f}}").c_str(),
                     std::sqrt( g_tot.GetErrorXhigh(N-i-1) * g_tot.GetErrorXhigh(N-i-1) - g_stat.GetErrorXhigh(N-i-1)* g_stat.GetErrorXhigh(N-i-1) ) ) );
-                tex.DrawLatex(xmin+0.84*(xmax-xmin),N-i-1,Form(("#font[42]{_{#minus%." + fPOIPrecision.at(index) + "f}}").c_str(),
+                tex.DrawLatex(xmin+0.84*(xmax-xmin),N-i-1,Form(("#font[42]{_{#minus%." + precision + "f}}").c_str(),
                     std::sqrt( g_tot.GetErrorXlow(N-i-1)*g_tot.GetErrorXlow(N-i-1) - g_stat.GetErrorXlow(N-i-1)*g_stat.GetErrorXlow(N-i-1) ) ) );
                 tex.DrawLatex(xmin+0.94*(xmax-xmin),N-i-1,")");
             }
         }
         else{
-            tex.DrawLatex(xmin+0.5*(xmax-xmin),N-i-1,Form((fPOIName+" = %." + fPOIPrecision.at(index) + "f").c_str(),g_central.GetX()[N-i-1]));
-            tex.DrawLatex(xmin+0.7*(xmax-xmin),N-i-1,Form(("^{#plus%." + fPOIPrecision.at(index) + "f}").c_str(),g_tot.GetErrorXhigh(N-i-1)));
-            tex.DrawLatex(xmin+0.7*(xmax-xmin),N-i-1,Form(("_{#minus%." + fPOIPrecision.at(index) + "f}").c_str(),g_tot.GetErrorXlow(N-i-1)));
+            tex.DrawLatex(xmin+0.5*(xmax-xmin),N-i-1,Form((fPOIName+" = %." + precision + "f").c_str(),g_central.GetX()[N-i-1]));
+            tex.DrawLatex(xmin+0.7*(xmax-xmin),N-i-1,Form(("^{#plus%." + precision + "f}").c_str(),g_tot.GetErrorXhigh(N-i-1)));
+            tex.DrawLatex(xmin+0.7*(xmax-xmin),N-i-1,Form(("_{#minus%." + precision + "f}").c_str(),g_tot.GetErrorXlow(N-i-1)));
             if (!fShowTotalOnly){
-                tex.DrawLatex(xmin+0.85*(xmax-xmin),N-i-1,Form(("^{#plus%." + fPOIPrecision.at(index) + "f}").c_str(),g_stat.GetErrorXhigh(N-i-1)));
-                tex.DrawLatex(xmin+0.85*(xmax-xmin),N-i-1,Form(("_{#minus%." + fPOIPrecision.at(index) + "f}").c_str(),g_stat.GetErrorXlow(N-i-1)));
+                tex.DrawLatex(xmin+0.85*(xmax-xmin),N-i-1,Form(("^{#plus%." + precision + "f}").c_str(),g_stat.GetErrorXhigh(N-i-1)));
+                tex.DrawLatex(xmin+0.85*(xmax-xmin),N-i-1,Form(("_{#minus%." + precision + "f}").c_str(),g_stat.GetErrorXlow(N-i-1)));
             }
         }
     }
