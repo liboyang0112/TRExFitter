@@ -653,6 +653,7 @@ int ConfigReaderMulti::ReadSignificanceOptions(){
     param = confSet->Get("POIAsimov");
     if( param != "" ){
         fMultiFitter->fSignificancePOIAsimov = atof(param.c_str());
+        fMultiFitter->fSignificanceDoInj = true;
     }
 
     param = confSet->Get("ParamName");

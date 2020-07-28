@@ -678,6 +678,7 @@ public:
     // Significance parameters
     //
     bool fSignificanceIsBlind;
+    bool fSignificanceDoInjection;
     double fSignificancePOIAsimov;
     std::string fSignificanceParamName;
     double fSignificanceParamValue;

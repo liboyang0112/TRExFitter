@@ -125,6 +125,7 @@ MultiFit::MultiFit(const string& name) :
     fLimitOutputPrefixName("myLimit"),
     fLimitsConfidence(0.95),
     fSignificanceIsBlind(false),
+    fSignificanceDoInj(false),
     fSignificancePOIAsimov(0),
     fSignificanceParamName("parameter"),
     fSignificanceParamValue(0),
@@ -642,7 +643,7 @@ void MultiFit::GetCombinedSignificance(string inputData) {
     //
     int sigDebug = 3 - TRExFitter::DEBUGLEVEL;
     if (sigDebug < 0) sigDebug = 0;
-    runSig(wsFileName.c_str(), "combWS", "ModelConfig", inputData.c_str(), fSignificanceParamName.c_str(), fSignificanceParamValue, fSignificanceOutputPrefixName.c_str(), (fOutDir+"/Significance").c_str(), fSignificanceIsBlind, "asimovData_1", "conditionalGlobs_1", "nominalGlobs", false, fSignificancePOIAsimov, sigDebug);
+    runSig(wsFileName.c_str(), "combWS", "ModelConfig", inputData.c_str(), fSignificanceParamName.c_str(), fSignificanceParamValue, fSignificanceOutputPrefixName.c_str(), (fOutDir+"/Significance").c_str(), fSignificanceIsBlind, "asimovData_1", "conditionalGlobs_1", "nominalGlobs", fSignificanceDoInj, fSignificancePOIAsimov, sigDebug);
 }
 //__________________________________________________________________________________
 //

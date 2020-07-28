@@ -172,6 +172,7 @@ TRExFit::TRExFit(std::string name) :
     fLimitOutputPrefixName("myLimit"),
     fLimitsConfidence(0.95),
     fSignificanceIsBlind(false),
+    fSignificanceDoInjection(false),
     fSignificancePOIAsimov(0),
     fSignificanceParamName("parameter"),
     fSignificanceParamValue(0),
@@ -5404,7 +5405,7 @@ void TRExFit::GetSignificance(){
     if(fWorkspaceFileName!=""){
         std::string dataName = "obsData";
         if(fSignificanceIsBlind) dataName = "asimovData";
-        runSig(fWorkspaceFileName.c_str(), "combined", "ModelConfig", dataName.c_str(), fSignificanceParamName.c_str(), fSignificanceParamValue, fSignificanceOutputPrefixName.c_str(), (fName+"/Significance").c_str(), fSignificanceIsBlind, "asimovData_1", "conditionalGlobs_1", "nominalGlobs", false, fSignificancePOIAsimov, sigDebug);
+        runSig(fWorkspaceFileName.c_str(), "combined", "ModelConfig", dataName.c_str(), fSignificanceParamName.c_str(), fSignificanceParamValue, fSignificanceOutputPrefixName.c_str(), (fName+"/Significance").c_str(), fSignificanceIsBlind, "asimovData_1", "conditionalGlobs_1", "nominalGlobs", fSignificanceDoInjection, fSignificancePOIAsimov, sigDebug);
     }
     else{
         //
@@ -5501,7 +5502,7 @@ void TRExFit::GetSignificance(){
         // Finally computing the significance
         //
         std::string outputName_s = static_cast<std::string> (outputName);
-        runSig(outputName_s.c_str(), "combined", "ModelConfig", "ttHFitterData", fSignificanceParamName.c_str(), fSignificanceParamValue, fSignificanceOutputPrefixName.c_str(), (fName+"/Significance").c_str(), fSignificanceIsBlind, "asimovData_1", "conditionalGlobs_1", "nominalGlobs", false, fSignificancePOIAsimov, sigDebug);
+        runSig(outputName_s.c_str(), "combined", "ModelConfig", "ttHFitterData", fSignificanceParamName.c_str(), fSignificanceParamValue, fSignificanceOutputPrefixName.c_str(), (fName+"/Significance").c_str(), fSignificanceIsBlind, "asimovData_1", "conditionalGlobs_1", "nominalGlobs", fSignificanceDoInjection, fSignificancePOIAsimov, sigDebug);
     }
 }
 
