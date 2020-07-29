@@ -1889,6 +1889,7 @@ int ConfigReader::ReadSignificanceOptions(){
     param = confSet->Get("POIAsimov");
     if( param != "" ){
         fFitter->fSignificancePOIAsimov = atof(param.c_str());
+        fFitter->fSignificanceDoInjection = true;
     }
 
     param = confSet->Get("ParamName");
