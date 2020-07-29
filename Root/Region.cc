@@ -813,6 +813,10 @@ std::shared_ptr<TRExPlot> Region::DrawPreFit(const std::vector<int>& canvasSize,
         converter.WritePlotHEPData(container, fFolder, false);
     }
 
+    if(TRExFitter::PREFITONPOSTFIT) {
+        fPlotPreFit = p;
+    }
+
     return p;
 }
 
