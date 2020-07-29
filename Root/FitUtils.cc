@@ -72,9 +72,7 @@ void FitUtils::ApplyExternalConstraints(RooWorkspace* ws,
 //__________________________________________________________________________________
 //
 void FitUtils::SetBinnedLikelihoodOptimisation(RooWorkspace* ws) {
-    RooFIter rfiter = ws->components().fwdIterator();
-    RooAbsArg* arg;
-    while ((arg = rfiter.next())) {
+    for (auto arg : ws->components()) {
         if (arg->IsA() == RooRealSumPdf::Class()) {
             arg->setAttribute("BinnedLikelihood");
             const std::string temp_string = arg->GetName();
@@ -107,10 +105,9 @@ void FitUtils::InjectGlobalObservables(RooWorkspace* ws,
         const std::string glob_name = "nom_" + this_name;
         const std::string glob_name_alpha = "nom_alpha_" + this_name;
         const std::string glob_name_gamma = "nom_gamma_" + this_name;
-        std::unique_ptr<TIterator> gIter(mc_globs.createIterator());
-        RooRealVar* glob = nullptr;
         RooRealVar* this_glob = nullptr;
-        while ((glob = static_cast<RooRealVar*>(gIter->Next()))) {
+        for ( auto glob_tmp : mc_globs) {
+            RooRealVar* glob = static_cast<RooRealVar*>(glob_tmp);
             if(glob->GetName() == glob_name || glob->GetName() == glob_name_alpha || glob->GetName() == glob_name_gamma) {
                 this_glob = glob;
                 break;
@@ -135,10 +132,9 @@ void FitUtils::InjectGlobalObservables(RooWorkspace* ws,
 //__________________________________________________________________________________
 //
 void FitUtils::DisableSaturatedModel(RooWorkspace* ws) {
-    RooRealVar* var = nullptr;
     RooArgSet vars = ws->allVars();
-    std::unique_ptr<TIterator> it(vars.createIterator());
-    while( (var = static_cast<RooRealVar*>(it->Next()))) {
+    for(auto var_tmp : vars) {
+        RooRealVar* var = static_cast<RooRealVar*>(var_tmp);
         const std::string& name = var->GetName();
         if(name.find("saturated_model_sf_")!=std::string::npos){
             WriteInfoStatus("FitUtils::DisableSaturatedModel","Fixing parameter " + name );

@@ -77,11 +77,11 @@ LikelihoodScanManager::scanResult1D LikelihoodScanManager::Run1DScan(const RooWo
     double min(-3);
     double max(3);
 
-    RooRealVar* var(nullptr);
     bool found(false);
+    RooRealVar* var(nullptr);
     {
-        std::unique_ptr<TIterator> it(mc->GetParametersOfInterest()->createIterator());
-        while( (var = static_cast<RooRealVar*>(it->Next()))){
+        for (auto var_tmp : *mc->GetParametersOfInterest()) {
+            var = static_cast<RooRealVar*>(var_tmp);
             const std::string vname = var->GetName();
             if (vname == varName) {
                 WriteInfoStatus("LikelihoodScanManager::Run1DScan", "GetLikelihoodScan for NP = " + vname);
@@ -95,8 +95,8 @@ LikelihoodScanManager::scanResult1D LikelihoodScanManager::Run1DScan(const RooWo
 
     if (!found) {
         if (mc->GetNuisanceParameters()) {
-            std::unique_ptr<TIterator> it(mc->GetNuisanceParameters()->createIterator());
-            while( (var = static_cast<RooRealVar*>(it->Next()))){
+            for (auto var_tmp : *mc->GetNuisanceParameters()) {
+                var = static_cast<RooRealVar*>(var_tmp);
                 const std::string vname = var->GetName();
                 if (vname == varName || vname == "alpha_"+varName) {
                     WriteInfoStatus("LikelihoodScanManager::Run1DScan", "GetLikelihoodScan for NP = " + vname);
@@ -199,16 +199,15 @@ LikelihoodScanManager::Result2D LikelihoodScanManager::Run2DScan(const RooWorksp
     RooRealVar* varX = nullptr;
     RooRealVar* varY = nullptr;
     if (mc->GetNuisanceParameters()) {
-        std::unique_ptr<TIterator> it(mc->GetNuisanceParameters()->createIterator());
-        RooRealVar* var_tmp(nullptr);
-        while ( (var_tmp = static_cast<RooRealVar*>(it->Next())) ){
-            const std::string vname = var_tmp->GetName();
+        for (auto var_tmp : *mc->GetNuisanceParameters()) {
+            RooRealVar* var = static_cast<RooRealVar*>(var_tmp);
+            const std::string vname = var->GetName();
             if (vname == varNames.first || vname == "alpha_"+varNames.first){
-                varX = var_tmp;
+                varX = var;
                 ++count;
             }
             if (vname == varNames.second || vname == "alpha_"+varNames.second){
-                varY = var_tmp;
+                varY = var;
                 ++count;
             }
             if (count == 2) break;
@@ -216,16 +215,15 @@ LikelihoodScanManager::Result2D LikelihoodScanManager::Run2DScan(const RooWorksp
     }
 
     if (count != 2) {
-        std::unique_ptr<TIterator> it(mc->GetParametersOfInterest()->createIterator());
-        RooRealVar* var_tmp(nullptr);
-        while ( (var_tmp = static_cast<RooRealVar*>(it->Next())) ){
-            const std::string vname = var_tmp->GetName();
+        for (auto var_tmp : *mc->GetParametersOfInterest()) {
+            RooRealVar* var = static_cast<RooRealVar*>(var_tmp);
+            const std::string vname = var->GetName();
             if (vname == varNames.first || vname == "alpha_"+varNames.first){
-                varX = var_tmp;
+                varX = var;
                 ++count;
             }
             if (vname == varNames.second || vname == "alpha_"+varNames.second){
-                varY = var_tmp;
+                varY = var;
                 ++count;
             }
             if (count == 2) break;

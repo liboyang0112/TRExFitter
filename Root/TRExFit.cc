@@ -4595,10 +4595,9 @@ RooDataSet* TRExFit::DumpData( RooWorkspace *ws,  std::map < std::string, int > 
     //
     
     //-- POIs
-    RooRealVar* poi(nullptr);
-    std::unique_ptr<TIterator> poiIterator(mc->GetParametersOfInterest()->createIterator());
-    while( (poi = static_cast<RooRealVar*>(poiIterator->Next()))) {
-        std::map < std::string, double >::const_iterator it_poiValue = poiValues.find( poi -> GetName() );
+    for (auto poi_tmp : *mc->GetParametersOfInterest()) {
+        RooRealVar* poi = static_cast<RooRealVar*>(poi_tmp);
+        auto it_poiValue = poiValues.find( poi -> GetName() );
         if( it_poiValue != poiValues.end() ){
             poi -> setVal(it_poiValue -> second);
         }
@@ -4606,10 +4605,9 @@ RooDataSet* TRExFit::DumpData( RooWorkspace *ws,  std::map < std::string, int > 
 
     //-- Nuisance parameters
     if (mc->GetNuisanceParameters()) {
-        RooRealVar* var(nullptr);
-        std::unique_ptr<TIterator> npIterator(mc->GetNuisanceParameters()->createIterator());
-        while( (var = static_cast<RooRealVar*>(npIterator->Next()))) {
-            std::map < std::string, double >::const_iterator it_npValue = npValues.find( var -> GetName() );
+        for (auto var_tmp : *mc->GetNuisanceParameters()) {
+            RooRealVar* var = static_cast<RooRealVar*>(var_tmp);
+            auto it_npValue = npValues.find( var -> GetName() );
             if( it_npValue != npValues.end() ){
                 var -> setVal(it_npValue -> second);
             }
@@ -5865,11 +5863,10 @@ void TRExFit::ProduceNPRanking(const std::string& NPnames) {
 
     // Loop on NPs to find gammas and add to the list to be ranked
     if(NPnames=="all" || NPnames.find("gamma")!=std::string::npos){
-        RooRealVar* var(nullptr);
         const RooArgSet* nuis = static_cast<const RooArgSet*>(mc->GetNuisanceParameters());
         if(nuis){
-            std::unique_ptr<TIterator> it2(nuis->createIterator());
-            while( (var = static_cast<RooRealVar*>(it2->Next())) ){
+            for (auto var_tmp : *nuis){
+                RooRealVar* var = static_cast<RooRealVar*>(var_tmp);
                 const std::string& np = var->GetName();
                 if (np.find("saturated_model") != std::string::npos) continue;
                 if(np.find("gamma")!=std::string::npos){
@@ -7133,9 +7130,8 @@ void TRExFit::RunToys(){
         for(int i_toy = 0; i_toy < fFitToys; ++i_toy) {
 
             if (fToysPseudodataNP != "") {
-                std::unique_ptr<TIterator> it(mc.GetNuisanceParameters()->createIterator());
-                RooRealVar* var = nullptr;
-                while( (var = static_cast<RooRealVar*>(it->Next()))){
+                for (auto var_tmp : *mc.GetNuisanceParameters()){
+                    RooRealVar* var = static_cast<RooRealVar*>(var_tmp);
                     varname = var->GetName();
                     if (varname.find("alpha_")!=std::string::npos) {
                         var->setConstant(1);
@@ -7145,7 +7141,6 @@ void TRExFit::RunToys(){
                         var->setVal(1);
                     }
                 }
-                delete var;
             }
 
             // setting POI to constant, not to allow it to fluctuate in toy creation
@@ -7169,23 +7164,21 @@ void TRExFit::RunToys(){
             if (fToysPseudodataNP != "") {
                 const RooArgSet* nuis = static_cast<const RooArgSet*>(mc.GetNuisanceParameters());
                 if (nuis){
-                    RooRealVar* vartmp = nullptr;
-                    std::unique_ptr<TIterator> it2(nuis->createIterator());
-                    while( (vartmp = static_cast<RooRealVar*>(it2->Next()))){
-                        const std::string& np = vartmp->GetName();
+                    for (auto var_tmp : *nuis) {
+                        RooRealVar* var = static_cast<RooRealVar*>(var_tmp);
+                        const std::string& np = var->GetName();
                         if (np.find("alpha_")!=std::string::npos) {
-                            vartmp->setConstant(0);
-                            vartmp->setVal(0);
+                            var->setConstant(0);
+                            var->setVal(0);
                         }
                         else if(np.find("gamma_")!=std::string::npos){
-                            vartmp->setVal(1);
-                            vartmp->setConstant(0);
+                            var->setVal(1);
+                            var->setConstant(0);
                         }
                         else {  // for norm factors
-                            vartmp->setVal( 1 );
+                            var->setVal( 1 );
                         }
                     }
-                    delete vartmp;
                 }
             }
             for (std::size_t inf = 0; inf < nfs.size(); ++inf) {

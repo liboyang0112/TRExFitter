@@ -1732,11 +1732,10 @@ void MultiFit::ProduceNPRanking(const  std::string& NPnames) const {
 
     // Loop on NPs to find gammas and add to the list to be ranked
     if(NPnames=="all" || NPnames.find("gamma")!=string::npos){
-        RooRealVar* var = nullptr;
         const RooArgSet* nuis = static_cast<const RooArgSet*>(mc->GetNuisanceParameters());
         if(nuis){
-            std::unique_ptr<TIterator> it2(nuis->createIterator());
-            while( (var = static_cast<RooRealVar*>(it2->Next()))) {
+            for (auto var_tmp : *nuis) {
+                RooRealVar* var = static_cast<RooRealVar*>(var_tmp);
                 const std::string& np = var->GetName();
                 if (np.find("saturated_model") != std::string::npos) continue;
                 if(np.find("gamma")!=string::npos){
