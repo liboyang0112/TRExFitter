@@ -143,77 +143,74 @@ double FittingTool::FitPDF( RooStats::ModelConfig* model, RooAbsPdf* fitpdf, Roo
     WriteDebugStatus("FittingTool::FitPDF", "   -> Constant POI : " + std::to_string(poi->isConstant()));
     WriteDebugStatus("FittingTool::FitPDF", "   -> Value of POI : " + std::to_string(poi->getVal()));
 
-    RooRealVar* var(nullptr);
-    const RooArgSet* nuis = static_cast<const RooArgSet*>(model->GetNuisanceParameters());
-    if(nuis){
-        std::unique_ptr<TIterator> it2(nuis->createIterator());
-        while( (var = static_cast<RooRealVar*>(it2->Next())) ){
-            const std::string np = var->GetName();
-            bool found = false;
-            //
-            // first check if all systs, norm and gammas should be set to constant
-            if((np.find("gamma_stat")!=string::npos || np.find("gamma_shape_stat")!=string::npos) && m_noGammas){
-                WriteDebugStatus("FittingTool::FitPDF", "setting to constant : " + np + " at value " + std::to_string(var->getVal()));
-                var->setConstant( 1 );
-                var->setVal( 1 );
+    for(auto var_tmp : *model->GetNuisanceParameters()) {
+        RooRealVar* var = static_cast<RooRealVar*>(var_tmp);
+        const std::string np = var->GetName();
+        bool found = false;
+        //
+        // first check if all systs, norm and gammas should be set to constant
+        if((np.find("gamma_stat")!=string::npos || np.find("gamma_shape_stat")!=string::npos) && m_noGammas){
+            WriteDebugStatus("FittingTool::FitPDF", "setting to constant : " + np + " at value " + std::to_string(var->getVal()));
+            var->setConstant( 1 );
+            var->setVal( 1 );
+            found = true;
+        }
+        else if((np.find("alpha_")!=string::npos || (np.find("gamma_shape")!=string::npos && np.find("gamma_shape_stat")==string::npos)) && m_noSystematics){
+            WriteDebugStatus("FittingTool::FitPDF", "setting to constant : " + np + " at value " + std::to_string(var->getVal()));
+            var->setConstant( 1 );
+            var->setVal( 0 );
+            found = true;
+        }
+        else if(np.find("alpha_")==string::npos && np.find("gamma_")==string::npos && (m_noNormFactors || saturatedModel)){
+            WriteDebugStatus("FittingTool::FitPDF", "setting to constant : " + np + " at value " + std::to_string(var->getVal()));
+            var->setConstant( 1 );
+            found = true;
+        }
+        if(found) continue;
+        //
+        // set to constant the saturatedModel shape factor parameters if saturatedModel is left to false
+        if(np.find("saturated_model_sf_")!=std::string::npos && !saturatedModel){
+            WriteDebugStatus("FittingTool::FitPDF", "setting to constant : " + np + " at value " + std::to_string(var->getVal()));
+            var->setConstant( 1 );
+            found = true;
+        }
+        if(found) continue;
+        //
+        // loop on the NP specified to have custom starting value
+        for( unsigned int i_np = 0; i_np<m_initialNP.size(); i_np++ ){
+            if( np == ("alpha_"+m_initialNP[i_np]) || np == m_initialNP[i_np] ){
+                var->setVal(m_initialNPvalue[i_np]);
+                WriteInfoStatus("FittingTool::FitPDF", " ---> Setting " + m_initialNP[i_np] + " to "  +std::to_string(m_initialNPvalue[i_np]));
                 found = true;
+                break;
             }
-            else if((np.find("alpha_")!=string::npos || (np.find("gamma_shape")!=string::npos && np.find("gamma_shape_stat")==string::npos)) && m_noSystematics){
-                WriteDebugStatus("FittingTool::FitPDF", "setting to constant : " + np + " at value " + std::to_string(var->getVal()));
-                var->setConstant( 1 );
-                var->setVal( 0 );
+        }
+        //
+        // loop on the NP specified to be constant - This should be after setting to initial value
+        for( unsigned int i_np = 0; i_np<m_constNP.size(); i_np++ ){
+            if( np == ("alpha_"+m_constNP[i_np]) || np == m_constNP[i_np]
+                || np == ("gamma_"+m_constNP[i_np])
+            ){
+                WriteInfoStatus("FittingTool::FitPDF", "setting to constant : " + np + " at value " + std::to_string(m_constNPvalue[i_np]));
+                var->setVal(m_constNPvalue[i_np]);
+                var->setConstant(1);
                 found = true;
+                break;
             }
-            else if(np.find("alpha_")==string::npos && np.find("gamma_")==string::npos && (m_noNormFactors || saturatedModel)){
-                WriteDebugStatus("FittingTool::FitPDF", "setting to constant : " + np + " at value " + std::to_string(var->getVal()));
-                var->setConstant( 1 );
-                found = true;
+        }
+        if(!found){
+            if( np.find("alpha_")!=string::npos ){   // for syst NP
+                if(m_randomize) var->setVal( m_randomNP*(gRandom->Uniform(2)-1.) );
+                else            var->setVal(0);
+                var->setConstant(0);
             }
-            if(found) continue;
-            //
-            // set to constant the saturatedModel shape factor parameters if saturatedModel is left to false
-            if(np.find("saturated_model_sf_")!=std::string::npos && !saturatedModel){
-                WriteDebugStatus("FittingTool::FitPDF", "setting to constant : " + np + " at value " + std::to_string(var->getVal()));
-                var->setConstant( 1 );
-                found = true;
-            }
-            if(found) continue;
-            //
-            // loop on the NP specified to have custom starting value
-            for( unsigned int i_np = 0; i_np<m_initialNP.size(); i_np++ ){
-                if( np == ("alpha_"+m_initialNP[i_np]) || np == m_initialNP[i_np] ){
-                    var->setVal(m_initialNPvalue[i_np]);
-                    WriteInfoStatus("FittingTool::FitPDF", " ---> Setting " + m_initialNP[i_np] + " to "  +std::to_string(m_initialNPvalue[i_np]));
-                    found = true;
-                    break;
-                }
-            }
-            //
-            // loop on the NP specified to be constant - This should be after setting to initial value
-            for( unsigned int i_np = 0; i_np<m_constNP.size(); i_np++ ){
-                if( np == ("alpha_"+m_constNP[i_np]) || np == m_constNP[i_np]
-                    || np == ("gamma_"+m_constNP[i_np])
-                ){
-                    WriteInfoStatus("FittingTool::FitPDF", "setting to constant : " + np + " at value " + std::to_string(m_constNPvalue[i_np]));
-                    var->setVal(m_constNPvalue[i_np]);
-                    var->setConstant(1);
-                    found = true;
-                    break;
-                }
-            }
-            if(!found){
-                if( np.find("alpha_")!=string::npos ){   // for syst NP
-                    if(m_randomize) var->setVal( m_randomNP*(gRandom->Uniform(2)-1.) );
-                    else            var->setVal(0);
-                    var->setConstant(0);
-                }
-                else {  // for norm factors & gammas
-                    if(m_randomize) var->setVal( 1 + m_randomNP*(gRandom->Uniform(2)-1.) );
-                    else            var->setVal( 1 );
-                }
+            else {  // for norm factors & gammas
+                if(m_randomize) var->setVal( 1 + m_randomNP*(gRandom->Uniform(2)-1.) );
+                else            var->setVal( 1 );
             }
         }
     }
+    
 
     double nllval = nll->getVal();
     double nLLatMLE = 0.;//m_fitResult->minNll();
@@ -332,30 +329,34 @@ double FittingTool::FitPDF( RooStats::ModelConfig* model, RooAbsPdf* fitpdf, Roo
 
     if(m_useMinos){
         if (model->GetNuisanceParameters()) {
-            std::unique_ptr<TIterator> it3(model->GetNuisanceParameters()->createIterator());
-            std::unique_ptr<TIterator> it4(model->GetParametersOfInterest()->createIterator());
             std::unique_ptr<RooArgSet> SliceNPs(new RooArgSet( *(model->GetNuisanceParameters()) ));
             SliceNPs->add(*(model->GetParametersOfInterest()));
-            RooRealVar* var_tmp = nullptr;
-            RooRealVar* var2 = nullptr;
             WriteDebugStatus("FittingTool::FitPDF", "Size of variables for MINOS: " + std::to_string(m_varMinos.size()));
 
             if (m_varMinos.at(0)!="all"){
-                while( (var_tmp = static_cast<RooRealVar*>(it3->Next())) ){
-                    TString vname=var_tmp->GetName();
+                for(auto var_tmp : *model->GetNuisanceParameters()) {
+                    RooRealVar* var = static_cast<RooRealVar*>(var_tmp);
+                    const TString vname=var->GetName();
                     bool isthere=false;
                     for (unsigned int m=0;m<m_varMinos.size();++m){
-                        if(vname.Contains(m_varMinos.at(m))) {isthere=true; break;}
+                        if(vname.Contains(m_varMinos.at(m))) {
+                            isthere=true;
+                            break;
+                        }
                     }
-                    if (!isthere) SliceNPs->remove(*var_tmp, true, true);
+                    if (!isthere) SliceNPs->remove(*var, true, true);
                 }
-                while( (var2 = static_cast<RooRealVar*>(it4->Next())) ){
-                    TString vname=var2->GetName();
+                for(auto var_tmp : *model->GetParametersOfInterest()) {
+                    RooRealVar* var = static_cast<RooRealVar*>(var_tmp);
+                    const TString vname=var->GetName();
                     bool isthere=false;
                     for (unsigned int m=0;m<m_varMinos.size();++m){
-                        if(vname.Contains(m_varMinos.at(m))) {isthere=true; break;}
+                        if(vname.Contains(m_varMinos.at(m))) {
+                            isthere=true;
+                            break;
+                        }
                     }
-                    if (!isthere) SliceNPs->remove(*var2, true, true);
+                    if (!isthere) SliceNPs->remove(*var, true, true);
                 }
                 minim.minos(*SliceNPs);
             }
@@ -448,9 +449,8 @@ void FittingTool::ExportFitResultInTextFile( const std::string &fileName, const 
     ofstream nuisParAndCorr(fileName);
     nuisParAndCorr << "NUISANCE_PARAMETERS\n";
 
-    RooRealVar* var(nullptr);
-    std::unique_ptr<TIterator> param(m_fitResult -> floatParsFinal().createIterator());
-    while( (var = static_cast<RooRealVar*>(param->Next())) ){
+    for (auto var_tmp : m_fitResult->floatParsFinal()) {
+        RooRealVar* var = static_cast<RooRealVar*>(var_tmp);
 
         // Not consider nuisance parameter being not associated to syst (yet)
         std::string varname = var->GetName();
@@ -510,9 +510,8 @@ std::map < std::string, double > FittingTool::ExportFitResultInMap(){
         WriteErrorStatus("FittingTool::ExportFitResultInMap", "The FitResultObject seems not to be defined.");
         return result;
     }
-    RooRealVar* var(nullptr);
-    std::unique_ptr<TIterator> param(m_fitResult -> floatParsFinal().createIterator());
-    while( (var = static_cast<RooRealVar*>(param->Next())) ){
+    for (auto var_tmp : m_fitResult->floatParsFinal()) {
+        RooRealVar* var = static_cast<RooRealVar*>(var_tmp);
         // Not consider nuisance parameter being not associated to syst
         std::string varname = var->GetName();
         const double pull  = var->getVal();
@@ -666,29 +665,27 @@ void FittingTool::FitExcludingGroup(bool excludeGammas, bool statOnly, RooAbsDat
     WriteInfoStatus("FittingTool::FitExcludingGroup", "           breakdown for " + category);
     WriteInfoStatus("FittingTool::FitExcludingGroup", "-----------------------------------------------------");
 
-    std::unique_ptr<TIterator> it(mc->GetNuisanceParameters()->createIterator());
-    RooRealVar* var2(nullptr);
-
-    while( (var2 = static_cast<RooRealVar*>(it->Next())) ){
-        std::string varname = var2->GetName();
+    for ( auto var_tmp : *mc->GetNuisanceParameters()) {
+        RooRealVar* var = static_cast<RooRealVar*>(var_tmp);
+        std::string varname = var->GetName();
 
         // default: set everything non-constant (but the saturated-model norm-factors!)
-        if (varname.find("saturated_model_sf_")==std::string::npos) var2->setConstant(0);
-        else var2->setConstant(1);
+        if (varname.find("saturated_model_sf_")==std::string::npos) var->setConstant(0);
+        else var->setConstant(1);
 
         // if excludeGammas==true, set gammas to constant
         if (excludeGammas) {
-            if (varname.find("gamma_stat")!=string::npos) var2->setConstant(1);
+            if (varname.find("gamma_stat")!=string::npos) var->setConstant(1);
         }
 
         // set all affectedParams constant
         if (std::find(affectedParams.begin(), affectedParams.end(), varname) != affectedParams.end()) {
-            var2->setConstant(1);
+            var->setConstant(1);
         }
 
         // for stat-only fits, set everything constant
         if (statOnly) {
-            var2->setConstant(1);
+            var->setConstant(1);
         }
     }
 

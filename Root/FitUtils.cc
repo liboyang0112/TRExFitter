@@ -72,9 +72,7 @@ void FitUtils::ApplyExternalConstraints(RooWorkspace* ws,
 //__________________________________________________________________________________
 //
 void FitUtils::SetBinnedLikelihoodOptimisation(RooWorkspace* ws) {
-    RooFIter rfiter = ws->components().fwdIterator();
-    RooAbsArg* arg;
-    while ((arg = rfiter.next())) {
+    for (auto arg : ws->components()) {
         if (arg->IsA() == RooRealSumPdf::Class()) {
             arg->setAttribute("BinnedLikelihood");
             const std::string temp_string = arg->GetName();
