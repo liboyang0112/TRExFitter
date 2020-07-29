@@ -143,70 +143,72 @@ double FittingTool::FitPDF( RooStats::ModelConfig* model, RooAbsPdf* fitpdf, Roo
     WriteDebugStatus("FittingTool::FitPDF", "   -> Constant POI : " + std::to_string(poi->isConstant()));
     WriteDebugStatus("FittingTool::FitPDF", "   -> Value of POI : " + std::to_string(poi->getVal()));
 
-    for(auto var_tmp : *model->GetNuisanceParameters()) {
-        RooRealVar* var = static_cast<RooRealVar*>(var_tmp);
-        const std::string np = var->GetName();
-        bool found = false;
-        //
-        // first check if all systs, norm and gammas should be set to constant
-        if((np.find("gamma_stat")!=string::npos || np.find("gamma_shape_stat")!=string::npos) && m_noGammas){
-            WriteDebugStatus("FittingTool::FitPDF", "setting to constant : " + np + " at value " + std::to_string(var->getVal()));
-            var->setConstant( 1 );
-            var->setVal( 1 );
-            found = true;
-        }
-        else if((np.find("alpha_")!=string::npos || (np.find("gamma_shape")!=string::npos && np.find("gamma_shape_stat")==string::npos)) && m_noSystematics){
-            WriteDebugStatus("FittingTool::FitPDF", "setting to constant : " + np + " at value " + std::to_string(var->getVal()));
-            var->setConstant( 1 );
-            var->setVal( 0 );
-            found = true;
-        }
-        else if(np.find("alpha_")==string::npos && np.find("gamma_")==string::npos && (m_noNormFactors || saturatedModel)){
-            WriteDebugStatus("FittingTool::FitPDF", "setting to constant : " + np + " at value " + std::to_string(var->getVal()));
-            var->setConstant( 1 );
-            found = true;
-        }
-        if(found) continue;
-        //
-        // set to constant the saturatedModel shape factor parameters if saturatedModel is left to false
-        if(np.find("saturated_model_sf_")!=std::string::npos && !saturatedModel){
-            WriteDebugStatus("FittingTool::FitPDF", "setting to constant : " + np + " at value " + std::to_string(var->getVal()));
-            var->setConstant( 1 );
-            found = true;
-        }
-        if(found) continue;
-        //
-        // loop on the NP specified to have custom starting value
-        for( unsigned int i_np = 0; i_np<m_initialNP.size(); i_np++ ){
-            if( np == ("alpha_"+m_initialNP[i_np]) || np == m_initialNP[i_np] ){
-                var->setVal(m_initialNPvalue[i_np]);
-                WriteInfoStatus("FittingTool::FitPDF", " ---> Setting " + m_initialNP[i_np] + " to "  +std::to_string(m_initialNPvalue[i_np]));
+    if (model->GetNuisanceParameters()) {
+        for(auto var_tmp : *model->GetNuisanceParameters()) {
+            RooRealVar* var = static_cast<RooRealVar*>(var_tmp);
+            const std::string np = var->GetName();
+            bool found = false;
+            //
+            // first check if all systs, norm and gammas should be set to constant
+            if((np.find("gamma_stat")!=string::npos || np.find("gamma_shape_stat")!=string::npos) && m_noGammas){
+                WriteDebugStatus("FittingTool::FitPDF", "setting to constant : " + np + " at value " + std::to_string(var->getVal()));
+                var->setConstant( 1 );
+                var->setVal( 1 );
                 found = true;
-                break;
             }
-        }
-        //
-        // loop on the NP specified to be constant - This should be after setting to initial value
-        for( unsigned int i_np = 0; i_np<m_constNP.size(); i_np++ ){
-            if( np == ("alpha_"+m_constNP[i_np]) || np == m_constNP[i_np]
-                || np == ("gamma_"+m_constNP[i_np])
-            ){
-                WriteInfoStatus("FittingTool::FitPDF", "setting to constant : " + np + " at value " + std::to_string(m_constNPvalue[i_np]));
-                var->setVal(m_constNPvalue[i_np]);
-                var->setConstant(1);
+            else if((np.find("alpha_")!=string::npos || (np.find("gamma_shape")!=string::npos && np.find("gamma_shape_stat")==string::npos)) && m_noSystematics){
+                WriteDebugStatus("FittingTool::FitPDF", "setting to constant : " + np + " at value " + std::to_string(var->getVal()));
+                var->setConstant( 1 );
+                var->setVal( 0 );
                 found = true;
-                break;
             }
-        }
-        if(!found){
-            if( np.find("alpha_")!=string::npos ){   // for syst NP
-                if(m_randomize) var->setVal( m_randomNP*(gRandom->Uniform(2)-1.) );
-                else            var->setVal(0);
-                var->setConstant(0);
+            else if(np.find("alpha_")==string::npos && np.find("gamma_")==string::npos && (m_noNormFactors || saturatedModel)){
+                WriteDebugStatus("FittingTool::FitPDF", "setting to constant : " + np + " at value " + std::to_string(var->getVal()));
+                var->setConstant( 1 );
+                found = true;
             }
-            else {  // for norm factors & gammas
-                if(m_randomize) var->setVal( 1 + m_randomNP*(gRandom->Uniform(2)-1.) );
-                else            var->setVal( 1 );
+            if(found) continue;
+            //
+            // set to constant the saturatedModel shape factor parameters if saturatedModel is left to false
+            if(np.find("saturated_model_sf_")!=std::string::npos && !saturatedModel){
+                WriteDebugStatus("FittingTool::FitPDF", "setting to constant : " + np + " at value " + std::to_string(var->getVal()));
+                var->setConstant( 1 );
+                found = true;
+            }
+            if(found) continue;
+            //
+            // loop on the NP specified to have custom starting value
+            for( unsigned int i_np = 0; i_np<m_initialNP.size(); i_np++ ){
+                if( np == ("alpha_"+m_initialNP[i_np]) || np == m_initialNP[i_np] ){
+                    var->setVal(m_initialNPvalue[i_np]);
+                    WriteInfoStatus("FittingTool::FitPDF", " ---> Setting " + m_initialNP[i_np] + " to "  +std::to_string(m_initialNPvalue[i_np]));
+                    found = true;
+                    break;
+                }
+            }
+            //
+            // loop on the NP specified to be constant - This should be after setting to initial value
+            for( unsigned int i_np = 0; i_np<m_constNP.size(); i_np++ ){
+                if( np == ("alpha_"+m_constNP[i_np]) || np == m_constNP[i_np]
+                    || np == ("gamma_"+m_constNP[i_np])
+                ){
+                    WriteInfoStatus("FittingTool::FitPDF", "setting to constant : " + np + " at value " + std::to_string(m_constNPvalue[i_np]));
+                    var->setVal(m_constNPvalue[i_np]);
+                    var->setConstant(1);
+                    found = true;
+                    break;
+                }
+            }
+            if(!found){
+                if( np.find("alpha_")!=string::npos ){   // for syst NP
+                    if(m_randomize) var->setVal( m_randomNP*(gRandom->Uniform(2)-1.) );
+                    else            var->setVal(0);
+                    var->setConstant(0);
+                }
+                else {  // for norm factors & gammas
+                    if(m_randomize) var->setVal( 1 + m_randomNP*(gRandom->Uniform(2)-1.) );
+                    else            var->setVal( 1 );
+                }
             }
         }
     }
