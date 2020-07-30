@@ -1,9 +1,9 @@
 [submodule "CommonSystSmoothingTool"]
 	path = CommonSystSmoothingTool
-	url = ../../atlas-phys/exot/CommonSystSmoothingTool.git
+	url = ssh://git@gitlab.cern.ch:7999/atlas-phys/exot/CommonSystSmoothingTool.git
 [submodule "CommonStatTools"]
 	path = CommonStatTools
-	url = ../../atlas-phys/exot/CommonStatTools.git
+	url = ssh://git@gitlab.cern.ch:7999/atlas-phys/exot/CommonStatTools.git
 [submodule "yaml-cpp"]
 	path = yaml-cpp
 	url = https://github.com/jbeder/yaml-cpp.git
