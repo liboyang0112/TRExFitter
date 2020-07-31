@@ -49,7 +49,8 @@ RankingManager::RankingManager() :
     fSuffix(""),
     fRankingMaxNP(9999),
     fRankingPOIName(fName),
-    fUsePOISinRanking(false)
+    fUsePOISinRanking(false),
+    fUseHesseBeforeMigrad(false)
 {
 }
 
@@ -127,6 +128,7 @@ void RankingManager::RunRanking(FitResults* fitResults,
  
     FittingTool fitTool{};
     fitTool.SetUseHesse(false);
+    fitTool.SetUseHesseBeforeMigrad(fUseHesseBeforeMigrad);
     fitTool.SetStrategy(fFitStrategy);
     fitTool.SetDebug(TRExFitter::DEBUGLEVEL);
     fitTool.ValPOI(poiInitial);

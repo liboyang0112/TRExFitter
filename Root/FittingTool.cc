@@ -55,7 +55,8 @@ FittingTool::FittingTool():
     m_randSeed(-999),
     m_externalConstraints(nullptr),
     m_strategy(-1),
-    m_useHesse(true)
+    m_useHesse(true),
+    m_hesseBeforeMigrad(false)
 {
 }
 
@@ -269,9 +270,13 @@ double FittingTool::FitPDF( RooStats::ModelConfig* model, RooAbsPdf* fitpdf, Roo
     WriteInfoStatus("FittingTool::FitPDF", "======================");
     WriteInfoStatus("FittingTool::FitPDF", "");
 
+    if (m_hesseBeforeMigrad) {
+        minim.hesse();
+    }
+
     status = minim.minimize(minimType.Data(),algorithm.Data());
     if (m_useHesse) {
-        if (status == 0) {
+        if (status == 0 || m_hesseBeforeMigrad) {
             m_hessStatus = minim.hesse();
         } else {
             m_hessStatus = 0;
@@ -722,6 +727,9 @@ void FittingTool::FitExcludingGroup(bool excludeGammas, bool statOnly, RooAbsDat
     minim2.setMinimizerType(minimType);
     minim2.setPrintLevel(1);
     minim2.setEps(tol);
+    if (m_hesseBeforeMigrad) {
+        minim2.hesse();
+    }
     const int status = minim2.minimize(minimType.Data(),algorithm.Data());
     RooRealVar* thePOI = static_cast<RooRealVar*>(mc->GetParametersOfInterest()->first());
 

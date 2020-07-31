@@ -203,6 +203,7 @@ The following settings are for normal fits, performed without the action `m`. Th
 | FitStrategy                  | Set Minuit2 fitting strategy, can be: 0, 1 or 2. If negative value is set the default is used (1) |
 | BinnedLikelihoodOptimization | Can be set to TRUE or FALSE (default). If se to TRUE, will use the `BinnedLikelihood` optimisation of RooFit that has significant speed improvements, but results in less stable correlation matrix computation |
 | UsePOISinRanking | If set to `TRUE` (default is `FALSE`) will include POIs as NPs in the ranking |
+| UseHesseBeforeMigrad | If set to `TRUE` (default is `FALSE`) will run hesse() method before migrad, this can help with convergence in some cases |
 
 
 ### `Limit block` settings
@@ -528,6 +529,7 @@ These options are for multi-fits, performed with action `m`.
 | FitStrategy      | Set Minuit2 fitting strategy, can be: 0, 1 or 2. If negative value is set the default is used (1) |
 | BinnedLikelihoodOptimization | Can be set to TRUE or FALSE (default). If se to TRUE, will use the `BinnedLikelihood` optimisation of RooFit that has significant speed improvements, but results in less stable correlation matrix computation |
 | UsePOISinRanking | If set to `TRUE` (default is `FALSE`) will include POIs as NPs in the ranking |
+| UseHesseBeforeMigrad | If set to `TRUE` (default is `FALSE`) will run hesse() method before migrad, this can help with convergence in some cases |
 
 
 ### Multi-fit `Fit` block settings

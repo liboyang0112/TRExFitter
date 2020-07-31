@@ -838,6 +838,7 @@ public:
     bool fUnfoldNormXSec;
     int fUnfoldNormXSecBinN;
     bool fUsePOISinRanking;
+    bool fUseHesseBeforeMigrad;
 };
 
 #endif

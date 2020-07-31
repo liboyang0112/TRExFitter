@@ -137,7 +137,8 @@ MultiFit::MultiFit(const string& name) :
     fFitStrategy(-1),
     fCPU(1),
     fBinnedLikelihood(false),
-    fUsePOISinRanking(false)
+    fUsePOISinRanking(false),
+    fUseHesseBeforeMigrad(false)
 {
     fNPCategories.emplace_back("");
 }
@@ -331,6 +332,7 @@ std::map < std::string, double > MultiFit::FitCombinedWS(int fitType, const std:
     //
     FittingTool fitTool{};
     fitTool.SetUseHesse(true);
+    fitTool.SetUseHesseBeforeMigrad(fUseHesseBeforeMigrad);
     fitTool.SetStrategy(fFitStrategy);
     fitTool.SetDebug(TRExFitter::DEBUGLEVEL);
     fitTool.SetNCPU(fCPU);
@@ -1665,6 +1667,7 @@ void MultiFit::ProduceNPRanking(const  std::string& NPnames) const {
     // List of systematics to check
     //
     RankingManager manager{};
+    manager.SetUseHesseBeforeMigrad(fUseHesseBeforeMigrad);
     
     std::vector<string> systNames_unique;
     for(const auto& isyst : vSystematics) {
@@ -1817,6 +1820,7 @@ void MultiFit::PlotNPRanking(bool flagSysts, bool flagGammas) const {
     }
 
     RankingManager manager{};
+    manager.SetUseHesseBeforeMigrad(fUseHesseBeforeMigrad);
     manager.SetAtlasLabel(fFitList[0]->fAtlasLabel);
     manager.SetLumiLabel(fFitList[0]->fLumiLabel);
     manager.SetCmeLabel(fFitList[0]->fCmeLabel);
