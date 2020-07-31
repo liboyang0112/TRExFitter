@@ -307,7 +307,7 @@ double FittingTool::FitPDF( RooStats::ModelConfig* model, RooAbsPdf* fitpdf, Roo
         minim.setStrategy(strat);
         status = minim.minimize(minimType.Data(),algorithm.Data());
         if (m_useHesse) {
-            if (status == 0) {
+            if (status == 0 || m_hesseBeforeMigrad) {
                 m_hessStatus = minim.hesse();
             } else {
                 m_hessStatus = 0;
