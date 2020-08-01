@@ -3563,6 +3563,7 @@ RooStats::HistFactory::Sample TRExFit::OneSampleToRooStats(RooStats::HistFactory
     }
 
     if (fStatOnly) {
+        sample.AddOverallSys( "Dummy",1,1 );
         return sample;
     }
     // systematics
@@ -8064,6 +8065,7 @@ void TRExFit::PrepareUnfolding() {
             // Process systematics
             for (const auto& isyst : fUnfoldingSystematics) {
                 if (!isyst) continue;
+                if (isyst->GetName() == "Dummy") continue;
 
                 if(isyst->fRegions.at(0) != "all" &&
                      Common::FindInStringVector(isyst->fRegions, ireg->fName) < 0) continue;

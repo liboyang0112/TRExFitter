@@ -90,7 +90,7 @@ done
 
 for step in h w f ; do
   echo "==> stat only $step step ongoing"
-  ./build/bin/trex-fitter $step test/configs/FitExampleStatOnly.config StatOnlyFit=TRUE  >& LOG_STATONLY_$step
+  ./build/bin/trex-fitter $step test/configs/FitExampleStatOnly.config  >& LOG_STATONLY_$step
   cat LOG_STATONLY_$step | grep -v "TRExFitter" >& test/logs/FitExampleStatOnly/LOG_STATONLY_$step
   rm -f LOG_STATONLY_$step
 done
