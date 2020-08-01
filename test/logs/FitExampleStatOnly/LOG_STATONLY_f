@@ -9,8 +9,6 @@ Applying ATLAS style settings...
 
 [1;32m=== INFO::ConfigReader::ConfigReader: Started reading the config[0m
 [1;32m=== INFO::ConfigParser::ReadFile: Reading config file: test/configs/FitExampleStatOnly.config[0m
-[1;32m=== INFO::ConfigReader::ReadCommandLineOptions: -------------------------------------------[0m
-[1;32m=== INFO::ConfigReader::ReadCommandLineOptions: Running options: [0m
 === DEBUG::ConfigReader::SetJobPlot: PlotOptionsSummary not specified setting Summary values to 'PlotOptions'
 === DEBUG::ConfigReader::ReadGeneralOptions: You do not have 'Options' option in the config. It is ok, we just want to let you know.
 === DEBUG::ConfigReader::ReadLimitOptions: You do not have Limit option in the config. It is ok, we just want to let you know.
@@ -163,21 +161,6 @@ PDF:                     RooSimultaneous::simPdf[ indexCat=channelCat SR_1=model
   inputs:         channelCat==channelCat::SR_2
   interpretation: [channelCat]==1
 === DEBUG::TRExFit::PerformFit: Setting the variables to use MINOS with
-=== DEBUG::TRExFit::PerformFit: Fitting stat-only: reading fit results from full fit from file: 
-=== DEBUG::TRExFit::PerformFit:   FitExampleStatOnly/Fits/FitExampleStatOnly.txt
-[1;32m=== INFO::TRExFit::ReadFitResults: ------------------------------------------------------[0m
-[1;32m=== INFO::TRExFit::ReadFitResults: Reading fit results from file [0m
-=== DEBUG::FitResults::ReadFromTXT: --------------------
-=== DEBUG::FitResults::ReadFromTXT: Reading Nuisance Parameters...
-=== DEBUG::FitResults::ReadFromTXT: --------------------
-=== DEBUG::FitResults::ReadFromTXT: --------------------
-=== DEBUG::FitResults::ReadFromTXT: Reading Correlation Matrix...
-=== DEBUG::FitResults::ReadFromTXT: --------------------
-=== DEBUG::FitResults::ReadFromTXT: --------------------
-=== DEBUG::FitResults::ReadFromTXT: Reading Negative Log-Likelihood (NLL) value...
-=== DEBUG::FitResults::ReadFromTXT: --------------------
-=== DEBUG::FitResults::ReadFromTXT: Found 1 systematics.
-=== DEBUG::FitResults::ReadFromTXT: Negative Log-Likelihood value NLL = -0.090780
 === DEBUG::FittingTool::FitPDF: -> Entering in FitPDF function
 
 === Using the following for ModelConfig ===
@@ -207,8 +190,8 @@ RooAbsTestStatistic::initSimMode: creating slave calculator #1 for state SR_2 (4
 [#1] INFO:Minization -- RooNLLVar::evaluatePartition(SR_1) first = 0 last = 4 Likelihood offset now set to -1340.79
 [#1] INFO:Minization -- RooNLLVar::evaluatePartition(SR_2) first = 0 last = 4 Likelihood offset now set to -1340.79
 === DEBUG::FittingTool::FitPDF:    -> Initial value of the NLL = -2680.662447
-  1) 0x57ea170 RooRealVar:: SigXsecOverSM = 1  L(0 - 100)  "SigXsecOverSM"
-  2) 0x57cbf40 RooRealVar::   alpha_Dummy = 0 C  L(-5 - 5)  "alpha_Dummy"
+  1) 0x559b0d0 RooRealVar:: SigXsecOverSM = 1  L(0 - 100)  "SigXsecOverSM"
+  2) 0x557cea0 RooRealVar::   alpha_Dummy = 0 C  L(-5 - 5)  "alpha_Dummy"
 [#1] INFO:Fitting -- RooAddition::defaultErrorLevel(nll_simPdf_newasimovData_with_constr) Summation contains a RooNLLVar, using its error level
 [#1] INFO:Minization -- RooMinimizer::optimizeConst: activating const optimization
 [1;32m=== INFO::FittingTool::FitPDF: [0m
@@ -576,7 +559,7 @@ Info in <TCanvas::Print>: png file FitExampleStatOnly/LHoodPlots/NLLscan_SigXsec
 [1;32m=== INFO::TRExFit::PlotFittedNP: Stat only fit => No NP Pull plots generated.[0m
 [1;32m=== INFO::TRExFit::ReadFitResults: ------------------------------------------------------[0m
 [1;32m=== INFO::TRExFit::ReadFitResults: Reading fit results from file [0m
-Info in <TCanvas::Print>: png file FitExampleStatOnly/NormFactors_statOnly.png has been created
+Info in <TCanvas::Print>: png file FitExampleStatOnly/NormFactors.png has been created
 === DEBUG::FitResults::ReadFromTXT: --------------------
 === DEBUG::FitResults::ReadFromTXT: Reading Nuisance Parameters...
 === DEBUG::FitResults::ReadFromTXT: --------------------

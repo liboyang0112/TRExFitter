@@ -9,8 +9,6 @@ Applying ATLAS style settings...
 
 [1;32m=== INFO::ConfigReader::ConfigReader: Started reading the config[0m
 [1;32m=== INFO::ConfigParser::ReadFile: Reading config file: test/configs/FitExampleStatOnly.config[0m
-[1;32m=== INFO::ConfigReader::ReadCommandLineOptions: -------------------------------------------[0m
-[1;32m=== INFO::ConfigReader::ReadCommandLineOptions: Running options: [0m
 === DEBUG::ConfigReader::SetJobPlot: PlotOptionsSummary not specified setting Summary values to 'PlotOptions'
 === DEBUG::ConfigReader::ReadGeneralOptions: You do not have 'Options' option in the config. It is ok, we just want to let you know.
 === DEBUG::ConfigReader::ReadLimitOptions: You do not have Limit option in the config. It is ok, we just want to let you know.
@@ -96,55 +94,55 @@ Printing XML Files for channel: SR_2
 Finished printing XML files
 Finished printing XML files
 Getting histogram.  InputFile FitExampleStatOnly/Histograms/FitExampleStatOnly_histos.root HistoPath  HistoName SR_1_Data_regBin
-Opened input file: FitExampleStatOnly/Histograms/FitExampleStatOnly_histos.root: 0x462a030
+Opened input file: FitExampleStatOnly/Histograms/FitExampleStatOnly_histos.root: 0x3c5ea70
 Collecting Nominal Histogram
 Getting histogram.  InputFile FitExampleStatOnly/Histograms/FitExampleStatOnly_histos.root HistoPath  HistoName SR_1_Bkg1_regBin
-Opened input file: FitExampleStatOnly/Histograms/FitExampleStatOnly_histos.root: 0x46311e0
+Opened input file: FitExampleStatOnly/Histograms/FitExampleStatOnly_histos.root: 0x3c5f780
 Collecting Nominal Histogram
 Getting histogram.  InputFile FitExampleStatOnly/Histograms/FitExampleStatOnly_histos.root HistoPath  HistoName SR_1_Bkg2_regBin
-Opened input file: FitExampleStatOnly/Histograms/FitExampleStatOnly_histos.root: 0x462cd30
+Opened input file: FitExampleStatOnly/Histograms/FitExampleStatOnly_histos.root: 0x3c61560
 Collecting Nominal Histogram
 Getting histogram.  InputFile FitExampleStatOnly/Histograms/FitExampleStatOnly_histos.root HistoPath  HistoName SR_1_Signal_regBin
-Opened input file: FitExampleStatOnly/Histograms/FitExampleStatOnly_histos.root: 0x463f4e0
+Opened input file: FitExampleStatOnly/Histograms/FitExampleStatOnly_histos.root: 0x3c70af0
 Getting histogram.  InputFile FitExampleStatOnly/Histograms/FitExampleStatOnly_histos.root HistoPath  HistoName SR_2_Data_regBin
-Opened input file: FitExampleStatOnly/Histograms/FitExampleStatOnly_histos.root: 0x4640d20
+Opened input file: FitExampleStatOnly/Histograms/FitExampleStatOnly_histos.root: 0x3c76030
 Collecting Nominal Histogram
 Getting histogram.  InputFile FitExampleStatOnly/Histograms/FitExampleStatOnly_histos.root HistoPath  HistoName SR_2_Bkg1_regBin
-Opened input file: FitExampleStatOnly/Histograms/FitExampleStatOnly_histos.root: 0x4631c10
+Opened input file: FitExampleStatOnly/Histograms/FitExampleStatOnly_histos.root: 0x3c6f0f0
 Collecting Nominal Histogram
 Getting histogram.  InputFile FitExampleStatOnly/Histograms/FitExampleStatOnly_histos.root HistoPath  HistoName SR_2_Bkg2_regBin
-Opened input file: FitExampleStatOnly/Histograms/FitExampleStatOnly_histos.root: 0x46329e0
+Opened input file: FitExampleStatOnly/Histograms/FitExampleStatOnly_histos.root: 0x3c72d40
 Collecting Nominal Histogram
 Getting histogram.  InputFile FitExampleStatOnly/Histograms/FitExampleStatOnly_histos.root HistoPath  HistoName SR_2_Signal_regBin
-Opened input file: FitExampleStatOnly/Histograms/FitExampleStatOnly_histos.root: 0x46343d0
+Opened input file: FitExampleStatOnly/Histograms/FitExampleStatOnly_histos.root: 0x3c81170
 Measurement Name: FitExampleStatOnly	 OutputFilePrefix: FitExampleStatOnly/RooStats/FitExampleStatOnly	 POI: SigXsecOverSM	 Lumi: 1	 LumiRelErr: 0.1	 BinLow: 0	 BinHigh: 1	 ExportOnly: 1
 Constant Params:  Lumi
 Channels:
 	 Channel Name: SR_1	 InputFile: 
 	 Data:
-	 	 InputFile: FitExampleStatOnly/Histograms/FitExampleStatOnly_histos.root	 HistoName: SR_1_Data_regBin	 HistoPath: 	 HistoAddress: 0x463e8d0
+	 	 InputFile: FitExampleStatOnly/Histograms/FitExampleStatOnly_histos.root	 HistoName: SR_1_Data_regBin	 HistoPath: 	 HistoAddress: 0x3c70620
 	 statErrorConfig:
 	 	 RelErrorThreshold: 0	 ConstraintType: Poisson
 	 Samples: 
 	 	 Name: Bkg1	 	 Channel: SR_1	 NormalizeByTheory: True	 StatErrorActivate: False
-	 	 	 	 	 InputFile: FitExampleStatOnly/Histograms/FitExampleStatOnly_histos.root	 HistName: SR_1_Bkg1_regBin	 HistoPath: 	 HistoAddress: 0x4640130
+	 	 	 	 	 InputFile: FitExampleStatOnly/Histograms/FitExampleStatOnly_histos.root	 HistName: SR_1_Bkg1_regBin	 HistoPath: 	 HistoAddress: 0x3c71e80
 	 	 Name: Bkg2	 	 Channel: SR_1	 NormalizeByTheory: True	 StatErrorActivate: False
-	 	 	 	 	 InputFile: FitExampleStatOnly/Histograms/FitExampleStatOnly_histos.root	 HistName: SR_1_Bkg2_regBin	 HistoPath: 	 HistoAddress: 0x4641e00
+	 	 	 	 	 InputFile: FitExampleStatOnly/Histograms/FitExampleStatOnly_histos.root	 HistName: SR_1_Bkg2_regBin	 HistoPath: 	 HistoAddress: 0x3c73b50
 	 	 Name: Signal	 	 Channel: SR_1	 NormalizeByTheory: True	 StatErrorActivate: False
-	 	 	 	 	 InputFile: FitExampleStatOnly/Histograms/FitExampleStatOnly_histos.root	 HistName: SR_1_Signal_regBin	 HistoPath: 	 HistoAddress: 0x4643af0
+	 	 	 	 	 InputFile: FitExampleStatOnly/Histograms/FitExampleStatOnly_histos.root	 HistName: SR_1_Signal_regBin	 HistoPath: 	 HistoAddress: 0x3c75770
 	 End of Channel SR_1
 	 Channel Name: SR_2	 InputFile: 
 	 Data:
-	 	 InputFile: FitExampleStatOnly/Histograms/FitExampleStatOnly_histos.root	 HistoName: SR_2_Data_regBin	 HistoPath: 	 HistoAddress: 0x4632fa0
+	 	 InputFile: FitExampleStatOnly/Histograms/FitExampleStatOnly_histos.root	 HistoName: SR_2_Data_regBin	 HistoPath: 	 HistoAddress: 0x3c64040
 	 statErrorConfig:
 	 	 RelErrorThreshold: 0	 ConstraintType: Poisson
 	 Samples: 
 	 	 Name: Bkg1	 	 Channel: SR_2	 NormalizeByTheory: True	 StatErrorActivate: False
-	 	 	 	 	 InputFile: FitExampleStatOnly/Histograms/FitExampleStatOnly_histos.root	 HistName: SR_2_Bkg1_regBin	 HistoPath: 	 HistoAddress: 0x4634c00
+	 	 	 	 	 InputFile: FitExampleStatOnly/Histograms/FitExampleStatOnly_histos.root	 HistName: SR_2_Bkg1_regBin	 HistoPath: 	 HistoAddress: 0x3c65cf0
 	 	 Name: Bkg2	 	 Channel: SR_2	 NormalizeByTheory: True	 StatErrorActivate: False
-	 	 	 	 	 InputFile: FitExampleStatOnly/Histograms/FitExampleStatOnly_histos.root	 HistName: SR_2_Bkg2_regBin	 HistoPath: 	 HistoAddress: 0x4636890
+	 	 	 	 	 InputFile: FitExampleStatOnly/Histograms/FitExampleStatOnly_histos.root	 HistName: SR_2_Bkg2_regBin	 HistoPath: 	 HistoAddress: 0x3c80830
 	 	 Name: Signal	 	 Channel: SR_2	 NormalizeByTheory: True	 StatErrorActivate: False
-	 	 	 	 	 InputFile: FitExampleStatOnly/Histograms/FitExampleStatOnly_histos.root	 HistName: SR_2_Signal_regBin	 HistoPath: 	 HistoAddress: 0x4638560
+	 	 	 	 	 InputFile: FitExampleStatOnly/Histograms/FitExampleStatOnly_histos.root	 HistName: SR_2_Signal_regBin	 HistoPath: 	 HistoAddress: 0x3c67a00
 	 End of Channel SR_2
 End Measurement: FitExampleStatOnly
 Making Model and Measurements (Fast) for measurement: FitExampleStatOnly
