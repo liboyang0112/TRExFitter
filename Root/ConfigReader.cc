@@ -3720,6 +3720,22 @@ int ConfigReader::ReadSystOptions(){
     int nSys = 0;
 
     std::shared_ptr<Sample> sample = nullptr;
+    
+    if (fFitter->fStatOnly) {
+        int typed = Systematic::OVERALL;
+        std::shared_ptr<Systematic> sysd = std::make_shared<Systematic>("Dummy",typed);
+        sysd->fOverallUp   = 0.;
+        sysd->fOverallDown = -0.;
+        sysd->fScaleUp   = 1.;
+        sysd->fScaleDown   = 1.;
+        fFitter->fSystematics.emplace_back( sysd );
+        TRExFitter::SYSTMAP[sysd->fName] = "Dummy";
+        for(auto& isample : fFitter->fSamples) {
+            if(isample->fType == Sample::SIGNAL ) {
+                isample->AddSystematic(sysd);
+            }
+        }
+    }
 
     while(true){
         ConfigSet *confSet = fParser->GetConfigSet("Systematic",nSys);
