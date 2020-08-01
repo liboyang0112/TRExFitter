@@ -546,6 +546,12 @@ int ConfigReaderMulti::ReadJobOptions() {
         fMultiFitter->fBinnedLikelihood = Common::StringToBoolean(param);
     }
     
+    // Set UseHesseBeforeMigrad
+    param = confSet->Get("UseHesseBeforeMigrad");
+    if (param != "") {
+        fMultiFitter->fUseHesseBeforeMigrad = Common::StringToBoolean(param);
+    }
+    
     // Set UsePOISinRanking
     param = confSet->Get("UsePOISinRanking");
     if (param != "") {

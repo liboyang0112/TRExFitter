@@ -57,6 +57,7 @@ public:
     inline void SetRankingPOIName(const std::string& l){fRankingPOIName = l;}
     inline void SetRankingCanvasSize(const std::vector<int>& s){fNPRankingCanvasSize = s;}
     inline void SetUsePOISinRanking(const bool flag){fUsePOISinRanking = flag;}
+    inline void SetUseHesseBeforeMigrad(const bool flag){fUseHesseBeforeMigrad = flag;}
     
     void AddNuisPar(const std::string& name, const bool isNF);
 
@@ -92,6 +93,7 @@ private:
     std::string fRankingPOIName;
     std::vector<int> fNPRankingCanvasSize;
     bool fUsePOISinRanking;
+    bool fUseHesseBeforeMigrad;
     
     std::vector<double> RunSingleFit(FittingTool* fitTool,
                                      RooWorkspace* ws,       
