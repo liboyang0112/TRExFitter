@@ -1773,6 +1773,11 @@ int ConfigReader::ReadFitOptions(){
         fFitter->fUsePOISinRanking = Common::StringToBoolean(param);
     }
 
+    param = confSet->Get("UseHesseBeforeMigrad");
+    if (param != "") {
+        fFitter->fUseHesseBeforeMigrad = Common::StringToBoolean(param);
+    }
+
     return sc;
 }
 

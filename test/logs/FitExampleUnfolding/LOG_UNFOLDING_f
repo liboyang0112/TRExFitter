@@ -356,20 +356,20 @@ RooAbsTestStatistic::initSimMode: creating slave calculator #0 for state SR1 (11
 === DEBUG::FittingTool::FitPDF:    -> Value of POI : 0.000000
 [#1] INFO:Minization -- RooNLLVar::evaluatePartition(SR1) first = 0 last = 11 Likelihood offset now set to -198972
 === DEBUG::FittingTool::FitPDF:    -> Initial value of the NLL = -198966.778938
-  1) 0x58e15b0 RooRealVar::             Bin_001_mu = 0  L(-100 - 100)  "Bin_001_mu"
-  2) 0x58fb7d0 RooRealVar::             Bin_002_mu = 1  L(-100 - 100)  "Bin_002_mu"
-  3) 0x5919c40 RooRealVar::             Bin_003_mu = 1  L(-100 - 100)  "Bin_003_mu"
-  4) 0x5933e40 RooRealVar::             Bin_004_mu = 1  L(-100 - 100)  "Bin_004_mu"
-  5) 0x594e250 RooRealVar::             Bin_005_mu = 1  L(-100 - 100)  "Bin_005_mu"
-  6) 0x5968270 RooRealVar::             Bin_006_mu = 1  L(-100 - 100)  "Bin_006_mu"
-  7) 0x5982250 RooRealVar::             Bin_007_mu = 1  L(-100 - 100)  "Bin_007_mu"
-  8) 0x599c240 RooRealVar::             Bin_008_mu = 1  L(-100 - 100)  "Bin_008_mu"
-  9) 0x59b6650 RooRealVar::             Bin_009_mu = 1  L(-100 - 100)  "Bin_009_mu"
- 10) 0x59d0670 RooRealVar::             Bin_010_mu = 1  L(-100 - 100)  "Bin_010_mu"
- 11) 0x59ea690 RooRealVar::             Bin_011_mu = 1  L(-100 - 100)  "Bin_011_mu"
- 12) 0x589d900 RooRealVar::         alpha_Bkg_norm = 0  L(-5 - 5)  "alpha_Bkg_norm"
- 13) 0x589f5c0 RooRealVar::               alpha_PS = 0  L(-5 - 5)  "alpha_PS"
- 14) 0x589b910 RooRealVar:: alpha_bTag_SF_B_eigen0 = 0  L(-5 - 5)  "alpha_bTag_SF_B_eigen0"
+  1) 0x556cba0 RooRealVar::             Bin_001_mu = 0  L(-100 - 100)  "Bin_001_mu"
+  2) 0x5586dc0 RooRealVar::             Bin_002_mu = 1  L(-100 - 100)  "Bin_002_mu"
+  3) 0x55a5230 RooRealVar::             Bin_003_mu = 1  L(-100 - 100)  "Bin_003_mu"
+  4) 0x55bf430 RooRealVar::             Bin_004_mu = 1  L(-100 - 100)  "Bin_004_mu"
+  5) 0x55d9840 RooRealVar::             Bin_005_mu = 1  L(-100 - 100)  "Bin_005_mu"
+  6) 0x55f3860 RooRealVar::             Bin_006_mu = 1  L(-100 - 100)  "Bin_006_mu"
+  7) 0x560d840 RooRealVar::             Bin_007_mu = 1  L(-100 - 100)  "Bin_007_mu"
+  8) 0x5627830 RooRealVar::             Bin_008_mu = 1  L(-100 - 100)  "Bin_008_mu"
+  9) 0x5641c40 RooRealVar::             Bin_009_mu = 1  L(-100 - 100)  "Bin_009_mu"
+ 10) 0x565bc60 RooRealVar::             Bin_010_mu = 1  L(-100 - 100)  "Bin_010_mu"
+ 11) 0x5675c80 RooRealVar::             Bin_011_mu = 1  L(-100 - 100)  "Bin_011_mu"
+ 12) 0x5528ef0 RooRealVar::         alpha_Bkg_norm = 0  L(-5 - 5)  "alpha_Bkg_norm"
+ 13) 0x552abb0 RooRealVar::               alpha_PS = 0  L(-5 - 5)  "alpha_PS"
+ 14) 0x5526f00 RooRealVar:: alpha_bTag_SF_B_eigen0 = 0  L(-5 - 5)  "alpha_bTag_SF_B_eigen0"
 [#1] INFO:Fitting -- RooAddition::defaultErrorLevel(nll_simPdf_newasimovData_with_constr) Summation contains a RooNLLVar, using its error level
 [#1] INFO:Minization -- RooMinimizer::optimizeConst: activating const optimization
 [1;32m=== INFO::FittingTool::FitPDF: [0m
@@ -602,64 +602,60 @@ Minuit2Minimizer : Invalid Minimum - status = 3
 FVAL  = -198967
 Edm   = 604.828
 Nfcn  = 264
-Minuit2Minimizer::Hesse using max-calls 7000
-Info in matrix forced pos-def by adding to diagonal : padd = 0.0366087
-Info: MnHesse: matrix was forced pos. def. 
-Info in Minuit2Minimizer::Hesse : Hesse is valid - matrix is full but made positive defined
 [1;33m=== WARNING::FittingTool::FitPDF: [0m
 [1;33m=== WARNING::FittingTool::FitPDF:    *******************************[0m
 [1;33m=== WARNING::FittingTool::FitPDF:    * Increasing Minuit strategy (was 1)[0m
 [1;33m=== WARNING::FittingTool::FitPDF:    * Fit failed with : [0m
 [1;33m=== WARNING::FittingTool::FitPDF:       - minuit status -1[0m
-[1;33m=== WARNING::FittingTool::FitPDF:       - hess status 3[0m
-[1;33m=== WARNING::FittingTool::FitPDF:       - Edm = 600.241933[0m
+[1;33m=== WARNING::FittingTool::FitPDF:       - hess status 0[0m
+[1;33m=== WARNING::FittingTool::FitPDF:       - Edm = 604.828432[0m
 [1;33m=== WARNING::FittingTool::FitPDF:    * Retrying with strategy 2[0m
 [1;33m=== WARNING::FittingTool::FitPDF:    ********************************[0m
 [1;33m=== WARNING::FittingTool::FitPDF: [0m
 Minuit2Minimizer: Minimize with max-calls 7000 convergence for edm < 0.01 strategy 2
 MnSeedGenerator: for initial parameters FCN = 4.756815599614
-MnSeedGenerator: Initial state:   - FCN =   4.756815599614 Edm =      1251.36 NCalls =     57
-Info in matrix forced pos-def by adding to diagonal : padd = 0.0107718
+MnSeedGenerator: Initial state:   - FCN =   4.756815599614 Edm =      1251.85 NCalls =     57
+Info in matrix forced pos-def by adding to diagonal : padd = 0.0109671
 Info: MnHesse: matrix was forced pos. def. 
-MnSeedGenerator: run Hesse - new state:   - FCN =   4.756815599614 Edm =        588.9 NCalls =    205
+MnSeedGenerator: run Hesse - new state:   - FCN =   4.756815599614 Edm =      588.843 NCalls =    205
 VariableMetric: start iterating until Edm is < 1e-05
-VariableMetric: Initial state   - FCN =   4.756815599614 Edm =        588.9 NCalls =    205
-VariableMetric: Iteration #   0 - FCN =   4.756815599614 Edm =        588.9 NCalls =    205
-VariableMetric: Iteration #   1 - FCN =  -648.2663332978 Edm =       50.062 NCalls =    263
-VariableMetric: Iteration #   2 - FCN =  -703.5659862349 Edm =      18.3802 NCalls =    298
-VariableMetric: Iteration #   3 - FCN =  -710.4044226115 Edm =      5.03265 NCalls =    330
-VariableMetric: Iteration #   4 - FCN =  -715.0588947094 Edm =     0.669253 NCalls =    360
-VariableMetric: Iteration #   5 - FCN =  -715.9090492207 Edm =     0.297952 NCalls =    390
-VariableMetric: Iteration #   6 - FCN =  -716.4927840446 Edm =    0.0770206 NCalls =    420
-VariableMetric: Iteration #   7 - FCN =  -716.5913180889 Edm =      0.02289 NCalls =    450
-VariableMetric: Iteration #   8 - FCN =  -716.6442467507 Edm =   0.00652645 NCalls =    480
-VariableMetric: Iteration #   9 - FCN =  -716.6514087744 Edm =  0.000285727 NCalls =    510
-VariableMetric: Iteration #  10 - FCN =  -716.6518435571 Edm =  0.000210884 NCalls =    540
-VariableMetric: Iteration #  11 - FCN =  -716.6530964735 Edm =   0.00122219 NCalls =    571
-VariableMetric: Iteration #  12 - FCN =  -716.6633179912 Edm =     0.002946 NCalls =    605
-VariableMetric: Iteration #  13 - FCN =  -716.6678352006 Edm =  0.000479486 NCalls =    635
-VariableMetric: Iteration #  14 - FCN =  -716.6684301218 Edm =  5.52893e-05 NCalls =    665
-VariableMetric: Iteration #  15 - FCN =  -716.6684810517 Edm =  5.25718e-06 NCalls =    694
-VariableMetric: After Hessian   - FCN =  -716.6684810517 Edm =  3.14266e-06 NCalls =    842
-VariableMetric: Iteration #  16 - FCN =  -716.6684810517 Edm =  3.14266e-06 NCalls =    842
+VariableMetric: Initial state   - FCN =   4.756815599614 Edm =      588.843 NCalls =    205
+VariableMetric: Iteration #   0 - FCN =   4.756815599614 Edm =      588.843 NCalls =    205
+VariableMetric: Iteration #   1 - FCN =  -648.1137778904 Edm =      50.2369 NCalls =    263
+VariableMetric: Iteration #   2 - FCN =  -702.9930854665 Edm =       20.884 NCalls =    298
+VariableMetric: Iteration #   3 - FCN =  -710.2271373145 Edm =      4.97663 NCalls =    330
+VariableMetric: Iteration #   4 - FCN =  -715.0153742467 Edm =     0.672268 NCalls =    360
+VariableMetric: Iteration #   5 - FCN =  -715.8907151479 Edm =     0.311076 NCalls =    390
+VariableMetric: Iteration #   6 - FCN =  -716.4803764809 Edm =    0.0831795 NCalls =    420
+VariableMetric: Iteration #   7 - FCN =   -716.587182447 Edm =    0.0239659 NCalls =    450
+VariableMetric: Iteration #   8 - FCN =  -716.6428156788 Edm =   0.00764858 NCalls =    480
+VariableMetric: Iteration #   9 - FCN =  -716.6514455345 Edm =  0.000270379 NCalls =    510
+VariableMetric: Iteration #  10 - FCN =  -716.6519250749 Edm =  0.000203311 NCalls =    540
+VariableMetric: Iteration #  11 - FCN =  -716.6537771127 Edm =   0.00189772 NCalls =    571
+VariableMetric: Iteration #  12 - FCN =  -716.6639447024 Edm =   0.00250549 NCalls =    605
+VariableMetric: Iteration #  13 - FCN =  -716.6680707582 Edm =  0.000351018 NCalls =    636
+VariableMetric: Iteration #  14 - FCN =  -716.6684364153 Edm =  6.37777e-05 NCalls =    665
+VariableMetric: Iteration #  15 - FCN =  -716.6684817641 Edm =  2.96181e-06 NCalls =    695
+VariableMetric: After Hessian   - FCN =  -716.6684817641 Edm =  2.54179e-06 NCalls =    847
+VariableMetric: Iteration #  16 - FCN =  -716.6684817641 Edm =  2.54179e-06 NCalls =    847
 Minuit2Minimizer : Valid minimum - status = 0
-FVAL  = -716.668481051661502
-Edm   = 3.14266447162913708e-06
-Nfcn  = 842
-Bin_001_mu	  = 0.826113	 +/-  0.154408	(limited)
-Bin_002_mu	  = 0.675746	 +/-  0.245177	(limited)
-Bin_003_mu	  = 1.28688	 +/-  0.322183	(limited)
-Bin_004_mu	  = 0.0582076	 +/-  0.6551	(limited)
-Bin_005_mu	  = 1.67815	 +/-  0.653949	(limited)
-Bin_006_mu	  = 0.0546816	 +/-  0.692794	(limited)
-Bin_007_mu	  = 1.07492	 +/-  0.240743	(limited)
-Bin_008_mu	  = 0.817159	 +/-  0.248152	(limited)
-Bin_009_mu	  = 0.62832	 +/-  0.237853	(limited)
-Bin_010_mu	  = 1.02549	 +/-  0.138854	(limited)
-Bin_011_mu	  = 0.769486	 +/-  0.189412	(limited)
-alpha_Bkg_norm	  = -0.185887	 +/-  0.818684	(limited)
-alpha_PS	  = -0.06798	 +/-  0.988421	(limited)
-alpha_bTag_SF_B_eigen0	  = -7.61262e-05	 +/-  0.993349	(limited)
+FVAL  = -716.668481764137255
+Edm   = 2.54178996702503754e-06
+Nfcn  = 847
+Bin_001_mu	  = 0.826171	 +/-  0.154156	(limited)
+Bin_002_mu	  = 0.675765	 +/-  0.24495	(limited)
+Bin_003_mu	  = 1.2869	 +/-  0.322176	(limited)
+Bin_004_mu	  = 0.0583214	 +/-  0.654441	(limited)
+Bin_005_mu	  = 1.67817	 +/-  0.653771	(limited)
+Bin_006_mu	  = 0.0546545	 +/-  0.692429	(limited)
+Bin_007_mu	  = 1.07497	 +/-  0.240715	(limited)
+Bin_008_mu	  = 0.817225	 +/-  0.247955	(limited)
+Bin_009_mu	  = 0.62831	 +/-  0.237661	(limited)
+Bin_010_mu	  = 1.02551	 +/-  0.138645	(limited)
+Bin_011_mu	  = 0.769399	 +/-  0.189181	(limited)
+alpha_Bkg_norm	  = -0.186193	 +/-  0.81692	(limited)
+alpha_PS	  = -0.0680564	 +/-  0.988422	(limited)
+alpha_bTag_SF_B_eigen0	  = -8.02704e-05	 +/-  0.993349	(limited)
 Minuit2Minimizer::Hesse using max-calls 7000
 Info in Minuit2Minimizer::Hesse : Hesse is valid - matrix is accurate
 [1;32m=== INFO::FittingTool::FitPDF: [0m
@@ -669,16 +665,16 @@ Info in Minuit2Minimizer::Hesse : Hesse is valid - matrix is accurate
 [1;32m=== INFO::FittingTool::FitPDF:          FIT FINALIZED SUCCESSFULLY : [0m
 [1;32m=== INFO::FittingTool::FitPDF:             - minuit status 0[0m
 [1;32m=== INFO::FittingTool::FitPDF:             - hess status 0[0m
-[1;32m=== INFO::FittingTool::FitPDF:             - Edm = 0.000004[0m
+[1;32m=== INFO::FittingTool::FitPDF:             - Edm = 0.000003[0m
 [1;32m=== INFO::FittingTool::FitPDF: ***********************************************************[0m
-Real time 0:00:00, CP time 0.330
+Real time 0:00:00, CP time 0.290
 [1;32m=== INFO::FittingTool::FitPDF: [0m
 [1;32m=== INFO::FittingTool::FitPDF: [0m
 [1;32m=== INFO::FittingTool::FitPDF: [0m
-[1;32m=== INFO::FittingTool::FitPDF:    -> Reduced Final value of the NLL = -1199688.20423423941247165203[0m
-[1;32m=== INFO::FittingTool::FitPDF:    -> Final value of the NLL = -199688.204234[0m
+[1;32m=== INFO::FittingTool::FitPDF:    -> Reduced Final value of the NLL = -1199688.20423495210707187653[0m
+[1;32m=== INFO::FittingTool::FitPDF:    -> Final value of the NLL = -199688.204235[0m
 [1;32m=== INFO::FittingTool::FitPDF:    -> Final value of offset = -198971.535753[0m
-[1;32m=== INFO::FittingTool::FitPDF:    -> Final NLL - offset = -716.668481[0m
+[1;32m=== INFO::FittingTool::FitPDF:    -> Final NLL - offset = -716.668482[0m
 [1;32m=== INFO::TRExFit::ReadFitResults: ------------------------------------------------------[0m
 [1;32m=== INFO::TRExFit::ReadFitResults: Reading fit results from file [0m
 === DEBUG::FitResults::ReadFromTXT: --------------------

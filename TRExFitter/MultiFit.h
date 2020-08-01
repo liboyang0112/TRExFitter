@@ -203,6 +203,7 @@ public:
     int fCPU;
     bool fBinnedLikelihood;
     bool fUsePOISinRanking;
+    bool fUseHesseBeforeMigrad;
 };
 
 #endif

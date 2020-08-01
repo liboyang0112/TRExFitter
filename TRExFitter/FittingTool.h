@@ -71,6 +71,8 @@ public:
     inline void SetStrategy(const int strategy){m_strategy = strategy;}
     
     inline void SetUseHesse(const bool flag){m_useHesse = flag;}
+    
+    inline void SetUseHesseBeforeMigrad(const bool flag){m_hesseBeforeMigrad = flag;}
 
     //
     // Specific functions
@@ -141,6 +143,7 @@ private:
     const RooArgSet* m_externalConstraints;
     int m_strategy;
     bool m_useHesse;
+    bool m_hesseBeforeMigrad;
 };
 
 

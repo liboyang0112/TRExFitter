@@ -283,7 +283,8 @@ TRExFit::TRExFit(std::string name) :
     fValidationPruning(false),
     fUnfoldNormXSec(false),
     fUnfoldNormXSecBinN(-1),
-    fUsePOISinRanking(false)
+    fUsePOISinRanking(false),
+    fUseHesseBeforeMigrad(false)
 {
     TRExFitter::IMAGEFORMAT.emplace_back("png");
 }
@@ -4726,6 +4727,7 @@ std::map < std::string, double > TRExFit::PerformFit( RooWorkspace *ws, RooDataS
     //
     FittingTool fitTool{};
     fitTool.SetUseHesse(true);
+    fitTool.SetUseHesseBeforeMigrad(fUseHesseBeforeMigrad);
     fitTool.SetStrategy(fFitStrategy);
     fitTool.SetDebug(debugLevel);
     fitTool.SetNCPU(fCPU);
@@ -5739,6 +5741,7 @@ void TRExFit::ProduceNPRanking(const std::string& NPnames) {
     // List of systematics to check
     //
     RankingManager manager{};
+    manager.SetUseHesseBeforeMigrad(fUseHesseBeforeMigrad);
     std::vector<std::string> systNames_unique;
     for(const auto& isyst : fSystematics) {
         if(NPnames=="all" || NPnames==isyst->fNuisanceParameter ) {
@@ -5926,6 +5929,7 @@ void TRExFit::PlotNPRanking(const bool flagSysts, const bool flagGammas) const{
     }
 
     RankingManager manager{};
+    manager.SetUseHesseBeforeMigrad(fUseHesseBeforeMigrad);
     manager.SetAtlasLabel(fAtlasLabel);
     manager.SetLumiLabel(fLumiLabel);
     manager.SetCmeLabel(fCmeLabel);
