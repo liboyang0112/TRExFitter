@@ -3,7 +3,7 @@
 #include "TH2.h"
 
 #include <exception>
-
+#include <stdexcept>
 void UnfoldingTools::NormalizeMatrix(TH2* matrix, const bool byRow) {
     if (!matrix) {
         throw std::runtime_error{"UnfoldingTools::NormalizeMatrix: Nullptr passed!"};
