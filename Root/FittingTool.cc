@@ -342,7 +342,7 @@ double FittingTool::FitPDF( RooStats::ModelConfig* model, RooAbsPdf* fitpdf, Roo
         return 0;
     }
 
-    if(m_useMinos){
+    if(m_useMinos && !saturatedModel){
         if (model->GetNuisanceParameters()) {
             std::unique_ptr<RooArgSet> SliceNPs(new RooArgSet( *(model->GetNuisanceParameters()) ));
             SliceNPs->add(*(model->GetParametersOfInterest()));
