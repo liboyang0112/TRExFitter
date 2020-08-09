@@ -583,7 +583,7 @@ void HistoReader::ReadOneRegion(const int i_ch, const bool is_data) {
         //
         // read nominal
         //
-        std::vector<std::string> fullPaths = fFitter->FullHistogramPaths(fFitter->fRegions[i_ch],ismp.get());
+        std::vector<std::string> fullPaths = fFitter->FullHistogramPaths(fFitter->fRegions[i_ch],ismp.get(), nullptr, true, ismp->fIsFolded);
 
         if (!is_data) {
             for (const auto& ipath : fullPaths){
@@ -726,7 +726,8 @@ std::unique_ptr<TH1> HistoReader::GetSystHisto(const int i_ch,
         const auto& fullPaths = fFitter->FullHistogramPaths(fFitter->fRegions[i_ch],
                                                             fFitter->fSamples[i_smp].get(),
                                                             syst,
-                                                            is_up);
+                                                            is_up,
+                                                            fFitter->fSamples[i_smp]->fIsFolded);
         
         if (!is_data) {
             for (const auto& ipath : fullPaths){

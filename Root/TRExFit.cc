@@ -7545,7 +7545,7 @@ std::vector<std::string> TRExFit::FullNtuplePaths(Region *reg,Sample *smp,System
 
 //__________________________________________________________________________________
 // Computes the full list of path + file-name + histogram-name string to be used when reading ntuples, for a given region, sample and systematic combination
-std::vector<std::string> TRExFit::FullHistogramPaths(Region *reg,Sample *smp,Systematic *syst,bool isUp){
+std::vector<std::string> TRExFit::FullHistogramPaths(Region *reg,Sample *smp,Systematic *syst,bool isUp, const bool isFolded){
     // protection against nullptr
     if(reg==nullptr){
         WriteErrorStatus("TRExFit::FullHistogramPaths","Null pointer for Region.");
@@ -7610,44 +7610,44 @@ std::vector<std::string> TRExFit::FullHistogramPaths(Region *reg,Sample *smp,Sys
     // (same order as above used for suffix order - OK? FIXME)
     if(syst!=nullptr){
         if(isData && syst->fSubtractRefSampleVar && syst->fReferenceSample==smp->fName){
-            if(isUp) pathSuffs = Common::CombinePathSufs( Common::CombinePathSufs( reg->fHistoPathSuffs, smp->fHistoPathSuffs ), Common::ToVec(syst->fHistoPathSufUpRefSample) );
-            else     pathSuffs = Common::CombinePathSufs( Common::CombinePathSufs( reg->fHistoPathSuffs, smp->fHistoPathSuffs ), Common::ToVec(syst->fHistoPathSufDownRefSample) );
+            if(isUp) pathSuffs = Common::CombinePathSufs( Common::CombinePathSufs( reg->fHistoPathSuffs, smp->fHistoPathSuffs, isFolded ), Common::ToVec(syst->fHistoPathSufUpRefSample), isFolded );
+            else     pathSuffs = Common::CombinePathSufs( Common::CombinePathSufs( reg->fHistoPathSuffs, smp->fHistoPathSuffs, isFolded ), Common::ToVec(syst->fHistoPathSufDownRefSample), isFolded );
         }
         else{
-            if(isUp) pathSuffs = Common::CombinePathSufs( Common::CombinePathSufs( reg->fHistoPathSuffs, smp->fHistoPathSuffs ), Common::ToVec(syst->fHistoPathSufUp) );
-            else     pathSuffs = Common::CombinePathSufs( Common::CombinePathSufs( reg->fHistoPathSuffs, smp->fHistoPathSuffs ), Common::ToVec(syst->fHistoPathSufDown) );
+            if(isUp) pathSuffs = Common::CombinePathSufs( Common::CombinePathSufs( reg->fHistoPathSuffs, smp->fHistoPathSuffs, isFolded ), Common::ToVec(syst->fHistoPathSufUp), isFolded );
+            else     pathSuffs = Common::CombinePathSufs( Common::CombinePathSufs( reg->fHistoPathSuffs, smp->fHistoPathSuffs, isFolded ), Common::ToVec(syst->fHistoPathSufDown), isFolded );
         }
     }
     else{
-        pathSuffs = Common::CombinePathSufs( reg->fHistoPathSuffs, smp->fHistoPathSuffs );
+        pathSuffs = Common::CombinePathSufs( reg->fHistoPathSuffs, smp->fHistoPathSuffs, isFolded );
     }
     //
     if(syst!=nullptr){
         if(isData && syst->fSubtractRefSampleVar && syst->fReferenceSample==smp->fName){
-            if(isUp) fileSuffs = Common::CombinePathSufs( Common::CombinePathSufs( reg->fHistoFileSuffs, smp->fHistoFileSuffs ), Common::ToVec(syst->fHistoFileSufUpRefSample) );
-            else     fileSuffs = Common::CombinePathSufs( Common::CombinePathSufs( reg->fHistoFileSuffs, smp->fHistoFileSuffs ), Common::ToVec(syst->fHistoFileSufDownRefSample) );
+            if(isUp) fileSuffs = Common::CombinePathSufs( Common::CombinePathSufs( reg->fHistoFileSuffs, smp->fHistoFileSuffs, isFolded ), Common::ToVec(syst->fHistoFileSufUpRefSample), isFolded );
+            else     fileSuffs = Common::CombinePathSufs( Common::CombinePathSufs( reg->fHistoFileSuffs, smp->fHistoFileSuffs, isFolded ), Common::ToVec(syst->fHistoFileSufDownRefSample), isFolded );
         }
         else{
-            if(isUp) fileSuffs = Common::CombinePathSufs( Common::CombinePathSufs( reg->fHistoFileSuffs, smp->fHistoFileSuffs ), Common::ToVec(syst->fHistoFileSufUp) );
-            else     fileSuffs = Common::CombinePathSufs( Common::CombinePathSufs( reg->fHistoFileSuffs, smp->fHistoFileSuffs ), Common::ToVec(syst->fHistoFileSufDown) );
+            if(isUp) fileSuffs = Common::CombinePathSufs( Common::CombinePathSufs( reg->fHistoFileSuffs, smp->fHistoFileSuffs, isFolded ), Common::ToVec(syst->fHistoFileSufUp), isFolded );
+            else     fileSuffs = Common::CombinePathSufs( Common::CombinePathSufs( reg->fHistoFileSuffs, smp->fHistoFileSuffs, isFolded ), Common::ToVec(syst->fHistoFileSufDown), isFolded );
         }
     }
     else{
-        fileSuffs = Common::CombinePathSufs( reg->fHistoFileSuffs, smp->fHistoFileSuffs );
+        fileSuffs = Common::CombinePathSufs( reg->fHistoFileSuffs, smp->fHistoFileSuffs, isFolded );
     }
     //
     if(syst!=nullptr){
         if(isData && syst->fSubtractRefSampleVar && syst->fReferenceSample==smp->fName){
-            if(isUp) nameSuffs = Common::CombinePathSufs( Common::CombinePathSufs( reg->fHistoNameSuffs, smp->fHistoNameSuffs ), Common::ToVec(syst->fHistoNameSufUpRefSample) );
-            else     nameSuffs = Common::CombinePathSufs( Common::CombinePathSufs( reg->fHistoNameSuffs, smp->fHistoNameSuffs ), Common::ToVec(syst->fHistoNameSufDownRefSample) );
+            if(isUp) nameSuffs = Common::CombinePathSufs( Common::CombinePathSufs( reg->fHistoNameSuffs, smp->fHistoNameSuffs, isFolded ), Common::ToVec(syst->fHistoNameSufUpRefSample), isFolded );
+            else     nameSuffs = Common::CombinePathSufs( Common::CombinePathSufs( reg->fHistoNameSuffs, smp->fHistoNameSuffs, isFolded ), Common::ToVec(syst->fHistoNameSufDownRefSample), isFolded );
         }
         else{
-            if(isUp) nameSuffs = Common::CombinePathSufs( Common::CombinePathSufs( reg->fHistoNameSuffs, smp->fHistoNameSuffs ), Common::ToVec(syst->fHistoNameSufUp) );
-            else     nameSuffs = Common::CombinePathSufs( Common::CombinePathSufs( reg->fHistoNameSuffs, smp->fHistoNameSuffs ), Common::ToVec(syst->fHistoNameSufDown) );
+            if(isUp) nameSuffs = Common::CombinePathSufs( Common::CombinePathSufs( reg->fHistoNameSuffs, smp->fHistoNameSuffs, isFolded ), Common::ToVec(syst->fHistoNameSufUp), isFolded );
+            else     nameSuffs = Common::CombinePathSufs( Common::CombinePathSufs( reg->fHistoNameSuffs, smp->fHistoNameSuffs, isFolded ), Common::ToVec(syst->fHistoNameSufDown), isFolded );
         }
     }
     else{
-      nameSuffs = Common::CombinePathSufs( Common::CombinePathSufs( reg->fHistoNameSuffs, smp->fHistoNameSuffs), fHistoNamesNominal );
+      nameSuffs = Common::CombinePathSufs( Common::CombinePathSufs( reg->fHistoNameSuffs, smp->fHistoNameSuffs, isFolded), fHistoNamesNominal, isFolded );
     }
     //
     // And finally put everything together

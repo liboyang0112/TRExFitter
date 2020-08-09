@@ -83,7 +83,7 @@ void MergeUnderOverFlow(TH1* h);
 std::vector<std::string> CreatePathsList(std::vector<std::string> paths, std::vector<std::string> pathSufs,
                                          std::vector<std::string> files, std::vector<std::string> fileSufs,
                                          std::vector<std::string> names, std::vector<std::string> nameSufs);
-std::vector<std::string> CombinePathSufs(std::vector<std::string> pathSufs, std::vector<std::string> newPathSufs );
+std::vector<std::string> CombinePathSufs(std::vector<std::string> pathSufs, std::vector<std::string> newPathSufs, const bool isFolded = false);
 std::vector<std::string> ToVec(const std::string& s);
 std::string ReplaceString(std::string subject, const std::string& search,
                           const std::string& replace);
