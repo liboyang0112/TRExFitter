@@ -329,8 +329,13 @@ std::vector<std::string> Common::CreatePathsList(std::vector<std::string> paths,
 //__________________________________________________________________________________
 //
 std::vector<std::string> Common::CombinePathSufs(std::vector<std::string> pathSufs,
-                                                 std::vector<std::string> newPathSufs) {
+                                                 std::vector<std::string> newPathSufs,
+                                                 const bool isFolded) {
     std::vector<std::string> output;
+    if (isFolded) {
+        output.emplace_back("");
+        return output;
+    }
     if(pathSufs.size()==0) pathSufs.emplace_back("");
     if(newPathSufs.size()==0) newPathSufs.emplace_back("");
     for(std::size_t i=0;i<pathSufs.size();i++){

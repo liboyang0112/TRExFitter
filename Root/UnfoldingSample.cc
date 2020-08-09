@@ -32,6 +32,7 @@ std::vector<std::shared_ptr<Sample> > UnfoldingSample::ConvertToSample(const Reg
         sample->fHistoFiles = Common::ToVec("FoldedHistograms");
         const std::string histoName = "nominal/" + reg->fName + "_" + fName + "_bin_" + std::to_string(ibin);
         sample->fHistoNames = Common::ToVec(histoName);
+        sample->fIsFolded = true;
     
         result.emplace_back(sample);
     }
