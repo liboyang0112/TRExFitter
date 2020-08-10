@@ -102,7 +102,7 @@ LikelihoodScanManager::scanResult1D LikelihoodScanManager::Run1DScan(const RooWo
                     WriteInfoStatus("LikelihoodScanManager::Run1DScan", "GetLikelihoodScan for NP = " + vname);
                     found=true;
 
-                    if ((vname.find("gamma_") != std::string::npos) || (vname.find("shape_") != std::string::npos)) {
+                    if ((vname.find("gamma_") != std::string::npos)) {
                         min = 0.5;
                         max = 1.5;
                     }
