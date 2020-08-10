@@ -536,10 +536,11 @@ std::map < std::string, double > MultiFit::FitCombinedWS(int fitType, const std:
     //
     // Calls the  function to create LH scan with respect to a parameter
     //
+    const std::vector<std::string> parameters = FitUtils::GetAllParameters(mc);
     if(fVarNameLH.size()>0 && !doLHscanOnly && !fParal2D){ // Skip 1Dscan when paralelizing 2D
         if (fVarNameLH[0]=="all"){
-            for(map<string,string>::iterator it=TRExFitter::SYSTMAP.begin(); it!=TRExFitter::SYSTMAP.end(); ++it){
-                GetLikelihoodScan( ws, it->first, data, true);
+            for(const auto& iparam : parameters) {
+                GetLikelihoodScan( ws, iparam, data, true);
             }
         } else{
             for(const auto& iLH : fVarNameLH){
@@ -554,8 +555,8 @@ std::map < std::string, double > MultiFit::FitCombinedWS(int fitType, const std:
         }
         if (fVarNameLH[0]=="all"){
             WriteWarningStatus("MultiFit::MultiFit","You are running LHscan only option but running it for all parameters. Will not parallelize!.");
-            for(map<string,string>::iterator it=TRExFitter::SYSTMAP.begin(); it!=TRExFitter::SYSTMAP.end(); ++it){
-                GetLikelihoodScan( ws, it->first, data, true);
+            for(const auto& iparam : parameters) {
+                GetLikelihoodScan( ws, iparam, data, true);
             }
         } else {
             GetLikelihoodScan( ws, fVarNameLH[0], data, true);

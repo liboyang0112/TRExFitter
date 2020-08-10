@@ -168,3 +168,26 @@ void FitUtils::SetPOIinFile(const std::string& path, const std::string& poi) {
 
     f->Close();
 }
+
+//__________________________________________________________________________________
+//
+std::vector<std::string> FitUtils::GetAllParameters(const RooStats::ModelConfig* mc) {
+
+    if (!mc) {
+        WriteErrorStatus("FitUtils::GetAllParameters", "ModelCOnfig is nullptr");
+        exit(EXIT_FAILURE);
+    }
+
+    std::vector<std::string> params;
+    for (const auto& i : *mc->GetParametersOfInterest()) {
+        params.emplace_back(i->GetName());
+    }
+    
+    if (mc->GetNuisanceParameters()) {
+        for (const auto& i : *mc->GetNuisanceParameters()) {
+            params.emplace_back(i->GetName());
+        }
+    }
+
+    return params;
+}

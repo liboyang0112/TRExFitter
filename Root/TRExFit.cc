@@ -4477,6 +4477,13 @@ void TRExFit::Fit(bool isLHscanOnly){
     //
     // Calls the  function to create LH scan with respect to a parameter
     //
+    // get list of all parameters
+    RooStats::ModelConfig* mc = dynamic_cast<RooStats::ModelConfig*>(ws->obj("ModelConfig"));
+    if (!mc) {
+        WriteErrorStatus("TRExFit::Fit", "Passed nullptr for mc");
+        exit(EXIT_FAILURE);
+    }
+    const std::vector<std::string> parameters = FitUtils::GetAllParameters(mc);
     if(fVarNameLH.size()>0 && !isLHscanOnly && !fParal2D){
         //
         // Don't do it if you did a non-profile fit (FIXME)
@@ -4484,14 +4491,14 @@ void TRExFit::Fit(bool isLHscanOnly){
             WriteWarningStatus("TRExFit::Fit","Better not to perform LH scan if you did non-profile fit with scan on systematics. Skipping LH scan.");
         }
         else{
-            if (fVarNameLH[0]=="all"){
-                for(std::map<std::string,std::string>::iterator it=TRExFitter::SYSTMAP.begin(); it!=TRExFitter::SYSTMAP.end(); ++it){
-                    GetLikelihoodScan( ws.get(), it->first, data.get());
+            if (fVarNameLH[0]=="all") {
+                for(const auto& iparam : parameters) {
+                    GetLikelihoodScan( ws.get(), iparam, data.get());
                 }
             }
             else{
-                for(unsigned int i=0; i<fVarNameLH.size(); ++i){
-                    GetLikelihoodScan( ws.get(), fVarNameLH[i], data.get());
+                for(const auto& iparam : fVarNameLH) {
+                    GetLikelihoodScan( ws.get(), iparam, data.get());
                 }
             }
         }
@@ -4503,8 +4510,8 @@ void TRExFit::Fit(bool isLHscanOnly){
         }
         if (fVarNameLH[0]=="all"){
             WriteWarningStatus("TRExFit::Fit","You are running LHscan only option but running it for all parameters. Will not parallelize!.");
-            for(std::map<std::string,std::string>::iterator it=TRExFitter::SYSTMAP.begin(); it!=TRExFitter::SYSTMAP.end(); ++it){
-                GetLikelihoodScan( ws.get(), it->first, data.get());
+            for(const auto& iparam : parameters) {
+                GetLikelihoodScan( ws.get(), iparam, data.get());
             }
         } else {
             GetLikelihoodScan( ws.get(), fVarNameLH[0], data.get());
