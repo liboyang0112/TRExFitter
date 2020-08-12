@@ -173,11 +173,11 @@ ATLAS uses the method known as `InterpCode=4` by default.
 The current `pyhf` default (as of version 0.5.1) is interpolation code 1.
 You can switch to the ATLAS default code by modifying the script above (in section ["Running a fit with pyhf"](#running-a-fit-with-pyhf)).
 Replace
-```
+```python
 model = workspace.model()
 ```
 by
-```
+```python
 model = workspace.model(
     modifier_settings={
         "normsys": {"interpcode": "code4"},
