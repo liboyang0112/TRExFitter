@@ -64,6 +64,7 @@
 ???+ question "How do I access files on EOS via the TRExFitter image?"
     You need to install `xrootd`, which is not available by default within the image.
     See [this question in the RECAST forum](https://atlas-talk.web.cern.ch/t/how-do-i-use-xrootd-with-the-trexfitter-image/104).
+    See also [this gitlab issue](https://gitlab.cern.ch/atlas-amglab/atlstats/-/issues/16).
 
 ???+ question "Where can I learn more about docker?"
     There are many resources available online.
