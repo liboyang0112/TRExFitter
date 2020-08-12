@@ -252,7 +252,7 @@ int ConfigReader::ReadJobOptions(){
     ConfigSet *confSet = fParser->GetConfigSet("Job");
     if (confSet == nullptr){
         WriteErrorStatus("ConfigReader::ReadJobOptions", "You need to provide JOB settings!");
-        ++sc;
+        return 1;
     }
 
     if (fFitter->fDir == "") {

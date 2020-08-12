@@ -8,6 +8,7 @@
 // c++ includes
 #include <algorithm>
 #include <exception>
+#include <filesystem>
 #include <fstream>
 #include <iostream>
 #include <map>
@@ -224,11 +225,15 @@ ConfigParser::ConfigParser() :
 //__________________________________________________________________________________
 //
 void ConfigParser::ReadFile(const std::string& fileName){
+    if (!std::filesystem::is_regular_file(fileName)) {
+        WriteErrorStatus("ConfigParser::ReadFile", "Path: " + fileName + " is not a regular file path");
+        exit(EXIT_FAILURE);
+    }
     WriteInfoStatus("ConfigParser::ReadFile", "Reading config file: " + fileName);
     std::ifstream file(fileName.c_str());
-    if(!file.is_open()){
+    if(!file.is_open() || !file.good()){
         WriteErrorStatus("ConfigParser::ReadFile", "The config file cannot be opened: " + fileName);
-        exit(-1);
+        exit(EXIT_FAILURE);
     }
     std::string str, val;
     //

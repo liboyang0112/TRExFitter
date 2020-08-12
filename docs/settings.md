@@ -665,6 +665,7 @@ These options are for multi-fits, performed with action `m`.
 | DivideByBinWidth | if set to TRUE will divide the bin content by bin width in the final plot with unfolded data |
 | UnfoldNormXSec  | if set to TRUE the result will be in the form of normalized cross-section, or relative cross-section, sigma(bin-1)/sigma(tot): the total cross-section is fitted as nuisance parameter, and the relative cross-section in one of the bins (selectable with the option `UnfoldNormXSecBinN`) is obtained as 1 - the other relative cross-sections (error is propagated) |
 | UnfoldNormXSecBinN | in case `UnfoldNormXSec` is set to TRUE, one can specify which bin to obtain as a function of the cross-sections in the other bins (if not set, the last bin of the truth distribution will be selected) |
+| AlternativeAsimovTruthSample | Can be used to create Asimov dataset by folding alternative (non-nominal) truth sample that is provided to get the reco distribution for the signal. |
 
 ### TruthSample block
 | **Option** | **Function** |
