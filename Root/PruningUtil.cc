@@ -193,6 +193,9 @@ bool PruningUtil::HasShapeKS(const TH1* const hNom,
 
     if (hUp->GetNbinsX() == 1) return false;
 
+    if (std::abs(hUp->Integral()) < 1e-6) return true;
+    if (std::abs(hDown->Integral()) < 1e-6) return true;
+
     const double probThreshold = 1 - threshold;
 
     // first try up histogram
