@@ -235,23 +235,24 @@ void ConfigParser::ReadFile(const std::string& fileName){
     std::map<std::string,std::string> fReplacement;
     std::string replacementFileName="";
     // loop over the file once to automatically find the replacement fileName
-    while (getline(file, str)){
-        replace( str.begin(), str.end(), '\n', ' ');
-        replace( str.begin(), str.end(), '\r', ' ');
-        replace( str.begin(), str.end(), '\t', ' ');
-        if (str.find_first_not_of(' ') != std::string::npos) {
-            if (str[str.find_first_not_of(' ')] == '%') continue;
-            if (str[str.find_first_not_of(' ')] == '#') continue;
-        }
-        if ( str.find("ReplacementFile")==std::string::npos ) continue;
-        replacementFileName=Second(str);
-        break;
+    if((fileName.find("jobSchema.config") == std::string::npos)){
+    	while (getline(file, str)){
+    	    replace( str.begin(), str.end(), '\n', ' ');
+    	    replace( str.begin(), str.end(), '\r', ' ');
+    	    replace( str.begin(), str.end(), '\t', ' ');
+    	    if (str.find_first_not_of(' ') != std::string::npos) {
+    	        if (str[str.find_first_not_of(' ')] == '%') continue;
+    	        if (str[str.find_first_not_of(' ')] == '#') continue;
+    	    }
+    	    if ( str.find("ReplacementFile")==std::string::npos ) continue;
+    	    replacementFileName=Second(str);
+    		file.close();
+    	    break;
+    	}
     }
-    file.close();
-    file.clear();
     if (replacementFileName!="" && (fileName.find("jobSchema.config") == std::string::npos)) {
         WriteInfoStatus("ConfigParser::ReadFile", "Opening replacement file: " + replacementFileName + " to fill the map");
-        std::ifstream fileR(replacementFileName.c_str());
+        std::ifstream fileR(fileName.c_str());
         if(!fileR.is_open()){
             WriteErrorStatus("ConfigParser::ReadFile", "The replacement file: " + replacementFileName + " cannot be opened!");
             exit(-1);
@@ -265,9 +266,9 @@ void ConfigParser::ReadFile(const std::string& fileName){
             fReplacement[First(str)]=Second(str);
         }
         fileR.close();
+    	file.open(replacementFileName.c_str());
     }
     //
-    file.open(fileName.c_str());
     std::vector<std::string> valVec;
     bool reading = false;
     int n = 1;
