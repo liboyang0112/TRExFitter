@@ -121,6 +121,15 @@ int ConfigReaderMulti::ReadJobOptions() {
 
     fMultiFitter->fName = Common::CheckName(confSet->GetValue());
 
+    // Set POIName
+    param = confSet->Get("POIName");
+    if( param != "" ) {
+        const auto tmp =  Common::Vectorize(param, ',');
+        for (const auto& i : tmp) {
+            fMultiFitter->AddPOI(i);
+        }
+    }
+
     // Set OutputDir
     param = confSet->Get("OutputDir");
     if(param !=""){
@@ -171,7 +180,14 @@ int ConfigReaderMulti::ReadJobOptions() {
 
     // Ser POITitle
     param = confSet->Get("POITitle");
-    if( param != "") fMultiFitter->fPOITitle = Common::RemoveQuotes(param);
+    if (param != "") {
+        const auto vec = Common::Vectorize(param, ',');
+        if (vec.size () != fMultiFitter->fPOIs.size()) {
+            WriteErrorStatus("ConfigReaderMulti::ReadJobOptions", "You specified 'POITitle' option but you didn't pass the same number of parameters as the number of POIs. Please check this!");
+            ++sc;
+        }
+        fMultiFitter->fPOITitle = vec;
+     }
 
     // Set CompareLimits
     param = confSet->Get("CompareLimits");
@@ -231,15 +247,6 @@ int ConfigReaderMulti::ReadJobOptions() {
     param = confSet->Get("IncludeStatOnly");
     if( param != ""){
         fMultiFitter->fIncludeStatOnly = Common::StringToBoolean(param);
-    }
-
-    // Set POIName
-    param = confSet->Get("POIName");
-    if( param != "" ) {
-        const auto tmp =  Common::Vectorize(param, ',');
-        for (const auto& i : tmp) {
-            fMultiFitter->AddPOI(i);
-        }
     }
 
     // Set POILabel
