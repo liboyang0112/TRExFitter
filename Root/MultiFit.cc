@@ -80,7 +80,6 @@ MultiFit::MultiFit(const string& name) :
     fLabel(""),
     fShowObserved(false),
     fLimitTitle("95% CL limit on XXX"),
-    fPOITitle("best fit XXX"),
     fRankingOnly("all"),
     fGroupedImpactCategory("all"),
     fLimitMax(0),
@@ -899,7 +898,7 @@ void MultiFit::ComparePOI(const string& POI, const std::size_t index) const {
     gPad->SetLeftMargin( 2*gPad->GetLeftMargin() );
     gPad->SetBottomMargin( 1.15*gPad->GetBottomMargin() );
     gPad->SetTopMargin( 1.8*gPad->GetTopMargin() );
-    h_dummy.GetXaxis()->SetTitle(fPOITitle.c_str());
+    h_dummy.GetXaxis()->SetTitle(fPOITitle.at(index).c_str());
     h_dummy.GetYaxis()->SetTickSize(0);
 
     c.RedrawAxis();

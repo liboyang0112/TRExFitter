@@ -476,7 +476,7 @@ These options are for multi-fits, performed with action `m`.
 | SaveSuf                      | added to file name of histograms, for usage with hupdate (equivalent to command line option) |
 | ShowObserved                 | can be TRUE or FALSE, flag to turn on/off the observed values on the plots |
 | LimitTitle                   | the title for limit that will be shown on the plots |
-| POITitle                     | the title of the POI that will be shown on X axis  |
+| POITitle                     | the title of the POIs, separated by commas, that will be shown on X axis  |
 | CompareLimits                | can be TRUE or FALSE, flag to compare to Limit values |
 | ComparePOI                   | can be TRUE or FALSE, flag to compare to POI values |
 | ComparePulls                 | can be TRUE or FALSE, flag to compare to pulls values |
