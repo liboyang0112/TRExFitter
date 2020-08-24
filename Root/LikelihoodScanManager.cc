@@ -129,16 +129,18 @@ LikelihoodScanManager::scanResult1D LikelihoodScanManager::Run1DScan(const RooWo
     result.first.resize(fStepsX);
     result.second.resize(fStepsX);
 
+    const auto offset = fUseOffset ? kTRUE : kFALSE;
+
     std::unique_ptr<RooAbsReal> nll(nullptr);
     if (mc->GetNuisanceParameters()) {
         nll.reset(simPdf->createNLL(*data,
                                     RooFit::Constrain(*mc->GetNuisanceParameters()),
-                                    RooFit::Offset(fUseOffset),
+                                    RooFit::Offset(offset),
                                     NumCPU(fCPU, RooFit::Hybrid),
                                     RooFit::Optimize(kTRUE)));
     } else {
         nll.reset(simPdf->createNLL(*data,
-                                    RooFit::Offset(fUseOffset),
+                                    RooFit::Offset(offset),
                                     NumCPU(fCPU, RooFit::Hybrid),
                                     RooFit::Optimize(kTRUE)));
     }
@@ -260,16 +262,18 @@ LikelihoodScanManager::Result2D LikelihoodScanManager::Run2DScan(const RooWorksp
         maxValY = fScanMaxY;
     }
     
+    const auto offset = fUseOffset ? kTRUE : kFALSE;
+    
     std::unique_ptr<RooAbsReal> nll(nullptr);
     if (mc->GetNuisanceParameters()) {
         nll.reset(simPdf->createNLL(*data,
                                     RooFit::Constrain(*mc->GetNuisanceParameters()),
-                                    RooFit::Offset(fUseOffset),
+                                    RooFit::Offset(offset),
                                     NumCPU(fCPU, RooFit::Hybrid),
                                     RooFit::Optimize(kTRUE)));
     } else {
         nll.reset(simPdf->createNLL(*data,
-                                    RooFit::Offset(fUseOffset),
+                                    RooFit::Offset(offset),
                                     NumCPU(fCPU, RooFit::Hybrid),
                                     RooFit::Optimize(kTRUE)));
     }
