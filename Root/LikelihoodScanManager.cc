@@ -130,16 +130,19 @@ LikelihoodScanManager::scanResult1D LikelihoodScanManager::Run1DScan(const RooWo
     result.second.resize(fStepsX);
 
     const auto offset = fUseOffset ? kTRUE : kFALSE;
+    const RooArgSet* glbObs = mc->GetGlobalObservables();
 
     std::unique_ptr<RooAbsReal> nll(nullptr);
     if (mc->GetNuisanceParameters()) {
         nll.reset(simPdf->createNLL(*data,
                                     RooFit::Constrain(*mc->GetNuisanceParameters()),
+                                    RooFit::GlobalObservables(*glbObs),
                                     RooFit::Offset(offset),
                                     NumCPU(fCPU, RooFit::Hybrid),
                                     RooFit::Optimize(kTRUE)));
     } else {
         nll.reset(simPdf->createNLL(*data,
+                                    RooFit::GlobalObservables(*glbObs),
                                     RooFit::Offset(offset),
                                     NumCPU(fCPU, RooFit::Hybrid),
                                     RooFit::Optimize(kTRUE)));
@@ -150,21 +153,28 @@ LikelihoodScanManager::scanResult1D LikelihoodScanManager::Run1DScan(const RooWo
     ROOT::Math::MinimizerOptions::SetDefaultPrintLevel(-1);
     const double tol =        ::ROOT::Math::MinimizerOptions::DefaultTolerance(); //AsymptoticCalculator enforces not less than 1 on this
     
-    RooMinimizer m(*nll); // get MINUIT interface of fit
-    m.setPrintLevel(-1);
-    m.setStrategy(1);
-    m.optimizeConst(2);
-    m.setEps(tol);
-    var->setConstant(kTRUE); // make POI constant in the fit
-    
     double mnll = 9999999;
+    var->setConstant(kTRUE); // make POI constant in the fit
     for (int ipoint = 0; ipoint < fStepsX; ++ipoint) {
+
+        RooMinimizer m(*nll); // get MINUIT interface of fit
+        m.setPrintLevel(-1);
+        m.setStrategy(1);
+        m.optimizeConst(2);
+        m.setEps(tol);
+
         WriteInfoStatus("LikelihoodScanManager::Run1DScan","Running LHscan for point " + std::to_string(ipoint+1) + " out of " + std::to_string(fStepsX) + " points");
         result.first[ipoint] = min+ipoint*(max-min)/(fStepsX - 1);
         *var = result.first[ipoint]; // set POI
+        const double nllval = nll->getVal();
+        //m.minimize(minimType.Data(),algorithm.Data()); // minimize again with new posSigXsecOverSM value
         m.migrad(); // minimize again with new posSigXsecOverSM value
         std::unique_ptr<RooFitResult> r(m.save()); // save fit result
-        result.second[ipoint] = r->minNll();
+        if (r) {
+            result.second[ipoint] = r->minNll();
+        } else {
+            result.second[ipoint] = nllval;
+        }
         if (result.second[ipoint] < mnll) mnll = result.second[ipoint];
     }
     var->setConstant(kFALSE);
@@ -263,16 +273,19 @@ LikelihoodScanManager::Result2D LikelihoodScanManager::Run2DScan(const RooWorksp
     }
     
     const auto offset = fUseOffset ? kTRUE : kFALSE;
+    const RooArgSet* glbObs = mc->GetGlobalObservables();
     
     std::unique_ptr<RooAbsReal> nll(nullptr);
     if (mc->GetNuisanceParameters()) {
         nll.reset(simPdf->createNLL(*data,
                                     RooFit::Constrain(*mc->GetNuisanceParameters()),
+                                    RooFit::GlobalObservables(*glbObs),
                                     RooFit::Offset(offset),
                                     NumCPU(fCPU, RooFit::Hybrid),
                                     RooFit::Optimize(kTRUE)));
     } else {
         nll.reset(simPdf->createNLL(*data,
+                                    RooFit::GlobalObservables(*glbObs),
                                     RooFit::Offset(offset),
                                     NumCPU(fCPU, RooFit::Hybrid),
                                     RooFit::Optimize(kTRUE)));
@@ -283,13 +296,6 @@ LikelihoodScanManager::Result2D LikelihoodScanManager::Run2DScan(const RooWorksp
     ROOT::Math::MinimizerOptions::SetDefaultPrintLevel(-1);
     const double tol =        ::ROOT::Math::MinimizerOptions::DefaultTolerance();
 
-    RooMinimizer m(*nll); // get MINUIT interface of fit
-    m.optimizeConst(2);
-    m.setErrorLevel(-1);
-    m.setPrintLevel(-1);
-    m.setStrategy(1); // set precision to high
-    m.setEps(tol);
-    //Set both POIs to constant
     varX->setConstant(kTRUE); // make POI constant in the fit
     varY->setConstant(kTRUE); // make POI constant in the fit
 
@@ -303,6 +309,13 @@ LikelihoodScanManager::Result2D LikelihoodScanManager::Run2DScan(const RooWorksp
     //values for parameter1, parameter2 and the NLL value
     double zmin = 9999999;
     for (int ipoint = 0; ipoint < fStepsX; ++ipoint) {
+        RooMinimizer m(*nll); // get MINUIT interface of fit
+        m.optimizeConst(2);
+        m.setErrorLevel(-1);
+        m.setPrintLevel(-1);
+        m.setStrategy(1); // set precision to high
+        m.setEps(tol);
+        //Set both POIs to constant
         if (fParal2D && ipoint != fParal2Dstep) continue;
         WriteInfoStatus("LikelihoodScanManager::Run2DScan","Running LHscan for point " + std::to_string(ipoint+1) + " out of " + std::to_string(fStepsX) + " points");
         result.x[ipoint] = minValX + ipoint * (maxValX - minValX) / (fStepsX - 1);
@@ -311,9 +324,15 @@ LikelihoodScanManager::Result2D LikelihoodScanManager::Run2DScan(const RooWorksp
             WriteInfoStatus("LikelihoodScanManager::Run2DScan","Running LHscan for subpoint " + std::to_string(jpoint+1) + " out of " + std::to_string(fStepsY) + " points");
             result.y[jpoint] = minValY + jpoint * (maxValY - minValY) / (fStepsY - 1);
             *varY = result.y[jpoint]; // set POI
+            const double nllval = nll->getVal();
             m.migrad(); // minimize again with new posSigXsecOverSM value
             std::unique_ptr<RooFitResult> r(m.save()); // save fit result
-            const double z_tmp = r->minNll();
+            double z_tmp(0);
+            if (r) {
+                z_tmp = r->minNll();
+            } else {
+                z_tmp = nllval;
+            }
             result.z[ipoint][jpoint] = z_tmp;
 
             // save the best values
