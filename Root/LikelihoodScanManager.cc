@@ -1,6 +1,7 @@
 #include "TRExFitter/LikelihoodScanManager.h"
 
 #include "TRExFitter/Common.h"
+#include "TRExFitter/FitUtils.h"
 #include "TRExFitter/StatusLogbook.h"
 
 #include "TRandom3.h"
@@ -155,6 +156,9 @@ LikelihoodScanManager::scanResult1D LikelihoodScanManager::Run1DScan(const RooWo
     
     double mnll = 9999999;
     var->setConstant(kTRUE); // make POI constant in the fit
+
+    const std::size_t nFree = FitUtils::NumberOfFreeParameters(mc);
+
     for (int ipoint = 0; ipoint < fStepsX; ++ipoint) {
 
         RooMinimizer m(*nll); // get MINUIT interface of fit
@@ -167,15 +171,18 @@ LikelihoodScanManager::scanResult1D LikelihoodScanManager::Run1DScan(const RooWo
         result.first[ipoint] = min+ipoint*(max-min)/(fStepsX - 1);
         *var = result.first[ipoint]; // set POI
         const double nllval = nll->getVal();
-        //m.minimize(minimType.Data(),algorithm.Data()); // minimize again with new posSigXsecOverSM value
-        m.migrad(); // minimize again with new posSigXsecOverSM value
-        std::unique_ptr<RooFitResult> r(m.save()); // save fit result
+        std::unique_ptr<RooFitResult> r(nullptr);
+        if (nFree != 0) {
+            m.migrad(); // minimize again with new posSigXsecOverSM value
+            r.reset(m.save()); // save fit result
+        }
         if (r) {
             result.second[ipoint] = r->minNll();
         } else {
             result.second[ipoint] = nllval;
         }
         if (result.second[ipoint] < mnll) mnll = result.second[ipoint];
+        WriteDebugStatus("LikelihoodScanManager::Run1DScan", "Point: " + std::to_string(result.first[ipoint]) + ", nll: " + std::to_string(result.second[ipoint]));
     }
     var->setConstant(kFALSE);
 
@@ -298,6 +305,8 @@ LikelihoodScanManager::Result2D LikelihoodScanManager::Run2DScan(const RooWorksp
 
     varX->setConstant(kTRUE); // make POI constant in the fit
     varY->setConstant(kTRUE); // make POI constant in the fit
+    
+    const std::size_t nFree = FitUtils::NumberOfFreeParameters(mc);
 
     result.x.resize(fStepsX);
     result.y.resize(fStepsY);
@@ -309,24 +318,27 @@ LikelihoodScanManager::Result2D LikelihoodScanManager::Run2DScan(const RooWorksp
     //values for parameter1, parameter2 and the NLL value
     double zmin = 9999999;
     for (int ipoint = 0; ipoint < fStepsX; ++ipoint) {
-        RooMinimizer m(*nll); // get MINUIT interface of fit
-        m.optimizeConst(2);
-        m.setErrorLevel(-1);
-        m.setPrintLevel(-1);
-        m.setStrategy(1); // set precision to high
-        m.setEps(tol);
         //Set both POIs to constant
         if (fParal2D && ipoint != fParal2Dstep) continue;
         WriteInfoStatus("LikelihoodScanManager::Run2DScan","Running LHscan for point " + std::to_string(ipoint+1) + " out of " + std::to_string(fStepsX) + " points");
         result.x[ipoint] = minValX + ipoint * (maxValX - minValX) / (fStepsX - 1);
         *varX = result.x[ipoint]; // set POI
         for (int jpoint = 0; jpoint < fStepsY; ++jpoint) {
+            RooMinimizer m(*nll); // get MINUIT interface of fit
+            m.optimizeConst(2);
+            m.setErrorLevel(-1);
+            m.setPrintLevel(-1);
+            m.setStrategy(1); // set precision to high
+            m.setEps(tol);
             WriteInfoStatus("LikelihoodScanManager::Run2DScan","Running LHscan for subpoint " + std::to_string(jpoint+1) + " out of " + std::to_string(fStepsY) + " points");
             result.y[jpoint] = minValY + jpoint * (maxValY - minValY) / (fStepsY - 1);
             *varY = result.y[jpoint]; // set POI
             const double nllval = nll->getVal();
-            m.migrad(); // minimize again with new posSigXsecOverSM value
-            std::unique_ptr<RooFitResult> r(m.save()); // save fit result
+            std::unique_ptr<RooFitResult> r(nullptr);
+            if (nFree != 0) {
+                m.migrad(); // minimize again with new posSigXsecOverSM value
+                r.reset(m.save()); // save fit result
+            }
             double z_tmp(0);
             if (r) {
                 z_tmp = r->minNll();
@@ -334,6 +346,7 @@ LikelihoodScanManager::Result2D LikelihoodScanManager::Run2DScan(const RooWorksp
                 z_tmp = nllval;
             }
             result.z[ipoint][jpoint] = z_tmp;
+            WriteDebugStatus("LikelihoodScanManager::Run2DScan", "Point x: " + std::to_string(result.x[ipoint]) + ", y: " + std::to_string(result.y[jpoint]) + ", nll: " + std::to_string(result.z[ipoint][jpoint]));
 
             // save the best values
             if (z_tmp < zmin) {
