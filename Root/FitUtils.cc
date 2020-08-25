@@ -191,3 +191,27 @@ std::vector<std::string> FitUtils::GetAllParameters(const RooStats::ModelConfig*
 
     return params;
 }
+
+
+//__________________________________________________________________________________
+//
+std::size_t FitUtils::NumberOfFreeParameters(const RooStats::ModelConfig* mc) {
+    if (!mc) {
+        WriteErrorStatus("FitUtils::NumberOfFreeParameters", "ModelCOnfig is nullptr");
+        exit(EXIT_FAILURE);
+    }
+
+    std::size_t result(0);
+
+    for (const auto& i : *mc->GetParametersOfInterest()) {
+        if (!i->isConstant()) ++result;
+    }
+    
+    if (mc->GetNuisanceParameters()) {
+        for (const auto& i : *mc->GetNuisanceParameters()) {
+            if (!i->isConstant()) ++result;
+        }
+    }
+
+    return result;
+}

@@ -241,17 +241,17 @@ PDF:                     RooSimultaneous::simPdf[ indexCat=channelCat SR_1=model
   interpretation: [channelCat]==1
 [#1] INFO:ObjectHandling -- RooWorkspace::import(combined) importing dataset newasimovData
 [#1] INFO:ObjectHandling -- RooWorkSpace::import(combined) changing name of dataset from  newasimovData to ttHFitterData
-  1) 0x50270c0 RooRealVar::        alpha_Bkg1Xsec = 0  L(-5 - 5)  "alpha_Bkg1Xsec"
-  2) 0x5001380 RooRealVar::        alpha_Bkg2Xsec = 0  L(-5 - 5)  "alpha_Bkg2Xsec"
-  3) 0x5024e10 RooRealVar::             alpha_JES = 0  L(-5 - 5)  "alpha_JES"
-  4) 0x4e93620 RooRealVar:: gamma_stat_SR_1_bin_0 = 1 +/- 0.0302604  L(0 - 1.1513)  "gamma_stat_SR_1_bin_0"
-  5) 0x4ffcae0 RooRealVar:: gamma_stat_SR_1_bin_1 = 1 +/- 0.0531989  L(0 - 1.26599)  "gamma_stat_SR_1_bin_1"
-  6) 0x4df1090 RooRealVar:: gamma_stat_SR_1_bin_2 = 1 +/- 0.104193  L(0 - 1.52097)  "gamma_stat_SR_1_bin_2"
-  7) 0x4df47c0 RooRealVar:: gamma_stat_SR_1_bin_3 = 1 +/- 0.152444  L(0 - 1.76222)  "gamma_stat_SR_1_bin_3"
-  8) 0x520c0f0 RooRealVar:: gamma_stat_SR_2_bin_0 = 1 +/- 0.0302604  L(0 - 1.1513)  "gamma_stat_SR_2_bin_0"
-  9) 0x5211e10 RooRealVar:: gamma_stat_SR_2_bin_1 = 1 +/- 0.0531989  L(0 - 1.26599)  "gamma_stat_SR_2_bin_1"
- 10) 0x5215660 RooRealVar:: gamma_stat_SR_2_bin_2 = 1 +/- 0.104193  L(0 - 1.52097)  "gamma_stat_SR_2_bin_2"
- 11) 0x5218e60 RooRealVar:: gamma_stat_SR_2_bin_3 = 1 +/- 0.152444  L(0 - 1.76222)  "gamma_stat_SR_2_bin_3"
+  1) 0x6265740 RooRealVar::        alpha_Bkg1Xsec = 0  L(-5 - 5)  "alpha_Bkg1Xsec"
+  2) 0x6269450 RooRealVar::        alpha_Bkg2Xsec = 0  L(-5 - 5)  "alpha_Bkg2Xsec"
+  3) 0x6263490 RooRealVar::             alpha_JES = 0  L(-5 - 5)  "alpha_JES"
+  4) 0x62b0010 RooRealVar:: gamma_stat_SR_1_bin_0 = 1 +/- 0.0302604  L(0 - 1.1513)  "gamma_stat_SR_1_bin_0"
+  5) 0x63eaee0 RooRealVar:: gamma_stat_SR_1_bin_1 = 1 +/- 0.0531989  L(0 - 1.26599)  "gamma_stat_SR_1_bin_1"
+  6) 0x63ee4f0 RooRealVar:: gamma_stat_SR_1_bin_2 = 1 +/- 0.104193  L(0 - 1.52097)  "gamma_stat_SR_1_bin_2"
+  7) 0x609f310 RooRealVar:: gamma_stat_SR_1_bin_3 = 1 +/- 0.152444  L(0 - 1.76222)  "gamma_stat_SR_1_bin_3"
+  8) 0x64b9060 RooRealVar:: gamma_stat_SR_2_bin_0 = 1 +/- 0.0302604  L(0 - 1.1513)  "gamma_stat_SR_2_bin_0"
+  9) 0x64bed80 RooRealVar:: gamma_stat_SR_2_bin_1 = 1 +/- 0.0531989  L(0 - 1.26599)  "gamma_stat_SR_2_bin_1"
+ 10) 0x64c25d0 RooRealVar:: gamma_stat_SR_2_bin_2 = 1 +/- 0.104193  L(0 - 1.52097)  "gamma_stat_SR_2_bin_2"
+ 11) 0x64c5dd0 RooRealVar:: gamma_stat_SR_2_bin_3 = 1 +/- 0.152444  L(0 - 1.76222)  "gamma_stat_SR_2_bin_3"
 Setting max function calls
 [#0] ERROR:ObjectHandling -- RooWorkspace::loadSnapshot(combined) no snapshot with name conditionalNuis_0 is available
 [#1] INFO:Minization -- p.d.f. provides expected number of events, including extended term in likelihood.
@@ -342,17 +342,17 @@ RooAbsTestStatistic::initSimMode: creating slave calculator #1 for state SR_2 (4
 [#1] INFO:Minization --  The following expressions will be evaluated in cache-and-track mode: (mc_stat_SR_1,Bkg1_SR_1_Hist_alpha,Signal_SR_1_Hist_alpha)
 [#1] INFO:Minization --  The following expressions have been identified as constant and will be precalculated and cached: (Bkg1_SR_2_Hist_alphanominal,Bkg1_SR_2_Hist_alpha_0low,Bkg1_SR_2_Hist_alpha_0high,Bkg2_SR_2_nominal,Signal_SR_2_Hist_alphanominal,Signal_SR_2_Hist_alpha_0low,Signal_SR_2_Hist_alpha_0high)
 [#1] INFO:Minization --  The following expressions will be evaluated in cache-and-track mode: (mc_stat_SR_2,Bkg1_SR_2_Hist_alpha,Signal_SR_2_Hist_alpha)
-  1) 0x52f0130 RooRealVar::             nom_alpha_JES = -0.0257123 C  L(-10 - 10)  "nom_alpha_JES"
-  2) 0x4fffa80 RooRealVar::        nom_alpha_Bkg1Xsec = 0.219353 C  L(-10 - 10)  "nom_alpha_Bkg1Xsec"
-  3) 0x52ef010 RooRealVar::        nom_alpha_Bkg2Xsec = -0.0442314 C  L(-10 - 10)  "nom_alpha_Bkg2Xsec"
-  4) 0x4ffba00 RooRealVar:: nom_gamma_stat_SR_1_bin_0 = 1089.3 C  L(0 - +INF)  "nom_gamma_stat_SR_1_bin_0"
-  5) 0x51629a0 RooRealVar:: nom_gamma_stat_SR_1_bin_1 = 362.273 C  L(0 - +INF)  "nom_gamma_stat_SR_1_bin_1"
-  6) 0x4df3470 RooRealVar:: nom_gamma_stat_SR_1_bin_2 = 90.8654 C  L(0 - +INF)  "nom_gamma_stat_SR_1_bin_2"
-  7) 0x501a1c0 RooRealVar:: nom_gamma_stat_SR_1_bin_3 = 39.4278 C  L(0 - +INF)  "nom_gamma_stat_SR_1_bin_3"
-  8) 0x520e670 RooRealVar:: nom_gamma_stat_SR_2_bin_0 = 1091.44 C  L(0 - +INF)  "nom_gamma_stat_SR_2_bin_0"
-  9) 0x5212b70 RooRealVar:: nom_gamma_stat_SR_2_bin_1 = 363.507 C  L(0 - +INF)  "nom_gamma_stat_SR_2_bin_1"
- 10) 0x52163c0 RooRealVar:: nom_gamma_stat_SR_2_bin_2 = 91.1267 C  L(0 - +INF)  "nom_gamma_stat_SR_2_bin_2"
- 11) 0x5219bc0 RooRealVar:: nom_gamma_stat_SR_2_bin_3 = 39.5675 C  L(0 - +INF)  "nom_gamma_stat_SR_2_bin_3"
+  1) 0x659d0a0 RooRealVar::             nom_alpha_JES = -0.0257123 C  L(-10 - 10)  "nom_alpha_JES"
+  2) 0x6267b50 RooRealVar::        nom_alpha_Bkg1Xsec = 0.219353 C  L(-10 - 10)  "nom_alpha_Bkg1Xsec"
+  3) 0x659bf80 RooRealVar::        nom_alpha_Bkg2Xsec = -0.0442314 C  L(-10 - 10)  "nom_alpha_Bkg2Xsec"
+  4) 0x6140c00 RooRealVar:: nom_gamma_stat_SR_1_bin_0 = 1089.3 C  L(0 - +INF)  "nom_gamma_stat_SR_1_bin_0"
+  5) 0x63ed260 RooRealVar:: nom_gamma_stat_SR_1_bin_1 = 362.273 C  L(0 - +INF)  "nom_gamma_stat_SR_1_bin_1"
+  6) 0x609e0f0 RooRealVar:: nom_gamma_stat_SR_1_bin_2 = 90.8654 C  L(0 - +INF)  "nom_gamma_stat_SR_1_bin_2"
+  7) 0x60a1810 RooRealVar:: nom_gamma_stat_SR_1_bin_3 = 39.4278 C  L(0 - +INF)  "nom_gamma_stat_SR_1_bin_3"
+  8) 0x64bb5e0 RooRealVar:: nom_gamma_stat_SR_2_bin_0 = 1091.44 C  L(0 - +INF)  "nom_gamma_stat_SR_2_bin_0"
+  9) 0x64bfae0 RooRealVar:: nom_gamma_stat_SR_2_bin_1 = 363.507 C  L(0 - +INF)  "nom_gamma_stat_SR_2_bin_1"
+ 10) 0x64c3330 RooRealVar:: nom_gamma_stat_SR_2_bin_2 = 91.1267 C  L(0 - +INF)  "nom_gamma_stat_SR_2_bin_2"
+ 11) 0x64c6b30 RooRealVar:: nom_gamma_stat_SR_2_bin_3 = 39.5675 C  L(0 - +INF)  "nom_gamma_stat_SR_2_bin_3"
 [#1] INFO:Fitting -- RooAddition::defaultErrorLevel(nll_simPdf_asimovData_1_with_constr) Summation contains a RooNLLVar, using its error level
 [#1] INFO:Minization -- RooMinimizer::optimizeConst: activating const optimization
 Minuit2Minimizer: Minimize with max-calls 5500 convergence for edm < 1 strategy 0
@@ -466,4 +466,4 @@ Observed pValue: 0.855852
 Median test stat val: 0.248397
 Median significance:   0.498394
 Median pValue: 0.309103
-Real time 0:00:00, CP time 0.140
+Real time 0:00:00, CP time 0.130
