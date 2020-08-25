@@ -269,18 +269,18 @@ RooAbsTestStatistic::initSimMode: creating slave calculator #1 for state SR_2 (4
 [#1] INFO:Minization -- RooNLLVar::evaluatePartition(SR_1) first = 0 last = 4 Likelihood offset now set to -1340.79
 [#1] INFO:Minization -- RooNLLVar::evaluatePartition(SR_2) first = 0 last = 4 Likelihood offset now set to -1340.79
 === DEBUG::FittingTool::FitPDF:    -> Initial value of the NLL = -2650.318566
-  1) 0x5d391d0 RooRealVar::         SigXsecOverSM = 1  L(0 - 100)  "SigXsecOverSM"
-  2) 0x5ce4550 RooRealVar::        alpha_Bkg1Xsec = 0  L(-5 - 5)  "alpha_Bkg1Xsec"
-  3) 0x5ce6210 RooRealVar::        alpha_Bkg2Xsec = 0  L(-5 - 5)  "alpha_Bkg2Xsec"
-  4) 0x5ce2630 RooRealVar::             alpha_JES = 0  L(-5 - 5)  "alpha_JES"
-  5) 0x5ce9a00 RooRealVar:: gamma_stat_SR_1_bin_0 = 1 +/- 0.0302604  L(0 - 1.1513)  "gamma_stat_SR_1_bin_0"
-  6) 0x5cec800 RooRealVar:: gamma_stat_SR_1_bin_1 = 1 +/- 0.0531989  L(0 - 1.26599)  "gamma_stat_SR_1_bin_1"
-  7) 0x5cef600 RooRealVar:: gamma_stat_SR_1_bin_2 = 1 +/- 0.104193  L(0 - 1.52097)  "gamma_stat_SR_1_bin_2"
-  8) 0x5cf2500 RooRealVar:: gamma_stat_SR_1_bin_3 = 1 +/- 0.152444  L(0 - 1.76222)  "gamma_stat_SR_1_bin_3"
-  9) 0x5d3f010 RooRealVar:: gamma_stat_SR_2_bin_0 = 1 +/- 0.0302604  L(0 - 1.1513)  "gamma_stat_SR_2_bin_0"
- 10) 0x5d41e10 RooRealVar:: gamma_stat_SR_2_bin_1 = 1 +/- 0.0531989  L(0 - 1.26599)  "gamma_stat_SR_2_bin_1"
- 11) 0x5d44c10 RooRealVar:: gamma_stat_SR_2_bin_2 = 1 +/- 0.104193  L(0 - 1.52097)  "gamma_stat_SR_2_bin_2"
- 12) 0x5d47a10 RooRealVar:: gamma_stat_SR_2_bin_3 = 1 +/- 0.152444  L(0 - 1.76222)  "gamma_stat_SR_2_bin_3"
+  1) 0x59e7830 RooRealVar::         SigXsecOverSM = 1  L(0 - 100)  "SigXsecOverSM"
+  2) 0x5992bb0 RooRealVar::        alpha_Bkg1Xsec = 0  L(-5 - 5)  "alpha_Bkg1Xsec"
+  3) 0x5994870 RooRealVar::        alpha_Bkg2Xsec = 0  L(-5 - 5)  "alpha_Bkg2Xsec"
+  4) 0x5990c90 RooRealVar::             alpha_JES = 0  L(-5 - 5)  "alpha_JES"
+  5) 0x5998060 RooRealVar:: gamma_stat_SR_1_bin_0 = 1 +/- 0.0302604  L(0 - 1.1513)  "gamma_stat_SR_1_bin_0"
+  6) 0x599ae60 RooRealVar:: gamma_stat_SR_1_bin_1 = 1 +/- 0.0531989  L(0 - 1.26599)  "gamma_stat_SR_1_bin_1"
+  7) 0x599dc60 RooRealVar:: gamma_stat_SR_1_bin_2 = 1 +/- 0.104193  L(0 - 1.52097)  "gamma_stat_SR_1_bin_2"
+  8) 0x59a0b60 RooRealVar:: gamma_stat_SR_1_bin_3 = 1 +/- 0.152444  L(0 - 1.76222)  "gamma_stat_SR_1_bin_3"
+  9) 0x59ed670 RooRealVar:: gamma_stat_SR_2_bin_0 = 1 +/- 0.0302604  L(0 - 1.1513)  "gamma_stat_SR_2_bin_0"
+ 10) 0x59f0470 RooRealVar:: gamma_stat_SR_2_bin_1 = 1 +/- 0.0531989  L(0 - 1.26599)  "gamma_stat_SR_2_bin_1"
+ 11) 0x59f3270 RooRealVar:: gamma_stat_SR_2_bin_2 = 1 +/- 0.104193  L(0 - 1.52097)  "gamma_stat_SR_2_bin_2"
+ 12) 0x59f6070 RooRealVar:: gamma_stat_SR_2_bin_3 = 1 +/- 0.152444  L(0 - 1.76222)  "gamma_stat_SR_2_bin_3"
 [#1] INFO:Fitting -- RooAddition::defaultErrorLevel(nll_simPdf_newasimovData_with_constr) Summation contains a RooNLLVar, using its error level
 [#1] INFO:Minization -- RooMinimizer::optimizeConst: activating const optimization
 [1;32m=== INFO::FittingTool::FitPDF: [0m
@@ -335,7 +335,7 @@ Info in Minuit2Minimizer::Hesse : Hesse is valid - matrix is accurate
 [1;32m=== INFO::FittingTool::FitPDF:             - hess status 0[0m
 [1;32m=== INFO::FittingTool::FitPDF:             - Edm = 0.000000[0m
 [1;32m=== INFO::FittingTool::FitPDF: ***********************************************************[0m
-Real time 0:00:00, CP time 0.080
+Real time 0:00:00, CP time 0.060
 [1;32m=== INFO::FittingTool::FitPDF: [0m
 [1;32m=== INFO::FittingTool::FitPDF: [0m
 [1;32m=== INFO::FittingTool::FitPDF: [0m
@@ -348,6 +348,7 @@ Real time 0:00:00, CP time 0.080
 [#1] INFO:Minization -- p.d.f. provides expected number of events, including extended term in likelihood.
 [#1] INFO:Minization -- createNLL picked up cached consraints from workspace with 11 entries
 [#1] INFO:Minization --  Including the following constraint terms in minimization: (alpha_JESConstraint,alpha_Bkg1XsecConstraint,alpha_Bkg2XsecConstraint,gamma_stat_SR_1_bin_0_constraint,gamma_stat_SR_1_bin_1_constraint,gamma_stat_SR_1_bin_2_constraint,gamma_stat_SR_1_bin_3_constraint,gamma_stat_SR_2_bin_0_constraint,gamma_stat_SR_2_bin_1_constraint,gamma_stat_SR_2_bin_2_constraint,gamma_stat_SR_2_bin_3_constraint)
+[#1] INFO:Minization -- The following global observables have been defined: (nom_alpha_JES,nom_alpha_Bkg1Xsec,nom_alpha_Bkg2Xsec,nom_gamma_stat_SR_1_bin_0,nom_gamma_stat_SR_1_bin_1,nom_gamma_stat_SR_1_bin_2,nom_gamma_stat_SR_1_bin_3,nom_gamma_stat_SR_2_bin_0,nom_gamma_stat_SR_2_bin_1,nom_gamma_stat_SR_2_bin_2,nom_gamma_stat_SR_2_bin_3)
 RooAbsTestStatistic::initSimMode: creating slave calculator #0 for state SR_1 (4 dataset entries)
 [#1] INFO:NumericIntegration -- RooRealIntegral::init(SR_1_model_Int[obs_x_SR_1]) using numeric integrator RooBinIntegrator to calculate Int(obs_x_SR_1)
 RooAbsTestStatistic::initSimMode: creating slave calculator #1 for state SR_2 (4 dataset entries)
@@ -360,79 +361,155 @@ RooAbsTestStatistic::initSimMode: creating slave calculator #1 for state SR_2 (4
 [#1] INFO:Fitting -- RooAddition::defaultErrorLevel(nll_simPdf_newasimovData_with_constr) Summation contains a RooNLLVar, using its error level
 [#1] INFO:Minization -- RooMinimizer::optimizeConst: activating const optimization
 [1;32m=== INFO::LikelihoodScanManager::Run1DScan: Running LHscan for point 1 out of 30 points[0m
-[#1] INFO:Minization -- RooMinimizerFcn::synchronize: set of constant parameters changed, rerunning const optimizer
-[#1] INFO:Minization --  The following expressions have been identified as constant and will be precalculated and cached: (Bkg1_SR_1_Hist_alphanominal,Bkg1_SR_1_Hist_alpha_0low,Bkg1_SR_1_Hist_alpha_0high,Bkg2_SR_1_nominal,Signal_SR_1_Hist_alphanominal,Signal_SR_1_Hist_alpha_0low,Signal_SR_1_Hist_alpha_0high)
-[#1] INFO:Minization --  The following expressions will be evaluated in cache-and-track mode: (mc_stat_SR_1,Bkg1_SR_1_Hist_alpha,Signal_SR_1_Hist_alpha)
-[#1] INFO:Minization --  The following expressions have been identified as constant and will be precalculated and cached: (Bkg1_SR_2_Hist_alphanominal,Bkg1_SR_2_Hist_alpha_0low,Bkg1_SR_2_Hist_alpha_0high,Bkg2_SR_2_nominal,Signal_SR_2_Hist_alphanominal,Signal_SR_2_Hist_alpha_0low,Signal_SR_2_Hist_alpha_0high)
-[#1] INFO:Minization --  The following expressions will be evaluated in cache-and-track mode: (mc_stat_SR_2,Bkg1_SR_2_Hist_alpha,Signal_SR_2_Hist_alpha)
 [#1] INFO:Minization -- RooNLLVar::evaluatePartition(SR_1) first = 0 last = 4 Likelihood offset now set to -1341.85
 [#1] INFO:Minization -- RooNLLVar::evaluatePartition(SR_2) first = 0 last = 4 Likelihood offset now set to -1341.76
-[#1] INFO:NumericIntegration -- RooRealIntegral::init(gamma_stat_SR_1_bin_0_constraint_Int[gamma_stat_SR_1_bin_0]) using numeric integrator RooIntegrator1D to calculate Int(gamma_stat_SR_1_bin_0)
-[#1] INFO:NumericIntegration -- RooRealIntegral::init(gamma_stat_SR_1_bin_1_constraint_Int[gamma_stat_SR_1_bin_1]) using numeric integrator RooIntegrator1D to calculate Int(gamma_stat_SR_1_bin_1)
-[#1] INFO:NumericIntegration -- RooRealIntegral::init(gamma_stat_SR_1_bin_2_constraint_Int[gamma_stat_SR_1_bin_2]) using numeric integrator RooIntegrator1D to calculate Int(gamma_stat_SR_1_bin_2)
-[#1] INFO:NumericIntegration -- RooRealIntegral::init(gamma_stat_SR_1_bin_3_constraint_Int[gamma_stat_SR_1_bin_3]) using numeric integrator RooIntegrator1D to calculate Int(gamma_stat_SR_1_bin_3)
-[#1] INFO:NumericIntegration -- RooRealIntegral::init(gamma_stat_SR_2_bin_0_constraint_Int[gamma_stat_SR_2_bin_0]) using numeric integrator RooIntegrator1D to calculate Int(gamma_stat_SR_2_bin_0)
-[#1] INFO:NumericIntegration -- RooRealIntegral::init(gamma_stat_SR_2_bin_1_constraint_Int[gamma_stat_SR_2_bin_1]) using numeric integrator RooIntegrator1D to calculate Int(gamma_stat_SR_2_bin_1)
-[#1] INFO:NumericIntegration -- RooRealIntegral::init(gamma_stat_SR_2_bin_2_constraint_Int[gamma_stat_SR_2_bin_2]) using numeric integrator RooIntegrator1D to calculate Int(gamma_stat_SR_2_bin_2)
-[#1] INFO:NumericIntegration -- RooRealIntegral::init(gamma_stat_SR_2_bin_3_constraint_Int[gamma_stat_SR_2_bin_3]) using numeric integrator RooIntegrator1D to calculate Int(gamma_stat_SR_2_bin_3)
+[#1] INFO:Minization -- RooMinimizerFcn::synchronize: constant parameter values changed, rerunning const optimizer
+=== DEBUG::LikelihoodScanManager::Run1DScan: Point: 0.000000, nll: 31.656552
+[#1] INFO:Fitting -- RooAddition::defaultErrorLevel(nll_simPdf_newasimovData_with_constr) Summation contains a RooNLLVar, using its error level
+[#1] INFO:Minization -- RooMinimizer::optimizeConst: activating const optimization
 [1;32m=== INFO::LikelihoodScanManager::Run1DScan: Running LHscan for point 2 out of 30 points[0m
 [#1] INFO:Minization -- RooMinimizerFcn::synchronize: constant parameter values changed, rerunning const optimizer
+=== DEBUG::LikelihoodScanManager::Run1DScan: Point: 3.448276, nll: 34.660678
+[#1] INFO:Fitting -- RooAddition::defaultErrorLevel(nll_simPdf_newasimovData_with_constr) Summation contains a RooNLLVar, using its error level
+[#1] INFO:Minization -- RooMinimizer::optimizeConst: activating const optimization
 [1;32m=== INFO::LikelihoodScanManager::Run1DScan: Running LHscan for point 3 out of 30 points[0m
 [#1] INFO:Minization -- RooMinimizerFcn::synchronize: constant parameter values changed, rerunning const optimizer
+=== DEBUG::LikelihoodScanManager::Run1DScan: Point: 6.896552, nll: 39.150157
+[#1] INFO:Fitting -- RooAddition::defaultErrorLevel(nll_simPdf_newasimovData_with_constr) Summation contains a RooNLLVar, using its error level
+[#1] INFO:Minization -- RooMinimizer::optimizeConst: activating const optimization
 [1;32m=== INFO::LikelihoodScanManager::Run1DScan: Running LHscan for point 4 out of 30 points[0m
 [#1] INFO:Minization -- RooMinimizerFcn::synchronize: constant parameter values changed, rerunning const optimizer
+=== DEBUG::LikelihoodScanManager::Run1DScan: Point: 10.344828, nll: 44.373417
+[#1] INFO:Fitting -- RooAddition::defaultErrorLevel(nll_simPdf_newasimovData_with_constr) Summation contains a RooNLLVar, using its error level
+[#1] INFO:Minization -- RooMinimizer::optimizeConst: activating const optimization
 [1;32m=== INFO::LikelihoodScanManager::Run1DScan: Running LHscan for point 5 out of 30 points[0m
 [#1] INFO:Minization -- RooMinimizerFcn::synchronize: constant parameter values changed, rerunning const optimizer
+=== DEBUG::LikelihoodScanManager::Run1DScan: Point: 13.793103, nll: 49.943061
+[#1] INFO:Fitting -- RooAddition::defaultErrorLevel(nll_simPdf_newasimovData_with_constr) Summation contains a RooNLLVar, using its error level
+[#1] INFO:Minization -- RooMinimizer::optimizeConst: activating const optimization
 [1;32m=== INFO::LikelihoodScanManager::Run1DScan: Running LHscan for point 6 out of 30 points[0m
 [#1] INFO:Minization -- RooMinimizerFcn::synchronize: constant parameter values changed, rerunning const optimizer
+=== DEBUG::LikelihoodScanManager::Run1DScan: Point: 17.241379, nll: 55.656508
+[#1] INFO:Fitting -- RooAddition::defaultErrorLevel(nll_simPdf_newasimovData_with_constr) Summation contains a RooNLLVar, using its error level
+[#1] INFO:Minization -- RooMinimizer::optimizeConst: activating const optimization
 [1;32m=== INFO::LikelihoodScanManager::Run1DScan: Running LHscan for point 7 out of 30 points[0m
 [#1] INFO:Minization -- RooMinimizerFcn::synchronize: constant parameter values changed, rerunning const optimizer
+=== DEBUG::LikelihoodScanManager::Run1DScan: Point: 20.689655, nll: 61.408061
+[#1] INFO:Fitting -- RooAddition::defaultErrorLevel(nll_simPdf_newasimovData_with_constr) Summation contains a RooNLLVar, using its error level
+[#1] INFO:Minization -- RooMinimizer::optimizeConst: activating const optimization
 [1;32m=== INFO::LikelihoodScanManager::Run1DScan: Running LHscan for point 8 out of 30 points[0m
 [#1] INFO:Minization -- RooMinimizerFcn::synchronize: constant parameter values changed, rerunning const optimizer
+=== DEBUG::LikelihoodScanManager::Run1DScan: Point: 24.137931, nll: 67.143947
+[#1] INFO:Fitting -- RooAddition::defaultErrorLevel(nll_simPdf_newasimovData_with_constr) Summation contains a RooNLLVar, using its error level
+[#1] INFO:Minization -- RooMinimizer::optimizeConst: activating const optimization
 [1;32m=== INFO::LikelihoodScanManager::Run1DScan: Running LHscan for point 9 out of 30 points[0m
 [#1] INFO:Minization -- RooMinimizerFcn::synchronize: constant parameter values changed, rerunning const optimizer
+=== DEBUG::LikelihoodScanManager::Run1DScan: Point: 27.586207, nll: 72.836456
+[#1] INFO:Fitting -- RooAddition::defaultErrorLevel(nll_simPdf_newasimovData_with_constr) Summation contains a RooNLLVar, using its error level
+[#1] INFO:Minization -- RooMinimizer::optimizeConst: activating const optimization
 [1;32m=== INFO::LikelihoodScanManager::Run1DScan: Running LHscan for point 10 out of 30 points[0m
 [#1] INFO:Minization -- RooMinimizerFcn::synchronize: constant parameter values changed, rerunning const optimizer
+=== DEBUG::LikelihoodScanManager::Run1DScan: Point: 31.034483, nll: 78.471598
+[#1] INFO:Fitting -- RooAddition::defaultErrorLevel(nll_simPdf_newasimovData_with_constr) Summation contains a RooNLLVar, using its error level
+[#1] INFO:Minization -- RooMinimizer::optimizeConst: activating const optimization
 [1;32m=== INFO::LikelihoodScanManager::Run1DScan: Running LHscan for point 11 out of 30 points[0m
 [#1] INFO:Minization -- RooMinimizerFcn::synchronize: constant parameter values changed, rerunning const optimizer
+=== DEBUG::LikelihoodScanManager::Run1DScan: Point: 34.482759, nll: 84.042698
+[#1] INFO:Fitting -- RooAddition::defaultErrorLevel(nll_simPdf_newasimovData_with_constr) Summation contains a RooNLLVar, using its error level
+[#1] INFO:Minization -- RooMinimizer::optimizeConst: activating const optimization
 [1;32m=== INFO::LikelihoodScanManager::Run1DScan: Running LHscan for point 12 out of 30 points[0m
 [#1] INFO:Minization -- RooMinimizerFcn::synchronize: constant parameter values changed, rerunning const optimizer
+=== DEBUG::LikelihoodScanManager::Run1DScan: Point: 37.931034, nll: 89.547019
+[#1] INFO:Fitting -- RooAddition::defaultErrorLevel(nll_simPdf_newasimovData_with_constr) Summation contains a RooNLLVar, using its error level
+[#1] INFO:Minization -- RooMinimizer::optimizeConst: activating const optimization
 [1;32m=== INFO::LikelihoodScanManager::Run1DScan: Running LHscan for point 13 out of 30 points[0m
 [#1] INFO:Minization -- RooMinimizerFcn::synchronize: constant parameter values changed, rerunning const optimizer
+=== DEBUG::LikelihoodScanManager::Run1DScan: Point: 41.379310, nll: 94.983969
+[#1] INFO:Fitting -- RooAddition::defaultErrorLevel(nll_simPdf_newasimovData_with_constr) Summation contains a RooNLLVar, using its error level
+[#1] INFO:Minization -- RooMinimizer::optimizeConst: activating const optimization
 [1;32m=== INFO::LikelihoodScanManager::Run1DScan: Running LHscan for point 14 out of 30 points[0m
 [#1] INFO:Minization -- RooMinimizerFcn::synchronize: constant parameter values changed, rerunning const optimizer
+=== DEBUG::LikelihoodScanManager::Run1DScan: Point: 44.827586, nll: 100.354140
+[#1] INFO:Fitting -- RooAddition::defaultErrorLevel(nll_simPdf_newasimovData_with_constr) Summation contains a RooNLLVar, using its error level
+[#1] INFO:Minization -- RooMinimizer::optimizeConst: activating const optimization
 [1;32m=== INFO::LikelihoodScanManager::Run1DScan: Running LHscan for point 15 out of 30 points[0m
 [#1] INFO:Minization -- RooMinimizerFcn::synchronize: constant parameter values changed, rerunning const optimizer
+=== DEBUG::LikelihoodScanManager::Run1DScan: Point: 48.275862, nll: 105.658751
+[#1] INFO:Fitting -- RooAddition::defaultErrorLevel(nll_simPdf_newasimovData_with_constr) Summation contains a RooNLLVar, using its error level
+[#1] INFO:Minization -- RooMinimizer::optimizeConst: activating const optimization
 [1;32m=== INFO::LikelihoodScanManager::Run1DScan: Running LHscan for point 16 out of 30 points[0m
 [#1] INFO:Minization -- RooMinimizerFcn::synchronize: constant parameter values changed, rerunning const optimizer
+=== DEBUG::LikelihoodScanManager::Run1DScan: Point: 51.724138, nll: 110.899338
+[#1] INFO:Fitting -- RooAddition::defaultErrorLevel(nll_simPdf_newasimovData_with_constr) Summation contains a RooNLLVar, using its error level
+[#1] INFO:Minization -- RooMinimizer::optimizeConst: activating const optimization
 [1;32m=== INFO::LikelihoodScanManager::Run1DScan: Running LHscan for point 17 out of 30 points[0m
 [#1] INFO:Minization -- RooMinimizerFcn::synchronize: constant parameter values changed, rerunning const optimizer
+=== DEBUG::LikelihoodScanManager::Run1DScan: Point: 55.172414, nll: 116.080798
+[#1] INFO:Fitting -- RooAddition::defaultErrorLevel(nll_simPdf_newasimovData_with_constr) Summation contains a RooNLLVar, using its error level
+[#1] INFO:Minization -- RooMinimizer::optimizeConst: activating const optimization
 [1;32m=== INFO::LikelihoodScanManager::Run1DScan: Running LHscan for point 18 out of 30 points[0m
 [#1] INFO:Minization -- RooMinimizerFcn::synchronize: constant parameter values changed, rerunning const optimizer
+=== DEBUG::LikelihoodScanManager::Run1DScan: Point: 58.620690, nll: 121.218494
+[#1] INFO:Fitting -- RooAddition::defaultErrorLevel(nll_simPdf_newasimovData_with_constr) Summation contains a RooNLLVar, using its error level
+[#1] INFO:Minization -- RooMinimizer::optimizeConst: activating const optimization
 [1;32m=== INFO::LikelihoodScanManager::Run1DScan: Running LHscan for point 19 out of 30 points[0m
 [#1] INFO:Minization -- RooMinimizerFcn::synchronize: constant parameter values changed, rerunning const optimizer
+=== DEBUG::LikelihoodScanManager::Run1DScan: Point: 62.068966, nll: 126.313905
+[#1] INFO:Fitting -- RooAddition::defaultErrorLevel(nll_simPdf_newasimovData_with_constr) Summation contains a RooNLLVar, using its error level
+[#1] INFO:Minization -- RooMinimizer::optimizeConst: activating const optimization
 [1;32m=== INFO::LikelihoodScanManager::Run1DScan: Running LHscan for point 20 out of 30 points[0m
 [#1] INFO:Minization -- RooMinimizerFcn::synchronize: constant parameter values changed, rerunning const optimizer
+=== DEBUG::LikelihoodScanManager::Run1DScan: Point: 65.517241, nll: 131.368250
+[#1] INFO:Fitting -- RooAddition::defaultErrorLevel(nll_simPdf_newasimovData_with_constr) Summation contains a RooNLLVar, using its error level
+[#1] INFO:Minization -- RooMinimizer::optimizeConst: activating const optimization
 [1;32m=== INFO::LikelihoodScanManager::Run1DScan: Running LHscan for point 21 out of 30 points[0m
 [#1] INFO:Minization -- RooMinimizerFcn::synchronize: constant parameter values changed, rerunning const optimizer
+=== DEBUG::LikelihoodScanManager::Run1DScan: Point: 68.965517, nll: 136.381430
+[#1] INFO:Fitting -- RooAddition::defaultErrorLevel(nll_simPdf_newasimovData_with_constr) Summation contains a RooNLLVar, using its error level
+[#1] INFO:Minization -- RooMinimizer::optimizeConst: activating const optimization
 [1;32m=== INFO::LikelihoodScanManager::Run1DScan: Running LHscan for point 22 out of 30 points[0m
 [#1] INFO:Minization -- RooMinimizerFcn::synchronize: constant parameter values changed, rerunning const optimizer
+=== DEBUG::LikelihoodScanManager::Run1DScan: Point: 72.413793, nll: 141.354064
+[#1] INFO:Fitting -- RooAddition::defaultErrorLevel(nll_simPdf_newasimovData_with_constr) Summation contains a RooNLLVar, using its error level
+[#1] INFO:Minization -- RooMinimizer::optimizeConst: activating const optimization
 [1;32m=== INFO::LikelihoodScanManager::Run1DScan: Running LHscan for point 23 out of 30 points[0m
 [#1] INFO:Minization -- RooMinimizerFcn::synchronize: constant parameter values changed, rerunning const optimizer
+=== DEBUG::LikelihoodScanManager::Run1DScan: Point: 75.862069, nll: 146.285762
+[#1] INFO:Fitting -- RooAddition::defaultErrorLevel(nll_simPdf_newasimovData_with_constr) Summation contains a RooNLLVar, using its error level
+[#1] INFO:Minization -- RooMinimizer::optimizeConst: activating const optimization
 [1;32m=== INFO::LikelihoodScanManager::Run1DScan: Running LHscan for point 24 out of 30 points[0m
 [#1] INFO:Minization -- RooMinimizerFcn::synchronize: constant parameter values changed, rerunning const optimizer
+=== DEBUG::LikelihoodScanManager::Run1DScan: Point: 79.310345, nll: 151.177092
+[#1] INFO:Fitting -- RooAddition::defaultErrorLevel(nll_simPdf_newasimovData_with_constr) Summation contains a RooNLLVar, using its error level
+[#1] INFO:Minization -- RooMinimizer::optimizeConst: activating const optimization
 [1;32m=== INFO::LikelihoodScanManager::Run1DScan: Running LHscan for point 25 out of 30 points[0m
 [#1] INFO:Minization -- RooMinimizerFcn::synchronize: constant parameter values changed, rerunning const optimizer
+=== DEBUG::LikelihoodScanManager::Run1DScan: Point: 82.758621, nll: 156.016055
+[#1] INFO:Fitting -- RooAddition::defaultErrorLevel(nll_simPdf_newasimovData_with_constr) Summation contains a RooNLLVar, using its error level
+[#1] INFO:Minization -- RooMinimizer::optimizeConst: activating const optimization
 [1;32m=== INFO::LikelihoodScanManager::Run1DScan: Running LHscan for point 26 out of 30 points[0m
 [#1] INFO:Minization -- RooMinimizerFcn::synchronize: constant parameter values changed, rerunning const optimizer
+=== DEBUG::LikelihoodScanManager::Run1DScan: Point: 86.206897, nll: 160.800099
+[#1] INFO:Fitting -- RooAddition::defaultErrorLevel(nll_simPdf_newasimovData_with_constr) Summation contains a RooNLLVar, using its error level
+[#1] INFO:Minization -- RooMinimizer::optimizeConst: activating const optimization
 [1;32m=== INFO::LikelihoodScanManager::Run1DScan: Running LHscan for point 27 out of 30 points[0m
 [#1] INFO:Minization -- RooMinimizerFcn::synchronize: constant parameter values changed, rerunning const optimizer
+=== DEBUG::LikelihoodScanManager::Run1DScan: Point: 89.655172, nll: 165.531319
+[#1] INFO:Fitting -- RooAddition::defaultErrorLevel(nll_simPdf_newasimovData_with_constr) Summation contains a RooNLLVar, using its error level
+[#1] INFO:Minization -- RooMinimizer::optimizeConst: activating const optimization
 [1;32m=== INFO::LikelihoodScanManager::Run1DScan: Running LHscan for point 28 out of 30 points[0m
 [#1] INFO:Minization -- RooMinimizerFcn::synchronize: constant parameter values changed, rerunning const optimizer
+=== DEBUG::LikelihoodScanManager::Run1DScan: Point: 93.103448, nll: 170.211689
+[#1] INFO:Fitting -- RooAddition::defaultErrorLevel(nll_simPdf_newasimovData_with_constr) Summation contains a RooNLLVar, using its error level
+[#1] INFO:Minization -- RooMinimizer::optimizeConst: activating const optimization
 [1;32m=== INFO::LikelihoodScanManager::Run1DScan: Running LHscan for point 29 out of 30 points[0m
 [#1] INFO:Minization -- RooMinimizerFcn::synchronize: constant parameter values changed, rerunning const optimizer
+=== DEBUG::LikelihoodScanManager::Run1DScan: Point: 96.551724, nll: 174.843115
+[#1] INFO:Fitting -- RooAddition::defaultErrorLevel(nll_simPdf_newasimovData_with_constr) Summation contains a RooNLLVar, using its error level
+[#1] INFO:Minization -- RooMinimizer::optimizeConst: activating const optimization
 [1;32m=== INFO::LikelihoodScanManager::Run1DScan: Running LHscan for point 30 out of 30 points[0m
 [#1] INFO:Minization -- RooMinimizerFcn::synchronize: constant parameter values changed, rerunning const optimizer
+=== DEBUG::LikelihoodScanManager::Run1DScan: Point: 100.000000, nll: 179.427401
 Info in <TCanvas::Print>: png file FitExample/LHoodPlots/NLLscan_SigXsecOverSM.png has been created
 [1;32m=== INFO::TRExFit::ReadFitResults: ------------------------------------------------------[0m
 [1;32m=== INFO::TRExFit::ReadFitResults: Reading fit results from file [0m
