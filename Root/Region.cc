@@ -355,11 +355,11 @@ void Region::BuildPreFitErrorHist(){
             TH1* hDown = sh->fHistDown.get();
 
             // modify them dropping shape or norm (due to pruning or shape/acc decorrelation)
-            if(syst!=nullptr){
-                if(syst->fIsNormOnly){
+            if(syst) {
+                if(syst->fIsNormOnly || sh->fShapePruned) {
                     Common::DropShape(hUp,hDown,hNom);
-                }
-                if(syst->fIsShapeOnly){
+                } 
+                if(syst->fIsShapeOnly || sh->fNormPruned) {
                     Common::DropNorm(hUp,hDown,hNom);
                 }
             }
@@ -829,20 +829,18 @@ double Region::GetMultFactors( FitResults* fitRes,
                                const double binContent0,
                                const std::string &var_syst_name,
                                const bool isUp ) const{
-    double multNorm = 1.;
-    double multShape = 0.;
-    double systValue = 0.;
+    double multNorm(1.);
+    double multShape(0.);
+    double systValue(0.);
     const SampleHist *sh = fSampleHists[i].get();
     for(std::size_t i_syst = 0; i_syst < sh->fSyst.size(); ++i_syst){
         std::shared_ptr<SystematicHist> syh = sh->fSyst[i_syst];
         std::string systName = syh->fName;
         TString systNameNew(systName); // used in pull tables
         std::shared_ptr<Systematic> syst = syh->fSystematic;
-        bool isOverall = syh->fIsOverall;
-        bool isShape   = syh->fIsShape;
+        bool isOverall = syh->fIsOverall && !syh->fNormPruned;
+        bool isShape   = syh->fIsShape && !syh->fShapePruned;
         if(syst){
-            if(isOverall && syst->fIsShapeOnly) isOverall = false;
-            if(isShape && syst->fIsNormOnly) isShape = false;
             systName = syst->fNuisanceParameter;
             if(syst->fIsShapeOnly) isOverall = false;
             if(syst->fIsNormOnly)  isShape   = false;

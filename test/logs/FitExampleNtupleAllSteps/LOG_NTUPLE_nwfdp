@@ -163,9 +163,9 @@ Drawing post-fit plots...
 [1;32m=== INFO::Region::BuildPostFitErrorHist: ----------------------- POST-FIT AGREEMENT EVALUATION -----------------------[0m
 [1;32m=== INFO::Region::BuildPostFitErrorHist: ----------------------- -------- STAT-ONLY --------- -----------------------[0m
 [1;32m=== INFO::Region::BuildPostFitErrorHist: --- REGION ljets_5j3b_HT:[0m
-[1;32m=== INFO::Region::BuildPostFitErrorHist:   chi2        = 5.957192[0m
+[1;32m=== INFO::Region::BuildPostFitErrorHist:   chi2        = 5.959159[0m
 [1;32m=== INFO::Region::BuildPostFitErrorHist:   ndof        = 6[0m
-[1;32m=== INFO::Region::BuildPostFitErrorHist:   probability = 0.428003[0m
+[1;32m=== INFO::Region::BuildPostFitErrorHist:   probability = 0.427781[0m
 [1;32m=== INFO::Region::BuildPostFitErrorHist: ----------------------- ---------------------------- -----------------------[0m
 [1;32m=== INFO::Region::BuildPostFitErrorHist: ----------------------- ---------------------------- -----------------------[0m
 [1;32m=== INFO::YamlConverter::Write: Writing postfit plot ljets_5j3b_HT yaml file to: FitExampleNtupleAllSteps/Plots/ljets_5j3b_HT_postfit.yaml[0m
@@ -175,9 +175,9 @@ Drawing post-fit plots...
 [1;32m=== INFO::Region::BuildPostFitErrorHist: ----------------------- POST-FIT AGREEMENT EVALUATION -----------------------[0m
 [1;32m=== INFO::Region::BuildPostFitErrorHist: ----------------------- -------- STAT-ONLY --------- -----------------------[0m
 [1;32m=== INFO::Region::BuildPostFitErrorHist: --- REGION ljets_6j4b_BDT:[0m
-[1;32m=== INFO::Region::BuildPostFitErrorHist:   chi2        = 1.199033[0m
+[1;32m=== INFO::Region::BuildPostFitErrorHist:   chi2        = 1.200810[0m
 [1;32m=== INFO::Region::BuildPostFitErrorHist:   ndof        = 6[0m
-[1;32m=== INFO::Region::BuildPostFitErrorHist:   probability = 0.976932[0m
+[1;32m=== INFO::Region::BuildPostFitErrorHist:   probability = 0.976845[0m
 [1;32m=== INFO::Region::BuildPostFitErrorHist: ----------------------- ---------------------------- -----------------------[0m
 [1;32m=== INFO::Region::BuildPostFitErrorHist: ----------------------- ---------------------------- -----------------------[0m
 [1;32m=== INFO::YamlConverter::Write: Writing postfit plot ljets_6j4b_BDT yaml file to: FitExampleNtupleAllSteps/Plots/ljets_6j4b_BDT_postfit.yaml[0m
