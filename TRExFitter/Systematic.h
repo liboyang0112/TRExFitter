@@ -14,7 +14,9 @@ public:
 
     enum COMBINATIONTYPE {
         STANDARDDEVIATION = 0,
-        ENVELOPE = 1
+        ENVELOPE = 1,
+        STANDARDDEVIATIONNODDOF = 2,
+        HESSIAN = 3
     };
 
     enum SystType{

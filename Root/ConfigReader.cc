@@ -3833,6 +3833,10 @@ int ConfigReader::ReadSystOptions(){
                 sys->fCombineType = Systematic::COMBINATIONTYPE::STANDARDDEVIATION;
             } else if (tmp == "ENVELOPE") {
                 sys->fCombineType = Systematic::COMBINATIONTYPE::ENVELOPE;
+            } else if (tmp == "STANDARDDEVIATIONNODDOF") {
+                sys->fCombineType = Systematic::COMBINATIONTYPE::STANDARDDEVIATIONNODDOF;
+            } else if (tmp == "HESSIAN") {
+                sys->fCombineType = Systematic::COMBINATIONTYPE::HESSIAN;
             } else {
                 WriteWarningStatus("ConfigReader::ReadSystOptions", "You specified 'CombineType' option but did not provide valid parameter. Using default (ENVELOPE)");
                 sys->fCombineType = Systematic::COMBINATIONTYPE::ENVELOPE;
