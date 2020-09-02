@@ -7775,7 +7775,9 @@ std::shared_ptr<SystematicHist> TRExFit::CombineSpecialHistos(std::shared_ptr<Sy
                 orig->fHistDown->SetBinContent(ibin, min + sh->fHist->GetBinContent(ibin));
             }
         }
-    } else if (type == Systematic::COMBINATIONTYPE::STANDARDDEVIATION) {
+    } else if (type == Systematic::COMBINATIONTYPE::STANDARDDEVIATION 
+                || type == Systematic::COMBINATIONTYPE::STANDARDDEVIATIONNODDOF
+                || type == Systematic::COMBINATIONTYPE::HESSIAN) {
         for (int ibin = 1; ibin <= nbins; ++ ibin) {
             std::vector<double> content;
             for (const auto& isyst : vec) {
@@ -7807,7 +7809,17 @@ std::shared_ptr<SystematicHist> TRExFit::CombineSpecialHistos(std::shared_ptr<Sy
                 sigma+= (value-mean)*(value-mean);
             }
 
-            sigma = static_cast<double>(sigma / (content.size() - 1));
+            double denominator(0.);
+
+            if (type == Systematic::COMBINATIONTYPE::STANDARDDEVIATIONNODDOF) {
+                denominator = content.size();
+            } else if (type == Systematic::COMBINATIONTYPE::HESSIAN) {
+                denominator = 1.;
+            } else { // normal standard deviation
+                denominator = content.size() - 1;
+            }
+
+            sigma = static_cast<double>(sigma / denominator);
             sigma = std::sqrt(sigma);
 
             // now set the bin content
