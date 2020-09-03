@@ -5761,6 +5761,7 @@ void TRExFit::ProduceNPRanking(const std::string& NPnames) {
         }
     }
     for(const auto& inorm : fNormFactors) {
+        if (inorm->fNuisanceParameter.find("Expression_") != std::string::npos) continue;
         if (!fUsePOISinRanking && Common::FindInStringVector(fPOIs, inorm->fName) >= 0) continue;
         if(NPnames=="all" || NPnames==inorm->fName){
             manager.AddNuisPar(inorm->fName, true);

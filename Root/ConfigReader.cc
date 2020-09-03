@@ -3532,14 +3532,14 @@ int ConfigReader::ReadNormFactorOptions(){
             } else {
                 nfactor->fExpression = std::make_pair(v[0],v[1]);
                 // title will contain the expression FIXME
-                nfactor->fTitle = v[0];
-                TRExFitter::SYSTMAP[nfactor->fName] = v[0];
+                nfactor->fTitle = "Expression_" + v[0];
+                TRExFitter::SYSTMAP[nfactor->fName] = "Expression_" + v[0];
                 // nuis-par will contain the nuis-par of the norm factor the expression depends on FIXME
-                nfactor->fNuisanceParameter = v[1];
-                TRExFitter::NPMAP[nfactor->fName] = v[1];
+                nfactor->fNuisanceParameter = "Expression_" + v[1];
+                TRExFitter::NPMAP[nfactor->fName] = "Expression_" + v[1];
                 // set nominal, min and max according to the norm factor the expression depends on FIXME
                 for(const auto& nf : fFitter->fNormFactors){
-                    if(nf->fNuisanceParameter == v[1]){
+                    if(nf->fNuisanceParameter == "Expression_" + v[1]) {
                         nfactor->fNominal = nf->fNominal;
                         nfactor->fMin = nf->fMin;
                         nfactor->fMax = nf->fMax;
