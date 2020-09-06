@@ -283,7 +283,8 @@ TRExFit::TRExFit(std::string name) :
     fValidationPruning(false),
     fUnfoldNormXSec(false),
     fUnfoldNormXSecBinN(-1),
-    fUsePOISinRanking(false)
+    fUsePOISinRanking(false),
+    fUseHesseBeforeMigrad(false)
 {
     TRExFitter::IMAGEFORMAT.emplace_back("png");
 }
@@ -3562,6 +3563,7 @@ RooStats::HistFactory::Sample TRExFit::OneSampleToRooStats(RooStats::HistFactory
     }
 
     if (fStatOnly) {
+        sample.AddOverallSys( "Dummy",1,1 );
         return sample;
     }
     // systematics
@@ -4475,6 +4477,13 @@ void TRExFit::Fit(bool isLHscanOnly){
     //
     // Calls the  function to create LH scan with respect to a parameter
     //
+    // get list of all parameters
+    RooStats::ModelConfig* mc = dynamic_cast<RooStats::ModelConfig*>(ws->obj("ModelConfig"));
+    if (!mc) {
+        WriteErrorStatus("TRExFit::Fit", "Passed nullptr for mc");
+        exit(EXIT_FAILURE);
+    }
+    const std::vector<std::string> parameters = FitUtils::GetAllParameters(mc);
     if(fVarNameLH.size()>0 && !isLHscanOnly && !fParal2D){
         //
         // Don't do it if you did a non-profile fit (FIXME)
@@ -4482,14 +4491,14 @@ void TRExFit::Fit(bool isLHscanOnly){
             WriteWarningStatus("TRExFit::Fit","Better not to perform LH scan if you did non-profile fit with scan on systematics. Skipping LH scan.");
         }
         else{
-            if (fVarNameLH[0]=="all"){
-                for(std::map<std::string,std::string>::iterator it=TRExFitter::SYSTMAP.begin(); it!=TRExFitter::SYSTMAP.end(); ++it){
-                    GetLikelihoodScan( ws.get(), it->first, data.get());
+            if (fVarNameLH[0]=="all") {
+                for(const auto& iparam : parameters) {
+                    GetLikelihoodScan( ws.get(), iparam, data.get());
                 }
             }
             else{
-                for(unsigned int i=0; i<fVarNameLH.size(); ++i){
-                    GetLikelihoodScan( ws.get(), fVarNameLH[i], data.get());
+                for(const auto& iparam : fVarNameLH) {
+                    GetLikelihoodScan( ws.get(), iparam, data.get());
                 }
             }
         }
@@ -4501,8 +4510,8 @@ void TRExFit::Fit(bool isLHscanOnly){
         }
         if (fVarNameLH[0]=="all"){
             WriteWarningStatus("TRExFit::Fit","You are running LHscan only option but running it for all parameters. Will not parallelize!.");
-            for(std::map<std::string,std::string>::iterator it=TRExFitter::SYSTMAP.begin(); it!=TRExFitter::SYSTMAP.end(); ++it){
-                GetLikelihoodScan( ws.get(), it->first, data.get());
+            for(const auto& iparam : parameters) {
+                GetLikelihoodScan( ws.get(), iparam, data.get());
             }
         } else {
             GetLikelihoodScan( ws.get(), fVarNameLH[0], data.get());
@@ -4726,6 +4735,7 @@ std::map < std::string, double > TRExFit::PerformFit( RooWorkspace *ws, RooDataS
     //
     FittingTool fitTool{};
     fitTool.SetUseHesse(true);
+    fitTool.SetUseHesseBeforeMigrad(fUseHesseBeforeMigrad);
     fitTool.SetStrategy(fFitStrategy);
     fitTool.SetDebug(debugLevel);
     fitTool.SetNCPU(fCPU);
@@ -5739,6 +5749,7 @@ void TRExFit::ProduceNPRanking(const std::string& NPnames) {
     // List of systematics to check
     //
     RankingManager manager{};
+    manager.SetUseHesseBeforeMigrad(fUseHesseBeforeMigrad);
     std::vector<std::string> systNames_unique;
     for(const auto& isyst : fSystematics) {
         if(NPnames=="all" || NPnames==isyst->fNuisanceParameter ) {
@@ -5750,6 +5761,7 @@ void TRExFit::ProduceNPRanking(const std::string& NPnames) {
         }
     }
     for(const auto& inorm : fNormFactors) {
+        if (inorm->fNuisanceParameter.find("Expression_") != std::string::npos) continue;
         if (!fUsePOISinRanking && Common::FindInStringVector(fPOIs, inorm->fName) >= 0) continue;
         if(NPnames=="all" || NPnames==inorm->fName){
             manager.AddNuisPar(inorm->fName, true);
@@ -5926,6 +5938,7 @@ void TRExFit::PlotNPRanking(const bool flagSysts, const bool flagGammas) const{
     }
 
     RankingManager manager{};
+    manager.SetUseHesseBeforeMigrad(fUseHesseBeforeMigrad);
     manager.SetAtlasLabel(fAtlasLabel);
     manager.SetLumiLabel(fLumiLabel);
     manager.SetCmeLabel(fCmeLabel);
@@ -7540,7 +7553,7 @@ std::vector<std::string> TRExFit::FullNtuplePaths(Region *reg,Sample *smp,System
 
 //__________________________________________________________________________________
 // Computes the full list of path + file-name + histogram-name string to be used when reading ntuples, for a given region, sample and systematic combination
-std::vector<std::string> TRExFit::FullHistogramPaths(Region *reg,Sample *smp,Systematic *syst,bool isUp){
+std::vector<std::string> TRExFit::FullHistogramPaths(Region *reg,Sample *smp,Systematic *syst,bool isUp, const bool isFolded){
     // protection against nullptr
     if(reg==nullptr){
         WriteErrorStatus("TRExFit::FullHistogramPaths","Null pointer for Region.");
@@ -7605,44 +7618,44 @@ std::vector<std::string> TRExFit::FullHistogramPaths(Region *reg,Sample *smp,Sys
     // (same order as above used for suffix order - OK? FIXME)
     if(syst!=nullptr){
         if(isData && syst->fSubtractRefSampleVar && syst->fReferenceSample==smp->fName){
-            if(isUp) pathSuffs = Common::CombinePathSufs( Common::CombinePathSufs( reg->fHistoPathSuffs, smp->fHistoPathSuffs ), Common::ToVec(syst->fHistoPathSufUpRefSample) );
-            else     pathSuffs = Common::CombinePathSufs( Common::CombinePathSufs( reg->fHistoPathSuffs, smp->fHistoPathSuffs ), Common::ToVec(syst->fHistoPathSufDownRefSample) );
+            if(isUp) pathSuffs = Common::CombinePathSufs( Common::CombinePathSufs( reg->fHistoPathSuffs, smp->fHistoPathSuffs, isFolded ), Common::ToVec(syst->fHistoPathSufUpRefSample), isFolded );
+            else     pathSuffs = Common::CombinePathSufs( Common::CombinePathSufs( reg->fHistoPathSuffs, smp->fHistoPathSuffs, isFolded ), Common::ToVec(syst->fHistoPathSufDownRefSample), isFolded );
         }
         else{
-            if(isUp) pathSuffs = Common::CombinePathSufs( Common::CombinePathSufs( reg->fHistoPathSuffs, smp->fHistoPathSuffs ), Common::ToVec(syst->fHistoPathSufUp) );
-            else     pathSuffs = Common::CombinePathSufs( Common::CombinePathSufs( reg->fHistoPathSuffs, smp->fHistoPathSuffs ), Common::ToVec(syst->fHistoPathSufDown) );
+            if(isUp) pathSuffs = Common::CombinePathSufs( Common::CombinePathSufs( reg->fHistoPathSuffs, smp->fHistoPathSuffs, isFolded ), Common::ToVec(syst->fHistoPathSufUp), isFolded );
+            else     pathSuffs = Common::CombinePathSufs( Common::CombinePathSufs( reg->fHistoPathSuffs, smp->fHistoPathSuffs, isFolded ), Common::ToVec(syst->fHistoPathSufDown), isFolded );
         }
     }
     else{
-        pathSuffs = Common::CombinePathSufs( reg->fHistoPathSuffs, smp->fHistoPathSuffs );
+        pathSuffs = Common::CombinePathSufs( reg->fHistoPathSuffs, smp->fHistoPathSuffs, isFolded );
     }
     //
     if(syst!=nullptr){
         if(isData && syst->fSubtractRefSampleVar && syst->fReferenceSample==smp->fName){
-            if(isUp) fileSuffs = Common::CombinePathSufs( Common::CombinePathSufs( reg->fHistoFileSuffs, smp->fHistoFileSuffs ), Common::ToVec(syst->fHistoFileSufUpRefSample) );
-            else     fileSuffs = Common::CombinePathSufs( Common::CombinePathSufs( reg->fHistoFileSuffs, smp->fHistoFileSuffs ), Common::ToVec(syst->fHistoFileSufDownRefSample) );
+            if(isUp) fileSuffs = Common::CombinePathSufs( Common::CombinePathSufs( reg->fHistoFileSuffs, smp->fHistoFileSuffs, isFolded ), Common::ToVec(syst->fHistoFileSufUpRefSample), isFolded );
+            else     fileSuffs = Common::CombinePathSufs( Common::CombinePathSufs( reg->fHistoFileSuffs, smp->fHistoFileSuffs, isFolded ), Common::ToVec(syst->fHistoFileSufDownRefSample), isFolded );
         }
         else{
-            if(isUp) fileSuffs = Common::CombinePathSufs( Common::CombinePathSufs( reg->fHistoFileSuffs, smp->fHistoFileSuffs ), Common::ToVec(syst->fHistoFileSufUp) );
-            else     fileSuffs = Common::CombinePathSufs( Common::CombinePathSufs( reg->fHistoFileSuffs, smp->fHistoFileSuffs ), Common::ToVec(syst->fHistoFileSufDown) );
+            if(isUp) fileSuffs = Common::CombinePathSufs( Common::CombinePathSufs( reg->fHistoFileSuffs, smp->fHistoFileSuffs, isFolded ), Common::ToVec(syst->fHistoFileSufUp), isFolded );
+            else     fileSuffs = Common::CombinePathSufs( Common::CombinePathSufs( reg->fHistoFileSuffs, smp->fHistoFileSuffs, isFolded ), Common::ToVec(syst->fHistoFileSufDown), isFolded );
         }
     }
     else{
-        fileSuffs = Common::CombinePathSufs( reg->fHistoFileSuffs, smp->fHistoFileSuffs );
+        fileSuffs = Common::CombinePathSufs( reg->fHistoFileSuffs, smp->fHistoFileSuffs, isFolded );
     }
     //
     if(syst!=nullptr){
         if(isData && syst->fSubtractRefSampleVar && syst->fReferenceSample==smp->fName){
-            if(isUp) nameSuffs = Common::CombinePathSufs( Common::CombinePathSufs( reg->fHistoNameSuffs, smp->fHistoNameSuffs ), Common::ToVec(syst->fHistoNameSufUpRefSample) );
-            else     nameSuffs = Common::CombinePathSufs( Common::CombinePathSufs( reg->fHistoNameSuffs, smp->fHistoNameSuffs ), Common::ToVec(syst->fHistoNameSufDownRefSample) );
+            if(isUp) nameSuffs = Common::CombinePathSufs( Common::CombinePathSufs( reg->fHistoNameSuffs, smp->fHistoNameSuffs, isFolded ), Common::ToVec(syst->fHistoNameSufUpRefSample), isFolded );
+            else     nameSuffs = Common::CombinePathSufs( Common::CombinePathSufs( reg->fHistoNameSuffs, smp->fHistoNameSuffs, isFolded ), Common::ToVec(syst->fHistoNameSufDownRefSample), isFolded );
         }
         else{
-            if(isUp) nameSuffs = Common::CombinePathSufs( Common::CombinePathSufs( reg->fHistoNameSuffs, smp->fHistoNameSuffs ), Common::ToVec(syst->fHistoNameSufUp) );
-            else     nameSuffs = Common::CombinePathSufs( Common::CombinePathSufs( reg->fHistoNameSuffs, smp->fHistoNameSuffs ), Common::ToVec(syst->fHistoNameSufDown) );
+            if(isUp) nameSuffs = Common::CombinePathSufs( Common::CombinePathSufs( reg->fHistoNameSuffs, smp->fHistoNameSuffs, isFolded ), Common::ToVec(syst->fHistoNameSufUp), isFolded );
+            else     nameSuffs = Common::CombinePathSufs( Common::CombinePathSufs( reg->fHistoNameSuffs, smp->fHistoNameSuffs, isFolded ), Common::ToVec(syst->fHistoNameSufDown), isFolded );
         }
     }
     else{
-      nameSuffs = Common::CombinePathSufs( Common::CombinePathSufs( reg->fHistoNameSuffs, smp->fHistoNameSuffs), fHistoNamesNominal );
+      nameSuffs = Common::CombinePathSufs( Common::CombinePathSufs( reg->fHistoNameSuffs, smp->fHistoNameSuffs, isFolded), fHistoNamesNominal, isFolded );
     }
     //
     // And finally put everything together
@@ -7763,7 +7776,9 @@ std::shared_ptr<SystematicHist> TRExFit::CombineSpecialHistos(std::shared_ptr<Sy
                 orig->fHistDown->SetBinContent(ibin, min + sh->fHist->GetBinContent(ibin));
             }
         }
-    } else if (type == Systematic::COMBINATIONTYPE::STANDARDDEVIATION) {
+    } else if (type == Systematic::COMBINATIONTYPE::STANDARDDEVIATION 
+                || type == Systematic::COMBINATIONTYPE::STANDARDDEVIATIONNODDOF
+                || type == Systematic::COMBINATIONTYPE::HESSIAN) {
         for (int ibin = 1; ibin <= nbins; ++ ibin) {
             std::vector<double> content;
             for (const auto& isyst : vec) {
@@ -7795,7 +7810,17 @@ std::shared_ptr<SystematicHist> TRExFit::CombineSpecialHistos(std::shared_ptr<Sy
                 sigma+= (value-mean)*(value-mean);
             }
 
-            sigma = static_cast<double>(sigma / (content.size() - 1));
+            double denominator(0.);
+
+            if (type == Systematic::COMBINATIONTYPE::STANDARDDEVIATIONNODDOF) {
+                denominator = content.size();
+            } else if (type == Systematic::COMBINATIONTYPE::HESSIAN) {
+                denominator = 1.;
+            } else { // normal standard deviation
+                denominator = content.size() - 1;
+            }
+
+            sigma = static_cast<double>(sigma / denominator);
             sigma = std::sqrt(sigma);
 
             // now set the bin content
@@ -8060,6 +8085,7 @@ void TRExFit::PrepareUnfolding() {
             // Process systematics
             for (const auto& isyst : fUnfoldingSystematics) {
                 if (!isyst) continue;
+                if (isyst->GetName() == "Dummy") continue;
 
                 if(isyst->fRegions.at(0) != "all" &&
                      Common::FindInStringVector(isyst->fRegions, ireg->fName) < 0) continue;

@@ -12,8 +12,6 @@
 #include "TPad.h"
 #include "TStyle.h"
 
-using std::string;
-
 //__________________________________________________________________________________
 //
 CorrelationMatrix::CorrelationMatrix() :
@@ -22,7 +20,7 @@ CorrelationMatrix::CorrelationMatrix() :
 
 //__________________________________________________________________________________
 //
-void CorrelationMatrix::AddNuisPar(const string& p){
+void CorrelationMatrix::AddNuisPar(const std::string& p){
     fNuisParIdx[p] = (int)fNuisParNames.size();
     fNuisParNames.push_back(p);
     fNuisParIsThere[p] = true;
@@ -39,7 +37,7 @@ void CorrelationMatrix::Resize(const int size) {
 
 //__________________________________________________________________________________
 //
-void CorrelationMatrix::SetCorrelation(const string& p0, const string& p1,double corr){
+void CorrelationMatrix::SetCorrelation(const std::string& p0, const std::string& p1, double corr){
     const std::size_t idx0 = fNuisParIdx[p0];
     const std::size_t idx1 = fNuisParIdx[p1];
     fMatrix[idx0][idx1] = corr;
@@ -47,7 +45,7 @@ void CorrelationMatrix::SetCorrelation(const string& p0, const string& p1,double
 
 //__________________________________________________________________________________
 //
-double CorrelationMatrix::GetCorrelation(const string& p0, const string& p1){
+double CorrelationMatrix::GetCorrelation(const std::string& p0, const std::string& p1){
     bool isMorph_p0 = false;
     bool isMorph_p1 = false;
     if (p0.find("morph_") != std::string::npos) isMorph_p0 = true;
@@ -75,12 +73,12 @@ void CorrelationMatrix::Draw(const std::vector<std::string>& path, const bool& u
     //
     // 0) Determines the number of lines/columns
     //
-    std::vector < string > vec_NP = fNuisParNames;
+    std::vector <std::string> vec_NP = fNuisParNames;
     std::vector<std::vector<double> > correlations(fNuisParNames.size(), std::vector<double>(fNuisParNames.size()));
     for(unsigned int iNP = 0; iNP < fNuisParNames.size(); ++iNP){
-        const string iSystName = fNuisParNames[iNP];
+        const std::string iSystName = fNuisParNames[iNP];
         for(unsigned int jNP = 0; jNP < fNuisParNames.size(); ++jNP){
-            const string jSystName = fNuisParNames[jNP];
+            const std::string jSystName = fNuisParNames[jNP];
             const double corr = GetCorrelation(iSystName, jSystName);
             correlations.at(iNP).at(jNP) = corr;
         }
@@ -88,9 +86,9 @@ void CorrelationMatrix::Draw(const std::vector<std::string>& path, const bool& u
     if(minCorr>-1){
         vec_NP.clear();
         for(unsigned int iNP = 0; iNP < fNuisParNames.size(); ++iNP){
-            const string iSystName = fNuisParNames[iNP];
+            const std::string iSystName = fNuisParNames[iNP];
             for(unsigned int jNP = 0; jNP < fNuisParNames.size(); ++jNP){
-                const string jSystName = fNuisParNames[jNP];
+                const std::string jSystName = fNuisParNames[jNP];
                 if(jNP == iNP) continue;
                 const double corr = GetCorrelation(iSystName, jSystName);
                 if(std::fabs(corr)>=minCorr){
@@ -113,22 +111,25 @@ void CorrelationMatrix::Draw(const std::vector<std::string>& path, const bool& u
     //
     // 0.5) Skip some NPs
     //
-    static const std::vector<string> npToExclude = {"gamma_","stat_"};
-    std::vector < std::string > vec_NP_old = vec_NP;
+    static const std::vector<std::string> npToExclude = {"gamma_","stat_"};
+    std::vector <std::string> vec_NP_old = vec_NP;
     vec_NP.clear();
     for(unsigned int iNP = 0; iNP < vec_NP_old.size(); ++iNP){
         const std::string iSystName = vec_NP_old[iNP];
-        bool skip = false;
-        if (!useGammas){
+        bool skip(false);
+        if (iSystName.find("Expression_") != std::string::npos) {
+            skip = true;
+        }
+        if (!useGammas && !skip) {
             for(const std::string& ii : npToExclude){
-                if(iSystName.find(ii)!=std::string::npos){
+                if(iSystName.find(ii) != std::string::npos){
                     skip = true;
-                    continue;
+                    break;
                 }
             }
         }
         if(skip) continue;
-        if( Common::FindInStringVector(fNuisParToHide,iSystName)>=0 ) continue;
+        if(Common::FindInStringVector(fNuisParToHide,iSystName) >=0) continue;
         vec_NP.push_back(iSystName);
     }
     N = vec_NP.size();
@@ -150,10 +151,10 @@ void CorrelationMatrix::Draw(const std::vector<std::string>& path, const bool& u
     // 1) Performs the plot
     //
     TH2D h_corr("h_corr","",N,0,N,N,0,N);
-    h_corr.SetDirectory(0);
+    h_corr.SetDirectory(nullptr);
 
     for(unsigned int iNP = 0; iNP < vec_NP.size(); ++iNP){//line number
-        const string iSystName = vec_NP[iNP];
+        const std::string iSystName = vec_NP[iNP];
 
         if(TRExFitter::SYSTMAP[iSystName]!=""){
             h_corr.GetXaxis()->SetBinLabel(iNP+1,TRExFitter::SYSTMAP[iSystName].c_str());
@@ -165,7 +166,7 @@ void CorrelationMatrix::Draw(const std::vector<std::string>& path, const bool& u
         }
 
         for(unsigned int jNP = 0; jNP < vec_NP.size(); ++jNP){//column number
-            const string jSystName = vec_NP[jNP];
+            const std::string jSystName = vec_NP[jNP];
 
             h_corr.SetBinContent(iNP+1,N-jNP,100.*GetCorrelation(iSystName, jSystName));
 

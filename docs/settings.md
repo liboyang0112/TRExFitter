@@ -6,7 +6,7 @@ The following settings are for normal fits, performed without the action `m`. Th
 ### `Job` block settings
 | **Option** | **Function** |
 | ---------- | ------------ |
-| **General** | |
+| **General**                  | |
 | Label                        | the label which will be shown on plots, if 'none' is set, no label will be shown |
 | POI                          | the name of the parameter of interest; this should correspond to a NormFactor defined below. It is possible to define more than one POI, as a comma-separated list |
 | ReadFrom                     | can be HIST or NTUP; default is HIST |
@@ -17,7 +17,7 @@ The following settings are for normal fits, performed without the action `m`. Th
 | HistoChecks                  | NOCRASH: means that if an error is found in the input histograms, the code continues (with only warnings) -- default leads to a crash in case of problem, if set to NOCRASH, also prints warning instead of error (and crash) when input files are not found for the histogram building step |
 | SplitHistoFiles              | set this to TRUE to have histogram files split by region (useful with many regions and/or run in parallel) |
 | ImageFormat                  | png, pdf or eps |
-| SmoothingOption              | Choose which smoothing option to use, allowed parameters are: MAXVARIATION (default), TTBARRESONANCE (see also [FAQ section](#faq)), COMMONTOOLSMOOTHMONOTONIC, COMMONTOOLSMOOTHPARABOLIC, KERNELRATIOUNIFORM, KERNELDELTAGAUSS or KERNELRATIOGAUSS. |
+| SmoothingOption              | Choose which smoothing option to use, allowed parameters are: MAXVARIATION (default), TTBARRESONANCE (see also [FAQ section](faq.md)), COMMONTOOLSMOOTHMONOTONIC, COMMONTOOLSMOOTHPARABOLIC, KERNELRATIOUNIFORM, KERNELDELTAGAUSS or KERNELRATIOGAUSS. |
 | CorrectNormForNegativeIntegral | By default, if there are samples with negative yields in some bins, the total integral over that sample will be re-scaled after the yield in the negative bins was corrected to 1e-6, such that the total yield across the sample in this region is consistent with the yield before fixing the negative bins. If this option is set to TRUE (by default, it is FALSE), then this re-scaling will also happen if the total yield initially was negative. This can lead to unexpected behavior (expert option, proceed with caution). |
 | MergeUnderOverFlow           | if set to TRUE, the underflow content of each histogram is added to the first bin and the overflow to the last one (default is FALSE for HIST inputs and TRUE for NTUP inputs) |
 | SuppressNegativeBinWarnings  | If set to TRUE, will suppress warning messages about negative or 0 content in bins |
@@ -32,7 +32,7 @@ The following settings are for normal fits, performed without the action `m`. Th
 | CustomFunctions              | list of .C files with definition and implementation of functions to be used in strings defining selections or weights (see this link: https://wiki.physik.uzh.ch/lhcb/root:ttreedraw, notice that the file and function names should match and that all the arguments of the function should have default values) |
 | MCweight                     | only for option NTUP; string defining the weight (for MC samples only) |
 | Selection                    | only for option NTUP; string defining the selection |
-| **Paths** | |
+| **Paths**                    | |
 | HistoPath(s)                 | valid only for option HIST above is selected; it's the path(s) where the input root files containing the histograms are stored |
 | HistoFile(s)                 | valid only for option HIST; it's the file name(s) where the input root files containing the histograms are stored |
 | HistoName(s)                 | valid only for option HIST; it's the histogram name(s) to read from the file(s) |
@@ -51,20 +51,20 @@ The following settings are for normal fits, performed without the action `m`. Th
 | ResponseMatrixFile(s)        | File path(s) of the histogram for response matrix |
 | ResponseMatrixPaths(s)       | Folder path(s) of the histogram for response matrix |
 | ResponseMatrixNameNominal    | Nominal histogram name |
-| AcceptanceName(s)        | Name(s) of the histogram for acceptance |
-| AcceptanceFile(s)        | File path(s) of the histogram for acceptance |
-| AcceptancePaths(s)       | Folder path(s) of the histogram for acceptance |
-| AcceptanceNameNominal    | Nominal histogram name |
-| SelectionEffName(s)       | Name(s) of the histogram for selection efficiency |
-| SelectionEffFile(s)       | File path(s) of the histogram for selection efficiency |
-| SelectionEffPaths(s)      | Folder path(s) of the histogram for selection efficiency |
-| SelectionEffNameNominal   | Nominal histogram name |
-| MigrationName(s)        | Name(s) of the histogram for migration matrix |
-| MigrationFile(s)        | File path(s) of the histogram for migration matrix |
-| MigrationPaths(s)       | Folder path(s) of the histogram for migration matrix |
-| MigrationNameNominal    | Nominal histogram name |
-| **Pruning** | |
-| PruningType                 | Can be set to `BACKGROUNDREFERENCE` or `COMBINEDREFERENCE` (default is `SEPARATESAMPLE`), and pruning (both shape and norm) will be done w.r.t. to total-signal/total. |
+| AcceptanceName(s)            | Name(s) of the histogram for acceptance |
+| AcceptanceFile(s)            | File path(s) of the histogram for acceptance |
+| AcceptancePaths(s)           | Folder path(s) of the histogram for acceptance |
+| AcceptanceNameNominal        | Nominal histogram name |
+| SelectionEffName(s)          | Name(s) of the histogram for selection efficiency |
+| SelectionEffFile(s)          | File path(s) of the histogram for selection efficiency |
+| SelectionEffPaths(s)         | Folder path(s) of the histogram for selection efficiency |
+| SelectionEffNameNominal      | Nominal histogram name |
+| MigrationName(s)             | Name(s) of the histogram for migration matrix |
+| MigrationFile(s)             | File path(s) of the histogram for migration matrix |
+| MigrationPaths(s)            | Folder path(s) of the histogram for migration matrix |
+| MigrationNameNominal         | Nominal histogram name |
+| **Pruning**                  | |
+| PruningType                  | Can be set to `BACKGROUNDREFERENCE` or `COMBINEDREFERENCE` (default is `SEPARATESAMPLE`), and pruning (both shape and norm) will be done w.r.t. to total-signal/total. |
 | SystPruningShape             | Lower threshold to remove a shape systematic from the fit/limit (suppression is done per sample and per region) (e.g.: 0.02 for 2%) |
 | SystPruningNorm              | Lower threshold to remove a normalisation systematic from the fit/limit (suppression is done per sample and per region) (e.g.: 0.02 for 2%) |
 | SystLarge                    | All systematics above this threshold will be removed, unless `RemoveLargeSyst` is set to `FALSE`, then the systematics will be flagged in the pruning plot) (e.g. 0.4 will flag systematics that are larger than 40%). The default is -1, meaning no pruning. |
@@ -73,7 +73,7 @@ The following settings are for normal fits, performed without the action `m`. Th
 | PruningShapeOption           | Can be `MAXBIN` (Default) or `KSTEST`. `MAXBIN` checks if the systematic variation has at least one bin which is different compared to the nominal (variation is >= threshold). `KSTEST` runs the Kolmogorov test (using the `X` option, a.k.a running pseudoexperiments). When using `KSTEST`, if the probability is <= (1-threshold) then the systematic is marked as having shape component. |
 | ShowValidationPruning        | If set to `TRUE` will show the pruning also in validation regions. Default is `FALSE`. |
 | KeepPruning                  | if set to TRUE, the first time the ws is created (option w) a Pruning.root file is created under `<jobName>/` and used for future operations to skip pruned systematics (makes operations much faster in case many syst are pruned) |
-| **Affecting Fit** |
+| **Affecting Fit**            | |
 | IntCodeOverall               | interpolation code used for the normalization component of systematics (should match the one used in RooStats) |
 | IntCodeShape                 | interpolation code used for the shape component of systematics (should match the one used in RooStats) |
 | MCstatThreshold              | by default, the MC stat uncertainty is included in the fit (and to the plots); a NP will be added for each bin with an MC stat uncertainty > this threshold (relative) if the option is set to a float (default: no threshold); can also set to NONE in order to disable MC stat uncertainty completely |
@@ -87,7 +87,8 @@ The following settings are for normal fits, performed without the action `m`. Th
 | SmoothMorphingTemplates      | if set to TRUE (default is FALSE), the templates used for morphing are forced to have linear dependence on the morphing parameter, bin-by-bin (plots are produced per bin, in the Morphing directory) |
 | PropagateSystsForMorphing    | if set to TRUE (default is FALSE), the non-nominal templates inherit all the systematics from the nominal template; NB: the nominal template is determined by the nominal value of the norm factor in the config |
 | ExcludeFromMorphing          | The specified sample is left our from the morphing (useful to do closure tests for morphing). |
-| **Cosmetics** | |
+| AlternativeShapeHistFactory  | For systematic uncertainties defined via a single template and then symmetrized, there are two ways of building the (normalized) `HistoSys` template that enters `HistFactory`. By default, `TRExFitter` first symmetrizes the provided template, and then normalizes both resulting templates. If this option is set to TRUE (false by default), then the order of operations is switched. `TRExFitter` will first normalize the provided template to the same yield as nominal, and then symmetrize the resulting template. This means that the templates passed to `HistFactory` are symmetric, while by default they are not completely symmetric. (Note that this does not mean that the normalization effect is dropped from the systematic, it is handled separately in `HistFactory` as an `OverallSys`. |
+| **Cosmetics**                | |
 | UseGammaPulls                | if set to TRUE, the fit results in terms of gamma parameter pulls, constraints and correlations are propagated to the post-fit plots, when possible (i.e. not for validation plots of course) |
 | PlotOptions                  | a set of options for plotting:<br>&nbsp; &nbsp; **YIELDS**: if set, the legend will be one-column and will include the yields; otherwise two-columns and no yields<br>&nbsp; &nbsp; **NORMSIG**: add normlised signal to plots<br>&nbsp; &nbsp; **NOSIG**: don't show signal in stack<br>&nbsp; &nbsp; **OVERSIG**: overlay signal (not normalised)<br>&nbsp; &nbsp; **CHI2**: the chi2/ndf and chi2 prob will be printed on each plot, provided that the option GetChi2 is set<br>&nbsp; &nbsp; **PREFITONPOSTFIT**: draw a dashed line on the postfit plot that indicates the sum of prefit background<br>&nbsp; &nbsp; **NOXERR**: removes the horizontal error bars on the data and the ratio plots |
 | POIUnit                      | a unit can be added to the POI, for cosmetic reasons, in case it's not a pure number. In case of more than one POI, the argument should be in the form `"name-of-poi-1":"unit-1","name-of-poi2":"unit-2"`
@@ -154,13 +155,13 @@ The following settings are for normal fits, performed without the action `m`. Th
 | LegendNColumns               | Number of columns in Legend for Data/MC plots. |
 | LegendNColumnsSummary        | Same as LegendNColumns but for Summary plot. |
 | LegendNColumnsMerge          | Same as LegendNColumns but for Merged plot. |
-| ReorderNPs              | If set to TRUE, fit results will show NPs and norm factors ordered according to how they appear in the config file. |
-| **Blinding** | |
+| ReorderNPs                   | If set to TRUE, fit results will show NPs and norm factors ordered according to how they appear in the config file. |
+| **Blinding**                 | |
 | BlindingThreshold            | blind bins when S/B is greater than this threshold, use the `BlindingType` option for other definitions than just S/B |
 | BlindingType                 | how to calculate the quantity to determine blinding, options are SOVERB (for S/B), SOVERSPLUSB(for S/(S+B)), SOVERSQRTB (for S/sqrt(B)) and SOVERSQRTSPLUSB (for S/sqrt(S+B)), default is SOVERB |
 | KeepPrefitBlindedBins        | if set to TRUE pre-fit blinding is kept in post-fit plots |
 | HideNP                       | comma-separated list of nuisance parameters to be excluded from pull plots and correlation matrix |
-| BlindSRs                | If set, all SRs are forced to have DataType = ASIMOV |
+| BlindSRs                     | If set, all SRs are forced to have DataType = ASIMOV |
 
 
 ### `Fit` block settings
@@ -203,6 +204,7 @@ The following settings are for normal fits, performed without the action `m`. Th
 | FitStrategy                  | Set Minuit2 fitting strategy, can be: 0, 1 or 2. If negative value is set the default is used (1) |
 | BinnedLikelihoodOptimization | Can be set to TRUE or FALSE (default). If se to TRUE, will use the `BinnedLikelihood` optimisation of RooFit that has significant speed improvements, but results in less stable correlation matrix computation |
 | UsePOISinRanking | If set to `TRUE` (default is `FALSE`) will include POIs as NPs in the ranking |
+| UseHesseBeforeMigrad | If set to `TRUE` (default is `FALSE`) will run hesse() method before migrad, this can help with convergence in some cases |
 
 
 ### `Limit block` settings
@@ -267,7 +269,7 @@ additional options, accepting only float as arguments - useful for adding your f
 | NtuplePathSuff(s)            | only for option NTUP, the path suffix (or suffixes, comma-separated) where to find the ntuple files for this region |
 | MCweight                     | only for option NTUP, the additional weight used in this region (for MC samples only) |
 | Rebin                        | if specified, the histograms will be rebinned merging N bins together, where N is the argument (int) |
-| Binning                      | if specified, the histograms will be binned according to the new binning specified, in the form like `0,10,20,50,100`. The parameter `AutoBin` allows to use algorithms to define the binning. Example - `Binning: "AutoBin","TransfoD",5.,6.` (`TransfoF` also available, `5.` and `6.` are parameters of the transformation; `TransfoJ` takes three parameters). A popular setting is `TransfoD` with both parameters set to the same value; the amount of bins used is equal to the sum of both parameters. If used in background region and zSig!=0 (first parameter, =0 gives flat background) then need a comma separated list of backgrounds to use instead of signal to compute the binning. More information about the automatic binning algorithms is found in the FAQ (see README). |
+| Binning                      | if specified, the histograms will be binned according to the new binning specified, in the form like `0,10,20,50,100`. The parameter `AutoBin` allows to use algorithms to define the binning. Example - `Binning: "AutoBin","TransfoD",5.,6.` (`TransfoF` also available, `5.` and `6.` are parameters of the transformation; `TransfoJ` takes three parameters). A popular setting is `TransfoD` with both parameters set to the same value; the amount of bins used is equal to the sum of both parameters. If used in background region and zSig!=0 (first parameter, =0 gives flat background) then need a comma separated list of backgrounds to use instead of signal to compute the binning. More information about the automatic binning algorithms is found in the [FAQ](faq.md). |
 | Rebinning                    | if specified, the histograms will be rebinned according to the new binning specified, in the form like `0,10,20,50,100`. Differently from the BInning option, this one performs the rebinning aftre the original histograms are created. This means that this option can changed (or removed) before running the b step. |
 | BinWidth                     | if specified, two things are done: this number is used to decorate the y axis label and the bin content is scaled for bins with a bin width different from this number |
 | BinLabels                    | if specified, bin labels are set according to provided comma separated list (list length must be equal to number of bins) |
@@ -381,7 +383,7 @@ additional options, accepting only float as arguments - useful for adding your f
 | Category                     | major category to which the systematic belongs (instrumental, theory, ttbar, ...): used to split pulls plot for same category |
 | SubCategory                  | minor category for the systematic, used to evaluate impact on POI per SubCategory in "i" step, defaults to Category setting if it is used, otherwise defaults to "Uncategorised", do not use "Gammas", "FullSyst", or "combine" as SubCategory names (reserved for special functionality) |
 | CombineName                  | A unique string for each systematic that you want to combine into a single systematic (e.g.) envelope. This needs to be set for every systematic that needs to be combined. The code will then combine all systematic and modify the _first one_ and then set all other systematics manually to zero. This is executed during the `b` step. |
-| CombineType                  | Can be `ENVELOPE` or `STANDARDDEVIATION`. Tells the code how to combine the systematics with the same `CombineName`. `STANDARDDEVIATION` does OneSided symmetrisation while for `ENVELOPE` it is recommended to use the symmetrisation for the individual components. |
+| CombineType                  | Can be `ENVELOPE`, `STANDARDDEVIATION` (divide by `N-1`), `STANDARDDEVIATIONNODDOF` (no delta degree of freedom, i.e. divide by `N`) or `HESSIAN` (divide by `1`). Tells the code how to combine the systematics with the same `CombineName`. `STANDARDDEVIATION`, `STANDARDDEVIATIONNODDOF`, and `HESSIAN` do OneSided symmetrisation while for `ENVELOPE` it is recommended to use the symmetrisation for the individual components. |
 | HistoPathUp                  | only for option HIST, for HISTO or SHAPE systematic: histogram file path for systematic up variation |
 | HistoPathDown                | only for option HIST, for HISTO or SHAPE systematic: histogram file path for systematic down variation |
 | HistoPathSufUp               | only for option HIST, for HISTO or SHAPE systematic: suffix of the histogram file names for systematic up variation |
@@ -429,7 +431,7 @@ additional options, accepting only float as arguments - useful for adding your f
 | DummyForSamples              | list of samples, comma separated, for which the systematic gets created as a dummy one (syst variation = nominal); useful when used in combination with KeepNormForSamples |
 | NoPruning                    | Force the code to skip pruning for the systematic |
 | PreSmoothing                 | if set to TRUE, a TH1::Smooth-based smoothing is applied, prior to the usual smoothing (if set) |
-| SmoothingOption              | if not set smoothing option from Job option is taken. Choose which smoothing option to use for this systematic (this will overwrite the general smoothing option for this), allowed parameters are: MAXVARIATION (default), TTBARRESONANCE (see also [FAQ section](#faq)), COMMONTOOLSMOOTHMONOTONIC, COMMONTOOLSMOOTHPARABOLIC, KERNELRATIOUNIFORM, KERNELDELTAGAUSS or KERNELRATIOGAUSS. |
+| SmoothingOption              | if not set smoothing option from Job option is taken. Choose which smoothing option to use for this systematic (this will overwrite the general smoothing option for this), allowed parameters are: MAXVARIATION (default), TTBARRESONANCE (see also [FAQ section](faq.md)), COMMONTOOLSMOOTHMONOTONIC, COMMONTOOLSMOOTHPARABOLIC, KERNELRATIOUNIFORM, KERNELDELTAGAUSS or KERNELRATIOGAUSS. |
 | SubtractRefSampleVar         | if set to TRUE, the relative variation of the ReferenceSample will be linearly subtracted from the relative variation of each affected sample, for the same systematic - this is relevant e.g. for Full JER SmearingModel, where data would be the reference sample |
 | HistoPathUpRefSample         | only for option HIST, for HISTO or SHAPE systematic: reference sample histogram file path for systematic up variation |
 | HistoPathDownRefSample       | only for option HIST, for HISTO or SHAPE systematic: reference sample histogram file path for systematic down variation |
@@ -466,68 +468,69 @@ These options are for multi-fits, performed with action `m`.
 ### Multi-fit `Job` block settings
 | **Option** | **Function** |
 | ---------- | ------------ |
-| Label            | the label which will be shown on plots |
-| OutputDir        | the name of the output directory |
-| LumiLabel        | the luminosity label that will be shown on the plots |
-| CmeLabel         | the center of mass energy label that will be shown on the plots |
-| CombiLabel         | the name of the combination that will be shown on the plots, default is "Combined" |
-| SaveSuf          | added to file name of histograms, for usage with hupdate (equivalent to command line option) |
-| ShowObserved     | can be TRUE or FALSE, flag to turn on/off the observed values on the plots |
-| LimitTitle       | the title for limit that will be shown on the plots |
-| POITitle         | the title of the POI that will be shown on X axis  |
-| CompareLimits    | can be TRUE or FALSE, flag to compare to Limit values |
-| ComparePOI       | can be TRUE or FALSE, flag to compare to POI values |
-| ComparePulls     | can be TRUE or FALSE, flag to compare to pulls values |
-| PlotCombCorrMatrix | can be set to TRUE or FALSE, flag to build correlation matrix from the combined systematics |
-| CorrelationThreshold | Threshold used to draw the correlation matrix (only systematics with at least one correlation larger than than draw) (0.05:5%) |
-| UseGammasForCorr | If set to `TRUE` will add gammas into correlation matrix plot. Default is `FALSE` |
-| Combine          | can be TRUE or FALSE, set to TRUE if you want to perform actual combination (followed by `mwf`) |
-| Compare          | can be TRUE or FALSE, set to TRUE if you want to compare values |
-| StatOnly         | can be TRUE or FALSE, set to TRUE if the fits are stat only fits |
-| IncludeStatOnly  | can be TRUE or FALSE, set to TRUE if you want to include stat only fits |
-| POIName          | the name of the POI in the configs |
-| POIRange         | the range of the chosen POIs, in the for of `min1:max1,min2:max2`, where the number of options needs to match the number fo POIs |
-| LimitMax         | set maximum value for the limit |
-| POIPrecision     | comma separated strings, set precision of the POIs |
-| DataName         | can be "obsData", "asimovData", or custom string, if nothing is specified the observed data will be used |
-| FitType          | can be SPLUSB or BONLY |
-| SignalInjection  | can be TRUE or FALSE |
-| CombineChByCh    | can be TRUE (default) or FALSE, set to TRUE to combine channel by channel |
-| NPCategories     | comma separated list of NP categories |
-| SetRandomInitialNPval | provide a float  |
-| SetRandomInitialNPvalSeed | provide an int |
-| NumCPU           | a number of CPU cores used for the fit |
-| FastFit          | can be TRUE or FALSE |
-| FastFitForRanking| can be TRUE or FALSE |
-| NuisParListFile  | Name of file containing list of nuisance parameters, with one parameter per line, and names just like in the `Fits/*txt` file. The order will be used for the plots created with `ComparePulls`. |
-| PlotSoverB       | if set to TRUE will plot signal over background plots |
-| SignalTitle      | a title of the signal for the plots |
-| FitResultsFile   | a name of the file with fit results |
-| LimitsFile       | a name of the file with limits results |
-| BonlySuffix      | a suffix of the background only fits |
-| ShowSystForPOI   | can be TRUE or FALSE, set to TRUE if you want to show systematics for POI |
-| GetGoodnessOfFit | can be TRUE or FALSE, set to TRUE to get goodness of fit value based on the saturated model |
-| doLHscan         | comma separated list of NP(or POIs) to run LH scan, if first parameter is "all" it will be run for all NP |
-| do2DLHscan       | produces 2D likelihood scan between the chosen parameters. Syntax: "paramX1,paramY1:param X2,paramY2". Warning takes long time. You can reduce the number of steps via `LHscanSteps`. Alternatively you can split up the 2D scan in slices with `Parallel2Dscan` |
-| LHscanMin        | minimum value for the LH scan on x-axis (default is Norm min). This also effect the x-axis in a 2D scan |
-| LHscanMax        | maximum value for the LH scan on x-axis (default is Norm max). This also effect the x-axis in a 2D scan |
-| LHscanSteps      | number of steps on the LH scan (default is 30) . This also effect the x-axis in a 2D scan ||
-| LHscanMinY       | minimum value for the 2D-LH scan on y-axis (default it Norm min) |
-| LHscanMaxY       | maximum value for the 2D-LH scan on y-axis (default is Norm max) |
-| LHscanStepsY     | number of steps on the LH scan in y-direction (default is 30, but if not specified it uses LHscanSteps) |
-| PlotOptions      | same as for "standard" fits |
-| Logo             | can be TRUE or FALSE, use TRUE to show TRExFitter logo |
-| DebugLevel       | set level of debug output |
-| RunROOTMacros    | can be TRUE or FALSE, set to TRUE to run the common scripts in root interpreter in stead of running the directly compiled version (FALSE, default) |
-| POILabel         | name of the POI shown on plots, default is `#\mu` |
-| POINominal       | value of the nominal (SM) prediction for POI, default is `1` |
-| ShowTotalOnly    | If set to TRUE will show only total uncertainty on the POI plots. Default is FALSE |
-| POIAsimov        | Sets the the value of the POI for the fit. Needs to be used with `DataName: asimovData`. Default is 1. |
-| POIInitial       | Sets the initial value of the POI for the fit. Default is 1. |
-| HEPDataFormat    | If set to `TRUE` wil lproduce output in HEPData yaml format. |
-| FitStrategy      | Set Minuit2 fitting strategy, can be: 0, 1 or 2. If negative value is set the default is used (1) |
+| Label                        | the label which will be shown on plots |
+| OutputDir                    | the name of the output directory |
+| LumiLabel                    | the luminosity label that will be shown on the plots |
+| CmeLabel                     | the center of mass energy label that will be shown on the plots |
+| CombiLabel                   | the name of the combination that will be shown on the plots, default is "Combined" |
+| SaveSuf                      | added to file name of histograms, for usage with hupdate (equivalent to command line option) |
+| ShowObserved                 | can be TRUE or FALSE, flag to turn on/off the observed values on the plots |
+| LimitTitle                   | the title for limit that will be shown on the plots |
+| POITitle                     | the title of the POIs, separated by commas, that will be shown on X axis  |
+| CompareLimits                | can be TRUE or FALSE, flag to compare to Limit values |
+| ComparePOI                   | can be TRUE or FALSE, flag to compare to POI values |
+| ComparePulls                 | can be TRUE or FALSE, flag to compare to pulls values |
+| PlotCombCorrMatrix           | can be set to TRUE or FALSE, flag to build correlation matrix from the combined systematics |
+| CorrelationThreshold         | Threshold used to draw the correlation matrix (only systematics with at least one correlation larger than than draw) (0.05:5%) |
+| UseGammasForCorr             | If set to `TRUE` will add gammas into correlation matrix plot. Default is `FALSE` |
+| Combine                      | can be TRUE or FALSE, set to TRUE if you want to perform actual combination (followed by `mwf`) |
+| Compare                      | can be TRUE or FALSE, set to TRUE if you want to compare values |
+| StatOnly                     | can be TRUE or FALSE, set to TRUE if the fits are stat only fits |
+| IncludeStatOnly              | can be TRUE or FALSE, set to TRUE if you want to include stat only fits |
+| POIName                      | the name of the POI in the configs |
+| POIRange                     | the range of the chosen POIs, in the for of `min1:max1,min2:max2`, where the number of options needs to match the number fo POIs |
+| LimitMax                     | set maximum value for the limit |
+| POIPrecision                 | comma separated strings, set precision of the POIs |
+| DataName                     | can be "obsData", "asimovData", or custom string, if nothing is specified the observed data will be used |
+| FitType                      | can be SPLUSB or BONLY |
+| SignalInjection              | can be TRUE or FALSE |
+| CombineChByCh                | can be TRUE (default) or FALSE, set to TRUE to combine channel by channel |
+| NPCategories                 | comma separated list of NP categories |
+| SetRandomInitialNPval        | provide a float  |
+| SetRandomInitialNPvalSeed    | provide an int |
+| NumCPU                       | a number of CPU cores used for the fit |
+| FastFit                      | can be TRUE or FALSE |
+| FastFitForRanking            | can be TRUE or FALSE |
+| NuisParListFile              | Name of file containing list of nuisance parameters, with one parameter per line, and names just like in the `Fits/*txt` file. The order will be used for the plots created with `ComparePulls`. |
+| PlotSoverB                   | if set to TRUE will plot signal over background plots |
+| SignalTitle                  | a title of the signal for the plots |
+| FitResultsFile               | a name of the file with fit results |
+| LimitsFile                   | a name of the file with limits results |
+| BonlySuffix                  | a suffix of the background only fits |
+| ShowSystForPOI               | can be TRUE or FALSE, set to TRUE if you want to show systematics for POI |
+| GetGoodnessOfFit             | can be TRUE or FALSE, set to TRUE to get goodness of fit value based on the saturated model |
+| doLHscan                     | comma separated list of NP(or POIs) to run LH scan, if first parameter is "all" it will be run for all NP |
+| do2DLHscan                   | produces 2D likelihood scan between the chosen parameters. Syntax: "paramX1,paramY1:param X2,paramY2". Warning takes long time. You can reduce the number of steps via `LHscanSteps`. Alternatively you can split up the 2D scan in slices with `Parallel2Dscan` |
+| LHscanMin                    | minimum value for the LH scan on x-axis (default is Norm min). This also effect the x-axis in a 2D scan |
+| LHscanMax                    | maximum value for the LH scan on x-axis (default is Norm max). This also effect the x-axis in a 2D scan |
+| LHscanSteps                  | number of steps on the LH scan (default is 30) . This also effect the x-axis in a 2D scan ||
+| LHscanMinY                   | minimum value for the 2D-LH scan on y-axis (default it Norm min) |
+| LHscanMaxY                   | maximum value for the 2D-LH scan on y-axis (default is Norm max) |
+| LHscanStepsY                 | number of steps on the LH scan in y-direction (default is 30, but if not specified it uses LHscanSteps) |
+| PlotOptions                  | same as for "standard" fits |
+| Logo                         | can be TRUE or FALSE, use TRUE to show TRExFitter logo |
+| DebugLevel                   | set level of debug output |
+| RunROOTMacros                | can be TRUE or FALSE, set to TRUE to run the common scripts in root interpreter in stead of running the directly compiled version (FALSE, default) |
+| POILabel                     | name of the POI shown on plots, default is `#\mu` |
+| POINominal                   | value of the nominal (SM) prediction for POI, default is `1` |
+| ShowTotalOnly                | If set to TRUE will show only total uncertainty on the POI plots. Default is FALSE |
+| POIAsimov                    | Sets the the value of the POI for the fit. Needs to be used with `DataName: asimovData`. Default is 1. |
+| POIInitial                   | Sets the initial value of the POI for the fit. Default is 1. |
+| HEPDataFormat                | If set to `TRUE` wil lproduce output in HEPData yaml format. |
+| FitStrategy                  | Set Minuit2 fitting strategy, can be: 0, 1 or 2. If negative value is set the default is used (1) |
 | BinnedLikelihoodOptimization | Can be set to TRUE or FALSE (default). If se to TRUE, will use the `BinnedLikelihood` optimisation of RooFit that has significant speed improvements, but results in less stable correlation matrix computation |
-| UsePOISinRanking | If set to `TRUE` (default is `FALSE`) will include POIs as NPs in the ranking |
+| UsePOISinRanking             | If set to `TRUE` (default is `FALSE`) will include POIs as NPs in the ranking |
+| UseHesseBeforeMigrad         | If set to `TRUE` (default is `FALSE`) will run hesse() method before migrad, this can help with convergence in some cases |
 
 
 ### Multi-fit `Fit` block settings
@@ -544,7 +547,7 @@ These options are for multi-fits, performed with action `m`.
 | Directory        | the path to the directory |
 | InputName        | the name of the input |
 | UseInFit         | Set to `TRUE` by default, if set to `FALSE` will use the config in comparison plots, but will not be used to create the workspace and will not be used in the fit |
-| UseInComparison         | Set to `TRUE` by default, if set to `FALSE` will not use the config in comparison plots. |
+| UseInComparison  | Set to `TRUE` by default, if set to `FALSE` will not use the config in comparison plots. |
 
 
 
@@ -573,9 +576,9 @@ These options are for multi-fits, performed with action `m`.
 ### UnfoldingSample block
 | **Option** | **Function** |
 | ---------- | ------------ |
-| Title                    | for plots |
-| FillColor                | for plots |
-| LineColor                | for plots |
+| Title                        | for plots |
+| FillColor                    | for plots |
+| LineColor                    | for plots |
 | ResponseMatrixFile(s)        | same as for Job but per sample |
 | ResponseMatrixName(s)        | same as for Job but per sample |
 | ResponseMatrixPath(s)        | same as for Job but per sample |
@@ -588,7 +591,7 @@ These options are for multi-fits, performed with action `m`.
 | MigrationEffFile(s)          | same as for Job but per sample |
 | MigrationEffName(s)          | same as for Job but per sample |
 | MigrationEffPath(s)          | same as for Job but per sample |
-| Regions                  | Comma separated list of regions |
+| Regions                      | Comma separated list of regions |
 
 ### UnfoldingSystematic block
 | **Option** | **Function** |
@@ -601,75 +604,76 @@ These options are for multi-fits, performed with action `m`.
 | Category                  | same as for Systematic |
 | Category                  | same as for Systematic |
 | Symmetrisation            | same as for Systematic |
-| SmoothingOption            | same as for Systematic |
-| ResponseMatrixFile(s)Up        | self-explanatory |
-| ResponseMatrixName(s)Up        | self-explanatory |
-| ResponseMatrixPath(s)Up        | self-explanatory |
-| ResponseMatrixFile(s)Down        | self-explanatory |
-| ResponseMatrixName(s)Down        | self-explanatory |
-| ResponseMatrixPath(s)Down        | self-explanatory |
-| AcceptanceFile(s)Up        | self-explanatory |
-| AcceptanceName(s)Up        | self-explanatory |
-| AcceptancePath(s)Up        | self-explanatory |
-| AcceptanceFile(s)Down        | self-explanatory |
-| AcceptanceName(s)Down        | self-explanatory |
-| AcceptancePath(s)Down        | self-explanatory |
-| SelectionEffFile(s)Up        | self-explanatory |
-| SelectionEffName(s)Up        | self-explanatory |
-| SelectionEffPath(s)Up        | self-explanatory |
-| SelectionEffFile(s)Down        | self-explanatory |
-| SelectionEffName(s)Down        | self-explanatory |
-| SelectionEffPath(s)Down        | self-explanatory |
+| SmoothingOption           | same as for Systematic |
+| ResponseMatrixFile(s)Up   | self-explanatory |
+| ResponseMatrixName(s)Up   | self-explanatory |
+| ResponseMatrixPath(s)Up   | self-explanatory |
+| ResponseMatrixFile(s)Down | self-explanatory |
+| ResponseMatrixName(s)Down | self-explanatory |
+| ResponseMatrixPath(s)Down | self-explanatory |
+| AcceptanceFile(s)Up       | self-explanatory |
+| AcceptanceName(s)Up       | self-explanatory |
+| AcceptancePath(s)Up       | self-explanatory |
+| AcceptanceFile(s)Down     | self-explanatory |
+| AcceptanceName(s)Down     | self-explanatory |
+| AcceptancePath(s)Down     | self-explanatory |
+| SelectionEffFile(s)Up     | self-explanatory |
+| SelectionEffName(s)Up     | self-explanatory |
+| SelectionEffPath(s)Up     | self-explanatory |
+| SelectionEffFile(s)Down   | self-explanatory |
+| SelectionEffName(s)Down   | self-explanatory |
+| SelectionEffPath(s)Down   | self-explanatory |
 | MigrationFile(s)Up        | self-explanatory |
 | MigrationName(s)Up        | self-explanatory |
 | MigrationPath(s)Up        | self-explanatory |
-| MigrationFile(s)Down        | self-explanatory |
-| MigrationName(s)Down        | self-explanatory |
-| MigrationPath(s)Down        | self-explanatory |
+| MigrationFile(s)Down      | self-explanatory |
+| MigrationName(s)Down      | self-explanatory |
+| MigrationPath(s)Down      | self-explanatory |
 
 ### Unfolding block
 | **Option** | **Function** |
 | ---------- | ------------ |
-| MatrixOrientation         | Can be TRUTHONHORIZONTAL/TRUTHONVERTICAL, self explanatory |
-| TruthDistributionPath         | Globally set the path, will be overwritten by TruthSample |
-| TruthDistributionFile         | Globally set the path, will be overwritten by TruthSample |
-| TruthDistributionName         | Globally set the path, will be overwritten by TruthSample |
-| NumberOfTruthBins         | Number of truth bins (can be only one truth distribution but can have more reco distributions - regions) |
-| Tau         | Tikhonov regularization parameter, use as e.g. `1:2,3:1.7`, this will set the parameter to bins 1 and 3, with values 2 and 1.7 respectively; alternatively, a single value can be given, which will be used for all the unfolding norm-factors |
-| TitleX         | Name of the title on unfolded plots |
-| TitleY         | Name of the title on unfolded plots |
-| RatioYmax         | Used for SetRangeUser |
-| RatioYmin         | Used for SetRangeUser |
-| LogX         | Set to TRUE to use logarithmic scale for unfolded plots |
-| LogY         | Set to TRUE to use logarithmic scale for unfolded plots |
-| TitleOffsetX         | scale of the original offset (default is 1) |
-| TitleOffsetY         | scale of the original offset (default is 1) |
-| ScaleRangeY          | scale of the Y axis for the upper panel of the result plot (will use this value times the maximum). If set to negative value, wil use default (`1.5` for linear scale, `1e6` for log scale)  |
-| UnfoldingResultMin   | Minimum for the normalisation factors for bins (Default is 0) |
-| UnfoldingResultMax   | Maximum for the normalisation factors for bins (Default is 2) |
-| NominalTruthSample   | Name of the TruthSample that should be used as nominal for folding. Has to be set! |
-| MigrationTitleX   | name of the title on migration/response matrix plots |
-| MigrationTitleY   | name of the title on migration/response matrix plots |
-| MigrationLogX   | for migration/response plots |
-| MigrationLogY   | for migration/response plots |
-| MigrationTitleOffsetX   | for migration/response plots |
-| MigrationTitleOffsetY   | for migration/response plots |
-| MigrationZmin   | for migration plots |
-| MigrationZmax   | for migration plots |
-| ResponseZmax   | for response plots |
-| ResponseZmin   | for response plots |
-| PlotSystematicMigrations   | if set to TRUE will plot migration/response plots for all systematics |
-| MigrationText   | if set to TRUE will show numbers in migration/response matrix plots |
-| DivideByBinWidth | if set to TRUE will divide the bin content by bin width in the final plot with unfolded data |
-| UnfoldNormXSec  | if set to TRUE the result will be in the form of normalized cross-section, or relative cross-section, sigma(bin-1)/sigma(tot): the total cross-section is fitted as nuisance parameter, and the relative cross-section in one of the bins (selectable with the option `UnfoldNormXSecBinN`) is obtained as 1 - the other relative cross-sections (error is propagated) |
-| UnfoldNormXSecBinN | in case `UnfoldNormXSec` is set to TRUE, one can specify which bin to obtain as a function of the cross-sections in the other bins (if not set, the last bin of the truth distribution will be selected) |
+| MatrixOrientation            | Can be TRUTHONHORIZONTAL/TRUTHONVERTICAL, self explanatory |
+| TruthDistributionPath        | Globally set the path, will be overwritten by TruthSample |
+| TruthDistributionFile        | Globally set the path, will be overwritten by TruthSample |
+| TruthDistributionName        | Globally set the path, will be overwritten by TruthSample |
+| NumberOfTruthBins            | Number of truth bins (can be only one truth distribution but can have more reco distributions - regions) |
+| Tau                          | Tikhonov regularization parameter, use as e.g. `1:2,3:1.7`, this will set the parameter to bins 1 and 3, with values 2 and 1.7 respectively; alternatively, a single value can be given, which will be used for all the unfolding norm-factors |
+| TitleX                       | Name of the title on unfolded plots |
+| TitleY                       | Name of the title on unfolded plots |
+| RatioYmax                    | Used for SetRangeUser |
+| RatioYmin                    | Used for SetRangeUser |
+| LogX                         | Set to TRUE to use logarithmic scale for unfolded plots |
+| LogY                         | Set to TRUE to use logarithmic scale for unfolded plots |
+| TitleOffsetX                 | scale of the original offset (default is 1) |
+| TitleOffsetY                 | scale of the original offset (default is 1) |
+| ScaleRangeY                  | scale of the Y axis for the upper panel of the result plot (will use this value times the maximum). If set to negative value, wil use default (`1.5` for linear scale, `1e6` for log scale)  |
+| UnfoldingResultMin           | Minimum for the normalisation factors for bins (Default is 0) |
+| UnfoldingResultMax           | Maximum for the normalisation factors for bins (Default is 2) |
+| NominalTruthSample           | Name of the TruthSample that should be used as nominal for folding. Has to be set! |
+| MigrationTitleX              | name of the title on migration/response matrix plots |
+| MigrationTitleY              | name of the title on migration/response matrix plots |
+| MigrationLogX                | for migration/response plots |
+| MigrationLogY                | for migration/response plots |
+| MigrationTitleOffsetX        | for migration/response plots |
+| MigrationTitleOffsetY        | for migration/response plots |
+| MigrationZmin                | for migration plots |
+| MigrationZmax                | for migration plots |
+| ResponseZmax                 | for response plots |
+| ResponseZmin                 | for response plots |
+| PlotSystematicMigrations     | if set to TRUE will plot migration/response plots for all systematics |
+| MigrationText                | if set to TRUE will show numbers in migration/response matrix plots |
+| DivideByBinWidth             | if set to TRUE will divide the bin content by bin width in the final plot with unfolded data |
+| UnfoldNormXSec               | if set to TRUE the result will be in the form of normalized cross-section, or relative cross-section, sigma(bin-1)/sigma(tot): the total cross-section is fitted as nuisance parameter, and the relative cross-section in one of the bins (selectable with the option `UnfoldNormXSecBinN`) is obtained as 1 - the other relative cross-sections (error is propagated) |
+| UnfoldNormXSecBinN           | in case `UnfoldNormXSec` is set to TRUE, one can specify which bin to obtain as a function of the cross-sections in the other bins (if not set, the last bin of the truth distribution will be selected) |
+| AlternativeAsimovTruthSample | Can be used to create Asimov dataset by folding alternative (non-nominal) truth sample that is provided to get the reco distribution for the signal. |
 
 ### TruthSample block
 | **Option** | **Function** |
 | ---------- | ------------ |
-| Title         | for plots |
-| LineColor         | for plots |
-| LineStyle         | for plots |
+| Title                         | for plots |
+| LineColor                     | for plots |
+| LineStyle                     | for plots |
 | TruthDistributionPath         | folder path for truth distributions |
 | TruthDistributionFile         | file path for truth distributions |
 | TruthDistributionName         | name of the histogram in the file for truth distributions |

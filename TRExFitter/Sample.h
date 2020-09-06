@@ -123,6 +123,7 @@ public:
     std::string fCorrelateGammasWithSample;
 
     std::string fSystFromSample;
+    bool fIsFolded;
 };
 
 #endif

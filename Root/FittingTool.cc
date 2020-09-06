@@ -55,7 +55,8 @@ FittingTool::FittingTool():
     m_randSeed(-999),
     m_externalConstraints(nullptr),
     m_strategy(-1),
-    m_useHesse(true)
+    m_useHesse(true),
+    m_hesseBeforeMigrad(false)
 {
 }
 
@@ -269,9 +270,17 @@ double FittingTool::FitPDF( RooStats::ModelConfig* model, RooAbsPdf* fitpdf, Roo
     WriteInfoStatus("FittingTool::FitPDF", "======================");
     WriteInfoStatus("FittingTool::FitPDF", "");
 
+    if (m_hesseBeforeMigrad) {
+        minim.hesse();
+    }
+
     status = minim.minimize(minimType.Data(),algorithm.Data());
     if (m_useHesse) {
-        m_hessStatus = minim.hesse();
+        if (status == 0 || m_hesseBeforeMigrad) {
+            m_hessStatus = minim.hesse();
+        } else {
+            m_hessStatus = 0;
+        }
     } else {
         m_hessStatus = 0;
     }
@@ -298,7 +307,11 @@ double FittingTool::FitPDF( RooStats::ModelConfig* model, RooAbsPdf* fitpdf, Roo
         minim.setStrategy(strat);
         status = minim.minimize(minimType.Data(),algorithm.Data());
         if (m_useHesse) {
-            m_hessStatus = minim.hesse();
+            if (status == 0 || m_hesseBeforeMigrad) {
+                m_hessStatus = minim.hesse();
+            } else {
+                m_hessStatus = 0;
+            }
         } else {
             m_hessStatus = 0;
         }
@@ -329,7 +342,7 @@ double FittingTool::FitPDF( RooStats::ModelConfig* model, RooAbsPdf* fitpdf, Roo
         return 0;
     }
 
-    if(m_useMinos){
+    if(m_useMinos && !saturatedModel){
         if (model->GetNuisanceParameters()) {
             std::unique_ptr<RooArgSet> SliceNPs(new RooArgSet( *(model->GetNuisanceParameters()) ));
             SliceNPs->add(*(model->GetParametersOfInterest()));
@@ -714,6 +727,9 @@ void FittingTool::FitExcludingGroup(bool excludeGammas, bool statOnly, RooAbsDat
     minim2.setMinimizerType(minimType);
     minim2.setPrintLevel(1);
     minim2.setEps(tol);
+    if (m_hesseBeforeMigrad) {
+        minim2.hesse();
+    }
     const int status = minim2.minimize(minimType.Data(),algorithm.Data());
     RooRealVar* thePOI = static_cast<RooRealVar*>(mc->GetParametersOfInterest()->first());
 

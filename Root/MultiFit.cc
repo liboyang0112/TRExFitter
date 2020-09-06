@@ -80,7 +80,6 @@ MultiFit::MultiFit(const string& name) :
     fLabel(""),
     fShowObserved(false),
     fLimitTitle("95% CL limit on XXX"),
-    fPOITitle("best fit XXX"),
     fRankingOnly("all"),
     fGroupedImpactCategory("all"),
     fLimitMax(0),
@@ -137,7 +136,8 @@ MultiFit::MultiFit(const string& name) :
     fFitStrategy(-1),
     fCPU(1),
     fBinnedLikelihood(false),
-    fUsePOISinRanking(false)
+    fUsePOISinRanking(false),
+    fUseHesseBeforeMigrad(false)
 {
     fNPCategories.emplace_back("");
 }
@@ -331,6 +331,7 @@ std::map < std::string, double > MultiFit::FitCombinedWS(int fitType, const std:
     //
     FittingTool fitTool{};
     fitTool.SetUseHesse(true);
+    fitTool.SetUseHesseBeforeMigrad(fUseHesseBeforeMigrad);
     fitTool.SetStrategy(fFitStrategy);
     fitTool.SetDebug(TRExFitter::DEBUGLEVEL);
     fitTool.SetNCPU(fCPU);
@@ -534,10 +535,11 @@ std::map < std::string, double > MultiFit::FitCombinedWS(int fitType, const std:
     //
     // Calls the  function to create LH scan with respect to a parameter
     //
+    const std::vector<std::string> parameters = FitUtils::GetAllParameters(mc);
     if(fVarNameLH.size()>0 && !doLHscanOnly && !fParal2D){ // Skip 1Dscan when paralelizing 2D
         if (fVarNameLH[0]=="all"){
-            for(map<string,string>::iterator it=TRExFitter::SYSTMAP.begin(); it!=TRExFitter::SYSTMAP.end(); ++it){
-                GetLikelihoodScan( ws, it->first, data, true);
+            for(const auto& iparam : parameters) {
+                GetLikelihoodScan( ws, iparam, data, true);
             }
         } else{
             for(const auto& iLH : fVarNameLH){
@@ -552,8 +554,8 @@ std::map < std::string, double > MultiFit::FitCombinedWS(int fitType, const std:
         }
         if (fVarNameLH[0]=="all"){
             WriteWarningStatus("MultiFit::MultiFit","You are running LHscan only option but running it for all parameters. Will not parallelize!.");
-            for(map<string,string>::iterator it=TRExFitter::SYSTMAP.begin(); it!=TRExFitter::SYSTMAP.end(); ++it){
-                GetLikelihoodScan( ws, it->first, data, true);
+            for(const auto& iparam : parameters) {
+                GetLikelihoodScan( ws, iparam, data, true);
             }
         } else {
             GetLikelihoodScan( ws, fVarNameLH[0], data, true);
@@ -896,7 +898,7 @@ void MultiFit::ComparePOI(const string& POI, const std::size_t index) const {
     gPad->SetLeftMargin( 2*gPad->GetLeftMargin() );
     gPad->SetBottomMargin( 1.15*gPad->GetBottomMargin() );
     gPad->SetTopMargin( 1.8*gPad->GetTopMargin() );
-    h_dummy.GetXaxis()->SetTitle(fPOITitle.c_str());
+    h_dummy.GetXaxis()->SetTitle(fPOITitle.at(index).c_str());
     h_dummy.GetYaxis()->SetTickSize(0);
 
     c.RedrawAxis();
@@ -1665,6 +1667,7 @@ void MultiFit::ProduceNPRanking(const  std::string& NPnames) const {
     // List of systematics to check
     //
     RankingManager manager{};
+    manager.SetUseHesseBeforeMigrad(fUseHesseBeforeMigrad);
     
     std::vector<string> systNames_unique;
     for(const auto& isyst : vSystematics) {
@@ -1681,6 +1684,7 @@ void MultiFit::ProduceNPRanking(const  std::string& NPnames) const {
         }
     }
     for(const auto& inorm : vNormFactors) {
+        if (inorm->fNuisanceParameter.find("Expression_") != std::string::npos) continue;
         if (!fUsePOISinRanking && Common::FindInStringVector(fPOIs, inorm->fName) >= 0) continue;
         if(NPnames=="all" || NPnames == inorm->fName){
             manager.AddNuisPar(inorm->fName, true);
@@ -1817,6 +1821,7 @@ void MultiFit::PlotNPRanking(bool flagSysts, bool flagGammas) const {
     }
 
     RankingManager manager{};
+    manager.SetUseHesseBeforeMigrad(fUseHesseBeforeMigrad);
     manager.SetAtlasLabel(fFitList[0]->fAtlasLabel);
     manager.SetLumiLabel(fFitList[0]->fLumiLabel);
     manager.SetCmeLabel(fFitList[0]->fCmeLabel);

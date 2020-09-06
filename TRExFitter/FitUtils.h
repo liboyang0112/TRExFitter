@@ -10,6 +10,10 @@ class NormFactor;
 class RooWorkspace;
 class RooSimultaneous;
 
+namespace RooStats {
+    class ModelConfig;
+}
+
 namespace FitUtils {
 
 /**
@@ -49,6 +53,20 @@ void DisableSaturatedModel(RooWorkspace* ws);
  * @param POI
  */
 void SetPOIinFile(const std::string& path, const std::string& poi);
+
+/**
+ * A helper function to set POI in a file
+ * @param ModelConfig
+ * @return parameters
+ */
+std::vector<std::string> GetAllParameters(const RooStats::ModelConfig* mc);
+
+/**
+ * A helper function to get number of free parameters
+ * @param ModelConfig
+ * @return number of free parameter
+ */
+std::size_t NumberOfFreeParameters(const RooStats::ModelConfig* mc);
 }
 
 #endif

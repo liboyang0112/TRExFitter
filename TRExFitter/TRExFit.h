@@ -315,7 +315,7 @@ public:
      * @param pointer to the Systematic (default = nullptr)
      * @param bool to specify up (true) or down (false) syst variation
      */
-    std::vector<std::string> FullHistogramPaths(Region *reg,Sample *smp,Systematic *syst=nullptr,bool isUp=true);
+    std::vector<std::string> FullHistogramPaths(Region *reg,Sample *smp,Systematic *syst=nullptr,bool isUp=true, const bool isFolded = false);
 
     /**
      * A helper function to compute the fgull paths for a response matrix
@@ -838,6 +838,7 @@ public:
     bool fUnfoldNormXSec;
     int fUnfoldNormXSecBinN;
     bool fUsePOISinRanking;
+    bool fUseHesseBeforeMigrad;
 };
 
 #endif

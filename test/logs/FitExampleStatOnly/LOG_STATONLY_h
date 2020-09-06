@@ -9,8 +9,6 @@ Applying ATLAS style settings...
 
 [1;32m=== INFO::ConfigReader::ConfigReader: Started reading the config[0m
 [1;32m=== INFO::ConfigParser::ReadFile: Reading config file: test/configs/FitExampleStatOnly.config[0m
-[1;32m=== INFO::ConfigReader::ReadCommandLineOptions: -------------------------------------------[0m
-[1;32m=== INFO::ConfigReader::ReadCommandLineOptions: Running options: [0m
 === DEBUG::ConfigReader::SetJobPlot: PlotOptionsSummary not specified setting Summary values to 'PlotOptions'
 === DEBUG::ConfigReader::ReadGeneralOptions: You do not have 'Options' option in the config. It is ok, we just want to let you know.
 === DEBUG::ConfigReader::ReadLimitOptions: You do not have Limit option in the config. It is ok, we just want to let you know.
@@ -31,6 +29,7 @@ Applying ATLAS style settings...
 [1;32m=== INFO::Sample::Print::      Bkg2[0m
 [1;32m=== INFO::Sample::Print::      Signal[0m
 [1;32m=== INFO::TRExFit::PrintConfigSummary: Reading the following systematics:[0m
+[1;32m=== INFO::TRExFit::PrintConfigSummary:  Dummy[0m
 [1;32m=== INFO::TRExFit::PrintConfigSummary:  JES[0m
 [1;32m=== INFO::TRExFit::PrintConfigSummary:  Bkg1Xsec[0m
 [1;32m=== INFO::TRExFit::PrintConfigSummary:  Bkg2Xsec[0m
@@ -47,6 +46,7 @@ Reading histograms...
 === DEBUG::HistoReader::ReadHistograms: Adding syst Bkg2Xsec
 === DEBUG::HistoReader::ReadHistograms:   Reading Signal
 === DEBUG::HistoReader::ReadNormShape: Adding norm SigXsecOverSM
+=== DEBUG::HistoReader::ReadHistograms: Adding syst Dummy
 === DEBUG::HistoReader::ReadHistograms: Adding syst JES
 [1;32m=== INFO::HistoReader::ReadHistograms:   Region SR_2 ...[0m
 === DEBUG::HistoReader::ReadHistograms:   Reading Data
@@ -56,6 +56,7 @@ Reading histograms...
 === DEBUG::HistoReader::ReadHistograms: Adding syst Bkg2Xsec
 === DEBUG::HistoReader::ReadHistograms:   Reading Signal
 === DEBUG::HistoReader::ReadNormShape: Adding norm SigXsecOverSM
+=== DEBUG::HistoReader::ReadHistograms: Adding syst Dummy
 === DEBUG::HistoReader::ReadHistograms: Adding syst JES
 [1;32m=== INFO::HistoReader::ReadHistograms:   Region VR ...[0m
 === DEBUG::HistoReader::ReadHistograms:   Reading Data
@@ -66,6 +67,7 @@ Reading histograms...
 === DEBUG::HistoReader::ReadHistograms: Adding syst Bkg2Xsec
 === DEBUG::HistoReader::ReadHistograms:   Reading Signal
 === DEBUG::HistoReader::ReadNormShape: Adding norm SigXsecOverSM
+=== DEBUG::HistoReader::ReadHistograms: Adding syst Dummy
 === DEBUG::HistoReader::ReadHistograms: Adding syst JES
 [1;32m=== INFO::TRExFit::SmoothSystematics: -------------------------------------------[0m
 [1;32m=== INFO::TRExFit::SmoothSystematics: Smoothing and/or Symmetrising Systematic Variations ...[0m
@@ -80,11 +82,14 @@ Reading histograms...
 Info in <TCanvas::Print>: png file FitExampleStatOnly/Systematics/JES/SR_1_Bkg1_JES.png has been created
 Info in <TCanvas::Print>: png file FitExampleStatOnly/Systematics/Bkg1Xsec/SR_1_Bkg1_Bkg1Xsec.png has been created
 Info in <TCanvas::Print>: png file FitExampleStatOnly/Systematics/Bkg2Xsec/SR_1_Bkg2_Bkg2Xsec.png has been created
+Info in <TCanvas::Print>: png file FitExampleStatOnly/Systematics/Dummy/SR_1_Signal_Dummy.png has been created
 Info in <TCanvas::Print>: png file FitExampleStatOnly/Systematics/JES/SR_1_Signal_JES.png has been created
 Info in <TCanvas::Print>: png file FitExampleStatOnly/Systematics/JES/SR_2_Bkg1_JES.png has been created
 Info in <TCanvas::Print>: png file FitExampleStatOnly/Systematics/Bkg2Xsec/SR_2_Bkg2_Bkg2Xsec.png has been created
+Info in <TCanvas::Print>: png file FitExampleStatOnly/Systematics/Dummy/SR_2_Signal_Dummy.png has been created
 Info in <TCanvas::Print>: png file FitExampleStatOnly/Systematics/JES/SR_2_Signal_JES.png has been created
 Info in <TCanvas::Print>: png file FitExampleStatOnly/Systematics/JES/VR_Bkg1_JES.png has been created
 Info in <TCanvas::Print>: png file FitExampleStatOnly/Systematics/Bkg1Xsec/VR_Bkg1_Bkg1Xsec.png has been created
 Info in <TCanvas::Print>: png file FitExampleStatOnly/Systematics/Bkg2Xsec/VR_Bkg2_Bkg2Xsec.png has been created
+Info in <TCanvas::Print>: png file FitExampleStatOnly/Systematics/Dummy/VR_Signal_Dummy.png has been created
 Info in <TCanvas::Print>: png file FitExampleStatOnly/Systematics/JES/VR_Signal_JES.png has been created

@@ -355,11 +355,11 @@ void Region::BuildPreFitErrorHist(){
             TH1* hDown = sh->fHistDown.get();
 
             // modify them dropping shape or norm (due to pruning or shape/acc decorrelation)
-            if(syst!=nullptr){
-                if(syst->fIsNormOnly){
+            if(syst) {
+                if(syst->fIsNormOnly || sh->fShapePruned) {
                     Common::DropShape(hUp,hDown,hNom);
-                }
-                if(syst->fIsShapeOnly){
+                } 
+                if(syst->fIsShapeOnly || sh->fNormPruned) {
                     Common::DropNorm(hUp,hDown,hNom);
                 }
             }
@@ -829,20 +829,18 @@ double Region::GetMultFactors( FitResults* fitRes,
                                const double binContent0,
                                const std::string &var_syst_name,
                                const bool isUp ) const{
-    double multNorm = 1.;
-    double multShape = 0.;
-    double systValue = 0.;
+    double multNorm(1.);
+    double multShape(0.);
+    double systValue(0.);
     const SampleHist *sh = fSampleHists[i].get();
     for(std::size_t i_syst = 0; i_syst < sh->fSyst.size(); ++i_syst){
         std::shared_ptr<SystematicHist> syh = sh->fSyst[i_syst];
         std::string systName = syh->fName;
         TString systNameNew(systName); // used in pull tables
         std::shared_ptr<Systematic> syst = syh->fSystematic;
-        bool isOverall = syh->fIsOverall;
-        bool isShape   = syh->fIsShape;
+        bool isOverall = syh->fIsOverall && !syh->fNormPruned;
+        bool isShape   = syh->fIsShape && !syh->fShapePruned;
         if(syst){
-            if(isOverall && syst->fIsShapeOnly) isOverall = false;
-            if(isShape && syst->fIsNormOnly) isShape = false;
             systName = syst->fNuisanceParameter;
             if(syst->fIsShapeOnly) isOverall = false;
             if(syst->fIsNormOnly)  isShape   = false;
@@ -2458,41 +2456,42 @@ std::unique_ptr<TGraphAsymmErrors> BuildTotError( const TH1* const h_nominal,
     for(int i_bin=1; i_bin < h_nominal->GetNbinsX()+1; ++i_bin){
         double finalErrPlus(0.);
         double finalErrMinus(0.);
-        double corr(0.);
         // yieldNominal = h_nominal->GetBinContent(i_bin);
         // - loop on the syst, two by two, to include the correlations
-        for(std::size_t i_syst=0; i_syst < EffectiveSystNames.size(); ++i_syst){
-            for(std::size_t j_syst=0; j_syst < EffectiveSystNames.size(); ++j_syst){
-                if (i_syst==j_syst) continue;
-                if(matrix!=nullptr){
+        if (matrix!=nullptr) {
+            double corr(0.);
+            // if the correlation matrix is not provided, there are no off-diagonal contributions
+            // to include, so these loops can be skipped
+            for(std::size_t i_syst=0; i_syst < EffectiveSystNames.size(); ++i_syst){
+                for(std::size_t j_syst=0; j_syst < i_syst; ++j_syst){
+                    // the inner loop only runs up to i_syst-1, effectively going over half
+                    // the correlation matrix (the other half is symmetric)
                     corr = matrix->GetCorrelation(EffectiveSystNames[i_syst],EffectiveSystNames[j_syst]);
-                }
-                else{
-                    if(EffectiveSystNames[i_syst]==EffectiveSystNames[j_syst]) corr = 1.;
-                    else                                                       corr = 0.;
-                }
-                const double errUp_i   = h_up[EffectiveSystIndex[i_syst]]  ->GetBinContent(i_bin);// - yieldNominal;
-                const double errDown_i = h_down[EffectiveSystIndex[i_syst]]->GetBinContent(i_bin);// - yieldNominal;
-                const double errUp_j   = h_up[EffectiveSystIndex[j_syst]]  ->GetBinContent(i_bin);// - yieldNominal;
-                const double errDown_j = h_down[EffectiveSystIndex[j_syst]]->GetBinContent(i_bin);// - yieldNominal;
 
-                //
-                // Symmetrize (seems to be done in Roostats ??)
-                //
-                const double err_i = (errUp_i - errDown_i)/2.;
-                const double err_j = (errUp_j - errDown_j)/2.;
+                    const double errUp_i   = h_up[EffectiveSystIndex[i_syst]]  ->GetBinContent(i_bin);
+                    const double errDown_i = h_down[EffectiveSystIndex[i_syst]]->GetBinContent(i_bin);
+                    const double errUp_j   = h_up[EffectiveSystIndex[j_syst]]  ->GetBinContent(i_bin);
+                    const double errDown_j = h_down[EffectiveSystIndex[j_syst]]->GetBinContent(i_bin);
 
-                //
-                // Compute the + and - variations
-                //
-                finalErrPlus  += err_i * err_j * corr;
-                finalErrMinus += err_i * err_j * corr;
+                    //
+                    // Symmetrize (seems to be done in Roostats ??)
+                    //
+                    const double err_i = (errUp_i - errDown_i)/2.;
+                    const double err_j = (errUp_j - errDown_j)/2.;
+
+                    //
+                    // Compute the + and - variations
+                    //
+                    // needs a factor 2 at the end since we are looping over half the correlation matrix
+                    finalErrPlus  += err_i * err_j * corr * 2;
+                    finalErrMinus += err_i * err_j * corr * 2;
+                }
             }
         }
         // now all diagonal el. of all systematics, corr = 1;
         for(std::size_t i_syst=0; i_syst<fSystNames.size(); ++i_syst){
-            const double errUp_i   = h_up[i_syst]  ->GetBinContent(i_bin);// - yieldNominal;
-            const double errDown_i = h_down[i_syst]->GetBinContent(i_bin);// - yieldNominal;
+            const double errUp_i   = h_up[i_syst]  ->GetBinContent(i_bin);
+            const double errDown_i = h_down[i_syst]->GetBinContent(i_bin);
 
             //
             // Symmetrize (seems to be done in Roostats ??)

@@ -252,7 +252,7 @@ int ConfigReader::ReadJobOptions(){
     ConfigSet *confSet = fParser->GetConfigSet("Job");
     if (confSet == nullptr){
         WriteErrorStatus("ConfigReader::ReadJobOptions", "You need to provide JOB settings!");
-        ++sc;
+        return 1;
     }
 
     if (fFitter->fDir == "") {
@@ -1771,6 +1771,11 @@ int ConfigReader::ReadFitOptions(){
     param = confSet->Get("UsePOISinRanking");
     if (param != "") {
         fFitter->fUsePOISinRanking = Common::StringToBoolean(param);
+    }
+
+    param = confSet->Get("UseHesseBeforeMigrad");
+    if (param != "") {
+        fFitter->fUseHesseBeforeMigrad = Common::StringToBoolean(param);
     }
 
     return sc;
@@ -3527,14 +3532,14 @@ int ConfigReader::ReadNormFactorOptions(){
             } else {
                 nfactor->fExpression = std::make_pair(v[0],v[1]);
                 // title will contain the expression FIXME
-                nfactor->fTitle = v[0];
-                TRExFitter::SYSTMAP[nfactor->fName] = v[0];
+                nfactor->fTitle = "Expression_" + v[0];
+                TRExFitter::SYSTMAP[nfactor->fName] = "Expression_" + v[0];
                 // nuis-par will contain the nuis-par of the norm factor the expression depends on FIXME
-                nfactor->fNuisanceParameter = v[1];
-                TRExFitter::NPMAP[nfactor->fName] = v[1];
+                nfactor->fNuisanceParameter = "Expression_" + v[1];
+                TRExFitter::NPMAP[nfactor->fName] = "Expression_" + v[1];
                 // set nominal, min and max according to the norm factor the expression depends on FIXME
                 for(const auto& nf : fFitter->fNormFactors){
-                    if(nf->fNuisanceParameter == v[1]){
+                    if(nf->fNuisanceParameter == "Expression_" + v[1]) {
                         nfactor->fNominal = nf->fNominal;
                         nfactor->fMin = nf->fMin;
                         nfactor->fMax = nf->fMax;
@@ -3715,6 +3720,22 @@ int ConfigReader::ReadSystOptions(){
     int nSys = 0;
 
     std::shared_ptr<Sample> sample = nullptr;
+    
+    if (fFitter->fStatOnly) {
+        int typed = Systematic::OVERALL;
+        std::shared_ptr<Systematic> sysd = std::make_shared<Systematic>("Dummy",typed);
+        sysd->fOverallUp   = 0.;
+        sysd->fOverallDown = -0.;
+        sysd->fScaleUp   = 1.;
+        sysd->fScaleDown   = 1.;
+        fFitter->fSystematics.emplace_back( sysd );
+        TRExFitter::SYSTMAP[sysd->fName] = "Dummy";
+        for(auto& isample : fFitter->fSamples) {
+            if(isample->fType == Sample::SIGNAL ) {
+                isample->AddSystematic(sysd);
+            }
+        }
+    }
 
     while(true){
         ConfigSet *confSet = fParser->GetConfigSet("Systematic",nSys);
@@ -3812,6 +3833,10 @@ int ConfigReader::ReadSystOptions(){
                 sys->fCombineType = Systematic::COMBINATIONTYPE::STANDARDDEVIATION;
             } else if (tmp == "ENVELOPE") {
                 sys->fCombineType = Systematic::COMBINATIONTYPE::ENVELOPE;
+            } else if (tmp == "STANDARDDEVIATIONNODDOF") {
+                sys->fCombineType = Systematic::COMBINATIONTYPE::STANDARDDEVIATIONNODDOF;
+            } else if (tmp == "HESSIAN") {
+                sys->fCombineType = Systematic::COMBINATIONTYPE::HESSIAN;
             } else {
                 WriteWarningStatus("ConfigReader::ReadSystOptions", "You specified 'CombineType' option but did not provide valid parameter. Using default (ENVELOPE)");
                 sys->fCombineType = Systematic::COMBINATIONTYPE::ENVELOPE;

@@ -157,13 +157,34 @@ The built-in so-called `lumi` parameter is set to constant in the main `.xml`:
 <ParamSetting Const="True">Lumi</ParamSetting>
 ```
 
-As of `pyhf` 0.4.4, constant parameter settings are not passed on to the minimizers.
+As of `pyhf` 0.5.1, constant parameter settings are not passed on to the minimizers.
 See [pull request #846](https://github.com/scikit-hep/pyhf/pull/846) and [issue #739](https://github.com/scikit-hep/pyhf/issues/739).
 
 #### Pruning gammas
 
 As a special case of constant parameters, the pruning of gammas for statistical uncertainties is implemented by setting parameters to constant in `HistFactory`.
 It does not yet work in `pyhf`, see [issue #662](https://github.com/scikit-hep/pyhf/issues/662).
+
+### Interpolation codes
+
+The [HistFactory manual](https://cds.cern.ch/record/1456844/) describes different interpolation/extrapolation methods to obtain template histograms at parameter values that are not equal to -1, 0, and 1 (where template histograms are provided by the user).
+See section 4.1 in the manual.
+ATLAS uses the method known as `InterpCode=4` by default.
+The current `pyhf` default (as of version 0.5.1) is interpolation code 1.
+You can switch to the ATLAS default code by modifying the script above (in section ["Running a fit with pyhf"](#running-a-fit-with-pyhf)).
+Replace
+```python
+model = workspace.model()
+```
+by
+```python
+model = workspace.model(
+    modifier_settings={
+        "normsys": {"interpcode": "code4"},
+        "histosys": {"interpcode": "code4p"},
+    }
+)
+```
 
 ### Expressions
 

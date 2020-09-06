@@ -43,7 +43,8 @@ Sample::Sample(const std::string& name,int type) :
     fSeparateGammas(false),
     fMCstatScale(1.),
     fCorrelateGammasWithSample(""),
-    fSystFromSample("") {
+    fSystFromSample(""),
+    fIsFolded(false) {
 }
 
 //__________________________________________________________________________________

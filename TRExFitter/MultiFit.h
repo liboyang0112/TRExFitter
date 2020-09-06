@@ -112,7 +112,7 @@ public:
     std::string fLabel;
     bool fShowObserved;
     std::string fLimitTitle;
-    std::string fPOITitle;
+    std::vector<std::string> fPOITitle;
     std::string fRankingOnly;
     std::string fGroupedImpactCategory;
 
@@ -203,6 +203,7 @@ public:
     int fCPU;
     bool fBinnedLikelihood;
     bool fUsePOISinRanking;
+    bool fUseHesseBeforeMigrad;
 };
 
 #endif
