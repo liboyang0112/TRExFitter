@@ -152,7 +152,7 @@ void FitUtils::SetPOIinFile(const std::string& path, const std::string& poi) {
         return;
     }
 
-   std::unique_ptr<RooWorkspace> ws(dynamic_cast<RooWorkspace*>(f->Get("combined")));
+   RooWorkspace *ws = (RooWorkspace*)(f->Get("combWS"));
     if (!ws) {
         WriteErrorStatus("FitUtils::SetPOIinFile", "Cannot read workspace");
         return;
@@ -165,7 +165,6 @@ void FitUtils::SetPOIinFile(const std::string& path, const std::string& poi) {
     }
 
     mc->SetParametersOfInterest(poi.c_str());
-
     f->Close();
 }
 

@@ -255,7 +255,7 @@ void ConfigParser::ReadFile(const std::string& fileName){
     	    break;
     	}
     }
-    if (replacementFileName!="" && (fileName.find("jobSchema.config") == std::string::npos)) {
+    if (replacementFileName!="" && (fileName.find("jobSchema.config") == std::string::npos) && (fileName.find("multiFitSchema.config") == std::string::npos) ) {
         WriteInfoStatus("ConfigParser::ReadFile", "Opening replacement file: " + replacementFileName + " to fill the map");
         std::ifstream fileR(fileName.c_str());
         if(!fileR.is_open()){
@@ -272,6 +272,9 @@ void ConfigParser::ReadFile(const std::string& fileName){
         }
         fileR.close();
     	file.open(replacementFileName.c_str());
+    }else{
+        file.close();
+        file.open(fileName.c_str());
     }
     //
     std::vector<std::string> valVec;
@@ -368,6 +371,7 @@ int ConfigParser::SettingIsValid(ConfigSet *cs, ConfigParser *refConfigParser, c
     }
     ConfigSet *cs_ref = nullptr;
     bool refIsFound = false;
+    if(setting_set=="ReplacementFile") return 0;
     // check if the setting type exists in the reference
     for (int i_cs =0; i_cs < refConfigParser->fN; i_cs++){
         cs_ref = refConfigParser->fConfSets[i_cs].get();
