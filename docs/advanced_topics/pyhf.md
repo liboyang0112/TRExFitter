@@ -157,8 +157,8 @@ The built-in so-called `lumi` parameter is set to constant in the main `.xml`:
 <ParamSetting Const="True">Lumi</ParamSetting>
 ```
 
-As of `pyhf` 0.5.1, constant parameter settings are not passed on to the minimizers.
-See [pull request #846](https://github.com/scikit-hep/pyhf/pull/846) and [issue #739](https://github.com/scikit-hep/pyhf/issues/739).
+The first version of `pyhf` to correctly hold parameters constant in fits is [0.5.2](https://github.com/scikit-hep/pyhf/releases/tag/v0.5.2).
+Do not use earlier versions.
 
 #### Pruning gammas
 
