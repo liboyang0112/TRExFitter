@@ -1153,7 +1153,7 @@ void Common::DropShape(TH1* hUp,
             Common::SetHistoBinsFromOtherHist(hUp, hNom); 
             hUp->Scale(intUp/intNom);
         } else {
-            WriteWarningStatus("Common::DropShape","Integral of up variation = 0. Cannot drop normalization.");
+            WriteWarningStatus("Common::DropShape","Integral of up variation = 0. Cannot drop shape.");
         }
     }
     if(hDown!=nullptr){
@@ -1162,7 +1162,7 @@ void Common::DropShape(TH1* hUp,
             Common::SetHistoBinsFromOtherHist(hDown, hNom); 
             hDown->Scale(intDown/intNom);
         } else {
-            WriteWarningStatus("Common::DropShape","Integral of down variation = 0. Cannot drop normalization.");
+            WriteWarningStatus("Common::DropShape","Integral of down variation = 0. Cannot drop shape.");
         }
     }
 }
