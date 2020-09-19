@@ -426,8 +426,8 @@ void Region::BuildPreFitErrorHist(){
                     const NormFactor *nf = isample->fSample->fNormFactors[i_nf].get();
                     // if this norm factor is a morphing one
                     if(nf->fName.find("morph_")!=string::npos || nf->fExpression.first!=""){
-                        std::string formula = TRExFitter::SYSTMAP[nf->fName];
-                        std::string name = TRExFitter::NPMAP[nf->fName];
+                        std::string formula = Common::ReplaceString(TRExFitter::SYSTMAP[nf->fName], "Expression_", "");
+                        const std::string name = Common::ReplaceString(TRExFitter::NPMAP[nf->fName], "Expression_", "");
                         WriteDebugStatus("Region::BuildPreFitErrorHist", "formula: " +formula);
                         WriteDebugStatus("Region::BuildPreFitErrorHist", "name: " +name);
                         std::vector < std::pair < std::string,std::vector<double> > > nameS;
@@ -637,8 +637,8 @@ std::shared_ptr<TRExPlot> Region::DrawPreFit(const std::vector<int>& canvasSize,
             const NormFactor *nf = isig->fSample->fNormFactors[i_nf].get();
             // if this norm factor is a morphing one
             if(nf->fName.find("morph_")!=string::npos || nf->fExpression.first!=""){
-                std::string formula = TRExFitter::SYSTMAP[nf->fName];
-                const std::string name = TRExFitter::NPMAP[nf->fName];
+                std::string formula = Common::ReplaceString(TRExFitter::SYSTMAP[nf->fName], "Expression_", "");
+                const std::string name = Common::ReplaceString(TRExFitter::NPMAP[nf->fName], "Expression_", "");
                 WriteDebugStatus("Region::DrawPreFit", "formula: " +formula);
                 WriteDebugStatus("Region::DrawPreFit", "name: " +name);
                 std::vector < std::pair < std::string,std::vector<double> > > nameS;
@@ -711,8 +711,8 @@ std::shared_ptr<TRExPlot> Region::DrawPreFit(const std::vector<int>& canvasSize,
             const NormFactor *nf = ibkg->fSample->fNormFactors[i_nf].get();
             // if this norm factor is a morphing one
             if(nf->fName.find("morph_")!=string::npos || nf->fExpression.first!=""){
-                std::string formula = TRExFitter::SYSTMAP[nf->fName];
-                const std::string name = TRExFitter::NPMAP[nf->fName];
+                std::string formula = Common::ReplaceString(TRExFitter::SYSTMAP[nf->fName], "Expression_", "");
+                const std::string name = Common::ReplaceString(TRExFitter::NPMAP[nf->fName], "Expression_", "");
                 WriteDebugStatus("Region::DrawPreFit", "formula: " +formula);
                 WriteDebugStatus("Region::DrawPreFit", "name: " +name);
                 std::vector < std::pair < std::string,std::vector<double> > > nameS;
@@ -1135,8 +1135,8 @@ void Region::BuildPostFitErrorHist(FitResults *fitRes, const std::vector<std::st
                 else if(fSampleHists[i]->HasNorm(fSystNames[i_syst])){
                     // if this norm factor is a morphing one
                     if(fSystNames[i_syst].find("morph_")!=string::npos || fSampleHists[i]->GetNormFactor(fSystNames[i_syst])->fExpression.first!=""){
-                        std::string formula = TRExFitter::SYSTMAP[fSystNames[i_syst]];
-                        const std::string name = TRExFitter::NPMAP[fSystNames[i_syst]];
+                        std::string formula = Common::ReplaceString(TRExFitter::SYSTMAP[fSystNames[i_syst]], "Expression_", "");
+                        const std::string name = Common::ReplaceString(TRExFitter::NPMAP[fSystNames[i_syst]], "Expression_", "");
                         WriteDebugStatus("Region::BuildPostFitErrorHist", "formula: " +formula);
                         WriteDebugStatus("Region::BuildPostFitErrorHist", "name: " +name);
                         std::vector < std::pair < std::string,std::vector<double> > > nameS;
@@ -1515,8 +1515,8 @@ std::shared_ptr<TRExPlot> Region::DrawPostFit(FitResults* fitRes,
             //
             // if this norm factor is a morphing one
             if(inorm->fName.find("morph_")!=string::npos || inorm->fExpression.first!=""){
-                std::string formula = TRExFitter::SYSTMAP[nfName];
-                std::string name = TRExFitter::NPMAP[nfName];
+                std::string formula = Common::ReplaceString(TRExFitter::SYSTMAP[nfName], "Expression_", "");
+                const std::string name = Common::ReplaceString(TRExFitter::NPMAP[nfName], "Expression_", "");
                 WriteDebugStatus("Region::DrawPostFit", "formula: " +formula);
                 WriteDebugStatus("Region::DrawPostFit", "name: " +name);
                 std::vector < std::pair < std::string,std::vector<double> > > nameS;
@@ -2529,8 +2529,8 @@ void Region::PrepareMorphScales(FitResults *fitRes, std::vector<double> *morph_s
             if(isample->HasNorm(fSystNames[i_syst])){
                 // if this norm factor is a morphing one
                 if(fSystNames[i_syst].find("morph_")!=string::npos || isample->GetNormFactor(fSystNames[i_syst])->fExpression.first!=""){
-                    std::string formula = TRExFitter::SYSTMAP[fSystNames[i_syst]];
-                    const std::string name = TRExFitter::NPMAP[fSystNames[i_syst]];
+                    std::string formula = Common::ReplaceString(TRExFitter::SYSTMAP[fSystNames[i_syst]], "Expression_", "");
+                    const std::string name = Common::ReplaceString(TRExFitter::NPMAP[fSystNames[i_syst]], "Expression_", "");
                     WriteDebugStatus("Region::PrepareMorphScales", "formula: " +formula);
                     WriteDebugStatus("Region::PrepareMorphScales", "name: " +name);
                     std::vector < std::pair < std::string,std::vector<double> > > nameS;
@@ -2559,8 +2559,8 @@ void Region::PrepareMorphScales(FitResults *fitRes, std::vector<double> *morph_s
                 NormFactor *nf = isample->fSample->fNormFactors[i_nf].get();
                 // if this norm factor is a morphing one
                 if(nf->fName.find("morph_")!=string::npos || nf->fExpression.first!=""){
-                    std::string formula = TRExFitter::SYSTMAP[nf->fName];
-                    const std::string name = TRExFitter::NPMAP[nf->fName];
+                    std::string formula = Common::ReplaceString(TRExFitter::SYSTMAP[nf->fName], "Expression_", "");
+                    const std::string name = Common::ReplaceString(TRExFitter::NPMAP[nf->fName], "Expression_", "");
                     WriteDebugStatus("Region::PrepareMorphScales", "formula: " +formula);
                     WriteDebugStatus("Region::PrepareMorphScales", "name: " +name);
                     std::vector < std::pair < std::string,std::vector<double> > > nameS;
