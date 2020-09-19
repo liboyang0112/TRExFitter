@@ -958,8 +958,8 @@ void Common::ScaleNominal(const SampleHist* const sig,
         NormFactor *nf = sig->fSample->fNormFactors[i_nf].get();
         // if this norm factor is a morphing one
         if(nf->fName.find("morph_")!=std::string::npos || nf->fExpression.first!=""){
-            std::string formula = TRExFitter::SYSTMAP[nf->fName];
-            const std::string name = TRExFitter::NPMAP[nf->fName];
+            std::string formula = Common::ReplaceString(TRExFitter::SYSTMAP[nf->fName], "Expression_", "");
+            const std::string name = Common::ReplaceString(TRExFitter::NPMAP[nf->fName], "Expression_", "");
             formula = ReplaceString(formula,name,"x");
             std::vector < std::pair < std::string,std::vector<double> > > nameS;
             if(nf->fName.find("morph_")!=std::string::npos) {
@@ -998,8 +998,8 @@ double Common::GetNominalMorphScale(const SampleHist* const sh){
         std::string nfName = nf->fName;
 
         if(nfName.find("morph_")!=std::string::npos || nf->fExpression.first!=""){
-            std::string formula = TRExFitter::SYSTMAP[nfName];
-            std::string name = TRExFitter::NPMAP[nfName];
+            std::string formula = Common::ReplaceString(TRExFitter::SYSTMAP[nfName], "Expression_", "");
+            const std::string name = Common::ReplaceString(TRExFitter::NPMAP[nfName], "Expression_", "");
             WriteDebugStatus("Common::GetNominalMorphScale", "formula: " +formula);
             WriteDebugStatus("Common::GetNominalMorphScale", "name: " +name);
             std::vector < std::pair < std::string,std::vector<double> > > nameS;
