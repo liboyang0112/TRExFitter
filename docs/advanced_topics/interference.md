@@ -2,7 +2,7 @@
 
 Interference effects between different processes cannot be neglected in some analyses. 
 If the signal process interferes strongly with the main background, they can significantly alter the signal shape compared to a simple Breit-Wigner peak.
-This is illustrated in the following figure for the interference between the loop induced production of heavy neutral Higgs bosons $`A/H`$ decaying to a top-antitop-quark pair
+This is illustrated in the following figure for the interference between the loop induced production of heavy neutral Higgs bosons $A/H$ decaying to a top-antitop-quark pair
 ($gg \rightarrow A/H \rightarrow t\bar{t}$) and the background from SM $t\bar{t}$ production.
 
 <img src="https://atlas.web.cern.ch/Atlas/GROUPS/PHYSICS/PAPERS/EXOT-2016-04/fig_01.png"
@@ -14,9 +14,8 @@ This is illustrated in the following figure for the interference between the loo
 
 For a signal hypothesis test with interference effects taken into account, the signal model in the likelihood ($\mu \cdot S + B$ without interference) can be extended as follows:
 
-```math
-\mu \cdot S + \sqrt{\mu} \cdot I + B = (\mu - \sqrt{\mu}) \cdot S + \sqrt{\mu} \cdot (S+I) + B
-```
+$$ \mu \cdot S + \sqrt{\mu} \cdot I + B = (\mu - \sqrt{\mu}) \cdot S + \sqrt{\mu} \cdot (S+I) + B $$
+
 The left-hand (right-hand) side of the equation is used if pure interference $I$ (signal-plus-interference $S+I$) histogram are available in the template fit.
 
 The $\mu$ dependence of the extended signal model can be easily implemented in the `TRExFitter` config file 
@@ -61,11 +60,9 @@ has to be added to the template fit. This template histogram is identical to the
 
 In short, we replace the term $\sqrt{\mu} \cdot (S+I)$ in the signal model by
 
-```math
-\sqrt{\mu} \cdot [(S+I)+\texttt{offset}] - \sqrt{\mu} \cdot \texttt{counterterm}
-```
+$$ \sqrt{\mu} \cdot [(S+I)+\texttt{offset}] - \sqrt{\mu} \cdot \texttt{counterterm} $$
 
-where $(S+I)$+\texttt{offset} now has only positive entries and \texttt{counterterm} is identical to the offset histogram.
+where $(S+I)$+offset now has only positive entries and counterterm is identical to the offset histogram.
 The same procedure can be applied to the pure interference histogram $I$ (left-hand side of the extended signal model equation).
 
 The offset histogram can either be an artifical flat offset histogram (with bin contents chosen appropriately to compensate the negative content in the $S+I$ or $I$ histograms).
@@ -110,7 +107,7 @@ NormFactor: "minus_sqrt_mu"
 ```
 
 An example config file with a minimal working example implementing the offset method can be found here:
-[test/configs/FitExampleInterferenceOffset.config](https://gitlab.cern.ch/TRExStats/TRExFitter/-/tree/master/test/configs)
+[test/configs/FitExampleInterferenceOffset.config](https://gitlab.cern.ch/TRExStats/TRExFitter/-/tree/master/test/configs/FitExampleInterferenceOffset.config)
 
 #### MC statistical errors with the offset method
 
@@ -135,7 +132,7 @@ The cross-checks in the following sections are therefore recommended for interfe
 To ensure that the offset method is implemented correctly and smoothing/pruning results are unchanged after the addition of the offset histograms, the following cross-checks 
 should be performed by every interference analysis using the offset method.
 
-* Perform a simple `S+B` fit (dropping the `S+I` or `I` component from the signal model).
-* Compare the results of this fit (best-fit values, ranking, impact) with those from an equivalent fit in which the offset is added to the signal (`S`) component.
+* Perform a simple $S+B$ fit (dropping the `S+I` or `I` component from the signal model).
+* Compare the results of this fit (best-fit values, ranking, impact) with those from an equivalent fit in which the offset is added to the signal ($S$) component.
 * Significant differences could point to differences in smoothing and/or pruning.
 * This test should be performed for (at least) 1-2 representative signal points (e.g. one high-mass and one low-mass point).
