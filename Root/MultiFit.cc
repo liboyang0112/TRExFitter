@@ -992,7 +992,8 @@ void MultiFit::CompareLimit(){
             else                  fLimitsFiles.emplace_back("");
         }
         if(fLimitsFiles[i] == ""){
-            const std::string name = fFitList.at(0)->fLimitOutputPrefixName + "_CL" + std::to_string(static_cast<int>(100*fFitList.at(0)->fLimitsConfidence));
+            const std::string name = fLimitIsBlind ? fFitList.at(0)->fLimitOutputPrefixName + "_BLIND_CL" + std::to_string(static_cast<int>(100*fFitList.at(0)->fLimitsConfidence)) :
+                    fFitList.at(0)->fLimitOutputPrefixName + "_CL" + std::to_string(static_cast<int>(100*fFitList.at(0)->fLimitsConfidence));
             WriteInfoStatus("MultiFit::CompareLimit", "Reading file " + dirs[i] + "/Limits/asymptotics/" + name + ".root");
             f.reset(TFile::Open((dirs[i]+"/Limits/asymptotics/"+name+".root").c_str()));
         }

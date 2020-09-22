@@ -49,6 +49,7 @@ nav:
         - 'Mixed data and MC fits': AdvancedTutorial2020/Mixed.md
     - 'Advanced topics':
         - 'TRExFitter to pyhf': advanced_topics/pyhf.md
+        - 'Interference treatment': advanced_topics/interference.md
 
 markdown_extensions:
     - admonition
