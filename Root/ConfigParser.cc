@@ -247,7 +247,6 @@ void ConfigParser::ReadFile(const std::string& fileName){
     	    replace( str.begin(), str.end(), '\t', ' ');
     	    if (str.find_first_not_of(' ') != std::string::npos) {
     	        if (str[str.find_first_not_of(' ')] == '%') continue;
-    	        if (str[str.find_first_not_of(' ')] == '#') continue;
     	    }
     	    if ( str.find("ReplacementFile")==std::string::npos ) continue;
     	    replacementFileName=Second(str);
@@ -266,7 +265,7 @@ void ConfigParser::ReadFile(const std::string& fileName){
             replace( str.begin(), str.end(), '\n', ' ');
             replace( str.begin(), str.end(), '\r', ' ');
             replace( str.begin(), str.end(), '\t', ' ');
-            if ( str.find("%")!=std::string::npos || str.find("#")!=std::string::npos) continue;
+            if ( str.find("%")!=std::string::npos ) continue;
             WriteInfoStatus("ConfigParser::ReadFile", "putting in the map: [" + First(str) + "]=" + Second(str));
             fReplacement[First(str)]=Second(str);
         }
@@ -287,7 +286,6 @@ void ConfigParser::ReadFile(const std::string& fileName){
         replace( str.begin(), str.end(), '\t', ' ');
         if (str.find_first_not_of(' ') != std::string::npos) {
             if(str[str.find_first_not_of(' ')]=='%') continue;
-            if(str[str.find_first_not_of(' ')]=='#') continue;
         }
         //
         if (str.find("XXX")!=std::string::npos) {
