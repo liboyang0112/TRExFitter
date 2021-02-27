@@ -743,7 +743,7 @@ void TRExFit::DrawSystPlotsSumSamples() const{
             }
         }
         for(const auto& isample : reg->fSampleHists){
-            if(isample->fSample->fType==Sample::DATA) h_dataCopy=std::unique_ptr<TH1>(static_cast<TH1*>(isample->fHist->Clone()));
+            if(isample->fSample->fType==Sample::DATA && reg->fRegionDataType!=Region::ASIMOVDATA) h_dataCopy=std::unique_ptr<TH1>(static_cast<TH1*>(isample->fHist->Clone()));
             else if(isample->fSample->fType==Sample::GHOST) continue;
             else {
                 double scale = Common::GetNominalMorphScale(isample.get());
