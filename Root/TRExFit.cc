@@ -754,7 +754,7 @@ void TRExFit::DrawSystPlotsSumSamples() const{
                 }
             }
         }
-        hist.DrawSystPlot("all", h_dataCopy.get(), true, fSystDataPlot_upFrame);
+        hist.DrawSystPlot("all", h_dataCopy.get(), reg->fRegionDataType==Region::ASIMOVDATA, fSystDataPlot_upFrame);
     }
 }
 
