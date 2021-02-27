@@ -453,41 +453,39 @@ void TRExFit::SmoothSystematics(std::string syst){
         // Scale systematics according to smoothing of another region (inter-region smoothing)
         // Loop on previous regions
         for(std::size_t j_ch=0; j_ch < i_ch; ++j_ch){
-            if(fRegions[i_ch]->fIsBinOfRegion[fRegions[j_ch]->fName]>0){ // NB: these bins have to start with 1, not 0 !! 0 means not filled (due to map implementation)
-                int binIdx = fRegions[i_ch]->fIsBinOfRegion[fRegions[j_ch]->fName];
-                for(auto& sh : fRegions[i_ch]->fSampleHists){
-                    for(auto& syh : sh->fSyst){
-                        float scaleUp = 1.;
-                        float scaleDown = 1.;
-                        // get scale factors to apply according to reference bin of reference region
-                        if(fRegions[j_ch]->GetSampleHist(sh->fSample->fName)!=nullptr){
-                            std::shared_ptr<SampleHist> sh_ref = fRegions[j_ch]->GetSampleHist(sh->fSample->fName);
-                            std::shared_ptr<SystematicHist> syh_ref = sh_ref->GetSystematic(syh->fSystematic->fName);
-                            if(syh_ref!=nullptr){
-                                float systVarUp_orig = syh_ref->fHistUp_orig->GetBinContent(binIdx);
-                                float systVarDown_orig = syh_ref->fHistDown_orig->GetBinContent(binIdx);
-                                float systVarUp = syh_ref->fHistUp->GetBinContent(binIdx);
-                                float systVarDown = syh_ref->fHistDown->GetBinContent(binIdx);
-                                if(systVarUp_orig!=0) scaleUp = systVarUp/systVarUp_orig;
-                                else WriteWarningStatus("TRExFit::SmoothSystematics","In inter-region smoothing attempting to divide by zero. Skipping scaling.");
-                                if(systVarDown_orig!=0) scaleDown = systVarDown/systVarDown_orig;
-                                else WriteWarningStatus("TRExFit::SmoothSystematics","In inter-region smoothing attempting to divide by zero. Skipping scaling.");
-                                if(syh->fSystematic->fSymmetrisationType==HistoTools::SYMMETRIZEONESIDED){
-                                    bool isUp = HistoTools::Separation(sh->fHist.get(),syh->fHistUp.get()) >= HistoTools::Separation(sh->fHist.get(),syh->fHistDown.get());
-                                    if(isUp) scaleDown = 1.;
-                                    else     scaleUp   = 1.;
-                                }
+            if(fRegions[i_ch]->fIsBinOfRegion[fRegions[j_ch]->fName] <=0) continue; // NB: these bins have to start with 1, not 0 !! 0 means not filled (due to map implementation)
+            const int binIdx = fRegions[i_ch]->fIsBinOfRegion[fRegions[j_ch]->fName];
+            for(auto& sh : fRegions[i_ch]->fSampleHists){
+                for(auto& syh : sh->fSyst){
+                    float scaleUp = 1.;
+                    float scaleDown = 1.;
+                    // get scale factors to apply according to reference bin of reference region
+                    if(fRegions[j_ch]->GetSampleHist(sh->fSample->fName)!=nullptr){
+                        std::shared_ptr<SampleHist> sh_ref = fRegions[j_ch]->GetSampleHist(sh->fSample->fName);
+                        std::shared_ptr<SystematicHist> syh_ref = sh_ref->GetSystematic(syh->fSystematic->fName);
+                        if(syh_ref!=nullptr){
+                            float systVarUp_orig = syh_ref->fHistUp_orig->GetBinContent(binIdx);
+                            float systVarDown_orig = syh_ref->fHistDown_orig->GetBinContent(binIdx);
+                            float systVarUp = syh_ref->fHistUp->GetBinContent(binIdx);
+                            float systVarDown = syh_ref->fHistDown->GetBinContent(binIdx);
+                            if(systVarUp_orig!=0) scaleUp = systVarUp/systVarUp_orig;
+                            else WriteWarningStatus("TRExFit::SmoothSystematics","In inter-region smoothing attempting to divide by zero. Skipping scaling.");
+                            if(systVarDown_orig!=0) scaleDown = systVarDown/systVarDown_orig;
+                            else WriteWarningStatus("TRExFit::SmoothSystematics","In inter-region smoothing attempting to divide by zero. Skipping scaling.");
+                            if(syh->fSystematic->fSymmetrisationType==HistoTools::SYMMETRIZEONESIDED){
+                                bool isUp = HistoTools::Separation(sh->fHist.get(),syh->fHistUp.get()) >= HistoTools::Separation(sh->fHist.get(),syh->fHistDown.get());
+                                if(isUp) scaleDown = 1.;
+                                else     scaleUp   = 1.;
                             }
                         }
-                        else{
-                            WriteWarningStatus("TRExFit::SmoothSystematics","Sample not found in region indicated as reference for inter-region smoothing.");
-                        }
-                        // scale
-                        syh->fHistUp->Scale(scaleUp);
-                        syh->fHistDown->Scale(scaleDown);
                     }
+                    else{
+                        WriteWarningStatus("TRExFit::SmoothSystematics","Sample not found in region indicated as reference for inter-region smoothing.");
+                    }
+                    // scale
+                    syh->fHistUp->Scale(scaleUp);
+                    syh->fHistDown->Scale(scaleDown);
                 }
-                continue;
             }
         }
 
@@ -756,7 +754,7 @@ void TRExFit::DrawSystPlotsSumSamples() const{
                 }
             }
         }
-        hist.DrawSystPlot("all", h_dataCopy.get(), true, fSystDataPlot_upFrame);
+        hist.DrawSystPlot("all", h_dataCopy.get(), reg->fRegionDataType==Region::ASIMOVDATA, fSystDataPlot_upFrame);
     }
 }
 
