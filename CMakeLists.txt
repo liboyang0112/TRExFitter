@@ -51,6 +51,7 @@ if(NOT DEFINED ENV{AtlasProject})
   add_subdirectory( yaml-cpp )
 endif()
 
+link_libraries(stdc++fs)
 
 # Handle the build of the CommonSystSmoothingTool library. That
 # library comes with a cmake configuration, but introduces
