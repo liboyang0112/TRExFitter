@@ -3045,7 +3045,7 @@ void TRExFit::DrawSignalRegionsPlot(int nCols,int nRows, std::vector < Region* >
         if(regions[i]==nullptr) continue;
         if ((h.size() - 1)  <= i) break;
         if(TRExFitter::OPTION["LogSignalRegionPlot"]!=0){
-            h[i].SetMaximum(yMax*200);
+            h[i].SetMaximum(yMax*pow(10,3));
             h[i].SetMinimum(2e-4);
         }
         else{
