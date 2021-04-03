@@ -938,7 +938,7 @@ void SampleHist::SmoothSyst(const HistoTools::SmoothOption &smoothOpt, const boo
         // Pre-smoothing
         //
         // (do smoothing and symmetrization before pre-smoothing in case of two-sided systematics)
-        if(isyst->fSymmetrisationType==HistoTools::SYMMETRIZETWOSIDED){
+        if(isyst->fSymmetrisationType==HistoTools::SYMMETRIZETWOSIDED || isyst->fSymmetrisationType==HistoTools::SYMMETRIZEDIFFONLY){
             if(isyst->fIsShape){
                 if(isyst->fSystematic->fSampleSmoothing){
                     HistoTools::ManageHistograms(   isyst->fSmoothType,
@@ -1050,7 +1050,7 @@ void SampleHist::SmoothSyst(const HistoTools::SmoothOption &smoothOpt, const boo
         //
         // Call the function for smoothing and symmetrisation
         //
-        if(isyst->fSymmetrisationType!=HistoTools::SYMMETRIZETWOSIDED){
+        if(isyst->fSymmetrisationType!=HistoTools::SYMMETRIZETWOSIDED && isyst->fSymmetrisationType!=HistoTools::SYMMETRIZEDIFFONLY){
             if(isyst->fIsShape){
                 if(isyst->fSystematic->fSampleSmoothing){
                     HistoTools::ManageHistograms(   isyst->fSmoothType,

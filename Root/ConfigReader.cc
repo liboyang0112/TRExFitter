@@ -4264,6 +4264,9 @@ int ConfigReader::ReadSystOptions(){
                 else if(param == "TWOSIDED"){
                     sys->fSymmetrisationType = HistoTools::SYMMETRIZETWOSIDED;
                 }
+                else if(param == "DIFFONLY"){
+                    sys->fSymmetrisationType = HistoTools::SYMMETRIZEDIFFONLY;
+                }
                 else if(param == "ABSMEAN"){
                     sys->fSymmetrisationType = HistoTools::SYMMETRIZEABSMEAN;
                 }
@@ -6498,6 +6501,9 @@ int ConfigReader::ReadUnfoldingSystematicOptions() {
             }
             else if(param == "TWOSIDED"){
                 syst->SetSymmetrisationType(HistoTools::SYMMETRIZETWOSIDED);
+            }
+            else if(param == "DIFFONLY"){
+                syst->SetSymmetrisationType(HistoTools::SYMMETRIZEDIFFONLY);
             }
             else if(param == "ABSMEAN"){
                 syst->SetSymmetrisationType(HistoTools::SYMMETRIZEABSMEAN);

@@ -21,6 +21,7 @@ namespace HistoTools {
         SYMMETRIZETWOSIDED = 2, /// symmetrize two-sided systematics (protects from statistical fluctuations)
         SYMMETRIZEABSMEAN = 3, /// symmetrize two-sided systematics by taking mean of the absolute values from up and down shift (protects from statistical fluctuations)
         SYMMETRIZEMAXIMUM = 4, /// symmetrize two-sided systematics by taking the larger variation from up and down and symmetrizing (protects from statistical fluctuations)
+        SYMMETRIZEDIFFONLY= 5, /// symmetrize two-sided systematics (protects from statistical fluctuations)
     };
 
     /// Enum that stores different smoothing level options
@@ -135,6 +136,7 @@ namespace HistoTools {
      * @return Up variation that is calculated, will be ionverted for down  variation later
      */
     TH1D* SymmetrizeTwoSided(const TH1* const var1, const TH1* const var2, const TH1* const hnom);
+    TH1D* SymmetrizeDiffOnly(const TH1* const var1, const TH1* const var2, const TH1* const hnom);
 
     /**
      * A helper function to calculate symmetrization using mean of the absolute values

@@ -187,6 +187,10 @@ void HistoTools::SymmetrizeHistograms(const SymmetrizationType& symType, const T
         modifiedUp = SymmetrizeTwoSided(localOriginUp.get(), localOriginDown.get(), localHNom.get());
         std::unique_ptr<TH1D> tmp = InvertShift(modifiedUp,localHNom.get());
         modifiedDown = tmp.release();
+    } else if ( symType == SymmetrizationType::SYMMETRIZEDIFFONLY ) {
+        modifiedUp = SymmetrizeDiffOnly(localOriginUp.get(), localOriginDown.get(), localHNom.get());
+        std::unique_ptr<TH1D> tmp = InvertShift(modifiedUp,localHNom.get());
+        modifiedDown = tmp.release();
     } else if ( symType == SymmetrizationType::SYMMETRIZEABSMEAN ) {
         modifiedUp = SymmetrizeAbsMean(localOriginUp.get(), localOriginDown.get(), localHNom.get());
         std::unique_ptr<TH1D> tmp = InvertShift(modifiedUp,localHNom.get());
@@ -372,6 +376,61 @@ TH1D* HistoTools::SymmetrizeTwoSided(const TH1* const var1, const TH1* const var
     //Computes Corrected = (DeltaUp-DeltaDown)/2 + 1
     tmp1->Add(tmp2.get(),-1);
     tmp1->Scale(0.5);
+    tmp1->Add(unit.get());
+
+    //Computed the new histogram Corrected*Nominal
+    tmp1->Multiply(nom.get());
+
+    //Protection against negative bin
+    for (int bin=1; bin<= unit->GetNbinsX(); bin++){
+        const double& content = tmp1->GetBinContent(bin);
+        if(content<0){
+            tmp1->SetBinContent(bin,0.);
+        }
+    }
+
+    return tmp1.release();
+}
+
+TH1D* HistoTools::SymmetrizeDiffOnly(const TH1* const var1, const TH1* const var2, const TH1* const hnom) {
+
+    bool isLarge = false;
+    if (std::fabs(var1->Integral()/hnom->Integral()-1) > 0.005) isLarge = true;
+    if (std::fabs(var2->Integral()/hnom->Integral()-1) > 0.005) isLarge = true;
+    //
+    // Symmetrize a variation that is already two sided to smooth out possible fluctuations
+    //
+    //Nominal
+    std::unique_ptr<TH1D> nom(static_cast<TH1D*>(hnom->Clone()));
+
+    //Up variation
+    std::unique_ptr<TH1D> tmp1 (static_cast<TH1D*>(var1->Clone()));
+    tmp1->Divide(nom.get());
+    if(!tmp1->GetSumw2())tmp1->Sumw2();
+
+    //Down variation
+    std::unique_ptr<TH1D> tmp2(static_cast<TH1D*> (var2->Clone()));
+    tmp2->Divide(nom.get());
+    if(!tmp2->GetSumw2())tmp2->Sumw2();
+
+    if (isLarge){
+        CheckSameShift(var1, var2, hnom, tmp1.get(), tmp2.get());
+    }
+
+    //Flat (content = 0) histogram to substract
+    std::unique_ptr<TH1D> unit (static_cast<TH1D*> (nom->Clone()));
+    if(!unit->GetSumw2())unit->Sumw2();
+    for (int bin=1; bin<= unit->GetNbinsX(); bin++){
+        unit->SetBinContent(bin,1);
+        unit->SetBinError(bin,0.0);
+    }
+
+    //Computes Var/Nom - 1
+    tmp1->Add(unit.get(),-1);
+    tmp2->Add(unit.get(),-1);
+
+    //Computes Corrected = (DeltaUp-DeltaDown)/2 + 1
+    tmp1->Add(tmp2.get(),-1);
     tmp1->Add(unit.get());
 
     //Computed the new histogram Corrected*Nominal
