@@ -685,12 +685,6 @@ void SampleHist::Rebin(int ngroup, const Double_t* xbins){
 //_____________________________________________________________________________
 // this draws the control plots (for each systematic) with the syst variations for this region & all sample
 void SampleHist::DrawSystPlot( const string &syst, TH1* const h_data, bool SumAndData, bool bothPanels ) const{
-    if (SumAndData && h_data == nullptr){
-        WriteWarningStatus("SampleHist::DrawSystPlot", "Data histogram passed is nullptr and you want to plot syst effect on data, returning.");
-        WriteWarningStatus("SampleHist::DrawSystPlot", "Maybe you do not have data sample defined?");
-        return;
-    }
-
     for(auto& isyst : fSyst) {
         if(syst!="all" && isyst->fName.find(syst)==string::npos) continue;
         
@@ -724,7 +718,7 @@ void SampleHist::DrawSystPlot( const string &syst, TH1* const h_data, bool SumAn
         std::unique_ptr<TH1> syst_down(static_cast<TH1*>(isyst->fHistDown->Clone()));
         std::unique_ptr<TH1> syst_down_orig(static_cast<TH1*>(isyst->fHistDown_preSmooth->Clone()));
         std::unique_ptr<TH1> data(nullptr);
-        if (SumAndData) data = std::unique_ptr<TH1>(static_cast<TH1*>(h_data->Clone("nominal")));
+        if (SumAndData && h_data) data = std::unique_ptr<TH1>(static_cast<TH1*>(h_data->Clone("nominal")));
         std::unique_ptr<TH1> tmp(static_cast<TH1*>(nominal->Clone()));
 
         // drop shape or norm (for cases where this is not yet done in the stored histogrmas, i.e. in case of pruning or decorrelation)
@@ -764,7 +758,7 @@ void SampleHist::DrawSystPlot( const string &syst, TH1* const h_data, bool SumAn
         syst_down_orig->SetFillStyle(0);
         tmp->Scale(0);
         tmp->SetFillColor(0);
-        if (SumAndData) data->SetMarkerColor(kBlack);
+        if (SumAndData&&h_data) data->SetMarkerColor(kBlack);
 
         // make copies for ratio
         std::unique_ptr<TH1> nominal_ratio(static_cast<TH1*>(nominal->Clone()));      
@@ -774,7 +768,7 @@ void SampleHist::DrawSystPlot( const string &syst, TH1* const h_data, bool SumAn
         std::unique_ptr<TH1> syst_down_ratio(static_cast<TH1*>(syst_down->Clone()));      
         std::unique_ptr<TH1> syst_down_orig_ratio(static_cast<TH1*>(syst_down_orig->Clone()));      
         std::unique_ptr<TH1> data_ratio(nullptr);
-        if (SumAndData) data_ratio = std::unique_ptr<TH1>(static_cast<TH1*>(data->Clone()));      
+        if (SumAndData&&h_data) data_ratio = std::unique_ptr<TH1>(static_cast<TH1*>(data->Clone()));      
         std::unique_ptr<TH1> tmp_ratio(static_cast<TH1*>(tmp->Clone()));      
         
         DrawSystPlotUpper(&pad0,
@@ -786,7 +780,7 @@ void SampleHist::DrawSystPlot( const string &syst, TH1* const h_data, bool SumAn
                           syst_down_orig.get(),
                           data.get(),
                           tmp.get(),
-                          SumAndData,
+                          SumAndData&&h_data,
                           bothPanels);
 
         // Draw laels
@@ -814,7 +808,7 @@ void SampleHist::DrawSystPlot( const string &syst, TH1* const h_data, bool SumAn
         const float yield_up      = Common::CorrectIntegral(syst_up.get());
         const float yield_down    = Common::CorrectIntegral(syst_down.get());
         float yield_data(0);
-        if (SumAndData) yield_data = Common::CorrectIntegral(data.get());
+        if (SumAndData&&h_data) yield_data = Common::CorrectIntegral(data.get());
         const float acc_up = (yield_up-yield_nominal)/yield_nominal;
         const float acc_down = (yield_down-yield_nominal)/yield_nominal;
         std::string sign_up =  "+";
@@ -841,7 +835,7 @@ void SampleHist::DrawSystPlot( const string &syst, TH1* const h_data, bool SumAn
         leg2.Draw("same");
 
         std::unique_ptr<TLegend> leg3(nullptr);
-        if(SumAndData){
+        if(SumAndData&&h_data){
             float acc_data = 0.;
             if (std::fabs(yield_nominal) > 1e-6) acc_data = (yield_data-yield_nominal)/yield_nominal;
             else acc_data = 99999999;
@@ -868,7 +862,7 @@ void SampleHist::DrawSystPlot( const string &syst, TH1* const h_data, bool SumAn
                           syst_down_orig_ratio.get(),
                           data_ratio.get(),
                           tmp_ratio.get(),
-                          SumAndData);
+                          SumAndData&&h_data);
 
         const float xmin = nominal->GetBinLowEdge(1);
         const float xmax = nominal->GetBinLowEdge(nominal->GetNbinsX()+1);

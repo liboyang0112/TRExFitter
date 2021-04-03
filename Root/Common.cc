@@ -958,8 +958,8 @@ void Common::ScaleNominal(const SampleHist* const sig,
         NormFactor *nf = sig->fSample->fNormFactors[i_nf].get();
         // if this norm factor is a morphing one
         if(nf->fName.find("morph_")!=std::string::npos || nf->fExpression.first!=""){
-            std::string formula = TRExFitter::SYSTMAP[nf->fName];
-            const std::string name = TRExFitter::NPMAP[nf->fName];
+            std::string formula = Common::ReplaceString(TRExFitter::SYSTMAP[nf->fName], "Expression_", "");
+            const std::string name = Common::ReplaceString(TRExFitter::NPMAP[nf->fName], "Expression_", "");
             formula = ReplaceString(formula,name,"x");
             std::vector < std::pair < std::string,std::vector<double> > > nameS;
             if(nf->fName.find("morph_")!=std::string::npos) {
@@ -998,8 +998,8 @@ double Common::GetNominalMorphScale(const SampleHist* const sh){
         std::string nfName = nf->fName;
 
         if(nfName.find("morph_")!=std::string::npos || nf->fExpression.first!=""){
-            std::string formula = TRExFitter::SYSTMAP[nfName];
-            std::string name = TRExFitter::NPMAP[nfName];
+            std::string formula = Common::ReplaceString(TRExFitter::SYSTMAP[nfName], "Expression_", "");
+            const std::string name = Common::ReplaceString(TRExFitter::NPMAP[nfName], "Expression_", "");
             WriteDebugStatus("Common::GetNominalMorphScale", "formula: " +formula);
             WriteDebugStatus("Common::GetNominalMorphScale", "name: " +name);
             std::vector < std::pair < std::string,std::vector<double> > > nameS;
@@ -1121,14 +1121,15 @@ std::string Common::pad_trail(const std::string& input) {
 void Common::DropNorm(TH1* hUp,
                       TH1* hDown,
                       TH1* hNom) {
-    const double intNom = hNom->Integral();
+    double err(0);
+    const double intNom = Common::CorrectIntegral(hNom, &err);
     if(hUp!=nullptr){
-        const double intUp = hUp->Integral();
+        const double intUp = Common::CorrectIntegral(hUp, &err);
         if(std::fabs(intUp) > 1e-6) hUp->Scale(intNom/intUp);
         else WriteWarningStatus("Common::DropNorm","Integral of up variation = 0. Cannot drop normalization.");
     }
     if(hDown!=nullptr){
-        const double intDown = hDown->Integral();
+        const double intDown = Common::CorrectIntegral(hDown, &err);
         if(std::fabs(intDown) > 1e-6) hDown->Scale(intNom/intDown);
         else WriteWarningStatus("Common::DropNorm","Integral of down variation = 0. Cannot drop normalization.");
     }
@@ -1139,20 +1140,30 @@ void Common::DropNorm(TH1* hUp,
 void Common::DropShape(TH1* hUp,
                        TH1* hDown,
                        TH1* hNom){
-    const double intNom = hNom->Integral();
+
+    double err(0);
+    const double intNom = Common::CorrectIntegral(hNom, &err);
     if(std::fabs(intNom < 1e-6)) {
         WriteWarningStatus("Common::DropShape","Integral of nominal histogram = 0. Cannot drop shape of syst variations.");
         return;
     }
     if(hUp!=nullptr){
-        const double ratioUp = hUp->Integral()/intNom;
-        Common::SetHistoBinsFromOtherHist(hUp, hNom); 
-        hUp->Scale(ratioUp);
+        const double intUp = Common::CorrectIntegral(hUp, &err);
+        if (std::fabs(intUp) > 1e-6) {
+            Common::SetHistoBinsFromOtherHist(hUp, hNom); 
+            hUp->Scale(intUp/intNom);
+        } else {
+            WriteWarningStatus("Common::DropShape","Integral of up variation = 0. Cannot drop shape.");
+        }
     }
     if(hDown!=nullptr){
-        const double ratioDown = hDown->Integral()/intNom;
-        Common::SetHistoBinsFromOtherHist(hDown, hNom); 
-        hDown->Scale(ratioDown);
+        const double intDown = Common::CorrectIntegral(hDown, &err);
+        if (std::fabs(intDown) > 1e-6) {
+            Common::SetHistoBinsFromOtherHist(hDown, hNom); 
+            hDown->Scale(intDown/intNom);
+        } else {
+            WriteWarningStatus("Common::DropShape","Integral of down variation = 0. Cannot drop shape.");
+        }
     }
 }
 
