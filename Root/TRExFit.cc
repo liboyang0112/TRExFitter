@@ -3039,16 +3039,15 @@ void TRExFit::DrawSignalRegionsPlot(int nCols,int nRows, std::vector < Region* >
         else                                      tex.DrawLatex(0.27,0.72,SB.c_str());
     }
     //
-    float scale = 1.5;
     for(unsigned int i=0;i<Nreg;i++){
         if(regions[i]==nullptr) continue;
         if ((h.size() - 1)  <= i) break;
         if(TRExFitter::OPTION["LogSignalRegionPlot"]!=0){
-            h[i].SetMaximum(pow(yMax,scale)/pow(2e-4,scale-1));
+            h[i].SetMaximum(yMax*pow(10,3));
             h[i].SetMinimum(2e-4);
         }
         else{
-            h[i].SetMaximum(yMax*scale);
+            h[i].SetMaximum(yMax*1.5);
             h[i].SetMinimum(0.);
         }
     }
@@ -3810,76 +3809,78 @@ void TRExFit::DrawPruningPlot() const{
         return;
     }
     //
-    int maxPruningRows=70;
-    int systStart = 0;
-    int systEnd = 0;
-    while(systEnd < NnonGammaSyst){
-        systEnd = systStart+maxPruningRows;
-        if(systEnd > NnonGammaSyst) systEnd = NnonGammaSyst;
-        for(const auto& ireg : fRegions) {
-            if(!fValidationPruning && ireg->fRegionType==Region::VALIDATION) continue;
-    
-            out << "In Region : " << ireg->fName << std::endl ;
-            histPrun.emplace_back(new TH2F (Form("h_prun_%s", ireg->fName.c_str()  ),ireg->fShortLabel.c_str(),nSmp,0,nSmp, uniqueSyst.size(),0,uniqueSyst.size()));
-            histPrun.back()->SetDirectory(0);
-    
-            for(int i_smp=0;i_smp<nSmp;i_smp++){
-                out << " -> In Sample : " << samplesVec[i_smp]->fName << std::endl;
-    
-                for(std::size_t uniqueIndex = 0; uniqueIndex < uniqueSyst.size(); ++uniqueIndex){
-                   histPrun[iReg]->SetBinContent( histPrun[iReg]->FindBin(i_smp,uniqueIndex), -1 );
-                }
-    
-                std::shared_ptr<SampleHist> sh = ireg->GetSampleHist(samplesVec[i_smp]->fName);
-                if (sh == nullptr) continue;
-    
-                for(size_t i_syst=systStart;i_syst<systEnd;i_syst++){
-                    // find the corresponding index of unique syst
-                    auto it = std::find(uniqueSyst.begin(), uniqueSyst.end(), nonGammaSystematics.at(i_syst)->fName);
-                    const std::size_t uniqueIndex = std::distance(uniqueSyst.begin(), it);
-                    out << " --->>  " << nonGammaSystematics[i_syst]->fName << "     " ;
-                    if( (Common::FindInStringVector(nonGammaSystematics[i_syst]->fSamples,samplesVec[i_smp]->fName)>=0 || nonGammaSystematics[i_syst]->fSamples[0] == "all")
-                        && sh->HasSyst(nonGammaSystematics[i_syst]->fName)
-                    ){
-                        std::shared_ptr<SystematicHist> syh = sh->GetSystematic(nonGammaSystematics[i_syst]->fName);
-                        histPrun[iReg]->SetBinContent( histPrun[iReg]->FindBin(i_smp,uniqueIndex), 0 );
-                        const bool forgeDropShape = nonGammaSystematics[i_syst]->fIsNormOnly;
-                        const bool forgeDropNorm  = nonGammaSystematics[i_syst]->fIsShapeOnly;
-                        //
-                        if(syh->fShapePruned && syh->fNormPruned) histPrun[iReg]->SetBinContent( histPrun[iReg]->FindBin(i_smp,uniqueIndex), 3 );
-                        else if(syh->fShapePruned || forgeDropShape) histPrun[iReg]->SetBinContent( histPrun[iReg]->FindBin(i_smp,uniqueIndex), 1 );
-                        else if(syh->fNormPruned || forgeDropNorm) histPrun[iReg]->SetBinContent( histPrun[iReg]->FindBin(i_smp,uniqueIndex), 2 );
-                        //
-                        if(syh->fBadShape && syh->fBadNorm) histPrun[iReg]->SetBinContent( histPrun[iReg]->FindBin(i_smp,uniqueIndex), -4 );
-                        else if(syh->fBadShape) histPrun[iReg]->SetBinContent( histPrun[iReg]->FindBin(i_smp,uniqueIndex), -3 );
-                        else if(syh->fBadNorm) histPrun[iReg]->SetBinContent( histPrun[iReg]->FindBin(i_smp,uniqueIndex), -2 );
-                        //
-                    }
-                    if( histPrun[iReg]->GetBinContent( histPrun[iReg]->FindBin(i_smp,uniqueIndex) )== -1 ) out << " is not present" << std::endl;
-                    else if( histPrun[iReg]->GetBinContent( histPrun[iReg]->FindBin(i_smp,uniqueIndex) )== 0 ) out << " is kept" << std::endl;
-                    else if( histPrun[iReg]->GetBinContent( histPrun[iReg]->FindBin(i_smp,uniqueIndex) )== 1 ) out << " is norm only" << std::endl;
-                    else if( histPrun[iReg]->GetBinContent( histPrun[iReg]->FindBin(i_smp,uniqueIndex) )== 2 ) out << " is shape only" << std::endl;
-                    else if( histPrun[iReg]->GetBinContent( histPrun[iReg]->FindBin(i_smp,uniqueIndex) )== 3 ) out << " is dropped" << std::endl;
-                    else if( histPrun[iReg]->GetBinContent( histPrun[iReg]->FindBin(i_smp,uniqueIndex) )== -2 ) out << " has bad norm" << std::endl;
-                    else if( histPrun[iReg]->GetBinContent( histPrun[iReg]->FindBin(i_smp,uniqueIndex) )== -3 ) out << " has bad shape" << std::endl;
-                    else if( histPrun[iReg]->GetBinContent( histPrun[iReg]->FindBin(i_smp,uniqueIndex) )== -4 ) out << " is bad" << std::endl;
-                }
+    for(const auto& ireg : fRegions) {
+        if(!fValidationPruning && ireg->fRegionType==Region::VALIDATION) continue;
+
+        out << "In Region : " << ireg->fName << std::endl ;
+        histPrun.emplace_back(new TH2F (Form("h_prun_%s", ireg->fName.c_str()  ),ireg->fShortLabel.c_str(),nSmp,0,nSmp, uniqueSyst.size(),0,uniqueSyst.size()));
+        histPrun.back()->SetDirectory(0);
+
+        for(int i_smp=0;i_smp<nSmp;i_smp++){
+            out << " -> In Sample : " << samplesVec[i_smp]->fName << std::endl;
+
+            for(std::size_t uniqueIndex = 0; uniqueIndex < uniqueSyst.size(); ++uniqueIndex){
+               histPrun[iReg]->SetBinContent( histPrun[iReg]->FindBin(i_smp,uniqueIndex), -1 );
             }
-            //
-            histPrun_toSave.emplace_back(std::move(std::unique_ptr<TH2F>(static_cast<TH2F*>(histPrun[iReg]->Clone(Form("%s_toSave",histPrun[iReg]->GetName()))))) );
-            histPrun_toSave[iReg]->SetDirectory(0);
-            //
-            iReg++;
+
+            std::shared_ptr<SampleHist> sh = ireg->GetSampleHist(samplesVec[i_smp]->fName);
+            if (sh == nullptr) continue;
+
+            for(size_t i_syst=NnonGammaSyst;i_syst<NnonGammaSyst;i_syst++){
+                // find the corresponding index of unique syst
+                auto it = std::find(uniqueSyst.begin(), uniqueSyst.end(), nonGammaSystematics.at(i_syst)->fName);
+                const std::size_t uniqueIndex = std::distance(uniqueSyst.begin(), it);
+                out << " --->>  " << nonGammaSystematics[i_syst]->fName << "     " ;
+                if( (Common::FindInStringVector(nonGammaSystematics[i_syst]->fSamples,samplesVec[i_smp]->fName)>=0 || nonGammaSystematics[i_syst]->fSamples[0] == "all")
+                    && sh->HasSyst(nonGammaSystematics[i_syst]->fName)
+                ){
+                    std::shared_ptr<SystematicHist> syh = sh->GetSystematic(nonGammaSystematics[i_syst]->fName);
+                    histPrun[iReg]->SetBinContent( histPrun[iReg]->FindBin(i_smp,uniqueIndex), 0 );
+                    const bool forgeDropShape = nonGammaSystematics[i_syst]->fIsNormOnly;
+                    const bool forgeDropNorm  = nonGammaSystematics[i_syst]->fIsShapeOnly;
+                    //
+                    if(syh->fShapePruned && syh->fNormPruned) histPrun[iReg]->SetBinContent( histPrun[iReg]->FindBin(i_smp,uniqueIndex), 3 );
+                    else if(syh->fShapePruned || forgeDropShape) histPrun[iReg]->SetBinContent( histPrun[iReg]->FindBin(i_smp,uniqueIndex), 1 );
+                    else if(syh->fNormPruned || forgeDropNorm) histPrun[iReg]->SetBinContent( histPrun[iReg]->FindBin(i_smp,uniqueIndex), 2 );
+                    //
+                    if(syh->fBadShape && syh->fBadNorm) histPrun[iReg]->SetBinContent( histPrun[iReg]->FindBin(i_smp,uniqueIndex), -4 );
+                    else if(syh->fBadShape) histPrun[iReg]->SetBinContent( histPrun[iReg]->FindBin(i_smp,uniqueIndex), -3 );
+                    else if(syh->fBadNorm) histPrun[iReg]->SetBinContent( histPrun[iReg]->FindBin(i_smp,uniqueIndex), -2 );
+                    //
+                }
+                if( histPrun[iReg]->GetBinContent( histPrun[iReg]->FindBin(i_smp,uniqueIndex) )== -1 ) out << " is not present" << std::endl;
+                else if( histPrun[iReg]->GetBinContent( histPrun[iReg]->FindBin(i_smp,uniqueIndex) )== 0 ) out << " is kept" << std::endl;
+                else if( histPrun[iReg]->GetBinContent( histPrun[iReg]->FindBin(i_smp,uniqueIndex) )== 1 ) out << " is norm only" << std::endl;
+                else if( histPrun[iReg]->GetBinContent( histPrun[iReg]->FindBin(i_smp,uniqueIndex) )== 2 ) out << " is shape only" << std::endl;
+                else if( histPrun[iReg]->GetBinContent( histPrun[iReg]->FindBin(i_smp,uniqueIndex) )== 3 ) out << " is dropped" << std::endl;
+                else if( histPrun[iReg]->GetBinContent( histPrun[iReg]->FindBin(i_smp,uniqueIndex) )== -2 ) out << " has bad norm" << std::endl;
+                else if( histPrun[iReg]->GetBinContent( histPrun[iReg]->FindBin(i_smp,uniqueIndex) )== -3 ) out << " has bad shape" << std::endl;
+                else if( histPrun[iReg]->GetBinContent( histPrun[iReg]->FindBin(i_smp,uniqueIndex) )== -4 ) out << " is bad" << std::endl;
+            }
         }
         //
-        // draw the histograms
-        int upSize = 50;
-        int loSize = 150;
-        int mainHeight = uniqueSyst.size()*20;
-        int leftSize = 250;
-        int regionSize = 20*nSmp;
-        int separation = 10;
-        int mainWidth = iReg*(regionSize+separation);
+        histPrun_toSave.emplace_back(std::move(std::unique_ptr<TH2F>(static_cast<TH2F*>(histPrun[iReg]->Clone(Form("%s_toSave",histPrun[iReg]->GetName()))))) );
+        histPrun_toSave[iReg]->SetDirectory(0);
+        //
+        iReg++;
+    }
+    //
+    // draw the histograms
+    int upSize = 50;
+    int loSize = 150;
+    int leftSize = 250;
+    int regionSize = 20*nSmp;
+    int separation = 10;
+    int mainWidth = iReg*(regionSize+separation);
+
+    const uint maxPruningRows=70;
+    size_t systStart = 1;
+    size_t systEnd = 1;
+    size_t NuniqueSyst = uniqueSyst.size();
+    while(systEnd < NuniqueSyst){
+        systEnd = systStart+maxPruningRows-1;
+        if(systEnd > NuniqueSyst) systEnd = NuniqueSyst;
+        int mainHeight = (systEnd-systStart+1)*20;
         //
         TCanvas c("c_pruning","Canvas - Pruning",leftSize+mainWidth,upSize+mainHeight+loSize);
         std::vector<Int_t> colors = {kBlack,6,kBlue, kGray, 8, kYellow, kOrange-3, kRed}; // #colors >= #levels - 1
@@ -3919,6 +3920,7 @@ void TRExFit::DrawPruningPlot() const{
                 }
                 histPrun_toSave[i_reg]->GetYaxis()->SetBinLabel(i_bin,uniqueSyst[i_bin-1].c_str());
             }
+            histPrun[i_reg]->GetYaxis()->SetRange(systStart,systEnd);
             histPrun[i_reg]->Draw("COL");
             histPrun[i_reg]->GetYaxis()->SetLabelOffset(0.03);
             gPad->SetTopMargin(0);
@@ -3973,28 +3975,27 @@ void TRExFit::DrawPruningPlot() const{
         leg.Draw();
         //
         for(const auto& iformat : TRExFitter::IMAGEFORMAT) {
-            c.SaveAs( (fName+"/Pruning"+fSuffix+"_"+char(systStart/maxPruningRows+'0')+"."+iformat).c_str() );
+            c.SaveAs( (fName+"/Pruning"+fSuffix+"_"+char('0'+NuniqueSyst/maxPruningRows)+"."+iformat).c_str() );
         }
-    
-        //
-        // Save prunign hist for future usage
-        std::unique_ptr<TFile> filePrun = nullptr;
-        // - checking if Pruning.root exists
-        // if yes
-        if(!gSystem->AccessPathName( (fName+"/Pruning"+"_"+char(systStart/maxPruningRows+'0')+".root").c_str() )){
-            // ...
-            filePrun.reset(TFile::Open( (fName+"/Pruning"+"_"+char(systStart/maxPruningRows+'0')+".root").c_str() ));
+        systStart+=70;
+    }
+    //
+    // Save prunign hist for future usage
+    std::unique_ptr<TFile> filePrun = nullptr;
+    // - checking if Pruning.root exists
+    // if yes
+    if(!gSystem->AccessPathName( (fName+"/Pruning.root").c_str() )){
+        // ...
+        filePrun.reset(TFile::Open( (fName+"/Pruning.root").c_str() ));
+    }
+    else{
+        filePrun.reset(TFile::Open( (fName+"/Pruning.root").c_str(),"RECREATE" ));
+        for(std::size_t i_reg=0;i_reg<histPrun.size();i_reg++){
+            histPrun_toSave[i_reg]->Write("",TObject::kOverwrite);
         }
-        else{
-            filePrun.reset(TFile::Open( (fName+"/Pruning"+"_"+char(systStart/maxPruningRows+'0')+".root").c_str(),"RECREATE" ));
-            for(std::size_t i_reg=0;i_reg<histPrun.size();i_reg++){
-                histPrun_toSave[i_reg]->Write("",TObject::kOverwrite);
-            }
-        }
-        if (filePrun != nullptr){
-            filePrun->Close();
-        }
-        systStart+=maxPruningRows;
+    }
+    if (filePrun != nullptr){
+        filePrun->Close();
     }
 }
 
