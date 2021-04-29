@@ -3975,7 +3975,7 @@ void TRExFit::DrawPruningPlot() const{
         leg.Draw();
         //
         for(const auto& iformat : TRExFitter::IMAGEFORMAT) {
-            c.SaveAs( (fName+"/Pruning"+fSuffix+"_"+char('0'+NuniqueSyst/maxPruningRows)+"."+iformat).c_str() );
+            c.SaveAs( (fName+"/Pruning"+fSuffix+"_"+char('0'+systStart/maxPruningRows)+"."+iformat).c_str() );
         }
         systStart+=70;
     }
