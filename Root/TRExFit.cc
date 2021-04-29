@@ -3826,7 +3826,7 @@ void TRExFit::DrawPruningPlot() const{
             std::shared_ptr<SampleHist> sh = ireg->GetSampleHist(samplesVec[i_smp]->fName);
             if (sh == nullptr) continue;
 
-            for(size_t i_syst=NnonGammaSyst;i_syst<NnonGammaSyst;i_syst++){
+            for(size_t i_syst=0;i_syst<NnonGammaSyst;i_syst++){
                 // find the corresponding index of unique syst
                 auto it = std::find(uniqueSyst.begin(), uniqueSyst.end(), nonGammaSystematics.at(i_syst)->fName);
                 const std::size_t uniqueIndex = std::distance(uniqueSyst.begin(), it);
