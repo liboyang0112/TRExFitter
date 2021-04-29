@@ -3809,183 +3809,191 @@ void TRExFit::DrawPruningPlot() const{
         return;
     }
     //
-    for(const auto& ireg : fRegions) {
-        if(!fValidationPruning && ireg->fRegionType==Region::VALIDATION) continue;
-
-        out << "In Region : " << ireg->fName << std::endl ;
-        histPrun.emplace_back(new TH2F (Form("h_prun_%s", ireg->fName.c_str()  ),ireg->fShortLabel.c_str(),nSmp,0,nSmp, uniqueSyst.size(),0,uniqueSyst.size()));
-        histPrun.back()->SetDirectory(0);
-
-        for(int i_smp=0;i_smp<nSmp;i_smp++){
-            out << " -> In Sample : " << samplesVec[i_smp]->fName << std::endl;
-
-            for(std::size_t uniqueIndex = 0; uniqueIndex < uniqueSyst.size(); ++uniqueIndex){
-               histPrun[iReg]->SetBinContent( histPrun[iReg]->FindBin(i_smp,uniqueIndex), -1 );
-            }
-
-            std::shared_ptr<SampleHist> sh = ireg->GetSampleHist(samplesVec[i_smp]->fName);
-            if (sh == nullptr) continue;
-
-            for(size_t i_syst=0;i_syst<NnonGammaSyst;i_syst++){
-                // find the corresponding index of unique syst
-                auto it = std::find(uniqueSyst.begin(), uniqueSyst.end(), nonGammaSystematics.at(i_syst)->fName);
-                const std::size_t uniqueIndex = std::distance(uniqueSyst.begin(), it);
-                out << " --->>  " << nonGammaSystematics[i_syst]->fName << "     " ;
-                if( (Common::FindInStringVector(nonGammaSystematics[i_syst]->fSamples,samplesVec[i_smp]->fName)>=0 || nonGammaSystematics[i_syst]->fSamples[0] == "all")
-                    && sh->HasSyst(nonGammaSystematics[i_syst]->fName)
-                ){
-                    std::shared_ptr<SystematicHist> syh = sh->GetSystematic(nonGammaSystematics[i_syst]->fName);
-                    histPrun[iReg]->SetBinContent( histPrun[iReg]->FindBin(i_smp,uniqueIndex), 0 );
-                    const bool forgeDropShape = nonGammaSystematics[i_syst]->fIsNormOnly;
-                    const bool forgeDropNorm  = nonGammaSystematics[i_syst]->fIsShapeOnly;
-                    //
-                    if(syh->fShapePruned && syh->fNormPruned) histPrun[iReg]->SetBinContent( histPrun[iReg]->FindBin(i_smp,uniqueIndex), 3 );
-                    else if(syh->fShapePruned || forgeDropShape) histPrun[iReg]->SetBinContent( histPrun[iReg]->FindBin(i_smp,uniqueIndex), 1 );
-                    else if(syh->fNormPruned || forgeDropNorm) histPrun[iReg]->SetBinContent( histPrun[iReg]->FindBin(i_smp,uniqueIndex), 2 );
-                    //
-                    if(syh->fBadShape && syh->fBadNorm) histPrun[iReg]->SetBinContent( histPrun[iReg]->FindBin(i_smp,uniqueIndex), -4 );
-                    else if(syh->fBadShape) histPrun[iReg]->SetBinContent( histPrun[iReg]->FindBin(i_smp,uniqueIndex), -3 );
-                    else if(syh->fBadNorm) histPrun[iReg]->SetBinContent( histPrun[iReg]->FindBin(i_smp,uniqueIndex), -2 );
-                    //
+    int maxPruningRows=70;
+    int systStart = 0;
+    int systEnd = 0;
+    while(systEnd < NnonGammaSyst){
+        systEnd = systStart+maxPruningRows;
+        if(systEnd > NnonGammaSyst) systEnd = NnonGammaSyst;
+        for(const auto& ireg : fRegions) {
+            if(!fValidationPruning && ireg->fRegionType==Region::VALIDATION) continue;
+    
+            out << "In Region : " << ireg->fName << std::endl ;
+            histPrun.emplace_back(new TH2F (Form("h_prun_%s", ireg->fName.c_str()  ),ireg->fShortLabel.c_str(),nSmp,0,nSmp, uniqueSyst.size(),0,uniqueSyst.size()));
+            histPrun.back()->SetDirectory(0);
+    
+            for(int i_smp=0;i_smp<nSmp;i_smp++){
+                out << " -> In Sample : " << samplesVec[i_smp]->fName << std::endl;
+    
+                for(std::size_t uniqueIndex = 0; uniqueIndex < uniqueSyst.size(); ++uniqueIndex){
+                   histPrun[iReg]->SetBinContent( histPrun[iReg]->FindBin(i_smp,uniqueIndex), -1 );
                 }
-                if( histPrun[iReg]->GetBinContent( histPrun[iReg]->FindBin(i_smp,uniqueIndex) )== -1 ) out << " is not present" << std::endl;
-                else if( histPrun[iReg]->GetBinContent( histPrun[iReg]->FindBin(i_smp,uniqueIndex) )== 0 ) out << " is kept" << std::endl;
-                else if( histPrun[iReg]->GetBinContent( histPrun[iReg]->FindBin(i_smp,uniqueIndex) )== 1 ) out << " is norm only" << std::endl;
-                else if( histPrun[iReg]->GetBinContent( histPrun[iReg]->FindBin(i_smp,uniqueIndex) )== 2 ) out << " is shape only" << std::endl;
-                else if( histPrun[iReg]->GetBinContent( histPrun[iReg]->FindBin(i_smp,uniqueIndex) )== 3 ) out << " is dropped" << std::endl;
-                else if( histPrun[iReg]->GetBinContent( histPrun[iReg]->FindBin(i_smp,uniqueIndex) )== -2 ) out << " has bad norm" << std::endl;
-                else if( histPrun[iReg]->GetBinContent( histPrun[iReg]->FindBin(i_smp,uniqueIndex) )== -3 ) out << " has bad shape" << std::endl;
-                else if( histPrun[iReg]->GetBinContent( histPrun[iReg]->FindBin(i_smp,uniqueIndex) )== -4 ) out << " is bad" << std::endl;
+    
+                std::shared_ptr<SampleHist> sh = ireg->GetSampleHist(samplesVec[i_smp]->fName);
+                if (sh == nullptr) continue;
+    
+                for(size_t i_syst=systStart;i_syst<systEnd;i_syst++){
+                    // find the corresponding index of unique syst
+                    auto it = std::find(uniqueSyst.begin(), uniqueSyst.end(), nonGammaSystematics.at(i_syst)->fName);
+                    const std::size_t uniqueIndex = std::distance(uniqueSyst.begin(), it);
+                    out << " --->>  " << nonGammaSystematics[i_syst]->fName << "     " ;
+                    if( (Common::FindInStringVector(nonGammaSystematics[i_syst]->fSamples,samplesVec[i_smp]->fName)>=0 || nonGammaSystematics[i_syst]->fSamples[0] == "all")
+                        && sh->HasSyst(nonGammaSystematics[i_syst]->fName)
+                    ){
+                        std::shared_ptr<SystematicHist> syh = sh->GetSystematic(nonGammaSystematics[i_syst]->fName);
+                        histPrun[iReg]->SetBinContent( histPrun[iReg]->FindBin(i_smp,uniqueIndex), 0 );
+                        const bool forgeDropShape = nonGammaSystematics[i_syst]->fIsNormOnly;
+                        const bool forgeDropNorm  = nonGammaSystematics[i_syst]->fIsShapeOnly;
+                        //
+                        if(syh->fShapePruned && syh->fNormPruned) histPrun[iReg]->SetBinContent( histPrun[iReg]->FindBin(i_smp,uniqueIndex), 3 );
+                        else if(syh->fShapePruned || forgeDropShape) histPrun[iReg]->SetBinContent( histPrun[iReg]->FindBin(i_smp,uniqueIndex), 1 );
+                        else if(syh->fNormPruned || forgeDropNorm) histPrun[iReg]->SetBinContent( histPrun[iReg]->FindBin(i_smp,uniqueIndex), 2 );
+                        //
+                        if(syh->fBadShape && syh->fBadNorm) histPrun[iReg]->SetBinContent( histPrun[iReg]->FindBin(i_smp,uniqueIndex), -4 );
+                        else if(syh->fBadShape) histPrun[iReg]->SetBinContent( histPrun[iReg]->FindBin(i_smp,uniqueIndex), -3 );
+                        else if(syh->fBadNorm) histPrun[iReg]->SetBinContent( histPrun[iReg]->FindBin(i_smp,uniqueIndex), -2 );
+                        //
+                    }
+                    if( histPrun[iReg]->GetBinContent( histPrun[iReg]->FindBin(i_smp,uniqueIndex) )== -1 ) out << " is not present" << std::endl;
+                    else if( histPrun[iReg]->GetBinContent( histPrun[iReg]->FindBin(i_smp,uniqueIndex) )== 0 ) out << " is kept" << std::endl;
+                    else if( histPrun[iReg]->GetBinContent( histPrun[iReg]->FindBin(i_smp,uniqueIndex) )== 1 ) out << " is norm only" << std::endl;
+                    else if( histPrun[iReg]->GetBinContent( histPrun[iReg]->FindBin(i_smp,uniqueIndex) )== 2 ) out << " is shape only" << std::endl;
+                    else if( histPrun[iReg]->GetBinContent( histPrun[iReg]->FindBin(i_smp,uniqueIndex) )== 3 ) out << " is dropped" << std::endl;
+                    else if( histPrun[iReg]->GetBinContent( histPrun[iReg]->FindBin(i_smp,uniqueIndex) )== -2 ) out << " has bad norm" << std::endl;
+                    else if( histPrun[iReg]->GetBinContent( histPrun[iReg]->FindBin(i_smp,uniqueIndex) )== -3 ) out << " has bad shape" << std::endl;
+                    else if( histPrun[iReg]->GetBinContent( histPrun[iReg]->FindBin(i_smp,uniqueIndex) )== -4 ) out << " is bad" << std::endl;
+                }
             }
+            //
+            histPrun_toSave.emplace_back(std::move(std::unique_ptr<TH2F>(static_cast<TH2F*>(histPrun[iReg]->Clone(Form("%s_toSave",histPrun[iReg]->GetName()))))) );
+            histPrun_toSave[iReg]->SetDirectory(0);
+            //
+            iReg++;
         }
         //
-        histPrun_toSave.emplace_back(std::move(std::unique_ptr<TH2F>(static_cast<TH2F*>(histPrun[iReg]->Clone(Form("%s_toSave",histPrun[iReg]->GetName()))))) );
-        histPrun_toSave[iReg]->SetDirectory(0);
+        // draw the histograms
+        int upSize = 50;
+        int loSize = 150;
+        int mainHeight = uniqueSyst.size()*20;
+        int leftSize = 250;
+        int regionSize = 20*nSmp;
+        int separation = 10;
+        int mainWidth = iReg*(regionSize+separation);
         //
-        iReg++;
-    }
-    //
-    // draw the histograms
-    int upSize = 50;
-    int loSize = 150;
-    int mainHeight = uniqueSyst.size()*20;
-    int leftSize = 250;
-    int regionSize = 20*nSmp;
-    int separation = 10;
-    int mainWidth = iReg*(regionSize+separation);
-    //
-    TCanvas c("c_pruning","Canvas - Pruning",leftSize+mainWidth,upSize+mainHeight+loSize);
-    std::vector<Int_t> colors = {kBlack,6,kBlue, kGray, 8, kYellow, kOrange-3, kRed}; // #colors >= #levels - 1
-    gStyle->SetPalette(colors.size(), &colors[0]);
-    TPad pUp("pUp","Pad High",0,(1.*loSize+mainHeight)/(upSize+mainHeight+loSize),1,1);
-    pUp.Draw();
-    c.cd();
-    std::vector<std::unique_ptr<TPad> > pReg(100);
-    for(std::size_t i_reg=0;i_reg<histPrun.size();i_reg++){
+        TCanvas c("c_pruning","Canvas - Pruning",leftSize+mainWidth,upSize+mainHeight+loSize);
+        std::vector<Int_t> colors = {kBlack,6,kBlue, kGray, 8, kYellow, kOrange-3, kRed}; // #colors >= #levels - 1
+        gStyle->SetPalette(colors.size(), &colors[0]);
+        TPad pUp("pUp","Pad High",0,(1.*loSize+mainHeight)/(upSize+mainHeight+loSize),1,1);
+        pUp.Draw();
         c.cd();
-        if(i_reg==0){
-            pReg[i_reg] = std::move(std::unique_ptr<TPad> (new TPad(Form("pReg[%zu]",i_reg),"Pad Region",
-                                  0,   0,
-                                  (leftSize+1.*i_reg*(regionSize+separation)+regionSize)/(leftSize+mainWidth),   (1.*loSize+mainHeight)/(upSize+mainHeight+loSize) )));
-            pReg[i_reg]->SetLeftMargin( (1.*leftSize) / (1.*leftSize+regionSize) );
+        std::vector<std::unique_ptr<TPad> > pReg(100);
+        for(std::size_t i_reg=0;i_reg<histPrun.size();i_reg++){
+            c.cd();
+            if(i_reg==0){
+                pReg[i_reg] = std::move(std::unique_ptr<TPad> (new TPad(Form("pReg[%zu]",i_reg),"Pad Region",
+                                      0,   0,
+                                      (leftSize+1.*i_reg*(regionSize+separation)+regionSize)/(leftSize+mainWidth),   (1.*loSize+mainHeight)/(upSize+mainHeight+loSize) )));
+                pReg[i_reg]->SetLeftMargin( (1.*leftSize) / (1.*leftSize+regionSize) );
+            }
+            else{
+                pReg[i_reg] = std::move(std::unique_ptr<TPad> (new TPad(Form("pReg[%zu]",i_reg),"Pad Region",
+                                      (leftSize+1.*i_reg*(regionSize+separation))           /(leftSize+mainWidth),   0,
+                                      (leftSize+1.*i_reg*(regionSize+separation)+regionSize)/(leftSize+mainWidth),   (1.*loSize+mainHeight)/(upSize+mainHeight+loSize) )));
+                pReg[i_reg]->SetLeftMargin(0);
+            }
+            pReg[i_reg]->SetBottomMargin( (1.*loSize) / (1.*loSize+mainHeight) );
+            pReg[i_reg]->Draw();
+            pReg[i_reg]->cd();
+            gPad->SetGridy();
+            for(int i_bin=1;i_bin<=histPrun[i_reg]->GetNbinsX();i_bin++){
+                histPrun[i_reg]       ->GetXaxis()->SetBinLabel(i_bin,samplesVec[i_bin-1]->fTitle.c_str());
+                histPrun_toSave[i_reg]->GetXaxis()->SetBinLabel(i_bin,samplesVec[i_bin-1]->fName.c_str());
+            }
+            for(int i_bin=1;i_bin<=histPrun[i_reg]->GetNbinsY();i_bin++){
+                if(i_reg==0) {
+                    histPrun[i_reg]       ->GetYaxis()->SetBinLabel(i_bin,TRExFitter::SYSTMAP[uniqueSyst[i_bin-1]].c_str());
+                }
+                else {
+                    histPrun[i_reg]->GetYaxis()->SetBinLabel(i_bin,"");
+                }
+                histPrun_toSave[i_reg]->GetYaxis()->SetBinLabel(i_bin,uniqueSyst[i_bin-1].c_str());
+            }
+            histPrun[i_reg]->Draw("COL");
+            histPrun[i_reg]->GetYaxis()->SetLabelOffset(0.03);
+            gPad->SetTopMargin(0);
+            gPad->SetRightMargin(0);
+            histPrun[i_reg]->GetXaxis()->LabelsOption("v");
+            histPrun[i_reg]->GetXaxis()->SetLabelSize( histPrun[i_reg]->GetXaxis()->GetLabelSize()*0.75 );
+            histPrun[i_reg]->GetYaxis()->SetLabelSize( histPrun[i_reg]->GetYaxis()->GetLabelSize()*0.75 );
+            gPad->SetTickx(0);
+            gPad->SetTicky(0);
+            histPrun[i_reg]->SetMinimum(-4);
+            histPrun[i_reg]->SetMaximum( 3.1);
+            histPrun[i_reg]->GetYaxis()->SetTickLength(0);
+            histPrun[i_reg]->GetXaxis()->SetTickLength(0);
+            gPad->SetGrid();
+            //
+            pUp.cd();
+            myText((leftSize+1.*i_reg*(regionSize+separation))/(leftSize+mainWidth),0.1 ,1,histPrun[i_reg]->GetTitle());
+        }
+        c.cd();
+        TPad pLo("pLo","Pad Low",0,0,(1.*leftSize)/(leftSize+mainWidth),(1.*loSize)/(upSize+mainHeight+loSize));
+        pLo.Draw();
+        //
+        c.cd();
+        pUp.cd();
+        myText(0.01,0.5,1,fLabel.c_str());
+        //
+        pLo.cd();
+        TLegend leg(0.005,0,0.95,0.95);
+        TH1D hGray   ("hGray"  ,"hGray"  ,1,0,1);    hGray.SetFillColor(kGray);         hGray.SetLineWidth(0);
+        TH1D hYellow ("hYellow","hYellow",1,0,1);    hYellow.SetFillColor(kYellow);     hYellow.SetLineWidth(0);
+        TH1D hOrange ("hOrange","hOrange",1,0,1);    hOrange.SetFillColor(kOrange-3);   hOrange.SetLineWidth(0);
+        TH1D hRed    ("hRed"   ,"hRed"   ,1,0,1);    hRed.SetFillColor(kRed);           hRed.SetLineWidth(0);
+        TH1D hGreen  ("hGreen" ,"hGree"  ,1,0,1);    hGreen.SetFillColor(8);            hGreen.SetLineWidth(0);
+        TH1D hBlue   ("hBlue"  ,"hBlue"  ,1,0,1);    hBlue.SetFillColor(kBlue);         hBlue.SetLineWidth(0);
+        TH1D hPurple ("hPurple","hPurple",1,0,1);    hPurple.SetFillColor(6);           hPurple.SetLineWidth(0);
+        TH1D hBlack  ("hBlack" ,"hBlack" ,1,0,1);    hBlack.SetFillColor(kBlack);       hBlack.SetLineWidth(0);
+        std::string sysLarg="Dropped as >"+std::to_string((int)(fThresholdSystLarge*100))+"%";
+        leg.SetBorderSize(0);
+        leg.SetMargin(0.1);
+        leg.SetFillStyle(0);
+        leg.AddEntry(&hGray,"Not present","f");
+        leg.AddEntry(&hGreen,"Kept","f");
+        leg.AddEntry(&hYellow, "Shape dropped","f");
+        leg.AddEntry(&hOrange, "Norm. dropped","f");
+        leg.AddEntry(&hRed, "Dropped","f");
+        if (fThresholdSystLarge > -1) {
+            leg.AddEntry(&hBlue  , sysLarg.c_str() ,"f");
+            leg.AddEntry(&hPurple, "Bad shape" ,"f");
+            leg.AddEntry(&hBlack , "Bad shape & norm." ,"f");
+        }
+        leg.SetTextSize(0.85*gStyle->GetTextSize());
+        leg.Draw();
+        //
+        for(const auto& iformat : TRExFitter::IMAGEFORMAT) {
+            c.SaveAs( (fName+"/Pruning"+fSuffix+"_"+char(systStart/maxPruningRows+'0')+"."+iformat).c_str() );
+        }
+    
+        //
+        // Save prunign hist for future usage
+        std::unique_ptr<TFile> filePrun = nullptr;
+        // - checking if Pruning.root exists
+        // if yes
+        if(!gSystem->AccessPathName( (fName+"/Pruning"+"_"+char(systStart/maxPruningRows+'0')+".root").c_str() )){
+            // ...
+            filePrun.reset(TFile::Open( (fName+"/Pruning"+"_"+char(systStart/maxPruningRows+'0')+".root").c_str() ));
         }
         else{
-            pReg[i_reg] = std::move(std::unique_ptr<TPad> (new TPad(Form("pReg[%zu]",i_reg),"Pad Region",
-                                  (leftSize+1.*i_reg*(regionSize+separation))           /(leftSize+mainWidth),   0,
-                                  (leftSize+1.*i_reg*(regionSize+separation)+regionSize)/(leftSize+mainWidth),   (1.*loSize+mainHeight)/(upSize+mainHeight+loSize) )));
-            pReg[i_reg]->SetLeftMargin(0);
-        }
-        pReg[i_reg]->SetBottomMargin( (1.*loSize) / (1.*loSize+mainHeight) );
-        pReg[i_reg]->Draw();
-        pReg[i_reg]->cd();
-        gPad->SetGridy();
-        for(int i_bin=1;i_bin<=histPrun[i_reg]->GetNbinsX();i_bin++){
-            histPrun[i_reg]       ->GetXaxis()->SetBinLabel(i_bin,samplesVec[i_bin-1]->fTitle.c_str());
-            histPrun_toSave[i_reg]->GetXaxis()->SetBinLabel(i_bin,samplesVec[i_bin-1]->fName.c_str());
-        }
-        for(int i_bin=1;i_bin<=histPrun[i_reg]->GetNbinsY();i_bin++){
-            if(i_reg==0) {
-                histPrun[i_reg]       ->GetYaxis()->SetBinLabel(i_bin,TRExFitter::SYSTMAP[uniqueSyst[i_bin-1]].c_str());
+            filePrun.reset(TFile::Open( (fName+"/Pruning"+"_"+char(systStart/maxPruningRows+'0')+".root").c_str(),"RECREATE" ));
+            for(std::size_t i_reg=0;i_reg<histPrun.size();i_reg++){
+                histPrun_toSave[i_reg]->Write("",TObject::kOverwrite);
             }
-            else {
-                histPrun[i_reg]->GetYaxis()->SetBinLabel(i_bin,"");
-            }
-            histPrun_toSave[i_reg]->GetYaxis()->SetBinLabel(i_bin,uniqueSyst[i_bin-1].c_str());
         }
-        histPrun[i_reg]->Draw("COL");
-        histPrun[i_reg]->GetYaxis()->SetLabelOffset(0.03);
-        gPad->SetTopMargin(0);
-        gPad->SetRightMargin(0);
-        histPrun[i_reg]->GetXaxis()->LabelsOption("v");
-        histPrun[i_reg]->GetXaxis()->SetLabelSize( histPrun[i_reg]->GetXaxis()->GetLabelSize()*0.75 );
-        histPrun[i_reg]->GetYaxis()->SetLabelSize( histPrun[i_reg]->GetYaxis()->GetLabelSize()*0.75 );
-        gPad->SetTickx(0);
-        gPad->SetTicky(0);
-        histPrun[i_reg]->SetMinimum(-4);
-        histPrun[i_reg]->SetMaximum( 3.1);
-        histPrun[i_reg]->GetYaxis()->SetTickLength(0);
-        histPrun[i_reg]->GetXaxis()->SetTickLength(0);
-        gPad->SetGrid();
-        //
-        pUp.cd();
-        myText((leftSize+1.*i_reg*(regionSize+separation))/(leftSize+mainWidth),0.1 ,1,histPrun[i_reg]->GetTitle());
-    }
-    c.cd();
-    TPad pLo("pLo","Pad Low",0,0,(1.*leftSize)/(leftSize+mainWidth),(1.*loSize)/(upSize+mainHeight+loSize));
-    pLo.Draw();
-    //
-    c.cd();
-    pUp.cd();
-    myText(0.01,0.5,1,fLabel.c_str());
-    //
-    pLo.cd();
-    TLegend leg(0.005,0,0.95,0.95);
-    TH1D hGray   ("hGray"  ,"hGray"  ,1,0,1);    hGray.SetFillColor(kGray);         hGray.SetLineWidth(0);
-    TH1D hYellow ("hYellow","hYellow",1,0,1);    hYellow.SetFillColor(kYellow);     hYellow.SetLineWidth(0);
-    TH1D hOrange ("hOrange","hOrange",1,0,1);    hOrange.SetFillColor(kOrange-3);   hOrange.SetLineWidth(0);
-    TH1D hRed    ("hRed"   ,"hRed"   ,1,0,1);    hRed.SetFillColor(kRed);           hRed.SetLineWidth(0);
-    TH1D hGreen  ("hGreen" ,"hGree"  ,1,0,1);    hGreen.SetFillColor(8);            hGreen.SetLineWidth(0);
-    TH1D hBlue   ("hBlue"  ,"hBlue"  ,1,0,1);    hBlue.SetFillColor(kBlue);         hBlue.SetLineWidth(0);
-    TH1D hPurple ("hPurple","hPurple",1,0,1);    hPurple.SetFillColor(6);           hPurple.SetLineWidth(0);
-    TH1D hBlack  ("hBlack" ,"hBlack" ,1,0,1);    hBlack.SetFillColor(kBlack);       hBlack.SetLineWidth(0);
-    std::string sysLarg="Dropped as >"+std::to_string((int)(fThresholdSystLarge*100))+"%";
-    leg.SetBorderSize(0);
-    leg.SetMargin(0.1);
-    leg.SetFillStyle(0);
-    leg.AddEntry(&hGray,"Not present","f");
-    leg.AddEntry(&hGreen,"Kept","f");
-    leg.AddEntry(&hYellow, "Shape dropped","f");
-    leg.AddEntry(&hOrange, "Norm. dropped","f");
-    leg.AddEntry(&hRed, "Dropped","f");
-    if (fThresholdSystLarge > -1) {
-        leg.AddEntry(&hBlue  , sysLarg.c_str() ,"f");
-        leg.AddEntry(&hPurple, "Bad shape" ,"f");
-        leg.AddEntry(&hBlack , "Bad shape & norm." ,"f");
-    }
-    leg.SetTextSize(0.85*gStyle->GetTextSize());
-    leg.Draw();
-    //
-    for(const auto& iformat : TRExFitter::IMAGEFORMAT) {
-        c.SaveAs( (fName+"/Pruning"+fSuffix+"."+iformat).c_str() );
-    }
-
-    //
-    // Save prunign hist for future usage
-    std::unique_ptr<TFile> filePrun = nullptr;
-    // - checking if Pruning.root exists
-    // if yes
-    if(!gSystem->AccessPathName( (fName+"/Pruning.root").c_str() )){
-        // ...
-        filePrun.reset(TFile::Open( (fName+"/Pruning.root").c_str() ));
-    }
-    else{
-        filePrun.reset(TFile::Open( (fName+"/Pruning.root").c_str(),"RECREATE" ));
-        for(std::size_t i_reg=0;i_reg<histPrun.size();i_reg++){
-            histPrun_toSave[i_reg]->Write("",TObject::kOverwrite);
+        if (filePrun != nullptr){
+            filePrun->Close();
         }
-    }
-    if (filePrun != nullptr){
-        filePrun->Close();
+        systStart+=maxPruningRows;
     }
 }
 
