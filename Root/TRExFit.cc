@@ -3039,15 +3039,16 @@ void TRExFit::DrawSignalRegionsPlot(int nCols,int nRows, std::vector < Region* >
         else                                      tex.DrawLatex(0.27,0.72,SB.c_str());
     }
     //
+    float scale = 1.5;
     for(unsigned int i=0;i<Nreg;i++){
         if(regions[i]==nullptr) continue;
         if ((h.size() - 1)  <= i) break;
         if(TRExFitter::OPTION["LogSignalRegionPlot"]!=0){
-            h[i].SetMaximum(yMax*pow(10,3));
+            h[i].SetMaximum(pow(yMax,scale)/pow(2e-4,scale-1));
             h[i].SetMinimum(2e-4);
         }
         else{
-            h[i].SetMaximum(yMax*1.5);
+            h[i].SetMaximum(yMax*scale);
             h[i].SetMinimum(0.);
         }
     }
