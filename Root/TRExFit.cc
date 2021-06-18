@@ -1672,7 +1672,7 @@ std::shared_ptr<TRExPlot> TRExFit::DrawSummary(std::string opt, std::shared_ptr<
     if(fYmin!=0) p->fYmin = fYmin;
     else         p->fYmin = 1;
     if(fYmax!=0) p->fYmax = fYmax;
-    else         p->SetYmaxScale(2);
+    else         p->SetYmaxScale(1.5);
     p->SetXaxis("",false);
     p->AddLabel(fLabel);
     if(TRExFitter::OPTION["NoPrePostFit"]==0){

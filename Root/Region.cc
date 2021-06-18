@@ -559,7 +559,7 @@ std::shared_ptr<TRExPlot> Region::DrawPreFit(const std::vector<int>& canvasSize,
         p->fShowYields = TRExFitter::SHOWYIELDS;
     }
     p->SetXaxisRange(fXaxisRange);
-    if(fYmaxScale==0) p->SetYmaxScale(1.8);
+    if(fYmaxScale==0) p->SetYmaxScale(1.5);
     else              p->SetYmaxScale(fYmaxScale);
     if(fYmax!=0) p->fYmax = fYmax;
     if(fYmin!=0) p->fYmin = fYmin;
@@ -1385,7 +1385,7 @@ std::shared_ptr<TRExPlot> Region::DrawPostFit(FitResults* fitRes,
     }
 
     p->SetXaxisRange(fXaxisRange);
-    if(fYmaxScale==0) p->SetYmaxScale(1.8);
+    if(fYmaxScale==0) p->SetYmaxScale(1.5);
     else              p->SetYmaxScale(fYmaxScale);
     if(fYmax!=0) p->fYmax = fYmax;
     if(fYmin!=0) p->fYmin = fYmin;
