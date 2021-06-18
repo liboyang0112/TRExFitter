@@ -54,7 +54,7 @@ TRExPlot::TRExPlot(std::string name,int canvasWidth,int canvasHeight,bool hideRa
     fLumi("XXX fb^{-1}"),
     fCME("13 TeV"),
     fATLASlabel("none"),
-    yMaxScale(2.),
+    yMaxScale(1.5),
     NDF(-1),
     Chi2val(-1),
     Chi2prob(-1),
