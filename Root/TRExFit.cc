@@ -3039,15 +3039,17 @@ void TRExFit::DrawSignalRegionsPlot(int nCols,int nRows, std::vector < Region* >
         else                                      tex.DrawLatex(0.27,0.72,SB.c_str());
     }
     //
+    float logyMin = 2e-4;
+    float scaleMax = 1.5;
     for(unsigned int i=0;i<Nreg;i++){
         if(regions[i]==nullptr) continue;
         if ((h.size() - 1)  <= i) break;
         if(TRExFitter::OPTION["LogSignalRegionPlot"]!=0){
-            h[i].SetMaximum(yMax*pow(10,3));
-            h[i].SetMinimum(2e-4);
+            h[i].SetMaximum(pow(yMax/logyMin,scaleMax)*logyMin);
+            h[i].SetMinimum(logyMin);
         }
         else{
-            h[i].SetMaximum(yMax*1.5);
+            h[i].SetMaximum(yMax*scaleMax);
             h[i].SetMinimum(0.);
         }
     }
@@ -3222,7 +3224,7 @@ void TRExFit::DrawPieChartPlot(const std::string &opt, int nCols,int nRows, std:
     pTop.cd();
     std::unique_ptr<TLegend> leg(nullptr);
     if(TRExFitter::OPTION["FourTopStyle"]>0 || TRExFitter::OPTION["TRExbbStyle"]>0){
-        leg = std::make_unique<TLegend>(0.5,0.1,0.95,0.90);
+        leg = std::make_unique<TLegend>(0.3,0.1,0.95,0.90);
         leg->SetNColumns(3);
     }
     else{

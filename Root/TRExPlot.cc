@@ -954,16 +954,18 @@ void TRExPlot::Draw(std::string options){
     }
     //
     if(options.find("log")==std::string::npos){
+        float  yMin = 0;
+        if(fYmin>0)  yMin = fYmin;
+        h_dummy->SetMinimum(yMin);
         if(fYmax!=0) h_dummy->SetMaximum(fYmax);
-        else         h_dummy->SetMaximum(yMaxScale*yMax);
-        if(fYmin>0)  h_dummy->SetMinimum(fYmin);
-        else         h_dummy->SetMinimum(0.);
+        else         h_dummy->SetMaximum(yMaxScale*(yMax-yMin)+yMin);
     }
     else{
+        float  yMin = 1;
+        if(fYmin>0)  yMin = fYmin;
+        h_dummy->SetMinimum(yMin);
         if(fYmax!=0) h_dummy->SetMaximum(fYmax);
-        else         h_dummy->SetMaximum(yMax*pow(10,yMaxScale));
-        if(fYmin>0)  h_dummy->SetMinimum(fYmin);
-        else         h_dummy->SetMinimum(1.);
+        else         h_dummy->SetMaximum(pow(yMax/yMin,yMaxScale)*yMin);
     }
 
     if(h_blind!=nullptr){
